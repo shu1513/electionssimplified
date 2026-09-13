@@ -18,6 +18,10 @@ export const ROLL_CALL_DESCRIPTION_MAX_SENTENCE_WORDS = 30;
 // abbreviations.
 // They are masked before splitting so "H.R. 1. It passed 215-214." counts
 // as two sentences, not four.
+// Known limit: an abbreviation that itself ends a sentence ("… in the U.S.
+// The House passed it") is not split, because "U.S. House" must not be.
+// Zero approved rolls end a sentence that way (checked 2026-09-13); if one
+// does and the gate complains about a long sentence, spell the word out.
 const ABBREVIATION_DOT =
   /\b(?:H\.R|H\.J\.Res|H\.Con\.Res|H\.Res|S\.J\.Res|S\.Con\.Res|S\.Res|U\.S|a\.m|p\.m|No|Nos|Rep|Sen|Gov|Dr|Mr|Mrs|Ms|Jr|Sr|St|vs|Inc|Co|Corp|Ltd|Sec|Art|Ch|Amdt|Const)\.|\b(?:[A-Za-z]\.){2,}|\b[A-Z]\.(?=\s[A-Z][a-z])|\bS\.(?=\s\d)/g;
 const SENTENCE_BREAK = /(?<=[.!?])\s+(?=["'“(]?[A-Z0-9$])/;
