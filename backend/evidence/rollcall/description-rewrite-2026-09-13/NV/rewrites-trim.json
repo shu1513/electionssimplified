@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1581090,
+      "measure_id": "AB 91",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 91, a bill letting the parole board take a second look at people serving time for serious felonies after ten years. The Nevada Assembly passed it 27-15, but the Senate never voted on it, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 91, a bill letting the parole board take a second look at people serving time for serious felonies after ten years. The Nevada Assembly passed it 27-15, but the Senate never voted on it, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 2,
+        "old_chars": 233
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578859,
+      "measure_id": "SB 391",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 391, a bill to cap corporate purchases of Nevada homes at 100 a year. Nevada requires a two-thirds majority for a bill that creates a fee, so the Senate's 13-8 vote was not enough and the bill failed.",
+      "nay_description": "Voted against Senate Bill 391, a bill to cap corporate purchases of Nevada homes at 100 a year. Nevada requires a two-thirds majority for a bill that creates a fee, so the Senate's 13-8 vote was not enough and the bill failed.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 2,
+        "old_chars": 227
+      }
+    }
+  ]
+}

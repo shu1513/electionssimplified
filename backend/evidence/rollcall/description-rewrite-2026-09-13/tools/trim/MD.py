@@ -1,0 +1,17 @@
+TRIMP = {
+ "which limits how far a community association can restrict rooftop solar": "which limits community association restrictions on rooftop solar, calling any rule raising install cost 5% or cutting output 10% unreasonable",
+ "which lets a county waive property tax on a rental building": "which lets a county waive property tax on rental buildings keeping a quarter of units affordable for 15 years",
+ "the Expungement Reform Act of 2025": "the Expungement Reform Act of 2025, which starts the wait to erase an old record when the full sentence ends",
+ "which cut how much money child sexual abuse victims": "which cut how much child sexual abuse victims can win from the state, local governments and school boards",
+ "which gives recently released prisoners a way": "which gives recently released prisoners a way to pay off or clear state tax debt from their prison years",
+ "the Maryland Values Act, which keeps federal immigration agents": "the Maryland Values Act, keeping federal immigration agents out of non-public parts of schools, libraries, courthouses and clinics",
+ "which makes ride-hailing companies such as Uber and Lyft": "which makes ride-hailing companies such as Uber and Lyft show drivers a weekly summary of fares and their share",
+ "which writes federal emergency care rules for pregnancy": "which writes federal emergency care rules for pregnancy into state law, including abortion when needed to stabilize the patient",
+ "which writes federal mental health parity rules": "which writes federal mental health parity rules into state law so insurers cover mental health no worse than physical care",
+ "the PACE Act": "the PACE Act, barring prosecutors from using a defendant's lyrics or other creative work as evidence without meeting strict tests",
+ "which bans grocery stores and delivery services": "which bans grocery stores and delivery services using a shopper's personal data to charge them more for food",
+ "the Maryland Values Act of 2026": "the Maryland Values Act of 2026, widening where immigration agents may not freely enter and barring schools from aiding enforcement",
+ "which sets a minimum crew of two on freight trains": "which requires two-person crews on freight trains sharing a corridor with passenger trains",
+ "the Maryland Housing Certainty Act": "the Housing Certainty Act, judging housing applications only by rules in force when filed and vesting approvals for five years",
+ "the Voting Rights Act of 2026": "the Voting Rights Act of 2026, letting voters challenge local election systems that weaken minority groups' power to elect candidates",
+}

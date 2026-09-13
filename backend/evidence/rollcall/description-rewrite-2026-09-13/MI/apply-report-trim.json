@@ -1,0 +1,32 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/MI/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 3,
+  "updatedRolls": 3,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 125,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "MI:house:2183:1712639",
+      "outcome": "updated",
+      "rewritten": 94,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "MI:senate:2183:1579628",
+      "outcome": "updated",
+      "rewritten": 15,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "MI:senate:2183:1603641",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

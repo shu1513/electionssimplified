@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1503490,
+      "measure_id": "HB 2607",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 2607, which sets fixed 5 to 15 year prison terms for carrying 200 grams or more of fentanyl in a vehicle. The Arizona House passed it 46-12, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2607, which sets fixed 5 to 15 year prison terms for carrying 200 grams or more of fentanyl in a vehicle. The Arizona House passed it 46-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "46-12",
+        "old_sentences": 2,
+        "old_chars": 202
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1549814,
+      "measure_id": "HB 2607",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2607, which sets fixed 5 to 15 year prison terms for carrying 200 grams or more of fentanyl in a vehicle. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2607, which sets fixed 5 to 15 year prison terms for carrying 200 grams or more of fentanyl in a vehicle. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 2,
+        "old_chars": 203
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529818,
+      "measure_id": "HB 4",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 4, which bars public colleges from spending on diversity, equity and inclusion or treating people differently by race or sex. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 4, which bars public colleges from spending on diversity, equity and inclusion or treating people differently by race or sex. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 330",
+        "tally": "79-19",
+        "old_sentences": 2,
+        "old_chars": 240
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1516615,
+      "measure_id": "HB 4",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass House Bill 4, which bars public colleges from spending on diversity, equity and inclusion or treating people differently by race or sex. The Kentucky Senate voted 32-6, and the bill later became law over the Governor's veto.",
+      "nay_description": "Voted against passing House Bill 4, which bars public colleges from spending on diversity, equity and inclusion or treating people differently by race or sex. The Kentucky Senate voted 32-6, and the bill later became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading W/sfta 19 RSN# 3503",
+        "tally": "32-6",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    }
+  ]
+}

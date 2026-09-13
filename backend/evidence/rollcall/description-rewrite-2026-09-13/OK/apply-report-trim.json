@@ -1,0 +1,32 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/OK/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 3,
+  "updatedRolls": 3,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 88,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "OK:house:2219:1605860",
+      "outcome": "updated",
+      "rewritten": 39,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "OK:house:2219:1606363",
+      "outcome": "updated",
+      "rewritten": 40,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "OK:senate:2219:1606364",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/NV/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 2,
+  "updatedRolls": 2,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 41,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "NV:house:2144:1581090",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578859",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

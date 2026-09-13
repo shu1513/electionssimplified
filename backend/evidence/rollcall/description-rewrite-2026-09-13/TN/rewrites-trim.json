@@ -1,0 +1,164 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1535750,
+      "measure_id": "HB 1060",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 1060, which raises the fee a county clerk may add to a hunting or fishing license from $1 to $3. The Tennessee House passed it 59-23, and it became law.",
+      "nay_description": "Voted against HB 1060, which raises the fee a county clerk may add to a hunting or fishing license from $1 to $3. The Tennessee House passed it 59-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "59-23",
+        "old_sentences": 3,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1666206,
+      "measure_id": "HB 2185",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted for House Bill 2185, which lets the voter registration website check immigration status through a federal verification program. The Tennessee House passed it 68-22, and it became law.",
+      "nay_description": "Voted against House Bill 2185, which lets the voter registration website check immigration status through a federal verification program. The Tennessee House passed it 68-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "68-22",
+        "old_sentences": 3,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1678971,
+      "measure_id": "SB 1840",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 1840, which gives prosecutors ten years to bring a vehicular homicide case for offenses from July 2026. The Tennessee House passed it 58-30, and it became law.",
+      "nay_description": "Voted against SB 1840, which gives prosecutors ten years to bring a vehicular homicide case for offenses from July 2026. The Tennessee House passed it 58-30, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "58-30",
+        "old_sentences": 3,
+        "old_chars": 223
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687780,
+      "measure_id": "HB 1709",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to accept the final version of HB 1709, which requires citizenship or qualified immigrant status for many state licenses and permits. The Tennessee House agreed it 70-21, and it became law.",
+      "nay_description": "Voted against the final version of HB 1709, which requires citizenship or qualified immigrant status for many state licenses and permits. The Tennessee House agreed it 70-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR CONCUR IN SENATE AMENDMENT # 2",
+        "tally": "70-21",
+        "old_sentences": 3,
+        "old_chars": 271
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687816,
+      "measure_id": "SB 1667",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to pass SB 1667, which bars registering a vehicle for the first time without proof of insurance or financial responsibility. The Tennessee House passed it 68-22, and it became law.",
+      "nay_description": "Voted against SB 1667, which bars registering a vehicle for the first time without proof of insurance or financial responsibility. The Tennessee House passed it 68-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "68-22",
+        "old_sentences": 3,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687884,
+      "measure_id": "HB 2502",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to accept the final version of HB 2502, which applies sales tax to sending money abroad through a licensed money transmitter. The Tennessee House agreed it 70-19, and it became law.",
+      "nay_description": "Voted against the final version of HB 2502, which applies sales tax to sending money abroad through a licensed money transmitter. The Tennessee House agreed it 70-19, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR CONCUR IN SENATE AMENDMENT # 2",
+        "tally": "70-19",
+        "old_sentences": 3,
+        "old_chars": 255
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1688370,
+      "measure_id": "HB 1886",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to accept the final version of HB 1886, which makes every school district and charter school adopt an internet use policy with safety lessons. The Tennessee House agreed it 69-19, and it became law.",
+      "nay_description": "Voted against the final version of HB 1886, which makes every school district and charter school adopt an internet use policy with safety lessons. The Tennessee House agreed it 69-19, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR 2 CONCUR IN SENATE AMENDMENT # 3",
+        "tally": "69-19",
+        "old_sentences": 3,
+        "old_chars": 271
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1685052,
+      "measure_id": "HB 2502",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass HB 2502, which applies sales tax to sending money abroad through a licensed money transmitter. The Tennessee Senate passed it 21-7, and it became law.",
+      "nay_description": "Voted against HB 2502, which applies sales tax to sending money abroad through a licensed money transmitter. The Tennessee Senate passed it 21-7, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "21-7",
+        "old_sentences": 3,
+        "old_chars": 232
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1688578,
+      "measure_id": "SB 1915",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to accept the House's version of Senate Bill 1915, which makes counties and cities verify adult benefit applicants are citizens or legally present. The Senate agreed 24-6 and it became law as Public Chapter 1106.",
+      "nay_description": "Voted against accepting the House's version of Senate Bill 1915, which makes counties and cities verify adult benefit applicants are citizens or legally present. The Senate agreed 24-6 and it became law as Public Chapter 1106.",
+      "_current": {
+        "question": "FLOOR VOTE: Motion to Concur House Amendment # 1",
+        "tally": "24-6",
+        "old_sentences": 2,
+        "old_chars": 229
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1690444,
+      "measure_id": "HB 2175",
+      "vote_date": "2026-04-23",
+      "yea_description": "Voted to pass HB 2175, which makes delivery companies and drivers carry set car insurance while logged on and while delivering. The Tennessee Senate passed it 19-9, and it became law.",
+      "nay_description": "Voted against HB 2175, which makes delivery companies and drivers carry set car insurance while logged on and while delivering. The Tennessee Senate passed it 19-9, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "19-9",
+        "old_sentences": 3,
+        "old_chars": 249
+      }
+    }
+  ]
+}

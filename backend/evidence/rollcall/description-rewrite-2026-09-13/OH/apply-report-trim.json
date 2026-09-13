@@ -1,0 +1,39 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/OH/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 4,
+  "updatedRolls": 4,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 101,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "OH:house:136:1763637329",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "OH:senate:136:1743028529",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "OH:senate:136:1765324310",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "OH:senate:136:1776292440",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

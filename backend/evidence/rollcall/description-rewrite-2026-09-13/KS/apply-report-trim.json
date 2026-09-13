@@ -1,0 +1,46 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/KS/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 5,
+  "updatedRolls": 5,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 370,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "KS:house:2178:1526411",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543277",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543322",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1637133",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679846",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

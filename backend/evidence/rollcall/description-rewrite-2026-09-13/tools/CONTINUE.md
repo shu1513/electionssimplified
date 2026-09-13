@@ -15,7 +15,12 @@ Recipe (all paths from `backend/`; scripts here are python3, no deps):
    sentence to the end), and the body. Read it in chunks.
 3. Write `tools/CO_effects.py`: `EFFECTS = {"HB 1234": "which <one plain
    effect on people>", ...}` keyed by measure id (both chambers reuse it;
-   the closing is per roll). Enacted bills: "which ..."; bills that did not
+   the closing is per roll). CAUTION: bill numbers recur across sessions
+   (CO HB 1001 exists in 2025, the 2025 special session and 2026), so run
+   one session per export (`--session`) or use `tools/fixrolls.py` with
+   `tools/fix/<JUR>.py`, which keys every clause by roll id. The 2026-09-13
+   correction pass had to fix 123 rolls that got a same-numbered bill's
+   clause from another session. Enacted bills: "which ..."; bills that did not
    pass: "a bill to ..."; never "would/will". Keep the clause under ~22
    words so opener + clause stays under 25. Overrides: `OPEN = {roll: (yea
    opener, nay opener)}` when OPEN printed None or is too long; `IDX =
@@ -36,6 +41,14 @@ Recipe (all paths from `backend/`; scripts here are python3, no deps):
    showstate.py: one body per measure, plus only the rolls whose OPEN or
    CLOSE needs an override.
 6. Add the row to ../README.md, commit `data(rollcall): rewrite CO ...`.
+
+For a small follow-up (a few rolls, or trimming over-limit rolls after a
+gate change) use the per-roll tool instead:
+`python3 tools/fixrolls.py <export.json> tools/trim/<JUR>.py <out.json> --require-all`
+with `ROLL = {roll: {"eff": ...}}` (or `{"yea":..., "nay":...}`, `{"close":...}`,
+`{"open": (yea, nay)}`) and `TRIMP = {"<start of current clause>": "<shorter clause>"}`.
+`tools/trimview.py <export.json>` prints each over-limit roll grouped by its
+current clause with the word budget left after the opener.
 
 Sanity check afterwards:
 `select count(*), round(avg(length(description))) from candidate_records where origin='rollcall_import' and retired_at is null and origin_run_id like 'rollcall:CO:%';`

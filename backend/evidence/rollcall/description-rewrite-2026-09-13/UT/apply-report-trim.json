@@ -1,0 +1,32 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/UT/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 3,
+  "updatedRolls": 3,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 75,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "UT:house:2214:1624770",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "UT:senate:2214:1628445",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "UT:senate:2214:1652163",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

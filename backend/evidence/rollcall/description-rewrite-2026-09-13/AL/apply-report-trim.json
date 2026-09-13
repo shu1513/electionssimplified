@@ -1,0 +1,67 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/AL/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 8,
+  "updatedRolls": 8,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 533,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "AL:house:1621:841881",
+      "outcome": "updated",
+      "rewritten": 47,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1336162",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1437151",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1507290",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1675418",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1679896",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1437113",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1488934",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

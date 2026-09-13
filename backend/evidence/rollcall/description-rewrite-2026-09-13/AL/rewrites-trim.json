@@ -1,0 +1,132 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 841881,
+      "measure_id": "HB 212",
+      "vote_date": "2019-04-11",
+      "yea_description": "Voted to pass House Bill 212, the Anti-Road Rage Act, which bars staying in the interstate fast lane over 1.5 miles without passing. The House passed it 61-24 and it became law.",
+      "nay_description": "Voted against passing House Bill 212, the Anti-Road Rage Act, which bars staying in the interstate fast lane over 1.5 miles without passing. The House passed it 61-24 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "61-24",
+        "old_sentences": 2,
+        "old_chars": 190
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1336162,
+      "measure_id": "SB 206",
+      "vote_date": "2023-05-31",
+      "yea_description": "Voted to pass Senate Bill 206, the Retail Theft Crime Prevention Act, which made stealing over $2,500 of goods a Class B felony. It also created the crime of organized retail theft for groups that steal and resell goods. The House passed it 76-27 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 206, the Retail Theft Crime Prevention Act, which made stealing over $2,500 of goods a Class B felony. It also created the crime of organized retail theft for groups that steal and resell goods. The House passed it 76-27 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "76-27",
+        "old_sentences": 2,
+        "old_chars": 271
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1437151,
+      "measure_id": "HB 151",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted for the compromise version of House Bill 151, a bill asking voters to allow a school lottery, electronic gaming and a tribal gaming deal. The House agreed 72-29, but the Senate rejected the same version and the bill died.",
+      "nay_description": "Voted against the compromise version of House Bill 151, a bill asking voters to allow a school lottery, electronic gaming and a tribal gaming deal. The House agreed 72-29, but the Senate rejected the same version and the bill died.",
+      "_current": {
+        "question": "Blackshear Concur In and Adopt Conference Committee Report - Roll Call 941",
+        "tally": "72-29",
+        "old_sentences": 2,
+        "old_chars": 233
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1507290,
+      "measure_id": "SB 116",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass Senate Bill 116, which made having, selling or using a part that turns a pistol into a machine gun a crime. The Alabama House of Representatives passed it 77-23 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 116, which made having, selling or using a part that turns a pistol into a machine gun a crime. The Alabama House of Representatives passed it 77-23 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 372",
+        "tally": "77-23",
+        "old_sentences": 2,
+        "old_chars": 192
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1675418,
+      "measure_id": "HB 475",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted to agree to the Senate's version of House Bill 475, the Power to the People Act, which freezes electric base rates until 2029. The Alabama House of Representatives agreed 72-26 and the bill became law.",
+      "nay_description": "Voted against agreeing to the Senate's version of House Bill 475, the Power to the People Act, which freezes electric base rates until 2029. The Alabama House of Representatives agreed 72-26 and the bill became law.",
+      "_current": {
+        "question": "Smith motion to Concur in and Adopt Senate Amendment to HB475",
+        "tally": "72-26",
+        "old_sentences": 2,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1679896,
+      "measure_id": "SB 57",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to agree to the final version of Senate Bill 57, which seeks federal permission to bar buying candy and soda with SNAP benefits. The Alabama House of Representatives agreed 77-22 and the bill became law.",
+      "nay_description": "Voted against agreeing to the final version of Senate Bill 57, which seeks federal permission to bar buying candy and soda with SNAP benefits. The Alabama House of Representatives agreed 77-22 and the bill became law.",
+      "_current": {
+        "question": "Ingram motion to Concur In and Adopt Conference Committee Report - Roll Call 1355",
+        "tally": "77-22",
+        "old_sentences": 2,
+        "old_chars": 232
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1437113,
+      "measure_id": "HB 151",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted for the compromise version of House Bill 151, a bill asking voters to allow a school lottery, electronic gaming and a tribal gaming deal. The Senate vote was 20-15, short of the three fifths a constitutional amendment needs, so the bill died.",
+      "nay_description": "Voted against the compromise version of House Bill 151, a bill asking voters to allow a school lottery, electronic gaming and a tribal gaming deal. The Senate vote was 20-15, short of the three fifths a constitutional amendment needs, so the bill died.",
+      "_current": {
+        "question": "Albritton to Concur In and Adopt Conf Rpt",
+        "tally": "20-15",
+        "old_sentences": 2,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1488934,
+      "measure_id": "SB 53",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass the Senate's version of Senate Bill 53, which made knowingly bringing someone in the country illegally into Alabama a felony. The Alabama Senate passed its version 24-8 and the bill became law.",
+      "nay_description": "Voted against passing the Senate's version of Senate Bill 53, which made knowingly bringing someone in the country illegally into Alabama a felony. The Alabama Senate passed its version 24-8 and the bill became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 96",
+        "tally": "24-8",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    }
+  ]
+}

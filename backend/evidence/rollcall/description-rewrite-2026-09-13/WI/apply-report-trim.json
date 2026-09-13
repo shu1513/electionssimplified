@@ -1,0 +1,46 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WI/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 5,
+  "updatedRolls": 5,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 200,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WI:house:2197:1522508",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WI:house:2197:1522672",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WI:senate:2197:1630296",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WI:senate:2197:1630339",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WI:senate:2197:1664622",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

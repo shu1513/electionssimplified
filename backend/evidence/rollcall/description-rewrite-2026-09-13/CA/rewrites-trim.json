@@ -1,0 +1,772 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601173,
+      "measure_id": "AB 454",
+      "vote_date": "2025-09-04",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 454, which permanently bans killing or capturing birds protected under federal law as of 2025. The California State Assembly agreed 58-17, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 454, which permanently bans killing or capturing birds protected under federal law as of 2025. The California State Assembly agreed 58-17, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 454 Kalra Concurrence in Senate Amendments",
+        "tally": "58-17",
+        "old_sentences": 2,
+        "old_chars": 272
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601300,
+      "measure_id": "AB 1061",
+      "vote_date": "2025-09-08",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1061, which fast-tracks small housing projects in historic districts unless the building itself is historic. The California State Assembly agreed 46-18, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1061, which fast-tracks small housing projects in historic districts unless the building itself is historic. The California State Assembly agreed 46-18, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1061 Quirk-Silva Concurrence in Senate Amendments",
+        "tally": "46-18",
+        "old_sentences": 2,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601306,
+      "measure_id": "AB 1415",
+      "vote_date": "2025-09-08",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1415, which puts companies and investors behind medical practices under the state health cost watchdog. The California State Assembly agreed 51-19, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1415, which puts companies and investors behind medical practices under the state health cost watchdog. The California State Assembly agreed 51-19, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1415 Bonta Concurrence in Senate Amendments",
+        "tally": "51-19",
+        "old_sentences": 2,
+        "old_chars": 271
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601320,
+      "measure_id": "AB 435",
+      "vote_date": "2025-09-08",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 435, which sets a physical fit test from 2027 for riding without a booster seat. The California State Assembly agreed 49-13, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 435, which sets a physical fit test from 2027 for riding without a booster seat. The California State Assembly agreed 49-13, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 435 Wilson Concurrence in Senate Amendments",
+        "tally": "49-13",
+        "old_sentences": 2,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601334,
+      "measure_id": "AB 931",
+      "vote_date": "2025-09-08",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 931, which regulates companies that advance lawsuit money for a cut of the payout. The California State Assembly agreed 60-16, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 931, which regulates companies that advance lawsuit money for a cut of the payout. The California State Assembly agreed 60-16, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 931 Kalra Concurrence in Senate Amendments",
+        "tally": "60-16",
+        "old_sentences": 2,
+        "old_chars": 270
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601466,
+      "measure_id": "AB 1312",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1312, which makes hospitals check from 2027 whether patients qualify for free or discounted care. The California State Assembly agreed 62-16, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1312, which makes hospitals check from 2027 whether patients qualify for free or discounted care. The California State Assembly agreed 62-16, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1312 Schiavo Concurrence in Senate Amendments",
+        "tally": "62-16",
+        "old_sentences": 2,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601541,
+      "measure_id": "AB 1318",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1318, which lets state tax-exempt status count wherever state law looks at federal tax-exempt status. The California State Assembly agreed 60-19, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1318, which lets state tax-exempt status count wherever state law looks at federal tax-exempt status. The California State Assembly agreed 60-19, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1318 Bonta Concurrence in Senate Amendments",
+        "tally": "60-19",
+        "old_sentences": 2,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1601669,
+      "measure_id": "AB 1340",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1340, which lets rideshare drivers organize and bargain with the companies over pay and conditions. The California State Assembly agreed 60-15, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1340, which lets rideshare drivers organize and bargain with the companies over pay and conditions. The California State Assembly agreed 60-15, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1340 Wicks Concurrence in Senate Amendments",
+        "tally": "60-15",
+        "old_sentences": 2,
+        "old_chars": 264
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602109,
+      "measure_id": "AB 1079",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1079, which lets a court's fix for illegal local election rules apply during an appeal. The California State Assembly agreed 56-17, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1079, which lets a court's fix for illegal local election rules apply during an appeal. The California State Assembly agreed 56-17, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1079 Ávila Farías Concurrence in Senate Amendments",
+        "tally": "56-17",
+        "old_sentences": 2,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602196,
+      "measure_id": "AB 572",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 572, which requires rules by 2027 for interviewing the family of someone an officer killed. The California State Assembly agreed 42-22, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 572, which requires rules by 2027 for interviewing the family of someone an officer killed. The California State Assembly agreed 42-22, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 572 Kalra Concurrence in Senate Amendments",
+        "tally": "42-22",
+        "old_sentences": 2,
+        "old_chars": 270
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602313,
+      "measure_id": "AB 325",
+      "vote_date": "2025-09-12",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 325, which makes price-fixing cases easier to bring when the facts plausibly show a conspiracy. The California State Assembly agreed 54-18, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 325, which makes price-fixing cases easier to bring when the facts plausibly show a conspiracy. The California State Assembly agreed 54-18, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 325 Aguiar-Curry Concurrence in Senate Amendments",
+        "tally": "54-18",
+        "old_sentences": 2,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602341,
+      "measure_id": "AB 1127",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1127, which bars gun dealers selling pistols easily converted to machine guns from July 2026. The California State Assembly agreed 54-16, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1127, which bars gun dealers selling pistols easily converted to machine guns from July 2026. The California State Assembly agreed 54-16, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1127 GABRIEL Concurrence in Senate Amendments",
+        "tally": "54-16",
+        "old_sentences": 2,
+        "old_chars": 263
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602345,
+      "measure_id": "AB 1071",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1071, which lets defendants claiming racial bias get all the evidence bearing on that claim. The California State Assembly agreed 42-21, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1071, which lets defendants claiming racial bias get all the evidence bearing on that claim. The California State Assembly agreed 42-21, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1071 Kalra Concurrence in Senate Amendments",
+        "tally": "42-21",
+        "old_sentences": 2,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602349,
+      "measure_id": "AB 1036",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1036, which widens post-conviction access to evidence to any felony with a state prison sentence. The California State Assembly agreed 54-18, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1036, which widens post-conviction access to evidence to any felony with a state prison sentence. The California State Assembly agreed 54-18, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1036 Schultz Concurrence in Senate Amendments",
+        "tally": "54-18",
+        "old_sentences": 2,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602358,
+      "measure_id": "AB 1084",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1084, which lets adults change their name to match their gender identity without a hearing. The California State Assembly agreed 58-16, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1084, which lets adults change their name to match their gender identity without a hearing. The California State Assembly agreed 58-16, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1084 Zbur Concurrence in Senate Amendments",
+        "tally": "58-16",
+        "old_sentences": 2,
+        "old_chars": 272
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602444,
+      "measure_id": "AB 1487",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1487, which widens what a state grant fund for transgender and intersex people can fund. The California State Assembly agreed 59-15, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1487, which widens what a state grant fund for transgender and intersex people can fund. The California State Assembly agreed 59-15, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1487 Addis Concurrence in Senate Amendments",
+        "tally": "59-15",
+        "old_sentences": 2,
+        "old_chars": 244
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602457,
+      "measure_id": "AB 495",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 495, which lets more relatives enroll a child in school and approve school medical care. The California State Assembly agreed 60-20, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 495, which lets more relatives enroll a child in school and approve school medical care. The California State Assembly agreed 60-20, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 495 Celeste Rodriguez Concurrence in Senate Amendments",
+        "tally": "60-20",
+        "old_sentences": 2,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602464,
+      "measure_id": "AB 246",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 246, which lets tenants facing eviction cite a Social Security payment break as a defense. The California State Assembly agreed 50-17, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 246, which lets tenants facing eviction cite a Social Security payment break as a defense. The California State Assembly agreed 50-17, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 246 Bryan Concurrence in Senate Amendments",
+        "tally": "50-17",
+        "old_sentences": 2,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602473,
+      "measure_id": "AB 1319",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 1319, which bans trading in wildlife taken in breach of the protections of January 2025. The California State Assembly agreed 51-19, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 1319, which bans trading in wildlife taken in breach of the protections of January 2025. The California State Assembly agreed 51-19, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 1319 Schultz Concurrence in Senate Amendments",
+        "tally": "51-19",
+        "old_sentences": 2,
+        "old_chars": 264
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602523,
+      "measure_id": "AB 628",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 628, which makes a working stove and refrigerator required in rented homes from 2026. The California State Assembly agreed 49-17, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 628, which makes a working stove and refrigerator required in rented homes from 2026. The California State Assembly agreed 49-17, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 628 McKinnor Concurrence in Senate Amendments",
+        "tally": "49-17",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602534,
+      "measure_id": "AB 727",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 727, which makes schools and colleges print an LGBTQ+ crisis line on student ID cards. The California State Assembly agreed 58-15, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 727, which makes schools and colleges print an LGBTQ+ crisis line on student ID cards. The California State Assembly agreed 58-15, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 727 Mark González Concurrence in Senate Amendments",
+        "tally": "58-15",
+        "old_sentences": 2,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1602563,
+      "measure_id": "AB 263",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 263, which keeps emergency water flow rules for the Scott and Shasta rivers until 2031. The California State Assembly agreed 58-20, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 263, which keeps emergency water flow rules for the Scott and Shasta rivers until 2031. The California State Assembly agreed 58-20, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 263 Rogers Concurrence in Senate Amendments",
+        "tally": "58-20",
+        "old_sentences": 2,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1725474,
+      "measure_id": "AB 2624",
+      "vote_date": "2026-08-19",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 2624, which lets immigration support workers keep their home address private from October 2027. The California State Assembly agreed 59-19, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 2624, which lets immigration support workers keep their home address private from October 2027. The California State Assembly agreed 59-19, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "AB 2624 Bonta Concurrence in Senate Amendments",
+        "tally": "59-19",
+        "old_sentences": 2,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1726173,
+      "measure_id": "AB 2247",
+      "vote_date": "2026-08-26",
+      "yea_description": "Voted to agree to the Senate's changes to Assembly Bill 2247, a bill funding counseling for young gun violence survivors in Los Angeles County. The Assembly agreed 60-16. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against agreeing to the Senate's changes to Assembly Bill 2247, a bill funding counseling for young gun violence survivors in Los Angeles County. The Assembly agreed 60-16. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "AB 2247 Elhawary Concurrence in Senate Amendments",
+        "tally": "60-16",
+        "old_sentences": 3,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "house",
+      "session": "2172",
+      "roll": 1726450,
+      "measure_id": "AB 1770",
+      "vote_date": "2026-08-27",
+      "yea_description": "Voted to pass Assembly Bill 1770, Lindalee's Law, a bill putting the Attorney General in charge of watching how health plans run forced arbitration. The Assembly passed it 59-16. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against passing Assembly Bill 1770, Lindalee's Law, a bill putting the Attorney General in charge of watching how health plans run forced arbitration. The Assembly passed it 59-16. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "AB 1770 Garcia Concurrence in Senate Amendments",
+        "tally": "59-16",
+        "old_sentences": 3,
+        "old_chars": 263
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601648,
+      "measure_id": "SB 262",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 262, which counts policies keeping people housed when the state rates a city's housing support. The California State Senate agreed 27-11, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 262, which counts policies keeping people housed when the state rates a city's housing support. The California State Senate agreed 27-11, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB262 Wahab et al. Concurrence",
+        "tally": "27-11",
+        "old_sentences": 2,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601722,
+      "measure_id": "SB 30",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 30, which bars passing on retired public diesel rail equipment unless it meets cleaner standards. The California State Senate agreed 29-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 30, which bars passing on retired public diesel rail equipment unless it meets cleaner standards. The California State Senate agreed 29-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB30 Cortese et al. Concurrence",
+        "tally": "29-10",
+        "old_sentences": 2,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601734,
+      "measure_id": "SB 524",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 524, which makes police reports written with artificial intelligence say so and carry a signature. The California State Senate agreed 28-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 524, which makes police reports written with artificial intelligence say so and carry a signature. The California State Senate agreed 28-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB524 Arreguín et al. Concurrence",
+        "tally": "28-10",
+        "old_sentences": 2,
+        "old_chars": 261
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601770,
+      "measure_id": "SB 580",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 580, which orders model rules by July 2026 on how agencies deal with immigration authorities. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 580, which orders model rules by July 2026 on how agencies deal with immigration authorities. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB580 Durazo Concurrence",
+        "tally": "30-10",
+        "old_sentences": 2,
+        "old_chars": 260
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601787,
+      "measure_id": "SB 497",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 497, which shields medical records from other states' cases over care legal in California. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 497, which shields medical records from other states' cases over care legal in California. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB497 Wiener et al. Urgency Clause Concurrence",
+        "tally": "30-10",
+        "old_sentences": 2,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601796,
+      "measure_id": "SB 634",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 634, which bars local laws punishing people for giving the homeless food, water or shelter. The California State Senate agreed 22-16, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 634, which bars local laws punishing people for giving the homeless food, water or shelter. The California State Senate agreed 22-16, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB634 Pérez et al. Concurrence",
+        "tally": "22-16",
+        "old_sentences": 2,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601798,
+      "measure_id": "SB 518",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 518, which sets up a state bureau to verify descent from enslaved Americans for reparations. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 518, which sets up a state bureau to verify descent from enslaved Americans for reparations. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB518 Weber Pierson et al. Concurrence",
+        "tally": "30-10",
+        "old_sentences": 2,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601874,
+      "measure_id": "SB 655",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 655, which makes it state policy that every home can reach a safe indoor temperature. The Senate agreed 31-8 and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 655, which makes it state policy that every home can reach a safe indoor temperature. The Senate agreed 31-8 and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB655 Stern et al. Concurrence",
+        "tally": "31-8",
+        "old_sentences": 2,
+        "old_chars": 191
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601918,
+      "measure_id": "SB 766",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 766, the Combating Auto Retail Scams Act, which tightens rules against deceptive car dealer pricing. The Senate agreed 30-8 and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 766, the Combating Auto Retail Scams Act, which tightens rules against deceptive car dealer pricing. The Senate agreed 30-8 and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB766 Allen et al. Concurrence",
+        "tally": "30-8",
+        "old_sentences": 2,
+        "old_chars": 209
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601939,
+      "measure_id": "SB 627",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 627, which makes it a crime for officers, including federal agents, to mask their faces. The California State Senate agreed 28-11, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 627, which makes it a crime for officers, including federal agents, to mask their faces. The California State Senate agreed 28-11, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB627 Wiener et al. Concurrence",
+        "tally": "28-11",
+        "old_sentences": 2,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601942,
+      "measure_id": "SB 805",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 805, which makes plainclothes officers, federal ones included, show their agency and badge number. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 805, which makes plainclothes officers, federal ones included, show their agency and badge number. The California State Senate agreed 30-10, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB805 Pérez et al. Urgency Clause Concurrence",
+        "tally": "30-10",
+        "old_sentences": 2,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601944,
+      "measure_id": "SB 578",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 578, which creates a program, once funded, paying nonprofits to teach low-wage workers their rights. The Senate agreed to the changes 30-10 and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 578, which creates a program, once funded, paying nonprofits to teach low-wage workers their rights. The Senate agreed to the changes 30-10 and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB578 Smallwood-Cuevas Concurrence",
+        "tally": "30-10",
+        "old_sentences": 2,
+        "old_chars": 212
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1601976,
+      "measure_id": "SB 771",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 771, a bill fining large social media companies whose recommendation systems break civil rights laws. The Senate agreed 30-8, but the governor vetoed it, so it did not become law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 771, a bill fining large social media companies whose recommendation systems break civil rights laws. The Senate agreed 30-8, but the governor vetoed it, so it did not become law.",
+      "_current": {
+        "question": "Unfinished Business SB771 Stern et al. Concurrence",
+        "tally": "30-8",
+        "old_sentences": 2,
+        "old_chars": 236
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1602889,
+      "measure_id": "SB 59",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 59, which keeps court records private for anyone changing their name or gender marker. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 59, which keeps court records private for anyone changing their name or gender marker. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB59 Wiener et al. Urgency Clause Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1602893,
+      "measure_id": "SB 763",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 763, which raises the top company antitrust fine from $1 million to $6 million. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 763, which raises the top company antitrust fine from $1 million to $6 million. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB763 Hurtado Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1602910,
+      "measure_id": "SB 53",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 53, which sets safety duties for companies training the largest artificial intelligence models. The Senate agreed 29-8 and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 53, which sets safety duties for companies training the largest artificial intelligence models. The Senate agreed 29-8 and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB53 Wiener et al. Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1602930,
+      "measure_id": "SB 42",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 42, which lifts the ban on public money for candidates who accept spending limits. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 42, which lifts the ban on public money for candidates who accept spending limits. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB42 Umberg et al. Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1602931,
+      "measure_id": "SB 294",
+      "vote_date": "2025-09-13",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 294, which makes employers hand every worker a yearly notice of workplace rights. The Senate agreed 29-8 and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 294, which makes employers hand every worker a yearly notice of workplace rights. The Senate agreed 29-8 and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB294 Reyes et al. Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1702119,
+      "measure_id": "SB 73",
+      "vote_date": "2026-05-26",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 73, which bars police interfering with elections or touching voter lists without a court order. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 73, which bars police interfering with elections or touching voter lists without a court order. The California State Senate agreed 29-8, sending the bill to the governor, and it became law.",
+      "_current": {
+        "question": "Unfinished Business SB73 Cervantes et al. Urgency Clause Concurrence",
+        "tally": "29-8",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1726054,
+      "measure_id": "SB 1220",
+      "vote_date": "2026-08-25",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 1220, a bill making gun serial-number tampering convictions cost the right to own guns. The Senate agreed 30-9. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 1220, a bill making gun serial-number tampering convictions cost the right to own guns. The Senate agreed 30-9. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "Unfinished Business SB1220 Hurtado Concurrence",
+        "tally": "30-9",
+        "old_sentences": 3,
+        "old_chars": 262
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1726270,
+      "measure_id": "AB 1770",
+      "vote_date": "2026-08-26",
+      "yea_description": "Voted to pass Assembly Bill 1770, Lindalee's Law, a bill putting the Attorney General in charge of watching how health plans run forced arbitration. The Senate passed it 30-10. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against passing Assembly Bill 1770, Lindalee's Law, a bill putting the Attorney General in charge of watching how health plans run forced arbitration. The Senate passed it 30-10. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "Assembly 3rd Reading AB1770 Garcia et al. By Umberg",
+        "tally": "30-10",
+        "old_sentences": 3,
+        "old_chars": 261
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1726291,
+      "measure_id": "AB 1979",
+      "vote_date": "2026-08-26",
+      "yea_description": "Voted to pass Assembly Bill 1979, a bill applying medical privacy law to health chatbots and keeping a licensed person in charge of clinical decisions. The Senate passed it 30-9. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against passing Assembly Bill 1979, a bill applying medical privacy law to health chatbots and keeping a licensed person in charge of clinical decisions. The Senate passed it 30-9. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "Assembly 3rd Reading AB1979 Bonta By Cabaldon",
+        "tally": "30-9",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "CA",
+      "chamber": "senate",
+      "session": "2172",
+      "roll": 1726637,
+      "measure_id": "SB 1418",
+      "vote_date": "2026-08-27",
+      "yea_description": "Voted to agree to the Assembly's changes to Senate Bill 1418, a bill strengthening rules on keeping election materials until any contest is decided. The Senate agreed 30-10. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against agreeing to the Assembly's changes to Senate Bill 1418, a bill strengthening rules on keeping election materials until any contest is decided. The Senate agreed 30-10. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "Unfinished Business SB1418 Cervantes et al. Urgency Clause Concurrence",
+        "tally": "30-10",
+        "old_sentences": 3,
+        "old_chars": 254
+      }
+    }
+  ]
+}
