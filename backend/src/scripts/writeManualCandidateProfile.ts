@@ -13,7 +13,10 @@ import { loadProjectEnv } from "../config/env.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 import { STAGING_ITEM_TYPE_CANDIDATE_ROSTER } from "../config/electionsPipeline.js";
 import { parseCandidateRosterPayload } from "../contracts/candidateRosterPayloadContract.js";
-import type { CandidateProfilePayload } from "../contracts/candidateProfilePayloadContract.js";
+import {
+  isNoPublicInfoSummary,
+  type CandidateProfilePayload,
+} from "../contracts/candidateProfilePayloadContract.js";
 import { enqueueCandidateRecordDrafts } from "../pipeline/candidates/candidateRecordDraftEmitter.js";
 import {
   enqueueCandidateProfileFinanceSyncFanoutForLinkedElection,
@@ -46,6 +49,7 @@ import { WALL_CLOCK_FORCE_EXIT_GRACE_MS, withWallClockTimeout } from "./wallCloc
 import { readPositiveIntegerEnv } from "../config/envReaders.js";
 type ElectionContextRow = {
   election_id: string;
+  district_id: string;
   state: string;
   district_name: string;
   district_type: string;
@@ -165,11 +169,30 @@ async function readJsonFile(path: string): Promise<unknown> {
   return JSON.parse(raw) as unknown;
 }
 
+// A "no public information" summary is only honest while a recheck is
+// scheduled: the writer cannot record the deferral itself (the recheck date
+// is a research judgment), so it prints the exact command to run next. The
+// blocker key names the candidate so the demand ledger and
+// manual:candidate-profile:placeholders can match the deferral to this row.
+export function noPublicInfoNextStep(
+  election: Pick<ElectionContextRow, "election_id" | "district_id">,
+  candidateId: string
+): string {
+  const keySuffix = candidateId.startsWith("<") ? "<first 8 chars of candidateId>" : candidateId.slice(0, 8);
+  return (
+    `Summary is the no-public-information placeholder. Record the recheck: npm run manual:deferral:record -- ` +
+    `--district-id ${election.district_id} --election-id ${election.election_id} --blocker-key profile-${keySuffix} ` +
+    `--stage candidate_profile --reason "insufficient public profile: <what was searched>" --blocked-until <YYYY-MM-DD>. ` +
+    `On recheck, replace it with --replace-profile-fields summary, then manual:deferral:resolve.`
+  );
+}
+
 async function loadElectionContext(pool: Pool, electionId: string): Promise<ElectionContextRow | null> {
   const result = await pool.query<ElectionContextRow>(
     `
       SELECT
         e.id::text AS election_id,
+        e.district_id::text AS district_id,
         d.state,
         d.name AS district_name,
         d.district_type,
@@ -689,6 +712,7 @@ async function main(): Promise<void> {
       });
       throw error;
     }
+    const noPublicInfoSummary = isNoPublicInfoSummary(profile.summary);
 
     // A field cannot be cleared and supplied in the same write: the payload
     // value would say "store this" while the flag says "store NULL".
@@ -771,6 +795,9 @@ async function main(): Promise<void> {
             runId,
             electionId: election.election_id,
             displayName: profile.display_name,
+            ...(noPublicInfoSummary
+              ? { noPublicInfoSummary: true, noPublicInfoNextStep: noPublicInfoNextStep(election, "<candidateId>") }
+              : {}),
             hasHardIdentifier: hasAtLeastOneHardIdentifier(profile),
             emitRecordDraft,
             emitFinanceSync,
@@ -951,6 +978,9 @@ async function main(): Promise<void> {
           candidateId,
           matchedExisting,
           candidateElectionCreated,
+          ...(noPublicInfoSummary
+            ? { noPublicInfoSummary: true, noPublicInfoNextStep: noPublicInfoNextStep(election, candidateId) }
+            : {}),
           ...(clearProfileFields.size > 0 ? { clearedProfileFields: [...clearProfileFields].sort() } : {}),
           ...(runningMateLinkedToCandidateId
             ? { runningMateOf: runningMateOf, ticketLeadCandidateId: runningMateLinkedToCandidateId }
