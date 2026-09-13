@@ -323,7 +323,7 @@ export function HomePage() {
           {TAGLINE}
         </p>
       </div>
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mx-auto max-w-2xl px-4 pt-3 pb-8">
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             {/* The anonymous label is an instruction, not a field name: it
@@ -336,7 +336,7 @@ export function HomePage() {
                 field carries both reassurances — privacy, and that a ZIP or
                 city is enough — so the visitor who won't type where they
                 live learns the escape hatch BEFORE giving up. */}
-            <label htmlFor="address" className="block text-sm font-semibold text-ink-soft">
+            <label htmlFor="address" className="block pl-[18px] text-sm font-semibold text-ink-soft">
               Enter address to see which elections you can vote in:
             </label>
             <AddressAutocomplete
