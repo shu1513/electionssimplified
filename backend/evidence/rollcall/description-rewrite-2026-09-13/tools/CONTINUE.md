@@ -16,11 +16,14 @@ Recipe (all paths from `backend/`; scripts here are python3, no deps):
 3. Write `tools/CO_effects.py`: `EFFECTS = {"HB 1234": "which <one plain
    effect on people>", ...}` keyed by measure id (both chambers reuse it;
    the closing is per roll). CAUTION: bill numbers recur across sessions
-   (CO HB 1001 exists in 2025, the 2025 special session and 2026), so run
-   one session per export (`--session`) or use `tools/fixrolls.py` with
-   `tools/fix/<JUR>.py`, which keys every clause by roll id. The 2026-09-13
-   correction pass had to fix 123 rolls that got a same-numbered bill's
-   clause from another session. Enacted bills: "which ..."; bills that did not
+   (CO HB 1001 exists in 2025, the 2025 special session and 2026), and the
+   exporter has no session filter. Prefer `tools/fixrolls.py` with
+   `tools/fix/<JUR>.py`, which keys every clause by roll id. If you do use
+   measure keys, first split the export by the `session` field each row
+   carries, one file per session:
+   `python3 -c "import json,sys;d=json.load(open('/tmp/CO_rewrites.json'));json.dump({'rewrites':[r for r in d['rewrites'] if r['session']=='2243']},open('/tmp/CO_2243.json','w'),indent=2)"`
+   The 2026-09-13 correction pass had to fix 123 rolls that got a
+   same-numbered bill's clause from another session. Enacted bills: "which ..."; bills that did not
    pass: "a bill to ..."; never "would/will". Keep the clause under ~22
    words so opener + clause stays under 25. Overrides: `OPEN = {roll: (yea
    opener, nay opener)}` when OPEN printed None or is too long; `IDX =
