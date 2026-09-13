@@ -297,7 +297,7 @@ import every roll call. Regex builds a queue; it never decides truth.
   gate rejects `future_promise`). **Hard gate since 2026-09-13** (every state
   had drifted to 6-sentence bill digests): `rollcall:judge` and
   `rollcall:rewrite` refuse a description over 3 sentences, 320 characters,
-  or 30 words in one sentence (`rollCallDescriptionLength.ts`). The one-line
+  or 25 words in one sentence (`rollCallDescriptionLength.ts`; 30 until 2026-09-13, tightened toward the 20-word plain-language rule). The one-line
   effect says what changes for people — who pays, who is covered, what is
   now allowed or banned — not the bill's mechanics; the reader who wants
   the mechanics has the bill link. Reword approved rolls with

@@ -8,7 +8,7 @@ def problem(t):
     if len(ss) > 3: return f"{len(ss)} sentences"
     if len(t.strip()) > 320: return f"{len(t.strip())} chars"
     w = max(len(s.split()) for s in ss)
-    if w > 30: return f"{w}-word sentence"
+    if w > 25: return f"{w}-word sentence"
     return None
 OPENER_SHORTEN = [
     (re.compile(r"^Voted to accept the (Senate|House|Assembly)'s changes to (.+) and pass it$"), r"Voted to pass the \1's version of \2"),

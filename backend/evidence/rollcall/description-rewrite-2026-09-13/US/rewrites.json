@@ -4,16 +4,2240 @@
       "jurisdiction": "US",
       "chamber": "house",
       "session": "117-1",
-      "roll": 260,
-      "measure_id": "H R 4",
-      "vote_date": "2021-08-24",
-      "yea_description": "Voted for H.R. 4, the John R. Lewis Voting Rights Advancement Act, which restored federal approval of voting changes in places with a record of discrimination. The House passed it 219-212.",
-      "nay_description": "Voted against H.R. 4, the John R. Lewis Voting Rights Advancement Act, which restored federal approval of voting changes in places with a record of discrimination. The House passed it 219-212.",
+      "roll": 70,
+      "measure_id": "H R 842",
+      "vote_date": "2021-03-09",
+      "yea_description": "Voted for H.R. 842, the PRO Act, a bill to strengthen workers' right to unionize, bar permanently replacing strikers, and override state right-to-work laws on union fees. The House passed it 225-206, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 842, the PRO Act, a bill to strengthen workers' right to unionize, bar permanently replacing strikers, and override state right-to-work laws on union fees. The House passed it 225-206, but the Senate never voted on it, so it did not become law.",
       "_current": {
         "question": "On Passage",
-        "tally": "219-212",
+        "tally": "225-206",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 72,
+      "measure_id": "H R 1319",
+      "vote_date": "2021-03-10",
+      "yea_description": "Voted to send H.R. 1319, the American Rescue Plan Act, to the President: $1.9 trillion in COVID-19 relief with $1,400 payments, extended jobless benefits, and a bigger child tax credit. The House passed it 220-211.",
+      "nay_description": "Voted against sending H.R. 1319, the American Rescue Plan Act, to the President: $1.9 trillion in COVID-19 relief with $1,400 payments, extended jobless benefits, and a bigger child tax credit. The House passed it 220-211.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment",
+        "tally": "220-211",
+        "old_sentences": 2,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 75,
+      "measure_id": "H R 8",
+      "vote_date": "2021-03-11",
+      "yea_description": "Voted for H.R. 8, the Bipartisan Background Checks Act, a bill to require a background check on nearly every private gun sale, including at gun shows and online. The House passed it 227-203.",
+      "nay_description": "Voted against H.R. 8, the Bipartisan Background Checks Act, a bill to require a background check on nearly every private gun sale, including at gun shows and online. The House passed it 227-203.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "227-203",
+        "old_sentences": 2,
+        "old_chars": 228
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 77,
+      "measure_id": "H R 1446",
+      "vote_date": "2021-03-11",
+      "yea_description": "Voted for H.R. 1446, the Enhanced Background Checks Act, a bill to give dealers at least ten business days, up from three, to wait for a background check. The House passed it 219-210.",
+      "nay_description": "Voted against H.R. 1446, the Enhanced Background Checks Act, a bill to give dealers at least ten business days, up from three, to wait for a background check. The House passed it 219-210.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-210",
+        "old_sentences": 2,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 86,
+      "measure_id": "H R 1620",
+      "vote_date": "2021-03-17",
+      "yea_description": "Voted for H.R. 1620, a bill to renew the Violence Against Women Act through 2026 and add housing protections and gun restrictions for convicted abusers. The House passed it 244-172.",
+      "nay_description": "Voted against H.R. 1620, a bill to renew the Violence Against Women Act through 2026 and add housing protections and gun restrictions for convicted abusers. The House passed it 244-172.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "244-172",
+        "old_sentences": 2,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 91,
+      "measure_id": "H R 6",
+      "vote_date": "2021-03-18",
+      "yea_description": "Voted for H.R. 6, the American Dream and Promise Act, a bill to offer green cards to immigrants brought here as children and others under temporary deportation protection. The House passed it 228-197.",
+      "nay_description": "Voted against H.R. 6, the American Dream and Promise Act, a bill to offer green cards to immigrants brought here as children and others under temporary deportation protection. The House passed it 228-197.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "228-197",
+        "old_sentences": 2,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 108,
+      "measure_id": "H R 7",
+      "vote_date": "2021-04-15",
+      "yea_description": "Voted for H.R. 7, the Paycheck Fairness Act, a bill to narrow employers' defenses for paying men and women differently and protect workers who discuss pay. The House passed it 217-210.",
+      "nay_description": "Voted against H.R. 7, the Paycheck Fairness Act, a bill to narrow employers' defenses for paying men and women differently and protect workers who discuss pay. The House passed it 217-210.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-210",
+        "old_sentences": 2,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 118,
+      "measure_id": "H R 1195",
+      "vote_date": "2021-04-16",
+      "yea_description": "Voted for H.R. 1195, a bill to require a federal workplace safety standard against violence in hospitals, nursing homes, clinics, and social service settings. The House passed it 254-166, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 1195, a bill to require a federal workplace safety standard against violence in hospitals, nursing homes, clinics, and social service settings. The House passed it 254-166, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "254-166",
+        "old_sentences": 3,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 129,
+      "measure_id": "H R 1573",
+      "vote_date": "2021-04-21",
+      "yea_description": "Voted for H.R. 1573, the Access to Counsel Act, a bill to guarantee citizens, green card holders, and visa holders a lawyer when held for extra screening at the border. The House passed it 217-207.",
+      "nay_description": "Voted against H.R. 1573, the Access to Counsel Act, a bill to guarantee citizens, green card holders, and visa holders a lawyer when held for extra screening at the border. The House passed it 217-207.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-207",
+        "old_sentences": 2,
+        "old_chars": 243
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 169,
+      "measure_id": "H R 1187",
+      "vote_date": "2021-06-16",
+      "yea_description": "Voted for H.R. 1187, a bill to make public companies disclose climate risk, political spending, executive pay, and other environmental, social, and governance measures. The House passed it 215-214.",
+      "nay_description": "Voted against H.R. 1187, a bill to make public companies disclose climate risk, political spending, executive pay, and other environmental, social, and governance measures. The House passed it 215-214.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "215-214",
+        "old_sentences": 2,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 180,
+      "measure_id": "H R 2062",
+      "vote_date": "2021-06-23",
+      "yea_description": "Voted for H.R. 2062, a bill to let workers win an age discrimination claim by showing age was a motivating factor rather than the sole cause. The House passed it 247-178.",
+      "nay_description": "Voted against H.R. 2062, a bill to let workers win an age discrimination claim by showing age was a motivating factor rather than the sole cause. The House passed it 247-178.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "247-178",
+        "old_sentences": 2,
+        "old_chars": 223
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 181,
+      "measure_id": "S J RES 15",
+      "vote_date": "2021-06-24",
+      "yea_description": "Voted for sending S.J.Res. 15 to the President to cancel the true lender rule, which let national banks front loans funded by others and escape state interest rate caps. The House passed it 218-208.",
+      "nay_description": "Voted against sending S.J.Res. 15 to the President to cancel the true lender rule, which let national banks front loans funded by others and escape state interest rate caps. The House passed it 218-208.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-208",
+        "old_sentences": 2,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 182,
+      "measure_id": "H R 1443",
+      "vote_date": "2021-06-24",
+      "yea_description": "Voted for H.R. 1443, a bill to make lenders report credit application data for LGBTQ-owned businesses so fair lending laws can be enforced. The House passed it 252-176.",
+      "nay_description": "Voted against H.R. 1443, a bill to make lenders report credit application data for LGBTQ-owned businesses so fair lending laws can be enforced. The House passed it 252-176.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "252-176",
+        "old_sentences": 2,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 183,
+      "measure_id": "S J RES 13",
+      "vote_date": "2021-06-24",
+      "yea_description": "Voted for sending S.J.Res. 13 to the President to cancel a workplace rights agency rule that gave employers evidence and legal reasons for a discrimination finding before settlement talks. The House passed it 219-210.",
+      "nay_description": "Voted against sending S.J.Res. 13 to the President to cancel a workplace rights agency rule that gave employers evidence and legal reasons for a discrimination finding before settlement talks. The House passed it 219-210.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-210",
+        "old_sentences": 2,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 184,
+      "measure_id": "H R 239",
+      "vote_date": "2021-06-24",
+      "yea_description": "Voted for H.R. 239, a bill to bar the veterans agency from charging veterans copays for contraceptives that private insurance must cover free. The House passed it 245-181.",
+      "nay_description": "Voted against H.R. 239, a bill to bar the veterans agency from charging veterans copays for contraceptives that private insurance must cover free. The House passed it 245-181.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "245-181",
+        "old_sentences": 2,
+        "old_chars": 234
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 185,
+      "measure_id": "S J RES 14",
+      "vote_date": "2021-06-25",
+      "yea_description": "Voted for sending S.J.Res. 14 to the President to cancel the 2020 EPA rule that had dropped methane limits on new oil and gas sources, restoring those limits. The House passed it 229-191.",
+      "nay_description": "Voted against sending S.J.Res. 14 to the President to cancel the 2020 EPA rule that had dropped methane limits on new oil and gas sources, restoring those limits. The House passed it 229-191.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "229-191",
+        "old_sentences": 2,
+        "old_chars": 214
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 195,
+      "measure_id": "H R 2662",
+      "vote_date": "2021-06-29",
+      "yea_description": "Voted for H.R. 2662, a bill to limit the President's power to fire inspectors general and strengthen their subpoena and reporting powers. The House passed it 221-182.",
+      "nay_description": "Voted against H.R. 2662, a bill to limit the President's power to fire inspectors general and strengthen their subpoena and reporting powers. The House passed it 221-182.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "221-182",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 214,
+      "measure_id": "H R 2668",
+      "vote_date": "2021-07-20",
+      "yea_description": "Voted for H.R. 2668, a bill to restore the Federal Trade Commission's power to go to court for refunds from companies engaged in fraud or false advertising. The House passed it 221-205.",
+      "nay_description": "Voted against H.R. 2668, a bill to restore the Federal Trade Commission's power to go to court for refunds from companies engaged in fraud or false advertising. The House passed it 221-205.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "221-205",
+        "old_sentences": 2,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 295,
+      "measure_id": "H R 3755",
+      "vote_date": "2021-09-24",
+      "yea_description": "Voted for H.R. 3755, the Women's Health Protection Act, a bill to create a federal right to provide and receive abortion care and bar state restrictions such as waiting periods. The House passed it 218-211.",
+      "nay_description": "Voted against H.R. 3755, the Women's Health Protection Act, a bill to create a federal right to provide and receive abortion care and bar state restrictions such as waiting periods. The House passed it 218-211.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-211",
+        "old_sentences": 2,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 331,
+      "measure_id": "H R 3110",
+      "vote_date": "2021-10-22",
+      "yea_description": "Voted for H.R. 3110, the PUMP for Nursing Mothers Act, a bill to extend the right to break time and a private space to pump breast milk to salaried workers. The House passed it 276-149.",
+      "nay_description": "Voted against H.R. 3110, the PUMP for Nursing Mothers Act, a bill to extend the right to break time and a private space to pump breast milk to salaried workers. The House passed it 276-149.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "276-149",
+        "old_sentences": 2,
+        "old_chars": 227
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 369,
+      "measure_id": "H R 3684",
+      "vote_date": "2021-11-05",
+      "yea_description": "Voted to send H.R. 3684, the Infrastructure Investment and Jobs Act, to the President: roughly $1 trillion for roads, bridges, rail, transit, broadband, water systems, and the power grid. The House passed it 228-206.",
+      "nay_description": "Voted against sending H.R. 3684, the Infrastructure Investment and Jobs Act, to the President: roughly $1 trillion for roads, bridges, rail, transit, broadband, water systems, and the power grid. The House passed it 228-206.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment",
+        "tally": "228-206",
+        "old_sentences": 2,
+        "old_chars": 274
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 440,
+      "measure_id": "H R 5314",
+      "vote_date": "2021-12-09",
+      "yea_description": "Voted for H.R. 5314, the Protecting Our Democracy Act, a bill to tighten limits on presidential pardons and emergency powers and strengthen congressional subpoenas. The House passed it 220-208.",
+      "nay_description": "Voted against H.R. 5314, the Protecting Our Democracy Act, a bill to tighten limits on presidential pardons and emergency powers and strengthen congressional subpoenas. The House passed it 220-208.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-208",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 9,
+      "measure_id": "H R 5746",
+      "vote_date": "2022-01-13",
+      "yea_description": "Voted to pass the Freedom to Vote: John R. Lewis Act, a bill to expand early and mail voting, make Election Day a holiday, and restore the Voting Rights Act. The House sent it to the Senate 220-203. The Senate never passed it.",
+      "nay_description": "Voted against the Freedom to Vote: John R. Lewis Act, a bill to expand early and mail voting, make Election Day a holiday, and restore the Voting Rights Act. The House sent it to the Senate 220-203. The Senate never passed it.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment With An Amendment",
+        "tally": "220-203",
+        "old_sentences": 4,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 38,
+      "measure_id": "H R 3076",
+      "vote_date": "2022-02-08",
+      "yea_description": "Voted for H.R. 3076, the Postal Service Reform Act, which ended the requirement to prefund retiree health benefits, tied postal retirees to Medicare, and required six-day delivery. The House passed it 342-92, and it became law.",
+      "nay_description": "Voted against H.R. 3076, the Postal Service Reform Act, which ended the requirement to prefund retiree health benefits, tied postal retirees to Medicare, and required six-day delivery. The House passed it 342-92, and it became law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "342-92",
+        "old_sentences": 2,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 57,
+      "measure_id": "H R 3967",
+      "vote_date": "2022-03-03",
+      "yea_description": "Voted for H.R. 3967, the Honoring our PACT Act, a bill to expand health care and disability benefits for veterans exposed to burn pits and other toxins. The House passed it 256-174.",
+      "nay_description": "Voted against H.R. 3967, the Honoring our PACT Act, a bill to expand health care and disability benefits for veterans exposed to burn pits and other toxins. The House passed it 256-174.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "256-174",
+        "old_sentences": 2,
+        "old_chars": 233
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 82,
+      "measure_id": "H R 2116",
+      "vote_date": "2022-03-18",
+      "yea_description": "Voted for H.R. 2116, the CROWN Act, a bill to bar discrimination based on hair texture or hairstyles associated with race in jobs, housing, education, and federal programs. The House passed it 235-189.",
+      "nay_description": "Voted against H.R. 2116, the CROWN Act, a bill to bar discrimination based on hair texture or hairstyles associated with race in jobs, housing, education, and federal programs. The House passed it 235-189.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "235-189",
+        "old_sentences": 2,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 149,
+      "measure_id": "H R 2499",
+      "vote_date": "2022-05-11",
+      "yea_description": "Voted for H.R. 2499, the Federal Firefighters Fairness Act, a bill to presume certain cancers and heart and lung conditions in federal firefighters came from the job, easing compensation claims. The House passed it 288-131; Congress enacted the same provisions in December 2022 in the annual defense bill.",
+      "nay_description": "Voted against H.R. 2499, the Federal Firefighters Fairness Act, a bill to presume certain cancers and heart and lung conditions in federal firefighters came from the job, easing compensation claims. The House passed it 288-131; Congress enacted the same provisions in December 2022 in the annual defense bill.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "288-131",
+        "old_sentences": 4,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 172,
+      "measure_id": "H R 903",
+      "vote_date": "2022-05-12",
+      "yea_description": "Voted for H.R. 903, the Rights for the TSA Workforce Act, a bill to give airport security screeners the same union bargaining and appeal rights as most federal workers. The House passed it 220-201, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 903, the Rights for the TSA Workforce Act, a bill to give airport security screeners the same union bargaining and appeal rights as most federal workers. The House passed it 220-201, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-201",
+        "old_sentences": 3,
+        "old_chars": 375
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 232,
+      "measure_id": "H R 7688",
+      "vote_date": "2022-05-19",
+      "yea_description": "Voted for H.R. 7688, a bill to ban selling fuel at grossly unfair prices during a declared energy emergency. The House passed it 217-207.",
+      "nay_description": "Voted against H.R. 7688, a bill to ban selling fuel at grossly unfair prices during a declared energy emergency. The House passed it 217-207.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-207",
+        "old_sentences": 2,
+        "old_chars": 216
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 233,
+      "measure_id": "H R 6087",
+      "vote_date": "2022-06-07",
+      "yea_description": "Voted for H.R. 6087, a bill to let injured federal workers be treated by nurse practitioners and physician assistants under federal workers' compensation, not only doctors. The House passed it 325-83, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 6087, a bill to let injured federal workers be treated by nurse practitioners and physician assistants under federal workers' compensation, not only doctors. The House passed it 325-83, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass, as Amended",
+        "tally": "325-83",
+        "old_sentences": 2,
+        "old_chars": 361
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 245,
+      "measure_id": "H R 7910",
+      "vote_date": "2022-06-08",
+      "yea_description": "Voted for H.R. 7910, the Protecting Our Kids Act, a bill to raise the buying age for many semiautomatic rifles to 21, ban new large-capacity magazines, and require safe storage. The House passed it 223-204.",
+      "nay_description": "Voted against H.R. 7910, the Protecting Our Kids Act, a bill to raise the buying age for many semiautomatic rifles to 21, ban new large-capacity magazines, and require safe storage. The House passed it 223-204.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "223-204",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 255,
+      "measure_id": "H R 2377",
+      "vote_date": "2022-06-09",
+      "yea_description": "Voted for H.R. 2377, a bill to let federal courts temporarily take guns from someone found to be a danger and fund state red flag laws. The House passed it 224-202.",
+      "nay_description": "Voted against H.R. 2377, a bill to let federal courts temporarily take guns from someone found to be a danger and fund state red flag laws. The House passed it 224-202.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "224-202",
+        "old_sentences": 2,
+        "old_chars": 219
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 275,
+      "measure_id": "H R 2543",
+      "vote_date": "2022-06-15",
+      "yea_description": "Voted for H.R. 2543, a bill to widen access to credit and banking, strengthen lending discrimination rules, and make racial equity a Federal Reserve duty. The House passed it 215-207.",
+      "nay_description": "Voted against H.R. 2543, a bill to widen access to credit and banking, strengthen lending discrimination rules, and make racial equity a Federal Reserve duty. The House passed it 215-207.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "215-207",
+        "old_sentences": 2,
+        "old_chars": 283
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 299,
+      "measure_id": "S 2938",
+      "vote_date": "2022-06-24",
+      "yea_description": "Voted for final House passage of the Bipartisan Safer Communities Act, which widened background checks for buyers under 21, funded mental health programs, and closed the dating-partner gun loophole. The House agreed 234-193 and it became Public Law 117-159.",
+      "nay_description": "Voted against final House passage of the Bipartisan Safer Communities Act, which widened background checks for buyers under 21, funded mental health programs, and closed the dating-partner gun loophole. The House agreed 234-193 and it became Public Law 117-159.",
+      "_current": {
+        "question": "On Concurring in the Senate Amendments to the House Amendment",
+        "tally": "234-193",
+        "old_sentences": 3,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 309,
+      "measure_id": "S 3373",
+      "vote_date": "2022-07-13",
+      "yea_description": "Voted for S. 3373, the final Honoring our PACT Act, which expanded health care and disability benefits for veterans exposed to burn pits and other toxins. The House passed it 342-88, and it became law.",
+      "nay_description": "Voted against S. 3373, the final Honoring our PACT Act, which expanded health care and disability benefits for veterans exposed to burn pits and other toxins. The House passed it 342-88, and it became law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "342-88",
+        "old_sentences": 2,
+        "old_chars": 236
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 360,
+      "measure_id": "H R 8296",
+      "vote_date": "2022-07-15",
+      "yea_description": "Voted for H.R. 8296, the Women's Health Protection Act of 2022, a bill to create a federal right to abortion care after the Supreme Court overturned Roe v. Wade. The House passed it 219-210.",
+      "nay_description": "Voted against H.R. 8296, the Women's Health Protection Act of 2022, a bill to create a federal right to abortion care after the Supreme Court overturned Roe v. Wade. The House passed it 219-210.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-210",
+        "old_sentences": 3,
+        "old_chars": 217
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 404,
+      "measure_id": "H R 4346",
+      "vote_date": "2022-07-28",
+      "yea_description": "Voted for final House passage of the CHIPS and Science Act, which put about $52 billion into U.S. semiconductor manufacturing and research and boosted federal science funding. The House agreed 243-187 and it became Public Law 117-167.",
+      "nay_description": "Voted against final House passage of the CHIPS and Science Act, which put about $52 billion into U.S. semiconductor manufacturing and research and boosted federal science funding. The House agreed 243-187 and it became Public Law 117-167.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Adt to the House Adt to the Senate Adt",
+        "tally": "243-187",
+        "old_sentences": 2,
+        "old_chars": 273
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 410,
+      "measure_id": "H R 1808",
+      "vote_date": "2022-07-29",
+      "yea_description": "Voted for H.R. 1808, the Assault Weapons Ban of 2022, a bill to make it a crime to sell, make, or import semiautomatic assault weapons and large capacity magazines. The House passed it 217-213.",
+      "nay_description": "Voted against H.R. 1808, the Assault Weapons Ban of 2022, a bill to make it a crime to sell, make, or import semiautomatic assault weapons and large capacity magazines. The House passed it 217-213.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-213",
+        "old_sentences": 2,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 420,
+      "measure_id": "H R 5376",
+      "vote_date": "2022-08-12",
+      "yea_description": "Voted to send H.R. 5376, the Inflation Reduction Act, to the President: Medicare drug price negotiation, a $35 insulin cap, clean energy tax credits, and a 15% minimum corporate tax. The House passed it 220-207.",
+      "nay_description": "Voted against sending H.R. 5376, the Inflation Reduction Act, to the President: Medicare drug price negotiation, a $35 insulin cap, clean energy tax credits, and a 15% minimum corporate tax. The House passed it 220-207.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment",
+        "tally": "220-207",
+        "old_sentences": 2,
+        "old_chars": 295
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 432,
+      "measure_id": "H R 302",
+      "vote_date": "2022-09-15",
+      "yea_description": "Voted for H.R. 302, a bill to bar moving federal civil service jobs into new categories outside the merit system. The House passed it 225-204, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 302, a bill to bar moving federal civil service jobs into new categories outside the merit system. The House passed it 225-204, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "225-204",
+        "old_sentences": 3,
+        "old_chars": 338
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 449,
+      "measure_id": "H R 8873",
+      "vote_date": "2022-09-21",
+      "yea_description": "Voted for H.R. 8873, the Presidential Election Reform Act, a bill to require electors be chosen under state law set before election day and narrow grounds for objections in Congress. The House passed it 229-203.",
+      "nay_description": "Voted against H.R. 8873, the Presidential Election Reform Act, a bill to require electors be chosen under state law set before election day and narrow grounds for objections in Congress. The House passed it 229-203.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "229-203",
+        "old_sentences": 2,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 460,
+      "measure_id": "H R 3843",
+      "vote_date": "2022-09-29",
+      "yea_description": "Voted for H.R. 3843, a bill to raise merger filing fees on the largest deals to fund anti-monopoly enforcement and require disclosure of foreign subsidies. The House passed it 242-184.",
+      "nay_description": "Voted against H.R. 3843, a bill to raise merger filing fees on the largest deals to fund anti-monopoly enforcement and require disclosure of foreign subsidies. The House passed it 242-184.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "242-184",
         "old_sentences": 2,
         "old_chars": 240
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 506,
+      "measure_id": "H R 3462",
+      "vote_date": "2022-12-06",
+      "yea_description": "Voted for final House passage of the SBA Cyber Awareness Act, which makes the Small Business Administration report yearly on its own cybersecurity, Chinese-built technology risks, and any breach. The House agreed 417-0 and it became Public Law 117-259.",
+      "nay_description": "Voted against final House passage of the SBA Cyber Awareness Act, which makes the Small Business Administration report yearly on its own cybersecurity, Chinese-built technology risks, and any breach. The House agreed 417-0 and it became Public Law 117-259.",
+      "_current": {
+        "question": "On the Motion to Suspend the Rules and Concur in the Senate Amendment",
+        "tally": "417-0",
+        "old_sentences": 2,
+        "old_chars": 311
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 511,
+      "measure_id": "H R 5796",
+      "vote_date": "2022-12-06",
+      "yea_description": "Voted for final House passage of the Patents for Humanity Act of 2022, which writes into law an award that speeds patent proceedings for inventors solving humanitarian problems. The House agreed 396-24 and it became Public Law 117-245.",
+      "nay_description": "Voted against final House passage of the Patents for Humanity Act of 2022, which writes into law an award that speeds patent proceedings for inventors solving humanitarian problems. The House agreed 396-24 and it became Public Law 117-245.",
+      "_current": {
+        "question": "On the Motion to Suspend the Rules and Concur in the Senate Amendment",
+        "tally": "396-24",
+        "old_sentences": 2,
+        "old_chars": 285
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 513,
+      "measure_id": "H R 8404",
+      "vote_date": "2022-12-08",
+      "yea_description": "Voted for sending H.R. 8404, the Respect for Marriage Act, to the President: it repealed the federal man-woman definition of marriage and made states recognize valid same-sex and interracial marriages. The House passed it 258-169, and it became law.",
+      "nay_description": "Voted against sending H.R. 8404, the Respect for Marriage Act, to the President: it repealed the federal man-woman definition of marriage and made states recognize valid same-sex and interracial marriages. The House passed it 258-169, and it became law.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment",
+        "tally": "258-169",
+        "old_sentences": 2,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-2",
+      "roll": 530,
+      "measure_id": "H R 1948",
+      "vote_date": "2022-12-15",
+      "yea_description": "Voted for H.R. 1948, the VA Employee Fairness Act, a bill to let doctors and nurses at veterans' hospitals bargain and file grievances over patient care and pay. The House passed it 219-201, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against H.R. 1948, the VA Employee Fairness Act, a bill to let doctors and nurses at veterans' hospitals bargain and file grievances over patient care and pay. The House passed it 219-201, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-201",
+        "old_sentences": 2,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-1",
+      "roll": 29,
+      "measure_id": "H R 26",
+      "vote_date": "2023-01-11",
+      "yea_description": "Voted to pass H.R. 26, the Born-Alive Abortion Survivors Protection Act, a bill to require medical care for a child born alive after an attempted abortion, with prison for failing. The House passed it 220-210, but the Senate never took it up.",
+      "nay_description": "Voted against passing H.R. 26, the Born-Alive Abortion Survivors Protection Act, a bill to require medical care for a child born alive after an attempted abortion, with prison for failing. The House passed it 220-210, but the Senate never took it up.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-210",
+        "old_sentences": 4,
+        "old_chars": 317
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-1",
+      "roll": 209,
+      "measure_id": "H R 2",
+      "vote_date": "2023-05-11",
+      "yea_description": "Voted to pass H.R. 2, the Secure the Border Act, a bill to restart border wall building, narrow asylum, limit parole, and require employers to verify workers' legal status. The House passed it 219-213, but the Senate never acted, so it died.",
+      "nay_description": "Voted against passing H.R. 2, the Secure the Border Act, a bill to restart border wall building, narrow asylum, limit parole, and require employers to verify workers' legal status. The House passed it 219-213, but the Senate never acted, so it died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-213",
+        "old_sentences": 4,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-1",
+      "roll": 252,
+      "measure_id": "H J RES 44",
+      "vote_date": "2023-06-13",
+      "yea_description": "Voted to pass H.J.Res. 44, a resolution to cancel the federal rule treating pistols with stabilizing braces as short-barreled rifles needing stricter registration. The House passed it 219-210, but the Senate rejected it on June 22, 2023, so the rule stayed in force.",
+      "nay_description": "Voted against passing H.J.Res. 44, a resolution to cancel the federal rule treating pistols with stabilizing braces as short-barreled rifles needing stricter registration. The House passed it 219-210, but the Senate rejected it on June 22, 2023, so the rule stayed in force.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-210",
+        "old_sentences": 3,
+        "old_chars": 286
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-1",
+      "roll": 340,
+      "measure_id": "H R 3941",
+      "vote_date": "2023-07-19",
+      "yea_description": "Voted to pass H.R. 3941, the Schools Not Shelters Act, a bill to cut federal funding to public schools and colleges that shelter immigrants who entered without being admitted. The House passed it 222-201, but the Senate never acted and the bill died with the 118th Congress.",
+      "nay_description": "Voted against passing H.R. 3941, the Schools Not Shelters Act, a bill to cut federal funding to public schools and colleges that shelter immigrants who entered without being admitted. The House passed it 222-201, but the Senate never acted and the bill died with the 118th Congress.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "222-201",
+        "old_sentences": 3,
+        "old_chars": 325
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 10,
+      "measure_id": "H J RES 98",
+      "vote_date": "2024-01-12",
+      "yea_description": "Voted to pass H.J.Res. 98 by 206-177, a resolution to cancel a labor board rule that made it easier to treat a franchise chain and its owner as joint employers. The Senate agreed, but the president vetoed it on May 3, 2024, and the House override failed.",
+      "nay_description": "Voted against passing H.J.Res. 98 by 206-177, a resolution to cancel a labor board rule that made it easier to treat a franchise chain and its owner as joint employers. The Senate agreed, but the president vetoed it on May 3, 2024, and the House override failed.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "206-177",
+        "old_sentences": 5,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 25,
+      "measure_id": "H R 5585",
+      "vote_date": "2024-01-30",
+      "yea_description": "Voted to pass H.R. 5585, the Agent Raul Gonzalez Officer Safety Act, 271-154, a bill to make fleeing Border Patrol by vehicle near the border a crime punishable by prison. The bill died when that Congress ended.",
+      "nay_description": "Voted against passing H.R. 5585, the Agent Raul Gonzalez Officer Safety Act, 271-154, a bill to make fleeing Border Patrol by vehicle near the border a crime punishable by prison. The bill died when that Congress ended.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "271-154",
+        "old_sentences": 6,
+        "old_chars": 474
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 52,
+      "measure_id": "H R 7176",
+      "vote_date": "2024-02-15",
+      "yea_description": "Voted to pass H.R. 7176, the Unlocking our Domestic LNG Potential Act, a bill to end Energy Department approval of gas exports and treat them as in the public interest. The House passed it 224-200, but the Senate never acted, so it did not become law.",
+      "nay_description": "Voted against passing H.R. 7176, the Unlocking our Domestic LNG Potential Act, a bill to end Energy Department approval of gas exports and treat them as in the public interest. The House passed it 224-200, but the Senate never acted, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "224-200",
+        "old_sentences": 4,
+        "old_chars": 350
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 165,
+      "measure_id": "H R 3397",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass H.R. 3397, the WEST Act, a bill to void the public lands rule that put conservation on equal footing with grazing and drilling. The House passed it 212-202, but the Senate never acted and the bill died.",
+      "nay_description": "Voted against passing H.R. 3397, the WEST Act, a bill to void the public lands rule that put conservation on equal footing with grazing and drilling. The House passed it 212-202, but the Senate never acted and the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "212-202",
+        "old_sentences": 4,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 167,
+      "measure_id": "H R 615",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass H.R. 615, the Protecting Access for Hunters and Anglers Act, a bill to block federal land agencies from banning lead ammunition or fishing tackle on their lands. The House passed it 214-201, but the Senate never acted and the bill died.",
+      "nay_description": "Voted against passing H.R. 615, the Protecting Access for Hunters and Anglers Act, a bill to block federal land agencies from banning lead ammunition or fishing tackle on their lands. The House passed it 214-201, but the Senate never acted and the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "214-201",
+        "old_sentences": 4,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 169,
+      "measure_id": "H R 764",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass H.R. 764, the Trust the Science Act, a bill to order the Interior Department to drop the gray wolf from the endangered species list, beyond court review. The House passed it 209-205, but the Senate never acted and the bill died.",
+      "nay_description": "Voted against passing H.R. 764, the Trust the Science Act, a bill to order the Interior Department to drop the gray wolf from the endangered species list, beyond court review. The House passed it 209-205, but the Senate never acted and the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "209-205",
+        "old_sentences": 4,
+        "old_chars": 279
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 213,
+      "measure_id": "H R 354",
+      "vote_date": "2024-05-16",
+      "yea_description": "Voted to pass H.R. 354, the LEOSA Reform Act, a bill to let qualified current and retired police carry concealed guns in school zones, national parks, and on public transit. The House passed it 221-185, but the Senate never acted, so it did not become law.",
+      "nay_description": "Voted against passing H.R. 354, the LEOSA Reform Act, a bill to let qualified current and retired police carry concealed guns in school zones, national parks, and on public transit. The House passed it 221-185, but the Senate never acted, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "221-185",
+        "old_sentences": 4,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 242,
+      "measure_id": "H R 8282",
+      "vote_date": "2024-06-04",
+      "yea_description": "Voted to pass H.R. 8282, the Illegitimate Court Counteraction Act, a bill to sanction foreigners who help the International Criminal Court investigate or prosecute Americans or allied citizens. The House passed it 247-155, but the Senate never voted, so the bill died.",
+      "nay_description": "Voted against passing H.R. 8282, the Illegitimate Court Counteraction Act, a bill to sanction foreigners who help the International Criminal Court investigate or prosecute Americans or allied citizens. The House passed it 247-155, but the Senate never voted, so the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "247-155",
+        "old_sentences": 3,
+        "old_chars": 320
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 279,
+      "measure_id": "H R 8070",
+      "vote_date": "2024-06-14",
+      "yea_description": "Voted to pass H.R. 8070, the House's fiscal year 2025 defense authorization bill, which set Defense Department policy, raised junior enlisted pay, and funded military construction. The House passed it 217-199; its provisions became law through H.R. 5009 in December 2024.",
+      "nay_description": "Voted against passing H.R. 8070, the House's fiscal year 2025 defense authorization bill, which set Defense Department policy, raised junior enlisted pay, and funded military construction. The House passed it 217-199; its provisions became law through H.R. 5009 in December 2024.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-199",
+        "old_sentences": 4,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 341,
+      "measure_id": "H R 7637",
+      "vote_date": "2024-07-09",
+      "yea_description": "Voted to pass H.R. 7637, the Refrigerator Freedom Act, a bill to bar refrigerator and freezer efficiency standards unless the Energy Department finds them workable and not costlier for consumers. The House passed it 212-192, but the Senate never acted and the bill died.",
+      "nay_description": "Voted against passing H.R. 7637, the Refrigerator Freedom Act, a bill to bar refrigerator and freezer efficiency standards unless the Energy Department finds them workable and not costlier for consumers. The House passed it 212-192, but the Senate never acted and the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "212-192",
+        "old_sentences": 3,
+        "old_chars": 331
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 354,
+      "measure_id": "H J RES 165",
+      "vote_date": "2024-07-11",
+      "yea_description": "Voted yes on H.J. Res. 165, a resolution to wipe out the 2024 Title IX rule that extended sex discrimination protections to gender identity and sexual orientation. The House passed it 210-205, but the Senate never voted, so Congress did not repeal the rule.",
+      "nay_description": "Voted no on H.J. Res. 165, a resolution to wipe out the 2024 Title IX rule that extended sex discrimination protections to gender identity and sexual orientation. The House passed it 210-205, but the Senate never voted, so Congress did not repeal the rule.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "210-205",
+        "old_sentences": 4,
+        "old_chars": 281
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 437,
+      "measure_id": "H R 5717",
+      "vote_date": "2024-09-20",
+      "yea_description": "Voted to pass H.R. 5717, a bill to deny certain federal immigration funds to states and localities that limit information sharing or ignore federal detention requests. It passed the House 219-186, but the Senate never acted and the bill died.",
+      "nay_description": "Voted against H.R. 5717, a bill to deny certain federal immigration funds to states and localities that limit information sharing or ignore federal detention requests. It passed the House 219-186, but the Senate never acted and the bill died.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-186",
+        "old_sentences": 2,
+        "old_chars": 283
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 448,
+      "measure_id": "H R 8790",
+      "vote_date": "2024-09-24",
+      "yea_description": "Voted to pass H.R. 8790, the Fix Our Forests Act, a bill to speed federal wildfire work in high-risk areas by exempting many forest projects from environmental review. The House passed it 268-151, but the Senate never acted, so the bill died when the 118th Congress ended.",
+      "nay_description": "Voted against H.R. 8790, the Fix Our Forests Act, a bill to speed federal wildfire work in high-risk areas by exempting many forest projects from environmental review. The House passed it 268-151, but the Senate never acted, so the bill died when the 118th Congress ended.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "268-151",
+        "old_sentences": 3,
+        "old_chars": 334
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 497,
+      "measure_id": "H R 7673",
+      "vote_date": "2024-12-10",
+      "yea_description": "Voted to pass H.R. 7673, the Liberty in Laundry Act, a bill to bar clothes washer efficiency rules unless found workable and not likely to raise costs for buyers. The House passed it 215-200, but the Senate never acted, so the bill died when the 118th Congress ended.",
+      "nay_description": "Voted against H.R. 7673, the Liberty in Laundry Act, a bill to bar clothes washer efficiency rules unless found workable and not likely to raise costs for buyers. The House passed it 215-200, but the Senate never acted, so the bill died when the 118th Congress ended.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "215-200",
+        "old_sentences": 3,
+        "old_chars": 355
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "118-2",
+      "roll": 500,
+      "measure_id": "H R 5009",
+      "vote_date": "2024-12-11",
+      "yea_description": "Voted for final House passage of the fiscal year 2025 National Defense Authorization Act, which sets military policy and spending levels for the year and raises junior enlisted pay. The House agreed 281-140 and it became Public Law 118-159.",
+      "nay_description": "Voted against final House passage of the fiscal year 2025 National Defense Authorization Act, which sets military policy and spending levels for the year and raises junior enlisted pay. The House agreed 281-140 and it became Public Law 118-159.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment with an Amendment",
+        "tally": "281-140",
+        "old_sentences": 2,
+        "old_chars": 290
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 6,
+      "measure_id": "H R 29",
+      "vote_date": "2025-01-07",
+      "yea_description": "Voted to pass H.R. 29, the Laken Riley Act, a bill to make federal officers detain immigrants here unlawfully who are charged with theft or burglary. The House passed it 264-159; the Senate's broader version, S. 5, became law instead in January 2025.",
+      "nay_description": "Voted against passing H.R. 29, the Laken Riley Act, a bill to make federal officers detain immigrants here unlawfully who are charged with theft or burglary. The House passed it 264-159; the Senate's broader version, S. 5, became law instead in January 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "264-159",
+        "old_sentences": 6,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 7,
+      "measure_id": "H R 23",
+      "vote_date": "2025-01-09",
+      "yea_description": "Voted to pass H.R. 23, the Illegitimate Court Counteraction Act, a bill to sanction foreigners who help the International Criminal Court pursue Americans or allied citizens. The House passed it 243-140, but the Senate blocked it on January 28, 2025.",
+      "nay_description": "Voted against passing H.R. 23, the Illegitimate Court Counteraction Act, a bill to sanction foreigners who help the International Criminal Court pursue Americans or allied citizens. The House passed it 243-140, but the Senate blocked it on January 28, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "243-140",
+        "old_sentences": 5,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 12,
+      "measure_id": "H R 28",
+      "vote_date": "2025-01-14",
+      "yea_description": "Voted to pass H.R. 28, a bill to bar federally funded schools from letting anyone male at birth play on girls' or women's teams. The House passed it 218-206, but the Senate has not passed it.",
+      "nay_description": "Voted against passing H.R. 28, a bill to bar federally funded schools from letting anyone male at birth play on girls' or women's teams. The House passed it 218-206, but the Senate has not passed it.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-206",
+        "old_sentences": 5,
+        "old_chars": 358
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 17,
+      "measure_id": "H R 30",
+      "vote_date": "2025-01-16",
+      "yea_description": "Voted to pass H.R. 30, a bill to bar entry to and allow deportation of non-citizens for sex offenses, domestic violence, stalking, child abuse, or breaking a protection order. The House passed it 274-145, but the Senate has not passed it.",
+      "nay_description": "Voted against passing H.R. 30, a bill to bar entry to and allow deportation of non-citizens for sex offenses, domestic violence, stalking, child abuse, or breaking a protection order. The House passed it 274-145, but the Senate has not passed it.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "274-145",
+        "old_sentences": 5,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 23,
+      "measure_id": "S 5",
+      "vote_date": "2025-01-22",
+      "yea_description": "Voted to pass S. 5, the Laken Riley Act, sending it to the president: it requires jailing immigrants here illegally who are arrested for theft, burglary, or violent crimes. The House passed it 263-156, and it became law on January 29, 2025.",
+      "nay_description": "Voted against passing S. 5, the Laken Riley Act, sending it to the president: it requires jailing immigrants here illegally who are arrested for theft, burglary, or violent crimes. The House passed it 263-156, and it became law on January 29, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "263-156",
+        "old_sentences": 5,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 25,
+      "measure_id": "H R 471",
+      "vote_date": "2025-01-23",
+      "yea_description": "Voted to pass H.R. 471, the Fix Our Forests Act, a bill to speed tree-thinning in high-risk wildfire zones on federal land by skipping full environmental review and limiting lawsuits. The House passed it 279-141, but the Senate has not passed it.",
+      "nay_description": "Voted against passing H.R. 471, the Fix Our Forests Act, a bill to speed tree-thinning in high-risk wildfire zones on federal land by skipping full environmental review and limiting lawsuits. The House passed it 279-141, but the Senate has not passed it.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "279-141",
+        "old_sentences": 6,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 27,
+      "measure_id": "H R 21",
+      "vote_date": "2025-01-23",
+      "yea_description": "Voted to pass H.R. 21, the Born-Alive Abortion Survivors Protection Act, a bill to require newborn care for a baby born alive after an attempted abortion, with prison for failing. The House passed it 217-204, but the Senate has not passed it.",
+      "nay_description": "Voted against passing H.R. 21, the Born-Alive Abortion Survivors Protection Act, a bill to require newborn care for a baby born alive after an attempted abortion, with prison for failing. The House passed it 217-204, but the Senate has not passed it.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-204",
+        "old_sentences": 6,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 35,
+      "measure_id": "H R 26",
+      "vote_date": "2025-02-07",
+      "yea_description": "Voted to pass H.R. 26, the Protecting American Energy Production Act, a bill to bar the President from halting fracking without a law from Congress. The House passed it 226-188, but the Senate never acted, so it did not become law.",
+      "nay_description": "Voted against passing H.R. 26, the Protecting American Energy Production Act, a bill to bar the President from halting fracking without a law from Congress. The House passed it 226-188, but the Senate never acted, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "226-188",
+        "old_sentences": 4,
+        "old_chars": 311
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 42,
+      "measure_id": "H R 35",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass H.R. 35, the Agent Raul Gonzalez Officer Safety Act, a bill to make fleeing Border Patrol by vehicle near the border a crime punishable by prison. The House passed it 264-155, but the Senate never acted, so it did not become law.",
+      "nay_description": "Voted against passing H.R. 35, the Agent Raul Gonzalez Officer Safety Act, a bill to make fleeing Border Patrol by vehicle near the border a crime punishable by prison. The House passed it 264-155, but the Senate never acted, so it did not become law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "264-155",
+        "old_sentences": 5,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 102,
+      "measure_id": "H R 22",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass H.R. 22, the SAVE Act, a bill to require paper proof of U.S. citizenship, such as a passport, to register to vote in federal elections. The House passed it 220-208, but the Senate has not taken it up.",
+      "nay_description": "Voted against passing H.R. 22, the SAVE Act, a bill to require paper proof of U.S. citizenship, such as a passport, to register to vote in federal elections. The House passed it 220-208, but the Senate has not taken it up.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-208",
+        "old_sentences": 4,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 104,
+      "measure_id": "S 146",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted to pass S. 146, the TAKE IT DOWN Act, which makes posting intimate images shared without consent, including deepfakes, a crime and gives platforms 48 hours to remove them. The House passed it 409-2, and it became law on May 19, 2025.",
+      "nay_description": "Voted against passing S. 146, the TAKE IT DOWN Act, which makes posting intimate images shared without consent, including deepfakes, a crime and gives platforms 48 hours to remove them. The House passed it 409-2, and it became law on May 19, 2025.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass",
+        "tally": "409-2",
+        "old_sentences": 3,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 153,
+      "measure_id": "H R 2931",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted for H.R. 2931, the Save SBA from Sanctuary Cities Act, a bill to make the small-business agency move any office out of a sanctuary area within 60 days. The House passed it 211-199.",
+      "nay_description": "Voted against H.R. 2931, the Save SBA from Sanctuary Cities Act, a bill to make the small-business agency move any office out of a sanctuary area within 60 days. The House passed it 211-199.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "211-199",
+        "old_sentences": 2,
+        "old_chars": 218
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 156,
+      "measure_id": "H R 2966",
+      "vote_date": "2025-06-06",
+      "yea_description": "Voted to pass H.R. 2966, the American Entrepreneurs First Act, a bill to limit Small Business Administration loans to citizens, nationals, and green card holders. The House passed it 217-190; the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 2966, the American Entrepreneurs First Act, a bill to limit Small Business Administration loans to citizens, nationals, and green card holders. The House passed it 217-190; the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-190",
+        "old_sentences": 3,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 168,
+      "measure_id": "H R 4",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted to pass H.R. 4, the Rescissions Act of 2025, canceling about $9.4 billion in approved but unspent foreign aid and public broadcasting money. The House vote was 214-212; the Senate trimmed it, and the smaller package became law July 24, 2025.",
+      "nay_description": "Voted against passing H.R. 4, the Rescissions Act of 2025, canceling about $9.4 billion in approved but unspent foreign aid and public broadcasting money. The House vote was 214-212; the Senate trimmed it, and the smaller package became law July 24, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "214-212",
+        "old_sentences": 4,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 262,
+      "measure_id": "H R 3838",
+      "vote_date": "2025-09-10",
+      "yea_description": "Voted to pass H.R. 3838, the House defense policy bill for fiscal year 2026, which set defense policy and authorized Defense Department and nuclear security funding. The House passed it 231-196; this bill never became law, and S. 1071 became the final 2026 defense law.",
+      "nay_description": "Voted against passing H.R. 3838, the House defense policy bill for fiscal year 2026, which set defense policy and authorized Defense Department and nuclear security funding. The House passed it 231-196; this bill never became law, and S. 1071 became the final 2026 defense law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "231-196",
+        "old_sentences": 3,
+        "old_chars": 304
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 264,
+      "measure_id": "H R 3486",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted to pass H.R. 3486, the Stop Illegal Entry Act, a bill to raise prison penalties for illegal entry and re-entry, up to life for those convicted of serious crimes. The House passed it 226-197, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 3486, the Stop Illegal Entry Act, a bill to raise prison penalties for illegal entry and re-entry, up to life for those convicted of serious crimes. The House passed it 226-197, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "226-197",
+        "old_sentences": 4,
+        "old_chars": 334
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 270,
+      "measure_id": "H R 4922",
+      "vote_date": "2025-09-16",
+      "yea_description": "Voted to pass H.R. 4922, the DC CRIMES Act, a bill to limit D.C. youth-offender sentencing to people under 18 and bar sentences below mandatory minimums. The House passed it 240-179, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 4922, the DC CRIMES Act, a bill to limit D.C. youth-offender sentencing to people under 18 and bar sentences below mandatory minimums. The House passed it 240-179, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "240-179",
+        "old_sentences": 4,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 277,
+      "measure_id": "H R 3062",
+      "vote_date": "2025-09-18",
+      "yea_description": "Voted to pass H.R. 3062, a bill to replace the presidential permit for cross-border oil, gas, and power lines with a faster agency certificate. The House passed it 224-203, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 3062, a bill to replace the presidential permit for cross-border oil, gas, and power lines with a faster agency certificate. The House passed it 224-203, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "224-203",
+        "old_sentences": 4,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 285,
+      "measure_id": "H R 5371",
+      "vote_date": "2025-11-12",
+      "yea_description": "Voted to accept the Senate's version of H.R. 5371 and send the funding bill to the President, ending the 43-day shutdown and funding most agencies into January 2026. The House agreed 222-209, and it became Public Law 119-37 on November 12, 2025.",
+      "nay_description": "Voted against accepting the Senate's version of H.R. 5371 and send the funding bill to the President, ending the 43-day shutdown and funding most agencies into January 2026. The House agreed 222-209, and it became Public Law 119-37 on November 12, 2025.",
+      "_current": {
+        "question": "On Motion to Concur in the Senate Amendment",
+        "tally": "222-209",
+        "old_sentences": 4,
+        "old_chars": 383
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 289,
+      "measure_id": "H R 4405",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted to pass H.R. 4405, the Epstein Files Transparency Act, ordering the Justice Department to publish its unclassified Jeffrey Epstein investigation records, including flight logs. The House passed it 427-1, the Senate agreed the next day, and it became law on November 19, 2025.",
+      "nay_description": "Voted against passing H.R. 4405, the Epstein Files Transparency Act, ordering the Justice Department to publish its unclassified Jeffrey Epstein investigation records, including flight logs. The House passed it 427-1, the Senate agreed the next day, and it became law on November 19, 2025.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass",
+        "tally": "427-1",
+        "old_sentences": 4,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 294,
+      "measure_id": "H J RES 130",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted to pass H.J.Res. 130, which cancelled a federal plan change that had ended new coal leasing in Wyoming's Powder River Basin, reopening that coal to leasing. The House passed it 214-212, the Senate agreed, and it became Public Law 119-51 on December 11, 2025.",
+      "nay_description": "Voted against H.J.Res. 130, which cancelled a federal plan change that had ended new coal leasing in Wyoming's Powder River Basin, reopening that coal to leasing. The House passed it 214-212, the Senate agreed, and it became Public Law 119-51 on December 11, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "214-212",
+        "old_sentences": 4,
+        "old_chars": 314
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 295,
+      "measure_id": "H J RES 131",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted to pass H.J.Res. 131, which cancelled the 2024 decision closing about 1.2 million acres of the Arctic National Wildlife Refuge to oil and gas leasing, reopening it to drilling. The House passed it 217-209, the Senate agreed, and it became Public Law 119-52 on December 11, 2025.",
+      "nay_description": "Voted against H.J.Res. 131, which cancelled the 2024 decision closing about 1.2 million acres of the Arctic National Wildlife Refuge to oil and gas leasing, reopening it to drilling. The House passed it 217-209, the Senate agreed, and it became Public Law 119-52 on December 11, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-209",
+        "old_sentences": 4,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 296,
+      "measure_id": "S J RES 80",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted to pass S.J.Res. 80 and send it to the President, cancelling the 2022 plan that had closed about 48% of the National Petroleum Reserve in Alaska to drilling. The House passed it 216-209, and it became Public Law 119-47 on December 5, 2025.",
+      "nay_description": "Voted against passing S.J.Res. 80 and send it to the President, cancelling the 2022 plan that had closed about 48% of the National Petroleum Reserve in Alaska to drilling. The House passed it 216-209, and it became Public Law 119-47 on December 5, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "216-209",
+        "old_sentences": 4,
+        "old_chars": 315
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 298,
+      "measure_id": "H R 5214",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to pass H.R. 5214, a bill to require pretrial jail for violent crimes in Washington, DC and bar no-cash release for other public-safety crimes. The House passed it 237-179, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against H.R. 5214, a bill to require pretrial jail for violent crimes in Washington, DC and bar no-cash release for other public-safety crimes. The House passed it 237-179, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "237-179",
+        "old_sentences": 4,
+        "old_chars": 335
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 304,
+      "measure_id": "H R 1949",
+      "vote_date": "2025-11-20",
+      "yea_description": "Voted to pass H.R. 1949, the Unlocking our Domestic LNG Potential Act, a bill to end Energy Department approval of gas exports and treat them as in the public interest. The House passed it 217-188, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 1949, the Unlocking our Domestic LNG Potential Act, a bill to end Energy Department approval of gas exports and treat them as in the public interest. The House passed it 217-188, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-188",
+        "old_sentences": 4,
+        "old_chars": 387
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 320,
+      "measure_id": "S 1071",
+      "vote_date": "2025-12-10",
+      "yea_description": "Voted to pass the National Defense Authorization Act for Fiscal Year 2026, placed into S. 1071, setting defense policy and spending for the Defense Department, military construction, and nuclear security. The House passed it 312-112, the Senate agreed, and it became Public Law 119-60 on December 18, 2025.",
+      "nay_description": "Voted against passing the National Defense Authorization Act for Fiscal Year 2026, placed into S. 1071, setting defense policy and spending for the Defense Department, military construction, and nuclear security. The House passed it 312-112, the Senate agreed, and it became Public Law 119-60 on December 18, 2025.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "312-112",
+        "old_sentences": 3,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 330,
+      "measure_id": "H R 3898",
+      "vote_date": "2025-12-11",
+      "yea_description": "Voted to pass H.R. 3898, the PERMIT Act, a bill to speed Clean Water Act permits, limit states' power to block projects, and drop groundwater and rain-only streams from protection. The House passed it 221-205, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 3898, the PERMIT Act, a bill to speed Clean Water Act permits, limit states' power to block projects, and drop groundwater and rain-only streams from protection. The House passed it 221-205, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "221-205",
+        "old_sentences": 3,
+        "old_chars": 356
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 332,
+      "measure_id": "H R 2550",
+      "vote_date": "2025-12-11",
+      "yea_description": "Voted for H.R. 2550, the Protect America's Workforce Act, a bill to cancel the March 2025 executive order that stripped union bargaining rights from most federal workers. The House passed it 231-195, and the Senate has not voted on it.",
+      "nay_description": "Voted against H.R. 2550, the Protect America's Workforce Act, a bill to cancel the March 2025 executive order that stripped union bargaining rights from most federal workers. The House passed it 231-195, and the Senate has not voted on it.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "231-195",
+        "old_sentences": 3,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 334,
+      "measure_id": "H R 3668",
+      "vote_date": "2025-12-12",
+      "yea_description": "Voted to pass H.R. 3668, a bill to make federal energy regulators the sole lead agency for reviewing gas pipelines and export terminals and end states' water quality sign-off. The House passed it 213-184, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 3668, a bill to make federal energy regulators the sole lead agency for reviewing gas pipelines and export terminals and end states' water quality sign-off. The House passed it 213-184, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "213-184",
+        "old_sentences": 3,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-1",
+      "roll": 340,
+      "measure_id": "H R 4371",
+      "vote_date": "2025-12-16",
+      "yea_description": "Voted to pass H.R. 4371, the Kayla Hamilton Act, a bill to require locked placement for immigrant children 12 and older with gang tattoos or serious criminal records. The House passed it 225-201, but the Senate has not acted, so it is not law.",
+      "nay_description": "Voted against passing H.R. 4371, the Kayla Hamilton Act, a bill to require locked placement for immigrant children 12 and older with gang tattoos or serious criminal records. The House passed it 225-201, but the Senate has not acted, so it is not law.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "225-201",
+        "old_sentences": 4,
+        "old_chars": 358
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 32,
+      "measure_id": "H R 5763",
+      "vote_date": "2026-01-20",
+      "yea_description": "Voted to pass H.R. 5763, the Main Street Parity Act, a bill to lower the down payment a small business must put up for SBA property loans. It passed the House 383-8.",
+      "nay_description": "Voted against passing H.R. 5763, the Main Street Parity Act, a bill to lower the down payment a small business must put up for SBA property loans. It passed the House 383-8.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass",
+        "tally": "383-8",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 37,
+      "measure_id": "H R 6945",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass H.R. 6945, a bill to let states spend federal welfare block grant money on pregnancy centers that promote carrying a pregnancy to term. It passed the House 215-209.",
+      "nay_description": "Voted against passing H.R. 6945, a bill to let states spend federal welfare block grant money on pregnancy centers that promote carrying a pregnancy to term. It passed the House 215-209.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "215-209",
+        "old_sentences": 2,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 42,
+      "measure_id": "H R 7147",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted to pass H.R. 7147, a stopgap funding bill for the Department of Homeland Security. The House passed it 220-207; after Senate changes it became law as Public Law 119-86 on April 30, 2026.",
+      "nay_description": "Voted against passing H.R. 7147, a stopgap funding bill for the Department of Homeland Security. The House passed it 220-207; after Senate changes it became law as Public Law 119-86 on April 30, 2026.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-207",
+        "old_sentences": 3,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 58,
+      "measure_id": "H R 1531",
+      "vote_date": "2026-02-09",
+      "yea_description": "Voted to pass H.R. 1531, the PROTECT Taiwan Act, a bill to seek China's exclusion from six international financial bodies if the President reports China is threatening Taiwan. It passed the House 395-2.",
+      "nay_description": "Voted against passing H.R. 1531, the PROTECT Taiwan Act, a bill to seek China's exclusion from six international financial bodies if the President reports China is threatening Taiwan. It passed the House 395-2.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass, as Amended",
+        "tally": "395-2",
+        "old_sentences": 2,
+        "old_chars": 236
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 64,
+      "measure_id": "H R 3617",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted to pass H.R. 3617, a bill to direct the Energy Department to secure the supply of minerals it considers essential to U.S. energy security. It passed the House 223-206.",
+      "nay_description": "Voted against passing H.R. 3617, a bill to direct the Energy Department to secure the supply of minerals it considers essential to U.S. energy security. It passed the House 223-206.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "223-206",
+        "old_sentences": 2,
+        "old_chars": 231
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 69,
+      "measure_id": "S 1383",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted to pass S. 1383 as rewritten by the House into the SAVE America Act, which requires proof of citizenship to register and photo ID to vote in federal elections. It passed the House 218-213.",
+      "nay_description": "Voted against passing S. 1383 as rewritten by the House into the SAVE America Act, which requires proof of citizenship to register and photo ID to vote in federal elections. It passed the House 218-213.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-213",
+        "old_sentences": 2,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 71,
+      "measure_id": "H R 6329",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass H.R. 6329, a bill to make the White House budget office rewrite the rules agencies follow when publishing influential information. It passed the House 362-1.",
+      "nay_description": "Voted against passing H.R. 6329, a bill to make the White House budget office rewrite the rules agencies follow when publishing influential information. It passed the House 362-1.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass",
+        "tally": "362-1",
+        "old_sentences": 2,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 76,
+      "measure_id": "H R 4626",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass H.R. 4626, a bill to change how the Energy Department sets appliance efficiency standards, adding cost factors it must weigh. It passed the House 217-190.",
+      "nay_description": "Voted against passing H.R. 4626, a bill to change how the Energy Department sets appliance efficiency standards, adding cost factors it must weigh. It passed the House 217-190.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-190",
+        "old_sentences": 2,
+        "old_chars": 225
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 81,
+      "measure_id": "S 723",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass S. 723, the Tribal Trust Land Homeownership Act, a bill to set deadlines for the Bureau of Indian Affairs to process mortgages on tribal trust land. It passed the House 384-40.",
+      "nay_description": "Voted against passing S. 723, the Tribal Trust Land Homeownership Act, a bill to set deadlines for the Bureau of Indian Affairs to process mortgages on tribal trust land. It passed the House 384-40.",
+      "_current": {
+        "question": "On Motion to Suspend the Rules and Pass",
+        "tally": "384-40",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 87,
+      "measure_id": "H R 7744",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass H.R. 7744, a bill to fund the Department of Homeland Security for the rest of the budget year and end the partial shutdown begun February 14, 2026. It passed the House 221-209.",
+      "nay_description": "Voted against passing H.R. 7744, a bill to fund the Department of Homeland Security for the rest of the budget year and end the partial shutdown begun February 14, 2026. It passed the House 221-209.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "221-209",
+        "old_sentences": 2,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 93,
+      "measure_id": "H R 556",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass H.R. 556, a bill to stop federal land agencies from banning or regulating lead ammunition and fishing tackle on federal land and water. It passed the House 215-202.",
+      "nay_description": "Voted against passing H.R. 556, a bill to stop federal land agencies from banning or regulating lead ammunition and fishing tackle on federal land and water. It passed the House 215-202.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "215-202",
+        "old_sentences": 2,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 101,
+      "measure_id": "H R 5103",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted to pass H.R. 5103, a bill to set up a federal commission on crime and immigration in Washington, DC and a federal cleanup program for its public areas. It passed the House 218-206.",
+      "nay_description": "Voted against passing H.R. 5103, a bill to set up a federal commission on crime and immigration in Washington, DC and a federal cleanup program for its public areas. It passed the House 218-206.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-206",
+        "old_sentences": 2,
+        "old_chars": 261
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 104,
+      "measure_id": "H R 8029",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted to pass H.R. 8029, the Pay Our Homeland Defenders Act, a bill to fund the Department of Homeland Security and end the partial shutdown that began February 14, 2026. It passed the House 218-206.",
+      "nay_description": "Voted against passing H.R. 8029, the Pay Our Homeland Defenders Act, a bill to fund the Department of Homeland Security and end the partial shutdown that began February 14, 2026. It passed the House 218-206.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-206",
+        "old_sentences": 2,
+        "old_chars": 232
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 105,
+      "measure_id": "H R 7084",
+      "vote_date": "2026-03-27",
+      "yea_description": "Voted to pass H.R. 7084, a bill to let the President bar from U.S. ports any ship that has called at a port seized by a Western Hemisphere country. It passed the House 247-164.",
+      "nay_description": "Voted against passing H.R. 7084, a bill to let the President bar from U.S. ports any ship that has called at a port seized by a Western Hemisphere country. It passed the House 247-164.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "247-164",
+        "old_sentences": 2,
+        "old_chars": 216
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 136,
+      "measure_id": "H R 6387",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to pass H.R. 6387, the FIRE Act, a bill to change how wildfire smoke and other exceptional events count under the Clean Air Act. It passed the House 220-198.",
+      "nay_description": "Voted against passing H.R. 6387, the FIRE Act, a bill to change how wildfire smoke and other exceptional events count under the Clean Air Act. It passed the House 220-198.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "220-198",
+        "old_sentences": 2,
+        "old_chars": 213
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 142,
+      "measure_id": "S 1318",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted to pass S. 1318 as rewritten by the House, which renews foreign surveillance powers under FISA until April 2029 with added Section 702 protections. It passed the House 235-191.",
+      "nay_description": "Voted against passing S. 1318 as rewritten by the House, which renews foreign surveillance powers under FISA until April 2029 with added Section 702 protections. It passed the House 235-191.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "235-191",
+        "old_sentences": 2,
+        "old_chars": 277
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 154,
+      "measure_id": "H R 7567",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted to pass H.R. 7567, the 2026 farm bill, a bill to renew Agriculture Department crop support, conservation, food aid, and rural development programs through 2031. It passed the House 224-200.",
+      "nay_description": "Voted against passing H.R. 7567, the 2026 farm bill, a bill to renew Agriculture Department crop support, conservation, food aid, and rural development programs through 2031. It passed the House 224-200.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "224-200",
+        "old_sentences": 2,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 164,
+      "measure_id": "H R 1346",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass H.R. 1346, a bill to let higher-ethanol gasoline be sold through the summer smog season under a Clean Air Act waiver. It passed the House 218-203.",
+      "nay_description": "Voted against passing H.R. 1346, a bill to let higher-ethanol gasoline be sold through the summer smog season under a Clean Air Act waiver. It passed the House 218-203.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "218-203",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 171,
+      "measure_id": "H R 5625",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted to pass H.R. 5625, the Cashless Bail Reporting Act, a bill to make the Justice Department publish a yearly list of governments that release certain defendants without cash bail. It passed the House 308-116.",
+      "nay_description": "Voted against passing H.R. 5625, the Cashless Bail Reporting Act, a bill to make the Justice Department publish a yearly list of governments that release certain defendants without cash bail. It passed the House 308-116.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "308-116",
+        "old_sentences": 2,
+        "old_chars": 225
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 184,
+      "measure_id": "H R 2616",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass H.R. 2616, the PROTECT Kids Act, a bill to make federally funded elementary and middle schools get parental consent before changing a student's gender on forms. It passed the House 217-198.",
+      "nay_description": "Voted against passing H.R. 2616, the PROTECT Kids Act, a bill to make federally funded elementary and middle schools get parental consent before changing a student's gender on forms. It passed the House 217-198.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-198",
+        "old_sentences": 2,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 191,
+      "measure_id": "H R 6047",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass H.R. 6047, a bill to widen several veterans and survivors benefits and add an $833.33 monthly allowance for certain disabled veterans. It passed the House 235-179.",
+      "nay_description": "Voted against passing H.R. 6047, a bill to widen several veterans and survivors benefits and add an $833.33 monthly allowance for certain disabled veterans. It passed the House 235-179.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "235-179",
+        "old_sentences": 2,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 205,
+      "measure_id": "H R 8646",
+      "vote_date": "2026-06-04",
+      "yea_description": "Voted to pass H.R. 8646, the 2027 Agriculture and FDA appropriations bill, setting the year's funding for the Agriculture Department and the FDA. It passed the House 213-210.",
+      "nay_description": "Voted against passing H.R. 8646, the 2027 Agriculture and FDA appropriations bill, setting the year's funding for the Agriculture Department and the FDA. It passed the House 213-210.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "213-210",
+        "old_sentences": 2,
+        "old_chars": 238
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 214,
+      "measure_id": "S 2",
+      "vote_date": "2026-06-09",
+      "yea_description": "Voted to pass S. 2, the Secure America Act, a bill to provide $70 billion through 2029 for immigration enforcement and border security. It passed the House 214-212.",
+      "nay_description": "Voted against passing S. 2, the Secure America Act, a bill to provide $70 billion through 2029 for immigration enforcement and border security. It passed the House 214-212.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "214-212",
+        "old_sentences": 2,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 218,
+      "measure_id": "H R 8312",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted to pass H.R. 8312, a bill to move federal payment-integrity work to the Treasury and create a new inspector general for fraud and recovery. It passed the House 240-181.",
+      "nay_description": "Voted against passing H.R. 8312, a bill to move federal payment-integrity work to the Treasury and create a new inspector general for fraud and recovery. It passed the House 240-181.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "240-181",
+        "old_sentences": 2,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 238,
+      "measure_id": "H R 139",
+      "vote_date": "2026-07-14",
+      "yea_description": "Voted to pass H.R. 139, the Sunshine Protection Act of 2025, a bill to make daylight saving time permanent. It passed the House 308-117.",
+      "nay_description": "Voted against passing H.R. 139, the Sunshine Protection Act of 2025, a bill to make daylight saving time permanent. It passed the House 308-117.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "308-117",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 247,
+      "measure_id": "H R 8595",
+      "vote_date": "2026-07-15",
+      "yea_description": "Voted to pass H.R. 8595, the 2027 State Department and national security appropriations bill, setting the year's funding for the State Department and related programs. It passed the House 217-209.",
+      "nay_description": "Voted against passing H.R. 8595, the 2027 State Department and national security appropriations bill, setting the year's funding for the State Department and related programs. It passed the House 217-209.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "217-209",
+        "old_sentences": 2,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 283,
+      "measure_id": "H R 8884",
+      "vote_date": "2026-07-23",
+      "yea_description": "Voted to pass H.R. 8884, a bill to extend through 2031 Social Security projects that help disability insurance recipients return to work. It passed the House 232-188.",
+      "nay_description": "Voted against passing H.R. 8884, a bill to extend through 2031 Social Security projects that help disability insurance recipients return to work. It passed the House 232-188.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "232-188",
+        "old_sentences": 2,
+        "old_chars": 257
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 291,
+      "measure_id": "H R 9436",
+      "vote_date": "2026-09-01",
+      "yea_description": "Voted to pass H.R. 9436, a bill to delay new right whale protection rules for lobster and crab gear from 2028 to 2035. It passed the House 219-196.",
+      "nay_description": "Voted against passing H.R. 9436, a bill to delay new right whale protection rules for lobster and crab gear from 2028 to 2035. It passed the House 219-196.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-196",
+        "old_sentences": 2,
+        "old_chars": 240
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "119-2",
+      "roll": 295,
+      "measure_id": "H R 4795",
+      "vote_date": "2026-09-03",
+      "yea_description": "Voted to pass H.R. 4795, a bill to bar colleges that take federal student aid from boycotting Israel. It passed the House 237-169.",
+      "nay_description": "Voted against passing H.R. 4795, a bill to bar colleges that take federal student aid from boycotting Israel. It passed the House 237-169.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "237-169",
+        "old_sentences": 2,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "117-1",
+      "roll": 110,
+      "measure_id": "H.R. 1319",
+      "vote_date": "2021-03-06",
+      "yea_description": "Voted to pass the Senate's version of H.R. 1319, the American Rescue Plan Act, $1.9 trillion in COVID-19 relief with $1,400 payments and a larger child tax credit. The Senate approved it 50-49, the House agreed, and it became Public Law 117-2 on March 11, 2021.",
+      "nay_description": "Voted against passing the Senate's version of H.R. 1319, the American Rescue Plan Act, $1.9 trillion in COVID-19 relief with $1,400 payments and a larger child tax credit. The Senate approved it 50-49, the House agreed, and it became Public Law 117-2 on March 11, 2021.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "50-49",
+        "old_sentences": 4,
+        "old_chars": 373
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "117-1",
+      "roll": 314,
+      "measure_id": "H.R. 3684",
+      "vote_date": "2021-08-10",
+      "yea_description": "Voted to pass H.R. 3684, the Infrastructure Investment and Jobs Act, a bipartisan deal putting roughly $1 trillion into roads, bridges, rail, transit, broadband, water systems, and the power grid. The Senate passed it 69-30, the House later agreed, and it became Public Law 117-58 on November 15, 2021.",
+      "nay_description": "Voted against passing H.R. 3684, the Infrastructure Investment and Jobs Act, a bipartisan deal putting roughly $1 trillion into roads, bridges, rail, transit, broadband, water systems, and the power grid. The Senate passed it 69-30, the House later agreed, and it became Public Law 117-58 on November 15, 2021.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "69-30",
+        "old_sentences": 4,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "117-2",
+      "roll": 325,
+      "measure_id": "H.R. 5376",
+      "vote_date": "2022-08-07",
+      "yea_description": "Voted to pass H.R. 5376, the Inflation Reduction Act, which let Medicare negotiate drug prices, capped insulin at $35 a month for Medicare patients, and funded clean energy tax credits. The Senate split 50-50 and the Vice President broke the tie; it became Public Law 117-169 on August 16, 2022.",
+      "nay_description": "Voted against H.R. 5376, the Inflation Reduction Act, which let Medicare negotiate drug prices, capped insulin at $35 a month for Medicare patients, and funded clean energy tax credits. The Senate split 50-50 and the Vice President broke the tie; it became Public Law 117-169 on August 16, 2022.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "50-50",
+        "old_sentences": 3,
+        "old_chars": 362
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "117-2",
+      "roll": 362,
+      "measure_id": "H.R. 8404",
+      "vote_date": "2022-11-29",
+      "yea_description": "Voted yes at Senate passage of H.R. 8404, the Respect for Marriage Act, which repealed the federal man-woman definition of marriage and made states honor valid same-sex and interracial marriages. The Senate passed it 61-36, the House agreed, and it became Public Law 117-228 on December 13, 2022.",
+      "nay_description": "Voted no at Senate passage of H.R. 8404, the Respect for Marriage Act, which repealed the federal man-woman definition of marriage and made states honor valid same-sex and interracial marriages. The Senate passed it 61-36, the House agreed, and it became Public Law 117-228 on December 13, 2022.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "61-36",
+        "old_sentences": 3,
+        "old_chars": 344
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 7,
+      "measure_id": "S. 5",
+      "vote_date": "2025-01-20",
+      "yea_description": "Voted to pass S. 5, the Laken Riley Act, which requires jailing immigrants here illegally who are arrested for theft, burglary, or violent crimes. The Senate passed it 64-35, the House agreed, and it became law on January 29, 2025.",
+      "nay_description": "Voted against passing S. 5, the Laken Riley Act, which requires jailing immigrants here illegally who are arrested for theft, burglary, or violent crimes. The Senate passed it 64-35, the House agreed, and it became law on January 29, 2025.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "64-35",
+        "old_sentences": 5,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 127,
+      "measure_id": "S. 331",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted to pass S. 331, the HALT Fentanyl Act, which permanently puts fentanyl copycat drugs in the strictest federal drug category with fentanyl's penalties. The Senate passed it 84-16, and it became Public Law 119-26 on July 16, 2025.",
+      "nay_description": "Voted against passing S. 331, the HALT Fentanyl Act, which permanently puts fentanyl copycat drugs in the strictest federal drug category with fentanyl's penalties. The Senate passed it 84-16, and it became Public Law 119-26 on July 16, 2025.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "84-16",
+        "old_sentences": 4,
+        "old_chars": 319
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 229,
+      "measure_id": "S.J.Res. 31",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted to pass S.J.Res. 31, which cancelled an EPA rule requiring plants that move to a lower pollution category to keep controlling persistent toxic air pollutants. The Senate passed it 52-46 and sent it to the House. It became law on June 20, 2025 (Public Law 119-20).",
+      "nay_description": "Voted against S.J.Res. 31, which cancelled an EPA rule requiring plants that move to a lower pollution category to keep controlling persistent toxic air pollutants. The Senate passed it 52-46 and sent it to the House. It became law on June 20, 2025 (Public Law 119-20).",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "52-46",
+        "old_sentences": 4,
+        "old_chars": 289
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 237,
+      "measure_id": "S.J.Res. 13",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass S.J.Res. 13, which cancelled a 2024 rule that had ended fast-track approvals and short application forms in bank merger reviews. The Senate passed it 52-47 and sent it to the House. It became law on June 20, 2025 (Public Law 119-19).",
+      "nay_description": "Voted against S.J.Res. 13, which cancelled a 2024 rule that had ended fast-track approvals and short application forms in bank merger reviews. The Senate passed it 52-47 and sent it to the House. It became law on June 20, 2025 (Public Law 119-19).",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "52-47",
+        "old_sentences": 4,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 238,
+      "measure_id": "S.J.Res. 7",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted to pass S.J.Res. 7, a resolution to cancel the FCC rule letting schools and libraries lend Wi-Fi hotspots using federal internet discounts. The Senate passed it 50-38, but the House never voted on it, so the rule stayed in place.",
+      "nay_description": "Voted against passing S.J.Res. 7, a resolution to cancel the FCC rule letting schools and libraries lend Wi-Fi hotspots using federal internet discounts. The Senate passed it 50-38, but the House never voted on it, so the rule stayed in place.",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "50-38",
+        "old_sentences": 3,
+        "old_chars": 293
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 239,
+      "measure_id": "H.J.Res. 60",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted to pass H.J.Res. 60, sending it to the President: it repealed the National Park Service rule tightening off-road vehicle limits at Glen Canyon National Recreation Area around Lake Powell. The Senate passed it 50-43, and it was signed on May 23, 2025 as Public Law 119-13.",
+      "nay_description": "Voted against passing H.J.Res. 60, sending it to the President: it repealed the National Park Service rule tightening off-road vehicle limits at Glen Canyon National Recreation Area around Lake Powell. The Senate passed it 50-43, and it was signed on May 23, 2025 as Public Law 119-13.",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "50-43",
+        "old_sentences": 3,
+        "old_chars": 273
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 318,
+      "measure_id": "S. 1582",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted to pass S. 1582, the GENIUS Act, which set the first federal rules for payment stablecoins, requiring approved issuers to back each coin one-for-one with cash or safe assets. The Senate passed it 68-30, the House agreed, and it became Public Law 119-27 on July 18, 2025.",
+      "nay_description": "Voted against S. 1582, the GENIUS Act, which set the first federal rules for payment stablecoins, requiring approved issuers to back each coin one-for-one with cash or safe assets. The Senate passed it 68-30, the House agreed, and it became Public Law 119-27 on July 18, 2025.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "68-30",
+        "old_sentences": 3,
+        "old_chars": 366
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 554,
+      "measure_id": "S.J.Res. 71",
+      "vote_date": "2025-10-08",
+      "yea_description": "Voted for S.J.Res. 71, a resolution to end the national energy emergency the President declared on January 20, 2025 to speed domestic energy projects. The Senate rejected it 47-51, so the emergency stayed in place and the measure did not become law.",
+      "nay_description": "Voted against S.J.Res. 71, a resolution to end the national energy emergency the President declared on January 20, 2025 to speed domestic energy projects. The Senate rejected it 47-51, so the emergency stayed in place and the measure did not become law.",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "47-51",
+        "old_sentences": 3,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 570,
+      "measure_id": "S. 2296",
+      "vote_date": "2025-10-09",
+      "yea_description": "Voted to pass S. 2296, the National Defense Authorization Act for Fiscal Year 2026, as amended by the Senate, setting defense policy and authorizing Defense Department and nuclear security funding. The Senate passed it 77-20, but the House held it at the desk without voting, so it has not become law.",
+      "nay_description": "Voted against passing S. 2296, the National Defense Authorization Act for Fiscal Year 2026, as amended by the Senate, setting defense policy and authorizing Defense Department and nuclear security funding. The Senate passed it 77-20, but the House held it at the desk without voting, so it has not become law.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "77-20",
+        "old_sentences": 3,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 598,
+      "measure_id": "S.J.Res. 77",
+      "vote_date": "2025-10-29",
+      "yea_description": "Voted to pass S.J.Res. 77, a resolution to end the national emergency declared February 1, 2025 that added a 25% tariff on most Canadian imports and 10% on Canadian energy. The Senate passed it 50-46, but the House never took it up, so the resolution did not become law and the tariffs stayed in place.",
+      "nay_description": "Voted against S.J.Res. 77, a resolution to end the national emergency declared February 1, 2025 that added a 25% tariff on most Canadian imports and 10% on Canadian energy. The Senate passed it 50-46, but the House never took it up, so the resolution did not become law and the tariffs stayed in place.",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "50-46",
+        "old_sentences": 3,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-1",
+      "roll": 632,
+      "measure_id": "H.J.Res. 131",
+      "vote_date": "2025-12-04",
+      "yea_description": "Voted for sending H.J.Res. 131 to the President, cancelling the decision that limited oil and gas leasing in the Arctic National Wildlife Refuge and opening more of it to drilling. The Senate passed it 49-45.",
+      "nay_description": "Voted against sending H.J.Res. 131 to the President, cancelling the decision that limited oil and gas leasing in the Arctic National Wildlife Refuge and opening more of it to drilling. The Senate passed it 49-45.",
+      "_current": {
+        "question": "On the Joint Resolution",
+        "tally": "49-45",
+        "old_sentences": 2,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "US",
+      "chamber": "senate",
+      "session": "119-2",
+      "roll": 163,
+      "measure_id": "S. 2",
+      "vote_date": "2026-06-05",
+      "yea_description": "Voted to pass S. 2, the Secure America Act, a bill to provide $70 billion through 2029 for immigration enforcement and border security. It passed the Senate 52-47.",
+      "nay_description": "Voted against passing S. 2, the Secure America Act, a bill to provide $70 billion through 2029 for immigration enforcement and border security. It passed the Senate 52-47.",
+      "_current": {
+        "question": "On Passage of the Bill",
+        "tally": "52-47",
+        "old_sentences": 2,
+        "old_chars": 253
       }
     }
   ]

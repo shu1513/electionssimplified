@@ -17,14 +17,14 @@ Recipe (all paths from `backend/`; scripts here are python3, no deps):
    effect on people>", ...}` keyed by measure id (both chambers reuse it;
    the closing is per roll). Enacted bills: "which ..."; bills that did not
    pass: "a bill to ..."; never "would/will". Keep the clause under ~22
-   words so opener + clause stays under 30. Overrides: `OPEN = {roll: (yea
+   words so opener + clause stays under 25. Overrides: `OPEN = {roll: (yea
    opener, nay opener)}` when OPEN printed None or is too long; `IDX =
    {i: {"yea": full text}}` for a one-off full rewrite (nay is derived by
    swapping the opener), `IDX = {i: {"close": "..."}}` to shorten a long
    closing. See PA/US/WA effects files for examples of each.
 4. `python3 tools/mkrewrites2.py /tmp/CO_rewrites.json tools/CO_effects.py evidence/rollcall/description-rewrite-2026-09-13/CO/rewrites.json`
    It refuses to write until every row passes the same gate the importer
-   enforces (3 sentences / 320 chars / 30 words per sentence, tally
+   enforces (3 sentences / 320 chars / 25 words per sentence, tally
    present, no modal words). Fix the listed rows and rerun.
 5. `npm run rollcall:rewrite -- --rewrites-file evidence/rollcall/description-rewrite-2026-09-13/CO/rewrites.json --dry-run`
    then without `--dry-run`, saving stdout to `CO/apply-report.json`.

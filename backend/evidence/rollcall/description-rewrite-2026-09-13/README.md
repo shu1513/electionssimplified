@@ -10,7 +10,7 @@ Fix, in order:
 
 1. Hard gate (`rollCallDescriptionLength.ts`): `rollcall:judge` and
    `rollcall:rewrite` refuse a description over 3 sentences, 320
-   characters, or 30 words in one sentence.
+   characters, or 25 words in one sentence (30 during the first pass).
 2. Per jurisdiction: `rollcall:export-rewrites` → rewrite the effect
    clause from the existing text only (no new research, no AI) →
    `rollcall:rewrite --dry-run` → apply. Each `<JUR>/` folder holds the
