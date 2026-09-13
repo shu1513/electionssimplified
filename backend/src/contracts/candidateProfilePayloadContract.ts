@@ -44,6 +44,52 @@ export type CandidateProfilePayloadParseOptions = {
 // proxy for it.
 export const CANDIDATE_PROFILE_SUMMARY_MAX_LENGTH = 300;
 
+// The honest "nothing found" outcome. When a profile pass (plus a deeper
+// browser pass) finds no citable job, background, or priorities, the summary
+// is this one fixed sentence — never blank, never ballot-only filler. The
+// fixed wording is what makes it machine-recognizable: the demand ledger
+// counts it as an open profile gap once its recheck deferral passes, and
+// manual:candidate-profile:placeholders lists it for replacement. Payloads
+// that carry this sentence must keep has_held_public_office null (nothing is
+// known) and name the candidate exactly as display_name.
+const NO_PUBLIC_INFO_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+] as const;
+const NO_PUBLIC_INFO_MONTH_ALTERNATION = NO_PUBLIC_INFO_MONTHS.join("|");
+export const NO_PUBLIC_INFO_SUMMARY_PATTERN = new RegExp(
+  `^As of (${NO_PUBLIC_INFO_MONTH_ALTERNATION}) (\\d{4}), we found no public information about (.+)'s job, background, or goals\\.$`
+);
+// Same sentence as a POSIX regex for Postgres `~`, so SQL work queues select
+// exactly the rows the JS helper recognizes.
+export const NO_PUBLIC_INFO_SUMMARY_SQL_PATTERN =
+  `^As of (${NO_PUBLIC_INFO_MONTH_ALTERNATION}) [0-9]{4}, we found no public information about .+'s job, background, or goals\\.$`;
+// Loose cue that catches near-miss rewordings so they are rejected instead
+// of shipping as unrecognizable placeholders.
+const NO_PUBLIC_INFO_CUE = /no public information/i;
+
+export function buildNoPublicInfoSummary(displayName: string, asOf: Date = new Date()): string {
+  const month = NO_PUBLIC_INFO_MONTHS[asOf.getUTCMonth()];
+  return `As of ${month} ${asOf.getUTCFullYear()}, we found no public information about ${displayName.trim()}'s job, background, or goals.`;
+}
+
+export type NoPublicInfoSummary = { month: string; year: number; displayName: string };
+
+export function parseNoPublicInfoSummary(summary: string | null | undefined): NoPublicInfoSummary | null {
+  if (typeof summary !== "string") {
+    return null;
+  }
+  const match = NO_PUBLIC_INFO_SUMMARY_PATTERN.exec(summary.trim());
+  if (!match) {
+    return null;
+  }
+  return { month: match[1]!, year: Number(match[2]), displayName: match[3]! };
+}
+
+export function isNoPublicInfoSummary(summary: string | null | undefined): boolean {
+  return parseNoPublicInfoSummary(summary) !== null;
+}
+
 // The app renders the contest name, date, and stage beside the summary, so
 // race content inside it is always redundant and goes stale after election
 // day. Patterns stay narrow on purpose — "primary" alone would reject
@@ -409,6 +455,30 @@ export function parseCandidateProfilePayload(
         reason:
           `payload.summary contains ${horseRaceLabel} — the app already names the contest next to the summary, so campaign-status and horse-race content is banned. Describe who the person is (current role, 1-2 credentials, top 2 priorities), not the race.`,
       };
+    }
+    const noPublicInfo = parseNoPublicInfoSummary(trimmedSummary);
+    if (!noPublicInfo && NO_PUBLIC_INFO_CUE.test(trimmedSummary)) {
+      return {
+        ok: false,
+        reason:
+          `payload.summary reads as a "no public information" outcome but does not match the fixed template. Use exactly: ${buildNoPublicInfoSummary(displayName)} (month and year = when the search ran).`,
+      };
+    }
+    if (noPublicInfo) {
+      if (noPublicInfo.displayName !== displayName) {
+        return {
+          ok: false,
+          reason:
+            `payload.summary names "${noPublicInfo.displayName}" but display_name is "${displayName}" — the no-public-information template must carry display_name verbatim.`,
+        };
+      }
+      if (input.has_held_public_office !== null) {
+        return {
+          ok: false,
+          reason:
+            "payload.summary is the no-public-information template, so has_held_public_office must be null — a placeholder asserts that nothing is known, including office history.",
+        };
+      }
     }
     summary = trimmedSummary;
   }

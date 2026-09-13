@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
+import { NO_PUBLIC_INFO_SUMMARY_SQL_PATTERN } from "../../contracts/candidateProfilePayloadContract.js";
 import { listMissingGeneralElections } from "../../scripts/listMissingGeneralElections.js";
 import { usLatestLocalDateIso } from "../../utils/usLocalDate.js";
 import type { AddressResolvedDistrict } from "./addressDistrictLookup.js";
@@ -95,8 +96,14 @@ const GAP_QUERIES: Record<Exclude<ManualResearchDemandStage, "missing_general">,
           AND (mrd.election_id = e.id OR (mrd.election_id IS NULL AND mrd.district_id = e.district_id))
       )
   `,
-  // A live candidate on an upcoming ballot with an empty summary — the
-  // profile stage never ran (or wrote nothing voters can read).
+  // A live candidate on an upcoming ballot whose summary is empty (the
+  // profile stage never ran) or is the "no public information" placeholder
+  // (it ran and found nothing), with no live profile deferral covering the
+  // candidate. A deferral covers the candidate when it is district-wide,
+  // election-wide (no candidate blocker key), or keyed to this candidate
+  // (blocker_key profile-<first 8 chars of the candidate id>). Once the
+  // deferral's date passes the row is a gap again, so a placeholder comes
+  // back for its recheck on its own.
   candidate_profile: `
     SELECT DISTINCT ON (c.id)
       'candidate_profile' AS stage, c.id::text AS target_id, ${GAP_SELECT_COLUMNS},
@@ -112,7 +119,23 @@ const GAP_QUERIES: Record<Exclude<ManualResearchDemandStage, "missing_general">,
       AND ce.status <> 'withdrawn'
       AND c.deleted_at IS NULL
       AND c.merged_into_candidate_id IS NULL
-      AND COALESCE(btrim(c.summary), '') = ''
+      AND (
+        COALESCE(btrim(c.summary), '') = ''
+        OR btrim(c.summary) ~ '${NO_PUBLIC_INFO_SUMMARY_SQL_PATTERN.replace(/'/g, "''")}'
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM public.manual_research_deferrals AS mrd
+        WHERE mrd.status = 'deferred'
+          AND mrd.stage = 'candidate_profile'
+          AND mrd.blocked_until > $2::date
+          AND (mrd.election_id = e.id OR (mrd.election_id IS NULL AND mrd.district_id = e.district_id))
+          AND (
+            mrd.blocker_key IS NULL
+            OR mrd.blocker_key NOT LIKE 'profile-%'
+            OR mrd.blocker_key = 'profile-' || left(c.id::text, 8)
+          )
+      )
     ORDER BY c.id, e.election_date ASC, e.id ASC
   `,
   // Same candidates, records never searched.

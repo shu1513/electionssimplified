@@ -123,7 +123,17 @@ describe("findResearchGapsForDistricts", () => {
       expect(sqlByStage.get(stage)).toContain("c.deleted_at IS NULL");
       expect(sqlByStage.get(stage)).toContain("c.merged_into_candidate_id IS NULL");
     }
-    expect(sqlByStage.get("candidate_profile")).toContain("COALESCE(btrim(c.summary), '') = ''");
+    // Profile: a blank summary OR the fixed "no public information"
+    // placeholder counts, unless a live profile deferral covers the candidate
+    // (district-wide, election-wide, or keyed profile-<candidate id prefix>).
+    const profileSql = sqlByStage.get("candidate_profile")!;
+    expect(profileSql).toContain("COALESCE(btrim(c.summary), '') = ''");
+    expect(profileSql).toContain("OR btrim(c.summary) ~ '^As of (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{4}, we found no public information about .+''s job, background, or goals\\.$'");
+    expect(profileSql).toContain("mrd.stage = 'candidate_profile'");
+    expect(profileSql).toContain("mrd.blocked_until > $2::date");
+    expect(profileSql).toContain("(mrd.election_id = e.id OR (mrd.election_id IS NULL AND mrd.district_id = e.district_id))");
+    expect(profileSql).toContain("OR mrd.blocker_key NOT LIKE 'profile-%'");
+    expect(profileSql).toContain("OR mrd.blocker_key = 'profile-' || left(c.id::text, 8)");
     expect(sqlByStage.get("candidate_records")).toContain("c.last_records_searched_at IS NULL");
     // Measures: keyed by the election so a measure election with no detail
     // row yet (the writer creates it after research) still counts.

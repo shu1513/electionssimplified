@@ -5,6 +5,7 @@ import {
   applyRegularElectionProfileContext,
   applyConfirmedGaps,
   buildCandidateProfileQualityGaps,
+  noPublicInfoNextStep,
 } from "../../src/scripts/writeManualCandidateProfile.js";
 
 function profile(overrides: Partial<CandidateProfilePayload> = {}): CandidateProfilePayload {
@@ -19,6 +20,25 @@ function profile(overrides: Partial<CandidateProfilePayload> = {}): CandidatePro
     ...overrides,
   };
 }
+
+describe("noPublicInfoNextStep", () => {
+  const election = {
+    election_id: "22222222-2222-4222-8222-222222222222",
+    district_id: "11111111-1111-4111-8111-111111111111",
+  };
+
+  it("prints the deferral command keyed to the written candidate", () => {
+    const step = noPublicInfoNextStep(election, "33333333-3333-4333-8333-333333333333");
+    expect(step).toContain("npm run manual:deferral:record -- --district-id 11111111-1111-4111-8111-111111111111");
+    expect(step).toContain("--election-id 22222222-2222-4222-8222-222222222222");
+    expect(step).toContain("--blocker-key profile-33333333 --stage candidate_profile");
+    expect(step).toContain("--replace-profile-fields summary");
+  });
+
+  it("leaves the candidate id as a placeholder on a dry run", () => {
+    expect(noPublicInfoNextStep(election, "<candidateId>")).toContain("--blocker-key profile-<first 8 chars of candidateId>");
+  });
+});
 
 describe("writeManualCandidateProfile quality gaps", () => {
   it("does not report a current-office gap when current_office is present", () => {

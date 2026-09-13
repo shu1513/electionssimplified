@@ -68,6 +68,7 @@
     "candidates:roster:scheduler:trigger": "tsx src/scripts/triggerCandidateRosterRollover.ts",
     "candidates:profile:enrich": "tsx src/scripts/enrichCandidateProfiles.ts",
     "manual:candidate-profile:write": "tsx src/scripts/writeManualCandidateProfile.ts",
+    "manual:candidate-profile:placeholders": "tsx src/scripts/listNoInfoProfileSummaries.ts",
     "candidates:record:enrich": "tsx src/scripts/enrichCandidateRecords.ts",
     "manual:candidate-records:write": "tsx src/scripts/writeManualCandidateRecords.ts",
     "manual:candidate-records:due": "tsx src/scripts/listFollowedCandidateRecordsDue.ts",
