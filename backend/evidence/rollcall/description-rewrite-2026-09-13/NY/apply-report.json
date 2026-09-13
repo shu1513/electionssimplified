@@ -1,0 +1,326 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/NY/rewrites.json",
+  "dryRun": false,
+  "rolls": 45,
+  "updatedRolls": 45,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 1243,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "NY:house:2188:1473444",
+      "outcome": "updated",
+      "rewritten": 48,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1516803",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1522289",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1522762",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1523103",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1536285",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1571864",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1579566",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1581084",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1586620",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1588646",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1589090",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1589390",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1589424",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1589619",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1589668",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592223",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592323",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592400",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592494",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592516",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1592527",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1687411",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:house:2188:1687413",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1472643",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1478801",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1478939",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1478985",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1485432",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1527071",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1536066",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1560492",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1575829",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1587039",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1587201",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1589169",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1589185",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1589349",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1589368",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1590406",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1590432",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1590434",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1590519",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1689755",
+      "outcome": "updated",
+      "rewritten": 0,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NY:senate:2188:1696603",
+      "outcome": "updated",
+      "rewritten": 0,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+CLOSE = {
+ 385812063: "The Hawaii House gave it final approval 39-10, and it became law.",
+ 385812062: "The Hawaii Senate gave it final approval 20-5, and it became law.",
+ 386722839: "The Hawaii House gave it final approval 36-13, and it became law.",
+ 417002242: "The Hawaii House gave it final approval 40-11, and it became law.",
+ 417475641: "The Hawaii House gave it final approval 40-11, and it became law.",
+ 418523844: "The Hawaii House gave it final approval 35-15, and it became law.",
+ 418540230: "The Hawaii House gave it final approval 40-10, and it became law.",
+ 382016649: "The Hawaii Senate gave it final approval 18-7, and it became law.",
+ 383625417: "The Hawaii Senate passed it 15-10, and it became law.",
+ 418488639: "The Hawaii Senate gave it final approval 20-5, and it became law.",
+ 418636851: "The Hawaii Senate gave it final approval 20-5, and it became law.",
+}
+EFFECTS = {
+ "SB 897": "which caps what an electric utility must pay for property damage after a catastrophic wildfire",
+ "SB 1433": "which lets the needle exchange program give out sterile syringes based on need",
+ "SB 2239": "which registers people to vote automatically when they apply for a driver's license or state ID",
+ "SB 2400": "which exempts seaglider passenger companies from Hawaii's Water Carrier Act",
+ "SB 2694": "which lets regulated shipping companies raise cargo rates up to 5 percent a year without a full rate case",
+ "HB 1961": "which makes it a crime to block someone's way into or out of a health care facility",
+ "SB 97": "which makes a third excessive speeding offense within five years a misdemeanor with 30 days in jail",
+ "HB 137": "which requires prison time for a violent felon caught with a gun or ammunition",
+ "SB 2697": "which bans driving on the shoulder of a road, with a $250 fine",
+ "HB 2023": "which sets up a state program for speed-limiting devices in cars of drivers suspended for excessive speeding",
+}

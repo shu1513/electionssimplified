@@ -1,0 +1,1012 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1529458,
+      "measure_id": "HB 67",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 67, which caps private-lot towing charges at $250 for the tow and $50 a day for storage. The Delaware House passed it 23-14, and it became law.",
+      "nay_description": "Voted against House Bill 67, which caps private-lot towing charges at $250 for the tow and $50 a day for storage. The Delaware House passed it 23-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "23-14",
+        "old_sentences": 8,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1540030,
+      "measure_id": "HB 62",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 62, which bars utilities from shutting off a home's power or gas over the holidays, on freezing or extreme-heat days, or without 14 days' notice. The Delaware House passed it 28-12, and it became law.",
+      "nay_description": "Voted against House Bill 62, which bars utilities from shutting off a home's power or gas over the holidays, on freezing or extreme-heat days, or without 14 days' notice. The Delaware House passed it 28-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-12",
+        "old_sentences": 7,
+        "old_chars": 866
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1551826,
+      "measure_id": "HB 56",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House Bill 56, which makes health plans and Medicaid cover surgery to remove excess skin when a doctor finds it medically needed. The Delaware House passed it 29-8, and it became law.",
+      "nay_description": "Voted against House Bill 56, which makes health plans and Medicaid cover surgery to remove excess skin when a doctor finds it medically needed. The Delaware House passed it 29-8, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "29-8",
+        "old_sentences": 7,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1570813,
+      "measure_id": "HB 130",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 130, which gives public employee unions new workers' contact details and lets them meet workers in public buildings. The Delaware House passed it 22-14, and it became law.",
+      "nay_description": "Voted against House Bill 130, which gives public employee unions new workers' contact details and lets them meet workers in public buildings. The Delaware House passed it 22-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "22-14",
+        "old_sentences": 4,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1576658,
+      "measure_id": "HB 119",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 119, the Freedom to Read Act, which bars public and school libraries from pulling books because of the author or the ideas in them. The Delaware House passed it 27-10, and it became law.",
+      "nay_description": "Voted against House Bill 119, the Freedom to Read Act, which bars public and school libraries from pulling books because of the author or the ideas in them. The Delaware House passed it 27-10, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-10",
+        "old_sentences": 7,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1587790,
+      "measure_id": "HB 105",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for House Bill 105, which makes employers with 26 or more workers state the pay range and benefits in every job ad. The Delaware House passed it 28-12, and it became law.",
+      "nay_description": "Voted against House Bill 105, which makes employers with 26 or more workers state the pay range and benefits in every job ad. The Delaware House passed it 28-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-12",
+        "old_sentences": 8,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1591662,
+      "measure_id": "HB 205",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 205, which shields Delaware health care providers from other states' penalties for care that is legal in Delaware. The Delaware House passed it 29-11, and it became law.",
+      "nay_description": "Voted against House Bill 205, which shields Delaware health care providers from other states' penalties for care that is legal in Delaware. The Delaware House passed it 29-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "29-11",
+        "old_sentences": 7,
+        "old_chars": 714
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1591731,
+      "measure_id": "HB 48",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 48, which requires permits and inspections for disabled parking spaces and raises the fine for parking in one illegally from $200 to $250. The Delaware House passed it 27-7, and it became law.",
+      "nay_description": "Voted against House Bill 48, which requires permits and inspections for disabled parking spaces and raises the fine for parking in one illegally from $200 to $250. The Delaware House passed it 27-7, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-7",
+        "old_sentences": 7,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1591788,
+      "measure_id": "HB 37",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 37, which makes clear that state and local government agencies must follow Delaware's ban on discrimination in public places. The Delaware House passed it 26-12, and it became law.",
+      "nay_description": "Voted against House Bill 37, which makes clear that state and local government agencies must follow Delaware's ban on discrimination in public places. The Delaware House passed it 26-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-12",
+        "old_sentences": 6,
+        "old_chars": 658
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1591853,
+      "measure_id": "HB 153",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 153, which ends citizen's arrests in Delaware, so only people a law names may arrest or hold someone. The Delaware House passed it 24-12, and it became law.",
+      "nay_description": "Voted against House Bill 153, which ends citizen's arrests in Delaware, so only people a law names may arrest or hold someone. The Delaware House passed it 24-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 456
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1594411,
+      "measure_id": "HB 182",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 182, which bars Delaware police from signing federal 287(g) deals to do civil immigration enforcement or hold immigration detainees. The Delaware House passed it 28-12, and it became law.",
+      "nay_description": "Voted against House Bill 182, which bars Delaware police from signing federal 287(g) deals to do civil immigration enforcement or hold immigration detainees. The Delaware House passed it 28-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-12",
+        "old_sentences": 7,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1594471,
+      "measure_id": "HB 210",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 210, the Pollution Accountability Act, which raises the daily fines for breaking Delaware environmental laws to as much as $40,000. The Delaware House passed it 28-12, and it became law.",
+      "nay_description": "Voted against House Bill 210, the Pollution Accountability Act, which raises the daily fines for breaking Delaware environmental laws to as much as $40,000. The Delaware House passed it 28-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-12",
+        "old_sentences": 7,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1595211,
+      "measure_id": "SB 60",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 60, which bars utilities from billing customers for lobbying, political donations, or image advertising. The Delaware House passed it 29-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 60, which bars utilities from billing customers for lobbying, political donations, or image advertising. The Delaware House passed it 29-9, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "29-9",
+        "old_sentences": 6,
+        "old_chars": 658
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1595630,
+      "measure_id": "SB 24",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 24, which lets a public employee union be certified without an election once more than half the workers sign cards for it. The Delaware House passed it 26-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 24, which lets a public employee union be certified without an election once more than half the workers sign cards for it. The Delaware House passed it 26-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-12",
+        "old_sentences": 4,
+        "old_chars": 387
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1595667,
+      "measure_id": "HB 50",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 50, which creates the Delaware Energy Fund to help households under 350% of the poverty level pay energy bills. The Delaware House passed it 27-13, and it became law.",
+      "nay_description": "Voted against House Bill 50, which creates the Delaware Energy Fund to help households under 350% of the poverty level pay energy bills. The Delaware House passed it 27-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-13",
+        "old_sentences": 8,
+        "old_chars": 701
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1596577,
+      "measure_id": "HB 116",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 116, which lets regulators approve power and gas delivery rates 20% below standard for low-income households. The Delaware House passed it 26-14, and it became law.",
+      "nay_description": "Voted against House Bill 116, which lets regulators approve power and gas delivery rates 20% below standard for low-income households. The Delaware House passed it 26-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-14",
+        "old_sentences": 7,
+        "old_chars": 656
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1596724,
+      "measure_id": "HB 70",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 70, which requires rental homes built before 1978 to pass a lead paint inspection, with state grants and loans to help landlords pay. The Delaware House passed it 26-11, and it became law.",
+      "nay_description": "Voted against House Bill 70, which requires rental homes built before 1978 to pass a lead paint inspection, with state grants and loans to help landlords pay. The Delaware House passed it 26-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-11",
+        "old_sentences": 7,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1668823,
+      "measure_id": "HB 150",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 150, which bars civil (non-criminal) arrests of people going to or from Delaware courthouses. The Delaware House passed it 25-13, and it became law.",
+      "nay_description": "Voted against House Bill 150, which bars civil (non-criminal) arrests of people going to or from Delaware courthouses. The Delaware House passed it 25-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "25-13",
+        "old_sentences": 8,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1684513,
+      "measure_id": "HB 94",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted for House Bill 94, which bars Delaware police from helping federal immigration arrests at schools, colleges, places of worship, and health care sites. The Delaware House passed it 27-14, and it became law.",
+      "nay_description": "Voted against House Bill 94, which bars Delaware police from helping federal immigration arrests at schools, colleges, places of worship, and health care sites. The Delaware House passed it 27-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-14",
+        "old_sentences": 8,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1684633,
+      "measure_id": "HB 151",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted for House Bill 151, which bars Delaware and its local governments from paying private companies to run jails or detention centers. The Delaware House passed it 28-13, and it became law.",
+      "nay_description": "Voted against House Bill 151, which bars Delaware and its local governments from paying private companies to run jails or detention centers. The Delaware House passed it 28-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-13",
+        "old_sentences": 6,
+        "old_chars": 615
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1694203,
+      "measure_id": "SB 250",
+      "vote_date": "2026-05-05",
+      "yea_description": "Voted for Senate Bill 250, which rewrites Delaware's parentage law so a child's legal parents are defined the same way whatever the parents' gender or marital status. The Delaware House passed it 26-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 250, which rewrites Delaware's parentage law so a child's legal parents are defined the same way whatever the parents' gender or marital status. The Delaware House passed it 26-10, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-10",
+        "old_sentences": 9,
+        "old_chars": 799
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1697128,
+      "measure_id": "HB 348",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted for House Bill 348, which removes the dollar caps and the $50,000 price limit on Delaware's electric car rebates and lets the state set the amounts. The Delaware House passed it 26-13, and it became law.",
+      "nay_description": "Voted against House Bill 348, which removes the dollar caps and the $50,000 price limit on Delaware's electric car rebates and lets the state set the amounts. The Delaware House passed it 26-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-13",
+        "old_sentences": 8,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1698221,
+      "measure_id": "SB 201",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for Senate Bill 201, which requires a state license for people who flip home purchase contracts and gives sellers 21 days to cancel such a deal. The Delaware House passed it 26-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 201, which requires a state license for people who flip home purchase contracts and gives sellers 21 days to cancel such a deal. The Delaware House passed it 26-10, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-10",
+        "old_sentences": 6,
+        "old_chars": 690
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1698281,
+      "measure_id": "HB 369",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for House Bill 369, which writes the state Office of Gun Violence Prevention and Community Safety into law so a future governor cannot undo it by order. The Delaware House passed it 27-12, and it became law.",
+      "nay_description": "Voted against House Bill 369, which writes the state Office of Gun Violence Prevention and Community Safety into law so a future governor cannot undo it by order. The Delaware House passed it 27-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-12",
+        "old_sentences": 8,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1701182,
+      "measure_id": "HB 380",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted for House Bill 380, which extends Delaware's personal data privacy law to companies holding data on 10,000 or more Delawareans, down from 35,000. The Delaware House passed it 30-9, and it became law.",
+      "nay_description": "Voted against House Bill 380, which extends Delaware's personal data privacy law to companies holding data on 10,000 or more Delawareans, down from 35,000. The Delaware House passed it 30-9, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "30-9",
+        "old_sentences": 9,
+        "old_chars": 625
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1708611,
+      "measure_id": "HB 344",
+      "vote_date": "2026-06-11",
+      "yea_description": "Voted for House Bill 344, which tightens campaign finance rules: five-year record keeping, written loans, mandatory training, and a filing freeze for ignored late notices. The Delaware House passed it 24-14, and it became law.",
+      "nay_description": "Voted against House Bill 344, which tightens campaign finance rules: five-year record keeping, written loans, mandatory training, and a filing freeze for ignored late notices. The Delaware House passed it 24-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "24-14",
+        "old_sentences": 7,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1708860,
+      "measure_id": "HB 418",
+      "vote_date": "2026-06-11",
+      "yea_description": "Voted for House Bill 418, which gives owners of untraceable ghost guns six months to get a serial number stamped on them or make them unusable. The Delaware House passed it 28-8, and it became law.",
+      "nay_description": "Voted against House Bill 418, which gives owners of untraceable ghost guns six months to get a serial number stamped on them or make them unusable. The Delaware House passed it 28-8, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-8",
+        "old_sentences": 8,
+        "old_chars": 581
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1708935,
+      "measure_id": "HB 423",
+      "vote_date": "2026-06-11",
+      "yea_description": "Voted for House Bill 423, which enrolls new state workers in a retirement savings plan by default, taking 3% to 15% of pay unless they opt out. The Delaware House passed it 32-8, and it became law.",
+      "nay_description": "Voted against House Bill 423, which enrolls new state workers in a retirement savings plan by default, taking 3% to 15% of pay unless they opt out. The Delaware House passed it 32-8, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "32-8",
+        "old_sentences": 7,
+        "old_chars": 712
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1709867,
+      "measure_id": "HB 368",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for House Bill 368, which bars Delaware police from holding people on immigration requests no judge signed, except violent felons and some repeat offenders. The Delaware House passed it 23-13, and it became law.",
+      "nay_description": "Voted against House Bill 368, which bars Delaware police from holding people on immigration requests no judge signed, except violent felons and some repeat offenders. The Delaware House passed it 23-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "23-13",
+        "old_sentences": 10,
+        "old_chars": 794
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1710338,
+      "measure_id": "HB 444",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for House Bill 444, the Delaware John Lewis Voting Rights Act, which lets voters sue over rules that hold back minority voters and requires voting help in other languages. The Delaware House passed it 29-11, and it became law.",
+      "nay_description": "Voted against House Bill 444, the Delaware John Lewis Voting Rights Act, which lets voters sue over rules that hold back minority voters and requires voting help in other languages. The Delaware House passed it 29-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "29-11",
+        "old_sentences": 8,
+        "old_chars": 944
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1711037,
+      "measure_id": "SB 23",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for Senate Bill 23, the Housing for Every Delawarean Act, which makes counties and towns plan for 20% affordable housing and allow denser housing. The Delaware House passed it 29-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 23, the Housing for Every Delawarean Act, which makes counties and towns plan for 20% affordable housing and allow denser housing. The Delaware House passed it 29-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "29-11",
+        "old_sentences": 8,
+        "old_chars": 827
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1711047,
+      "measure_id": "HB 427",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for House Bill 427, which lets 16- and 17-year-olds target shoot and hunt without an adult present, with a parent's permission and a hunter safety course. The Delaware House passed it 28-9, and it became law.",
+      "nay_description": "Voted against House Bill 427, which lets 16- and 17-year-olds target shoot and hunt without an adult present, with a parent's permission and a hunter safety course. The Delaware House passed it 28-9, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "28-9",
+        "old_sentences": 7,
+        "old_chars": 654
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1711096,
+      "measure_id": "SB 13",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for Senate Bill 13, which makes hospitals give free medically necessary care to Delaware residents earning up to three times the poverty level, with discounts above that. The Delaware House passed it 27-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 13, which makes hospitals give free medically necessary care to Delaware residents earning up to three times the poverty level, with discounts above that. The Delaware House passed it 27-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-13",
+        "old_sentences": 9,
+        "old_chars": 883
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1712097,
+      "measure_id": "SB 300",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for Senate Bill 300, which requires gun dealers to hold a state license with cameras, alarms, employee background checks, and staff training. The Delaware House passed it 27-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 300, which requires gun dealers to hold a state license with cameras, alarms, employee background checks, and staff training. The Delaware House passed it 27-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-11",
+        "old_sentences": 9,
+        "old_chars": 664
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1712798,
+      "measure_id": "SB 326",
+      "vote_date": "2026-06-30",
+      "yea_description": "Voted for Senate Bill 326, which tightens oversight of power and gas companies, including regular management reviews and limits on collecting rate hikes before approval. The Delaware House passed it 30-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 326, which tightens oversight of power and gas companies, including regular management reviews and limits on collecting rate hikes before approval. The Delaware House passed it 30-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "30-11",
+        "old_sentences": 8,
+        "old_chars": 857
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1713106,
+      "measure_id": "HB 233",
+      "vote_date": "2026-07-01",
+      "yea_description": "Voted for House Bill 233, which makes data centers and other very large power users pay their own hookup and rate costs so other customers do not. The Delaware House passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 233, which makes data centers and other very large power users pay their own hookup and rate costs so other customers do not. The Delaware House passed it 27-8, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "27-8",
+        "old_sentences": 8,
+        "old_chars": 644
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "house",
+      "session": "2163",
+      "roll": 1713350,
+      "measure_id": "HB 310",
+      "vote_date": "2026-07-01",
+      "yea_description": "Voted for House Bill 310, which takes Delaware's job-creation tax break away from data centers and other very large power users unless they run on clean energy. The Delaware House passed it 26-11, and it became law.",
+      "nay_description": "Voted against House Bill 310, which takes Delaware's job-creation tax break away from data centers and other very large power users unless they run on clean energy. The Delaware House passed it 26-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "26-11",
+        "old_sentences": 6,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1572073,
+      "measure_id": "SB 82",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Senate Bill 82, which lets courts order a person found dangerous to give up their guns for up to five years, up from one year. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 82, which lets courts order a person found dangerous to give up their guns for up to five years, up from one year. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 5,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1573995,
+      "measure_id": "SB 24",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 24, which lets a public employee union be certified without an election once more than half the workers sign cards for it. The Delaware Senate passed it 14-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 24, which lets a public employee union be certified without an election once more than half the workers sign cards for it. The Delaware Senate passed it 14-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "14-6",
+        "old_sentences": 4,
+        "old_chars": 387
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1594247,
+      "measure_id": "HB 36",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 36, which extends every ground covered by Delaware's main anti-discrimination laws to its smaller anti-discrimination rules. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 36, which extends every ground covered by Delaware's main anti-discrimination laws to its smaller anti-discrimination rules. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 7,
+        "old_chars": 548
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1594969,
+      "measure_id": "HB 154",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for House Bill 154, which protects charities and police from lawsuits when they give away free gun locks and safes. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 154, which protects charities and police from lawsuits when they give away free gun locks and safes. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 5,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1595515,
+      "measure_id": "HB 116",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 116, which lets regulators approve power and gas delivery rates 20% below standard for low-income households. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 116, which lets regulators approve power and gas delivery rates 20% below standard for low-income households. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 7,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596475,
+      "measure_id": "HB 91",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 91, which makes school breakfast free for every student at public schools in the federal breakfast program, with the state paying the gap. The Delaware Senate passed it 16-5, and it became law.",
+      "nay_description": "Voted against House Bill 91, which makes school breakfast free for every student at public schools in the federal breakfast program, with the state paying the gap. The Delaware Senate passed it 16-5, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-5",
+        "old_sentences": 6,
+        "old_chars": 614
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596566,
+      "measure_id": "HB 205",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 205, which shields Delaware health care providers from other states' penalties for care that is legal in Delaware. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 205, which shields Delaware health care providers from other states' penalties for care that is legal in Delaware. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 7,
+        "old_chars": 714
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596588,
+      "measure_id": "HB 105",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 105, which makes employers with 26 or more workers state the pay range and benefits in every job ad. The Delaware Senate passed it 16-4, and it became law.",
+      "nay_description": "Voted against House Bill 105, which makes employers with 26 or more workers state the pay range and benefits in every job ad. The Delaware Senate passed it 16-4, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-4",
+        "old_sentences": 8,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596723,
+      "measure_id": "HB 70",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 70, which requires rental homes built before 1978 to pass a lead paint inspection, with state grants and loans to help landlords pay. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 70, which requires rental homes built before 1978 to pass a lead paint inspection, with state grants and loans to help landlords pay. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 7,
+        "old_chars": 755
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596866,
+      "measure_id": "HB 37",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 37, which makes clear that state and local government agencies must follow Delaware's ban on discrimination in public places. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 37, which makes clear that state and local government agencies must follow Delaware's ban on discrimination in public places. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 6,
+        "old_chars": 658
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596903,
+      "measure_id": "HB 50",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 50, which creates the Delaware Energy Fund to help households under 350% of the poverty level pay energy bills. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 50, which creates the Delaware Energy Fund to help households under 350% of the poverty level pay energy bills. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 701
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1596946,
+      "measure_id": "HB 119",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 119, the Freedom to Read Act, which bars public and school libraries from pulling books because of the author or the ideas in them. The Delaware Senate passed it 14-6, and it became law.",
+      "nay_description": "Voted against House Bill 119, the Freedom to Read Act, which bars public and school libraries from pulling books because of the author or the ideas in them. The Delaware Senate passed it 14-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "14-6",
+        "old_sentences": 7,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1597096,
+      "measure_id": "HB 210",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 210, the Pollution Accountability Act, which raises the daily fines for breaking Delaware environmental laws to as much as $40,000. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 210, the Pollution Accountability Act, which raises the daily fines for breaking Delaware environmental laws to as much as $40,000. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 7,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1684642,
+      "measure_id": "HB 269",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted for House Bill 269, which makes power companies adopt the national standard rules for connecting rooftop solar to the grid. The Delaware Senate passed it 15-5, and it became law.",
+      "nay_description": "Voted against House Bill 269, which makes power companies adopt the national standard rules for connecting rooftop solar to the grid. The Delaware Senate passed it 15-5, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-5",
+        "old_sentences": 7,
+        "old_chars": 595
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1708718,
+      "measure_id": "SB 23",
+      "vote_date": "2026-06-11",
+      "yea_description": "Voted for Senate Bill 23, the Housing for Every Delawarean Act, which makes counties and towns plan for 20% affordable housing and allow denser housing. The Delaware Senate passed it 14-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 23, the Housing for Every Delawarean Act, which makes counties and towns plan for 20% affordable housing and allow denser housing. The Delaware Senate passed it 14-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "14-6",
+        "old_sentences": 8,
+        "old_chars": 827
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1709692,
+      "measure_id": "HB 380",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for House Bill 380, which extends Delaware's personal data privacy law to companies holding data on 10,000 or more Delawareans, down from 35,000. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 380, which extends Delaware's personal data privacy law to companies holding data on 10,000 or more Delawareans, down from 35,000. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 9,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1710252,
+      "measure_id": "HB 369",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for House Bill 369, which writes the state Office of Gun Violence Prevention and Community Safety into law so a future governor cannot undo it by order. The Delaware Senate passed it 15-4, and it became law.",
+      "nay_description": "Voted against House Bill 369, which writes the state Office of Gun Violence Prevention and Community Safety into law so a future governor cannot undo it by order. The Delaware Senate passed it 15-4, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-4",
+        "old_sentences": 8,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1711062,
+      "measure_id": "HB 348",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for House Bill 348, which removes the dollar caps and the $50,000 price limit on Delaware's electric car rebates and lets the state set the amounts. The Delaware Senate passed it 16-5, and it became law.",
+      "nay_description": "Voted against House Bill 348, which removes the dollar caps and the $50,000 price limit on Delaware's electric car rebates and lets the state set the amounts. The Delaware Senate passed it 16-5, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-5",
+        "old_sentences": 8,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1711976,
+      "measure_id": "HB 94",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 94, which bars Delaware police from helping federal immigration arrests at schools, colleges, places of worship, and health care sites. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 94, which bars Delaware police from helping federal immigration arrests at schools, colleges, places of worship, and health care sites. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1711977,
+      "measure_id": "HB 368",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 368, which bars Delaware police from holding people on immigration requests no judge signed, except violent felons and some repeat offenders. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 368, which bars Delaware police from holding people on immigration requests no judge signed, except violent felons and some repeat offenders. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 10,
+        "old_chars": 794
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1712692,
+      "measure_id": "SB 300",
+      "vote_date": "2026-06-30",
+      "yea_description": "Voted for Senate Bill 300, which requires gun dealers to hold a state license with cameras, alarms, employee background checks, and staff training. The Delaware Senate passed it 14-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 300, which requires gun dealers to hold a state license with cameras, alarms, employee background checks, and staff training. The Delaware Senate passed it 14-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "14-7",
+        "old_sentences": 9,
+        "old_chars": 664
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1713105,
+      "measure_id": "HB 233",
+      "vote_date": "2026-06-30",
+      "yea_description": "Voted for House Bill 233, which makes data centers and other very large power users pay their own hookup and rate costs so other customers do not. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 233, which makes data centers and other very large power users pay their own hookup and rate costs so other customers do not. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 645
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1713220,
+      "measure_id": "HB 418",
+      "vote_date": "2026-07-01",
+      "yea_description": "Voted for House Bill 418, which gives owners of untraceable ghost guns six months to get a serial number stamped on them or make them unusable. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 418, which gives owners of untraceable ghost guns six months to get a serial number stamped on them or make them unusable. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1713289,
+      "measure_id": "HB 344",
+      "vote_date": "2026-07-01",
+      "yea_description": "Voted for House Bill 344, which tightens campaign finance rules: five-year record keeping, written loans, mandatory training, and a filing freeze for ignored late notices. The Delaware Senate passed it 16-5, and it became law.",
+      "nay_description": "Voted against House Bill 344, which tightens campaign finance rules: five-year record keeping, written loans, mandatory training, and a filing freeze for ignored late notices. The Delaware Senate passed it 16-5, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-5",
+        "old_sentences": 7,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1713349,
+      "measure_id": "HB 310",
+      "vote_date": "2026-06-30",
+      "yea_description": "Voted for House Bill 310, which takes Delaware's job-creation tax break away from data centers and other very large power users unless they run on clean energy. The Delaware Senate passed it 15-6, and it became law.",
+      "nay_description": "Voted against House Bill 310, which takes Delaware's job-creation tax break away from data centers and other very large power users unless they run on clean energy. The Delaware Senate passed it 15-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "15-6",
+        "old_sentences": 6,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "DE",
+      "chamber": "senate",
+      "session": "2163",
+      "roll": 1713376,
+      "measure_id": "HB 427",
+      "vote_date": "2026-07-01",
+      "yea_description": "Voted for House Bill 427, which lets 16- and 17-year-olds target shoot and hunt without an adult present, with a parent's permission and a hunter safety course. The Delaware Senate passed it 14-6, and it became law.",
+      "nay_description": "Voted against House Bill 427, which lets 16- and 17-year-olds target shoot and hunt without an adult present, with a parent's permission and a hunter safety course. The Delaware Senate passed it 14-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "14-6",
+        "old_sentences": 7,
+        "old_chars": 655
+      }
+    }
+  ]
+}

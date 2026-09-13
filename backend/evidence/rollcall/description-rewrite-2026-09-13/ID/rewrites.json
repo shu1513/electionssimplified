@@ -1,0 +1,1476 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1472604,
+      "measure_id": "H 7",
+      "vote_date": "2025-01-21",
+      "yea_description": "Voted for House Bill 7, which sets a minimum $300 fine for adults convicted of possessing a small amount of marijuana. The Idaho House passed it 54-14, and it became law.",
+      "nay_description": "Voted against House Bill 7, which sets a minimum $300 fine for adults convicted of possessing a small amount of marijuana. The Idaho House passed it 54-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "54-14",
+        "old_sentences": 6,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1475188,
+      "measure_id": "H 35",
+      "vote_date": "2025-01-27",
+      "yea_description": "Voted for House Bill 35, which requires multifactor login security across Idaho state government. The Idaho House passed it 54-16, and it became law.",
+      "nay_description": "Voted against House Bill 35, which requires multifactor login security across Idaho state government. The Idaho House passed it 54-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "54-16",
+        "old_sentences": 6,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1476384,
+      "measure_id": "H 32",
+      "vote_date": "2025-01-29",
+      "yea_description": "Voted for House Bill 32, which bans mask mandates by any state or local body in Idaho. The Idaho House passed it 52-16, and it became law.",
+      "nay_description": "Voted against House Bill 32, which bans mask mandates by any state or local body in Idaho. The Idaho House passed it 52-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "52-16",
+        "old_sentences": 6,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1482442,
+      "measure_id": "H 79",
+      "vote_date": "2025-02-05",
+      "yea_description": "Voted for House Bill 79, which raises the cap on community college tuition from $2,500 to $3,250 a year. The Idaho House passed it 52-17, and it became law.",
+      "nay_description": "Voted against House Bill 79, which raises the cap on community college tuition from $2,500 to $3,250 a year. The Idaho House passed it 52-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "52-17",
+        "old_sentences": 7,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1498343,
+      "measure_id": "H 187",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for House Bill 187, which sets out what people on felony probation and parole must be told and agree to. The Idaho House passed it 47-18, and it became law.",
+      "nay_description": "Voted against House Bill 187, which sets out what people on felony probation and parole must be told and agree to. The Idaho House passed it 47-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "47-18",
+        "old_sentences": 7,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1499312,
+      "measure_id": "H 245",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 245, which raises the age limit for extended foster care from 21 to 23. The Idaho House passed it 53-17, and it became law.",
+      "nay_description": "Voted against House Bill 245, which raises the age limit for extended foster care from 21 to 23. The Idaho House passed it 53-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "53-17",
+        "old_sentences": 7,
+        "old_chars": 710
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1503952,
+      "measure_id": "H 294",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 294, which removes the caps on civil penalties for breaking pipeline safety laws. The Idaho House passed it 44-26, and it became law.",
+      "nay_description": "Voted against House Bill 294, which removes the caps on civil penalties for breaking pipeline safety laws. The Idaho House passed it 44-26, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-26",
+        "old_sentences": 6,
+        "old_chars": 659
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1504827,
+      "measure_id": "H 240",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 240, which opens outdoor campus areas at public colleges to speech and bans free speech zones. The Idaho House passed it 55-15, and it became law.",
+      "nay_description": "Voted against House Bill 240, which opens outdoor campus areas at public colleges to speech and bans free speech zones. The Idaho House passed it 55-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "55-15",
+        "old_sentences": 7,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1506825,
+      "measure_id": "H 290",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for House Bill 290, which moves school and daycare vaccine requirements from health board rules into state law. The Idaho House passed it 49-21, and it became law.",
+      "nay_description": "Voted against House Bill 290, which moves school and daycare vaccine requirements from health board rules into state law. The Idaho House passed it 49-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "49-21",
+        "old_sentences": 7,
+        "old_chars": 861
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1514666,
+      "measure_id": "S 1069",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted for Senate Bill 1069, which requires literacy training for every teacher and elementary administrator of young children. The Idaho House passed it 40-30, and it became law.",
+      "nay_description": "Voted against Senate Bill 1069, which requires literacy training for every teacher and elementary administrator of young children. The Idaho House passed it 40-30, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-30",
+        "old_sentences": 7,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1519169,
+      "measure_id": "H 135",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted for House Bill 135, which removes exemptions from the lawful presence check for public benefits. The Idaho House passed it 46-22, and it became law.",
+      "nay_description": "Voted against House Bill 135, which removes exemptions from the lawful presence check for public benefits. The Idaho House passed it 46-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "46-22",
+        "old_sentences": 8,
+        "old_chars": 807
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1522104,
+      "measure_id": "S 1139",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted for Senate Bill 1139, which limits the automatic felony bar on becoming a police officer to serious felonies. The Idaho House passed it 49-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 1139, which limits the automatic felony bar on becoming a police officer to serious felonies. The Idaho House passed it 49-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "49-15",
+        "old_sentences": 7,
+        "old_chars": 682
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1525975,
+      "measure_id": "H 398",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House Bill 398, which rewrites Idaho's lobbying rules and widens what counts as lobbying. The Idaho House passed it 54-14, and it became law.",
+      "nay_description": "Voted against House Bill 398, which rewrites Idaho's lobbying rules and widens what counts as lobbying. The Idaho House passed it 54-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "54-14",
+        "old_sentences": 7,
+        "old_chars": 742
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1527851,
+      "measure_id": "H 136",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 136, which makes hospitals and clinics report what they earn from the 340B discount drug program. The Idaho House passed it 52-18, and it became law.",
+      "nay_description": "Voted against House Bill 136, which makes hospitals and clinics report what they earn from the 340B discount drug program. The Idaho House passed it 52-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "52-18",
+        "old_sentences": 7,
+        "old_chars": 811
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1529738,
+      "measure_id": "S 1183",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 1183, which presumes a utility was not negligent in a wildfire if it followed an approved mitigation plan. The Idaho House passed it 46-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 1183, which presumes a utility was not negligent in a wildfire if it followed an approved mitigation plan. The Idaho House passed it 46-23, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "46-23",
+        "old_sentences": 7,
+        "old_chars": 812
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1531058,
+      "measure_id": "H 271",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 271, which makes it a misdemeanor to advertise a product or service that is illegal where offered. The Idaho House passed it 50-20, and it became law.",
+      "nay_description": "Voted against House Bill 271, which makes it a misdemeanor to advertise a product or service that is illegal where offered. The Idaho House passed it 50-20, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "50-20",
+        "old_sentences": 6,
+        "old_chars": 699
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1531141,
+      "measure_id": "H 109",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 109, which orders the state to seek a federal waiver removing candy and soda from food stamps. The Idaho House passed it 48-20, and it became law.",
+      "nay_description": "Voted against House Bill 109, which orders the state to seek a federal waiver removing candy and soda from food stamps. The Idaho House passed it 48-20, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "48-20",
+        "old_sentences": 7,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1536653,
+      "measure_id": "H 180",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for House Bill 180, which puts city and county decisions on broadband and cell tower permits on a clock. The Idaho House passed it 48-20, and it became law.",
+      "nay_description": "Voted against House Bill 180, which puts city and county decisions on broadband and cell tower permits on a clock. The Idaho House passed it 48-20, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "48-20",
+        "old_sentences": 7,
+        "old_chars": 775
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1536661,
+      "measure_id": "S 1198",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 1198, which bans diversity, equity and inclusion offices and required training at public colleges. The Idaho House passed it 52-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 1198, which bans diversity, equity and inclusion offices and required training at public colleges. The Idaho House passed it 52-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "52-17",
+        "old_sentences": 8,
+        "old_chars": 811
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1536751,
+      "measure_id": "H 253",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for House Bill 253, which lets agencies treat public records requests from non-residents differently. The Idaho House passed it 45-24, and it became law.",
+      "nay_description": "Voted against House Bill 253, which lets agencies treat public records requests from non-residents differently. The Idaho House passed it 45-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "45-24",
+        "old_sentences": 7,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1536768,
+      "measure_id": "S 1180",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 1180, which sets rules for how agencies may use automated license plate readers. The Idaho House passed it 45-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 1180, which sets rules for how agencies may use automated license plate readers. The Idaho House passed it 45-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "45-24",
+        "old_sentences": 9,
+        "old_chars": 825
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2168",
+      "roll": 1537326,
+      "measure_id": "S 1210",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted for Senate Bill 1210, the Idaho Medical Freedom Act, which bars almost every medical requirement in the state. The Idaho House passed it 44-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 1210, the Idaho Medical Freedom Act, which bars almost every medical requirement in the state. The Idaho House passed it 44-23, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-23",
+        "old_sentences": 8,
+        "old_chars": 904
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1631851,
+      "measure_id": "H 583",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for House Bill 583, which narrows what cities and counties may do about short-term rentals. The Idaho House passed it 54-16, and it became law.",
+      "nay_description": "Voted against House Bill 583, which narrows what cities and counties may do about short-term rentals. The Idaho House passed it 54-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "54-16",
+        "old_sentences": 9,
+        "old_chars": 909
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1650920,
+      "measure_id": "H 667",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House Bill 667, which ends Idaho's non-domiciled commercial driver's license program. The Idaho House passed it 46-21, and it became law.",
+      "nay_description": "Voted against House Bill 667, which ends Idaho's non-domiciled commercial driver's license program. The Idaho House passed it 46-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "46-21",
+        "old_sentences": 5,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1651383,
+      "measure_id": "H 723",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House Bill 723, which adds state oversight and inspection of children's residential care facilities. The Idaho House passed it 42-25, and it became law.",
+      "nay_description": "Voted against House Bill 723, which adds state oversight and inspection of children's residential care facilities. The Idaho House passed it 42-25, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "42-25",
+        "old_sentences": 6,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1655502,
+      "measure_id": "H 562",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 562, which raises insurance cancellation notice from 30 to 60 days. The Idaho House passed it 51-17, and it became law.",
+      "nay_description": "Voted against House Bill 562, which raises insurance cancellation notice from 30 to 60 days. The Idaho House passed it 51-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "51-17",
+        "old_sentences": 8,
+        "old_chars": 615
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1659089,
+      "measure_id": "H 849",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted for House Bill 849, which credits industry experience to raise pay for career technical education teachers. The Idaho House passed it 43-25, and it became law.",
+      "nay_description": "Voted against House Bill 849, which credits industry experience to raise pay for career technical education teachers. The Idaho House passed it 43-25, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "43-25",
+        "old_sentences": 8,
+        "old_chars": 814
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1663815,
+      "measure_id": "H 752",
+      "vote_date": "2026-03-16",
+      "yea_description": "Voted for House Bill 752, which makes using a restroom or changing room meant for the opposite sex a misdemeanor. The Idaho House passed it 54-15, and it became law.",
+      "nay_description": "Voted against House Bill 752, which makes using a restroom or changing room meant for the opposite sex a misdemeanor. The Idaho House passed it 54-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "54-15",
+        "old_sentences": 7,
+        "old_chars": 727
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1664666,
+      "measure_id": "S 1257",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Senate Bill 1257, which limits face-to-face visits in child protection cases involving abuse. The Idaho House passed it 44-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 1257, which limits face-to-face visits in child protection cases involving abuse. The Idaho House passed it 44-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-24",
+        "old_sentences": 6,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1664909,
+      "measure_id": "S 1269",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Senate Bill 1269, which sets up a state cloud seeding program. The Idaho House passed it 40-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 1269, which sets up a state cloud seeding program. The Idaho House passed it 40-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-28",
+        "old_sentences": 7,
+        "old_chars": 740
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1664924,
+      "measure_id": "H 508",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for House Bill 508, which widens when highway districts may build bike lanes and sidewalks. The Idaho House passed it 39-29, and it became law.",
+      "nay_description": "Voted against House Bill 508, which widens when highway districts may build bike lanes and sidewalks. The Idaho House passed it 39-29, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-29",
+        "old_sentences": 6,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1665847,
+      "measure_id": "H 776",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted for House Bill 776, which requires child protection checks within twelve hours for babies in risky homes. The Idaho House passed it 49-18, and it became law.",
+      "nay_description": "Voted against House Bill 776, which requires child protection checks within twelve hours for babies in risky homes. The Idaho House passed it 49-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "49-18",
+        "old_sentences": 6,
+        "old_chars": 823
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1667035,
+      "measure_id": "H 929",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted for House Bill 929, which lets an insured patient pay cash and still get credit toward their deductible. The Idaho House passed it 49-21, and it became law.",
+      "nay_description": "Voted against House Bill 929, which lets an insured patient pay cash and still get credit toward their deductible. The Idaho House passed it 49-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "49-21",
+        "old_sentences": 7,
+        "old_chars": 717
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1667235,
+      "measure_id": "H 930",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted for House Bill 930, which requires campaigns to keep all money in a dedicated checking account. The Idaho House passed it 36-34, and it became law.",
+      "nay_description": "Voted against House Bill 930, which requires campaigns to keep all money in a dedicated checking account. The Idaho House passed it 36-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-34",
+        "old_sentences": 7,
+        "old_chars": 861
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1667976,
+      "measure_id": "S 1311",
+      "vote_date": "2026-03-23",
+      "yea_description": "Voted for Senate Bill 1311, which tightens ignition interlock rules for drunk driving offenders. The Idaho House passed it 40-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 1311, which tightens ignition interlock rules for drunk driving offenders. The Idaho House passed it 40-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-28",
+        "old_sentences": 7,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1668904,
+      "measure_id": "S 1288",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for Senate Bill 1288, which creates a state fund to help schools pay for very expensive special education. The Idaho House passed it 49-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 1288, which creates a state fund to help schools pay for very expensive special education. The Idaho House passed it 49-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "49-21",
+        "old_sentences": 7,
+        "old_chars": 830
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1669006,
+      "measure_id": "S 1300",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for Senate Bill 1300, which lets the governor appoint the directors of Fish and Game, Transportation and Parks. The Idaho House passed it 41-29, and it became law.",
+      "nay_description": "Voted against Senate Bill 1300, which lets the governor appoint the directors of Fish and Game, Transportation and Parks. The Idaho House passed it 41-29, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "41-29",
+        "old_sentences": 6,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1671296,
+      "measure_id": "S 1294",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 1294, which requires every newborn to be screened for hearing loss. The Idaho House passed it 37-32, and it became law.",
+      "nay_description": "Voted against Senate Bill 1294, which requires every newborn to be screened for hearing loss. The Idaho House passed it 37-32, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-32",
+        "old_sentences": 7,
+        "old_chars": 700
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1671344,
+      "measure_id": "S 1354",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 1354, which requires cities to allow accessory dwelling units on single-family lots. The Idaho House passed it 47-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 1354, which requires cities to allow accessory dwelling units on single-family lots. The Idaho House passed it 47-23, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "47-23",
+        "old_sentences": 8,
+        "old_chars": 930
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1671400,
+      "measure_id": "S 1352",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 1352, which requires larger cities to allow small starter home subdivisions. The Idaho House passed it 36-34, and it became law.",
+      "nay_description": "Voted against Senate Bill 1352, which requires larger cities to allow small starter home subdivisions. The Idaho House passed it 36-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-34",
+        "old_sentences": 7,
+        "old_chars": 968
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1673160,
+      "measure_id": "H 810",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted for House Bill 810, which requires legislative candidates to have kept a fixed home inside the district. The Idaho House passed it 38-28, and it became law.",
+      "nay_description": "Voted against House Bill 810, which requires legislative candidates to have kept a fixed home inside the district. The Idaho House passed it 38-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "38-28",
+        "old_sentences": 6,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "house",
+      "session": "2246",
+      "roll": 1676245,
+      "measure_id": "H 516",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted for House Bill 516, which bars school districts from deducting union dues or using public money to support teachers unions. The Idaho House passed it 43-24, and it became law.",
+      "nay_description": "Voted against House Bill 516, which bars school districts from deducting union dues or using public money to support teachers unions. The Idaho House passed it 43-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "43-24",
+        "old_sentences": 5,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1492015,
+      "measure_id": "H 7",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted for House Bill 7, which sets a minimum $300 fine for adults convicted of possessing a small amount of marijuana. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 7, which sets a minimum $300 fine for adults convicted of possessing a small amount of marijuana. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1498505,
+      "measure_id": "S 1069",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 1069, which requires literacy training for every teacher and elementary administrator of young children. The Idaho Senate passed it 22-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 1069, which requires literacy training for every teacher and elementary administrator of young children. The Idaho Senate passed it 22-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-13",
+        "old_sentences": 7,
+        "old_chars": 771
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1501482,
+      "measure_id": "S 1046",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1046, which requires a fetal development lesson with an ultrasound video in grades five through twelve. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 1046, which requires a fetal development lesson with an ultrasound video in grades five through twelve. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1502103,
+      "measure_id": "S 1099",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1099, which raises the penalty for vehicular manslaughter by a repeat drunk driver. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1099, which raises the penalty for vehicular manslaughter by a repeat drunk driver. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 6,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1502341,
+      "measure_id": "S 1007",
+      "vote_date": "2025-02-28",
+      "yea_description": "Voted for Senate Bill 1007, which lets residents speak at school board meetings on matters not on the agenda. The Idaho Senate passed it 25-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 1007, which lets residents speak at school board meetings on matters not on the agenda. The Idaho Senate passed it 25-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-9",
+        "old_sentences": 7,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1504438,
+      "measure_id": "H 40",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 40, which cuts the income tax rate from 5.695 to 5.3 percent and exempts military retirement pay. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 40, which cuts the income tax rate from 5.695 to 5.3 percent and exempts military retirement pay. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 7,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1505054,
+      "measure_id": "H 79",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 79, which raises the cap on community college tuition from $2,500 to $3,250 a year. The Idaho Senate passed it 26-9, and it became law.",
+      "nay_description": "Voted against House Bill 79, which raises the cap on community college tuition from $2,500 to $3,250 a year. The Idaho Senate passed it 26-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "26-9",
+        "old_sentences": 7,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1506523,
+      "measure_id": "H 86",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for House Bill 86, which bars governments from requiring electric vehicle charging in new buildings. The Idaho Senate passed it 28-7, and it became law.",
+      "nay_description": "Voted against House Bill 86, which bars governments from requiring electric vehicle charging in new buildings. The Idaho Senate passed it 28-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "28-7",
+        "old_sentences": 5,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1509492,
+      "measure_id": "H 149",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for House Bill 149, which restricts lenders' use of mortgage trigger leads to solicit loan applicants. The Idaho Senate passed it 26-9, and it became law.",
+      "nay_description": "Voted against House Bill 149, which restricts lenders' use of mortgage trigger leads to solicit loan applicants. The Idaho Senate passed it 26-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "26-9",
+        "old_sentences": 6,
+        "old_chars": 678
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1516255,
+      "measure_id": "H 146",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for House Bill 146, which requires new wind farms to seek radar systems that keep warning lights off until aircraft approach. The Idaho Senate passed it 18-15, and it became law.",
+      "nay_description": "Voted against House Bill 146, which requires new wind farms to seek radar systems that keep warning lights off until aircraft approach. The Idaho Senate passed it 18-15, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 737
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1517421,
+      "measure_id": "H 245",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 245, which raises the age limit for extended foster care from 21 to 23. The Idaho Senate passed it 21-14, and it became law.",
+      "nay_description": "Voted against House Bill 245, which raises the age limit for extended foster care from 21 to 23. The Idaho Senate passed it 21-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-14",
+        "old_sentences": 7,
+        "old_chars": 711
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1517454,
+      "measure_id": "H 187",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 187, which sets out what people on felony probation and parole must be told and agree to. The Idaho Senate passed it 24-8, and it became law.",
+      "nay_description": "Voted against House Bill 187, which sets out what people on felony probation and parole must be told and agree to. The Idaho Senate passed it 24-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "24-8",
+        "old_sentences": 7,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1518096,
+      "measure_id": "S 1141",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for Senate Bill 1141, which bans camping and sleeping in public places across Idaho. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 1141, which bans camping and sleeping in public places across Idaho. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 720
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1519034,
+      "measure_id": "H 134",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted for House Bill 134, which makes health plans pay for a yearly extra breast cancer screening for people at higher risk. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against House Bill 134, which makes health plans pay for a yearly extra breast cancer screening for people at higher risk. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 7,
+        "old_chars": 815
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1519287,
+      "measure_id": "H 294",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted for House Bill 294, which removes the caps on civil penalties for breaking pipeline safety laws. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 294, which removes the caps on civil penalties for breaking pipeline safety laws. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 659
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1520194,
+      "measure_id": "H 290",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House Bill 290, which moves school and daycare vaccine requirements from health board rules into state law. The Idaho Senate passed it 23-11, and it became law.",
+      "nay_description": "Voted against House Bill 290, which moves school and daycare vaccine requirements from health board rules into state law. The Idaho Senate passed it 23-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-11",
+        "old_sentences": 7,
+        "old_chars": 862
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1525625,
+      "measure_id": "S 1183",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for Senate Bill 1183, which presumes a utility was not negligent in a wildfire if it followed an approved mitigation plan. The Idaho Senate passed it 24-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1183, which presumes a utility was not negligent in a wildfire if it followed an approved mitigation plan. The Idaho Senate passed it 24-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "24-11",
+        "old_sentences": 7,
+        "old_chars": 813
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1527820,
+      "measure_id": "H 109",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 109, which orders the state to seek a federal waiver removing candy and soda from food stamps. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against House Bill 109, which orders the state to seek a federal waiver removing candy and soda from food stamps. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 7,
+        "old_chars": 767
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1527882,
+      "measure_id": "H 96",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 96, which limits the flags a government body may fly to a short official list. The Idaho Senate passed it 20-11, and it became law.",
+      "nay_description": "Voted against House Bill 96, which limits the flags a government body may fly to a short official list. The Idaho Senate passed it 20-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-11",
+        "old_sentences": 8,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1528070,
+      "measure_id": "H 271",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 271, which makes it a misdemeanor to advertise a product or service that is illegal where offered. The Idaho Senate passed it 24-10, and it became law.",
+      "nay_description": "Voted against House Bill 271, which makes it a misdemeanor to advertise a product or service that is illegal where offered. The Idaho Senate passed it 24-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "24-10",
+        "old_sentences": 6,
+        "old_chars": 700
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1529328,
+      "measure_id": "S 1180",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 1180, which sets rules for how agencies may use automated license plate readers. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1180, which sets rules for how agencies may use automated license plate readers. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 9,
+        "old_chars": 826
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1531006,
+      "measure_id": "H 339",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 339, which builds a monthly data feed of deaths and license changes to clean voter rolls. The Idaho Senate passed it 27-7, and it became law.",
+      "nay_description": "Voted against House Bill 339, which builds a monthly data feed of deaths and license changes to clean voter rolls. The Idaho Senate passed it 27-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-7",
+        "old_sentences": 7,
+        "old_chars": 814
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1532746,
+      "measure_id": "H 135",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for House Bill 135, which removes exemptions from the lawful presence check for public benefits. The Idaho Senate passed it 26-9, and it became law.",
+      "nay_description": "Voted against House Bill 135, which removes exemptions from the lawful presence check for public benefits. The Idaho Senate passed it 26-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "26-9",
+        "old_sentences": 8,
+        "old_chars": 807
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1532841,
+      "measure_id": "H 253",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for House Bill 253, which lets agencies treat public records requests from non-residents differently. The Idaho Senate passed it 25-9, and it became law.",
+      "nay_description": "Voted against House Bill 253, which lets agencies treat public records requests from non-residents differently. The Idaho Senate passed it 25-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-9",
+        "old_sentences": 7,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1533289,
+      "measure_id": "H 180",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for House Bill 180, which puts city and county decisions on broadband and cell tower permits on a clock. The Idaho Senate passed it 24-9, and it became law.",
+      "nay_description": "Voted against House Bill 180, which puts city and county decisions on broadband and cell tower permits on a clock. The Idaho Senate passed it 24-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "24-9",
+        "old_sentences": 7,
+        "old_chars": 775
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1536122,
+      "measure_id": "H 398",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for House Bill 398, which rewrites Idaho's lobbying rules and widens what counts as lobbying. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 398, which rewrites Idaho's lobbying rules and widens what counts as lobbying. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 7,
+        "old_chars": 742
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1537329,
+      "measure_id": "S 1211",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 1211, which lets people buy ivermectin without a prescription. The Idaho Senate passed it 25-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 1211, which lets people buy ivermectin without a prescription. The Idaho Senate passed it 25-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-9",
+        "old_sentences": 6,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2168",
+      "roll": 1537403,
+      "measure_id": "S 1198",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted for Senate Bill 1198, which bans diversity, equity and inclusion offices and required training at public colleges. The Idaho Senate passed it 23-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1198, which bans diversity, equity and inclusion offices and required training at public colleges. The Idaho Senate passed it 23-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-12",
+        "old_sentences": 8,
+        "old_chars": 812
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1646485,
+      "measure_id": "S 1288",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for Senate Bill 1288, which creates a state fund to help schools pay for very expensive special education. The Idaho Senate passed it 22-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1288, which creates a state fund to help schools pay for very expensive special education. The Idaho Senate passed it 22-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-12",
+        "old_sentences": 7,
+        "old_chars": 831
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1647991,
+      "measure_id": "S 1257",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for Senate Bill 1257, which limits face-to-face visits in child protection cases involving abuse. The Idaho Senate passed it 24-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 1257, which limits face-to-face visits in child protection cases involving abuse. The Idaho Senate passed it 24-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "24-6",
+        "old_sentences": 6,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1649553,
+      "measure_id": "S 1300",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1300, which lets the governor appoint the directors of Fish and Game, Transportation and Parks. The Idaho Senate passed it 21-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 1300, which lets the governor appoint the directors of Fish and Game, Transportation and Parks. The Idaho Senate passed it 21-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-14",
+        "old_sentences": 6,
+        "old_chars": 601
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1649959,
+      "measure_id": "S 1311",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1311, which tightens ignition interlock rules for drunk driving offenders. The Idaho Senate passed it 21-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 1311, which tightens ignition interlock rules for drunk driving offenders. The Idaho Senate passed it 21-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-14",
+        "old_sentences": 7,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1652106,
+      "measure_id": "S 1269",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for Senate Bill 1269, which sets up a state cloud seeding program. The Idaho Senate passed it 25-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 1269, which sets up a state cloud seeding program. The Idaho Senate passed it 25-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-9",
+        "old_sentences": 7,
+        "old_chars": 740
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1657406,
+      "measure_id": "H 583",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted for House Bill 583, which narrows what cities and counties may do about short-term rentals. The Idaho Senate passed it 23-12, and it became law.",
+      "nay_description": "Voted against House Bill 583, which narrows what cities and counties may do about short-term rentals. The Idaho Senate passed it 23-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-12",
+        "old_sentences": 9,
+        "old_chars": 910
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1666665,
+      "measure_id": "S 1297",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted for Senate Bill 1297, the Conversational AI Safety Act, which makes chatbots disclose they are artificial intelligence. The Idaho Senate passed it 21-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1297, the Conversational AI Safety Act, which makes chatbots disclose they are artificial intelligence. The Idaho Senate passed it 21-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-12",
+        "old_sentences": 7,
+        "old_chars": 849
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1666704,
+      "measure_id": "S 1352",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted for Senate Bill 1352, which requires larger cities to allow small starter home subdivisions. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1352, which requires larger cities to allow small starter home subdivisions. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 7,
+        "old_chars": 969
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1667122,
+      "measure_id": "H 542",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted for House Bill 542, the Stop Harms from Addictive Social Media Act, which puts parents in control of a child's account. The Idaho Senate passed it 21-14, and it became law.",
+      "nay_description": "Voted against House Bill 542, the Stop Harms from Addictive Social Media Act, which puts parents in control of a child's account. The Idaho Senate passed it 21-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-14",
+        "old_sentences": 7,
+        "old_chars": 877
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1667128,
+      "measure_id": "S 1354",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted for Senate Bill 1354, which requires cities to allow accessory dwelling units on single-family lots. The Idaho Senate passed it 25-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1354, which requires cities to allow accessory dwelling units on single-family lots. The Idaho Senate passed it 25-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "25-10",
+        "old_sentences": 8,
+        "old_chars": 931
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1667232,
+      "measure_id": "S 1294",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted for Senate Bill 1294, which requires every newborn to be screened for hearing loss. The Idaho Senate passed it 22-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 1294, which requires every newborn to be screened for hearing loss. The Idaho Senate passed it 22-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-13",
+        "old_sentences": 7,
+        "old_chars": 701
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1668922,
+      "measure_id": "H 849",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 849, which credits industry experience to raise pay for career technical education teachers. The Idaho Senate passed it 18-14, and it became law.",
+      "nay_description": "Voted against House Bill 849, which credits industry experience to raise pay for career technical education teachers. The Idaho Senate passed it 18-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-14",
+        "old_sentences": 8,
+        "old_chars": 815
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1669024,
+      "measure_id": "H 562",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 562, which raises insurance cancellation notice from 30 to 60 days. The Idaho Senate passed it 20-13, and it became law.",
+      "nay_description": "Voted against House Bill 562, which raises insurance cancellation notice from 30 to 60 days. The Idaho Senate passed it 20-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-13",
+        "old_sentences": 8,
+        "old_chars": 616
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1669385,
+      "measure_id": "H 561",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 561, which tightens the 2025 flag rules for government property and adds a fine. The Idaho Senate passed it 26-8, and it became law.",
+      "nay_description": "Voted against House Bill 561, which tightens the 2025 flag rules for government property and adds a fine. The Idaho Senate passed it 26-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "26-8",
+        "old_sentences": 8,
+        "old_chars": 831
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1671596,
+      "measure_id": "H 810",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for House Bill 810, which requires legislative candidates to have kept a fixed home inside the district. The Idaho Senate passed it 20-14, and it became law.",
+      "nay_description": "Voted against House Bill 810, which requires legislative candidates to have kept a fixed home inside the district. The Idaho Senate passed it 20-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-14",
+        "old_sentences": 6,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1671823,
+      "measure_id": "H 752",
+      "vote_date": "2026-03-27",
+      "yea_description": "Voted for House Bill 752, which makes using a restroom or changing room meant for the opposite sex a misdemeanor. The Idaho Senate passed it 28-7, and it became law.",
+      "nay_description": "Voted against House Bill 752, which makes using a restroom or changing room meant for the opposite sex a misdemeanor. The Idaho Senate passed it 28-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "28-7",
+        "old_sentences": 7,
+        "old_chars": 727
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1673035,
+      "measure_id": "H 776",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted for House Bill 776, which requires child protection checks within twelve hours for babies in risky homes. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 776, which requires child protection checks within twelve hours for babies in risky homes. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 823
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1673263,
+      "measure_id": "H 822",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted for House Bill 822, the Pediatric Secretive Transitions Parental Rights Act, which requires schools and clinicians to tell parents. The Idaho Senate passed it 27-8, and it became law.",
+      "nay_description": "Voted against House Bill 822, the Pediatric Secretive Transitions Parental Rights Act, which requires schools and clinicians to tell parents. The Idaho Senate passed it 27-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1674240,
+      "measure_id": "H 508",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for House Bill 508, which widens when highway districts may build bike lanes and sidewalks. The Idaho Senate passed it 19-16, and it became law.",
+      "nay_description": "Voted against House Bill 508, which widens when highway districts may build bike lanes and sidewalks. The Idaho Senate passed it 19-16, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-16",
+        "old_sentences": 6,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1675360,
+      "measure_id": "H 706",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted for House Bill 706, which lets cities allow apartment buildings with a single stairway. The Idaho Senate passed it 18-17, and it became law.",
+      "nay_description": "Voted against House Bill 706, which lets cities allow apartment buildings with a single stairway. The Idaho Senate passed it 18-17, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-17",
+        "old_sentences": 6,
+        "old_chars": 616
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1675366,
+      "measure_id": "H 516",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted for House Bill 516, which bars school districts from deducting union dues or using public money to support teachers unions. The Idaho Senate passed it 20-14, and it became law.",
+      "nay_description": "Voted against House Bill 516, which bars school districts from deducting union dues or using public money to support teachers unions. The Idaho Senate passed it 20-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-14",
+        "old_sentences": 5,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "ID",
+      "chamber": "senate",
+      "session": "2246",
+      "roll": 1675495,
+      "measure_id": "H 930",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted for House Bill 930, which requires campaigns to keep all money in a dedicated checking account. The Idaho Senate passed it 19-14, and it became law.",
+      "nay_description": "Voted against House Bill 930, which requires campaigns to keep all money in a dedicated checking account. The Idaho Senate passed it 19-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-14",
+        "old_sentences": 7,
+        "old_chars": 862
+      }
+    }
+  ]
+}

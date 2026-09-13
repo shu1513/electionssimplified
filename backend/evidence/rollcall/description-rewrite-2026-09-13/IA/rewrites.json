@@ -1,0 +1,1508 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1501926,
+      "measure_id": "SF 418",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate File 418, which defines sex by a person's body at birth and removes gender identity from the Iowa Civil Rights Act. The Iowa House passed it 60-36, and it became law.",
+      "nay_description": "Voted against Senate File 418, which defines sex by a person's body at birth and removes gender identity from the Iowa Civil Rights Act. The Iowa House passed it 60-36, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-36",
+        "old_sentences": 5,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1511922,
+      "measure_id": "HF 299",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for House File 299, which makes schools and child care centers tell parents about legal vaccine exemptions. The Iowa House passed it 58-30, and it became law.",
+      "nay_description": "Voted against House File 299, which makes schools and child care centers tell parents about legal vaccine exemptions. The Iowa House passed it 58-30, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "58-30",
+        "old_sentences": 3,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1512436,
+      "measure_id": "HF 316",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for House File 316, which adds career planning lessons in grades five and six. The Iowa House passed it 61-28, and it became law.",
+      "nay_description": "Voted against House File 316, which adds career planning lessons in grades five and six. The Iowa House passed it 61-28, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "61-28",
+        "old_sentences": 6,
+        "old_chars": 625
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1513469,
+      "measure_id": "HF 398",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted for House File 398, which shifts power over Iowa's prisons from the Board of Corrections to the department's director. The Iowa House passed it 62-29, and it became law.",
+      "nay_description": "Voted against House File 398, which shifts power over Iowa's prisons from the Board of Corrections to the department's director. The Iowa House passed it 62-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "62-29",
+        "old_sentences": 5,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1516307,
+      "measure_id": "HF 546",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for House File 546, a bill to set a minimum $100,000 bond at first court appearance for six violent or gun crimes. The Iowa House passed it 64-31, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 546, a bill to set a minimum $100,000 bond at first court appearance for six violent or gun crimes. The Iowa House passed it 64-31, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "64-31",
+        "old_sentences": 4,
+        "old_chars": 551
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520111,
+      "measure_id": "HF 401",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House File 401, a bill to set general education requirements, including western and American heritage courses, at public universities. The Iowa House passed it 61-36, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 401, a bill to set general education requirements, including western and American heritage courses, at public universities. The Iowa House passed it 61-36, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "61-36",
+        "old_sentences": 4,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520125,
+      "measure_id": "HF 295",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House File 295, which bars an accrediting agency from punishing an Iowa public college for following state law. The Iowa House passed it 65-32, and it became law.",
+      "nay_description": "Voted against House File 295, which bars an accrediting agency from punishing an Iowa public college for following state law. The Iowa House passed it 65-32, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "65-32",
+        "old_sentences": 5,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520446,
+      "measure_id": "HF 440",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House File 440, which requires 30 days' notice of proposed tuition increases at Iowa's public universities. The Iowa House passed it 64-33, and it became law.",
+      "nay_description": "Voted against House File 440, which requires 30 days' notice of proposed tuition increases at Iowa's public universities. The Iowa House passed it 64-33, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "64-33",
+        "old_sentences": 6,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520490,
+      "measure_id": "HF 437",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House File 437, which creates a Center for Intellectual Freedom at the University of Iowa. The Iowa House passed it 60-37, and it became law.",
+      "nay_description": "Voted against House File 437, which creates a Center for Intellectual Freedom at the University of Iowa. The Iowa House passed it 60-37, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-37",
+        "old_sentences": 6,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520505,
+      "measure_id": "HF 269",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House File 269, a bill to bar public universities from requiring diversity or critical race theory courses for a degree. The Iowa House passed it 63-34, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 269, a bill to bar public universities from requiring diversity or critical race theory courses for a degree. The Iowa House passed it 63-34, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "63-34",
+        "old_sentences": 5,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1520698,
+      "measure_id": "SF 603",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Senate File 603, which reorganizes the state workforce agency and bars cities from setting pay rules for contractors. The Iowa House passed it 64-34, and it became law.",
+      "nay_description": "Voted against Senate File 603, which reorganizes the state workforce agency and bars cities from setting pay rules for contractors. The Iowa House passed it 64-34, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "64-34",
+        "old_sentences": 4,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1528683,
+      "measure_id": "HF 928",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House File 928, which limits election recounts to very close margins and rewrites how contests are run. The Iowa House passed it 66-31, and it became law.",
+      "nay_description": "Voted against House File 928, which limits election recounts to very close margins and rewrites how contests are run. The Iowa House passed it 66-31, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "66-31",
+        "old_sentences": 6,
+        "old_chars": 741
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1528684,
+      "measure_id": "HF 946",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House File 946, a bill to penalize police and sheriffs who refuse to follow Iowa's immigration enforcement law. The Iowa House passed it 61-35, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 946, a bill to penalize police and sheriffs who refuse to follow Iowa's immigration enforcement law. The Iowa House passed it 61-35, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "61-35",
+        "old_sentences": 5,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1529030,
+      "measure_id": "HF 792",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House File 792, a bill to make giving someone fentanyl that causes their death first-degree murder. The Iowa House passed it 69-27, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 792, a bill to make giving someone fentanyl that causes their death first-degree murder. The Iowa House passed it 69-27, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "69-27",
+        "old_sentences": 4,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1529045,
+      "measure_id": "HF 785",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House File 785, which lets United States citizens from outside Iowa sit on charter school boards. The Iowa House passed it 60-36, and it became law.",
+      "nay_description": "Voted against House File 785, which lets United States citizens from outside Iowa sit on charter school boards. The Iowa House passed it 60-36, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-36",
+        "old_sentences": 5,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1529302,
+      "measure_id": "HF 767",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House File 767, which changes the private sector drug testing law in employers' favor. The Iowa House passed it 60-32, and it became law.",
+      "nay_description": "Voted against House File 767, which changes the private sector drug testing law in employers' favor. The Iowa House passed it 60-32, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-32",
+        "old_sentences": 5,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1551628,
+      "measure_id": "SF 369",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate File 369, which makes passing a civics test a condition of graduating from high school. The Iowa House passed it 60-33, and it became law.",
+      "nay_description": "Voted against Senate File 369, which makes passing a civics test a condition of graduating from high school. The Iowa House passed it 60-33, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-33",
+        "old_sentences": 4,
+        "old_chars": 576
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1551752,
+      "measure_id": "SF 175",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate File 175, which adds fetal development lessons, including an ultrasound video, in grades five and six. The Iowa House passed it 60-31, and it became law.",
+      "nay_description": "Voted against Senate File 175, which adds fetal development lessons, including an ultrasound video, in grades five and six. The Iowa House passed it 60-31, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-31",
+        "old_sentences": 4,
+        "old_chars": 536
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1553649,
+      "measure_id": "HF 516",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for House File 516, which requires 80 percent of University of Iowa medical and dental students to be Iowans. The Iowa House passed it 61-30, and it became law.",
+      "nay_description": "Voted against House File 516, which requires 80 percent of University of Iowa medical and dental students to be Iowans. The Iowa House passed it 61-30, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "61-30",
+        "old_sentences": 5,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1572561,
+      "measure_id": "HF 856",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House File 856, which bars governments and public colleges from spending money on diversity, equity and inclusion programs. The Iowa House passed it 59-32, and it became law.",
+      "nay_description": "Voted against House File 856, which bars governments and public colleges from spending money on diversity, equity and inclusion programs. The Iowa House passed it 59-32, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "59-32",
+        "old_sentences": 5,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1572630,
+      "measure_id": "SF 615",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for Senate File 615, which requires most adults on Medicaid expansion to work 80 hours a month to keep coverage. The Iowa House passed it 56-30, and it became law.",
+      "nay_description": "Voted against Senate File 615, which requires most adults on Medicaid expansion to work 80 hours a month to keep coverage. The Iowa House passed it 56-30, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "56-30",
+        "old_sentences": 5,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1643695,
+      "measure_id": "HF 2488",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House File 2488, a bill to bar private colleges whose students get state tuition grants from running diversity offices. The Iowa House passed it 57-34, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2488, a bill to bar private colleges whose students get state tuition grants from running diversity offices. The Iowa House passed it 57-34, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "57-34",
+        "old_sentences": 5,
+        "old_chars": 635
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1645757,
+      "measure_id": "HF 2584",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House File 2584, a bill to make the area within 300 feet of a homeless shelter a drug-free zone. The Iowa House passed it 70-21, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2584, a bill to make the area within 300 feet of a homeless shelter a drug-free zone. The Iowa House passed it 70-21, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "70-21",
+        "old_sentences": 4,
+        "old_chars": 546
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1645792,
+      "measure_id": "HF 2296",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House File 2296, which bans cities and counties from issuing their own identification cards. The Iowa House passed it 69-22, and it became law.",
+      "nay_description": "Voted against House File 2296, which bans cities and counties from issuing their own identification cards. The Iowa House passed it 69-22, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "69-22",
+        "old_sentences": 4,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1647078,
+      "measure_id": "HF 2102",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for House File 2102, a bill to require every driver's license test to be given in English. The Iowa House passed it 58-30, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2102, a bill to require every driver's license test to be given in English. The Iowa House passed it 58-30, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "58-30",
+        "old_sentences": 4,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1647082,
+      "measure_id": "HF 2527",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for House File 2527, which shields farms, fuel makers and other businesses from climate change lawsuits. The Iowa House passed it 66-24, and it became law.",
+      "nay_description": "Voted against House File 2527, which shields farms, fuel makers and other businesses from climate change lawsuits. The Iowa House passed it 66-24, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "66-24",
+        "old_sentences": 4,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1650108,
+      "measure_id": "HF 2529",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for House File 2529, a bill to make farm equipment makers share repair tools for diesel exhaust fluid systems. The Iowa House passed it 57-33, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2529, a bill to make farm equipment makers share repair tools for diesel exhaust fluid systems. The Iowa House passed it 57-33, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "57-33",
+        "old_sentences": 5,
+        "old_chars": 623
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1651554,
+      "measure_id": "HF 2244",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House File 2244, a bill to expand civics teaching in Iowa schools. The Iowa House passed it 70-26, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2244, a bill to expand civics teaching in Iowa schools. The Iowa House passed it 70-26, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "70-26",
+        "old_sentences": 5,
+        "old_chars": 531
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1651914,
+      "measure_id": "HF 2539",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House File 2539, which repeals several higher education programs, including minority educator vouchers. The Iowa House passed it 66-30, and it became law.",
+      "nay_description": "Voted against House File 2539, which repeals several higher education programs, including minority educator vouchers. The Iowa House passed it 66-30, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "66-30",
+        "old_sentences": 5,
+        "old_chars": 516
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1651942,
+      "measure_id": "HF 2513",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House File 2513, a bill to bar Iowa colleges from hiring certain H-1B visa holders. The Iowa House passed it 68-27, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2513, a bill to bar Iowa colleges from hiring certain H-1B visa holders. The Iowa House passed it 68-27, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "68-27",
+        "old_sentences": 3,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1653269,
+      "measure_id": "HF 2711",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House File 2711, which removes affirmative action from Iowa law. The Iowa House passed it 64-29, and it became law.",
+      "nay_description": "Voted against House File 2711, which removes affirmative action from Iowa law. The Iowa House passed it 64-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "64-29",
+        "old_sentences": 5,
+        "old_chars": 636
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1653641,
+      "measure_id": "HF 2718",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House File 2718, a bill to bar state and local agencies from enforcing any red flag gun law. The Iowa House passed it 67-29, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2718, a bill to bar state and local agencies from enforcing any red flag gun law. The Iowa House passed it 67-29, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "67-29",
+        "old_sentences": 5,
+        "old_chars": 607
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1654101,
+      "measure_id": "HF 2557",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House File 2557, a bill to say raising a child consistent with the child's sex is not child abuse. The Iowa House passed it 65-31, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2557, a bill to say raising a child consistent with the child's sex is not child abuse. The Iowa House passed it 65-31, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "65-31",
+        "old_sentences": 4,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1655450,
+      "measure_id": "SF 579",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate File 579, which stops cities and counties from passing civil rights laws broader than state law. The Iowa House passed it 60-26, and it became law.",
+      "nay_description": "Voted against Senate File 579, which stops cities and counties from passing civil rights laws broader than state law. The Iowa House passed it 60-26, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-26",
+        "old_sentences": 4,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1659491,
+      "measure_id": "HF 2624",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted for House File 2624, a bill to require DNA samples from people arrested for a felony. The Iowa House passed it 64-30, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2624, a bill to require DNA samples from people arrested for a felony. The Iowa House passed it 64-30, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "64-30",
+        "old_sentences": 5,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1661951,
+      "measure_id": "HF 2487",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted for House File 2487, a bill to give the attorney general new power to enforce the ban on diversity offices. The Iowa House passed it 62-27, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2487, a bill to give the attorney general new power to enforce the ban on diversity offices. The Iowa House passed it 62-27, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "62-27",
+        "old_sentences": 4,
+        "old_chars": 608
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1661981,
+      "measure_id": "HF 2329",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted for House File 2329, which raises the interest that licensed lenders may charge on regulated loans. The Iowa House passed it 62-29, and it became law.",
+      "nay_description": "Voted against House File 2329, which raises the interest that licensed lenders may charge on regulated loans. The Iowa House passed it 62-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "62-29",
+        "old_sentences": 5,
+        "old_chars": 645
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1664687,
+      "measure_id": "HF 2133",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for House File 2133, a bill to list kratom as a Schedule I controlled substance. The Iowa House passed it 69-26, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2133, a bill to list kratom as a Schedule I controlled substance. The Iowa House passed it 69-26, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "69-26",
+        "old_sentences": 5,
+        "old_chars": 557
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1667402,
+      "measure_id": "HF 571",
+      "vote_date": "2026-03-23",
+      "yea_description": "Voted for House File 571, which creates the Medical Ethics Defense Act, letting providers refuse care that goes against their conscience. The Iowa House passed it 63-27, and it became law.",
+      "nay_description": "Voted against House File 571, which creates the Medical Ethics Defense Act, letting providers refuse care that goes against their conscience. The Iowa House passed it 63-27, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "63-27",
+        "old_sentences": 7,
+        "old_chars": 712
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1678374,
+      "measure_id": "HF 2501",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted for House File 2501, which makes several changes to how Iowa runs elections, including cancelling registrations with matching records. The Iowa House passed it 63-29, and it became law.",
+      "nay_description": "Voted against House File 2501, which makes several changes to how Iowa runs elections, including cancelling registrations with matching records. The Iowa House passed it 63-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "63-29",
+        "old_sentences": 5,
+        "old_chars": 603
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1681341,
+      "measure_id": "HF 2254",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted for House File 2254, which bans noncompete clauses at the University of Iowa Hospitals and Clinics. The Iowa House passed it 70-20, and it became law.",
+      "nay_description": "Voted against House File 2254, which bans noncompete clauses at the University of Iowa Hospitals and Clinics. The Iowa House passed it 70-20, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "70-20",
+        "old_sentences": 5,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1682389,
+      "measure_id": "SF 2399",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate File 2399, which makes it harder to be released before trial by limiting bail below the uniform bond schedule. The Iowa House passed it 72-21, and it became law.",
+      "nay_description": "Voted against Senate File 2399, which makes it harder to be released before trial by limiting bail below the uniform bond schedule. The Iowa House passed it 72-21, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "72-21",
+        "old_sentences": 5,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1682489,
+      "measure_id": "SF 304",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate File 304, which takes away a minor's ability to get a sexually transmitted infection vaccine without a parent's consent. The Iowa House passed it 63-29, and it became law.",
+      "nay_description": "Voted against Senate File 304, which takes away a minor's ability to get a sexually transmitted infection vaccine without a parent's consent. The Iowa House passed it 63-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "63-29",
+        "old_sentences": 4,
+        "old_chars": 416
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1684550,
+      "measure_id": "SF 2263",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted for Senate File 2263, a bill to let people keep guns in their vehicles in public parking lots. The Iowa House passed it 60-26, but the two chambers never agreed on the same text, so it did not become law.",
+      "nay_description": "Voted against Senate File 2263, a bill to let people keep guns in their vehicles in public parking lots. The Iowa House passed it 60-26, but the two chambers never agreed on the same text, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "60-26",
+        "old_sentences": 5,
+        "old_chars": 782
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1685741,
+      "measure_id": "SF 473",
+      "vote_date": "2026-04-20",
+      "yea_description": "Voted for Senate File 473, which bars the state from ruling out foster parents over their beliefs about sexual orientation or gender identity. The Iowa House passed it 58-34, and it became law.",
+      "nay_description": "Voted against Senate File 473, which bars the state from ruling out foster parents over their beliefs about sexual orientation or gender identity. The Iowa House passed it 58-34, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "58-34",
+        "old_sentences": 5,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1686962,
+      "measure_id": "HF 2670",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for House File 2670, which rewrites parts of what Iowa schools must teach, dropping the multicultural and gender-fair approach. The Iowa House passed it 65-28, and it became law.",
+      "nay_description": "Voted against House File 2670, which rewrites parts of what Iowa schools must teach, dropping the multicultural and gender-fair approach. The Iowa House passed it 65-28, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "65-28",
+        "old_sentences": 6,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1693359,
+      "measure_id": "HF 2788",
+      "vote_date": "2026-05-01",
+      "yea_description": "Voted for House File 2788, which adds rules for abortion drugs, including an in-person exam and signed consent. The Iowa House passed it 58-29, and it became law.",
+      "nay_description": "Voted against House File 2788, which adds rules for abortion drugs, including an in-person exam and signed consent. The Iowa House passed it 58-29, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "58-29",
+        "old_sentences": 6,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1693389,
+      "measure_id": "HF 2763",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for House File 2763, a bill to make farm equipment makers share manuals, parts and tools with owners and repair shops. The Iowa House passed it 70-18, but the full Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House File 2763, a bill to make farm equipment makers share manuals, parts and tools with owners and repair shops. The Iowa House passed it 70-18, but the full Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "70-18",
+        "old_sentences": 4,
+        "old_chars": 577
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1693482,
+      "measure_id": "SF 2480",
+      "vote_date": "2026-05-02",
+      "yea_description": "Voted for Senate File 2480, which taxes and regulates electronic cigarettes and other tobacco-free nicotine products. The Iowa House passed it 67-18, and it became law.",
+      "nay_description": "Voted against Senate File 2480, which taxes and regulates electronic cigarettes and other tobacco-free nicotine products. The Iowa House passed it 67-18, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "67-18",
+        "old_sentences": 5,
+        "old_chars": 510
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1693525,
+      "measure_id": "SF 469",
+      "vote_date": "2026-05-02",
+      "yea_description": "Voted for Senate File 469, which creates an emeritus medical license for doctors 60 and older who train residents. The Iowa House passed it 58-27, and it became law.",
+      "nay_description": "Voted against Senate File 469, which creates an emeritus medical license for doctors 60 and older who train residents. The Iowa House passed it 58-27, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "58-27",
+        "old_sentences": 4,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1693734,
+      "measure_id": "SF 472",
+      "vote_date": "2026-04-28",
+      "yea_description": "Voted for Senate File 472, which tightens the rule that public employee unions must win a new election before each contract ends. The Iowa House passed it 56-34, and it became law.",
+      "nay_description": "Voted against Senate File 472, which tightens the rule that public employee unions must win a new election before each contract ends. The Iowa House passed it 56-34, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "56-34",
+        "old_sentences": 4,
+        "old_chars": 387
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "house",
+      "session": "2177",
+      "roll": 1694102,
+      "measure_id": "SF 2218",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate File 2218, which bans employing anyone the employer knows gave a Social Security number that is not theirs. The Iowa House passed it 71-20, and it became law.",
+      "nay_description": "Voted against Senate File 2218, which bans employing anyone the employer knows gave a Social Security number that is not theirs. The Iowa House passed it 71-20, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "71-20",
+        "old_sentences": 5,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1501925,
+      "measure_id": "SF 418",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate File 418, which defines sex by a person's body at birth and removes gender identity from the Iowa Civil Rights Act. The Iowa Senate passed it 33-15, and it became law.",
+      "nay_description": "Voted against Senate File 418, which defines sex by a person's body at birth and removes gender identity from the Iowa Civil Rights Act. The Iowa Senate passed it 33-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-15",
+        "old_sentences": 5,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1509593,
+      "measure_id": "SF 472",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for Senate File 472, which tightens the rule that public employee unions must win a new election before each contract ends. The Iowa Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against Senate File 472, which tightens the rule that public employee unions must win a new election before each contract ends. The Iowa Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 4,
+        "old_chars": 388
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1524540,
+      "measure_id": "SF 603",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted for Senate File 603, which reorganizes the state workforce agency and bars cities from setting pay rules for contractors. The Iowa Senate passed the final version 32-15, and it became law.",
+      "nay_description": "Voted against Senate File 603, which reorganizes the state workforce agency and bars cities from setting pay rules for contractors. The Iowa Senate passed the final version 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1527547,
+      "measure_id": "SF 394",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for Senate File 394, a bill to shield pesticide makers from failure-to-warn lawsuits when the label was federally approved. The Iowa Senate passed it 26-21, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 394, a bill to shield pesticide makers from failure-to-warn lawsuits when the label was federally approved. The Iowa Senate passed it 26-21, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "26-21",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1527928,
+      "measure_id": "SF 180",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for Senate File 180, a bill to let people refuse emergency-use vaccines or drugs for reasons of conscience. The Iowa Senate passed it 32-15, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 180, a bill to let people refuse emergency-use vaccines or drugs for reasons of conscience. The Iowa Senate passed it 32-15, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 4,
+        "old_chars": 605
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1538588,
+      "measure_id": "HF 924",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted for House File 924, which lowers the minimum age for a permit to carry a handgun from 21 to 18. The Iowa Senate passed it 33-14, and it became law.",
+      "nay_description": "Voted against House File 924, which lowers the minimum age for a permit to carry a handgun from 21 to 18. The Iowa Senate passed it 33-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-14",
+        "old_sentences": 4,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1539085,
+      "measure_id": "SF 304",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted for Senate File 304, which takes away a minor's ability to get a sexually transmitted infection vaccine without a parent's consent. The Iowa Senate passed it 33-14, and it became law.",
+      "nay_description": "Voted against Senate File 304, which takes away a minor's ability to get a sexually transmitted infection vaccine without a parent's consent. The Iowa Senate passed it 33-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-14",
+        "old_sentences": 4,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1541714,
+      "measure_id": "HF 785",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House File 785, which lets United States citizens from outside Iowa sit on charter school boards. The Iowa Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against House File 785, which lets United States citizens from outside Iowa sit on charter school boards. The Iowa Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 5,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1547671,
+      "measure_id": "HF 516",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for House File 516, which requires 80 percent of University of Iowa medical and dental students to be Iowans. The Iowa Senate passed it 34-11, and it became law.",
+      "nay_description": "Voted against House File 516, which requires 80 percent of University of Iowa medical and dental students to be Iowans. The Iowa Senate passed it 34-11, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "34-11",
+        "old_sentences": 5,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1547860,
+      "measure_id": "HF 928",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for House File 928, which limits election recounts to very close margins and rewrites how contests are run. The Iowa Senate passed it 31-14, and it became law.",
+      "nay_description": "Voted against House File 928, which limits election recounts to very close margins and rewrites how contests are run. The Iowa Senate passed it 31-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-14",
+        "old_sentences": 6,
+        "old_chars": 742
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1549033,
+      "measure_id": "HF 437",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House File 437, which creates a Center for Intellectual Freedom at the University of Iowa. The Iowa Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against House File 437, which creates a Center for Intellectual Freedom at the University of Iowa. The Iowa Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 6,
+        "old_chars": 619
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1551283,
+      "measure_id": "HF 398",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House File 398, which shifts power over Iowa's prisons from the Board of Corrections to the department's director. The Iowa Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against House File 398, which shifts power over Iowa's prisons from the Board of Corrections to the department's director. The Iowa Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 5,
+        "old_chars": 551
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1551298,
+      "measure_id": "HF 295",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House File 295, which bars an accrediting agency from punishing an Iowa public college for following state law. The Iowa Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against House File 295, which bars an accrediting agency from punishing an Iowa public college for following state law. The Iowa Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-15",
+        "old_sentences": 5,
+        "old_chars": 643
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1551301,
+      "measure_id": "HF 706",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House File 706, which raises the fines for officials who break Iowa's open meetings law. The Iowa Senate passed it 34-13, and it became law.",
+      "nay_description": "Voted against House File 706, which raises the fines for officials who break Iowa's open meetings law. The Iowa Senate passed it 34-13, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "34-13",
+        "old_sentences": 6,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1559342,
+      "measure_id": "SF 383",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for Senate File 383, which regulates pharmacy benefit managers, setting a floor on what they pay Iowa pharmacies. The Iowa Senate passed it 36-14, and it became law.",
+      "nay_description": "Voted against Senate File 383, which regulates pharmacy benefit managers, setting a floor on what they pay Iowa pharmacies. The Iowa Senate passed it 36-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "36-14",
+        "old_sentences": 5,
+        "old_chars": 624
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1559504,
+      "measure_id": "SF 175",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for Senate File 175, which adds fetal development lessons, including an ultrasound video, in grades five and six. The Iowa Senate passed it 33-16, and it became law.",
+      "nay_description": "Voted against Senate File 175, which adds fetal development lessons, including an ultrasound video, in grades five and six. The Iowa Senate passed it 33-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-16",
+        "old_sentences": 4,
+        "old_chars": 537
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1560174,
+      "measure_id": "HF 299",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House File 299, which makes schools and child care centers tell parents about legal vaccine exemptions. The Iowa Senate passed it 32-16, and it became law.",
+      "nay_description": "Voted against House File 299, which makes schools and child care centers tell parents about legal vaccine exemptions. The Iowa Senate passed it 32-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "32-16",
+        "old_sentences": 3,
+        "old_chars": 370
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1569099,
+      "measure_id": "HF 856",
+      "vote_date": "2025-05-09",
+      "yea_description": "Voted for House File 856, which bars governments and public colleges from spending money on diversity, equity and inclusion programs. The Iowa Senate passed it 34-16, and it became law.",
+      "nay_description": "Voted against House File 856, which bars governments and public colleges from spending money on diversity, equity and inclusion programs. The Iowa Senate passed it 34-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "34-16",
+        "old_sentences": 5,
+        "old_chars": 597
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1570802,
+      "measure_id": "SF 615",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for Senate File 615, which requires most adults on Medicaid expansion to work 80 hours a month to keep coverage. The Iowa Senate passed it 33-13, and it became law.",
+      "nay_description": "Voted against Senate File 615, which requires most adults on Medicaid expansion to work 80 hours a month to keep coverage. The Iowa Senate passed it 33-13, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-13",
+        "old_sentences": 5,
+        "old_chars": 593
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1571839,
+      "measure_id": "HF 767",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House File 767, which changes the private sector drug testing law in employers' favor. The Iowa Senate passed it 31-14, and it became law.",
+      "nay_description": "Voted against House File 767, which changes the private sector drug testing law in employers' favor. The Iowa Senate passed it 31-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-14",
+        "old_sentences": 5,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1642621,
+      "measure_id": "SF 2263",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate File 2263, a bill to let people keep guns in their vehicles in public parking lots. The Iowa Senate passed it 35-12, but the two chambers never agreed on the same text, so it did not become law.",
+      "nay_description": "Voted against Senate File 2263, a bill to let people keep guns in their vehicles in public parking lots. The Iowa Senate passed it 35-12, but the two chambers never agreed on the same text, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "35-12",
+        "old_sentences": 5,
+        "old_chars": 698
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1645454,
+      "measure_id": "SF 2203",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate File 2203, a bill to check every registered voter's citizenship against a federal database. The Iowa Senate passed it 34-13, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 2203, a bill to check every registered voter's citizenship against a federal database. The Iowa Senate passed it 34-13, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "34-13",
+        "old_sentences": 5,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1646558,
+      "measure_id": "SF 2274",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for Senate File 2274, a bill to repeal Iowa's ban on selling devices that make a gun fire faster. The Iowa Senate passed it 28-16, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 2274, a bill to repeal Iowa's ban on selling devices that make a gun fire faster. The Iowa Senate passed it 28-16, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "28-16",
+        "old_sentences": 3,
+        "old_chars": 352
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1651538,
+      "measure_id": "SF 2442",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for Senate File 2442, a bill to bar counties from restricting housing of up to 12 units outside city limits. The Iowa Senate passed it 28-16, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 2442, a bill to bar counties from restricting housing of up to 12 units outside city limits. The Iowa Senate passed it 28-16, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "28-16",
+        "old_sentences": 3,
+        "old_chars": 486
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1657715,
+      "measure_id": "HF 571",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted for House File 571, which creates the Medical Ethics Defense Act, letting providers refuse care that goes against their conscience. The Iowa Senate passed it 30-16, and it became law.",
+      "nay_description": "Voted against House File 571, which creates the Medical Ethics Defense Act, letting providers refuse care that goes against their conscience. The Iowa Senate passed it 30-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "30-16",
+        "old_sentences": 7,
+        "old_chars": 713
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1657862,
+      "measure_id": "SF 2444",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted for Senate File 2444, a bill to exempt cigar bars from Iowa's indoor smoking ban. The Iowa Senate passed it 27-18, but the full House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate File 2444, a bill to exempt cigar bars from Iowa's indoor smoking ban. The Iowa Senate passed it 27-18, but the full House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "27-18",
+        "old_sentences": 4,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1657970,
+      "measure_id": "SF 579",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted for Senate File 579, which stops cities and counties from passing civil rights laws broader than state law. The Iowa Senate passed it 29-16, and it became law.",
+      "nay_description": "Voted against Senate File 579, which stops cities and counties from passing civil rights laws broader than state law. The Iowa Senate passed it 29-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "29-16",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1669334,
+      "measure_id": "HF 2527",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House File 2527, which shields farms, fuel makers and other businesses from climate change lawsuits. The Iowa Senate passed it 33-13, and it became law.",
+      "nay_description": "Voted against House File 2527, which shields farms, fuel makers and other businesses from climate change lawsuits. The Iowa Senate passed it 33-13, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "33-13",
+        "old_sentences": 4,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1677876,
+      "measure_id": "HF 2296",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted for House File 2296, which bans cities and counties from issuing their own identification cards. The Iowa Senate passed it 31-14, and it became law.",
+      "nay_description": "Voted against House File 2296, which bans cities and counties from issuing their own identification cards. The Iowa Senate passed it 31-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-14",
+        "old_sentences": 4,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1677892,
+      "measure_id": "HF 2329",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted for House File 2329, which raises the interest that licensed lenders may charge on regulated loans. The Iowa Senate passed it 34-11, and it became law.",
+      "nay_description": "Voted against House File 2329, which raises the interest that licensed lenders may charge on regulated loans. The Iowa Senate passed it 34-11, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "34-11",
+        "old_sentences": 5,
+        "old_chars": 646
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1682518,
+      "measure_id": "HF 2539",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House File 2539, which repeals several higher education programs, including minority educator vouchers. The Iowa Senate passed it 30-17, and it became law.",
+      "nay_description": "Voted against House File 2539, which repeals several higher education programs, including minority educator vouchers. The Iowa Senate passed it 30-17, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "30-17",
+        "old_sentences": 5,
+        "old_chars": 517
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1682564,
+      "measure_id": "HF 2670",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House File 2670, which rewrites parts of what Iowa schools must teach, dropping the multicultural and gender-fair approach. The Iowa Senate passed it 30-17, and it became law.",
+      "nay_description": "Voted against House File 2670, which rewrites parts of what Iowa schools must teach, dropping the multicultural and gender-fair approach. The Iowa Senate passed it 30-17, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "30-17",
+        "old_sentences": 6,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1683467,
+      "measure_id": "HF 2501",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for House File 2501, which makes several changes to how Iowa runs elections, including cancelling registrations with matching records. The Iowa Senate passed it 31-16, and it became law.",
+      "nay_description": "Voted against House File 2501, which makes several changes to how Iowa runs elections, including cancelling registrations with matching records. The Iowa Senate passed it 31-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-16",
+        "old_sentences": 5,
+        "old_chars": 604
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1686876,
+      "measure_id": "SF 473",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Senate File 473, which bars the state from ruling out foster parents over their beliefs about sexual orientation or gender identity. The Iowa Senate passed it 28-16, and it became law.",
+      "nay_description": "Voted against Senate File 473, which bars the state from ruling out foster parents over their beliefs about sexual orientation or gender identity. The Iowa Senate passed it 28-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "28-16",
+        "old_sentences": 5,
+        "old_chars": 643
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693361,
+      "measure_id": "HF 2788",
+      "vote_date": "2026-05-03",
+      "yea_description": "Voted for House File 2788, which adds rules for abortion drugs, including an in-person exam and signed consent. The Iowa Senate passed it 30-11, and it became law.",
+      "nay_description": "Voted against House File 2788, which adds rules for abortion drugs, including an in-person exam and signed consent. The Iowa Senate passed it 30-11, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "30-11",
+        "old_sentences": 6,
+        "old_chars": 745
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693364,
+      "measure_id": "HF 2694",
+      "vote_date": "2026-05-02",
+      "yea_description": "Voted for House File 2694, which bars the governor from closing or placing any requirement on places of worship. The Iowa Senate passed it 31-14, and it became law.",
+      "nay_description": "Voted against House File 2694, which bars the governor from closing or placing any requirement on places of worship. The Iowa Senate passed it 31-14, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-14",
+        "old_sentences": 4,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693435,
+      "measure_id": "SF 2284",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted for Senate File 2284, a bill to set new limits on automatic license plate readers. The Iowa Senate passed it 31-9, but the two chambers never agreed on the same text, so it did not become law.",
+      "nay_description": "Voted against Senate File 2284, a bill to set new limits on automatic license plate readers. The Iowa Senate passed it 31-9, but the two chambers never agreed on the same text, so it did not become law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-9",
+        "old_sentences": 6,
+        "old_chars": 788
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693460,
+      "measure_id": "SF 2422",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted for Senate File 2422, which tightens eligibility rules for food assistance and Medicaid. The Iowa Senate passed it 27-16, and it became law.",
+      "nay_description": "Voted against Senate File 2422, which tightens eligibility rules for food assistance and Medicaid. The Iowa Senate passed it 27-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "27-16",
+        "old_sentences": 5,
+        "old_chars": 915
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693476,
+      "measure_id": "HF 2711",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House File 2711, which removes affirmative action from Iowa law. The Iowa Senate passed it 31-15, and it became law.",
+      "nay_description": "Voted against House File 2711, which removes affirmative action from Iowa law. The Iowa Senate passed it 31-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "31-15",
+        "old_sentences": 5,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693494,
+      "measure_id": "SF 378",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted for Senate File 378, which raises Iowa's default speed limit from 55 to 60 miles per hour. The Iowa Senate passed it 28-16, and it became law.",
+      "nay_description": "Voted against Senate File 378, which raises Iowa's default speed limit from 55 to 60 miles per hour. The Iowa Senate passed it 28-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "28-16",
+        "old_sentences": 5,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1693511,
+      "measure_id": "HF 2230",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted for House File 2230, which changes how Iowa trains and licenses teachers from July 2027. The Iowa Senate passed it 28-15, and it became law.",
+      "nay_description": "Voted against House File 2230, which changes how Iowa trains and licenses teachers from July 2027. The Iowa Senate passed it 28-15, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "28-15",
+        "old_sentences": 4,
+        "old_chars": 578
+      }
+    },
+    {
+      "jurisdiction": "IA",
+      "chamber": "senate",
+      "session": "2177",
+      "roll": 1694200,
+      "measure_id": "HF 2724",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for House File 2724, which creates new teaching endorsements in fine arts, mathematics and science. The Iowa Senate passed it 30-16, and it became law.",
+      "nay_description": "Voted against House File 2724, which creates new teaching endorsements in fine arts, mathematics and science. The Iowa Senate passed it 30-16, and it became law.",
+      "_current": {
+        "question": "Shall the bill pass?",
+        "tally": "30-16",
+        "old_sentences": 4,
+        "old_chars": 397
+      }
+    }
+  ]
+}

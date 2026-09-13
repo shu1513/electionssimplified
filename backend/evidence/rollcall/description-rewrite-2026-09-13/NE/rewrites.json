@@ -1,0 +1,276 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1509008,
+      "measure_id": "LB 229",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for Legislative Bill 229, which takes app-based gig workers out of Nebraska's unemployment system. The Nebraska Legislature passed it 33-15, and it became law.",
+      "nay_description": "Voted against Legislative Bill 229, which takes app-based gig workers out of Nebraska's unemployment system. The Nebraska Legislature passed it 33-15, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 33-15-1",
+        "tally": "33-15",
+        "old_sentences": 12,
+        "old_chars": 957
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1516824,
+      "measure_id": "LB 241",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Legislative Bill 241, which shields companies from class action lawsuits over data breaches unless grossly negligent. The Nebraska Legislature passed it 36-10, and it became law.",
+      "nay_description": "Voted against Legislative Bill 241, which shields companies from class action lawsuits over data breaches unless grossly negligent. The Nebraska Legislature passed it 36-10, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 36-10-3",
+        "tally": "36-10",
+        "old_sentences": 11,
+        "old_chars": 875
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1535598,
+      "measure_id": "LB 266",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Legislative Bill 266, which bars local governments from limiting rents. The Nebraska Legislature passed it 37-10, and it became law.",
+      "nay_description": "Voted against Legislative Bill 266, which bars local governments from limiting rents. The Nebraska Legislature passed it 37-10, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 37-10-2",
+        "tally": "37-10",
+        "old_sentences": 8,
+        "old_chars": 617
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1558108,
+      "measure_id": "LB 9",
+      "vote_date": "2025-04-25",
+      "yea_description": "Voted for Legislative Bill 9, which extends nicotine product rules to lab-made stand-ins that act like nicotine. The Nebraska Legislature passed it 34-10, and it became law.",
+      "nay_description": "Voted against Legislative Bill 9, which extends nicotine product rules to lab-made stand-ins that act like nicotine. The Nebraska Legislature passed it 34-10, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 34-10-5",
+        "tally": "34-10",
+        "old_sentences": 10,
+        "old_chars": 745
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1571420,
+      "measure_id": "LB 319",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for Legislative Bill 319, a bill to restore food assistance to most people with drug felony convictions. The Nebraska Legislature passed it 32-17, but the governor vetoed it and the override vote failed 24-24.",
+      "nay_description": "Voted against Legislative Bill 319, a bill to restore food assistance to most people with drug felony convictions. The Nebraska Legislature passed it 32-17, but the governor vetoed it and the override vote failed 24-24.",
+      "_current": {
+        "question": "Passed on Final Reading 32-17-0",
+        "tally": "32-17",
+        "old_sentences": 11,
+        "old_chars": 1151
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1580464,
+      "measure_id": "LB 415",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Legislative Bill 415, which narrows the voter-approved paid sick leave law, dropping contractors and seasonal farm workers. The Nebraska Legislature passed it 33-16, and it became law.",
+      "nay_description": "Voted against Legislative Bill 415, which narrows the voter-approved paid sick leave law, dropping contractors and seasonal farm workers. The Nebraska Legislature passed it 33-16, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 33-16-0",
+        "tally": "33-16",
+        "old_sentences": 13,
+        "old_chars": 1143
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1580669,
+      "measure_id": "LB 89",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Legislative Bill 89, which limits school and college sports teams by sex. The Nebraska Legislature passed it 33-16, and it became law.",
+      "nay_description": "Voted against Legislative Bill 89, which limits school and college sports teams by sex. The Nebraska Legislature passed it 33-16, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 33-16-0",
+        "tally": "33-16",
+        "old_sentences": 12,
+        "old_chars": 914
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1582059,
+      "measure_id": "LB 48",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted for Legislative Bill 48, which sets up a five-year pilot center in Omaha to keep young people out of the justice system. The Nebraska Legislature passed it 27-21, and it became law.",
+      "nay_description": "Voted against Legislative Bill 48, which sets up a five-year pilot center in Omaha to keep young people out of the justice system. The Nebraska Legislature passed it 27-21, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 27-21-1",
+        "tally": "27-21",
+        "old_sentences": 12,
+        "old_chars": 871
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1582277,
+      "measure_id": "LB 275",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted for Legislative Bill 275, which protects the Social Security money of children in state care. The Nebraska Legislature passed it 29-19, and it became law.",
+      "nay_description": "Voted against Legislative Bill 275, which protects the Social Security money of children in state care. The Nebraska Legislature passed it 29-19, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 29-19-1",
+        "tally": "29-19",
+        "old_sentences": 16,
+        "old_chars": 1255
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1624711,
+      "measure_id": "LB 258",
+      "vote_date": "2026-02-05",
+      "yea_description": "Voted for Legislative Bill 258, which slows future minimum wage increases and adds two lower wage rates. The Nebraska Legislature passed it 33-16, and it became law.",
+      "nay_description": "Voted against Legislative Bill 258, which slows future minimum wage increases and adds two lower wage rates. The Nebraska Legislature passed it 33-16, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 33-16-0",
+        "tally": "33-16",
+        "old_sentences": 15,
+        "old_chars": 1104
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1631503,
+      "measure_id": "LB 203",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Legislative Bill 203, which requires elected officials' written approval before a local health director issues a community-wide order. The Nebraska Legislature passed it 35-12, and it became law.",
+      "nay_description": "Voted against Legislative Bill 203, which requires elected officials' written approval before a local health director issues a community-wide order. The Nebraska Legislature passed it 35-12, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 35-12-2",
+        "tally": "35-12",
+        "old_sentences": 11,
+        "old_chars": 1065
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1639887,
+      "measure_id": "LB 397",
+      "vote_date": "2026-02-20",
+      "yea_description": "Voted for Legislative Bill 397, which ends the workplace safety committee rule for private employers. The Nebraska Legislature passed it 35-13, and it became law.",
+      "nay_description": "Voted against Legislative Bill 397, which ends the workplace safety committee rule for private employers. The Nebraska Legislature passed it 35-13, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 35-13-1",
+        "tally": "35-13",
+        "old_sentences": 8,
+        "old_chars": 682
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1648242,
+      "measure_id": "LB 795",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for Legislative Bill 795, which raises the penalties for dealing in fentanyl and bans the sedative bromazolam. The Nebraska Legislature passed it 32-14, and it became law.",
+      "nay_description": "Voted against Legislative Bill 795, which raises the penalties for dealing in fentanyl and bans the sedative bromazolam. The Nebraska Legislature passed it 32-14, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 32-14-3",
+        "tally": "32-14",
+        "old_sentences": 8,
+        "old_chars": 650
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1679973,
+      "measure_id": "LB 1067",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted for Legislative Bill 1067, which raises the property sale stamp tax by $1 per $1,000 to pay for workforce housing. The Nebraska Legislature passed it 36-13, and it became law.",
+      "nay_description": "Voted against Legislative Bill 1067, which raises the property sale stamp tax by $1 per $1,000 to pay for workforce housing. The Nebraska Legislature passed it 36-13, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 36-13-0",
+        "tally": "36-13",
+        "old_sentences": 10,
+        "old_chars": 771
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1680249,
+      "measure_id": "LB 966",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted for Legislative Bill 966, which pays for school meals for students who now pay a reduced price, through a 2032 pilot. The Nebraska Legislature passed it 38-11, and it became law.",
+      "nay_description": "Voted against Legislative Bill 966, which pays for school meals for students who now pay a reduced price, through a 2032 pilot. The Nebraska Legislature passed it 38-11, and it became law.",
+      "_current": {
+        "question": "Passed on Final Reading 38-11*-0",
+        "tally": "38-11",
+        "old_sentences": 11,
+        "old_chars": 1040
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1680322,
+      "measure_id": "LB 1029",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted for Legislative Bill 1029, a bill to narrow what public colleges must report about money from hostile foreign governments. The Nebraska Legislature passed it 29-20, the Governor vetoed it, the Legislature did not vote to override, and it did not become law.",
+      "nay_description": "Voted against Legislative Bill 1029, a bill to narrow what public colleges must report about money from hostile foreign governments. The Nebraska Legislature passed it 29-20, the Governor vetoed it, the Legislature did not vote to override, and it did not become law.",
+      "_current": {
+        "question": "Passed on Final Reading 29-20*-0",
+        "tally": "29-20",
+        "old_sentences": 6,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "NE",
+      "chamber": "senate",
+      "session": "2185",
+      "roll": 1680339,
+      "measure_id": "LB 929",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted for Legislative Bill 929, a bill to let Medicaid managed care companies pay a patient's copay for them. The Nebraska Legislature passed it 31-18, but the governor vetoed it and the override vote failed 22-26.",
+      "nay_description": "Voted against Legislative Bill 929, a bill to let Medicaid managed care companies pay a patient's copay for them. The Nebraska Legislature passed it 31-18, but the governor vetoed it and the override vote failed 22-26.",
+      "_current": {
+        "question": "Passed on Final Reading 31-18*-0",
+        "tally": "31-18",
+        "old_sentences": 7,
+        "old_chars": 716
+      }
+    }
+  ]
+}

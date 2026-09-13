@@ -1,0 +1,52 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "MN",
+      "chamber": "house",
+      "session": "2151",
+      "roll": 1570373,
+      "measure_id": "SF 2200",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for Senate File 2200, which keeps what people say in a restorative justice meeting out of court. The Minnesota House passed it 98-36, and it became law.",
+      "nay_description": "Voted against Senate File 2200, which keeps what people say in a restorative justice meeting out of court. The Minnesota House passed it 98-36, and it became law.",
+      "_current": {
+        "question": "House: Passage",
+        "tally": "98-36",
+        "old_sentences": 7,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "MN",
+      "chamber": "house",
+      "session": "2217",
+      "roll": 1588802,
+      "measure_id": "HF 1",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for House File 1, which ended MinnesotaCare health coverage for adults living in the country without legal permission. The Minnesota House passed it 68-65, and it became law.",
+      "nay_description": "Voted against House File 1, which ended MinnesotaCare health coverage for adults living in the country without legal permission. The Minnesota House passed it 68-65, and it became law.",
+      "_current": {
+        "question": "House: H.F. NO. 1",
+        "tally": "68-65",
+        "old_sentences": 4,
+        "old_chars": 350
+      }
+    },
+    {
+      "jurisdiction": "MN",
+      "chamber": "senate",
+      "session": "2217",
+      "roll": 1587239,
+      "measure_id": "HF 1",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for House File 1, which ended MinnesotaCare health coverage for adults living in the country without legal permission. The Minnesota Senate passed it 48-16, and it became law.",
+      "nay_description": "Voted against House File 1, which ended MinnesotaCare health coverage for adults living in the country without legal permission. The Minnesota Senate passed it 48-16, and it became law.",
+      "_current": {
+        "question": "Senate: Third reading Passed",
+        "tally": "48-16",
+        "old_sentences": 4,
+        "old_chars": 351
+      }
+    }
+  ]
+}

@@ -1,0 +1,980 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1483323,
+      "measure_id": "SB 3",
+      "vote_date": "2025-02-06",
+      "yea_description": "Voted to pass Senate Bill 3, which bars state and local government from treating anyone better or worse because of race, sex or ethnicity. The Arkansas House passed it 65-27 and it became Act 116 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 3, which bars state and local government from treating anyone better or worse because of race, sex or ethnicity. The Arkansas House passed it 65-27 and it became Act 116 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "65-27",
+        "old_sentences": 10,
+        "old_chars": 788
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1485094,
+      "measure_id": "HB 1222",
+      "vote_date": "2025-02-10",
+      "yea_description": "Voted to pass House Bill 1222, which lets the Attorney General reject a ballot measure that clashes with federal law. The Arkansas House passed it 62-30 and it became Act 154 of 2025.",
+      "nay_description": "Voted against passing House Bill 1222, which lets the Attorney General reject a ballot measure that clashes with federal law. The Arkansas House passed it 62-30 and it became Act 154 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "62-30",
+        "old_sentences": 10,
+        "old_chars": 785
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1497495,
+      "measure_id": "SB 207",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted to pass Senate Bill 207, which makes petition canvassers warn each signer out loud that petition fraud is a crime. The Arkansas House passed it 67-26 and it became Act 218 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 207, which makes petition canvassers warn each signer out loud that petition fraud is a crime. The Arkansas House passed it 67-26 and it became Act 218 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "67-26",
+        "old_sentences": 7,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1498719,
+      "measure_id": "SB 211",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted to pass Senate Bill 211, which makes every petition canvasser file a sworn statement of compliance with the Secretary of State. The Arkansas House passed it 65-27 and it became Act 241 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 211, which makes every petition canvasser file a sworn statement of compliance with the Secretary of State. The Arkansas House passed it 65-27 and it became Act 241 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "65-27",
+        "old_sentences": 9,
+        "old_chars": 710
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1498856,
+      "measure_id": "SB 208",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted to pass Senate Bill 208, which makes petition canvassers check a signer's photo ID before taking their name. The Arkansas House passed it 70-24 and it became Act 240 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 208, which makes petition canvassers check a signer's photo ID before taking their name. The Arkansas House passed it 70-24 and it became Act 240 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "70-24",
+        "old_sentences": 8,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1504355,
+      "measure_id": "HB 1489",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to pass House Bill 1489, which lets Arkansas carry out a death sentence with nitrogen gas as well as lethal injection. The Arkansas House passed it 67-23 and it became Act 302 of 2025.",
+      "nay_description": "Voted against passing House Bill 1489, which lets Arkansas carry out a death sentence with nitrogen gas as well as lethal injection. The Arkansas House passed it 67-23 and it became Act 302 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "67-23",
+        "old_sentences": 8,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1508182,
+      "measure_id": "HB 1503",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass House Bill 1503, which makes cities allow at least one accessory dwelling unit on a single-family lot. The Arkansas House passed it 67-19 and it became Act 313 of 2025.",
+      "nay_description": "Voted against passing House Bill 1503, which makes cities allow at least one accessory dwelling unit on a single-family lot. The Arkansas House passed it 67-19 and it became Act 313 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "67-19",
+        "old_sentences": 9,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1509491,
+      "measure_id": "SB 296",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass Senate Bill 296, which requires the county clerk's early voting site to sit in the county seat. The Arkansas House passed it 72-21 and it became Act 282 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 296, which requires the county clerk's early voting site to sit in the county seat. The Arkansas House passed it 72-21 and it became Act 282 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "72-21",
+        "old_sentences": 6,
+        "old_chars": 506
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1509495,
+      "measure_id": "SB 209",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass Senate Bill 209, which throws out every signature a canvasser collected if that canvasser broke petition law. The Arkansas House passed it 62-29 and it became Act 273 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 209, which throws out every signature a canvasser collected if that canvasser broke petition law. The Arkansas House passed it 62-29 and it became Act 273 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "62-29",
+        "old_sentences": 8,
+        "old_chars": 679
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1509512,
+      "measure_id": "SB 210",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass Senate Bill 210, which requires petition signers to read or hear the ballot title in front of the canvasser. The Arkansas House passed it 57-33 and it became Act 274 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 210, which requires petition signers to read or hear the ballot title in front of the canvasser. The Arkansas House passed it 57-33 and it became Act 274 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "57-33",
+        "old_sentences": 8,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1519700,
+      "measure_id": "HB 1713",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted to pass House Bill 1713, which bars ballot titles written above an eighth-grade reading level. The Arkansas House passed it 60-23 and it became Act 602 of 2025.",
+      "nay_description": "Voted against passing House Bill 1713, which bars ballot titles written above an eighth-grade reading level. The Arkansas House passed it 60-23 and it became Act 602 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "60-23",
+        "old_sentences": 8,
+        "old_chars": 570
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1533254,
+      "measure_id": "SB 366",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted to pass Senate Bill 366, which creates a grant program to strengthen owner-occupied homes against wind and hail. The Arkansas House passed it 56-25 and it became Act 427 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 366, which creates a grant program to strengthen owner-occupied homes against wind and hail. The Arkansas House passed it 56-25 and it became Act 427 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "56-25",
+        "old_sentences": 8,
+        "old_chars": 780
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1536151,
+      "measure_id": "HB 1365",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass House Bill 1365, which strips race and sex requirements from the membership of about twenty state boards. The Arkansas House passed it 60-24 and it became Act 938 of 2025.",
+      "nay_description": "Voted against passing House Bill 1365, which strips race and sex requirements from the membership of about twenty state boards. The Arkansas House passed it 60-24 and it became Act 938 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "60-24",
+        "old_sentences": 9,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1538646,
+      "measure_id": "SB 433",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass Senate Bill 433, which requires a Ten Commandments poster in every public classroom, library and tax-funded building. The Arkansas House passed it 71-20 and it became Act 573 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 433, which requires a Ten Commandments poster in every public classroom, library and tax-funded building. The Arkansas House passed it 71-20 and it became Act 573 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "71-20",
+        "old_sentences": 9,
+        "old_chars": 608
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1538672,
+      "measure_id": "HB 1965",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass House Bill 1965, which sets up grants and loans to help food shops open where fresh food is hard to buy. The Arkansas House passed it 58-28 and it became Act 870 of 2025.",
+      "nay_description": "Voted against passing House Bill 1965, which sets up grants and loans to help food shops open where fresh food is hard to buy. The Arkansas House passed it 58-28 and it became Act 870 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "58-28",
+        "old_sentences": 8,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1539730,
+      "measure_id": "HB 1627",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 1627, which makes property tax bills tell taxpayers about relief for older and disabled homeowners. The Arkansas House passed it 58-17 and it became Act 877 of 2025.",
+      "nay_description": "Voted against passing House Bill 1627, which makes property tax bills tell taxpayers about relief for older and disabled homeowners. The Arkansas House passed it 58-17 and it became Act 877 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "58-17",
+        "old_sentences": 8,
+        "old_chars": 590
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1542128,
+      "measure_id": "HB 1017",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1017, which makes the state pay the whole cost of 12 weeks of maternity leave for public school staff. The Arkansas House passed it 68-19 and it became Act 904 of 2025.",
+      "nay_description": "Voted against passing House Bill 1017, which makes the state pay the whole cost of 12 weeks of maternity leave for public school staff. The Arkansas House passed it 68-19 and it became Act 904 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "68-19",
+        "old_sentences": 10,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1542308,
+      "measure_id": "SB 446",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 446, which lets private landowners and businesses use automatic license plate readers. The Arkansas House passed it 56-27 and it became Act 668 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 446, which lets private landowners and businesses use automatic license plate readers. The Arkansas House passed it 56-27 and it became Act 668 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "56-27",
+        "old_sentences": 9,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1543044,
+      "measure_id": "SB 426",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 426, the Defense Against Criminal Illegals Act, which adds prison time for violent crimes by people here illegally. The Arkansas House passed it 73-20 and it became Act 654 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 426, the Defense Against Criminal Illegals Act, which adds prison time for violent crimes by people here illegally. The Arkansas House passed it 73-20 and it became Act 654 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "73-20",
+        "old_sentences": 8,
+        "old_chars": 748
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1543185,
+      "measure_id": "HB 1945",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1945, which lets students transfer to another public school inside their own district. The Arkansas House passed it 59-30 and it became Act 913 of 2025.",
+      "nay_description": "Voted against passing House Bill 1945, which lets students transfer to another public school inside their own district. The Arkansas House passed it 59-30 and it became Act 913 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "59-30",
+        "old_sentences": 7,
+        "old_chars": 758
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1543971,
+      "measure_id": "HB 1974",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 1974, which tells government employers to check new hires through E-Verify. The Arkansas House passed it 76-20 and it became Act 948 of 2025.",
+      "nay_description": "Voted against passing House Bill 1974, which tells government employers to check new hires through E-Verify. The Arkansas House passed it 76-20 and it became Act 948 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "76-20",
+        "old_sentences": 9,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547193,
+      "measure_id": "HB 1866",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1866, Eli's Law, which requires audio recording devices in every school locker room from the 2027-2028 school year. The Arkansas House passed it 71-21 and it became Act 908 of 2025.",
+      "nay_description": "Voted against passing House Bill 1866, Eli's Law, which requires audio recording devices in every school locker room from the 2027-2028 school year. The Arkansas House passed it 71-21 and it became Act 908 of 2025.",
+      "_current": {
+        "question": "Senate amendment # 1 read and concurred in.",
+        "tally": "71-21",
+        "old_sentences": 9,
+        "old_chars": 707
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547270,
+      "measure_id": "SB 584",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 584, which applies statewide ballot petition rules to county and city petitions. The Arkansas House passed it 73-20 and it became Act 768 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 584, which applies statewide ballot petition rules to county and city petitions. The Arkansas House passed it 73-20 and it became Act 768 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "73-20",
+        "old_sentences": 6,
+        "old_chars": 645
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547361,
+      "measure_id": "SB 551",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 551, which adds fraud warnings and ID checks to petitions for local votes on alcohol sales. The Arkansas House passed it 71-20 and it became Act 764 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 551, which adds fraud warnings and ID checks to petitions for local votes on alcohol sales. The Arkansas House passed it 71-20 and it became Act 764 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "71-20",
+        "old_sentences": 9,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547390,
+      "measure_id": "SB 406",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 406, which bars recording a deed unless the person giving up the land shows photo ID. The Arkansas House passed it 51-31 and it became Act 752 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 406, which bars recording a deed unless the person giving up the land shows photo ID. The Arkansas House passed it 51-31 and it became Act 752 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "51-31",
+        "old_sentences": 7,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547415,
+      "measure_id": "SB 520",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 520, which bars counties, cities and towns from running a diversity, equity and inclusion program. The Arkansas House passed it 68-22 and it became Act 747 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 520, which bars counties, cities and towns from running a diversity, equity and inclusion program. The Arkansas House passed it 68-22 and it became Act 747 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "68-22",
+        "old_sentences": 8,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1547704,
+      "measure_id": "SB 364",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 364, which lets an unlicensed contractor sue a customer for the value of the work after paying fines. The Arkansas House passed it 66-23 and it became Act 750 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 364, which lets an unlicensed contractor sue a customer for the value of the work after paying fines. The Arkansas House passed it 66-23 and it became Act 750 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "66-23",
+        "old_sentences": 7,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1548583,
+      "measure_id": "SB 640",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass Senate Bill 640, which ends the terms of every State Library Board member and lets the Governor appoint replacements. The Arkansas House passed it 60-29 and it became Act 903 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 640, which ends the terms of every State Library Board member and lets the Governor appoint replacements. The Arkansas House passed it 60-29 and it became Act 903 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "60-29",
+        "old_sentences": 7,
+        "old_chars": 597
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1549605,
+      "measure_id": "SJR 15",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Joint Resolution 15, a proposed constitutional amendment letting lawmakers create economic development districts with public loans. The Arkansas House adopted it 74-21. Both chambers agreed, so it goes on the November 2026 ballot.",
+      "nay_description": "Voted against passing Senate Joint Resolution 15, a proposed constitutional amendment letting lawmakers create economic development districts with public loans. The Arkansas House adopted it 74-21. Both chambers agreed, so it goes on the November 2026 ballot.",
+      "_current": {
+        "question": "Read and adopted and ordered transmitted to the Senate.",
+        "tally": "74-21",
+        "old_sentences": 12,
+        "old_chars": 777
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1549625,
+      "measure_id": "SB 486",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 486, which defines sex by biology and requires shared restrooms and sleeping rooms to be set aside for one sex. The Arkansas House passed it 60-22 and it became Act 955 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 486, which defines sex by biology and requires shared restrooms and sleeping rooms to be set aside for one sex. The Arkansas House passed it 60-22 and it became Act 955 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "60-22",
+        "old_sentences": 11,
+        "old_chars": 915
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1549644,
+      "measure_id": "SB 638",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 638, which makes motorboat buyers pay sales tax to the state at registration instead of to the dealer. The Arkansas House passed it 58-23 and it became Act 1019 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 638, which makes motorboat buyers pay sales tax to the state at registration instead of to the dealer. The Arkansas House passed it 58-23 and it became Act 1019 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "58-23",
+        "old_sentences": 8,
+        "old_chars": 657
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "house",
+      "session": "2162",
+      "roll": 1549663,
+      "measure_id": "SB 591",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 591, a standby law barring abortions sought because of the race of the fetus, not yet in force. The Arkansas House passed it 63-17 and it became Act 973 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 591, a standby law barring abortions sought because of the race of the fetus, not yet in force. The Arkansas House passed it 63-17 and it became Act 973 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "63-17",
+        "old_sentences": 8,
+        "old_chars": 631
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1487545,
+      "measure_id": "SB 210",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted to pass Senate Bill 210, which requires petition signers to read or hear the ballot title in front of the canvasser. The Arkansas Senate passed it 22-10 and it became Act 274 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 210, which requires petition signers to read or hear the ballot title in front of the canvasser. The Arkansas Senate passed it 22-10 and it became Act 274 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "22-10",
+        "old_sentences": 8,
+        "old_chars": 568
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1487790,
+      "measure_id": "SB 3",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted to pass Senate Bill 3, which bars state and local government from treating anyone better or worse because of race, sex or ethnicity. The Arkansas Senate passed it 24-6 and it became Act 116 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 3, which bars state and local government from treating anyone better or worse because of race, sex or ethnicity. The Arkansas Senate passed it 24-6 and it became Act 116 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "24-6",
+        "old_sentences": 10,
+        "old_chars": 788
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1487812,
+      "measure_id": "SB 209",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted to pass Senate Bill 209, which throws out every signature a canvasser collected if that canvasser broke petition law. The Arkansas Senate passed it 21-11 and it became Act 273 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 209, which throws out every signature a canvasser collected if that canvasser broke petition law. The Arkansas Senate passed it 21-11 and it became Act 273 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "21-11",
+        "old_sentences": 8,
+        "old_chars": 680
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1491742,
+      "measure_id": "HB 1221",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted to pass House Bill 1221, which voids petition signatures collected after the next general election following approval of the wording. The Arkansas Senate passed it 25-8 and it became Act 153 of 2025.",
+      "nay_description": "Voted against passing House Bill 1221, which voids petition signatures collected after the next general election following approval of the wording. The Arkansas Senate passed it 25-8 and it became Act 153 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "25-8",
+        "old_sentences": 7,
+        "old_chars": 544
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1491745,
+      "measure_id": "HB 1222",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted to pass House Bill 1222, which lets the Attorney General reject a ballot measure that clashes with federal law. The Arkansas Senate passed it 25-8 and it became Act 154 of 2025.",
+      "nay_description": "Voted against passing House Bill 1222, which lets the Attorney General reject a ballot measure that clashes with federal law. The Arkansas Senate passed it 25-8 and it became Act 154 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "25-8",
+        "old_sentences": 10,
+        "old_chars": 785
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1498775,
+      "measure_id": "SB 223",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted to pass Senate Bill 223, which lists religious rights students and staff keep at public schools. The Arkansas Senate passed it 25-8 and it became Act 400 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 223, which lists religious rights students and staff keep at public schools. The Arkansas Senate passed it 25-8 and it became Act 400 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "25-8",
+        "old_sentences": 8,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1500009,
+      "measure_id": "SB 207",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted to pass Senate Bill 207, which makes petition canvassers warn each signer out loud that petition fraud is a crime. The Arkansas Senate passed it 25-9 and it became Act 218 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 207, which makes petition canvassers warn each signer out loud that petition fraud is a crime. The Arkansas Senate passed it 25-9 and it became Act 218 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "25-9",
+        "old_sentences": 7,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1503369,
+      "measure_id": "SB 211",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted to pass Senate Bill 211, which makes every petition canvasser file a sworn statement of compliance with the Secretary of State. The Arkansas Senate passed it 24-9 and it became Act 241 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 211, which makes every petition canvasser file a sworn statement of compliance with the Secretary of State. The Arkansas Senate passed it 24-9 and it became Act 241 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "24-9",
+        "old_sentences": 9,
+        "old_chars": 710
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1513562,
+      "measure_id": "HB 1489",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass House Bill 1489, which lets Arkansas carry out a death sentence with nitrogen gas as well as lethal injection. The Arkansas Senate passed it 26-9 and it became Act 302 of 2025.",
+      "nay_description": "Voted against passing House Bill 1489, which lets Arkansas carry out a death sentence with nitrogen gas as well as lethal injection. The Arkansas Senate passed it 26-9 and it became Act 302 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "26-9",
+        "old_sentences": 8,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1516062,
+      "measure_id": "SB 307",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass Senate Bill 307, the Generating Arkansas Jobs Act, which lets utilities charge customers for big new plants while still building them. The Arkansas Senate passed it 23-9 and it became Act 373 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 307, the Generating Arkansas Jobs Act, which lets utilities charge customers for big new plants while still building them. The Arkansas Senate passed it 23-9 and it became Act 373 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "23-9",
+        "old_sentences": 10,
+        "old_chars": 780
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1516066,
+      "measure_id": "SB 366",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass Senate Bill 366, which creates a grant program to strengthen owner-occupied homes against wind and hail. The Arkansas Senate passed it 18-9 and it became Act 427 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 366, which creates a grant program to strengthen owner-occupied homes against wind and hail. The Arkansas Senate passed it 18-9 and it became Act 427 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-9",
+        "old_sentences": 8,
+        "old_chars": 780
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1522063,
+      "measure_id": "SB 411",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass Senate Bill 411, which makes driving with a front bumper raised four inches above the rear an offense. The Arkansas Senate passed it 18-10 and it became Act 492 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 411, which makes driving with a front bumper raised four inches above the rear an offense. The Arkansas Senate passed it 18-10 and it became Act 492 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-10",
+        "old_sentences": 8,
+        "old_chars": 666
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1530915,
+      "measure_id": "HB 1574",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to pass House Bill 1574, which lets only Arkansas residents be paid to collect ballot petition signatures. The Arkansas Senate passed it 25-8 and it became Act 453 of 2025.",
+      "nay_description": "Voted against passing House Bill 1574, which lets only Arkansas residents be paid to collect ballot petition signatures. The Arkansas Senate passed it 25-8 and it became Act 453 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "25-8",
+        "old_sentences": 7,
+        "old_chars": 506
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1532560,
+      "measure_id": "SB 392",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted to pass Senate Bill 392, which rebuilds how Arkansas classifies and pays state employees. The Arkansas Senate passed it 22-7 and it became Act 499 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 392, which rebuilds how Arkansas classifies and pays state employees. The Arkansas Senate passed it 22-7 and it became Act 499 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "22-7",
+        "old_sentences": 8,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1536102,
+      "measure_id": "SB 551",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass Senate Bill 551, which adds fraud warnings and ID checks to petitions for local votes on alcohol sales. The Arkansas Senate passed it 18-9 and it became Act 764 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 551, which adds fraud warnings and ID checks to petitions for local votes on alcohol sales. The Arkansas Senate passed it 18-9 and it became Act 764 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-9",
+        "old_sentences": 9,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1540504,
+      "measure_id": "SB 520",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass Senate Bill 520, which bars counties, cities and towns from running a diversity, equity and inclusion program. The Arkansas Senate passed it 22-7 and it became Act 747 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 520, which bars counties, cities and towns from running a diversity, equity and inclusion program. The Arkansas Senate passed it 22-7 and it became Act 747 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "22-7",
+        "old_sentences": 8,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1540907,
+      "measure_id": "HB 1641",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 1641, which makes using a tracking device to follow someone part of the crime of harassment. The Arkansas Senate passed it 20-6 and it became Act 600 of 2025.",
+      "nay_description": "Voted against passing House Bill 1641, which makes using a tracking device to follow someone part of the crime of harassment. The Arkansas Senate passed it 20-6 and it became Act 600 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "20-6",
+        "old_sentences": 7,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1540985,
+      "measure_id": "HB 1424",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 1424, which makes Medicaid and private health plans cover care for illnesses caused by severe obesity. The Arkansas Senate passed it 23-6 and it became Act 628 of 2025.",
+      "nay_description": "Voted against passing House Bill 1424, which makes Medicaid and private health plans cover care for illnesses caused by severe obesity. The Arkansas Senate passed it 23-6 and it became Act 628 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "23-6",
+        "old_sentences": 11,
+        "old_chars": 809
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1542117,
+      "measure_id": "HB 1150",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1150, which bars a pharmacy benefits manager from owning a retail pharmacy in Arkansas. The Arkansas Senate passed it 26-9 and it became Act 624 of 2025.",
+      "nay_description": "Voted against passing House Bill 1150, which bars a pharmacy benefits manager from owning a retail pharmacy in Arkansas. The Arkansas Senate passed it 26-9 and it became Act 624 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "26-9",
+        "old_sentences": 8,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1543195,
+      "measure_id": "HB 1752",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1752, which protects health, college and disability savings accounts from debt judgments. The Arkansas Senate passed it 18-14 and it became Act 681 of 2025.",
+      "nay_description": "Voted against passing House Bill 1752, which protects health, college and disability savings accounts from debt judgments. The Arkansas Senate passed it 18-14 and it became Act 681 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-14",
+        "old_sentences": 7,
+        "old_chars": 604
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1544090,
+      "measure_id": "SJR 11",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Joint Resolution 11, a proposed constitutional amendment widening the right to keep and bear arms to hunting, recreation and ammunition. The Arkansas Senate adopted it 28-7. Both chambers agreed, so it goes on the November 2026 ballot.",
+      "nay_description": "Voted against passing Senate Joint Resolution 11, a proposed constitutional amendment widening the right to keep and bear arms to hunting, recreation and ammunition. The Arkansas Senate adopted it 28-7. Both chambers agreed, so it goes on the November 2026 ballot.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "28-7",
+        "old_sentences": 8,
+        "old_chars": 624
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1547326,
+      "measure_id": "HB 1965",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1965, which sets up grants and loans to help food shops open where fresh food is hard to buy. The Arkansas Senate passed it 22-10 and it became Act 870 of 2025.",
+      "nay_description": "Voted against passing House Bill 1965, which sets up grants and loans to help food shops open where fresh food is hard to buy. The Arkansas Senate passed it 22-10 and it became Act 870 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "22-10",
+        "old_sentences": 8,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1547631,
+      "measure_id": "HB 1929",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1929, which bars state agencies from using the term West Bank and requires Judea and Samaria instead. The Arkansas Senate passed it 22-11 and it became Act 797 of 2025.",
+      "nay_description": "Voted against passing House Bill 1929, which bars state agencies from using the term West Bank and requires Judea and Samaria instead. The Arkansas Senate passed it 22-11 and it became Act 797 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "22-11",
+        "old_sentences": 8,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1547861,
+      "measure_id": "HB 1428",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1428, which caps bed height at 23 inches in hotel rooms built for guests with mobility disabilities. The Arkansas Senate passed it 18-14 and it became Act 855 of 2025.",
+      "nay_description": "Voted against passing House Bill 1428, which caps bed height at 23 inches in hotel rooms built for guests with mobility disabilities. The Arkansas Senate passed it 18-14 and it became Act 855 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-14",
+        "old_sentences": 6,
+        "old_chars": 493
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1548505,
+      "measure_id": "HB 1365",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1365, which strips race and sex requirements from the membership of about twenty state boards. The Arkansas Senate passed it 24-6 and it became Act 938 of 2025.",
+      "nay_description": "Voted against passing House Bill 1365, which strips race and sex requirements from the membership of about twenty state boards. The Arkansas Senate passed it 24-6 and it became Act 938 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "24-6",
+        "old_sentences": 9,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1548554,
+      "measure_id": "HB 1683",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1683, which bars governments from buying electric vehicles without a sworn statement that no forced labor was used. The Arkansas Senate passed it 19-9 and it became Act 924 of 2025.",
+      "nay_description": "Voted against passing House Bill 1683, which bars governments from buying electric vehicles without a sworn statement that no forced labor was used. The Arkansas Senate passed it 19-9 and it became Act 924 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "19-9",
+        "old_sentences": 8,
+        "old_chars": 838
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1549802,
+      "measure_id": "HB 1878",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass House Bill 1878, which requires early voting sites in every city of more than 15,000 people. The Arkansas Senate passed it 18-16 and it became Act 978 of 2025.",
+      "nay_description": "Voted against passing House Bill 1878, which requires early voting sites in every city of more than 15,000 people. The Arkansas Senate passed it 18-16 and it became Act 978 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-16",
+        "old_sentences": 6,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1549855,
+      "measure_id": "SB 437",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 437, which creates a permit system for large wind farms with setback rules. The Arkansas Senate passed it 18-14 and it became Act 945 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 437, which creates a permit system for large wind farms with setback rules. The Arkansas Senate passed it 18-14 and it became Act 945 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "18-14",
+        "old_sentences": 8,
+        "old_chars": 955
+      }
+    },
+    {
+      "jurisdiction": "AR",
+      "chamber": "senate",
+      "session": "2162",
+      "roll": 1550569,
+      "measure_id": "SB 491",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 491, which makes state employee benefits contractors agree to outside data audits. The Arkansas Senate passed it 19-7 and it became Act 956 of 2025.",
+      "nay_description": "Voted against passing Senate Bill 491, which makes state employee benefits contractors agree to outside data audits. The Arkansas Senate passed it 19-7 and it became Act 956 of 2025.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "19-7",
+        "old_sentences": 8,
+        "old_chars": 696
+      }
+    }
+  ]
+}

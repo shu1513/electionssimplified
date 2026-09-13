@@ -1,0 +1,732 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/KY/rewrites.json",
+  "dryRun": false,
+  "rolls": 103,
+  "updatedRolls": 103,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 5165,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "KY:house:2179:1493834",
+      "outcome": "updated",
+      "rewritten": 79,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1505169",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1516642",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1518196",
+      "outcome": "updated",
+      "rewritten": 78,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529575",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529581",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529582",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529584",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529588",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529592",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529599",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529602",
+      "outcome": "updated",
+      "rewritten": 78,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529606",
+      "outcome": "updated",
+      "rewritten": 79,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529607",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529618",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529619",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529622",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529633",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529812",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1529818",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1530505",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1530633",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2179:1530717",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1626655",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1663923",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1670413",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1671526",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1671539",
+      "outcome": "updated",
+      "rewritten": 79,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1674521",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1674562",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1674574",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1675554",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1675555",
+      "outcome": "updated",
+      "rewritten": 79,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682823",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682824",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682832",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682834",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682849",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682856",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682868",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682885",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682889",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682893",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682934",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682936",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682939",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682942",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682943",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1683991",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1684100",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1492901",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1506432",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1515347",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1516615",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1516636",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517647",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517666",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517669",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517690",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517715",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1518159",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1518204",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529580",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529583",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529585",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529589",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529593",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529596",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529601",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529605",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529608",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529611",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529620",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529623",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529634",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1529813",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1530504",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1655689",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1669300",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1671519",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1671561",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1671862",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674515",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674531",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674561",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674572",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674599",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682822",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682825",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682831",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682835",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682841",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682850",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682855",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682867",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682884",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682890",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682894",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682933",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682937",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682938",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682941",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682944",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

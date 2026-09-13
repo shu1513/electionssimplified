@@ -1,0 +1,956 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/NV/rewrites.json",
+  "dryRun": false,
+  "rolls": 135,
+  "updatedRolls": 135,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 2672,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "NV:house:2144:1550181",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1550524",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551228",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551264",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551302",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551571",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551589",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551673",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1551754",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1552350",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1552615",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1552619",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1552732",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1553680",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1553732",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1553745",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1553750",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1553821",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554018",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554207",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554233",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554237",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554310",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554356",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554429",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554449",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554516",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554734",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1554912",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1568169",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575046",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575366",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575920",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575936",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575985",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1575998",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576066",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576114",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576208",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576494",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576923",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576988",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1576990",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1577015",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1577027",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1578338",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1578347",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1579499",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1580715",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1581090",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1581111",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1581201",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1581341",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1582251",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1582786",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583017",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583179",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583193",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583676",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583741",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583877",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1583891",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1584185",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:house:2144:1586837",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1548312",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1549434",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1550210",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1550566",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1550646",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1552221",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1552223",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1552296",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1553044",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1553489",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1553538",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1553772",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1554298",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1556367",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1569423",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1573177",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1573331",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1573426",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575479",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575497",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575513",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575514",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575542",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575560",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575587",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575611",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575648",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575651",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575676",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1575990",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576530",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576604",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576634",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576711",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576737",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576740",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576758",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576817",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576883",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576919",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576924",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576931",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1576960",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1577060",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1577938",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1577969",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1577997",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578000",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578362",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578452",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578514",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578609",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578729",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578740",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1578859",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1580564",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1580575",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1580710",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1581651",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1582218",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1582302",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1582877",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583311",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583340",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583619",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583621",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583650",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583679",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583686",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583696",
+      "outcome": "updated",
+      "rewritten": 11,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NV:senate:2144:1583907",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

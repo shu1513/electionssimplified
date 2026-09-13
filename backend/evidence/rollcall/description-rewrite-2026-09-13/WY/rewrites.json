@@ -1,0 +1,564 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1488229,
+      "measure_id": "HB 318",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 318, which widens voter roll checks to look for non-citizens and voters licensed in another state. The House passed the bill 47-13 and it became law as chapter 152 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 318, which widens voter roll checks to look for non-citizens and voters licensed in another state. The House passed the bill 47-13 and it became law as chapter 152 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 47-13-2-0-0",
+        "tally": "47-13",
+        "old_sentences": 9,
+        "old_chars": 1003
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1498230,
+      "measure_id": "SF 4",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate File 4, which makes state park rangers and managers peace officers and lets them act outside a park. The House passed the bill 40-20 and it became law as chapter 54 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 4, which makes state park rangers and managers peace officers and lets them act outside a park. The House passed the bill 40-20 and it became law as chapter 54 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 40-20-2-0-0",
+        "tally": "40-20",
+        "old_sentences": 9,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1500225,
+      "measure_id": "SF 152",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate File 152, which funds the response to the 2024 wildfires and expands the state forester's fire duties. The House passed the bill 46-14 and it became law as chapter 129 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 152, which funds the response to the 2024 wildfires and expands the state forester's fire duties. The House passed the bill 46-14 and it became law as chapter 129 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 46-14-2-0-0",
+        "tally": "46-14",
+        "old_sentences": 10,
+        "old_chars": 1151
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1502833,
+      "measure_id": "HB 117",
+      "vote_date": "2025-02-28",
+      "yea_description": "Voted for House Bill 117, which funds 18 water projects and adds $80 million to two large dam and canal rebuilds. The House agreed to the Senate changes 34-26 and the bill became law as chapter 111 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 117, which funds 18 water projects and adds $80 million to two large dam and canal rebuilds. The House agreed to the Senate changes 34-26 and the bill became law as chapter 111 of the 2025 session laws.",
+      "_current": {
+        "question": "Concur:Passed 34-26-2-0-0",
+        "tally": "34-26",
+        "old_sentences": 11,
+        "old_chars": 1175
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1504261,
+      "measure_id": "SF 107",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate File 107, which voids most agreements that stop a worker from taking a job with a competitor. The House passed the bill 39-21 and it became law as chapter 170 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 107, which voids most agreements that stop a worker from taking a job with a competitor. The House passed the bill 39-21 and it became law as chapter 170 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 39-21-2-0-0",
+        "tally": "39-21",
+        "old_sentences": 10,
+        "old_chars": 1080
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1504265,
+      "measure_id": "SF 34",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate File 34, which counts more school building space when the state pays districts for maintenance. The House passed the bill 38-23 and it became law as chapter 145 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 34, which counts more school building space when the state pays districts for maintenance. The House passed the bill 38-23 and it became law as chapter 145 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 38-23-1-0-0",
+        "tally": "38-23",
+        "old_sentences": 7,
+        "old_chars": 762
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1504299,
+      "measure_id": "HB 64",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to override the governor's veto of House Bill 64, which requires an ultrasound at least 48 hours before a medication abortion. The House voted 45-16 to override, above the two thirds it needed, and the bill became law as chapter 126 of the 2025 session laws.",
+      "nay_description": "Voted against overriding the governor's veto of House Bill 64, which requires an ultrasound at least 48 hours before a medication abortion. The House voted 45-16 to override, above the two thirds it needed, and the bill became law as chapter 126 of the 2025 session laws.",
+      "_current": {
+        "question": "HB0064VT001 Amendment Reconsideration Motion Passed by Roll Call 45-16-1-0-0",
+        "tally": "45-16",
+        "old_sentences": 11,
+        "old_chars": 1068
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1504563,
+      "measure_id": "SF 160",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate File 160, which opens court-run treatment programs to people with mental illness. The House passed the bill 38-22 and it became law as chapter 160 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 160, which opens court-run treatment programs to people with mental illness. The House passed the bill 38-22 and it became law as chapter 160 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 38-22-2-0-0",
+        "tally": "38-22",
+        "old_sentences": 11,
+        "old_chars": 1013
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2157",
+      "roll": 1504899,
+      "measure_id": "SF 132",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to override the governor's veto of Senate File 132, which bans drone flights over critical infrastructure. The House voted 47-13 to override, above the two thirds it needed, and the bill became law as chapter 112 of the 2025 session laws.",
+      "nay_description": "Voted against overriding the governor's veto of Senate File 132, which bans drone flights over critical infrastructure. The House voted 47-13 to override, above the two thirds it needed, and the bill became law as chapter 112 of the 2025 session laws.",
+      "_current": {
+        "question": "SF0132VT001 Amendment Reconsideration Motion Passed by Roll Call 47-13-2-0-0",
+        "tally": "47-13",
+        "old_sentences": 13,
+        "old_chars": 1310
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1640448,
+      "measure_id": "HB 25",
+      "vote_date": "2026-02-21",
+      "yea_description": "Voted for House Bill 25, which lets adult students keep the Wyoming's Tomorrow scholarship after a break in enrollment. The House passed the bill 36-25 and it became law as chapter 31 of the 2026 session laws.",
+      "nay_description": "Voted against House Bill 25, which lets adult students keep the Wyoming's Tomorrow scholarship after a break in enrollment. The House passed the bill 36-25 and it became law as chapter 31 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 36-25-1-0-0",
+        "tally": "36-25",
+        "old_sentences": 7,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1644185,
+      "measure_id": "SF 5",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate File 5, which lets struggling county hospitals file for bankruptcy instead of closing. The House passed the bill 38-21 and it became law as chapter 13 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 5, which lets struggling county hospitals file for bankruptcy instead of closing. The House passed the bill 38-21 and it became law as chapter 13 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 38-21-3-0-0",
+        "tally": "38-21",
+        "old_sentences": 8,
+        "old_chars": 707
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1648095,
+      "measure_id": "SF 20",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for Senate File 20, which stops state and local government offices selling or trading personal data without consent. The House passed the bill 34-25 and it became law as chapter 48 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 20, which stops state and local government offices selling or trading personal data without consent. The House passed the bill 34-25 and it became law as chapter 48 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 34-25-3-0-0",
+        "tally": "34-25",
+        "old_sentences": 16,
+        "old_chars": 1466
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1648998,
+      "measure_id": "SF 4",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate File 4, which raises what Wyoming Medicaid pays ambulance services to the full Medicare rate for two years. The House passed the bill 34-23 and it became law as chapter 69 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 4, which raises what Wyoming Medicaid pays ambulance services to the full Medicare rate for two years. The House passed the bill 34-23 and it became law as chapter 69 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 34-23-5-0-0",
+        "tally": "34-23",
+        "old_sentences": 10,
+        "old_chars": 847
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1651597,
+      "measure_id": "SF 59",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for Senate File 59, which creates a statewide reading and language program from kindergarten through twelfth grade. The House passed the bill 46-14 and it became law as chapter 66 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 59, which creates a statewide reading and language program from kindergarten through twelfth grade. The House passed the bill 46-14 and it became law as chapter 66 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 46-14-2-0-0",
+        "tally": "46-14",
+        "old_sentences": 10,
+        "old_chars": 1206
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1652857,
+      "measure_id": "SF 58",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate File 58, which makes the Wyoming Indian Child Welfare Act permanent. The House passed the bill 40-20 and it became law as chapter 57 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 58, which makes the Wyoming Indian Child Welfare Act permanent. The House passed the bill 40-20 and it became law as chapter 57 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 40-20-2-0-0",
+        "tally": "40-20",
+        "old_sentences": 6,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1653001,
+      "measure_id": "SF 35",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate File 35, which makes every school district adopt a policy on student cell phones in school. The House passed the bill 40-20 and it became law as chapter 56 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 35, which makes every school district adopt a policy on student cell phones in school. The House passed the bill 40-20 and it became law as chapter 56 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 40-20-2-0-0",
+        "tally": "40-20",
+        "old_sentences": 8,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1653079,
+      "measure_id": "SF 95",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate File 95, which lets private providers handle driver's license tests and motor vehicle services. The House passed the bill 39-21 and it became law as chapter 71 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 95, which lets private providers handle driver's license tests and motor vehicle services. The House passed the bill 39-21 and it became law as chapter 71 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 39-21-2-0-0",
+        "tally": "39-21",
+        "old_sentences": 8,
+        "old_chars": 739
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1653913,
+      "measure_id": "SF 88",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate File 88, which bars registered sex offenders from living within a thousand feet of a child care facility. The House adopted the conference committee report 41-19 and the bill became law as chapter 59 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 88, which bars registered sex offenders from living within a thousand feet of a child care facility. The House adopted the conference committee report 41-19 and the bill became law as chapter 59 of the 2026 session laws.",
+      "_current": {
+        "question": "SF0088JC001 Adopted SF0088JC001: 41-19-2-0-0",
+        "tally": "41-19",
+        "old_sentences": 11,
+        "old_chars": 1047
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1654905,
+      "measure_id": "SF 99",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate File 99, which gives electric utilities legal easements for old power lines never put in writing. The House passed the bill 47-14 and it became law as chapter 102 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 99, which gives electric utilities legal easements for old power lines never put in writing. The House passed the bill 47-14 and it became law as chapter 102 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 47-14-1-0-0",
+        "tally": "47-14",
+        "old_sentences": 12,
+        "old_chars": 982
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "house",
+      "session": "2213",
+      "roll": 1655202,
+      "measure_id": "SF 121",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate File 121, which lets pharmacists assess patients and prescribe under board rules. The House passed the bill 41-20 and it became law as chapter 103 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 121, which lets pharmacists assess patients and prescribe under board rules. The House passed the bill 41-20 and it became law as chapter 103 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 41-20-1-0-0",
+        "tally": "41-20",
+        "old_sentences": 8,
+        "old_chars": 763
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1472116,
+      "measure_id": "SF 15",
+      "vote_date": "2025-01-17",
+      "yea_description": "Voted for Senate File 15, which lets the state regulate oil and gas waste pits wherever they sit. The Senate passed the bill 23-7 and it became law as chapter 17 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 15, which lets the state regulate oil and gas waste pits wherever they sit. The Senate passed the bill 23-7 and it became law as chapter 17 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 23-7-1-0-0",
+        "tally": "23-7",
+        "old_sentences": 8,
+        "old_chars": 727
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1472166,
+      "measure_id": "SF 16",
+      "vote_date": "2025-01-17",
+      "yea_description": "Voted for Senate File 16, which requires the state to notify tribal governments about nearby industrial projects. The Senate passed the bill 17-13 and it became law as chapter 18 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 16, which requires the state to notify tribal governments about nearby industrial projects. The Senate passed the bill 17-13 and it became law as chapter 18 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 17-13-1-0-0",
+        "tally": "17-13",
+        "old_sentences": 9,
+        "old_chars": 868
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1472543,
+      "measure_id": "SF 4",
+      "vote_date": "2025-01-21",
+      "yea_description": "Voted for Senate File 4, which raises what Wyoming Medicaid pays ambulance services to the full Medicare rate for two years. The Senate passed the bill 21-8 and it became law as chapter 54 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 4, which raises what Wyoming Medicaid pays ambulance services to the full Medicare rate for two years. The Senate passed the bill 21-8 and it became law as chapter 54 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 21-8-2-0-0",
+        "tally": "21-8",
+        "old_sentences": 9,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1496298,
+      "measure_id": "HB 42",
+      "vote_date": "2025-02-21",
+      "yea_description": "Voted for House Bill 42, which requires clinics that perform surgical abortions to hold a surgical center license. The Senate passed the bill 24-7 and it became law as chapter 46 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 42, which requires clinics that perform surgical abortions to hold a surgical center license. The Senate passed the bill 24-7 and it became law as chapter 46 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 24-7-0-0-0",
+        "tally": "24-7",
+        "old_sentences": 13,
+        "old_chars": 929
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1497435,
+      "measure_id": "HB 116",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for House Bill 116, which makes out-of-state driver's licenses held by people without lawful immigration status invalid. The Senate passed the bill 22-8 and it became law as chapter 83 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 116, which makes out-of-state driver's licenses held by people without lawful immigration status invalid. The Senate passed the bill 22-8 and it became law as chapter 83 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 22-8-1-0-0",
+        "tally": "22-8",
+        "old_sentences": 9,
+        "old_chars": 908
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1503522,
+      "measure_id": "HB 136",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 136, which lets volunteer firefighters and medics join the state health plan with premium help. The Senate passed the bill 23-8 and it became law as chapter 133 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 136, which lets volunteer firefighters and medics join the state health plan with premium help. The Senate passed the bill 23-8 and it became law as chapter 133 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 23-8-0-0-0",
+        "tally": "23-8",
+        "old_sentences": 8,
+        "old_chars": 864
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1504059,
+      "measure_id": "HB 62",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 62, which widens the prostitution law to cover sexual touching, not just sexual intrusion. The Senate passed the bill 17-14 and it became law as chapter 163 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 62, which widens the prostitution law to cover sexual touching, not just sexual intrusion. The Senate passed the bill 17-14 and it became law as chapter 163 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 17-14-0-0-0",
+        "tally": "17-14",
+        "old_sentences": 10,
+        "old_chars": 809
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1504898,
+      "measure_id": "SF 132",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to override the governor's veto of Senate File 132, which bans drone flights over critical infrastructure. The Senate voted 23-8 to override, above the two thirds it needed, and the bill became law as chapter 112 of the 2025 session laws.",
+      "nay_description": "Voted against overriding the governor's veto of Senate File 132, which bans drone flights over critical infrastructure. The Senate voted 23-8 to override, above the two thirds it needed, and the bill became law as chapter 112 of the 2025 session laws.",
+      "_current": {
+        "question": "SF0132VT001 Veto Override 23-8-0-0-0",
+        "tally": "23-8",
+        "old_sentences": 13,
+        "old_chars": 1310
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1505444,
+      "measure_id": "HB 259",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 259, which spends about $207 million on school buildings, mostly a new Campbell County high school. The Senate passed the bill 23-8 and it became law as chapter 118 of the 2025 session laws.",
+      "nay_description": "Voted against House Bill 259, which spends about $207 million on school buildings, mostly a new Campbell County high school. The Senate passed the bill 23-8 and it became law as chapter 118 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 23-8-0-0-0",
+        "tally": "23-8",
+        "old_sentences": 9,
+        "old_chars": 916
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1505869,
+      "measure_id": "SF 44",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate File 44, which requires University of Wyoming and community college students to play sports by biological sex. The Senate agreed to the House changes 23-8 and the bill became law as chapter 144 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 44, which requires University of Wyoming and community college students to play sports by biological sex. The Senate agreed to the House changes 23-8 and the bill became law as chapter 144 of the 2025 session laws.",
+      "_current": {
+        "question": "Concur:Passed 23-8-0-0-0",
+        "tally": "23-8",
+        "old_sentences": 10,
+        "old_chars": 971
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1506086,
+      "measure_id": "HB 64",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to override the governor's veto of House Bill 64, which requires an ultrasound at least 48 hours before a medication abortion. The Senate voted 22-9 to override, above the two thirds it needed, and the bill became law as chapter 126 of the 2025 session laws.",
+      "nay_description": "Voted against overriding the governor's veto of House Bill 64, which requires an ultrasound at least 48 hours before a medication abortion. The Senate voted 22-9 to override, above the two thirds it needed, and the bill became law as chapter 126 of the 2025 session laws.",
+      "_current": {
+        "question": "HB0064VT001 Veto Override 22-9-0-0-0",
+        "tally": "22-9",
+        "old_sentences": 11,
+        "old_chars": 1068
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1506616,
+      "measure_id": "HB 36",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to override the governor's veto of House Bill 36, which extends the Hathaway scholarship to short job-training programs. The Senate voted 23-8 to override, above the two thirds it needed, and the bill became law as chapter 125 of the 2025 session laws.",
+      "nay_description": "Voted against overriding the governor's veto of House Bill 36, which extends the Hathaway scholarship to short job-training programs. The Senate voted 23-8 to override, above the two thirds it needed, and the bill became law as chapter 125 of the 2025 session laws.",
+      "_current": {
+        "question": "HB0036VT001 Veto Override 23-8-0-0-0",
+        "tally": "23-8",
+        "old_sentences": 10,
+        "old_chars": 932
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1507367,
+      "measure_id": "SF 34",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted for Senate File 34, which counts more school building space when the state pays districts for maintenance. The Senate had refused the House changes, then voted 20-7 to accept them, and the bill became law as chapter 145 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 34, which counts more school building space when the state pays districts for maintenance. The Senate had refused the House changes, then voted 20-7 to accept them, and the bill became law as chapter 145 of the 2025 session laws.",
+      "_current": {
+        "question": "Recede from Non-Concurrence Passed: 20-7-4-0-0",
+        "tally": "20-7",
+        "old_sentences": 7,
+        "old_chars": 848
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2213",
+      "roll": 1634007,
+      "measure_id": "SF 8",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted for Senate File 8, which makes crossing county or state lines to evade police or continue a crime a separate offense. The Senate passed the bill 17-13 and it became law as chapter 12 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 8, which makes crossing county or state lines to evade police or continue a crime a separate offense. The Senate passed the bill 17-13 and it became law as chapter 12 of the 2026 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 17-13-1-0-0",
+        "tally": "17-13",
+        "old_sentences": 9,
+        "old_chars": 872
+      }
+    },
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2213",
+      "roll": 1652524,
+      "measure_id": "SF 70",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate File 70, which funds 24 water projects for 2026 and sets a deadline on the Alkali Creek Reservoir. The Senate agreed to the House changes 21-10 and the bill became law as chapter 73 of the 2026 session laws.",
+      "nay_description": "Voted against Senate File 70, which funds 24 water projects for 2026 and sets a deadline on the Alkali Creek Reservoir. The Senate agreed to the House changes 21-10 and the bill became law as chapter 73 of the 2026 session laws.",
+      "_current": {
+        "question": "Concur:Passed 21-10-0-0-0",
+        "tally": "21-10",
+        "old_sentences": 12,
+        "old_chars": 1277
+      }
+    }
+  ]
+}

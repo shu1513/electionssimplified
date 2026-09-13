@@ -1,0 +1,596 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1484084,
+      "measure_id": "HB 1585",
+      "vote_date": "2025-02-07",
+      "yea_description": "Voted for House Bill 1585, a bill to make police report people they believed were in the country illegally to federal agents. The North Dakota House rejected it 41-50, so it did not become law.",
+      "nay_description": "Voted against House Bill 1585, a bill to make police report people they believed were in the country illegally to federal agents. The North Dakota House rejected it 41-50, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "41-50",
+        "old_sentences": 5,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1487194,
+      "measure_id": "HB 1496",
+      "vote_date": "2025-02-11",
+      "yea_description": "Voted for House Bill 1496, a bill to set 68 degrees as the heat a landlord must keep in a rented home. The North Dakota House passed it 70-19, but the Senate rejected it 11-35 and it did not become law.",
+      "nay_description": "Voted against House Bill 1496, a bill to set 68 degrees as the heat a landlord must keep in a rented home. The North Dakota House passed it 70-19, but the Senate rejected it 11-35 and it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "70-19",
+        "old_sentences": 6,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1488037,
+      "measure_id": "HB 1477",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 1477, a bill to write a right to fertility treatment into state law. The North Dakota House rejected it 34-59, so it did not become law.",
+      "nay_description": "Voted against House Bill 1477, a bill to write a right to fertility treatment into state law. The North Dakota House rejected it 34-59, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "34-59",
+        "old_sentences": 6,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1488302,
+      "measure_id": "HB 1145",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 1145, a bill to require the Ten Commandments to be displayed in public schools and colleges. The North Dakota House rejected it 38-53, so it did not become law.",
+      "nay_description": "Voted against House Bill 1145, a bill to require the Ten Commandments to be displayed in public schools and colleges. The North Dakota House rejected it 38-53, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "38-53",
+        "old_sentences": 5,
+        "old_chars": 612
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1488325,
+      "measure_id": "HB 1478",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 1478, a bill to write a right to birth control into state law. The North Dakota House rejected it 27-66, so it did not become law.",
+      "nay_description": "Voted against House Bill 1478, a bill to write a right to birth control into state law. The North Dakota House rejected it 27-66, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "27-66",
+        "old_sentences": 7,
+        "old_chars": 555
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1490653,
+      "measure_id": "HB 1456",
+      "vote_date": "2025-02-14",
+      "yea_description": "Voted for House Bill 1456, a bill to let public schools bring in chaplains. The North Dakota House rejected it 35-46, so it did not become law.",
+      "nay_description": "Voted against House Bill 1456, a bill to let public schools bring in chaplains. The North Dakota House rejected it 35-46, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "35-46",
+        "old_sentences": 6,
+        "old_chars": 595
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1492873,
+      "measure_id": "HB 1583",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted for House Bill 1583, a bill to widen the crime of running a false political ad to reckless disregard for the truth. The North Dakota House passed it 55-34, but the Senate rejected it 11-36 and it did not become law.",
+      "nay_description": "Voted against House Bill 1583, a bill to widen the crime of running a false political ad to reckless disregard for the truth. The North Dakota House passed it 55-34, but the Senate rejected it 11-36 and it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "55-34",
+        "old_sentences": 6,
+        "old_chars": 594
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1492881,
+      "measure_id": "HB 1455",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted for House Bill 1455, a bill to make the state consult tribes about bills that affect them. The North Dakota House passed it 63-28, but the Senate rejected it 7-40 and it did not become law.",
+      "nay_description": "Voted against House Bill 1455, a bill to make the state consult tribes about bills that affect them. The North Dakota House passed it 63-28, but the Senate rejected it 7-40 and it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "63-28",
+        "old_sentences": 6,
+        "old_chars": 607
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1493948,
+      "measure_id": "HB 1217",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for House Bill 1217, which repeals the law making it a crime to willfully transfer a body fluid containing HIV. The North Dakota House passed it 50-43, and it became law.",
+      "nay_description": "Voted against House Bill 1217, which repeals the law making it a crime to willfully transfer a body fluid containing HIV. The North Dakota House passed it 50-43, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "50-43",
+        "old_sentences": 4,
+        "old_chars": 304
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1495612,
+      "measure_id": "HB 1114",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for House Bill 1114, which caps what a person pays out of pocket for a 30-day insulin supply at $25. The North Dakota House passed it 59-27, and it became law.",
+      "nay_description": "Voted against House Bill 1114, which caps what a person pays out of pocket for a 30-day insulin supply at $25. The North Dakota House passed it 59-27, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "59-27",
+        "old_sentences": 10,
+        "old_chars": 1022
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1498084,
+      "measure_id": "HB 1475",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for House Bill 1475, a bill to make school breakfast and lunch free for every student. The North Dakota House rejected it 39-54, so it did not become law.",
+      "nay_description": "Voted against House Bill 1475, a bill to make school breakfast and lunch free for every student. The North Dakota House rejected it 39-54, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "39-54",
+        "old_sentences": 5,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1499664,
+      "measure_id": "HB 1411",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 1411, a bill to ban red flag gun orders across North Dakota. The North Dakota House rejected it 39-53, so it did not become law.",
+      "nay_description": "Voted against House Bill 1411, a bill to ban red flag gun orders across North Dakota. The North Dakota House rejected it 39-53, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "39-53",
+        "old_sentences": 6,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1499669,
+      "measure_id": "HB 1283",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 1283, a bill to stop the state employee health plan charging for follow-up breast scans. The North Dakota House passed it 66-26, but the Senate rejected it 22-24 and it did not become law.",
+      "nay_description": "Voted against House Bill 1283, a bill to stop the state employee health plan charging for follow-up breast scans. The North Dakota House passed it 66-26, but the Senate rejected it 22-24 and it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "66-26",
+        "old_sentences": 9,
+        "old_chars": 861
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1528344,
+      "measure_id": "SB 2352",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for Senate Bill 2352, which lets a child of 18 months or younger live with their mother at the Heart River correctional center. The North Dakota House passed it 48-42, and it became law.",
+      "nay_description": "Voted against Senate Bill 2352, which lets a child of 18 months or younger live with their mother at the Heart River correctional center. The North Dakota House passed it 48-42, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "48-42",
+        "old_sentences": 5,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1538432,
+      "measure_id": "HB 1341",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted for House Bill 1341, which makes assaulting a hospital worker a felony. The North Dakota House passed it 68-21, and it became law.",
+      "nay_description": "Voted against House Bill 1341, which makes assaulting a hospital worker a felony. The North Dakota House passed it 68-21, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "68-21",
+        "old_sentences": 4,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1538745,
+      "measure_id": "HB 1058",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted for House Bill 1058, which sets the state's first rules for aboveground fuel tanks. The North Dakota House passed it 66-24, and it became law.",
+      "nay_description": "Voted against House Bill 1058, which sets the state's first rules for aboveground fuel tanks. The North Dakota House passed it 66-24, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "66-24",
+        "old_sentences": 8,
+        "old_chars": 601
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1543022,
+      "measure_id": "SB 2159",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for Senate Bill 2159, which lifts the ban on nuclear waste research at the state energy research center. The North Dakota House passed it 57-32, and it became law.",
+      "nay_description": "Voted against Senate Bill 2159, which lifts the ban on nuclear waste research at the state energy research center. The North Dakota House passed it 57-32, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "57-32",
+        "old_sentences": 6,
+        "old_chars": 531
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1547459,
+      "measure_id": "SB 2307",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for Senate Bill 2307, a bill to make libraries and schools keep sexual material away from minors. The North Dakota House passed it 49-45, but the Governor vetoed it and the override failed, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 2307, a bill to make libraries and schools keep sexual material away from minors. The North Dakota House passed it 49-45, but the Governor vetoed it and the override failed, so it did not become law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "49-45",
+        "old_sentences": 7,
+        "old_chars": 774
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1550256,
+      "measure_id": "HB 1318",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 1318, which limits when a pesticide maker can be sued for failing to warn about health risks. The North Dakota House passed it 51-40, and it became law.",
+      "nay_description": "Voted against House Bill 1318, which limits when a pesticide maker can be sued for failing to warn about health risks. The North Dakota House passed it 51-40, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "51-40",
+        "old_sentences": 8,
+        "old_chars": 790
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1552324,
+      "measure_id": "SB 2339",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted for Senate Bill 2339, which bars courts from holding an electric utility strictly liable for wildfire damage. The North Dakota House passed it 62-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 2339, which bars courts from holding an electric utility strictly liable for wildfire damage. The North Dakota House passed it 62-28, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "62-28",
+        "old_sentences": 7,
+        "old_chars": 658
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1553037,
+      "measure_id": "HB 1600",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for House Bill 1600, which sets up an immigration law clinic at the University of North Dakota school of law. The North Dakota House passed it 64-29, and it became law.",
+      "nay_description": "Voted against House Bill 1600, which sets up an immigration law clinic at the University of North Dakota school of law. The North Dakota House passed it 64-29, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "64-29",
+        "old_sentences": 7,
+        "old_chars": 616
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1553173,
+      "measure_id": "HB 1225",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for House Bill 1225, which adds a new felony level for reckless endangerment with a firearm. The North Dakota House passed it 72-21, and it became law.",
+      "nay_description": "Voted against House Bill 1225, which adds a new felony level for reckless endangerment with a firearm. The North Dakota House passed it 72-21, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "72-21",
+        "old_sentences": 9,
+        "old_chars": 764
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1557560,
+      "measure_id": "SB 2213",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 2213, which requires new elementary and secondary teachers to show competence in direct math instruction. The North Dakota House passed it 63-30, and it became law.",
+      "nay_description": "Voted against Senate Bill 2213, which requires new elementary and secondary teachers to show competence in direct math instruction. The North Dakota House passed it 63-30, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "63-30",
+        "old_sentences": 7,
+        "old_chars": 680
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "house",
+      "session": "2140",
+      "roll": 1557622,
+      "measure_id": "HB 1216",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 1216, which makes health plans count drug maker coupons toward a person's deductible and out-of-pocket maximum. The North Dakota House passed it 56-37, and it became law.",
+      "nay_description": "Voted against House Bill 1216, which makes health plans count drug maker coupons toward a person's deductible and out-of-pocket maximum. The North Dakota House passed it 56-37, and it became law.",
+      "_current": {
+        "question": "House Second reading",
+        "tally": "56-37",
+        "old_sentences": 9,
+        "old_chars": 872
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1496125,
+      "measure_id": "SB 2352",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for Senate Bill 2352, which lets a child of 18 months or younger live with their mother at the Heart River correctional center. The North Dakota Senate passed it 28-18, and it became law.",
+      "nay_description": "Voted against Senate Bill 2352, which lets a child of 18 months or younger live with their mother at the Heart River correctional center. The North Dakota Senate passed it 28-18, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "28-18",
+        "old_sentences": 5,
+        "old_chars": 465
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1498077,
+      "measure_id": "SB 2258",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 2258, which makes an agency cite the law behind an enforcement action within ten days when asked. The North Dakota Senate passed it 30-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 2258, which makes an agency cite the law behind an enforcement action within ten days when asked. The North Dakota Senate passed it 30-17, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "30-17",
+        "old_sentences": 4,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1498474,
+      "measure_id": "SB 2350",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 2350, a bill to close public employee discipline records to the public for a time. The North Dakota Senate rejected it 22-25, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 2350, a bill to close public employee discipline records to the public for a time. The North Dakota Senate rejected it 22-25, so it did not become law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "22-25",
+        "old_sentences": 7,
+        "old_chars": 659
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1498482,
+      "measure_id": "SB 2355",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 2355, a bill to put intelligent design into the state's science standards. The North Dakota Senate rejected it 22-25, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 2355, a bill to put intelligent design into the state's science standards. The North Dakota Senate rejected it 22-25, so it did not become law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "22-25",
+        "old_sentences": 4,
+        "old_chars": 490
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1508874,
+      "measure_id": "HB 1178",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted for House Bill 1178, which requires school districts to let students old enough to vote leave campus to do so. The North Dakota Senate passed it 24-23, and it became law.",
+      "nay_description": "Voted against House Bill 1178, which requires school districts to let students old enough to vote leave campus to do so. The North Dakota Senate passed it 24-23, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "24-23",
+        "old_sentences": 4,
+        "old_chars": 360
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1517749,
+      "measure_id": "HB 1217",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 1217, which repeals the law making it a crime to willfully transfer a body fluid containing HIV. The North Dakota Senate passed it 34-13, and it became law.",
+      "nay_description": "Voted against House Bill 1217, which repeals the law making it a crime to willfully transfer a body fluid containing HIV. The North Dakota Senate passed it 34-13, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "34-13",
+        "old_sentences": 4,
+        "old_chars": 305
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1518078,
+      "measure_id": "HB 1497",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for House Bill 1497, which lets school districts take some younger children into four-year-old programs. The North Dakota Senate passed it 28-19, and it became law.",
+      "nay_description": "Voted against House Bill 1497, which lets school districts take some younger children into four-year-old programs. The North Dakota Senate passed it 28-19, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "28-19",
+        "old_sentences": 6,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1528220,
+      "measure_id": "HB 1500",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 1500, which protects the right to rebuild a home that no longer fits current zoning. The North Dakota Senate passed it 31-16, and it became law.",
+      "nay_description": "Voted against House Bill 1500, which protects the right to rebuild a home that no longer fits current zoning. The North Dakota Senate passed it 31-16, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "31-16",
+        "old_sentences": 8,
+        "old_chars": 752
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1543018,
+      "measure_id": "HB 1225",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 1225, which adds a new felony level for reckless endangerment with a firearm. The North Dakota Senate passed it 26-20, and it became law.",
+      "nay_description": "Voted against House Bill 1225, which adds a new felony level for reckless endangerment with a firearm. The North Dakota Senate passed it 26-20, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "26-20",
+        "old_sentences": 9,
+        "old_chars": 765
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1545164,
+      "measure_id": "HB 1600",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 1600, which sets up an immigration law clinic at the University of North Dakota school of law. The North Dakota Senate passed it 34-13, and it became law.",
+      "nay_description": "Voted against House Bill 1600, which sets up an immigration law clinic at the University of North Dakota school of law. The North Dakota Senate passed it 34-13, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "34-13",
+        "old_sentences": 7,
+        "old_chars": 617
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1547673,
+      "measure_id": "HB 1318",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for House Bill 1318, which limits when a pesticide maker can be sued for failing to warn about health risks. The North Dakota Senate passed it 29-18, and it became law.",
+      "nay_description": "Voted against House Bill 1318, which limits when a pesticide maker can be sued for failing to warn about health risks. The North Dakota Senate passed it 29-18, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "29-18",
+        "old_sentences": 8,
+        "old_chars": 791
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1550374,
+      "measure_id": "SB 2069",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 2069, which makes newspapers post legal notices on the statewide legal notices website at no extra charge. The North Dakota Senate passed it 32-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 2069, which makes newspapers post legal notices on the statewide legal notices website at no extra charge. The North Dakota Senate passed it 32-15, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "32-15",
+        "old_sentences": 6,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "ND",
+      "chamber": "senate",
+      "session": "2140",
+      "roll": 1553035,
+      "measure_id": "HB 1216",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for House Bill 1216, which makes health plans count drug maker coupons toward a person's deductible and out-of-pocket maximum. The North Dakota Senate passed it 29-18, and it became law.",
+      "nay_description": "Voted against House Bill 1216, which makes health plans count drug maker coupons toward a person's deductible and out-of-pocket maximum. The North Dakota Senate passed it 29-18, and it became law.",
+      "_current": {
+        "question": "Senate Second reading",
+        "tally": "29-18",
+        "old_sentences": 9,
+        "old_chars": 873
+      }
+    }
+  ]
+}

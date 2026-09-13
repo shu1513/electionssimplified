@@ -1,0 +1,1054 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/AZ/rewrites.json",
+  "dryRun": false,
+  "rolls": 149,
+  "updatedRolls": 149,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 3847,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "AZ:house:2155:1478874",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1483044",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1483092",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1486183",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487074",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487550",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487581",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487586",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487729",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1487906",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1491220",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1494778",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1495180",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1495196",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1498712",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1499114",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1499431",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500064",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500404",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500433",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500460",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500479",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1500664",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1503398",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1503490",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1503753",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1506024",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1513980",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1520278",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1527145",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1528727",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1530896",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1531379",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1541854",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1544215",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1545093",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1547246",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1548760",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1548881",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1549877",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1549878",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1549942",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1550082",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1550159",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1550685",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1551093",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1551353",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1558911",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1559077",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1562137",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563544",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563579",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563639",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563691",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563694",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563724",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563753",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1563788",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1564528",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1564920",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1564990",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565001",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565002",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565057",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565143",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565150",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565513",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1565762",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1566387",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1567301",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1567335",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1584733",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1592452",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1594680",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1594703",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1595696",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:house:2155:1595751",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1486522",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1495006",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1495018",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1495101",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1499978",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1500046",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1500188",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1500244",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1500284",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1501530",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1501563",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1501577",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1501740",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1501761",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1503358",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1504424",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1504506",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1504554",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1504671",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1504889",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1505951",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1505995",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1506197",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1506355",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1506405",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1507354",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1512282",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1517526",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1527485",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1532796",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1534405",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1539396",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1539490",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1539608",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1541785",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1541844",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1541937",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1542303",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1543086",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1543237",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1543723",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1543990",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1544413",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1548507",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1548811",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1548979",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1549778",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1549805",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1549814",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1550078",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1550194",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1551152",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560172",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560244",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560273",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560323",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560325",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560390",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560413",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560471",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560493",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560518",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560753",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560790",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1560913",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1562091",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1566377",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1566821",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1567388",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1568089",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1592311",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1592838",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

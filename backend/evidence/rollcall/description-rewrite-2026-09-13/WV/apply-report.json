@@ -1,0 +1,228 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WV/rewrites.json",
+  "dryRun": false,
+  "rolls": 31,
+  "updatedRolls": 31,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 1201,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WV:house:2196:1509162",
+      "outcome": "updated",
+      "rewritten": 67,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1517068",
+      "outcome": "updated",
+      "rewritten": 67,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1524865",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1530804",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1534352",
+      "outcome": "updated",
+      "rewritten": 70,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1534391",
+      "outcome": "updated",
+      "rewritten": 69,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1541471",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2196:1545492",
+      "outcome": "updated",
+      "rewritten": 69,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1616514",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1628052",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1650500",
+      "outcome": "updated",
+      "rewritten": 67,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1661373",
+      "outcome": "updated",
+      "rewritten": 67,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1661410",
+      "outcome": "updated",
+      "rewritten": 70,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:house:2254:1663279",
+      "outcome": "updated",
+      "rewritten": 71,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1496143",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1518120",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1519785",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1524953",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1530842",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1534410",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1535821",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1539358",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1541880",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1543284",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1545631",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2196:1546665",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2254:1652310",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2254:1652674",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2254:1656964",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2254:1662321",
+      "outcome": "updated",
+      "rewritten": 15,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WV:senate:2254:1662807",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

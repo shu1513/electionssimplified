@@ -1,0 +1,3092 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1538332,
+      "measure_id": "HB 2397",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass House Bill 2397, the Eddie Thomas Act, which makes state prisons publish a yearly report on hospice and end-of-life care for people in custody. The House passed it 78-27, and it became law.",
+      "nay_description": "Voted against House Bill 2397, the Eddie Thomas Act, which makes state prisons publish a yearly report on hospice and end-of-life care for people in custody. The House passed it 78-27, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "78-27",
+        "old_sentences": 4,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1538841,
+      "measure_id": "HB 1430",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass House Bill 1430, which lets the State Treasurer make and buy loans that refinance student debt. The House passed it 67-38, and it became law.",
+      "nay_description": "Voted against House Bill 1430, which lets the State Treasurer make and buy loans that refinance student debt. The House passed it 67-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "67-38",
+        "old_sentences": 4,
+        "old_chars": 333
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1539121,
+      "measure_id": "HB 1616",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass House Bill 1616, which gives part-time employees the same 10 days of organ donor leave full-time employees already had. The House passed it 70-34, and it became law.",
+      "nay_description": "Voted against House Bill 1616, which gives part-time employees the same 10 days of organ donor leave full-time employees already had. The House passed it 70-34, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "70-34",
+        "old_sentences": 5,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1539817,
+      "measure_id": "HB 3489",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 3489, which lets pharmacists provide all forms of birth control, including emergency birth control, with Medicaid covering their services. The Illinois House passed it 77-36, and it became law.",
+      "nay_description": "Voted against House Bill 3489, which lets pharmacists provide all forms of birth control, including emergency birth control, with Medicaid covering their services. The Illinois House passed it 77-36, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "77-36",
+        "old_sentences": 4,
+        "old_chars": 315
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1540145,
+      "measure_id": "HB 1189",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 1189, which applies Illinois wage rules to federally funded construction run by an Illinois public body. The Illinois House passed it 82-28, and it became law.",
+      "nay_description": "Voted against House Bill 1189, which applies Illinois wage rules to federally funded construction run by an Illinois public body. The Illinois House passed it 82-28, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "82-28",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1540287,
+      "measure_id": "HB 1373",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 1373, which requires police to trace every crime gun through the federal eTrace system and share the results with other Illinois agencies. The Illinois House passed it 75-40, and it became law.",
+      "nay_description": "Voted against House Bill 1373, which requires police to trace every crime gun through the federal eTrace system and share the results with other Illinois agencies. The Illinois House passed it 75-40, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-40",
+        "old_sentences": 4,
+        "old_chars": 443
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1541083,
+      "measure_id": "HB 3046",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 3046, which lets a university and its employees' union agree to contract terms that give workers more rights than civil service rules. The House passed it 83-30, and it became law.",
+      "nay_description": "Voted against House Bill 3046, which lets a university and its employees' union agree to contract terms that give workers more rights than civil service rules. The House passed it 83-30, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "83-30",
+        "old_sentences": 3,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1541747,
+      "measure_id": "HB 3751",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 3751, which makes the state's economic equity office support businesses that hire and train people facing serious barriers to work. The House passed it 76-39, and it became law.",
+      "nay_description": "Voted against House Bill 3751, which makes the state's economic equity office support businesses that hire and train people facing serious barriers to work. The House passed it 76-39, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "76-39",
+        "old_sentences": 4,
+        "old_chars": 325
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1543722,
+      "measure_id": "HB 2425",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 2425, which bars life insurers from denying or charging more for final-expense coverage because of a felony conviction. The Illinois House passed it 76-38, and it became law.",
+      "nay_description": "Voted against House Bill 2425, which bars life insurers from denying or charging more for final-expense coverage because of a felony conviction. The Illinois House passed it 76-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "76-38",
+        "old_sentences": 4,
+        "old_chars": 293
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1544647,
+      "measure_id": "HB 3566",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 3566, which lets a child wrongly named as a defendant in an eviction case recover attorney fees and $1,000 in damages. The House passed it 73-38, and it became law.",
+      "nay_description": "Voted against House Bill 3566, which lets a child wrongly named as a defendant in an eviction case recover attorney fees and $1,000 in damages. The House passed it 73-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "73-38",
+        "old_sentences": 4,
+        "old_chars": 297
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1544745,
+      "measure_id": "HB 2517",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 2517, which requires health professionals to take an hour of hidden-bias training to renew a license, with maternal-care training added in 2026. The Illinois House passed it 82-29, and it became law.",
+      "nay_description": "Voted against House Bill 2517, which requires health professionals to take an hour of hidden-bias training to renew a license, with maternal-care training added in 2026. The Illinois House passed it 82-29, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "82-29",
+        "old_sentences": 4,
+        "old_chars": 325
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1544809,
+      "measure_id": "HB 2436",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 2436, which lets Cook County public defenders handle immigration cases for county residents wherever they are heard. The Illinois House passed it 68-41, and it became law.",
+      "nay_description": "Voted against House Bill 2436, which lets Cook County public defenders handle immigration cases for county residents wherever they are heard. The Illinois House passed it 68-41, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "68-41",
+        "old_sentences": 4,
+        "old_chars": 368
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1544842,
+      "measure_id": "HB 3352",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 3352, which lets a person tell a collection agency in writing that a debt was coerced, such as by an abusive partner. The House passed it 89-23, and it became law.",
+      "nay_description": "Voted against House Bill 3352, which lets a person tell a collection agency in writing that a debt was coerced, such as by an abusive partner. The House passed it 89-23, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "89-23",
+        "old_sentences": 5,
+        "old_chars": 362
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1544869,
+      "measure_id": "HB 2726",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 2726, which lets the Department of Natural Resources use rewilding, returning land to its natural state and bringing back native species. The House passed it 75-37, and it became law.",
+      "nay_description": "Voted against House Bill 2726, which lets the Department of Natural Resources use rewilding, returning land to its natural state and bringing back native species. The House passed it 75-37, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-37",
+        "old_sentences": 4,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1545290,
+      "measure_id": "HB 3097",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 3097, which requires every school district to help each high school student complete the federal or state student aid application. The House passed it 84-24, and it became law.",
+      "nay_description": "Voted against House Bill 3097, which requires every school district to help each high school student complete the federal or state student aid application. The House passed it 84-24, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "84-24",
+        "old_sentences": 4,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1545366,
+      "measure_id": "HB 3309",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass House Bill 3309, which makes schools send union member information to the statewide union as well as the local one. The House passed it 75-37, and it became law.",
+      "nay_description": "Voted against House Bill 3309, which makes schools send union member information to the statewide union as well as the local one. The House passed it 75-37, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-37",
+        "old_sentences": 4,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1546298,
+      "measure_id": "HB 2464",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass House Bill 2464, which caps what a family pays for out-of-network emergency intensive care for a newborn at in-network cost. The House passed it 84-30, and it became law.",
+      "nay_description": "Voted against House Bill 2464, which caps what a family pays for out-of-network emergency intensive care for a newborn at in-network cost. The House passed it 84-30, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "84-30",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1574246,
+      "measure_id": "HB 460",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass House Bill 460, which bars limits on state college grants for covered students and requires the widest aid eligibility state law allows. The Illinois House passed it 70-40, and it became law.",
+      "nay_description": "Voted against House Bill 460, which bars limits on state college grants for covered students and requires the widest aid eligibility state law allows. The Illinois House passed it 70-40, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "70-40",
+        "old_sentences": 4,
+        "old_chars": 298
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1574260,
+      "measure_id": "SB 19",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass Senate Bill 19, which lets a person with a protective order against a parole candidate submit a victim statement to the Prisoner Review Board. The House passed it 74-37, and it became law.",
+      "nay_description": "Voted against Senate Bill 19, which lets a person with a protective order against a parole candidate submit a victim statement to the Prisoner Review Board. The House passed it 74-37, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "74-37",
+        "old_sentences": 5,
+        "old_chars": 397
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1574406,
+      "measure_id": "SB 69",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass Senate Bill 69, which requires health plans issued after January 1, 2027 to cover equine therapy when a doctor says it is needed. The House passed it 78-33, and it became law.",
+      "nay_description": "Voted against Senate Bill 69, which requires health plans issued after January 1, 2027 to cover equine therapy when a doctor says it is needed. The House passed it 78-33, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "78-33",
+        "old_sentences": 5,
+        "old_chars": 298
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1574908,
+      "measure_id": "SB 191",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 191, which requires lap-and-shoulder belts on every seat of new school buses bought from July 2031. The Illinois House passed it 83-27, and it became law.",
+      "nay_description": "Voted against Senate Bill 191, which requires lap-and-shoulder belts on every seat of new school buses bought from July 2031. The Illinois House passed it 83-27, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "83-27",
+        "old_sentences": 4,
+        "old_chars": 381
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1574922,
+      "measure_id": "SB 212",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 212, which requires employers to pay nursing mothers for pumping breaks and bars making them use paid leave for it. The House passed it 82-27, and it became law.",
+      "nay_description": "Voted against Senate Bill 212, which requires employers to pay nursing mothers for pumping breaks and bars making them use paid leave for it. The House passed it 82-27, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "82-27",
+        "old_sentences": 4,
+        "old_chars": 296
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575131,
+      "measure_id": "SB 1261",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 1261, which creates a task force on community land trusts, a way of keeping homes affordable long term. The House passed it 71-37, and it became law.",
+      "nay_description": "Voted against Senate Bill 1261, which creates a task force on community land trusts, a way of keeping homes affordable long term. The House passed it 71-37, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "71-37",
+        "old_sentences": 5,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575156,
+      "measure_id": "SB 175",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 175, which requires health plans issued after January 1, 2027 to cover the tests used to diagnose Klinefelter syndrome. The House passed it 76-33, and it became law.",
+      "nay_description": "Voted against Senate Bill 175, which requires health plans issued after January 1, 2027 to cover the tests used to diagnose Klinefelter syndrome. The House passed it 76-33, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "76-33",
+        "old_sentences": 5,
+        "old_chars": 319
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575317,
+      "measure_id": "SB 1173",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 1173, which bars notaries from charging a fee to notarize the form a homeless person uses to get a state ID. The House passed it 81-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 1173, which bars notaries from charging a fee to notarize the form a homeless person uses to get a state ID. The House passed it 81-28, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "81-28",
+        "old_sentences": 4,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575391,
+      "measure_id": "SB 1441",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 1441, which requires employers to enroll every worker of 120 days or more in the state's Secure Choice retirement savings program. The House passed it 74-37, and it became law.",
+      "nay_description": "Voted against Senate Bill 1441, which requires employers to enroll every worker of 120 days or more in the state's Secure Choice retirement savings program. The House passed it 74-37, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "74-37",
+        "old_sentences": 4,
+        "old_chars": 328
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575406,
+      "measure_id": "SB 1560",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 1560, which gives schools model procedures for screening every student for mental health needs. The House passed it 72-36, and it became law.",
+      "nay_description": "Voted against Senate Bill 1560, which gives schools model procedures for screening every student for mental health needs. The House passed it 72-36, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "72-36",
+        "old_sentences": 4,
+        "old_chars": 380
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575845,
+      "measure_id": "SB 1947",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 1947, which makes every Illinois teacher training college pilot the state's teacher performance assessment from 2026 to 2029. The House passed it 84-31, and it became law.",
+      "nay_description": "Voted against Senate Bill 1947, which makes every Illinois teacher training college pilot the state's teacher performance assessment from 2026 to 2029. The House passed it 84-31, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "84-31",
+        "old_sentences": 4,
+        "old_chars": 291
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1575955,
+      "measure_id": "SB 67",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 67, which requires nurse staffing agencies to hold a state license to operate in Illinois. The House passed it 75-40, and it became law.",
+      "nay_description": "Voted against Senate Bill 67, which requires nurse staffing agencies to hold a state license to operate in Illinois. The House passed it 75-40, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-40",
+        "old_sentences": 4,
+        "old_chars": 293
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576020,
+      "measure_id": "SB 1181",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 1181, which extends the state's anti-SLAPP law to press freedom and makes frivolous filers pay the other side's legal fees. The House passed it 75-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 1181, which extends the state's anti-SLAPP law to press freedom and makes frivolous filers pay the other side's legal fees. The House passed it 75-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-38",
+        "old_sentences": 5,
+        "old_chars": 373
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576215,
+      "measure_id": "SB 2164",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 2164, which raises the fee for employers that underpay workers and makes a final Labor Department order enforceable like a court judgment. The Illinois House passed it 75-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 2164, which raises the fee for employers that underpay workers and makes a final Labor Department order enforceable like a court judgment. The Illinois House passed it 75-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-38",
+        "old_sentences": 4,
+        "old_chars": 322
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576636,
+      "measure_id": "SB 405",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass the House version of Senate Bill 405, which requires public school counseling to serve every student regardless of citizenship status. The House passed it 74-39; the Senate agreed, and it became law.",
+      "nay_description": "Voted against the House version of Senate Bill 405, which requires public school counseling to serve every student regardless of citizenship status. The House passed it 74-39; the Senate agreed, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "74-39",
+        "old_sentences": 3,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576860,
+      "measure_id": "SB 1920",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 1920, which tells the State Board of Education to write statewide guidance on using artificial intelligence in schools. The House passed it 74-34, and it became law.",
+      "nay_description": "Voted against Senate Bill 1920, which tells the State Board of Education to write statewide guidance on using artificial intelligence in schools. The House passed it 74-34, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "74-34",
+        "old_sentences": 4,
+        "old_chars": 335
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576913,
+      "measure_id": "SB 2280",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 2280, which makes the Office of Firearm Violence Prevention report which communities face concentrated gun violence and what is spent there. The House passed it 71-36, and it became law.",
+      "nay_description": "Voted against Senate Bill 2280, which makes the Office of Firearm Violence Prevention report which communities face concentrated gun violence and what is spent there. The House passed it 71-36, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "71-36",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1576920,
+      "measure_id": "SB 1859",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 1859, which creates a task force on how flooding, heat, and other climate damage push Illinois residents out of their homes. The House passed it 71-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 1859, which creates a task force on how flooding, heat, and other climate damage push Illinois residents out of their homes. The House passed it 71-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "71-38",
+        "old_sentences": 5,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1580328,
+      "measure_id": "SB 1519",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1519, which requires school districts to report referrals of students to police and keep a written agreement with local police. The House passed it 69-44, and it became law.",
+      "nay_description": "Voted against Senate Bill 1519, which requires school districts to report referrals of students to police and keep a written agreement with local police. The House passed it 69-44, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "69-44",
+        "old_sentences": 5,
+        "old_chars": 311
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1580413,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 8, which requires gun owners to lock guns away from minors and at-risk people and report lost guns within 48 hours. The Illinois House passed it 69-40, and it became law.",
+      "nay_description": "Voted against Senate Bill 8, which requires gun owners to lock guns away from minors and at-risk people and report lost guns within 48 hours. The Illinois House passed it 69-40, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "69-40",
+        "old_sentences": 4,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1580454,
+      "measure_id": "HB 3247",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass House Bill 3247, which bars public schools from denying education or parent activities because of a child's or parent's immigration status. The Illinois House passed it 70-40, and it became law.",
+      "nay_description": "Voted against House Bill 3247, which bars public schools from denying education or parent activities because of a child's or parent's immigration status. The Illinois House passed it 70-40, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "70-40",
+        "old_sentences": 4,
+        "old_chars": 472
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582079,
+      "measure_id": "SB 1797",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass Senate Bill 1797, which requires companies that hold or trade cryptocurrency for Illinois residents to register with the state and follow consumer rules. The House passed it 76-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 1797, which requires companies that hold or trade cryptocurrency for Illinois residents to register with the state and follow consumer rules. The House passed it 76-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "76-38",
+        "old_sentences": 5,
+        "old_chars": 379
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582212,
+      "measure_id": "SB 1976",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass Senate Bill 1976, which stops state agencies from weakening worker-pay or coal-mine safety rules below the federal protections in place in April 2025. The Illinois House passed it 80-32, and it became law.",
+      "nay_description": "Voted against Senate Bill 1976, which stops state agencies from weakening worker-pay or coal-mine safety rules below the federal protections in place in April 2025. The Illinois House passed it 80-32, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "80-32",
+        "old_sentences": 4,
+        "old_chars": 443
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582280,
+      "measure_id": "HB 2419",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to accept the Senate version of House Bill 2419, which makes local officials weigh traffic pollution and existing pollution on nearby communities before approving a waste facility. The House agreed to that version 77-39, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 2419, which makes local officials weigh traffic pollution and existing pollution on nearby communities before approving a waste facility. The House agreed to that version 77-39, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "77-39",
+        "old_sentences": 5,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582292,
+      "measure_id": "HB 3248",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to accept the Senate version of House Bill 3248, which requires health plans issued after January 1, 2027 to cover medically necessary laser hair removal. The House agreed to that version 76-39, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3248, which requires health plans issued after January 1, 2027 to cover medically necessary laser hair removal. The House agreed to that version 76-39, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "76-39",
+        "old_sentences": 5,
+        "old_chars": 345
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582370,
+      "measure_id": "SB 453",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 453, which extends fast-track first-contract bargaining rules to newly certified public employee unions of every size. The House passed it 82-33, and it became law.",
+      "nay_description": "Voted against Senate Bill 453, which extends fast-track first-contract bargaining rules to newly certified public employee unions of every size. The House passed it 82-33, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "82-33",
+        "old_sentences": 5,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582429,
+      "measure_id": "SB 2319",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 2319, which requires crypto cash machine operators to register with the state, cap fees, and give clear warnings and receipts. The House passed it 81-36, and it became law.",
+      "nay_description": "Voted against Senate Bill 2319, which requires crypto cash machine operators to register with the state, cap fees, and give clear warnings and receipts. The House passed it 81-36, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "81-36",
+        "old_sentences": 5,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582483,
+      "measure_id": "SB 1344",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 1344, which applies prevailing wage rules to camera sewer inspections and penalizes contractors that skip certified payroll on public jobs. The House passed it 87-30, and it became law.",
+      "nay_description": "Voted against Senate Bill 1344, which applies prevailing wage rules to camera sewer inspections and penalizes contractors that skip certified payroll on public jobs. The House passed it 87-30, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "87-30",
+        "old_sentences": 4,
+        "old_chars": 305
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582496,
+      "measure_id": "HB 3385",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 3385, which requires every public college to give students access to at least three licensed mental health professionals. The House agreed to that version 91-24, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3385, which requires every public college to give students access to at least three licensed mental health professionals. The House agreed to that version 91-24, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "91-24",
+        "old_sentences": 4,
+        "old_chars": 410
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582505,
+      "measure_id": "HB 3709",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 3709, which requires public colleges to give students access to providers who can prescribe birth control and medication abortion. The House agreed to that version 78-39, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3709, which requires public colleges to give students access to providers who can prescribe birth control and medication abortion. The House agreed to that version 78-39, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "78-39",
+        "old_sentences": 5,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582508,
+      "measure_id": "SB 24",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 24, which requires every police agency to take missing person reports without making families wait. The House passed it 87-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 24, which requires every police agency to take missing person reports without making families wait. The House passed it 87-28, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "87-28",
+        "old_sentences": 4,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582511,
+      "measure_id": "SB 2339",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass the House version of Senate Bill 2339, which protects workers responding to federal work-eligibility mismatches, with Labor Department enforcement and private lawsuits. The House passed it 75-42; the Senate agreed, and it became law.",
+      "nay_description": "Voted against the House version of Senate Bill 2339, which protects workers responding to federal work-eligibility mismatches, with Labor Department enforcement and private lawsuits. The House passed it 75-42; the Senate agreed, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "75-42",
+        "old_sentences": 3,
+        "old_chars": 315
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582721,
+      "measure_id": "HB 2516",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 2516, which bans cosmetics, dental floss, children's products, menstrual products, and underwear with added PFAS chemicals from 2032. The House agreed to that version 77-39, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 2516, which bans cosmetics, dental floss, children's products, menstrual products, and underwear with added PFAS chemicals from 2032. The House agreed to that version 77-39, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "77-39",
+        "old_sentences": 5,
+        "old_chars": 437
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582746,
+      "measure_id": "HB 3019",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 3019, which makes health insurers keep reporting how much of premiums goes to claims, and pay refunds, if federal rules end. The House agreed to that version 84-32, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3019, which makes health insurers keep reporting how much of premiums goes to claims, and pay refunds, if federal rules end. The House agreed to that version 84-32, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "84-32",
+        "old_sentences": 4,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582774,
+      "measure_id": "SB 2437",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 2437, which lets Medicaid patients bring a Medicaid doula to childbirth and covers several other Medicaid changes. The Illinois House passed it 76-39, and it became law.",
+      "nay_description": "Voted against Senate Bill 2437, which lets Medicaid patients bring a Medicaid doula to childbirth and covers several other Medicaid changes. The Illinois House passed it 76-39, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "76-39",
+        "old_sentences": 4,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1582854,
+      "measure_id": "HB 3363",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 3363, which creates a State Public Defender Commission to plan a statewide Office of the State Public Defender. The House agreed to that version 77-36, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3363, which creates a State Public Defender Commission to plan a statewide Office of the State Public Defender. The House agreed to that version 77-36, and it became law.",
+      "_current": {
+        "question": "Concurrence in House",
+        "tally": "77-36",
+        "old_sentences": 4,
+        "old_chars": 356
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1586216,
+      "measure_id": "HB 1083",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 1083, which makes marriage and property laws gender-neutral and waives deed fees for recording a legal name change. The Illinois House passed it 74-38, and it became law.",
+      "nay_description": "Voted against House Bill 1083, which makes marriage and property laws gender-neutral and waives deed fees for recording a legal name change. The Illinois House passed it 74-38, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "74-38",
+        "old_sentences": 4,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1586220,
+      "measure_id": "HB 2987",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass House Bill 2987, which requires every Illinois warehouse to write a yearly tornado safety plan and build new warehouses to withstand tornadoes. The House passed it 83-28, later agreed to a Senate wording change 99-15, and it became law.",
+      "nay_description": "Voted against House Bill 2987, which requires every Illinois warehouse to write a yearly tornado safety plan and build new warehouses to withstand tornadoes. The House passed it 83-28, later agreed to a Senate wording change 99-15, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "83-28",
+        "old_sentences": 5,
+        "old_chars": 531
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1586231,
+      "measure_id": "HB 3026",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted to pass House Bill 3026, which makes the state guide schools on dual-language programs and plan to hire and keep bilingual teachers. The Illinois House passed it 77-35, and it became law.",
+      "nay_description": "Voted against House Bill 3026, which makes the state guide schools on dual-language programs and plan to hire and keep bilingual teachers. The Illinois House passed it 77-35, and it became law.",
+      "_current": {
+        "question": "Third Reading in House",
+        "tally": "77-35",
+        "old_sentences": 4,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1716767,
+      "measure_id": "HB 4844",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4844, which requires employers with more than 25 workers to pay regular wages during jury duty. The Illinois House passed it 69-34, and it became law.",
+      "nay_description": "Voted against House Bill 4844, which requires employers with more than 25 workers to pay regular wages during jury duty. The Illinois House passed it 69-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "69-34",
+        "old_sentences": 3,
+        "old_chars": 201
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1716924,
+      "measure_id": "HB 4304",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4304, which requires public colleges to keep classrooms free of unlawful bias and protect students' right to speak and gather. The House passed it 72-37, and it became law.",
+      "nay_description": "Voted against House Bill 4304, which requires public colleges to keep classrooms free of unlawful bias and protect students' right to speak and gather. The House passed it 72-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-37",
+        "old_sentences": 6,
+        "old_chars": 402
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1716944,
+      "measure_id": "HB 5024",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass House Bill 5024, which bars immigration detention centers within 1,500 feet of a school, day care, park, home, or place of worship. The Illinois House passed it 72-35, and it became law.",
+      "nay_description": "Voted against House Bill 5024, which bars immigration detention centers within 1,500 feet of a school, day care, park, home, or place of worship. The Illinois House passed it 72-35, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-35",
+        "old_sentences": 3,
+        "old_chars": 309
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717214,
+      "measure_id": "HB 1312",
+      "vote_date": "2025-10-31",
+      "yea_description": "Voted to pass House Bill 1312, which lets people sue immigration officers who knowingly violate constitutional rights and requires hospital immigration policies. The Illinois House passed it 75-32, and it became law.",
+      "nay_description": "Voted against House Bill 1312, which lets people sue immigration officers who knowingly violate constitutional rights and requires hospital immigration policies. The Illinois House passed it 75-32, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "75-32",
+        "old_sentences": 4,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717358,
+      "measure_id": "SB 3037",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 3037, the Dark Sky Act, which limits how much outdoor light from commercial buildings may spill past the property line. The House passed it 75-36, and it became law.",
+      "nay_description": "Voted against Senate Bill 3037, the Dark Sky Act, which limits how much outdoor light from commercial buildings may spill past the property line. The House passed it 75-36, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "75-36",
+        "old_sentences": 5,
+        "old_chars": 281
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717392,
+      "measure_id": "HB 4571",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4571, which lets large counties buy land, give grants, and sell property below market value for affordable housing. The Illinois House passed it 76-33, and it became law.",
+      "nay_description": "Voted against House Bill 4571, which lets large counties buy land, give grants, and sell property below market value for affordable housing. The Illinois House passed it 76-33, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "76-33",
+        "old_sentences": 4,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717533,
+      "measure_id": "SB 3341",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 3341, which lets any minor consent to birth control without a parent's approval. The Illinois House passed it 73-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 3341, which lets any minor consent to birth control without a parent's approval. The Illinois House passed it 73-38, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-38",
+        "old_sentences": 4,
+        "old_chars": 373
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717543,
+      "measure_id": "HB 4533",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4533, which requires money transfer companies to offer customers a voluntary donation to the Illinois DREAM Fund scholarship program. The House passed it 73-38, and it became law.",
+      "nay_description": "Voted against House Bill 4533, which requires money transfer companies to offer customers a voluntary donation to the Illinois DREAM Fund scholarship program. The House passed it 73-38, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-38",
+        "old_sentences": 4,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717615,
+      "measure_id": "HB 4273",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to accept the Senate version of House Bill 4273, which bars home insurers from raising a renewal premium over 10% without 60 days' notice. The House agreed to that version 72-38, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 4273, which bars home insurers from raising a renewal premium over 10% without 60 days' notice. The House agreed to that version 72-38, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "72-38",
+        "old_sentences": 5,
+        "old_chars": 376
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717748,
+      "measure_id": "HB 4456",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to pass House Bill 4456, which lets regulators approve low-income discounts covering an entire home gas or electric bill, funded by a fixed charge on other customers. The Illinois House passed it 74-37, and it became law.",
+      "nay_description": "Voted against House Bill 4456, which lets regulators approve low-income discounts covering an entire home gas or electric bill, funded by a fixed charge on other customers. The Illinois House passed it 74-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "74-37",
+        "old_sentences": 4,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717874,
+      "measure_id": "SB 4006",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 4006, which requires home insurers to say in writing whether flood coverage is available and disclose their climate risks. The House passed it 78-32, and it became law.",
+      "nay_description": "Voted against Senate Bill 4006, which requires home insurers to say in writing whether flood coverage is available and disclose their climate risks. The House passed it 78-32, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "78-32",
+        "old_sentences": 5,
+        "old_chars": 317
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717891,
+      "measure_id": "SB 2972",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass Senate Bill 2972, which requires liability insurance for motorboats over 10 horsepower, boats over 21 feet, and personal watercraft. The House passed it 80-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 2972, which requires liability insurance for motorboats over 10 horsepower, boats over 21 feet, and personal watercraft. The House passed it 80-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "80-22",
+        "old_sentences": 5,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717950,
+      "measure_id": "HB 4948",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4948, which suspends the license of drivers with two speeding offenses in a year unless they drive with a speed-limiting device. The House passed it 77-24, and it became law.",
+      "nay_description": "Voted against House Bill 4948, which suspends the license of drivers with two speeding offenses in a year unless they drive with a speed-limiting device. The House passed it 77-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "77-24",
+        "old_sentences": 6,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1717984,
+      "measure_id": "HB 3460",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 3460, which bars the state from delaying a barber, cosmetology, or nail technology license application because the applicant is in prison. The House passed it 75-37, and it became law.",
+      "nay_description": "Voted against House Bill 3460, which bars the state from delaying a barber, cosmetology, or nail technology license application because the applicant is in prison. The House passed it 75-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "75-37",
+        "old_sentences": 4,
+        "old_chars": 313
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718026,
+      "measure_id": "SB 3772",
+      "vote_date": "2026-05-30",
+      "yea_description": "Voted to pass Senate Bill 3772, which requires extra review of air pollution permits in communities already carrying unfair pollution burdens, starting 2027. The Illinois House passed it 73-39, and it became law.",
+      "nay_description": "Voted against Senate Bill 3772, which requires extra review of air pollution permits in communities already carrying unfair pollution burdens, starting 2027. The Illinois House passed it 73-39, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-39",
+        "old_sentences": 5,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718060,
+      "measure_id": "HB 4577",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to accept the Senate version of House Bill 4577, which defines play-based learning in kindergarten in state law. The House agreed to that version 76-27, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 4577, which defines play-based learning in kindergarten in state law. The House agreed to that version 76-27, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "76-27",
+        "old_sentences": 4,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718089,
+      "measure_id": "HB 4339",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass House Bill 4339, which requires every high school district to give eligible graduating students a chance to register to vote. The Illinois House passed it 77-24, and it became law.",
+      "nay_description": "Voted against House Bill 4339, which requires every high school district to give eligible graduating students a chance to register to vote. The Illinois House passed it 77-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "77-24",
+        "old_sentences": 3,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718098,
+      "measure_id": "HB 5492",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 5492, which requires health plans from 2028 to cover up to a six-month supply of prescribed hormone therapy at once. The House agreed to that version 75-39, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 5492, which requires health plans from 2028 to cover up to a six-month supply of prescribed hormone therapy at once. The House agreed to that version 75-39, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "75-39",
+        "old_sentences": 4,
+        "old_chars": 337
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718181,
+      "measure_id": "SB 3465",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 3465, which sets sanitary requirements for construction sites, including menstrual hygiene products. The House passed it 71-37, and it became law.",
+      "nay_description": "Voted against Senate Bill 3465, which sets sanitary requirements for construction sites, including menstrual hygiene products. The House passed it 71-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "71-37",
+        "old_sentences": 4,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718198,
+      "measure_id": "HB 4461",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4461, which bars hospitals and medical-debt creditors from placing a lien on a patient's main home. The Illinois House passed it 74-37, and it became law.",
+      "nay_description": "Voted against House Bill 4461, which bars hospitals and medical-debt creditors from placing a lien on a patient's main home. The Illinois House passed it 74-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "74-37",
+        "old_sentences": 4,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718322,
+      "measure_id": "SB 1743",
+      "vote_date": "2026-05-22",
+      "yea_description": "Voted to pass Senate Bill 1743, which lets prescribing psychologists write prescriptions for patients over 65. The House passed it 67-31, and it became law.",
+      "nay_description": "Voted against Senate Bill 1743, which lets prescribing psychologists write prescriptions for patients over 65. The House passed it 67-31, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "67-31",
+        "old_sentences": 5,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718374,
+      "measure_id": "HB 4491",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4491, which guarantees full gross pay for up to a year to police, firefighters, paramedics, and prison staff hurt on duty. The House passed it 81-30, and it became law.",
+      "nay_description": "Voted against House Bill 4491, which guarantees full gross pay for up to a year to police, firefighters, paramedics, and prison staff hurt on duty. The House passed it 81-30, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "81-30",
+        "old_sentences": 4,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718440,
+      "measure_id": "HB 5093",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass the House version of House Bill 5093, which widens in-state college tuition and state aid by dropping a school-attendance condition. The House passed it 71-37; the Senate later narrowed and delayed it, and that version became law.",
+      "nay_description": "Voted against the House version of House Bill 5093, which widens in-state college tuition and state aid by dropping a school-attendance condition. The House passed it 71-37; the Senate later narrowed and delayed it, and that version became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "71-37",
+        "old_sentences": 3,
+        "old_chars": 314
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718521,
+      "measure_id": "SB 3565",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to pass Senate Bill 3565, which lets a township spend its public aid money on food banks and food pantries. The House passed it 73-35, and it became law.",
+      "nay_description": "Voted against Senate Bill 3565, which lets a township spend its public aid money on food banks and food pantries. The House passed it 73-35, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-35",
+        "old_sentences": 4,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718529,
+      "measure_id": "HB 5390",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 5390, which requires hospitals to use one state financial assistance form and honor approvals for at least 12 months. The Illinois House passed it 73-34, and it became law.",
+      "nay_description": "Voted against House Bill 5390, which requires hospitals to use one state financial assistance form and honor approvals for at least 12 months. The Illinois House passed it 73-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-34",
+        "old_sentences": 4,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718613,
+      "measure_id": "SB 3917",
+      "vote_date": "2026-05-22",
+      "yea_description": "Voted to pass Senate Bill 3917, which requires testing for PFAS forever chemicals at every major sewage plant and industrial discharger. The House passed it 64-34, and it became law.",
+      "nay_description": "Voted against Senate Bill 3917, which requires testing for PFAS forever chemicals at every major sewage plant and industrial discharger. The House passed it 64-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "64-34",
+        "old_sentences": 5,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718656,
+      "measure_id": "HB 4639",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4639, which lets judges set up mediation programs for young people accused of crimes and consider restorative practices before sentencing. The House passed it 65-39, and it became law.",
+      "nay_description": "Voted against House Bill 4639, which lets judges set up mediation programs for young people accused of crimes and consider restorative practices before sentencing. The House passed it 65-39, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "65-39",
+        "old_sentences": 5,
+        "old_chars": 358
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718754,
+      "measure_id": "SB 3222",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass Senate Bill 3222, the Illinois Hemp Act, which requires a license to make or sell hemp products and lets the state order recalls. The House passed it 77-31, and it became law.",
+      "nay_description": "Voted against Senate Bill 3222, the Illinois Hemp Act, which requires a license to make or sell hemp products and lets the state order recalls. The House passed it 77-31, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "77-31",
+        "old_sentences": 5,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718840,
+      "measure_id": "HB 4606",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass House Bill 4606, which lets the state build a program of short-term home visits for every family with a newborn. The House passed it 73-31, and it became law.",
+      "nay_description": "Voted against House Bill 4606, which lets the state build a program of short-term home visits for every family with a newborn. The House passed it 73-31, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-31",
+        "old_sentences": 4,
+        "old_chars": 334
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1718891,
+      "measure_id": "SB 3020",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 3020, which rewrites what counts as harassment under the domestic violence and protective order laws, including electronic harassment. The House passed it 91-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 3020, which rewrites what counts as harassment under the domestic violence and protective order laws, including electronic harassment. The House passed it 91-23, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "91-23",
+        "old_sentences": 4,
+        "old_chars": 260
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719024,
+      "measure_id": "HB 5090",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted yes to accept the Senate's rewrite of House Bill 5090, which lets rideshare drivers organize and bargain as a group with the companies. The Illinois House agreed 83-28 and the bill became law as Public Act 104-0788.",
+      "nay_description": "Voted no to accept the Senate's rewrite of House Bill 5090, which lets rideshare drivers organize and bargain as a group with the companies. The Illinois House agreed 83-28 and the bill became law as Public Act 104-0788.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "83-28",
+        "old_sentences": 9,
+        "old_chars": 690
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719213,
+      "measure_id": "HB 4966",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to accept the Senate version of House Bill 4966, the SECURE Act, which makes the child welfare agency guard records showing a child's sexual orientation. The House agreed to that version 75-40, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 4966, the SECURE Act, which makes the child welfare agency guard records showing a child's sexual orientation. The House agreed to that version 75-40, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "75-40",
+        "old_sentences": 6,
+        "old_chars": 406
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719228,
+      "measure_id": "HB 5284",
+      "vote_date": "2026-05-28",
+      "yea_description": "Voted to accept the Senate version of House Bill 5284, which requires health plans to cover medically necessary hormone and non-hormone treatment for menopause. The House agreed to that version 78-33, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 5284, which requires health plans to cover medically necessary hormone and non-hormone treatment for menopause. The House agreed to that version 78-33, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "78-33",
+        "old_sentences": 4,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719422,
+      "measure_id": "HB 4758",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4758, which lets job ads require a driver's license only when driving is essential to the job. The Illinois House passed it 82-30, and it became law.",
+      "nay_description": "Voted against House Bill 4758, which lets job ads require a driver's license only when driving is essential to the job. The Illinois House passed it 82-30, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "82-30",
+        "old_sentences": 4,
+        "old_chars": 384
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719534,
+      "measure_id": "HB 5095",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 5095, which lets people choose male, female, or X on a state ID or driver's license. The Illinois House passed it 72-37, and it became law.",
+      "nay_description": "Voted against House Bill 5095, which lets people choose male, female, or X on a state ID or driver's license. The Illinois House passed it 72-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-37",
+        "old_sentences": 4,
+        "old_chars": 331
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1719876,
+      "measure_id": "HB 4379",
+      "vote_date": "2026-04-17",
+      "yea_description": "Voted to pass the House version of House Bill 4379, which requires adult changing tables and accessible restroom space in certain new public buildings built from 2029. The House passed it 72-18; the Senate later added schools designed for 1,500 or more students, excluded stadiums, and that version became law.",
+      "nay_description": "Voted against the House version of House Bill 4379, which requires adult changing tables and accessible restroom space in certain new public buildings built from 2029. The House passed it 72-18; the Senate later added schools designed for 1,500 or more students, excluded stadiums, and that version became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-18",
+        "old_sentences": 3,
+        "old_chars": 368
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720143,
+      "measure_id": "HB 1836",
+      "vote_date": "2025-10-30",
+      "yea_description": "Voted to pass House Bill 1836, the Clean Slate Act, which automatically seals eligible criminal records and widens who qualifies. The Illinois House passed it 80-26, and it became law.",
+      "nay_description": "Voted against House Bill 1836, the Clean Slate Act, which automatically seals eligible criminal records and widens who qualifies. The Illinois House passed it 80-26, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "80-26",
+        "old_sentences": 4,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720249,
+      "measure_id": "SB 714",
+      "vote_date": "2026-05-27",
+      "yea_description": "Voted to pass Senate Bill 714, which bars car insurers from raising a renewal premium more than 10% without 30 days' notice and lets the state review rates. The House passed it 70-38, and it became law.",
+      "nay_description": "Voted against Senate Bill 714, which bars car insurers from raising a renewal premium more than 10% without 30 days' notice and lets the state review rates. The House passed it 70-38, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "70-38",
+        "old_sentences": 6,
+        "old_chars": 376
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720411,
+      "measure_id": "HB 3409",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to accept the Senate version of House Bill 3409, which bans cosmetics containing listed harmful chemicals from July 2028. The House agreed to that version 74-38, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3409, which bans cosmetics containing listed harmful chemicals from July 2028. The House agreed to that version 74-38, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "74-38",
+        "old_sentences": 5,
+        "old_chars": 379
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720537,
+      "measure_id": "HB 5460",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to pass House Bill 5460, which widens who may receive a School Social Work scholarship. The House passed it 76-32, and it became law.",
+      "nay_description": "Voted against House Bill 5460, which widens who may receive a School Social Work scholarship. The House passed it 76-32, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "76-32",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720544,
+      "measure_id": "HB 4217",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4217, which lets a public defender also represent a client in the license suspension case that grew out of the same arrest. The House passed it 82-28, and it became law.",
+      "nay_description": "Voted against House Bill 4217, which lets a public defender also represent a client in the license suspension case that grew out of the same arrest. The House passed it 82-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "82-28",
+        "old_sentences": 3,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720568,
+      "measure_id": "HB 4862",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4862, which requires every school board to adopt a written procedure supporting school employees' mental health by 2028. The House passed it 81-27, and it became law.",
+      "nay_description": "Voted against House Bill 4862, which requires every school board to adopt a written procedure supporting school employees' mental health by 2028. The House passed it 81-27, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "81-27",
+        "old_sentences": 4,
+        "old_chars": 319
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1720826,
+      "measure_id": "SB 2762",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to pass Senate Bill 2762, which requires health plans issued after January 1, 2029 to cover a prescribed seizure detection device. The House passed it 82-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 2762, which requires health plans issued after January 1, 2029 to cover a prescribed seizure detection device. The House passed it 82-25, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "82-25",
+        "old_sentences": 5,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1721015,
+      "measure_id": "HB 4834",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass House Bill 4834, which removes testosterone, abortion pills, and hormone medicines from the state prescription-tracking program. The Illinois House passed it 68-37, and it became law.",
+      "nay_description": "Voted against House Bill 4834, which removes testosterone, abortion pills, and hormone medicines from the state prescription-tracking program. The Illinois House passed it 68-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "68-37",
+        "old_sentences": 4,
+        "old_chars": 330
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1721227,
+      "measure_id": "SB 3777",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass the House version of Senate Bill 3777, which makes rules that unfairly harm protected groups a civil rights violation in jobs, credit, and public places. The House passed it 72-38, the Senate agreed, and it became law.",
+      "nay_description": "Voted against the House version of Senate Bill 3777, which makes rules that unfairly harm protected groups a civil rights violation in jobs, credit, and public places. The House passed it 72-38, the Senate agreed, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-38",
+        "old_sentences": 3,
+        "old_chars": 391
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1721514,
+      "measure_id": "SB 2914",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass Senate Bill 2914, which requires a detailed written warning, a chance to respond, and arbitration rights before a tenured teacher can face dismissal. The House passed it 83-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 2914, which requires a detailed written warning, a chance to respond, and arbitration rights before a tenured teacher can face dismissal. The House passed it 83-25, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "83-25",
+        "old_sentences": 4,
+        "old_chars": 367
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1721610,
+      "measure_id": "HB 5295",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass the House version of House Bill 5295, which makes health networks wall off abortion records from out-of-state sharing. The House passed it 73-34; the Senate later changed key definitions, and that version became law effective July 1, 2027.",
+      "nay_description": "Voted against the House version of House Bill 5295, which makes health networks wall off abortion records from out-of-state sharing. The House passed it 73-34; the Senate later changed key definitions, and that version became law effective July 1, 2027.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-34",
+        "old_sentences": 3,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722358,
+      "measure_id": "HB 4788",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4788, which requires high school CPR training to use manikins with breasts as well as without, from the 2029-30 school year. The House passed it 73-38, and it became law.",
+      "nay_description": "Voted against House Bill 4788, which requires high school CPR training to use manikins with breasts as well as without, from the 2029-30 school year. The House passed it 73-38, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-38",
+        "old_sentences": 5,
+        "old_chars": 335
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722387,
+      "measure_id": "SB 25",
+      "vote_date": "2025-10-29",
+      "yea_description": "Voted to pass Senate Bill 25, Illinois' 2025 energy law, which expands battery storage, rooftop solar rights, and EV charging. The House passed it 70-37, and it became law.",
+      "nay_description": "Voted against Senate Bill 25, Illinois' 2025 energy law, which expands battery storage, rooftop solar rights, and EV charging. The House passed it 70-37, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "70-37",
+        "old_sentences": 6,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722447,
+      "measure_id": "HB 4418",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass House Bill 4418, which requires the state to control plastic pellet pollution in stormwater from factories. The Illinois House passed it 69-33, and it became law.",
+      "nay_description": "Voted against House Bill 4418, which requires the state to control plastic pellet pollution in stormwater from factories. The Illinois House passed it 69-33, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "69-33",
+        "old_sentences": 4,
+        "old_chars": 329
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722464,
+      "measure_id": "HB 3564",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to accept the Senate version of House Bill 3564, which caps rental application fees at $50 and voids landlord fees not listed in the ad and lease. The House agreed to that version 64-40, and it became law.",
+      "nay_description": "Voted against accepting the Senate version of House Bill 3564, which caps rental application fees at $50 and voids landlord fees not listed in the ad and lease. The House agreed to that version 64-40, and it became law.",
+      "_current": {
+        "question": "House Concurrence",
+        "tally": "64-40",
+        "old_sentences": 6,
+        "old_chars": 580
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722906,
+      "measure_id": "HB 4890",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4890, which lets a court take unaccompanied immigrant children in federal care under its protection, opening health and school services. The House passed it 82-26, and it became law.",
+      "nay_description": "Voted against House Bill 4890, which lets a court take unaccompanied immigrant children in federal care under its protection, opening health and school services. The House passed it 82-26, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "82-26",
+        "old_sentences": 5,
+        "old_chars": 376
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1722983,
+      "measure_id": "HB 4725",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4725, which lets the attorney general investigate, inspect workplaces, and interview workers before suing over worker protections. The Illinois House passed it 79-23, and it became law.",
+      "nay_description": "Voted against House Bill 4725, which lets the attorney general investigate, inspect workplaces, and interview workers before suing over worker protections. The Illinois House passed it 79-23, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "79-23",
+        "old_sentences": 4,
+        "old_chars": 433
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723007,
+      "measure_id": "HB 4702",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4702, the Diaper Labeling Act, which requires makers to list what is in a diaper. The House passed it 73-38, and it became law.",
+      "nay_description": "Voted against House Bill 4702, the Diaper Labeling Act, which requires makers to list what is in a diaper. The House passed it 73-38, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "73-38",
+        "old_sentences": 5,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723013,
+      "measure_id": "HB 4514",
+      "vote_date": "2026-04-17",
+      "yea_description": "Voted to pass House Bill 4514, which requires utilities seeking a rate increase to tell customers they may request a public forum on it. The House passed it 81-22, and it became law.",
+      "nay_description": "Voted against House Bill 4514, which requires utilities seeking a rate increase to tell customers they may request a public forum on it. The House passed it 81-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "81-22",
+        "old_sentences": 5,
+        "old_chars": 344
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723041,
+      "measure_id": "SB 3487",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass Senate Bill 3487, which requires hospitals to offer flu shots from September through March and pneumonia shots at admission or discharge. The Illinois House passed it 72-34, and it became law.",
+      "nay_description": "Voted against Senate Bill 3487, which requires hospitals to offer flu shots from September through March and pneumonia shots at admission or discharge. The Illinois House passed it 72-34, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "72-34",
+        "old_sentences": 4,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723157,
+      "measure_id": "HB 5070",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass House Bill 5070, which bars the state Pollution Control Board from adopting a federal rule weaker than one it already has. The House passed it 69-28, and it became law.",
+      "nay_description": "Voted against House Bill 5070, which bars the state Pollution Control Board from adopting a federal rule weaker than one it already has. The House passed it 69-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "69-28",
+        "old_sentences": 4,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723398,
+      "measure_id": "HB 4420",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 4420, which makes media produced at state colleges a public forum and bars officials from reviewing content before publication. The House passed it 75-36, and it became law.",
+      "nay_description": "Voted against House Bill 4420, which makes media produced at state colleges a public forum and bars officials from reviewing content before publication. The House passed it 75-36, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "75-36",
+        "old_sentences": 5,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723605,
+      "measure_id": "HB 4277",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass House Bill 4277, which lets a person with a felony conviction become a notary 10 years after finishing their sentence. The House passed it 75-33, and it became law.",
+      "nay_description": "Voted against House Bill 4277, which lets a person with a felony conviction become a notary 10 years after finishing their sentence. The House passed it 75-33, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "75-33",
+        "old_sentences": 4,
+        "old_chars": 277
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723643,
+      "measure_id": "HB 5316",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass House Bill 5316, which lets the state emergency agency enter private land to sample soil, water, and air after a radioactive release. The House passed it 70-35, and it became law.",
+      "nay_description": "Voted against House Bill 5316, which lets the state emergency agency enter private land to sample soil, water, and air after a radioactive release. The House passed it 70-35, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "70-35",
+        "old_sentences": 4,
+        "old_chars": 310
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723679,
+      "measure_id": "SB 4025",
+      "vote_date": "2026-05-28",
+      "yea_description": "Voted to pass Senate Bill 4025, which requires landowners statewide to let the water utility replace lead service lines for free. The House passed it 83-29, and it became law.",
+      "nay_description": "Voted against Senate Bill 4025, which requires landowners statewide to let the water utility replace lead service lines for free. The House passed it 83-29, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "83-29",
+        "old_sentences": 5,
+        "old_chars": 344
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1723917,
+      "measure_id": "SB 3314",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass Senate Bill 3314, which requires a yearly public report on how many credit hours full-time faculty teach at Illinois public colleges. The House passed it 83-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 3314, which requires a yearly public report on how many credit hours full-time faculty teach at Illinois public colleges. The House passed it 83-28, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "83-28",
+        "old_sentences": 4,
+        "old_chars": 311
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1724011,
+      "measure_id": "SB 4041",
+      "vote_date": "2026-05-22",
+      "yea_description": "Voted to pass Senate Bill 4041, which requires airports to publish a noise contour study every five years starting by 2030. The House passed it 71-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 4041, which requires airports to publish a noise contour study every five years starting by 2030. The House passed it 71-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "71-24",
+        "old_sentences": 4,
+        "old_chars": 289
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "house",
+      "session": "2176",
+      "roll": 1724228,
+      "measure_id": "SB 3066",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass Senate Bill 3066, the Service Appointment Fairness Act, which makes breaking its appointment booking rules a consumer fraud violation. The House passed it 70-40, and it became law.",
+      "nay_description": "Voted against Senate Bill 3066, the Service Appointment Fairness Act, which makes breaking its appointment booking rules a consumer fraud violation. The House passed it 70-40, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "70-40",
+        "old_sentences": 4,
+        "old_chars": 324
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1541985,
+      "measure_id": "SB 2164",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 2164, which raises the fee for employers that underpay workers and makes a final Labor Department order enforceable like a court judgment. The Illinois Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 2164, which raises the fee for employers that underpay workers and makes a final Labor Department order enforceable like a court judgment. The Illinois Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-19",
+        "old_sentences": 4,
+        "old_chars": 323
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1542233,
+      "measure_id": "SB 1519",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 1519, which requires school districts to report referrals of students to police and keep a written agreement with local police. The Senate passed it 37-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 1519, which requires school districts to report referrals of students to police and keep a written agreement with local police. The Senate passed it 37-17, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-17",
+        "old_sentences": 5,
+        "old_chars": 312
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1544480,
+      "measure_id": "SB 2339",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass the Senate version of Senate Bill 2339, which protects workers responding to federal work-eligibility mismatches, with Labor Department enforcement and private lawsuits. The Senate passed it 35-21; the House later removed the E-Verify limits and criminal penalty, and that narrower version became law.",
+      "nay_description": "Voted against the Senate version of Senate Bill 2339, which protects workers responding to federal work-eligibility mismatches, with Labor Department enforcement and private lawsuits. The Senate passed it 35-21; the House later removed the E-Verify limits and criminal penalty, and that narrower version became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "35-21",
+        "old_sentences": 3,
+        "old_chars": 375
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1545001,
+      "measure_id": "SB 19",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Bill 19, which lets a person with a protective order against a parole candidate submit a victim statement to the Prisoner Review Board. The Senate passed it 32-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 19, which lets a person with a protective order against a parole candidate submit a victim statement to the Prisoner Review Board. The Senate passed it 32-22, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "32-22",
+        "old_sentences": 5,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1545154,
+      "measure_id": "SB 8",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Bill 8, which requires gun owners to lock guns away from minors and at-risk people and report lost guns within 48 hours. The Illinois Senate passed it 33-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 8, which requires gun owners to lock guns away from minors and at-risk people and report lost guns within 48 hours. The Illinois Senate passed it 33-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "33-19",
+        "old_sentences": 4,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1562456,
+      "measure_id": "SB 405",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted to pass the Senate version of Senate Bill 405, which requires public school counseling to serve every student regardless of citizenship status. The Senate passed it 38-18; the House later made that duty required, the Senate agreed, and the required version became law.",
+      "nay_description": "Voted against the Senate version of Senate Bill 405, which requires public school counseling to serve every student regardless of citizenship status. The Senate passed it 38-18; the House later made that duty required, the Senate agreed, and the required version became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "38-18",
+        "old_sentences": 3,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1562725,
+      "measure_id": "SB 191",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted to pass Senate Bill 191, which requires lap-and-shoulder belts on every seat of new school buses bought from July 2031. The Illinois Senate passed it 39-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 191, which requires lap-and-shoulder belts on every seat of new school buses bought from July 2031. The Illinois Senate passed it 39-13, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "39-13",
+        "old_sentences": 4,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1575036,
+      "measure_id": "HB 1859",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass House Bill 1859, which requires community college courses to be taught by qualified faculty, not artificial intelligence alone. The Senate passed it 46-12, and it became law.",
+      "nay_description": "Voted against House Bill 1859, which requires community college courses to be taught by qualified faculty, not artificial intelligence alone. The Senate passed it 46-12, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "46-12",
+        "old_sentences": 5,
+        "old_chars": 312
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1575184,
+      "measure_id": "HB 2726",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass House Bill 2726, which lets the Department of Natural Resources use rewilding, returning land to its natural state and bringing back native species. The Senate passed it 39-16, and it became law.",
+      "nay_description": "Voted against House Bill 2726, which lets the Department of Natural Resources use rewilding, returning land to its natural state and bringing back native species. The Senate passed it 39-16, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "39-16",
+        "old_sentences": 4,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1575256,
+      "measure_id": "HB 1189",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass House Bill 1189, which applies Illinois wage rules to federally funded construction run by an Illinois public body. The Illinois Senate passed it 40-18, and it became law.",
+      "nay_description": "Voted against House Bill 1189, which applies Illinois wage rules to federally funded construction run by an Illinois public body. The Illinois Senate passed it 40-18, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "40-18",
+        "old_sentences": 3,
+        "old_chars": 253
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1575419,
+      "measure_id": "HB 2517",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass House Bill 2517, which requires health professionals to take an hour of hidden-bias training to renew a license, with maternal-care training added in 2026. The Illinois Senate passed it 44-12, and it became law.",
+      "nay_description": "Voted against House Bill 2517, which requires health professionals to take an hour of hidden-bias training to renew a license, with maternal-care training added in 2026. The Illinois Senate passed it 44-12, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "44-12",
+        "old_sentences": 4,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1575572,
+      "measure_id": "SB 1976",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 1976, which stops state agencies from weakening worker-pay or coal-mine safety rules below the federal protections in place in April 2025. The Illinois Senate passed it 38-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 1976, which stops state agencies from weakening worker-pay or coal-mine safety rules below the federal protections in place in April 2025. The Illinois Senate passed it 38-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "38-19",
+        "old_sentences": 4,
+        "old_chars": 444
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1576072,
+      "measure_id": "HB 2397",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 2397, the Eddie Thomas Act, which makes state prisons publish a yearly report on hospice and end-of-life care for people in custody. The Senate passed it 33-19, and it became law.",
+      "nay_description": "Voted against House Bill 2397, the Eddie Thomas Act, which makes state prisons publish a yearly report on hospice and end-of-life care for people in custody. The Senate passed it 33-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "33-19",
+        "old_sentences": 4,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1576075,
+      "measure_id": "HB 3248",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 3248, which requires health plans issued after January 1, 2027 to cover medically necessary laser hair removal. The Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against House Bill 3248, which requires health plans issued after January 1, 2027 to cover medically necessary laser hair removal. The Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-19",
+        "old_sentences": 5,
+        "old_chars": 309
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1576151,
+      "measure_id": "HB 3489",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 3489, which lets pharmacists provide all forms of birth control, including emergency birth control, with Medicaid covering their services. The Illinois Senate passed it 41-16, and it became law.",
+      "nay_description": "Voted against House Bill 3489, which lets pharmacists provide all forms of birth control, including emergency birth control, with Medicaid covering their services. The Illinois Senate passed it 41-16, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "41-16",
+        "old_sentences": 4,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1576506,
+      "measure_id": "HB 2419",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 2419, which makes local officials weigh traffic pollution and existing pollution on nearby communities before approving a waste facility. The Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against House Bill 2419, which makes local officials weigh traffic pollution and existing pollution on nearby communities before approving a waste facility. The Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-19",
+        "old_sentences": 5,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1576619,
+      "measure_id": "HB 1430",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 1430, which lets the State Treasurer make and buy loans that refinance student debt. The Senate passed it 46-12, and it became law.",
+      "nay_description": "Voted against House Bill 1430, which lets the State Treasurer make and buy loans that refinance student debt. The Senate passed it 46-12, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "46-12",
+        "old_sentences": 4,
+        "old_chars": 334
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1580076,
+      "measure_id": "SB 453",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 453, which extends fast-track first-contract bargaining rules to newly certified public employee unions of every size. The Senate passed it 39-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 453, which extends fast-track first-contract bargaining rules to newly certified public employee unions of every size. The Senate passed it 39-16, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "39-16",
+        "old_sentences": 5,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1581340,
+      "measure_id": "HB 2425",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to pass House Bill 2425, which bars life insurers from denying or charging more for final-expense coverage because of a felony conviction. The Illinois Senate passed it 36-18, and it became law.",
+      "nay_description": "Voted against House Bill 2425, which bars life insurers from denying or charging more for final-expense coverage because of a felony conviction. The Illinois Senate passed it 36-18, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "36-18",
+        "old_sentences": 4,
+        "old_chars": 294
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1581586,
+      "measure_id": "HB 2568",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to pass House Bill 2568, which gives children equal parentage rights regardless of their parents' marriage, gender, or use of assisted reproduction. The Illinois Senate passed it 36-19, and it became law.",
+      "nay_description": "Voted against House Bill 2568, which gives children equal parentage rights regardless of their parents' marriage, gender, or use of assisted reproduction. The Illinois Senate passed it 36-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "36-19",
+        "old_sentences": 4,
+        "old_chars": 444
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582066,
+      "measure_id": "HB 2436",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass House Bill 2436, which lets Cook County public defenders handle immigration cases for county residents wherever they are heard. The Illinois Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against House Bill 2436, which lets Cook County public defenders handle immigration cases for county residents wherever they are heard. The Illinois Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-19",
+        "old_sentences": 4,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582128,
+      "measure_id": "HB 3709",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass House Bill 3709, which requires public colleges to give students access to providers who can prescribe birth control and medication abortion. The Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against House Bill 3709, which requires public colleges to give students access to providers who can prescribe birth control and medication abortion. The Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "37-19",
+        "old_sentences": 5,
+        "old_chars": 402
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582161,
+      "measure_id": "HB 460",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass House Bill 460 in the Illinois Senate, which extends state college aid eligibility at city and county colleges to residents barred from federal aid, including undocumented students. The Senate passed it 34-18 and it became Public Act 104-164, effective January 1, 2026.",
+      "nay_description": "Voted against passing House Bill 460 in the Illinois Senate, which extends state college aid eligibility at city and county colleges to residents barred from federal aid, including undocumented students. The Senate passed it 34-18 and it became Public Act 104-164, effective January 1, 2026.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "34-18",
+        "old_sentences": 7,
+        "old_chars": 718
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582371,
+      "measure_id": "HB 1373",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass House Bill 1373, which requires police to trace every crime gun through the federal eTrace system and share the results with other Illinois agencies. The Illinois Senate passed it 43-11, and it became law.",
+      "nay_description": "Voted against House Bill 1373, which requires police to trace every crime gun through the federal eTrace system and share the results with other Illinois agencies. The Illinois Senate passed it 43-11, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "43-11",
+        "old_sentences": 4,
+        "old_chars": 444
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582610,
+      "measure_id": "HB 3247",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass House Bill 3247, which bars public schools from denying education or parent activities because of a child's or parent's immigration status. The Illinois Senate passed it 32-20, and it became law.",
+      "nay_description": "Voted against House Bill 3247, which bars public schools from denying education or parent activities because of a child's or parent's immigration status. The Illinois Senate passed it 32-20, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "32-20",
+        "old_sentences": 4,
+        "old_chars": 465
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582633,
+      "measure_id": "HB 3363",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass House Bill 3363, which creates a State Public Defender Commission to plan a statewide Office of the State Public Defender. The Senate passed it 36-19, and it became law.",
+      "nay_description": "Voted against House Bill 3363, which creates a State Public Defender Commission to plan a statewide Office of the State Public Defender. The Senate passed it 36-19, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "36-19",
+        "old_sentences": 4,
+        "old_chars": 320
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582707,
+      "measure_id": "SB 1859",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the House version of Senate Bill 1859, which creates a task force on how flooding, heat, and other climate damage push Illinois residents out of their homes. The Senate agreed to that version 40-16, and it became law.",
+      "nay_description": "Voted against accepting the House version of Senate Bill 1859, which creates a task force on how flooding, heat, and other climate damage push Illinois residents out of their homes. The Senate agreed to that version 40-16, and it became law.",
+      "_current": {
+        "question": "Concurrence in Senate",
+        "tally": "40-16",
+        "old_sentences": 5,
+        "old_chars": 386
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582772,
+      "measure_id": "SB 2437",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the House version of Senate Bill 2437, which lets Medicaid patients bring a Medicaid doula to childbirth and covers several other Medicaid changes. The Senate accepted this larger Medicaid package 36-19, and it became law.",
+      "nay_description": "Voted against the House version of Senate Bill 2437, which lets Medicaid patients bring a Medicaid doula to childbirth and covers several other Medicaid changes. The Senate accepted this larger Medicaid package 36-19, and it became law.",
+      "_current": {
+        "question": "Concurrence in Senate",
+        "tally": "36-19",
+        "old_sentences": 3,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582866,
+      "measure_id": "SB 1797",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the House version of Senate Bill 1797, which requires companies that hold or trade cryptocurrency for Illinois residents to register with the state and follow consumer rules. The Senate agreed to that version 41-15, and it became law.",
+      "nay_description": "Voted against accepting the House version of Senate Bill 1797, which requires companies that hold or trade cryptocurrency for Illinois residents to register with the state and follow consumer rules. The Senate agreed to that version 41-15, and it became law.",
+      "_current": {
+        "question": "Concurrence in Senate",
+        "tally": "41-15",
+        "old_sentences": 5,
+        "old_chars": 416
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1582888,
+      "measure_id": "SB 2319",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the House version of Senate Bill 2319, which requires crypto cash machine operators to register with the state, cap fees, and give clear warnings and receipts. The Senate agreed to that version 39-18, and it became law.",
+      "nay_description": "Voted against accepting the House version of Senate Bill 2319, which requires crypto cash machine operators to register with the state, cap fees, and give clear warnings and receipts. The Senate agreed to that version 39-18, and it became law.",
+      "_current": {
+        "question": "Concurrence in Senate",
+        "tally": "39-18",
+        "old_sentences": 5,
+        "old_chars": 446
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1586217,
+      "measure_id": "HB 1083",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass House Bill 1083, which makes marriage and property laws gender-neutral and waives deed fees for recording a legal name change. The Illinois Senate passed it 39-18, and it became law.",
+      "nay_description": "Voted against House Bill 1083, which makes marriage and property laws gender-neutral and waives deed fees for recording a legal name change. The Illinois Senate passed it 39-18, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "39-18",
+        "old_sentences": 4,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1586232,
+      "measure_id": "HB 3026",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 3026, which makes the state guide schools on dual-language programs and plan to hire and keep bilingual teachers. The Illinois Senate passed it 43-12, and it became law.",
+      "nay_description": "Voted against House Bill 3026, which makes the state guide schools on dual-language programs and plan to hire and keep bilingual teachers. The Illinois Senate passed it 43-12, and it became law.",
+      "_current": {
+        "question": "Third Reading in Senate",
+        "tally": "43-12",
+        "old_sentences": 4,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1716768,
+      "measure_id": "HB 4844",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4844, which requires employers with more than 25 workers to pay regular wages during jury duty. The Illinois Senate passed it 35-20, and it became law.",
+      "nay_description": "Voted against House Bill 4844, which requires employers with more than 25 workers to pay regular wages during jury duty. The Illinois Senate passed it 35-20, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "35-20",
+        "old_sentences": 3,
+        "old_chars": 202
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1716925,
+      "measure_id": "HB 4304",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass House Bill 4304, which requires public colleges to keep classrooms free of unlawful bias and protect students' right to speak and gather. The Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against House Bill 4304, which requires public colleges to keep classrooms free of unlawful bias and protect students' right to speak and gather. The Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "37-19",
+        "old_sentences": 6,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1716945,
+      "measure_id": "HB 5024",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass House Bill 5024, which bars immigration detention centers within 1,500 feet of a school, day care, park, home, or place of worship. The Illinois Senate passed it 39-17, and it became law.",
+      "nay_description": "Voted against House Bill 5024, which bars immigration detention centers within 1,500 feet of a school, day care, park, home, or place of worship. The Illinois Senate passed it 39-17, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-17",
+        "old_sentences": 3,
+        "old_chars": 310
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717212,
+      "measure_id": "HB 1312",
+      "vote_date": "2025-10-30",
+      "yea_description": "Voted to pass House Bill 1312, which lets people sue immigration officers who knowingly violate constitutional rights and requires hospital immigration policies. The Illinois Senate passed it 40-18, and it became law.",
+      "nay_description": "Voted against House Bill 1312, which lets people sue immigration officers who knowingly violate constitutional rights and requires hospital immigration policies. The Illinois Senate passed it 40-18, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "40-18",
+        "old_sentences": 4,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717393,
+      "measure_id": "HB 4571",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass House Bill 4571, which lets large counties buy land, give grants, and sell property below market value for affordable housing. The Illinois Senate passed it 44-14, and it became law.",
+      "nay_description": "Voted against House Bill 4571, which lets large counties buy land, give grants, and sell property below market value for affordable housing. The Illinois Senate passed it 44-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "44-14",
+        "old_sentences": 4,
+        "old_chars": 432
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717532,
+      "measure_id": "SB 3341",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass Senate Bill 3341, which lets any minor consent to birth control without a parent's approval. The Illinois Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 3341, which lets any minor consent to birth control without a parent's approval. The Illinois Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "37-19",
+        "old_sentences": 4,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717544,
+      "measure_id": "HB 4533",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4533, which requires money transfer companies to offer customers a voluntary donation to the Illinois DREAM Fund scholarship program. The Senate passed it 39-19, and it became law.",
+      "nay_description": "Voted against House Bill 4533, which requires money transfer companies to offer customers a voluntary donation to the Illinois DREAM Fund scholarship program. The Senate passed it 39-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-19",
+        "old_sentences": 4,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717614,
+      "measure_id": "HB 4273",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass House Bill 4273, which bars home insurers from raising a renewal premium over 10% without 60 days' notice. The Senate passed it 43-14, and it became law.",
+      "nay_description": "Voted against House Bill 4273, which bars home insurers from raising a renewal premium over 10% without 60 days' notice. The Senate passed it 43-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-14",
+        "old_sentences": 5,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1717749,
+      "measure_id": "HB 4456",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted to pass House Bill 4456, which lets regulators approve low-income discounts covering an entire home gas or electric bill, funded by a fixed charge on other customers. The Illinois Senate passed it 42-17, and it became law.",
+      "nay_description": "Voted against House Bill 4456, which lets regulators approve low-income discounts covering an entire home gas or electric bill, funded by a fixed charge on other customers. The Illinois Senate passed it 42-17, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "42-17",
+        "old_sentences": 4,
+        "old_chars": 399
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718025,
+      "measure_id": "SB 3772",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted to pass Senate Bill 3772, which requires extra review of air pollution permits in communities already carrying unfair pollution burdens, starting 2027. The Illinois Senate passed it 43-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 3772, which requires extra review of air pollution permits in communities already carrying unfair pollution burdens, starting 2027. The Illinois Senate passed it 43-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-11",
+        "old_sentences": 4,
+        "old_chars": 420
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718059,
+      "measure_id": "HB 4577",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4577, which defines play-based learning in kindergarten in state law. The Senate passed it 45-13, and it became law.",
+      "nay_description": "Voted against House Bill 4577, which defines play-based learning in kindergarten in state law. The Senate passed it 45-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "45-13",
+        "old_sentences": 4,
+        "old_chars": 306
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718090,
+      "measure_id": "HB 4339",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to pass House Bill 4339, which requires every high school district to give eligible graduating students a chance to register to vote. The Illinois Senate passed it 41-12, and it became law.",
+      "nay_description": "Voted against House Bill 4339, which requires every high school district to give eligible graduating students a chance to register to vote. The Illinois Senate passed it 41-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "41-12",
+        "old_sentences": 3,
+        "old_chars": 195
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718097,
+      "measure_id": "HB 5492",
+      "vote_date": "2026-05-30",
+      "yea_description": "Voted to pass House Bill 5492, which requires health plans from 2028 to cover up to a six-month supply of prescribed hormone therapy at once. The Senate passed it 38-19, and it became law.",
+      "nay_description": "Voted against House Bill 5492, which requires health plans from 2028 to cover up to a six-month supply of prescribed hormone therapy at once. The Senate passed it 38-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "38-19",
+        "old_sentences": 4,
+        "old_chars": 301
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718182,
+      "measure_id": "SB 3465",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to accept the House version of Senate Bill 3465, which sets sanitary requirements for construction sites, including menstrual hygiene products. The Senate agreed to that version 45-13, and it became law.",
+      "nay_description": "Voted against accepting the House version of Senate Bill 3465, which sets sanitary requirements for construction sites, including menstrual hygiene products. The Senate agreed to that version 45-13, and it became law.",
+      "_current": {
+        "question": "Senate Concurrence",
+        "tally": "45-13",
+        "old_sentences": 4,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718199,
+      "measure_id": "HB 4461",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted to pass House Bill 4461, which bars hospitals and medical-debt creditors from placing a lien on a patient's main home. The Illinois Senate passed it 46-12, and it became law.",
+      "nay_description": "Voted against House Bill 4461, which bars hospitals and medical-debt creditors from placing a lien on a patient's main home. The Illinois Senate passed it 46-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "46-12",
+        "old_sentences": 4,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718441,
+      "measure_id": "HB 5093",
+      "vote_date": "2026-05-30",
+      "yea_description": "Voted to pass the Senate version of House Bill 5093, which widens in-state college tuition and state aid by dropping a school-attendance condition. The Senate passed it 38-19; the House agreed, and it became law.",
+      "nay_description": "Voted against the Senate version of House Bill 5093, which widens in-state college tuition and state aid by dropping a school-attendance condition. The Senate passed it 38-19; the House agreed, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "38-19",
+        "old_sentences": 3,
+        "old_chars": 303
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718530,
+      "measure_id": "HB 5390",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 5390, which requires hospitals to use one state financial assistance form and honor approvals for at least 12 months. The Illinois Senate passed it 39-19, and it became law.",
+      "nay_description": "Voted against House Bill 5390, which requires hospitals to use one state financial assistance form and honor approvals for at least 12 months. The Illinois Senate passed it 39-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-19",
+        "old_sentences": 4,
+        "old_chars": 517
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1718657,
+      "measure_id": "HB 4639",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4639, which lets judges set up mediation programs for young people accused of crimes and consider restorative practices before sentencing. The Senate passed it 39-18, and it became law.",
+      "nay_description": "Voted against House Bill 4639, which lets judges set up mediation programs for young people accused of crimes and consider restorative practices before sentencing. The Senate passed it 39-18, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-18",
+        "old_sentences": 5,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719026,
+      "measure_id": "HB 5090",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass House Bill 5090, which lets rideshare drivers organize and bargain as a group with the companies, funded by a fee on each Illinois trip. The Illinois Senate passed it 42-12, and it became law.",
+      "nay_description": "Voted against House Bill 5090, which lets rideshare drivers organize and bargain as a group with the companies, funded by a fee on each Illinois trip. The Illinois Senate passed it 42-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "42-12",
+        "old_sentences": 4,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719212,
+      "measure_id": "HB 4966",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to pass House Bill 4966, the SECURE Act, which makes the child welfare agency guard records showing a child's sexual orientation. The Senate passed it 35-19, and it became law.",
+      "nay_description": "Voted against House Bill 4966, the SECURE Act, which makes the child welfare agency guard records showing a child's sexual orientation. The Senate passed it 35-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "35-19",
+        "old_sentences": 6,
+        "old_chars": 370
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719423,
+      "measure_id": "HB 4758",
+      "vote_date": "2026-05-29",
+      "yea_description": "Voted to pass House Bill 4758, which lets job ads require a driver's license only when driving is essential to the job. The Illinois Senate passed it 41-15, and it became law.",
+      "nay_description": "Voted against House Bill 4758, which lets job ads require a driver's license only when driving is essential to the job. The Illinois Senate passed it 41-15, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "41-15",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719535,
+      "measure_id": "HB 5095",
+      "vote_date": "2026-05-21",
+      "yea_description": "Voted to pass House Bill 5095, which lets people choose male, female, or X on a state ID or driver's license. The Illinois Senate passed it 38-19, and it became law.",
+      "nay_description": "Voted against House Bill 5095, which lets people choose male, female, or X on a state ID or driver's license. The Illinois Senate passed it 38-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "38-19",
+        "old_sentences": 4,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719830,
+      "measure_id": "HB 3751",
+      "vote_date": "2026-05-28",
+      "yea_description": "Voted to pass House Bill 3751, which makes the state's economic equity office support businesses that hire and train people facing serious barriers to work. The Senate passed it 40-19, and it became law.",
+      "nay_description": "Voted against House Bill 3751, which makes the state's economic equity office support businesses that hire and train people facing serious barriers to work. The Senate passed it 40-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "40-19",
+        "old_sentences": 4,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1719878,
+      "measure_id": "HB 4379",
+      "vote_date": "2026-05-31",
+      "yea_description": "Voted to pass the Senate version of House Bill 4379, which requires adult changing tables and accessible restroom space in certain new public buildings built from 2029. The Senate passed it 46-12; the House agreed, and it became law.",
+      "nay_description": "Voted against the Senate version of House Bill 4379, which requires adult changing tables and accessible restroom space in certain new public buildings built from 2029. The Senate passed it 46-12; the House agreed, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "46-12",
+        "old_sentences": 3,
+        "old_chars": 363
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1720142,
+      "measure_id": "HB 1836",
+      "vote_date": "2025-10-29",
+      "yea_description": "Voted to pass House Bill 1836, the Clean Slate Act, which automatically seals eligible criminal records and widens who qualifies. The Illinois Senate passed it 39-17, and it became law.",
+      "nay_description": "Voted against House Bill 1836, the Clean Slate Act, which automatically seals eligible criminal records and widens who qualifies. The Illinois Senate passed it 39-17, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-17",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1720248,
+      "measure_id": "SB 714",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass Senate Bill 714, which bars car insurers from raising a renewal premium more than 10% without 30 days' notice and lets the state review rates. The Senate passed it 42-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 714, which bars car insurers from raising a renewal premium more than 10% without 30 days' notice and lets the state review rates. The Senate passed it 42-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "42-14",
+        "old_sentences": 6,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1720545,
+      "measure_id": "HB 4217",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4217, which lets a public defender also represent a client in the license suspension case that grew out of the same arrest. The Senate passed it 43-15, and it became law.",
+      "nay_description": "Voted against House Bill 4217, which lets a public defender also represent a client in the license suspension case that grew out of the same arrest. The Senate passed it 43-15, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-15",
+        "old_sentences": 3,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1720569,
+      "measure_id": "HB 4862",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4862, which requires every school board to adopt a written procedure supporting school employees' mental health by 2028. The Senate passed it 43-15, and it became law.",
+      "nay_description": "Voted against House Bill 4862, which requires every school board to adopt a written procedure supporting school employees' mental health by 2028. The Senate passed it 43-15, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-15",
+        "old_sentences": 4,
+        "old_chars": 320
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1721016,
+      "measure_id": "HB 4834",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4834, which removes testosterone, abortion pills, and hormone medicines from the state prescription-tracking program. The Illinois Senate passed it 39-19, and it became law.",
+      "nay_description": "Voted against House Bill 4834, which removes testosterone, abortion pills, and hormone medicines from the state prescription-tracking program. The Illinois Senate passed it 39-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-19",
+        "old_sentences": 4,
+        "old_chars": 331
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1721226,
+      "measure_id": "SB 3777",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass the Senate version of Senate Bill 3777, which makes rules that unfairly harm protected groups a civil rights violation in jobs, credit, and public places. The Senate passed it 38-20; the House later narrowed it, and that version became law.",
+      "nay_description": "Voted against the Senate version of Senate Bill 3777, which makes rules that unfairly harm protected groups a civil rights violation in jobs, credit, and public places. The Senate passed it 38-20; the House later narrowed it, and that version became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "38-20",
+        "old_sentences": 3,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1721611,
+      "measure_id": "HB 5295",
+      "vote_date": "2026-05-30",
+      "yea_description": "Voted to pass the Senate version of House Bill 5295, which makes health networks wall off abortion records from out-of-state sharing. The Senate passed it 38-19; the House agreed, and it became law effective July 1, 2027.",
+      "nay_description": "Voted against the Senate version of House Bill 5295, which makes health networks wall off abortion records from out-of-state sharing. The Senate passed it 38-19; the House agreed, and it became law effective July 1, 2027.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "38-19",
+        "old_sentences": 3,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722086,
+      "measure_id": "HB 4397",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted to pass House Bill 4397, which raises the training required to work as a school psychologist to a 60-hour graduate degree and 1,200 supervised hours. The Senate passed it 46-12, and it became law.",
+      "nay_description": "Voted against House Bill 4397, which raises the training required to work as a school psychologist to a 60-hour graduate degree and 1,200 supervised hours. The Senate passed it 46-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "46-12",
+        "old_sentences": 5,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722359,
+      "measure_id": "HB 4788",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4788, which requires high school CPR training to use manikins with breasts as well as without, from the 2029-30 school year. The Senate passed it 43-13, and it became law.",
+      "nay_description": "Voted against House Bill 4788, which requires high school CPR training to use manikins with breasts as well as without, from the 2029-30 school year. The Senate passed it 43-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-13",
+        "old_sentences": 5,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722388,
+      "measure_id": "SB 25",
+      "vote_date": "2025-10-30",
+      "yea_description": "Voted to accept the House version of Senate Bill 25, Illinois' 2025 energy law, which expands battery storage, rooftop solar rights, and EV charging. The Senate agreed to that version 37-22, and it became law.",
+      "nay_description": "Voted against accepting the House version of Senate Bill 25, Illinois' 2025 energy law, which expands battery storage, rooftop solar rights, and EV charging. The Senate agreed to that version 37-22, and it became law.",
+      "_current": {
+        "question": "Senate Concurrence",
+        "tally": "37-22",
+        "old_sentences": 6,
+        "old_chars": 414
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722448,
+      "measure_id": "HB 4418",
+      "vote_date": "2026-05-28",
+      "yea_description": "Voted to pass House Bill 4418, which requires the state to control plastic pellet pollution in stormwater from factories. The Illinois Senate passed it 44-13, and it became law.",
+      "nay_description": "Voted against House Bill 4418, which requires the state to control plastic pellet pollution in stormwater from factories. The Illinois Senate passed it 44-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "44-13",
+        "old_sentences": 4,
+        "old_chars": 330
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722460,
+      "measure_id": "HB 3564",
+      "vote_date": "2025-10-30",
+      "yea_description": "Voted to pass House Bill 3564, which caps rental application fees at $50 and voids landlord fees not listed in the ad and lease. The Senate passed it 39-16, and it became law.",
+      "nay_description": "Voted against House Bill 3564, which caps rental application fees at $50 and voids landlord fees not listed in the ad and lease. The Senate passed it 39-16, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-16",
+        "old_sentences": 6,
+        "old_chars": 544
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1722984,
+      "measure_id": "HB 4725",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4725, which lets the attorney general investigate, inspect workplaces, and interview workers before suing over worker protections. The Illinois Senate passed it 43-14, and it became law.",
+      "nay_description": "Voted against House Bill 4725, which lets the attorney general investigate, inspect workplaces, and interview workers before suing over worker protections. The Illinois Senate passed it 43-14, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "43-14",
+        "old_sentences": 4,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1723040,
+      "measure_id": "SB 3487",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass Senate Bill 3487, which requires hospitals to offer flu shots from September through March and pneumonia shots at admission or discharge. The Illinois Senate passed it 37-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 3487, which requires hospitals to offer flu shots from September through March and pneumonia shots at admission or discharge. The Illinois Senate passed it 37-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "37-19",
+        "old_sentences": 4,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1723399,
+      "measure_id": "HB 4420",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4420, which makes media produced at state colleges a public forum and bars officials from reviewing content before publication. The Senate passed it 39-19, and it became law.",
+      "nay_description": "Voted against House Bill 4420, which makes media produced at state colleges a public forum and bars officials from reviewing content before publication. The Senate passed it 39-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "39-19",
+        "old_sentences": 5,
+        "old_chars": 309
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1723606,
+      "measure_id": "HB 4277",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 4277, which lets a person with a felony conviction become a notary 10 years after finishing their sentence. The Senate passed it 36-19, and it became law.",
+      "nay_description": "Voted against House Bill 4277, which lets a person with a felony conviction become a notary 10 years after finishing their sentence. The Senate passed it 36-19, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "36-19",
+        "old_sentences": 4,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "IL",
+      "chamber": "senate",
+      "session": "2176",
+      "roll": 1723644,
+      "measure_id": "HB 5316",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted to pass House Bill 5316, which lets the state emergency agency enter private land to sample soil, water, and air after a radioactive release. The Senate passed it 44-13, and it became law.",
+      "nay_description": "Voted against House Bill 5316, which lets the state emergency agency enter private land to sample soil, water, and air after a radioactive release. The Senate passed it 44-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "44-13",
+        "old_sentences": 4,
+        "old_chars": 311
+      }
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1549690,
+      "measure_id": "H 903",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 903, which makes prisoners finish prison appeals before suing and bars claims for mental harm alone. The Florida House passed it 83-33, and it became law.",
+      "nay_description": "Voted against House Bill 903, which makes prisoners finish prison appeals before suing and bars claims for mental harm alone. The Florida House passed it 83-33, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#129",
+        "tally": "83-33",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1550259,
+      "measure_id": "H 6025",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 6025, which repeals the automatic ban on selling or carrying guns during a local emergency. The Florida House passed it 86-28, and it became law.",
+      "nay_description": "Voted against House Bill 6025, which repeals the automatic ban on selling or carrying guns during a local emergency. The Florida House passed it 86-28, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#119",
+        "tally": "86-28",
+        "old_sentences": 4,
+        "old_chars": 311
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1555216,
+      "measure_id": "H 875",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for the House version of House Bill 875, which orders updated teaching standards and a skills-based teacher certification route. The House passed it 84-27, and it became law.",
+      "nay_description": "Voted against the House version of House Bill 875, which orders updated teaching standards and a skills-based teacher certification route. The House passed it 84-27, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#160",
+        "tally": "84-27",
+        "old_sentences": 3,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1555400,
+      "measure_id": "H 351",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for House Bill 351, which creates the offense of dangerous excessive speeding, 50 miles per hour over the limit or 100 or more. The Florida House passed it 75-38, and it became law.",
+      "nay_description": "Voted against House Bill 351, which creates the offense of dangerous excessive speeding, 50 miles per hour over the limit or 100 or more. The Florida House passed it 75-38, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#184",
+        "tally": "75-38",
+        "old_sentences": 4,
+        "old_chars": 456
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1559666,
+      "measure_id": "S 700",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for Senate Bill 700, a 92-section agriculture package that ends fluoride in drinking water and protects farmworker housing. The Florida House passed it 88-27, and it became law.",
+      "nay_description": "Voted against Senate Bill 700, a 92-section agriculture package that ends fluoride in drinking water and protects farmworker housing. The Florida House passed it 88-27, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#275",
+        "tally": "88-27",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1561772,
+      "measure_id": "S 492",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 492, which sets a fixed schedule for releasing wetland bank credits. The Florida House passed it 87-26, and it became law.",
+      "nay_description": "Voted against Senate Bill 492, which sets a fixed schedule for releasing wetland bank credits. The Florida House passed it 87-26, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#342",
+        "tally": "87-26",
+        "old_sentences": 4,
+        "old_chars": 456
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1562037,
+      "measure_id": "S 1080",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 1080, which standardizes zoning application deadlines and limits steep increases in impact fees. The Florida House passed it 84-29, and it became law.",
+      "nay_description": "Voted against Senate Bill 1080, which standardizes zoning application deadlines and limits steep increases in impact fees. The Florida House passed it 84-29, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#345",
+        "tally": "84-29",
+        "old_sentences": 4,
+        "old_chars": 440
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1562557,
+      "measure_id": "S 56",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 56, which makes releasing material into the air to change the weather a third-degree felony. The Florida House passed it 82-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 56, which makes releasing material into the air to change the weather a third-degree felony. The Florida House passed it 82-28, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#388",
+        "tally": "82-28",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "house",
+      "session": "2135",
+      "roll": 1563815,
+      "measure_id": "H 1205",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 1205, which requires every petition collector to register, live in Florida and be a citizen. The House passed it 81-30, and it became law.",
+      "nay_description": "Voted against House Bill 1205, which requires every petition collector to register, live in Florida and be a citizen. The House passed it 81-30, and it became law.",
+      "_current": {
+        "question": "House: Third Reading RCS#403",
+        "tally": "81-30",
+        "old_sentences": 3,
+        "old_chars": 683
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1535606,
+      "measure_id": "S 56",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 56, which makes releasing material into the air to change the weather a third-degree felony. The Florida Senate passed it 28-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 56, which makes releasing material into the air to change the weather a third-degree felony. The Florida Senate passed it 28-9, and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#8",
+        "tally": "28-9",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1549853,
+      "measure_id": "S 700",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 700, a 92-section agriculture package that ends fluoride in drinking water and protects farmworker housing. The Florida Senate passed it 27-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 700, a 92-section agriculture package that ends fluoride in drinking water and protects farmworker housing. The Florida Senate passed it 27-9, and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#19",
+        "tally": "27-9",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1557039,
+      "measure_id": "H 1219",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 1219, the CHOICE Act, which lets high earners sign deals of up to four years not to work for rivals. The Florida Senate passed it 28-9, and it became law.",
+      "nay_description": "Voted against House Bill 1219, the CHOICE Act, which lets high earners sign deals of up to four years not to work for rivals. The Florida Senate passed it 28-9, and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#51",
+        "tally": "28-9",
+        "old_sentences": 4,
+        "old_chars": 456
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1558940,
+      "measure_id": "S 1080",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for the Senate version of Senate Bill 1080, which standardizes zoning application deadlines and limits steep increases in impact fees. The Senate passed it 26-8, and it became law.",
+      "nay_description": "Voted against the Senate version of Senate Bill 1080, which standardizes zoning application deadlines and limits steep increases in impact fees. The Senate passed it 26-8, and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#3",
+        "tally": "26-8",
+        "old_sentences": 3,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1560643,
+      "measure_id": "H 903",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 903, which makes prisoners finish prison appeals before suing and bars claims for mental harm alone. The Florida Senate passed it 26-11, and it became law.",
+      "nay_description": "Voted against House Bill 903, which makes prisoners finish prison appeals before suing and bars claims for mental harm alone. The Florida Senate passed it 26-11, and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#32",
+        "tally": "26-11",
+        "old_sentences": 5,
+        "old_chars": 680
+      }
+    },
+    {
+      "jurisdiction": "FL",
+      "chamber": "senate",
+      "session": "2135",
+      "roll": 1564585,
+      "measure_id": "H 1205",
+      "vote_date": "2025-05-02",
+      "yea_description": "Voted for House Bill 1205, which requires every petition collector to register, live in Florida and be a citizen. The Senate agreed 28-9 and the governor signed it as Chapter 2025-21.",
+      "nay_description": "Voted against House Bill 1205, which requires every petition collector to register, live in Florida and be a citizen. The Senate agreed 28-9 and the governor signed it as Chapter 2025-21.",
+      "_current": {
+        "question": "Senate: Third Reading RCS#10",
+        "tally": "28-9",
+        "old_sentences": 12,
+        "old_chars": 1074
+      }
+    }
+  ]
+}

@@ -1,0 +1,724 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1473444,
+      "measure_id": "S 36",
+      "vote_date": "2025-01-22",
+      "yea_description": "Voted for Senate Bill 36-A, which lets abortion pill prescription labels name a health care practice instead of the prescriber. The New York State Assembly passed it 95-42, and it became law.",
+      "nay_description": "Voted against Senate Bill 36-A, which lets abortion pill prescription labels name a health care practice instead of the prescriber. The New York State Assembly passed it 95-42, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "95-42",
+        "old_sentences": 4,
+        "old_chars": 589
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1516803,
+      "measure_id": "S 801",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for Senate Bill 801, which puts electric car charging requirements for new buildings into the state building code. The New York State Assembly passed it 88-57, and it became law.",
+      "nay_description": "Voted against Senate Bill 801, which puts electric car charging requirements for new buildings into the state building code. The New York State Assembly passed it 88-57, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "88-57",
+        "old_sentences": 5,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1522289,
+      "measure_id": "S 745",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted for Senate Bill 745, which takes ammunition sellers out of the payment card merchant code rule. The New York Assembly passed it 96-52. It became law.",
+      "nay_description": "Voted against Senate Bill 745, which takes ammunition sellers out of the payment card merchant code rule. The New York Assembly passed it 96-52. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "96-52",
+        "old_sentences": 8,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1522762,
+      "measure_id": "S 743",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted for Senate Bill 743, which makes the gun dealer suicide-risk warning cover rifles and shotguns, not only handguns. The New York State Assembly passed it 98-50, and it became law.",
+      "nay_description": "Voted against Senate Bill 743, which makes the gun dealer suicide-risk warning cover rifles and shotguns, not only handguns. The New York State Assembly passed it 98-50, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "98-50",
+        "old_sentences": 7,
+        "old_chars": 714
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1523103,
+      "measure_id": "S 744",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted for Senate Bill 744, which adds pistol converters to the list of banned rapid-fire modification devices. The New York State Assembly passed it 100-48, and it became law.",
+      "nay_description": "Voted against Senate Bill 744, which adds pistol converters to the list of banned rapid-fire modification devices. The New York State Assembly passed it 100-48, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "100-48",
+        "old_sentences": 4,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1536285,
+      "measure_id": "A 1820",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for Assembly Bill 1820, which makes sellers strike racist covenants from property deeds. The New York Assembly passed it 100-48. It became law.",
+      "nay_description": "Voted against Assembly Bill 1820, which makes sellers strike racist covenants from property deeds. The New York Assembly passed it 100-48. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "100-48",
+        "old_sentences": 9,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1571864,
+      "measure_id": "A 387",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for Assembly Bill 387, which makes every general hospital run a free language assistance program. The New York Assembly passed it 113-34. It became law.",
+      "nay_description": "Voted against Assembly Bill 387, which makes every general hospital run a free language assistance program. The New York Assembly passed it 113-34. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "113-34",
+        "old_sentences": 9,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1579566,
+      "measure_id": "S 952",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 952-B, which caps rent stabilized security deposits at one month's rent and requires full return. The New York State Assembly passed it 95-50, and it became law.",
+      "nay_description": "Voted against Senate Bill 952-B, which caps rent stabilized security deposits at one month's rent and requires full return. The New York State Assembly passed it 95-50, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "95-50",
+        "old_sentences": 8,
+        "old_chars": 959
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1581084,
+      "measure_id": "S 3072",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 3072, which bars employers from using a person's credit record in hiring, pay or treatment at work. The New York State Assembly passed it 98-46, and it became law.",
+      "nay_description": "Voted against Senate Bill 3072, which bars employers from using a person's credit record in hiring, pay or treatment at work. The New York State Assembly passed it 98-46, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "98-46",
+        "old_sentences": 8,
+        "old_chars": 1007
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1586620,
+      "measure_id": "A 4040",
+      "vote_date": "2025-06-06",
+      "yea_description": "Voted for Assembly Bill 4040-A, which lets housing discrimination be proved by a practice's effect without proof of intent. The New York State Assembly passed it 95-46, and it became law.",
+      "nay_description": "Voted against Assembly Bill 4040-A, which lets housing discrimination be proved by a practice's effect without proof of intent. The New York State Assembly passed it 95-46, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "95-46",
+        "old_sentences": 6,
+        "old_chars": 695
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1588646,
+      "measure_id": "S 7882",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for Senate Bill 7882, which bans landlords setting rents with software that pools rival landlords' private data. The New York State Assembly passed it 95-51, and it became law.",
+      "nay_description": "Voted against Senate Bill 7882, which bans landlords setting rents with software that pools rival landlords' private data. The New York State Assembly passed it 95-51, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "95-51",
+        "old_sentences": 5,
+        "old_chars": 688
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1589090,
+      "measure_id": "S 123",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for Senate Bill 123, which bans the sale of infant walkers in New York. The New York Assembly passed it 97-49. It became law.",
+      "nay_description": "Voted against Senate Bill 123, which bans the sale of infant walkers in New York. The New York Assembly passed it 97-49. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "97-49",
+        "old_sentences": 8,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1589390,
+      "measure_id": "S 1985",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 1985-A, which makes police take guns found in plain sight when answering a family violence call. The New York State Assembly passed it 93-46, and it became law.",
+      "nay_description": "Voted against Senate Bill 1985-A, which makes police take guns found in plain sight when answering a family violence call. The New York State Assembly passed it 93-46, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "93-46",
+        "old_sentences": 6,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1589424,
+      "measure_id": "S 4906",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 4906, which lets assault victims at hospitals and care facilities give their statement at work. The New York Assembly passed it 105-41. It became law.",
+      "nay_description": "Voted against Senate Bill 4906, which lets assault victims at hospitals and care facilities give their statement at work. The New York Assembly passed it 105-41. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "105-41",
+        "old_sentences": 6,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1589619,
+      "measure_id": "S 1353",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 1353, which helps people forced into debt by an abuser get that coerced debt cleared. The New York Assembly passed it 96-50. It became law.",
+      "nay_description": "Voted against Senate Bill 1353, which helps people forced into debt by an abuser get that coerced debt cleared. The New York Assembly passed it 96-50. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "96-50",
+        "old_sentences": 9,
+        "old_chars": 772
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1589668,
+      "measure_id": "S 1069",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 1069, which bars oil and gas drilling on state forests, wildlife areas and other state land. The New York Assembly passed it 91-48. It became law.",
+      "nay_description": "Voted against Senate Bill 1069, which bars oil and gas drilling on state forests, wildlife areas and other state land. The New York Assembly passed it 91-48. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "91-48",
+        "old_sentences": 7,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592223,
+      "measure_id": "S 4914",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for Senate Bill 4914, which shields people who give or get reproductive and gender-affirming care from other states' courts. The New York Assembly passed it 94-50. It became law.",
+      "nay_description": "Voted against Senate Bill 4914, which shields people who give or get reproductive and gender-affirming care from other states' courts. The New York Assembly passed it 94-50. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "94-50",
+        "old_sentences": 9,
+        "old_chars": 849
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592323,
+      "measure_id": "S 8417",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for Senate Bill 8417, which ends the cost break for extending a gas line to a building without gas. The New York State Assembly passed it 83-62, and it became law.",
+      "nay_description": "Voted against Senate Bill 8417, which ends the cost break for extending a gas line to a building without gas. The New York State Assembly passed it 83-62, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "83-62",
+        "old_sentences": 4,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592400,
+      "measure_id": "S 8416",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for Senate Bill 8416, the FAIR Business Practices Act, which bans unfair and abusive business acts, not only deceptive ones. The New York State Assembly passed it 91-50, and it became law.",
+      "nay_description": "Voted against Senate Bill 8416, the FAIR Business Practices Act, which bans unfair and abusive business acts, not only deceptive ones. The New York State Assembly passed it 91-50, and it became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "91-50",
+        "old_sentences": 8,
+        "old_chars": 789
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592494,
+      "measure_id": "S 8420",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for Senate Bill 8420, which makes advertisers say when a person in an ad is computer-made and not real. The New York Assembly passed it 92-49. It became law.",
+      "nay_description": "Voted against Senate Bill 8420, which makes advertisers say when a person in an ad is computer-made and not real. The New York Assembly passed it 92-49. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "92-49",
+        "old_sentences": 9,
+        "old_chars": 745
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592516,
+      "measure_id": "S 6997",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for Senate Bill 6997, which sets up a way to report unsafe work on utility poles. The New York Assembly passed it 111-31. It became law.",
+      "nay_description": "Voted against Senate Bill 6997, which sets up a way to report unsafe work on utility poles. The New York Assembly passed it 111-31. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "111-31",
+        "old_sentences": 10,
+        "old_chars": 1024
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1592527,
+      "measure_id": "S 2551",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for Senate Bill 2551, which raises the top fine for a company convicted of a felony from $10,000 to $80,000. The New York Assembly passed it 107-33. It became law.",
+      "nay_description": "Voted against Senate Bill 2551, which raises the top fine for a company convicted of a felony from $10,000 to $80,000. The New York Assembly passed it 107-33. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "107-33",
+        "old_sentences": 8,
+        "old_chars": 602
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1687411,
+      "measure_id": "A 10710",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Assembly Bill 10710, which makes health plans cover vaccines recommended by the state health commissioner. The New York Assembly passed it 99-39. It became law.",
+      "nay_description": "Voted against Assembly Bill 10710, which makes health plans cover vaccines recommended by the state health commissioner. The New York Assembly passed it 99-39. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "99-39",
+        "old_sentences": 5,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "house",
+      "session": "2188",
+      "roll": 1687413,
+      "measure_id": "A 10711",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Assembly Bill 10711, which lets state standards, not only federal ones, set the vaccines required for children. The New York Assembly passed it 90-48. It became law.",
+      "nay_description": "Voted against Assembly Bill 10711, which lets state standards, not only federal ones, set the vaccines required for children. The New York Assembly passed it 90-48. It became law.",
+      "_current": {
+        "question": "Assembly Floor Vote - Final Passage",
+        "tally": "90-48",
+        "old_sentences": 6,
+        "old_chars": 1187
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1472643,
+      "measure_id": "S 36",
+      "vote_date": "2025-01-21",
+      "yea_description": "Voted for Senate Bill 36-A, which lets abortion pill prescription labels name a health care practice instead of the prescriber. The New York State Senate passed it 39-20, and it became law.",
+      "nay_description": "Voted against Senate Bill 36-A, which lets abortion pill prescription labels name a health care practice instead of the prescriber. The New York State Senate passed it 39-20, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "39-20",
+        "old_sentences": 4,
+        "old_chars": 587
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1478801,
+      "measure_id": "S 745",
+      "vote_date": "2025-02-03",
+      "yea_description": "Voted for Senate Bill 745, which takes ammunition sellers out of the payment card merchant code rule. The New York Senate passed it 46-17. It became law.",
+      "nay_description": "Voted against Senate Bill 745, which takes ammunition sellers out of the payment card merchant code rule. The New York Senate passed it 46-17. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "46-17",
+        "old_sentences": 8,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1478939,
+      "measure_id": "S 743",
+      "vote_date": "2025-02-03",
+      "yea_description": "Voted for Senate Bill 743, which makes the gun dealer suicide-risk warning cover rifles and shotguns, not only handguns. The New York State Senate passed it 43-20, and it became law.",
+      "nay_description": "Voted against Senate Bill 743, which makes the gun dealer suicide-risk warning cover rifles and shotguns, not only handguns. The New York State Senate passed it 43-20, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "43-20",
+        "old_sentences": 7,
+        "old_chars": 712
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1478985,
+      "measure_id": "S 744",
+      "vote_date": "2025-02-03",
+      "yea_description": "Voted for Senate Bill 744, which adds pistol converters to the list of banned rapid-fire modification devices. The New York State Senate passed it 50-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 744, which adds pistol converters to the list of banned rapid-fire modification devices. The New York State Senate passed it 50-13, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "50-13",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1485432,
+      "measure_id": "S 801",
+      "vote_date": "2025-02-10",
+      "yea_description": "Voted for Senate Bill 801, which puts electric car charging requirements for new buildings into the state building code. The New York State Senate passed it 44-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 801, which puts electric car charging requirements for new buildings into the state building code. The New York State Senate passed it 44-17, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "44-17",
+        "old_sentences": 5,
+        "old_chars": 598
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1527071,
+      "measure_id": "S 2551",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for Senate Bill 2551, which raises the top fine for a company convicted of a felony from $10,000 to $80,000. The New York Senate passed it 42-20. It became law.",
+      "nay_description": "Voted against Senate Bill 2551, which raises the top fine for a company convicted of a felony from $10,000 to $80,000. The New York Senate passed it 42-20. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "42-20",
+        "old_sentences": 8,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1536066,
+      "measure_id": "S 3072",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 3072, which bars employers from using a person's credit record in hiring, pay or treatment at work. The New York State Senate passed it 40-20, and it became law.",
+      "nay_description": "Voted against Senate Bill 3072, which bars employers from using a person's credit record in hiring, pay or treatment at work. The New York State Senate passed it 40-20, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "40-20",
+        "old_sentences": 8,
+        "old_chars": 1005
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1560492,
+      "measure_id": "S 952",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for Senate Bill 952-B, which caps rent stabilized security deposits at one month's rent and requires full return. The New York State Senate passed it 38-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 952-B, which caps rent stabilized security deposits at one month's rent and requires full return. The New York State Senate passed it 38-23, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "38-23",
+        "old_sentences": 8,
+        "old_chars": 957
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1575829,
+      "measure_id": "S 4914",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 4914, which shields people who give or get reproductive and gender-affirming care from other states' courts. The New York Senate passed it 37-20. It became law.",
+      "nay_description": "Voted against Senate Bill 4914, which shields people who give or get reproductive and gender-affirming care from other states' courts. The New York Senate passed it 37-20. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "37-20",
+        "old_sentences": 9,
+        "old_chars": 847
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1587039,
+      "measure_id": "S 7882",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for Senate Bill 7882, which bans landlords setting rents with software that pools rival landlords' private data. The New York State Senate passed it 40-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 7882, which bans landlords setting rents with software that pools rival landlords' private data. The New York State Senate passed it 40-22, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "40-22",
+        "old_sentences": 5,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1587201,
+      "measure_id": "S 1985",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for Senate Bill 1985-A, which makes police take guns found in plain sight when answering a family violence call. The New York State Senate passed it 43-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 1985-A, which makes police take guns found in plain sight when answering a family violence call. The New York State Senate passed it 43-19, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "43-19",
+        "old_sentences": 6,
+        "old_chars": 764
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1589169,
+      "measure_id": "A 4040",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Assembly Bill 4040-A, which lets housing discrimination be proved by a practice's effect without proof of intent. The New York State Senate passed it 39-20, and it became law.",
+      "nay_description": "Voted against Assembly Bill 4040-A, which lets housing discrimination be proved by a practice's effect without proof of intent. The New York State Senate passed it 39-20, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "39-20",
+        "old_sentences": 6,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1589185,
+      "measure_id": "A 1820",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Assembly Bill 1820, which makes sellers strike racist covenants from property deeds. The New York Senate passed it 47-12. It became law.",
+      "nay_description": "Voted against Assembly Bill 1820, which makes sellers strike racist covenants from property deeds. The New York Senate passed it 47-12. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "47-12",
+        "old_sentences": 9,
+        "old_chars": 690
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1589349,
+      "measure_id": "S 3294",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 3294, which abolishes the medical cannabis registry card and lengthens certifications to two years. The New York Senate passed it 39-20. It became law.",
+      "nay_description": "Voted against Senate Bill 3294, which abolishes the medical cannabis registry card and lengthens certifications to two years. The New York Senate passed it 39-20. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "39-20",
+        "old_sentences": 9,
+        "old_chars": 706
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1589368,
+      "measure_id": "A 6558",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Assembly Bill 6558, which makes food shops label major allergens on food they pack themselves. The New York Senate passed it 47-12. It became law.",
+      "nay_description": "Voted against Assembly Bill 6558, which makes food shops label major allergens on food they pack themselves. The New York Senate passed it 47-12. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "47-12",
+        "old_sentences": 8,
+        "old_chars": 520
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1590406,
+      "measure_id": "S 8311",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for Senate Bill 8311, which makes the New York City Housing Authority put its lease succession rules in writing. The New York Senate passed it 45-14. It became law.",
+      "nay_description": "Voted against Senate Bill 8311, which makes the New York City Housing Authority put its lease succession rules in writing. The New York Senate passed it 45-14. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "45-14",
+        "old_sentences": 7,
+        "old_chars": 608
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1590432,
+      "measure_id": "S 8416",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted for Senate Bill 8416, the FAIR Business Practices Act, which bans unfair and abusive business acts, not only deceptive ones. The New York State Senate passed it 37-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 8416, the FAIR Business Practices Act, which bans unfair and abusive business acts, not only deceptive ones. The New York State Senate passed it 37-22, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "37-22",
+        "old_sentences": 8,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1590434,
+      "measure_id": "S 8417",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for Senate Bill 8417, which ends the cost break for extending a gas line to a building without gas. The New York State Senate passed it 34-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 8417, which ends the cost break for extending a gas line to a building without gas. The New York State Senate passed it 34-25, and it became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "34-25",
+        "old_sentences": 4,
+        "old_chars": 589
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1590519,
+      "measure_id": "A 584",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for Assembly Bill 584, which bans contracts that make a worker repay training costs to quit. The New York Senate passed it 38-21. It became law.",
+      "nay_description": "Voted against Assembly Bill 584, which bans contracts that make a worker repay training costs to quit. The New York Senate passed it 38-21. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "38-21",
+        "old_sentences": 8,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1689755,
+      "measure_id": "A 10711",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Assembly Bill 10711, which lets state standards, not only federal ones, set the vaccines required for children. The New York Senate passed it 39-23. It became law.",
+      "nay_description": "Voted against Assembly Bill 10711, which lets state standards, not only federal ones, set the vaccines required for children. The New York Senate passed it 39-23. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "39-23",
+        "old_sentences": 6,
+        "old_chars": 1185
+      }
+    },
+    {
+      "jurisdiction": "NY",
+      "chamber": "senate",
+      "session": "2188",
+      "roll": 1696603,
+      "measure_id": "A 10710",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted for Assembly Bill 10710, which makes health plans cover vaccines recommended by the state health commissioner. The New York Senate passed it 38-22. It became law.",
+      "nay_description": "Voted against Assembly Bill 10710, which makes health plans cover vaccines recommended by the state health commissioner. The New York Senate passed it 38-22. It became law.",
+      "_current": {
+        "question": "Senate Floor Vote - Final Passage",
+        "tally": "38-22",
+        "old_sentences": 5,
+        "old_chars": 670
+      }
+    }
+  ]
+}

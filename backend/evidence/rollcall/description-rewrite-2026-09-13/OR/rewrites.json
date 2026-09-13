@@ -1,0 +1,2740 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1501276,
+      "measure_id": "HB 2010",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for House Bill 2010, which keeps two health insurance charges that fund the Oregon Reinsurance Program alive through 2032. The Oregon House passed it 40-15, and it became law.",
+      "nay_description": "Voted against House Bill 2010, which keeps two health insurance charges that fund the Oregon Reinsurance Program alive through 2032. The Oregon House passed it 40-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-15",
+        "old_sentences": 6,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1504353,
+      "measure_id": "HB 3024",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 3024, which ends the extra penalty that cut a year's total jobless pay for workers fired for misconduct. The Oregon House passed it 35-22, and it became law.",
+      "nay_description": "Voted against House Bill 3024, which ends the extra penalty that cut a year's total jobless pay for workers fired for misconduct. The Oregon House passed it 35-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-22",
+        "old_sentences": 6,
+        "old_chars": 490
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1509262,
+      "measure_id": "HB 2586",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for House Bill 2586, which lets people seeking asylum pay in-state tuition at Oregon's public universities. The Oregon House passed it 36-18, and it became law.",
+      "nay_description": "Voted against House Bill 2586, which lets people seeking asylum pay in-state tuition at Oregon's public universities. The Oregon House passed it 36-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-18",
+        "old_sentences": 6,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1526805,
+      "measure_id": "HB 3550",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House Bill 3550, which takes unionized minor league baseball players out of Oregon's minimum wage and workplace rules. The Oregon House passed it 35-15, and it became law.",
+      "nay_description": "Voted against House Bill 3550, which takes unionized minor league baseball players out of Oregon's minimum wage and workplace rules. The Oregon House passed it 35-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-15",
+        "old_sentences": 4,
+        "old_chars": 379
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1531186,
+      "measure_id": "HB 3025",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 3025, which changes how Oregon sets the size of its main college grant for students with financial need. The Oregon House passed it 34-22, and it became law.",
+      "nay_description": "Voted against House Bill 3025, which changes how Oregon sets the size of its main college grant for students with financial need. The Oregon House passed it 34-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-22",
+        "old_sentences": 5,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1540033,
+      "measure_id": "HB 2563",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 2563, which gives home insurance customers the right to a plain written explanation of why their premium rose. The Oregon House passed it 33-22, and it became law.",
+      "nay_description": "Voted against House Bill 2563, which gives home insurance customers the right to a plain written explanation of why their premium rose. The Oregon House passed it 33-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-22",
+        "old_sentences": 7,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1547696,
+      "measure_id": "HB 3863",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for House Bill 3863, which opens standard utility power purchase terms to larger small solar, wind and hydro projects. The Oregon House passed it 40-15, and it became law.",
+      "nay_description": "Voted against House Bill 3863, which opens standard utility power purchase terms to larger small solar, wind and hydro projects. The Oregon House passed it 40-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-15",
+        "old_sentences": 5,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1548773,
+      "measure_id": "HB 2964",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House Bill 2964, which creates state loans for the early planning costs of building affordable homes. The Oregon House passed it 37-16, and it became law.",
+      "nay_description": "Voted against House Bill 2964, which creates state loans for the early planning costs of building affordable homes. The Oregon House passed it 37-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-16",
+        "old_sentences": 6,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1549674,
+      "measure_id": "HB 3187",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 3187, which bars employers from asking an applicant's age or graduation dates before the first interview. The Oregon House passed it 42-16, and it became law.",
+      "nay_description": "Voted against House Bill 3187, which bars employers from asking an applicant's age or graduation dates before the first interview. The Oregon House passed it 42-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "42-16",
+        "old_sentences": 5,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1549709,
+      "measure_id": "HB 3233",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 3233, which pushes Oregon to plan passenger rail with Washington and British Columbia and report on it. The Oregon House passed it 44-12, and it became law.",
+      "nay_description": "Voted against House Bill 3233, which pushes Oregon to plan passenger rail with Washington and British Columbia and report on it. The Oregon House passed it 44-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-12",
+        "old_sentences": 5,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1549926,
+      "measure_id": "HB 3054",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 3054, which caps yearly rent increases at six percent in larger manufactured home parks and floating home marinas. The Oregon House passed it 33-26, and it became law.",
+      "nay_description": "Voted against House Bill 3054, which caps yearly rent increases at six percent in larger manufactured home parks and floating home marinas. The Oregon House passed it 33-26, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-26",
+        "old_sentences": 7,
+        "old_chars": 835
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1551435,
+      "measure_id": "HB 3521",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House Bill 3521, which stops landlords keeping a holding deposit when the applicant walks away over serious defects. The Oregon House passed it 33-18, and it became law.",
+      "nay_description": "Voted against House Bill 3521, which stops landlords keeping a holding deposit when the applicant walks away over serious defects. The Oregon House passed it 33-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-18",
+        "old_sentences": 6,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1552801,
+      "measure_id": "HB 3646",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for House Bill 3646, which lets state and local agencies favor employee-owned firms when buying goods or services. The Oregon House passed it 31-27, and it became law.",
+      "nay_description": "Voted against House Bill 3646, which lets state and local agencies favor employee-owned firms when buying goods or services. The Oregon House passed it 31-27, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-27",
+        "old_sentences": 5,
+        "old_chars": 508
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1553001,
+      "measure_id": "HB 3932",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for House Bill 3932, which bars hunting or trapping beavers for sport in and beside Oregon's most polluted public waters. The Oregon House passed it 35-18, and it became law.",
+      "nay_description": "Voted against House Bill 3932, which bars hunting or trapping beavers for sport in and beside Oregon's most polluted public waters. The Oregon House passed it 35-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-18",
+        "old_sentences": 6,
+        "old_chars": 638
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1563826,
+      "measure_id": "HB 2081",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 2081, which makes the state treat climate change as a risk to the public employee pension fund. The Oregon House passed it 36-18, and it became law.",
+      "nay_description": "Voted against House Bill 2081, which makes the state treat climate change as a risk to the public employee pension fund. The Oregon House passed it 36-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-18",
+        "old_sentences": 6,
+        "old_chars": 639
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1564954,
+      "measure_id": "SB 91",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 91, which bars fire departments from using firefighting foam that contains forever chemicals. The Oregon House passed it 39-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 91, which bars fire departments from using firefighting foam that contains forever chemicals. The Oregon House passed it 39-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-14",
+        "old_sentences": 5,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1566289,
+      "measure_id": "HB 3409",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for House Bill 3409, which limits when a drug plan may force a low-income clinic to tag discount drug claims. The Oregon House passed it 32-18, and it became law.",
+      "nay_description": "Voted against House Bill 3409, which limits when a drug plan may force a low-income clinic to tag discount drug claims. The Oregon House passed it 32-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "32-18",
+        "old_sentences": 7,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1567343,
+      "measure_id": "HB 2931",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 2931, which updates the law for replacing the Interstate 5 bridge between Oregon and Washington. The Oregon House passed it 31-24, and it became law.",
+      "nay_description": "Voted against House Bill 2931, which updates the law for replacing the Interstate 5 bridge between Oregon and Washington. The Oregon House passed it 31-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-24",
+        "old_sentences": 6,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1569520,
+      "measure_id": "SB 867",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for Senate Bill 867, which gives the State Board of Education more ways to act when a school is found to have discriminated. The Oregon House passed it 35-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 867, which gives the State Board of Education more ways to act when a school is found to have discriminated. The Oregon House passed it 35-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-15",
+        "old_sentences": 6,
+        "old_chars": 659
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1572193,
+      "measure_id": "SB 295",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Senate Bill 295, which lets pharmacists keep testing for and treating COVID-19 with no end date. The Oregon House passed it 40-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 295, which lets pharmacists keep testing for and treating COVID-19 with no end date. The Oregon House passed it 40-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-11",
+        "old_sentences": 4,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1573242,
+      "measure_id": "SB 599",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for Senate Bill 599, which bars landlords from asking about the immigration or citizenship status of tenants or applicants. The Oregon House passed it 36-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 599, which bars landlords from asking about the immigration or citizenship status of tenants or applicants. The Oregon House passed it 36-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-15",
+        "old_sentences": 7,
+        "old_chars": 702
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1573964,
+      "measure_id": "SB 1191",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 1191, which says telling someone their civil or constitutional rights is not a crime. The Oregon House passed it 32-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 1191, which says telling someone their civil or constitutional rights is not a crime. The Oregon House passed it 32-19, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "32-19",
+        "old_sentences": 5,
+        "old_chars": 445
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1574023,
+      "measure_id": "SB 827",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 827, which widens the solar rebate to cover a home battery added to panels installed earlier. The Oregon House passed it 36-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 827, which widens the solar rebate to cover a home battery added to panels installed earlier. The Oregon House passed it 36-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-16",
+        "old_sentences": 6,
+        "old_chars": 500
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1574179,
+      "measure_id": "SB 906",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 906, which makes employers give every new hire a written guide to the pay and deductions on a pay stub. The Oregon House passed it 35-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 906, which makes employers give every new hire a written guide to the pay and deductions on a pay stub. The Oregon House passed it 35-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-17",
+        "old_sentences": 6,
+        "old_chars": 647
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1575305,
+      "measure_id": "SB 551",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 551, which closes the loophole that let stores hand out thick plastic bags at the register from 2027. The Oregon House passed it 33-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 551, which closes the loophole that let stores hand out thick plastic bags at the register from 2027. The Oregon House passed it 33-19, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-19",
+        "old_sentences": 7,
+        "old_chars": 749
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1578774,
+      "measure_id": "HB 2944",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for House Bill 2944, which sets required fines for public employers that keep breaking the rules on union dues. The Oregon House agreed to the Senate version 35-21, and it became law.",
+      "nay_description": "Voted against House Bill 2944, which sets required fines for public employers that keep breaking the rules on union dues. The Oregon House agreed to the Senate version 35-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "35-21",
+        "old_sentences": 4,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1578807,
+      "measure_id": "SB 982",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 982, which sets conditions before a school district may place a student in an out-of-state residential facility. The Oregon House passed it 44-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 982, which sets conditions before a school district may place a student in an out-of-state residential facility. The Oregon House passed it 44-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-12",
+        "old_sentences": 5,
+        "old_chars": 536
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1579955,
+      "measure_id": "SB 951",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 951, which stops outside investors from running medical practices through a management company. The Oregon House passed it 41-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 951, which stops outside investors from running medical practices through a management company. The Oregon House passed it 41-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "41-16",
+        "old_sentences": 7,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1580006,
+      "measure_id": "SB 426",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 426, which makes the main contractor on a building job answer for wages a subcontractor fails to pay. The Oregon House passed it 31-26, and it became law.",
+      "nay_description": "Voted against Senate Bill 426, which makes the main contractor on a building job answer for wages a subcontractor fails to pay. The Oregon House passed it 31-26, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-26",
+        "old_sentences": 6,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1581255,
+      "measure_id": "SB 430",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Senate Bill 430, which requires online sellers to show the full price up front, including every fee. The Oregon House passed it 35-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 430, which requires online sellers to show the full price up front, including every fee. The Oregon House passed it 35-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-15",
+        "old_sentences": 7,
+        "old_chars": 715
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1581306,
+      "measure_id": "SB 605",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Senate Bill 605, which bars medical debt from credit reports and from being reported to credit bureaus. The Oregon House passed it 34-17, and it became law.",
+      "nay_description": "Voted against Senate Bill 605, which bars medical debt from credit reports and from being reported to credit bureaus. The Oregon House passed it 34-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-17",
+        "old_sentences": 6,
+        "old_chars": 619
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1583050,
+      "measure_id": "SB 726",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 726, which makes the Benton County landfill find and plug methane leaks. The Oregon House passed it 31-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 726, which makes the Benton County landfill find and plug methane leaks. The Oregon House passed it 31-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-24",
+        "old_sentences": 6,
+        "old_chars": 484
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1583099,
+      "measure_id": "HB 2385",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for House Bill 2385, which stops drug makers blocking the discount drug program for clinics serving low-income patients. The Oregon House agreed to the Senate's changes 35-20, and it became law.",
+      "nay_description": "Voted against House Bill 2385, which stops drug makers blocking the discount drug program for clinics serving low-income patients. The Oregon House agreed to the Senate's changes 35-20, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "35-20",
+        "old_sentences": 6,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1584102,
+      "measure_id": "SB 150",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted for Senate Bill 150, which bars charging veterans for help with a benefits claim. The Oregon House passed it 32-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 150, which bars charging veterans for help with a benefits claim. The Oregon House passed it 32-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "32-22",
+        "old_sentences": 6,
+        "old_chars": 692
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1585424,
+      "measure_id": "HB 3546",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted for House Bill 3546, which puts data centers and other very large power users in a rate class of their own. The Oregon House agreed to the Senate's changes 37-17, and it became law.",
+      "nay_description": "Voted against House Bill 3546, which puts data centers and other very large power users in a rate class of their own. The Oregon House agreed to the Senate's changes 37-17, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "37-17",
+        "old_sentences": 6,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1587412,
+      "measure_id": "SB 1098",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for Senate Bill 1098, which stops schools rejecting library books because of who wrote them or whose story they tell. The Oregon House passed it 34-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 1098, which stops schools rejecting library books because of who wrote them or whose story they tell. The Oregon House passed it 34-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-21",
+        "old_sentences": 6,
+        "old_chars": 659
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1590491,
+      "measure_id": "HB 3825",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted for House Bill 3825, which wipes out old court debts from small marijuana possession convictions before July 2015. The Oregon House agreed to the Senate's changes 32-8, and it became law.",
+      "nay_description": "Voted against House Bill 3825, which wipes out old court debts from small marijuana possession convictions before July 2015. The Oregon House agreed to the Senate's changes 32-8, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "32-8",
+        "old_sentences": 5,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1590864,
+      "measure_id": "SB 916",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for Senate Bill 916, which lets locked-out workers draw unemployment pay at once and striking workers after one week. The Oregon House passed it again 35-22 under the conference committee report, and it became law.",
+      "nay_description": "Voted against Senate Bill 916, which lets locked-out workers draw unemployment pay at once and striking workers after one week. The Oregon House passed it again 35-22 under the conference committee report, and it became law.",
+      "_current": {
+        "question": "House Repassed",
+        "tally": "35-22",
+        "old_sentences": 5,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1590931,
+      "measure_id": "HB 2677",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for House Bill 2677, which makes county juvenile departments apply to clear old juvenile records themselves. The Oregon House passed it 37-18, and it became law.",
+      "nay_description": "Voted against House Bill 2677, which makes county juvenile departments apply to clear old juvenile records themselves. The Oregon House passed it 37-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-18",
+        "old_sentences": 5,
+        "old_chars": 517
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1590932,
+      "measure_id": "HB 3336",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for House Bill 3336, which makes big power companies show whether cheaper fixes could carry more power before building lines. The Oregon House agreed to the Senate's changes 41-12, and it became law.",
+      "nay_description": "Voted against House Bill 3336, which makes big power companies show whether cheaper fixes could carry more power before building lines. The Oregon House agreed to the Senate's changes 41-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "41-12",
+        "old_sentences": 6,
+        "old_chars": 564
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1591030,
+      "measure_id": "HB 2684",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for House Bill 2684, which makes school boards keep their pest control plans current and posted online. The Oregon House agreed to the Senate's changes 43-12, and it became law.",
+      "nay_description": "Voted against House Bill 2684, which makes school boards keep their pest control plans current and posted online. The Oregon House agreed to the Senate's changes 43-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "43-12",
+        "old_sentences": 4,
+        "old_chars": 468
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1591106,
+      "measure_id": "SB 141",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for Senate Bill 141, which sets statewide targets and a common yardstick for how Oregon school districts are doing. The Oregon House passed it 39-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 141, which sets statewide targets and a common yardstick for how Oregon school districts are doing. The Oregon House passed it 39-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-15",
+        "old_sentences": 5,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1591480,
+      "measure_id": "HB 3365",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 3365, which requires Oregon schools to teach about climate change in six subjects. The Oregon House agreed to the Senate's changes 32-21, and it became law.",
+      "nay_description": "Voted against House Bill 3365, which requires Oregon schools to teach about climate change in six subjects. The Oregon House agreed to the Senate's changes 32-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "32-21",
+        "old_sentences": 5,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1593104,
+      "measure_id": "HB 3194",
+      "vote_date": "2025-06-19",
+      "yea_description": "Voted for House Bill 3194, which strengthens the rules for farmworker housing camps and raises minimum damages. The Oregon House passed it 37-16, and it became law.",
+      "nay_description": "Voted against House Bill 3194, which strengthens the rules for farmworker housing camps and raises minimum damages. The Oregon House passed it 37-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-16",
+        "old_sentences": 4,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1593994,
+      "measure_id": "HB 3644",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 3644, which sets up a statewide shelter program run by the state housing department. The Oregon House passed it 33-11, and it became law.",
+      "nay_description": "Voted against House Bill 3644, which sets up a statewide shelter program run by the state housing department. The Oregon House passed it 33-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-11",
+        "old_sentences": 5,
+        "old_chars": 654
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1594164,
+      "measure_id": "HB 3148",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 3148, which adds up to $100 toward a computer to the Oregon Lifeline phone and internet help. The Oregon House passed it 37-14, and it became law.",
+      "nay_description": "Voted against House Bill 3148, which adds up to $100 toward a computer to the Oregon Lifeline phone and internet help. The Oregon House passed it 37-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-14",
+        "old_sentences": 5,
+        "old_chars": 520
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1594190,
+      "measure_id": "HB 3792",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 3792, which doubles the fund that helps low-income households pay power bills to at least $40 million a year. The Oregon House passed it 38-13, and it became law.",
+      "nay_description": "Voted against House Bill 3792, which doubles the fund that helps low-income households pay power bills to at least $40 million a year. The Oregon House passed it 38-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "38-13",
+        "old_sentences": 5,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1594348,
+      "measure_id": "HB 3410",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 3410, which closes gaps in the law that stops outside investors running medical practices. The Oregon House agreed to the Senate's changes 38-13, and it became law.",
+      "nay_description": "Voted against House Bill 3410, which closes gaps in the law that stops outside investors running medical practices. The Oregon House agreed to the Senate's changes 38-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "38-13",
+        "old_sentences": 5,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1594358,
+      "measure_id": "SB 822",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for Senate Bill 822, which tightens the test for whether a health insurer has enough doctors in its network. The Oregon House passed it 31-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 822, which tightens the test for whether a health insurer has enough doctors in its network. The Oregon House passed it 31-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-14",
+        "old_sentences": 7,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595256,
+      "measure_id": "SB 243",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 243, which bans bump stocks and other devices that make a gun fire faster. The Oregon House passed it 33-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 243, which bans bump stocks and other devices that make a gun fire faster. The Oregon House passed it 33-10, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-10",
+        "old_sentences": 7,
+        "old_chars": 801
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595456,
+      "measure_id": "HB 2688",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 2688, which extends Oregon's prevailing wage to custom work built off-site for public works projects. The Oregon House passed it 31-22, and it became law.",
+      "nay_description": "Voted against House Bill 2688, which extends Oregon's prevailing wage to custom work built off-site for public works projects. The Oregon House passed it 31-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-22",
+        "old_sentences": 4,
+        "old_chars": 481
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595462,
+      "measure_id": "SB 537",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 537, which widens Oregon's rules on violence against health care workers to more employers. The Oregon House passed it 37-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 537, which widens Oregon's rules on violence against health care workers to more employers. The Oregon House passed it 37-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "37-12",
+        "old_sentences": 7,
+        "old_chars": 614
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595533,
+      "measure_id": "HB 3069",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 3069, which pulls county public safety grants into one program run by the Criminal Justice Commission. The Oregon House agreed to the Senate's changes 32-11, and it became law.",
+      "nay_description": "Voted against House Bill 3069, which pulls county public safety grants into one program run by the Criminal Justice Commission. The Oregon House agreed to the Senate's changes 32-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "32-11",
+        "old_sentences": 5,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595608,
+      "measure_id": "SB 1168",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 1168, which bars paying home health and home hospice staff by the visit instead of by the hour. The Oregon House passed it 38-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1168, which bars paying home health and home hospice staff by the visit instead of by the hour. The Oregon House passed it 38-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "38-12",
+        "old_sentences": 5,
+        "old_chars": 490
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595617,
+      "measure_id": "HB 3865",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 3865, which extends telemarketing rules to text messages and bars sales pitches before 8 a.m. or after 8 p.m.. The Oregon House agreed to the Senate's changes 33-9, and it became law.",
+      "nay_description": "Voted against House Bill 3865, which extends telemarketing rules to text messages and bars sales pitches before 8 a.m. or after 8 p.m.. The Oregon House agreed to the Senate's changes 33-9, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "33-9",
+        "old_sentences": 5,
+        "old_chars": 603
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595626,
+      "measure_id": "SB 476",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 476, which helps people trained abroad get licensed to work in Oregon, including a starter license for doctors. The Oregon House passed it 33-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 476, which helps people trained abroad get licensed to work in Oregon, including a starter license for doctors. The Oregon House passed it 33-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-11",
+        "old_sentences": 6,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595649,
+      "measure_id": "HB 2138",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 2138, which makes larger cities allow duplexes, fourplexes and cottage clusters on any residential lot. The Oregon House agreed to the Senate's changes 31-12, and it became law.",
+      "nay_description": "Voted against House Bill 2138, which makes larger cities allow duplexes, fourplexes and cottage clusters on any residential lot. The Oregon House agreed to the Senate's changes 31-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "31-12",
+        "old_sentences": 8,
+        "old_chars": 1047
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595898,
+      "measure_id": "SB 1154",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for Senate Bill 1154, which adds an early warning step to how Oregon deals with polluted ground water. The Oregon House passed it 39-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1154, which adds an early warning step to how Oregon deals with polluted ground water. The Oregon House passed it 39-11, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-11",
+        "old_sentences": 6,
+        "old_chars": 646
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595907,
+      "measure_id": "HB 3525",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for House Bill 3525, which makes landlords test the drinking water yearly at rentals on small private wells in ground water management areas. The Oregon House agreed to the Senate's changes 36-14, and it became law.",
+      "nay_description": "Voted against House Bill 3525, which makes landlords test the drinking water yearly at rentals on small private wells in ground water management areas. The Oregon House agreed to the Senate's changes 36-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "36-14",
+        "old_sentences": 7,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595933,
+      "measure_id": "SB 1173",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for Senate Bill 1173, which shields hospitals and clinics from product liability claims over items they hand a patient. The Oregon House passed it 39-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1173, which shields hospitals and clinics from product liability claims over items they hand a patient. The Oregon House passed it 39-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-12",
+        "old_sentences": 5,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2191",
+      "roll": 1595935,
+      "measure_id": "SB 824",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for Senate Bill 824, which makes health insurers report how they treat mental health claims next to medical ones. The Oregon House passed it 38-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 824, which makes health insurers report how they treat mental health claims next to medical ones. The Oregon House passed it 38-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "38-13",
+        "old_sentences": 4,
+        "old_chars": 494
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1627973,
+      "measure_id": "HB 4013",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted for House Bill 4013, which stops state limits on child working hours being looser than the federal ones as of 2026. The Oregon House passed it 36-22, and it became law.",
+      "nay_description": "Voted against House Bill 4013, which stops state limits on child working hours being looser than the federal ones as of 2026. The Oregon House passed it 36-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-22",
+        "old_sentences": 6,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1632386,
+      "measure_id": "HB 4031",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for House Bill 4031, which lets some renewable power projects with local approval skip the state siting certificate. The Oregon House passed it 43-13, and it became law.",
+      "nay_description": "Voted against House Bill 4031, which lets some renewable power projects with local approval skip the state siting certificate. The Oregon House passed it 43-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "43-13",
+        "old_sentences": 7,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1634476,
+      "measure_id": "HB 4088",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted for House Bill 4088, which shields reproductive and gender-affirming health care that is legal in Oregon. The Oregon House passed it 34-22, and it became law.",
+      "nay_description": "Voted against House Bill 4088, which shields reproductive and gender-affirming health care that is legal in Oregon. The Oregon House passed it 34-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-22",
+        "old_sentences": 8,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1635482,
+      "measure_id": "HB 4079",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for House Bill 4079, which makes schools tell families when federal immigration officers have come onto school grounds. The Oregon House passed it 35-22, and it became law.",
+      "nay_description": "Voted against House Bill 4079, which makes schools tell families when federal immigration officers have come onto school grounds. The Oregon House passed it 35-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-22",
+        "old_sentences": 9,
+        "old_chars": 771
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1635782,
+      "measure_id": "HB 4069",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for House Bill 4069, which makes mental health and addiction treatment employers write a safety plan for lone workers. The Oregon House passed it 36-13, and it became law.",
+      "nay_description": "Voted against House Bill 4069, which makes mental health and addiction treatment employers write a safety plan for lone workers. The Oregon House passed it 36-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-13",
+        "old_sentences": 10,
+        "old_chars": 720
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1635842,
+      "measure_id": "HB 4116",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for House Bill 4116, which pulls Oregon out of a federal rule that let lenders charge rates Oregon does not allow. The Oregon House passed it 31-24, and it became law.",
+      "nay_description": "Voted against House Bill 4116, which pulls Oregon out of a federal rule that let lenders charge rates Oregon does not allow. The Oregon House passed it 31-24, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "31-24",
+        "old_sentences": 8,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1639289,
+      "measure_id": "HB 4111",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for House Bill 4111, which keeps a person's immigration status out of most civil lawsuits in Oregon. The Oregon House passed it 34-19, and it became law.",
+      "nay_description": "Voted against House Bill 4111, which keeps a person's immigration status out of most civil lawsuits in Oregon. The Oregon House passed it 34-19, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-19",
+        "old_sentences": 9,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1642734,
+      "measure_id": "HB 4134",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 4134, which raises the state lodging tax from 1.5 to 2.75 percent and sends the extra money to wildlife. The Oregon House passed it 36-22, and it became law.",
+      "nay_description": "Voted against House Bill 4134, which raises the state lodging tax from 1.5 to 2.75 percent and sends the extra money to wildlife. The Oregon House passed it 36-22, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-22",
+        "old_sentences": 8,
+        "old_chars": 665
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1645204,
+      "measure_id": "SB 1512",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate Bill 1512, which reshapes the Prosperity 10,000 job program as grants to local workforce boards. The Oregon House passed it 36-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 1512, which reshapes the Prosperity 10,000 job program as grants to local workforce boards. The Oregon House passed it 36-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-16",
+        "old_sentences": 8,
+        "old_chars": 678
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1645381,
+      "measure_id": "SB 1507",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate Bill 1507, which makes Oregon tax income that new federal breaks had freed and pays some back to low-paid workers. The Oregon House passed it 34-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 1507, which makes Oregon tax income that new federal breaks had freed and pays some back to low-paid workers. The Oregon House passed it 34-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-21",
+        "old_sentences": 7,
+        "old_chars": 656
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1646425,
+      "measure_id": "SB 1538",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for Senate Bill 1538, which bars Oregon schools from treating students worse over their immigration or citizenship status. The Oregon House passed it 36-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 1538, which bars Oregon schools from treating students worse over their immigration or citizenship status. The Oregon House passed it 36-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "36-21",
+        "old_sentences": 9,
+        "old_chars": 700
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1647982,
+      "measure_id": "HB 4089",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for House Bill 4089, which sharpens the theft of services crime against employers who take work and do not pay for it. The Oregon House passed it 33-9, and it became law.",
+      "nay_description": "Voted against House Bill 4089, which sharpens the theft of services crime against employers who take work and do not pay for it. The Oregon House passed it 33-9, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-9",
+        "old_sentences": 7,
+        "old_chars": 699
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1649539,
+      "measure_id": "SB 1576",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1576, which lets the state set stricter accessibility standards than federal law for housing. The Oregon House passed it 34-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1576, which lets the state set stricter accessibility standards than federal law for housing. The Oregon House passed it 34-10, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-10",
+        "old_sentences": 7,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1649574,
+      "measure_id": "SB 1587",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1587, which stops government bodies handing personal data to data brokers for immigration enforcement. The Oregon House passed it 33-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 1587, which stops government bodies handing personal data to data brokers for immigration enforcement. The Oregon House passed it 33-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-14",
+        "old_sentences": 9,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1649883,
+      "measure_id": "SB 1570",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1570, which makes hospitals write a plan for responding when police arrive. The Oregon House passed it 34-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 1570, which makes hospitals write a plan for responding when police arrive. The Oregon House passed it 34-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-14",
+        "old_sentences": 10,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1649903,
+      "measure_id": "SB 1590",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1590, which bars Oregon governments from helping sell off federal public land. The Oregon House passed it 35-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1590, which bars Oregon governments from helping sell off federal public land. The Oregon House passed it 35-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-12",
+        "old_sentences": 10,
+        "old_chars": 665
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1649905,
+      "measure_id": "SB 1594",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for Senate Bill 1594, which makes the state write its immigration request rules with immigrant families in mind. The Oregon House passed it 33-14, and it became law.",
+      "nay_description": "Voted against Senate Bill 1594, which makes the state write its immigration request rules with immigrant families in mind. The Oregon House passed it 33-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "33-14",
+        "old_sentences": 10,
+        "old_chars": 682
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1651028,
+      "measure_id": "SB 1598",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for Senate Bill 1598, which makes health plans cover more preventive care at no charge, using the June 2025 federal list. The Oregon House passed it 39-18, and it became law.",
+      "nay_description": "Voted against Senate Bill 1598, which makes health plans cover more preventive care at no charge, using the June 2025 federal list. The Oregon House passed it 39-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-18",
+        "old_sentences": 8,
+        "old_chars": 713
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1652384,
+      "measure_id": "HB 4016",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4016, which makes big state contractors certify they have paid their taxes before signing a contract. The Oregon House passed it 35-21, and it became law.",
+      "nay_description": "Voted against House Bill 4016, which makes big state contractors certify they have paid their taxes before signing a contract. The Oregon House passed it 35-21, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "35-21",
+        "old_sentences": 8,
+        "old_chars": 668
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1652571,
+      "measure_id": "HB 4036",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4036, which sets up a bond-funded state fund to hold on to low-cost housing at risk of being lost. The Oregon House passed it 44-12, and it became law.",
+      "nay_description": "Voted against House Bill 4036, which sets up a bond-funded state fund to hold on to low-cost housing at risk of being lost. The Oregon House passed it 44-12, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "44-12",
+        "old_sentences": 8,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1652703,
+      "measure_id": "HB 4127",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4127, which keeps state money going to reproductive health clinics that federal law cut off from Medicaid. The Oregon House passed it 34-20, and it became law.",
+      "nay_description": "Voted against House Bill 4127, which keeps state money going to reproductive health clinics that federal law cut off from Medicaid. The Oregon House passed it 34-20, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "34-20",
+        "old_sentences": 8,
+        "old_chars": 677
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1652848,
+      "measure_id": "HB 4076",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4076, which makes it easier to add power generation at a site already hooked up to the grid. The Oregon House agreed to the Senate's changes 41-13, and it became law.",
+      "nay_description": "Voted against House Bill 4076, which makes it easier to add power generation at a site already hooked up to the grid. The Oregon House agreed to the Senate's changes 41-13, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "41-13",
+        "old_sentences": 8,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1652973,
+      "measure_id": "HB 4153",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4153, which allows farm stores and paid visitor attractions on land zoned for farming. The Oregon House passed it 40-14, and it became law.",
+      "nay_description": "Voted against House Bill 4153, which allows farm stores and paid visitor attractions on land zoned for farming. The Oregon House passed it 40-14, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-14",
+        "old_sentences": 8,
+        "old_chars": 726
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1653050,
+      "measure_id": "HB 4128",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4128, which makes the biggest housing investors wait 90 days before buying a listed single-family home. The Oregon House agreed to the Senate's changes 38-18, and it became law.",
+      "nay_description": "Voted against House Bill 4128, which makes the biggest housing investors wait 90 days before buying a listed single-family home. The Oregon House agreed to the Senate's changes 38-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "38-18",
+        "old_sentences": 10,
+        "old_chars": 911
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1654731,
+      "measure_id": "HB 4018",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4018, which puts off Oregon's new campaign money disclosure rules by three years, to 2031. The Oregon House passed it 39-19, and it became law.",
+      "nay_description": "Voted against House Bill 4018, which puts off Oregon's new campaign money disclosure rules by three years, to 2031. The Oregon House passed it 39-19, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "39-19",
+        "old_sentences": 8,
+        "old_chars": 739
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1654867,
+      "measure_id": "SB 1515",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate Bill 1515, which makes it easier for a wrongly convicted person to be paid for the years taken from them. The Oregon House passed it 40-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 1515, which makes it easier for a wrongly convicted person to be paid for the years taken from them. The Oregon House passed it 40-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "40-16",
+        "old_sentences": 7,
+        "old_chars": 699
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1655393,
+      "measure_id": "HB 4075",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4075, which makes the State Treasurer guarantee a loan to keep a rural hospital afloat by April 2027. The Oregon House passed it 42-15, and it became law.",
+      "nay_description": "Voted against House Bill 4075, which makes the State Treasurer guarantee a loan to keep a rural hospital afloat by April 2027. The Oregon House passed it 42-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading",
+        "tally": "42-15",
+        "old_sentences": 8,
+        "old_chars": 683
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1656408,
+      "measure_id": "HB 4138",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4138, which requires officers on enforcement duty to wear a uniform showing their name or number and agency. The Oregon House agreed to the Senate's changes 34-18, and it became law.",
+      "nay_description": "Voted against House Bill 4138, which requires officers on enforcement duty to wear a uniform showing their name or number and agency. The Oregon House agreed to the Senate's changes 34-18, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "34-18",
+        "old_sentences": 11,
+        "old_chars": 834
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1656432,
+      "measure_id": "HB 4159",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4159, which changes who sits on Oregon's ethics board and keeps legal privilege for messages to it. The Oregon House agreed to the Senate's changes 37-15, and it became law.",
+      "nay_description": "Voted against House Bill 4159, which changes who sits on Oregon's ethics board and keeps legal privilege for messages to it. The Oregon House agreed to the Senate's changes 37-15, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "37-15",
+        "old_sentences": 7,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "house",
+      "session": "2252",
+      "roll": 1656433,
+      "measure_id": "HB 4179",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4179, which extends the state's legal shield to doctors at nonprofits set up by Oregon Health and Science University. The Oregon House agreed to the Senate's changes 36-16, and it became law.",
+      "nay_description": "Voted against House Bill 4179, which extends the state's legal shield to doctors at nonprofits set up by Oregon Health and Science University. The Oregon House agreed to the Senate's changes 36-16, and it became law.",
+      "_current": {
+        "question": "House Third Reading in Concurrence",
+        "tally": "36-16",
+        "old_sentences": 7,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1501258,
+      "measure_id": "SB 827",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 827, which widens the solar rebate to cover a home battery added to panels installed earlier. The Oregon Senate passed it 21-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 827, which widens the solar rebate to cover a home battery added to panels installed earlier. The Oregon Senate passed it 21-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-7",
+        "old_sentences": 6,
+        "old_chars": 500
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1524701,
+      "measure_id": "SB 599",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for Senate Bill 599, which bars landlords from asking about the immigration or citizenship status of tenants or applicants. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 599, which bars landlords from asking about the immigration or citizenship status of tenants or applicants. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 7,
+        "old_chars": 702
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1530994,
+      "measure_id": "SB 1098",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 1098, which stops schools rejecting library books because of who wrote them or whose story they tell. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1098, which stops schools rejecting library books because of who wrote them or whose story they tell. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 6,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1539698,
+      "measure_id": "SB 951",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for Senate Bill 951, which stops outside investors from running medical practices through a management company. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 951, which stops outside investors from running medical practices through a management company. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 7,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1555828,
+      "measure_id": "SB 1032",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for Senate Bill 1032, which bars stores from selling aerosol dusters containing the gas DFE to anyone under 18. The Oregon Senate passed it 22-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 1032, which bars stores from selling aerosol dusters containing the gas DFE to anyone under 18. The Oregon Senate passed it 22-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-6",
+        "old_sentences": 5,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1560449,
+      "measure_id": "HB 3233",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 3233, which pushes Oregon to plan passenger rail with Washington and British Columbia and report on it. The Oregon Senate passed it 16-12, and it became law.",
+      "nay_description": "Voted against House Bill 3233, which pushes Oregon to plan passenger rail with Washington and British Columbia and report on it. The Oregon Senate passed it 16-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-12",
+        "old_sentences": 5,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1570360,
+      "measure_id": "HB 3187",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 3187, which bars employers from asking an applicant's age or graduation dates before the first interview. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 3187, which bars employers from asking an applicant's age or graduation dates before the first interview. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 5,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1570876,
+      "measure_id": "HB 3863",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 3863, which opens standard utility power purchase terms to larger small solar, wind and hydro projects. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 3863, which opens standard utility power purchase terms to larger small solar, wind and hydro projects. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 5,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1573092,
+      "measure_id": "HB 2530",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for House Bill 2530, which helps schools run cameras that catch drivers passing a stopped school bus. The Oregon Senate passed it 22-7, and it became law.",
+      "nay_description": "Voted against House Bill 2530, which helps schools run cameras that catch drivers passing a stopped school bus. The Oregon Senate passed it 22-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-7",
+        "old_sentences": 5,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1573101,
+      "measure_id": "HB 2586",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for House Bill 2586, which lets people seeking asylum pay in-state tuition at Oregon's public universities. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 2586, which lets people seeking asylum pay in-state tuition at Oregon's public universities. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 6,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1575042,
+      "measure_id": "HB 2944",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for House Bill 2944, which sets required fines for public employers that keep breaking the rules on union dues. The Oregon Senate passed it 16-11, and it became law.",
+      "nay_description": "Voted against House Bill 2944, which sets required fines for public employers that keep breaking the rules on union dues. The Oregon Senate passed it 16-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-11",
+        "old_sentences": 4,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1576144,
+      "measure_id": "HB 2931",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 2931, which updates the law for replacing the Interstate 5 bridge between Oregon and Washington. The Oregon Senate passed it 17-12, and it became law.",
+      "nay_description": "Voted against House Bill 2931, which updates the law for replacing the Interstate 5 bridge between Oregon and Washington. The Oregon Senate passed it 17-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-12",
+        "old_sentences": 6,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1578792,
+      "measure_id": "HB 3144",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for House Bill 3144, which voids new deed and homeowner group rules that block manufactured homes on a house lot. The Oregon Senate passed it 21-9, and it became law.",
+      "nay_description": "Voted against House Bill 3144, which voids new deed and homeowner group rules that block manufactured homes on a house lot. The Oregon Senate passed it 21-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-9",
+        "old_sentences": 5,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1579005,
+      "measure_id": "SB 551",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 551, which closes the loophole that let stores hand out thick plastic bags at the register from 2027. The Oregon Senate agreed to the House's changes 22-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 551, which closes the loophole that let stores hand out thick plastic bags at the register from 2027. The Oregon Senate agreed to the House's changes 22-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "22-8",
+        "old_sentences": 7,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1580317,
+      "measure_id": "HB 2385",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for House Bill 2385, which stops drug makers blocking the discount drug program for clinics serving low-income patients. The Oregon Senate passed it 17-13, and it became law.",
+      "nay_description": "Voted against House Bill 2385, which stops drug makers blocking the discount drug program for clinics serving low-income patients. The Oregon Senate passed it 17-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-13",
+        "old_sentences": 6,
+        "old_chars": 647
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1581241,
+      "measure_id": "SB 426",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Senate Bill 426, which makes the main contractor on a building job answer for wages a subcontractor fails to pay. The Oregon Senate agreed to the House's changes 17-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 426, which makes the main contractor on a building job answer for wages a subcontractor fails to pay. The Oregon Senate agreed to the House's changes 17-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "17-12",
+        "old_sentences": 6,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1583613,
+      "measure_id": "HB 3646",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for House Bill 3646, which lets state and local agencies favor employee-owned firms when buying goods or services. The Oregon Senate passed it 19-10, and it became law.",
+      "nay_description": "Voted against House Bill 3646, which lets state and local agencies favor employee-owned firms when buying goods or services. The Oregon Senate passed it 19-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-10",
+        "old_sentences": 5,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1583987,
+      "measure_id": "SB 430",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted for Senate Bill 430, which requires online sellers to show the full price up front, including every fee. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 430, which requires online sellers to show the full price up front, including every fee. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-11",
+        "old_sentences": 7,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1584043,
+      "measure_id": "HB 3546",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted for House Bill 3546, which puts data centers and other very large power users in a rate class of their own. The Oregon Senate passed it 18-12, and it became law.",
+      "nay_description": "Voted against House Bill 3546, which puts data centers and other very large power users in a rate class of their own. The Oregon Senate passed it 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-12",
+        "old_sentences": 6,
+        "old_chars": 620
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1584598,
+      "measure_id": "SB 726",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted for Senate Bill 726, which makes the Benton County landfill find and plug methane leaks. The Oregon Senate agreed to the House's changes 18-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 726, which makes the Benton County landfill find and plug methane leaks. The Oregon Senate agreed to the House's changes 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-12",
+        "old_sentences": 6,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1585461,
+      "measure_id": "SB 141",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted for Senate Bill 141, which sets statewide targets and a common yardstick for how Oregon school districts are doing. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 141, which sets statewide targets and a common yardstick for how Oregon school districts are doing. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 5,
+        "old_chars": 583
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1586668,
+      "measure_id": "SB 605",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for Senate Bill 605, which bars medical debt from credit reports and from being reported to credit bureaus. The Oregon Senate agreed to the House's changes 18-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 605, which bars medical debt from credit reports and from being reported to credit bureaus. The Oregon Senate agreed to the House's changes 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-12",
+        "old_sentences": 6,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1586792,
+      "measure_id": "HB 3409",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for House Bill 3409, which limits when a drug plan may force a low-income clinic to tag discount drug claims. The Oregon Senate passed it 18-12, and it became law.",
+      "nay_description": "Voted against House Bill 3409, which limits when a drug plan may force a low-income clinic to tag discount drug claims. The Oregon Senate passed it 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-12",
+        "old_sentences": 7,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1587494,
+      "measure_id": "HB 2563",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for House Bill 2563, which gives home insurance customers the right to a plain written explanation of why their premium rose. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 2563, which gives home insurance customers the right to a plain written explanation of why their premium rose. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 7,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1588995,
+      "measure_id": "HB 2957",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for House Bill 2957, which bars employers from making workers agree to shorter deadlines for labor law claims. The Oregon Senate passed it 16-6, and it became law.",
+      "nay_description": "Voted against House Bill 2957, which bars employers from making workers agree to shorter deadlines for labor law claims. The Oregon Senate passed it 16-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-6",
+        "old_sentences": 6,
+        "old_chars": 705
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1589489,
+      "measure_id": "HB 3025",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 3025, which changes how Oregon sets the size of its main college grant for students with financial need. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 3025, which changes how Oregon sets the size of its main college grant for students with financial need. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 5,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1589518,
+      "measure_id": "HB 3521",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 3521, which stops landlords keeping a holding deposit when the applicant walks away over serious defects. The Oregon Senate passed it 20-8, and it became law.",
+      "nay_description": "Voted against House Bill 3521, which stops landlords keeping a holding deposit when the applicant walks away over serious defects. The Oregon Senate passed it 20-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-8",
+        "old_sentences": 6,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1589550,
+      "measure_id": "HB 3024",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 3024, which ends the extra penalty that cut a year's total jobless pay for workers fired for misconduct. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 3024, which ends the extra penalty that cut a year's total jobless pay for workers fired for misconduct. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 6,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1589737,
+      "measure_id": "HB 3365",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 3365, which requires Oregon schools to teach about climate change in six subjects. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 3365, which requires Oregon schools to teach about climate change in six subjects. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 5,
+        "old_chars": 508
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1589837,
+      "measure_id": "HB 3054",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 3054, which caps yearly rent increases at six percent in larger manufactured home parks and floating home marinas. The Oregon Senate passed it 17-10, and it became law.",
+      "nay_description": "Voted against House Bill 3054, which caps yearly rent increases at six percent in larger manufactured home parks and floating home marinas. The Oregon Senate passed it 17-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-10",
+        "old_sentences": 7,
+        "old_chars": 836
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1590862,
+      "measure_id": "SB 916",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for Senate Bill 916, which lets locked-out workers draw unemployment pay at once and striking workers after one week. The Oregon Senate passed it again 16-12 under the conference committee report, and it became law.",
+      "nay_description": "Voted against Senate Bill 916, which lets locked-out workers draw unemployment pay at once and striking workers after one week. The Oregon Senate passed it again 16-12 under the conference committee report, and it became law.",
+      "_current": {
+        "question": "Senate Repassed",
+        "tally": "16-12",
+        "old_sentences": 5,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1591085,
+      "measure_id": "SB 822",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for Senate Bill 822, which tightens the test for whether a health insurer has enough doctors in its network. The Oregon Senate passed it 17-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 822, which tightens the test for whether a health insurer has enough doctors in its network. The Oregon Senate passed it 17-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-10",
+        "old_sentences": 7,
+        "old_chars": 668
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1591137,
+      "measure_id": "HB 2081",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for House Bill 2081, which makes the state treat climate change as a risk to the public employee pension fund. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 2081, which makes the state treat climate change as a risk to the public employee pension fund. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 6,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1591248,
+      "measure_id": "HB 3932",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted for House Bill 3932, which bars hunting or trapping beavers for sport in and beside Oregon's most polluted public waters. The Oregon Senate passed it 17-11, and it became law.",
+      "nay_description": "Voted against House Bill 3932, which bars hunting or trapping beavers for sport in and beside Oregon's most polluted public waters. The Oregon Senate passed it 17-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-11",
+        "old_sentences": 6,
+        "old_chars": 639
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1591482,
+      "measure_id": "SB 1154",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for Senate Bill 1154, which adds an early warning step to how Oregon deals with polluted ground water. The Oregon Senate passed it 18-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1154, which adds an early warning step to how Oregon deals with polluted ground water. The Oregon Senate passed it 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-12",
+        "old_sentences": 6,
+        "old_chars": 647
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1591734,
+      "measure_id": "HB 3912",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 3912, which makes anyone calling themselves a doctor in health work say what field their doctorate is in. The Oregon Senate passed it 22-7, and it became law.",
+      "nay_description": "Voted against House Bill 3912, which makes anyone calling themselves a doctor in health work say what field their doctorate is in. The Oregon Senate passed it 22-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-7",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1593041,
+      "measure_id": "HB 2677",
+      "vote_date": "2025-06-19",
+      "yea_description": "Voted for House Bill 2677, which makes county juvenile departments apply to clear old juvenile records themselves. The Oregon Senate passed it 17-12, and it became law.",
+      "nay_description": "Voted against House Bill 2677, which makes county juvenile departments apply to clear old juvenile records themselves. The Oregon Senate passed it 17-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 518
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1593890,
+      "measure_id": "SB 1168",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for Senate Bill 1168, which bars paying home health and home hospice staff by the visit instead of by the hour. The Oregon Senate passed it 18-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 1168, which bars paying home health and home hospice staff by the visit instead of by the hour. The Oregon Senate passed it 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-12",
+        "old_sentences": 5,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1593964,
+      "measure_id": "SB 598",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for Senate Bill 598, which makes drug plans cover at least one non-opioid pain drug for each opioid they cover. The Oregon Senate passed it 23-6, and it became law.",
+      "nay_description": "Voted against Senate Bill 598, which makes drug plans cover at least one non-opioid pain drug for each opioid they cover. The Oregon Senate passed it 23-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-6",
+        "old_sentences": 5,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1593990,
+      "measure_id": "SB 537",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for Senate Bill 537, which widens Oregon's rules on violence against health care workers to more employers. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 537, which widens Oregon's rules on violence against health care workers to more employers. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 7,
+        "old_chars": 615
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1594152,
+      "measure_id": "HB 2138",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 2138, which makes larger cities allow duplexes, fourplexes and cottage clusters on any residential lot. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 2138, which makes larger cities allow duplexes, fourplexes and cottage clusters on any residential lot. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 8,
+        "old_chars": 1026
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1594228,
+      "measure_id": "HB 3069",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 3069, which pulls county public safety grants into one program run by the Criminal Justice Commission. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 3069, which pulls county public safety grants into one program run by the Criminal Justice Commission. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 5,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1594492,
+      "measure_id": "HB 3179",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for House Bill 3179, which makes utility regulators weigh what a rate rise does to household bills already piled up. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 3179, which makes utility regulators weigh what a rate rise does to household bills already piled up. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 6,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595035,
+      "measure_id": "HB 3865",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for House Bill 3865, which extends telemarketing rules to text messages and bars sales pitches before 8 a.m. or after 8 p.m.. The Oregon Senate passed it 19-9, and it became law.",
+      "nay_description": "Voted against House Bill 3865, which extends telemarketing rules to text messages and bars sales pitches before 8 a.m. or after 8 p.m.. The Oregon Senate passed it 19-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-9",
+        "old_sentences": 5,
+        "old_chars": 583
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595282,
+      "measure_id": "HB 3194",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for House Bill 3194, which strengthens the rules for farmworker housing camps and raises minimum damages. The Oregon Senate passed it 17-10, and it became law.",
+      "nay_description": "Voted against House Bill 3194, which strengthens the rules for farmworker housing camps and raises minimum damages. The Oregon Senate passed it 17-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-10",
+        "old_sentences": 4,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595480,
+      "measure_id": "HB 3644",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 3644, which sets up a statewide shelter program run by the state housing department. The Oregon Senate passed it 19-10, and it became law.",
+      "nay_description": "Voted against House Bill 3644, which sets up a statewide shelter program run by the state housing department. The Oregon Senate passed it 19-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-10",
+        "old_sentences": 5,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595500,
+      "measure_id": "HB 3792",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 3792, which doubles the fund that helps low-income households pay power bills to at least $40 million a year. The Oregon Senate passed it 22-7, and it became law.",
+      "nay_description": "Voted against House Bill 3792, which doubles the fund that helps low-income households pay power bills to at least $40 million a year. The Oregon Senate passed it 22-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-7",
+        "old_sentences": 5,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595528,
+      "measure_id": "HB 3525",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 3525, which makes landlords test the drinking water yearly at rentals on small private wells in ground water management areas. The Oregon Senate passed it 23-6, and it became law.",
+      "nay_description": "Voted against House Bill 3525, which makes landlords test the drinking water yearly at rentals on small private wells in ground water management areas. The Oregon Senate passed it 23-6, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-6",
+        "old_sentences": 7,
+        "old_chars": 698
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595559,
+      "measure_id": "SB 824",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 824, which makes health insurers report how they treat mental health claims next to medical ones. The Oregon Senate passed it 19-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 824, which makes health insurers report how they treat mental health claims next to medical ones. The Oregon Senate passed it 19-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-10",
+        "old_sentences": 4,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595872,
+      "measure_id": "SB 243",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for Senate Bill 243, which bans bump stocks and other devices that make a gun fire faster. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 243, which bans bump stocks and other devices that make a gun fire faster. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-11",
+        "old_sentences": 7,
+        "old_chars": 822
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595879,
+      "measure_id": "HB 2688",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for House Bill 2688, which extends Oregon's prevailing wage to custom work built off-site for public works projects. The Oregon Senate passed it 16-13, and it became law.",
+      "nay_description": "Voted against House Bill 2688, which extends Oregon's prevailing wage to custom work built off-site for public works projects. The Oregon Senate passed it 16-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-13",
+        "old_sentences": 4,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2191",
+      "roll": 1595884,
+      "measure_id": "SB 476",
+      "vote_date": "2025-06-27",
+      "yea_description": "Voted for Senate Bill 476, which helps people trained abroad get licensed to work in Oregon, including a starter license for doctors. The Oregon Senate agreed to the House's changes 19-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 476, which helps people trained abroad get licensed to work in Oregon, including a starter license for doctors. The Oregon Senate agreed to the House's changes 19-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "19-10",
+        "old_sentences": 6,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1634601,
+      "measure_id": "SB 1507",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted for Senate Bill 1507, which makes Oregon tax income that new federal breaks had freed and pays some back to low-paid workers. The Oregon Senate passed it 17-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 1507, which makes Oregon tax income that new federal breaks had freed and pays some back to low-paid workers. The Oregon Senate passed it 17-13, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-13",
+        "old_sentences": 7,
+        "old_chars": 657
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1635096,
+      "measure_id": "SB 1538",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Senate Bill 1538, which bars Oregon schools from treating students worse over their immigration or citizenship status. The Oregon Senate passed it 23-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 1538, which bars Oregon schools from treating students worse over their immigration or citizenship status. The Oregon Senate passed it 23-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "23-7",
+        "old_sentences": 9,
+        "old_chars": 700
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1635459,
+      "measure_id": "SB 1523",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Senate Bill 1523, which stops a landlord making an online portal the only way to apply for a home. The Oregon Senate passed it 22-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 1523, which stops a landlord making an online portal the only way to apply for a home. The Oregon Senate passed it 22-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-7",
+        "old_sentences": 7,
+        "old_chars": 680
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1638681,
+      "measure_id": "SB 1598",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 1598, which makes health plans cover more preventive care at no charge, using the June 2025 federal list. The Oregon Senate passed it 17-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1598, which makes health plans cover more preventive care at no charge, using the June 2025 federal list. The Oregon Senate passed it 17-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "17-11",
+        "old_sentences": 8,
+        "old_chars": 714
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1643436,
+      "measure_id": "SB 1575",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate Bill 1575, which pauses new hospice licenses in Oregon while the state writes tougher rules. The Oregon Senate passed it 19-8, and it became law.",
+      "nay_description": "Voted against Senate Bill 1575, which pauses new hospice licenses in Oregon while the state writes tougher rules. The Oregon Senate passed it 19-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "19-8",
+        "old_sentences": 12,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1644327,
+      "measure_id": "HB 4031",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 4031, which lets some renewable power projects with local approval skip the state siting certificate. The Oregon Senate passed it 20-8, and it became law.",
+      "nay_description": "Voted against House Bill 4031, which lets some renewable power projects with local approval skip the state siting certificate. The Oregon Senate passed it 20-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-8",
+        "old_sentences": 7,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1644355,
+      "measure_id": "HB 4013",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 4013, which stops state limits on child working hours being looser than the federal ones as of 2026. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against House Bill 4013, which stops state limits on child working hours being looser than the federal ones as of 2026. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 6,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1649817,
+      "measure_id": "HB 4079",
+      "vote_date": "2026-03-02",
+      "yea_description": "Voted for House Bill 4079, which makes schools tell families when federal immigration officers have come onto school grounds. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 4079, which makes schools tell families when federal immigration officers have come onto school grounds. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 9,
+        "old_chars": 772
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1651434,
+      "measure_id": "HB 4060",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House Bill 4060, which lets school districts and some others keep buying fluorescent lamps despite the mercury ban. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 4060, which lets school districts and some others keep buying fluorescent lamps despite the mercury ban. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 10,
+        "old_chars": 617
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1652570,
+      "measure_id": "SB 1570",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 1570, which makes hospitals write a plan for responding when police arrive. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1570, which makes hospitals write a plan for responding when police arrive. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-11",
+        "old_sentences": 10,
+        "old_chars": 692
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1652724,
+      "measure_id": "SB 1590",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 1590, which bars Oregon governments from helping sell off federal public land. The Oregon Senate agreed to the House's changes 19-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 1590, which bars Oregon governments from helping sell off federal public land. The Oregon Senate agreed to the House's changes 19-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "19-10",
+        "old_sentences": 10,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1652756,
+      "measure_id": "SB 1594",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 1594, which makes the state write its immigration request rules with immigrant families in mind. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1594, which makes the state write its immigration request rules with immigrant families in mind. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-11",
+        "old_sentences": 10,
+        "old_chars": 703
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1652969,
+      "measure_id": "HB 4115",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4115, which makes caregiver criminal records checks last three years instead of 18 months. The Oregon Senate passed it 22-8, and it became law.",
+      "nay_description": "Voted against House Bill 4115, which makes caregiver criminal records checks last three years instead of 18 months. The Oregon Senate passed it 22-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-8",
+        "old_sentences": 9,
+        "old_chars": 797
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1653141,
+      "measure_id": "SB 1587",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 1587, which stops government bodies handing personal data to data brokers for immigration enforcement. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 1587, which stops government bodies handing personal data to data brokers for immigration enforcement. The Oregon Senate agreed to the House's changes 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "18-11",
+        "old_sentences": 9,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1653215,
+      "measure_id": "HB 4134",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 4134, which raises the state lodging tax from 1.5 to 2.75 percent and sends the extra money to wildlife. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 4134, which raises the state lodging tax from 1.5 to 2.75 percent and sends the extra money to wildlife. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 8,
+        "old_chars": 665
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655021,
+      "measure_id": "SB 1568",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate Bill 1568, which widens what the Oregon Health Plan and private plans must cover around birth, including doulas. The Oregon Senate agreed to the House's changes 23-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 1568, which widens what the Oregon Health Plan and private plans must cover around birth, including doulas. The Oregon Senate agreed to the House's changes 23-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading in Concurrence",
+        "tally": "23-7",
+        "old_sentences": 8,
+        "old_chars": 708
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655033,
+      "measure_id": "HB 4088",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4088, which shields reproductive and gender-affirming health care that is legal in Oregon. The Oregon Senate passed it 18-12, and it became law.",
+      "nay_description": "Voted against House Bill 4088, which shields reproductive and gender-affirming health care that is legal in Oregon. The Oregon Senate passed it 18-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-12",
+        "old_sentences": 8,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655156,
+      "measure_id": "HB 4111",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4111, which keeps a person's immigration status out of most civil lawsuits in Oregon. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 4111, which keeps a person's immigration status out of most civil lawsuits in Oregon. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 9,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655384,
+      "measure_id": "HB 4142",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4142, Ryan's Law, which lets patients use medical marijuana in care facilities where they live. The Oregon Senate passed it 20-8, and it became law.",
+      "nay_description": "Voted against House Bill 4142, Ryan's Law, which lets patients use medical marijuana in care facilities where they live. The Oregon Senate passed it 20-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-8",
+        "old_sentences": 10,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655568,
+      "measure_id": "HB 4018",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4018, which puts off Oregon's new campaign money disclosure rules by three years, to 2031. The Oregon Senate passed it 20-9, and it became law.",
+      "nay_description": "Voted against House Bill 4018, which puts off Oregon's new campaign money disclosure rules by three years, to 2031. The Oregon Senate passed it 20-9, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-9",
+        "old_sentences": 8,
+        "old_chars": 739
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655626,
+      "measure_id": "HB 4138",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4138, which requires officers on enforcement duty to wear a uniform showing their name or number and agency. The Oregon Senate passed it 18-10, and it became law.",
+      "nay_description": "Voted against House Bill 4138, which requires officers on enforcement duty to wear a uniform showing their name or number and agency. The Oregon Senate passed it 18-10, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-10",
+        "old_sentences": 11,
+        "old_chars": 814
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655695,
+      "measure_id": "HB 4114",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4114, which lets people sue an official who enters their property without a warrant. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against House Bill 4114, which lets people sue an official who enters their property without a warrant. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 9,
+        "old_chars": 705
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1655714,
+      "measure_id": "HB 4144",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for House Bill 4144, which makes battery makers pay to collect and recycle what they sell in Oregon. The Oregon Senate passed it 20-8, and it became law.",
+      "nay_description": "Voted against House Bill 4144, which makes battery makers pay to collect and recycle what they sell in Oregon. The Oregon Senate passed it 20-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "20-8",
+        "old_sentences": 8,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1656025,
+      "measure_id": "HB 4036",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4036, which sets up a bond-funded state fund to hold on to low-cost housing at risk of being lost. The Oregon Senate passed it 22-7, and it became law.",
+      "nay_description": "Voted against House Bill 4036, which sets up a bond-funded state fund to hold on to low-cost housing at risk of being lost. The Oregon Senate passed it 22-7, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "22-7",
+        "old_sentences": 8,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1656067,
+      "measure_id": "HB 4016",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4016, which makes big state contractors certify they have paid their taxes before signing a contract. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against House Bill 4016, which makes big state contractors certify they have paid their taxes before signing a contract. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 8,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1656104,
+      "measure_id": "HB 4127",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4127, which keeps state money going to reproductive health clinics that federal law cut off from Medicaid. The Oregon Senate passed it 18-11, and it became law.",
+      "nay_description": "Voted against House Bill 4127, which keeps state money going to reproductive health clinics that federal law cut off from Medicaid. The Oregon Senate passed it 18-11, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "18-11",
+        "old_sentences": 8,
+        "old_chars": 678
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1656206,
+      "measure_id": "HB 4153",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4153, which allows farm stores and paid visitor attractions on land zoned for farming. The Oregon Senate passed it 21-8, and it became law.",
+      "nay_description": "Voted against House Bill 4153, which allows farm stores and paid visitor attractions on land zoned for farming. The Oregon Senate passed it 21-8, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "21-8",
+        "old_sentences": 8,
+        "old_chars": 726
+      }
+    },
+    {
+      "jurisdiction": "OR",
+      "chamber": "senate",
+      "session": "2252",
+      "roll": 1656533,
+      "measure_id": "HB 4075",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted for House Bill 4075, which makes the State Treasurer guarantee a loan to keep a rural hospital afloat by April 2027. The Oregon Senate passed it 16-12, and it became law.",
+      "nay_description": "Voted against House Bill 4075, which makes the State Treasurer guarantee a loan to keep a rural hospital afloat by April 2027. The Oregon Senate passed it 16-12, and it became law.",
+      "_current": {
+        "question": "Senate Third Reading",
+        "tally": "16-12",
+        "old_sentences": 8,
+        "old_chars": 684
+      }
+    }
+  ]
+}

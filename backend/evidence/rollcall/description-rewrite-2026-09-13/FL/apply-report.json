@@ -1,0 +1,116 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/FL/rewrites.json",
+  "dryRun": false,
+  "rolls": 15,
+  "updatedRolls": 15,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 505,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "FL:house:2135:1549690",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1550259",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1555216",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1555400",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1559666",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1561772",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1562037",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1562557",
+      "outcome": "updated",
+      "rewritten": 48,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:house:2135:1563815",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1535606",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1549853",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1557039",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1558940",
+      "outcome": "updated",
+      "rewritten": 7,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1560643",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "FL:senate:2135:1564585",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

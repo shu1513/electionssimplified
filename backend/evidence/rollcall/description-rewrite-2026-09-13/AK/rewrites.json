@@ -1,0 +1,484 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1546456,
+      "measure_id": "HB 69",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted for House Bill 69, a bill to raise the per-student school funding allocation from $5,960 to $6,960. The Alaska House accepted the Senate's changes 21-16, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against House Bill 69, a bill to raise the per-student school funding allocation from $5,960 to $6,960. The Alaska House accepted the Senate's changes 21-16, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "21-16",
+        "old_sentences": 7,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1562693,
+      "measure_id": "HB 57",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 57, which raises the per-student school funding allocation from $5,960 to $6,660. The Alaska House accepted the Senate's changes 31-8, the legislature overrode the governor's veto 46-14, and it became law.",
+      "nay_description": "Voted against House Bill 57, which raises the per-student school funding allocation from $5,960 to $6,660. The Alaska House accepted the Senate's changes 31-8, the legislature overrode the governor's veto 46-14, and it became law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "31-8",
+        "old_sentences": 9,
+        "old_chars": 1064
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1563282,
+      "measure_id": "HB 58",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 58, a bill to let the governor pick the head of the Office of Public Advocacy. The Alaska House passed it 27-12. The Alaska Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 58, a bill to let the governor pick the head of the Office of Public Advocacy. The Alaska House passed it 27-12. The Alaska Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "27-12",
+        "old_sentences": 11,
+        "old_chars": 726
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1567929,
+      "measure_id": "SB 113",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for Senate Bill 113, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska House passed it 26-14, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against Senate Bill 113, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska House passed it 26-14, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "26-14",
+        "old_sentences": 10,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1570725,
+      "measure_id": "HB 33",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 33, which changes the ethics rules for members of the Board of Fisheries and Board of Game. The Alaska House passed it 28-12, and it was signed into law.",
+      "nay_description": "Voted against House Bill 33, which changes the ethics rules for members of the Board of Fisheries and Board of Game. The Alaska House passed it 28-12, and it was signed into law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "28-12",
+        "old_sentences": 6,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1572959,
+      "measure_id": "SB 183",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for Senate Bill 183, which gives the Legislative Budget and Audit Committee more power to get records. The Alaska House passed it 30-10 on reconsideration. The governor vetoed the bill, the legislature overrode the veto 43-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 183, which gives the Legislative Budget and Audit Committee more power to get records. The Alaska House passed it 30-10 on reconsideration. The governor vetoed the bill, the legislature overrode the veto 43-16, and it became law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage Reconsideration",
+        "tally": "30-10",
+        "old_sentences": 9,
+        "old_chars": 786
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1574429,
+      "measure_id": "HB 35",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for House Bill 35, which lets prisoners keep an approved computer or tablet in their cell. The Alaska House accepted the Senate's changes 28-12, and the bill became law without the governor's signature.",
+      "nay_description": "Voted against House Bill 35, which lets prisoners keep an approved computer or tablet in their cell. The Alaska House accepted the Senate's changes 28-12, and the bill became law without the governor's signature.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "28-12",
+        "old_sentences": 8,
+        "old_chars": 905
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1645404,
+      "measure_id": "HB 48",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 48, which raises the ceiling on money for the civil legal services fund for low-income people. The Alaska House passed it 27-13, and the bill became law without the governor's signature.",
+      "nay_description": "Voted against House Bill 48, which raises the ceiling on money for the civil legal services fund for low-income people. The Alaska House passed it 27-13, and the bill became law without the governor's signature.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "27-13",
+        "old_sentences": 7,
+        "old_chars": 650
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1653447,
+      "measure_id": "HB 20",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for House Bill 20, a bill to stop businesses charging extra for a paper bill or notice. The Alaska House passed it 26-14. The Alaska Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 20, a bill to stop businesses charging extra for a paper bill or notice. The Alaska House passed it 26-14. The Alaska Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "26-14",
+        "old_sentences": 6,
+        "old_chars": 412
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1692486,
+      "measure_id": "HB 26",
+      "vote_date": "2026-05-01",
+      "yea_description": "Voted for House Bill 26, a bill to make the state write a transit plan for the whole of Alaska. The Alaska House accepted the Senate's changes 22-14. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 26, a bill to make the state write a transit plan for the whole of Alaska. The Alaska House accepted the Senate's changes 22-14. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "22-14",
+        "old_sentences": 8,
+        "old_chars": 575
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1699131,
+      "measure_id": "SB 41",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for Senate Bill 41, a bill to add mental health to the health lessons schools are urged to teach. The Alaska House passed it 27-13, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against Senate Bill 41, a bill to add mental health to the health lessons schools are urged to teach. The Alaska House passed it 27-13, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "27-13",
+        "old_sentences": 10,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1699348,
+      "measure_id": "HB 184",
+      "vote_date": "2026-05-16",
+      "yea_description": "Voted for House Bill 184, which lets the state development bank help pay for building workforce housing. The Alaska House accepted the Senate's changes 22-18, and the bill became law without the governor's signature.",
+      "nay_description": "Voted against House Bill 184, which lets the state development bank help pay for building workforce housing. The Alaska House accepted the Senate's changes 22-18, and the bill became law without the governor's signature.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "22-18",
+        "old_sentences": 8,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1699350,
+      "measure_id": "HB 10",
+      "vote_date": "2026-05-16",
+      "yea_description": "Voted for House Bill 10, a bill to add a tenured professor seat to the University of Alaska Board of Regents. The Alaska House accepted the Senate's changes 26-14. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 10, a bill to add a tenured professor seat to the University of Alaska Board of Regents. The Alaska House accepted the Senate's changes 26-14. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "26-14",
+        "old_sentences": 9,
+        "old_chars": 603
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1699385,
+      "measure_id": "HB 52",
+      "vote_date": "2026-05-17",
+      "yea_description": "Voted for House Bill 52, a bill to give children in psychiatric hospitals weekly private contact with a parent. The Alaska House accepted the Senate's changes 26-14, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against House Bill 52, a bill to give children in psychiatric hospitals weekly private contact with a parent. The Alaska House accepted the Senate's changes 26-14, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "26-14",
+        "old_sentences": 10,
+        "old_chars": 733
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1699781,
+      "measure_id": "SB 21",
+      "vote_date": "2026-05-18",
+      "yea_description": "Voted for Senate Bill 21, a bill to create a state retirement savings plan called Alaska Work and Save. The Alaska House passed it 31-9, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against Senate Bill 21, a bill to create a state retirement savings plan called Alaska Work and Save. The Alaska House passed it 31-9, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "31-9",
+        "old_sentences": 10,
+        "old_chars": 762
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1700368,
+      "measure_id": "HB 133",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted for House Bill 133, a bill to give the state a deadline to pay its bills, with interest after that. The Alaska House accepted the Senate's changes 22-18. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 133, a bill to give the state a deadline to pay its bills, with interest after that. The Alaska House accepted the Senate's changes 22-18. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "22-18",
+        "old_sentences": 8,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1700388,
+      "measure_id": "HB 27",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted for House Bill 27, which tells the state education department to write lessons on hands-only CPR. The Alaska House accepted the Senate's changes 27-13, and the bill became law without the governor's signature.",
+      "nay_description": "Voted against House Bill 27, which tells the state education department to write lessons on hands-only CPR. The Alaska House accepted the Senate's changes 27-13, and the bill became law without the governor's signature.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "27-13",
+        "old_sentences": 9,
+        "old_chars": 764
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1700401,
+      "measure_id": "SB 24",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted for Senate Bill 24, a bill to raise the tobacco and vaping age from 19 to 21 and tax throwaway vapes. The Alaska House passed it 24-16. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 24, a bill to raise the tobacco and vaping age from 19 to 21 and tax throwaway vapes. The Alaska House passed it 24-16. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "24-16",
+        "old_sentences": 10,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1700405,
+      "measure_id": "HB 25",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted for House Bill 25, a bill to stop restaurants serving food in polystyrene foam containers. The Alaska House accepted the Senate's changes 26-14. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 25, a bill to stop restaurants serving food in polystyrene foam containers. The Alaska House accepted the Senate's changes 26-14. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "26-14",
+        "old_sentences": 9,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1701685,
+      "measure_id": "SB 258",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for Senate Bill 258, a bill to bar state software contracts from limiting which computers the state may use. The Alaska House passed it 26-13. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 258, a bill to bar state software contracts from limiting which computers the state may use. The Alaska House passed it 26-13. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Third Reading Final Passage",
+        "tally": "26-13",
+        "old_sentences": 7,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "house",
+      "session": "2171",
+      "roll": 1701704,
+      "measure_id": "HB 280",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for House Bill 280, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska House accepted the Senate's changes 28-11. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 280, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska House accepted the Senate's changes 28-11. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "House: Concur",
+        "tally": "28-11",
+        "old_sentences": 8,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1546119,
+      "measure_id": "HB 69",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted for House Bill 69, a bill to raise the per-student school funding allocation from $5,960 to $6,960. The Alaska Senate passed it 11-9, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against House Bill 69, a bill to raise the per-student school funding allocation from $5,960 to $6,960. The Alaska Senate passed it 11-9, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage",
+        "tally": "11-9",
+        "old_sentences": 7,
+        "old_chars": 437
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1548818,
+      "measure_id": "SB 113",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 113, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska Senate passed it 16-4, but the governor vetoed it and the override fell short.",
+      "nay_description": "Voted against Senate Bill 113, a bill to tax multistate companies on where their customers are instead of where they work. The Alaska Senate passed it 16-4, but the governor vetoed it and the override fell short.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage Effective Date(s)",
+        "tally": "16-4",
+        "old_sentences": 10,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1689719,
+      "measure_id": "HB 33",
+      "vote_date": "2026-04-24",
+      "yea_description": "Voted for House Bill 33, which changes the ethics rules for members of the Board of Fisheries and Board of Game. The Alaska Senate passed it 15-4, and it was signed into law.",
+      "nay_description": "Voted against House Bill 33, which changes the ethics rules for members of the Board of Fisheries and Board of Game. The Alaska Senate passed it 15-4, and it was signed into law.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage Effective Date(s)",
+        "tally": "15-4",
+        "old_sentences": 6,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1691681,
+      "measure_id": "HB 26",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House Bill 26, a bill to make the state write a transit plan for the whole of Alaska. The Alaska Senate passed it 16-4. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 26, a bill to make the state write a transit plan for the whole of Alaska. The Alaska Senate passed it 16-4. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage",
+        "tally": "16-4",
+        "old_sentences": 8,
+        "old_chars": 555
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1696552,
+      "measure_id": "SB 111",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted for Senate Bill 111, a bill to give owners and independent shops a right to repair everyday electronics. The Alaska Senate passed it 15-5. The Alaska House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 111, a bill to give owners and independent shops a right to repair everyday electronics. The Alaska Senate passed it 15-5. The Alaska House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage Effective Date(s)",
+        "tally": "15-5",
+        "old_sentences": 9,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1699328,
+      "measure_id": "SB 250",
+      "vote_date": "2026-05-16",
+      "yea_description": "Voted for Senate Bill 250, a bill to make large data centers pay for the power and gas lines built to serve them. The Alaska Senate passed it 14-5. The Alaska House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 250, a bill to make large data centers pay for the power and gas lines built to serve them. The Alaska Senate passed it 14-5. The Alaska House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading - On Reconsideration",
+        "tally": "14-5",
+        "old_sentences": 12,
+        "old_chars": 883
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1699364,
+      "measure_id": "HB 133",
+      "vote_date": "2026-05-17",
+      "yea_description": "Voted for House Bill 133, a bill to give the state a deadline to pay its bills, with interest after that. The Alaska Senate passed it 15-5. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 133, a bill to give the state a deadline to pay its bills, with interest after that. The Alaska Senate passed it 15-5. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage Effective Date(s)",
+        "tally": "15-5",
+        "old_sentences": 8,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1699783,
+      "measure_id": "HB 25",
+      "vote_date": "2026-05-18",
+      "yea_description": "Voted for House Bill 25, a bill to stop restaurants serving food in polystyrene foam containers. The Alaska Senate passed it 13-7. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against House Bill 25, a bill to stop restaurants serving food in polystyrene foam containers. The Alaska Senate passed it 13-7. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading - Final Passage",
+        "tally": "13-7",
+        "old_sentences": 9,
+        "old_chars": 565
+      }
+    },
+    {
+      "jurisdiction": "AK",
+      "chamber": "senate",
+      "session": "2171",
+      "roll": 1701656,
+      "measure_id": "SB 24",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for Senate Bill 24, a bill to raise the tobacco and vaping age from 19 to 21 and tax throwaway vapes. The Alaska Senate accepted the House's changes 15-5. The governor vetoed the bill, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 24, a bill to raise the tobacco and vaping age from 19 to 21 and tax throwaway vapes. The Alaska Senate accepted the House's changes 15-5. The governor vetoed the bill, so it did not become law.",
+      "_current": {
+        "question": "Senate: Shall the Senate Concur in the House Amendment(s) to CSSB 24(FIN) Effective Date(s)",
+        "tally": "15-5",
+        "old_sentences": 10,
+        "old_chars": 703
+      }
+    }
+  ]
+}

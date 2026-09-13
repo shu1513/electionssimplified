@@ -1,0 +1,740 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1527367,
+      "measure_id": "H 58",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted yes on House Bill 58, which let Scotland County commissioners set the 2025-2026 school budget without a court fight. The House voted 59-52, and the bill became law.",
+      "nay_description": "Voted no on House Bill 58, which let Scotland County commissioners set the 2025-2026 school budget without a court fight. The House voted 59-52, and the bill became law.",
+      "_current": {
+        "question": "M11 Concur",
+        "tally": "59-52",
+        "old_sentences": 7,
+        "old_chars": 558
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1542568,
+      "measure_id": "H 123",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted yes on House Bill 123, a bill to make knowingly destroying or falsifying a patient's medical record a crime. The House voted 88-24. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 123, a bill to make knowingly destroying or falsifying a patient's medical record a crime. The House voted 88-24. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "88-24",
+        "old_sentences": 7,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1550064,
+      "measure_id": "H 636",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted yes on House Bill 636, a bill to make every school system set up a parent and staff committee to review library materials. The House voted 63-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 636, a bill to make every school system set up a parent and staff committee to review library materials. The House voted 63-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "63-46",
+        "old_sentences": 8,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1560541,
+      "measure_id": "H 38",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted yes on House Bill 38, a bill to bar credit card networks from coding stores as gun sellers or keeping gun owner lists. The House voted 77-38. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 38, a bill to bar credit card networks from coding stores as gun sellers or keeping gun owner lists. The House voted 77-38. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "77-38",
+        "old_sentences": 7,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1562351,
+      "measure_id": "H 261",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted yes on House Bill 261, a bill to raise punishment for crimes committed with others to help gang activity. The House voted 84-29. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 261, a bill to raise punishment for crimes committed with others to help gang activity. The House voted 84-29. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "84-29",
+        "old_sentences": 8,
+        "old_chars": 475
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1566371,
+      "measure_id": "H 606",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted yes on House Bill 606, a bill to give people until age 28 to sue over gender transition care and bar state money for it in prisons. The House voted 69-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 606, a bill to give people until age 28 to sue over gender transition care and bar state money for it in prisons. The House voted 69-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "69-41",
+        "old_sentences": 8,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1566647,
+      "measure_id": "H 519",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted yes on House Bill 519, a bill to cut back the care a minor can agree to alone, keeping only pregnancy care. The House voted 68-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 519, a bill to cut back the care a minor can agree to alone, keeping only pregnancy care. The House voted 68-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "68-41",
+        "old_sentences": 9,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1567800,
+      "measure_id": "H 690",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted yes on House Bill 690, a bill to cut off state benefits, public housing and unemployment pay for people without legal status. The House voted 68-43. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 690, a bill to cut off state benefits, public housing and unemployment pay for people without legal status. The House voted 68-43. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "68-43",
+        "old_sentences": 9,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1567805,
+      "measure_id": "H 781",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted yes on House Bill 781, a bill to bar cities and counties from letting people camp or sleep overnight on public land. The House voted 69-42. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 781, a bill to bar cities and counties from letting people camp or sleep overnight on public land. The House voted 69-42. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "69-42",
+        "old_sentences": 7,
+        "old_chars": 471
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1567828,
+      "measure_id": "H 859",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted yes on House Bill 859, a bill to bar cities and counties from running guaranteed income programs. The House voted 69-40. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted no on House Bill 859, a bill to bar cities and counties from running guaranteed income programs. The House voted 69-40. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "69-40",
+        "old_sentences": 7,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1588661,
+      "measure_id": "S 50",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted yes on Senate Bill 50, the Freedom to Carry Act, a bill to let citizens 18 and older carry a hidden handgun without a permit. The House voted 59-48 and the governor vetoed the bill. The Senate voted to override but the House never did, so it is not law.",
+      "nay_description": "Voted no on Senate Bill 50, the Freedom to Carry Act, a bill to let citizens 18 and older carry a hidden handgun without a permit. The House voted 59-48 and the governor vetoed the bill. The Senate voted to override but the House never did, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "59-48",
+        "old_sentences": 7,
+        "old_chars": 555
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1591676,
+      "measure_id": "H 568",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on House Bill 568, a labor law bill that limits when state safety inspectors testify and eases workplace notice rules. The House agreed 72-42 to the Senate version passed 26-17, and the governor signed it.",
+      "nay_description": "Voted no on House Bill 568, a labor law bill that limits when state safety inspectors testify and eases workplace notice rules. The House agreed 72-42 to the Senate version passed 26-17, and the governor signed it.",
+      "_current": {
+        "question": "M11 Concur",
+        "tally": "72-42",
+        "old_sentences": 5,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1592370,
+      "measure_id": "S 442",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted yes on Senate Bill 442, the Parents Protection Act, which bars abuse cases based on raising a child as their birth sex. The House voted 74-36 and the Senate agreed 28-19. The governor signed it.",
+      "nay_description": "Voted no on Senate Bill 442, the Parents Protection Act, which bars abuse cases based on raising a child as their birth sex. The House voted 74-36 and the Senate agreed 28-19. The governor signed it.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "74-36",
+        "old_sentences": 6,
+        "old_chars": 419
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1594425,
+      "measure_id": "H 768",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted yes on House Bill 768, which drops the firefighter radio system rule for some buildings and puts water permit reviews on a clock. The House agreed 67-44 to the Senate version passed 30-17, and the governor signed it.",
+      "nay_description": "Voted no on House Bill 768, which drops the firefighter radio system rule for some buildings and puts water permit reviews on a clock. The House agreed 67-44 to the Senate version passed 30-17, and the governor signed it.",
+      "_current": {
+        "question": "M11 Concur",
+        "tally": "67-44",
+        "old_sentences": 5,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1594508,
+      "measure_id": "S 472",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted yes on Senate Bill 472, a coastal bill that makes the state lose its say on water permits it misses deadlines on. The House voted 66-45 and the Senate agreed 30-15. The governor signed it.",
+      "nay_description": "Voted no on Senate Bill 472, a coastal bill that makes the state lose its say on water permits it misses deadlines on. The House voted 66-45 and the Senate agreed 30-15. The governor signed it.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "66-45",
+        "old_sentences": 6,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1595387,
+      "measure_id": "H 694",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted yes on House Bill 694, a water bill that folds three river basins into the Cape Fear and Neuse basins and eases transfers. The House agreed 66-42 to the Senate version, and the governor signed it.",
+      "nay_description": "Voted no on House Bill 694, a water bill that folds three river basins into the Cape Fear and Neuse basins and eases transfers. The House agreed 66-42 to the Senate version, and the governor signed it.",
+      "_current": {
+        "question": "M11 Concur",
+        "tally": "66-42",
+        "old_sentences": 5,
+        "old_chars": 419
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1599102,
+      "measure_id": "H 193",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 193, a gun bill that lets private school staff carry with permission and permit holders carry in some churches. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 193, a gun bill that lets private school staff carry with permission and permit holders carry in some churches. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Veto Override",
+        "tally": "72-48",
+        "old_sentences": 6,
+        "old_chars": 566
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1599122,
+      "measure_id": "H 805",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 805, which sets one fixed meaning of sex in state rules and bars state money for gender transition care for minors. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 805, which sets one fixed meaning of sex in state rules and bars state money for gender transition care for minors. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Veto Override",
+        "tally": "72-48",
+        "old_sentences": 6,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1599134,
+      "measure_id": "H 318",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 318, an immigration bill that makes jails check status and hold people up to 48 hours for federal agents. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 318, an immigration bill that makes jails check status and hold people up to 48 hours for federal agents. The House voted 72-48 to override, the Senate did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Veto Override",
+        "tally": "72-48",
+        "old_sentences": 6,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1599150,
+      "measure_id": "S 266",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 266, an energy bill that erases the 2030 carbon cut goal and lets utilities raise rates for plants under construction. The House voted 74-46 to override, the Senate did the same that day, and the bill became law.",
+      "nay_description": "Voted no on Senate Bill 266, an energy bill that erases the 2030 carbon cut goal and lets utilities raise rates for plants under construction. The House voted 74-46 to override, the Senate did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Veto Override",
+        "tally": "74-46",
+        "old_sentences": 6,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1603096,
+      "measure_id": "H 307",
+      "vote_date": "2025-09-23",
+      "yea_description": "Voted yes on House Bill 307, known as Iryna's Law, which ends release on a written promise and restarts executions. The House agreed 81-31 to the Senate version it had passed 28-8, and the governor signed it.",
+      "nay_description": "Voted no on House Bill 307, known as Iryna's Law, which ends release on a written promise and restarts executions. The House agreed 81-31 to the Senate version it had passed 28-8, and the governor signed it.",
+      "_current": {
+        "question": "M11 Concur",
+        "tally": "81-31",
+        "old_sentences": 5,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1604135,
+      "measure_id": "S 249",
+      "vote_date": "2025-10-22",
+      "yea_description": "Voted yes on Senate Bill 249, which redrew U.S. House Districts 1 and 3 in eastern North Carolina. The House voted 66-48 and the Senate 26-20, and congressional maps are not sent to the governor, so it became law that day.",
+      "nay_description": "Voted no on Senate Bill 249, which redrew U.S. House Districts 1 and 3 in eastern North Carolina. The House voted 66-48 and the Senate 26-20, and congressional maps are not sent to the governor, so it became law that day.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "66-48",
+        "old_sentences": 6,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "house",
+      "session": "2189",
+      "roll": 1604137,
+      "measure_id": "S 378",
+      "vote_date": "2025-10-22",
+      "yea_description": "Voted yes on Senate Bill 378, a bill to drop Planned Parenthood as a Medicaid provider. The House voted 61-47. The Senate refused to take up the bill the next day, so it is not law.",
+      "nay_description": "Voted no on Senate Bill 378, a bill to drop Planned Parenthood as a Medicaid provider. The House voted 61-47. The Senate refused to take up the bill the next day, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "61-47",
+        "old_sentences": 7,
+        "old_chars": 446
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1516964,
+      "measure_id": "S 261",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted yes on Senate Bill 261, a bill to drop the 2030 carbon cut goal and let utilities charge for plants under construction. The Senate voted 31-12. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted no on Senate Bill 261, a bill to drop the 2030 carbon cut goal and let utilities charge for plants under construction. The Senate voted 31-12. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "31-12",
+        "old_sentences": 6,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1567702,
+      "measure_id": "S 554",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted yes on Senate Bill 554, a bill to bar state banks from refusing service to farmers over greenhouse gas emissions. The Senate voted 36-11. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted no on Senate Bill 554, a bill to bar state banks from refusing service to farmers over greenhouse gas emissions. The Senate voted 36-11. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "36-11",
+        "old_sentences": 7,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1587941,
+      "measure_id": "H 568",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted yes on House Bill 568, a labor law bill that limits when state safety inspectors testify and eases workplace notice rules. The Senate voted 26-17 and the House agreed 72-42. The governor signed it.",
+      "nay_description": "Voted no on House Bill 568, a labor law bill that limits when state safety inspectors testify and eases workplace notice rules. The Senate voted 26-17 and the House agreed 72-42. The governor signed it.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "26-17",
+        "old_sentences": 6,
+        "old_chars": 445
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1594025,
+      "measure_id": "H 768",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted yes on House Bill 768, which drops the firefighter radio system rule for some buildings and puts water permit reviews on a clock. The Senate voted 30-17 and the House agreed 67-44. The governor signed it.",
+      "nay_description": "Voted no on House Bill 768, which drops the firefighter radio system rule for some buildings and puts water permit reviews on a clock. The Senate voted 30-17 and the House agreed 67-44. The governor signed it.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "30-17",
+        "old_sentences": 6,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1594096,
+      "measure_id": "S 442",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted yes on Senate Bill 442, the Parents Protection Act, which bars abuse cases based on raising a child as their birth sex. The Senate agreed 28-19 to the House version passed 74-36, and the governor signed it.",
+      "nay_description": "Voted no on Senate Bill 442, the Parents Protection Act, which bars abuse cases based on raising a child as their birth sex. The Senate agreed 28-19 to the House version passed 74-36, and the governor signed it.",
+      "_current": {
+        "question": "Motion 9 To Concur House Amend",
+        "tally": "28-19",
+        "old_sentences": 5,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1594833,
+      "measure_id": "H 171",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on House Bill 171, a bill to stop state agencies and local governments running diversity, equity and inclusion programs. The Senate voted 26-20 and the governor vetoed the bill. The House voted to override in 2026 but the Senate has not, so it is not law.",
+      "nay_description": "Voted no on House Bill 171, a bill to stop state agencies and local governments running diversity, equity and inclusion programs. The Senate voted 26-20 and the governor vetoed the bill. The House voted to override in 2026 but the Senate has not, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "26-20",
+        "old_sentences": 7,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1594854,
+      "measure_id": "S 472",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on Senate Bill 472, a coastal bill that makes the state lose its say on water permits it misses deadlines on. The Senate agreed 30-15 to the House version passed 66-45, and the governor signed it.",
+      "nay_description": "Voted no on Senate Bill 472, a coastal bill that makes the state lose its say on water permits it misses deadlines on. The Senate agreed 30-15 to the House version passed 66-45, and the governor signed it.",
+      "_current": {
+        "question": "Motion 9 To Concur",
+        "tally": "30-15",
+        "old_sentences": 6,
+        "old_chars": 605
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599126,
+      "measure_id": "S 153",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 153, the North Carolina Border Protection Act, which makes state agencies do federal immigration work. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "nay_description": "Voted no on Senate Bill 153, the North Carolina Border Protection Act, which makes state agencies do federal immigration work. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 692
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599133,
+      "measure_id": "H 318",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 318, an immigration bill that makes jails check status and hold people up to 48 hours for federal agents. The Senate voted 30-19 to override, the House did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 318, an immigration bill that makes jails check status and hold people up to 48 hours for federal agents. The Senate voted 30-19 to override, the House did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599136,
+      "measure_id": "S 50",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 50, the Freedom to Carry Act, a bill to let citizens 18 and older carry a hidden handgun without a permit. The Senate voted 30-19 to override the veto. The House never held its own vote, so the bill is not law.",
+      "nay_description": "Voted no on Senate Bill 50, the Freedom to Carry Act, a bill to let citizens 18 and older carry a hidden handgun without a permit. The Senate voted 30-19 to override the veto. The House never held its own vote, so the bill is not law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599149,
+      "measure_id": "S 266",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 266, an energy bill that erases the 2030 carbon cut goal and lets utilities raise rates for plants under construction. The Senate voted 30-18 to override, the House did the same that day, and the bill became law.",
+      "nay_description": "Voted no on Senate Bill 266, an energy bill that erases the 2030 carbon cut goal and lets utilities raise rates for plants under construction. The Senate voted 30-18 to override, the House did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-18",
+        "old_sentences": 6,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599164,
+      "measure_id": "S 558",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 558, which bars public colleges from keeping diversity offices or teaching what the law calls divisive concepts. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "nay_description": "Voted no on Senate Bill 558, which bars public colleges from keeping diversity offices or teaching what the law calls divisive concepts. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599165,
+      "measure_id": "H 193",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 193, a gun bill that lets private school staff carry with permission and permit holders carry in some churches. The Senate voted 29-19 to override, the House did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 193, a gun bill that lets private school staff carry with permission and permit holders carry in some churches. The Senate voted 29-19 to override, the House did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "29-19",
+        "old_sentences": 6,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599167,
+      "measure_id": "S 227",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on Senate Bill 227, which bars public schools from running diversity offices or teaching what the law calls divisive concepts. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "nay_description": "Voted no on Senate Bill 227, which bars public schools from running diversity offices or teaching what the law calls divisive concepts. The Senate voted 30-19 to override in July 2025, the House followed in June 2026, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1599171,
+      "measure_id": "H 805",
+      "vote_date": "2025-07-29",
+      "yea_description": "Voted yes on House Bill 805, which sets one fixed meaning of sex in state rules and bars state money for gender transition care for minors. The Senate voted 30-19 to override, the House did the same that day, and the bill became law.",
+      "nay_description": "Voted no on House Bill 805, which sets one fixed meaning of sex in state rules and bars state money for gender transition care for minors. The Senate voted 30-19 to override, the House did the same that day, and the bill became law.",
+      "_current": {
+        "question": "Motion 11 Veto Override",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1603081,
+      "measure_id": "H 307",
+      "vote_date": "2025-09-22",
+      "yea_description": "Voted yes on House Bill 307, known as Iryna's Law, which ends release on a written promise and restarts executions. The Senate voted 28-8 and the House agreed 81-31. The governor signed it.",
+      "nay_description": "Voted no on House Bill 307, known as Iryna's Law, which ends release on a written promise and restarts executions. The Senate voted 28-8 and the House agreed 81-31. The governor signed it.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "28-8",
+        "old_sentences": 6,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1604004,
+      "measure_id": "S 249",
+      "vote_date": "2025-10-21",
+      "yea_description": "Voted yes on Senate Bill 249, which redrew U.S. House Districts 1 and 3 in eastern North Carolina. The Senate voted 26-20 and the House 66-48, and congressional maps are not sent to the governor, so it became law that day.",
+      "nay_description": "Voted no on Senate Bill 249, which redrew U.S. House Districts 1 and 3 in eastern North Carolina. The Senate voted 26-20 and the House 66-48, and congressional maps are not sent to the governor, so it became law that day.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "26-20",
+        "old_sentences": 6,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1699850,
+      "measure_id": "S 1080",
+      "vote_date": "2026-05-19",
+      "yea_description": "Voted yes on Senate Bill 1080, which puts a 2026 ballot question lowering the maximum income tax rate from 7 to 3.5 percent. The Senate voted 30-18 and the House also passed it, and the question now goes to the voters rather than the governor.",
+      "nay_description": "Voted no on Senate Bill 1080, which puts a 2026 ballot question lowering the maximum income tax rate from 7 to 3.5 percent. The Senate voted 30-18 and the House also passed it, and the question now goes to the voters rather than the governor.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "30-18",
+        "old_sentences": 5,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1700902,
+      "measure_id": "S 1082",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted yes on Senate Bill 1082, a bill to ask voters to add a right to work rule to the state constitution. The Senate voted 30-16 to put the question on the November 2026 ballot. The House has not voted on it, so the question has not gone to voters.",
+      "nay_description": "Voted no on Senate Bill 1082, a bill to ask voters to add a right to work rule to the state constitution. The Senate voted 30-16 to put the question on the November 2026 ballot. The House has not voted on it, so the question has not gone to voters.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "30-16",
+        "old_sentences": 8,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1700911,
+      "measure_id": "H 1089",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted yes on House Bill 1089, which puts a 2026 ballot question ordering limits on local property tax growth. The Senate voted 31-15 and the House also passed it, and the question now goes to the voters rather than the governor.",
+      "nay_description": "Voted no on House Bill 1089, which puts a 2026 ballot question ordering limits on local property tax growth. The Senate voted 31-15 and the House also passed it, and the question now goes to the voters rather than the governor.",
+      "_current": {
+        "question": "Third Reading",
+        "tally": "31-15",
+        "old_sentences": 5,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1709970,
+      "measure_id": "H 936",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted yes on House Bill 936, a bill to rewrite the phone sales law around robocalls and spam texts. The Senate voted 32-15. The House refused the Senate's version and the bill went to a conference committee, which has not reported, so it is not law.",
+      "nay_description": "Voted no on House Bill 936, a bill to rewrite the phone sales law around robocalls and spam texts. The Senate voted 32-15. The House refused the Senate's version and the bill went to a conference committee, which has not reported, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "32-15",
+        "old_sentences": 8,
+        "old_chars": 544
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1711554,
+      "measure_id": "H 437",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted yes on House Bill 437, a bill to raise penalties for selling drugs near homeless shelters and bar public camping. The Senate voted 26-16 and the House agreed. The governor vetoed the bill and no override vote has been held, so it is not law.",
+      "nay_description": "Voted no on House Bill 437, a bill to raise penalties for selling drugs near homeless shelters and bar public camping. The Senate voted 26-16 and the House agreed. The governor vetoed the bill and no override vote has been held, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "26-16",
+        "old_sentences": 7,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "NC",
+      "chamber": "senate",
+      "session": "2189",
+      "roll": 1711563,
+      "measure_id": "S 1057",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted yes on Senate Bill 1057, a bill to make proxy advisers disclose the basis for advice against company management. The Senate voted 29-13. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted no on Senate Bill 1057, a bill to make proxy advisers disclose the basis for advice against company management. The Senate voted 29-13. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Second Reading",
+        "tally": "29-13",
+        "old_sentences": 7,
+        "old_chars": 481
+      }
+    }
+  ]
+}

@@ -1,0 +1,436 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1478079,
+      "measure_id": "SB 63",
+      "vote_date": "2025-01-31",
+      "yea_description": "Voted to pass Senate Bill 63, the Help Not Harm Act, which bars puberty blockers, cross-sex hormones and surgery for minors. The Kansas House passed it 83-35. Governor Laura Kelly vetoed the bill, both chambers voted to override her, and it became law.",
+      "nay_description": "Voted against passing Senate Bill 63, the Help Not Harm Act, which bars puberty blockers, cross-sex hormones and surgery for minors. The Kansas House passed it 83-35. Governor Laura Kelly vetoed the bill, both chambers voted to override her, and it became law.",
+      "_current": {
+        "question": "House Final Action - Passed - Yea: 83 Nay: 35",
+        "tally": "83-35",
+        "old_sentences": 8,
+        "old_chars": 681
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1490405,
+      "measure_id": "HB 2106",
+      "vote_date": "2025-02-14",
+      "yea_description": "Voted for House Bill 2106, which bars foreign money from campaigns over changes to the Kansas constitution. The Kansas House passed it 94-25. It became law.",
+      "nay_description": "Voted against House Bill 2106, which bars foreign money from campaigns over changes to the Kansas constitution. The Kansas House passed it 94-25. It became law.",
+      "_current": {
+        "question": "House Emergency Final Action - Passed as amended - Yea: 94 Nay: 25",
+        "tally": "94-25",
+        "old_sentences": 11,
+        "old_chars": 971
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1495761,
+      "measure_id": "HB 2101",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass House Bill 2101, which stops cities and counties running a guaranteed income program with tax money. The Kansas House passed it 86-37, the Senate agreed, and it became law.",
+      "nay_description": "Voted against passing House Bill 2101, which stops cities and counties running a guaranteed income program with tax money. The Kansas House passed it 86-37, the Senate agreed, and it became law.",
+      "_current": {
+        "question": "House Emergency Final Action - Passed as amended - Yea: 86 Nay: 37",
+        "tally": "86-37",
+        "old_sentences": 5,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1523393,
+      "measure_id": "SB 137",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Senate Bill 137, which lets police sell guns they have seized instead of destroying them. The Kansas House passed it 90-28. It became law.",
+      "nay_description": "Voted against Senate Bill 137, which lets police sell guns they have seized instead of destroying them. The Kansas House passed it 90-28. It became law.",
+      "_current": {
+        "question": "House Emergency Final Action - Passed - Yea: 90 Nay: 28",
+        "tally": "90-28",
+        "old_sentences": 9,
+        "old_chars": 713
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1524944,
+      "measure_id": "HB 2109",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 2109, which shields power and phone companies from lawsuits over police gear on their poles. The Kansas House agreed to the Senate's changes 78-44, which sent the bill to the governor, and it was signed into law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 2109, which shields power and phone companies from lawsuits over police gear on their poles. The Kansas House agreed to the Senate's changes 78-44, which sent the bill to the governor, and it was signed into law.",
+      "_current": {
+        "question": "House Concurred with amendments - Yea: 78 Nay: 44",
+        "tally": "78-44",
+        "old_sentences": 5,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1525875,
+      "measure_id": "HB 2304",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House Bill 2304, which makes cities and counties report the tax breaks and subsidies they hand out. The Kansas House passed it 88-37. It became law.",
+      "nay_description": "Voted against House Bill 2304, which makes cities and counties report the tax breaks and subsidies they hand out. The Kansas House passed it 88-37. It became law.",
+      "_current": {
+        "question": "House Concurred with amendments - Yea: 88 Nay: 37",
+        "tally": "88-37",
+        "old_sentences": 11,
+        "old_chars": 762
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1526411,
+      "measure_id": "SB 4",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 4, which requires mailed early ballots to arrive by 7:00 p.m. on election day from 2026. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 4, which requires mailed early ballots to arrive by 7:00 p.m. on election day from 2026. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 41",
+        "tally": "84-41",
+        "old_sentences": 4,
+        "old_chars": 423
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1527278,
+      "measure_id": "HB 2088",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 2088, which puts a 60-day clock on local building permits for houses. The Kansas House passed it 83-40. It became law.",
+      "nay_description": "Voted against House Bill 2088, which puts a 60-day clock on local building permits for houses. The Kansas House passed it 83-40. It became law.",
+      "_current": {
+        "question": "House Concurred with amendments in conference - Yea: 83 Nay: 40",
+        "tally": "83-40",
+        "old_sentences": 9,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1528112,
+      "measure_id": "SB 35",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for Senate Bill 35, which ends two statewide property taxes that paid for state university and institution buildings. The Kansas House passed it 96-26. It became law.",
+      "nay_description": "Voted against Senate Bill 35, which ends two statewide property taxes that paid for state university and institution buildings. The Kansas House passed it 96-26. It became law.",
+      "_current": {
+        "question": "House Conference Committee Report was adopted - Yea: 96 Nay: 26",
+        "tally": "96-26",
+        "old_sentences": 9,
+        "old_chars": 656
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1529499,
+      "measure_id": "HB 2054",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to adopt the conference committee report on House Bill 2054, which doubles the caps on contributions to Kansas candidates and parties. The Kansas House adopted the conference committee's final version 72-52, the Senate agreed, and the governor signed it into law.",
+      "nay_description": "Voted against adopting the conference committee report on House Bill 2054, which doubles the caps on contributions to Kansas candidates and parties. The Kansas House adopted the conference committee's final version 72-52, the Senate agreed, and the governor signed it into law.",
+      "_current": {
+        "question": "House Conference Committee Report was adopted - Yea: 72 Nay: 52",
+        "tally": "72-52",
+        "old_sentences": 8,
+        "old_chars": 911
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543277,
+      "measure_id": "HB 2033",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2033, which lets more reading help be paid for out of a school district's at-risk fund. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2033, which lets more reading help be paid for out of a school district's at-risk fund. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 38",
+        "tally": "87-38",
+        "old_sentences": 5,
+        "old_chars": 520
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543283,
+      "measure_id": "HB 2062",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2062, which counts an unborn child for child support and for state income tax. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2062, which counts an unborn child for child support and for state income tax. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 38",
+        "tally": "87-38",
+        "old_sentences": 8,
+        "old_chars": 930
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543322,
+      "measure_id": "HB 2382",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2382, which makes schools show a video on how a fetus grows in human development classes. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2382, which makes schools show a video on how a fetus grows in human development classes. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 41",
+        "tally": "84-41",
+        "old_sentences": 6,
+        "old_chars": 634
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543783,
+      "measure_id": "HB 2217",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 2217, which lets the state inspector general investigate cash and food assistance fraud. The House voted 87-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2217, which lets the state inspector general investigate cash and food assistance fraud. The House voted 87-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 38",
+        "tally": "87-38",
+        "old_sentences": 9,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543820,
+      "measure_id": "HB 2311",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 2311, which protects religious belief in foster care and adoption decisions. The House voted 87-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2311, which protects religious belief in foster care and adoption decisions. The House voted 87-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 38",
+        "tally": "87-38",
+        "old_sentences": 9,
+        "old_chars": 863
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1544084,
+      "measure_id": "SB 269",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 269, which sets up automatic future income tax rate cuts when revenue beats 2024 levels. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 269, which sets up automatic future income tax rate cuts when revenue beats 2024 levels. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 37",
+        "tally": "87-37",
+        "old_sentences": 7,
+        "old_chars": 703
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1544195,
+      "measure_id": "SB 29",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for Senate Bill 29, which takes away the power of local health officials to stop public gatherings. The House voted 86-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against Senate Bill 29, which takes away the power of local health officials to stop public gatherings. The House voted 86-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 86 Nay: 38",
+        "tally": "86-38",
+        "old_sentences": 7,
+        "old_chars": 574
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1637133,
+      "measure_id": "SB 244",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 244, which makes every shared restroom and locker room in a public building open to one sex only. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 244, which makes every shared restroom and locker room in a public building open to one sex only. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 37",
+        "tally": "87-37",
+        "old_sentences": 8,
+        "old_chars": 1001
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1654275,
+      "measure_id": "SB 299",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate Bill 299, which opens the records of the commission that picks supreme court nominees. The Kansas House passed it 87-32. It became law.",
+      "nay_description": "Voted against Senate Bill 299, which opens the records of the commission that picks supreme court nominees. The Kansas House passed it 87-32. It became law.",
+      "_current": {
+        "question": "House Final Action - Passed as amended - Yea: 87 Nay: 32",
+        "tally": "87-32",
+        "old_sentences": 8,
+        "old_chars": 630
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1671987,
+      "measure_id": "HB 2635",
+      "vote_date": "2026-03-27",
+      "yea_description": "Voted for House Bill 2635, which stops government making pregnancy centers take part in abortion. The House voted 87-35 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2635, which stops government making pregnancy centers take part in abortion. The House voted 87-35 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 35",
+        "tally": "87-35",
+        "old_sentences": 11,
+        "old_chars": 943
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679834,
+      "measure_id": "HB 2593",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted for House Bill 2593, which makes local governments explain in public before hiring contingent fee lawyers. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2593, which makes local governments explain in public before hiring contingent fee lawyers. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 85 Nay: 38",
+        "tally": "85-38",
+        "old_sentences": 9,
+        "old_chars": 748
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679846,
+      "measure_id": "HB 2437",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2437, the SAVE Kansas Act, which matches voter lists against federal citizenship data twice a year. The Kansas House voted 84-39 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2437, the SAVE Kansas Act, which matches voter lists against federal citizenship data twice a year. The Kansas House voted 84-39 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 39",
+        "tally": "84-39",
+        "old_sentences": 8,
+        "old_chars": 1047
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679897,
+      "measure_id": "HB 2333",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted for House Bill 2333, which makes outdoor college campus areas public forums and bans free speech zones. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2333, which makes outdoor college campus areas public forums and bans free speech zones. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 85 Nay: 38",
+        "tally": "85-38",
+        "old_sentences": 11,
+        "old_chars": 919
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679944,
+      "measure_id": "SB 30",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 30, which gives the Legislature the last word on new job licenses from 2026. The Kansas House voted 88-35 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 30, which gives the Legislature the last word on new job licenses from 2026. The Kansas House voted 88-35 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 88 Nay: 35",
+        "tally": "88-35",
+        "old_sentences": 7,
+        "old_chars": 773
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679992,
+      "measure_id": "HB 2727",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted for House Bill 2727, which lets people suing over abortion consent rules choose a fixed $5,000 award. The House voted 87-36 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against House Bill 2727, which lets people suing over abortion consent rules choose a fixed $5,000 award. The House voted 87-36 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 36",
+        "tally": "87-36",
+        "old_sentences": 9,
+        "old_chars": 707
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1680080,
+      "measure_id": "SB 375",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted for Senate Bill 375, which makes proxy advisers say whether a financial analysis backs advice against management. The House voted 87-36 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against Senate Bill 375, which makes proxy advisers say whether a financial analysis backs advice against management. The House voted 87-36 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 36",
+        "tally": "87-36",
+        "old_sentences": 8,
+        "old_chars": 773
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1680330,
+      "measure_id": "SB 391",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted for Senate Bill 391, which stops cities and counties passing four kinds of renting rule, including voucher protections. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "nay_description": "Voted against Senate Bill 391, which stops cities and counties passing four kinds of renting rule, including voucher protections. The House voted 85-38 to override the governor's veto, and the bill became law.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 85 Nay: 38",
+        "tally": "85-38",
+        "old_sentences": 7,
+        "old_chars": 581
+      }
+    }
+  ]
+}

@@ -1,0 +1,948 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1532010,
+      "measure_id": "HJR 4",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted to send House Joint Resolution 4, a proposed constitutional amendment blocking taxes on securities trades. The Texas House approved it 111-31 and put it on the November 4, 2025 statewide ballot.",
+      "nay_description": "Voted against sending House Joint Resolution 4, a proposed constitutional amendment blocking taxes on securities trades. The Texas House approved it 111-31 and put it on the November 4, 2025 statewide ballot.",
+      "_current": {
+        "question": "Adopted RV#51",
+        "tally": "111-31",
+        "old_sentences": 4,
+        "old_chars": 303
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1541623,
+      "measure_id": "SB 14",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 14, which created a governor's office to cut needless agency rules and ended court deference to agencies. The bill became law after the Texas House passed it 97-51.",
+      "nay_description": "Voted against Senate Bill 14, which created a governor's office to cut needless agency rules and ended court deference to agencies. The bill became law after the Texas House passed it 97-51.",
+      "_current": {
+        "question": "Read 3rd time RV#91",
+        "tally": "97-51",
+        "old_sentences": 4,
+        "old_chars": 404
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1551194,
+      "measure_id": "SB 2",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass Senate Bill 2, which created education savings accounts families can use for private school tuition. The bill became law after the Texas House passed it 86-61.",
+      "nay_description": "Voted against Senate Bill 2, which created education savings accounts families can use for private school tuition. The bill became law after the Texas House passed it 86-61.",
+      "_current": {
+        "question": "Read 3rd time RV#300",
+        "tally": "86-61",
+        "old_sentences": 4,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1558765,
+      "measure_id": "HJR 98",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for House Joint Resolution 98, which asked Congress for a constitutional convention to limit federal spending and set term limits. The Texas House backed the request 86-57, and it became Texas's official application to Congress.",
+      "nay_description": "Voted against House Joint Resolution 98, which asked Congress for a constitutional convention to limit federal spending and set term limits. The Texas House backed the request 86-57, and it became Texas's official application to Congress.",
+      "_current": {
+        "question": "Adopted RV#602",
+        "tally": "86-57",
+        "old_sentences": 5,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1559068,
+      "measure_id": "SJR 18",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted to send Senate Joint Resolution 18, a proposed constitutional amendment permanently barring state taxes on capital gains. The Texas House approved it 104-26 and put it on the November 4, 2025 statewide ballot.",
+      "nay_description": "Voted against sending Senate Joint Resolution 18, a proposed constitutional amendment permanently barring state taxes on capital gains. The Texas House approved it 104-26 and put it on the November 4, 2025 statewide ballot.",
+      "_current": {
+        "question": "Adopted as amended RV#628",
+        "tally": "104-26",
+        "old_sentences": 4,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1567009,
+      "measure_id": "HB 223",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass House Bill 223, which makes cities seek competing offers for lobbying contracts. The bill became law after the Texas House passed it 92-56.",
+      "nay_description": "Voted against House Bill 223, which makes cities seek competing offers for lobbying contracts. The bill became law after the Texas House passed it 92-56.",
+      "_current": {
+        "question": "Read 3rd time RV#1600",
+        "tally": "92-56",
+        "old_sentences": 4,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1568356,
+      "measure_id": "HB 5033",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted to pass House Bill 5033, which ends state car emissions inspections only if the federal requirement is removed. The bill became law after the Texas House passed it 101-45.",
+      "nay_description": "Voted against House Bill 5033, which ends state car emissions inspections only if the federal requirement is removed. The bill became law after the Texas House passed it 101-45.",
+      "_current": {
+        "question": "Read 3rd time RV#1814",
+        "tally": "101-45",
+        "old_sentences": 4,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1569381,
+      "measure_id": "SB 1257",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted to pass Senate Bill 1257, which makes health plans that cover a gender transition procedure also cover its side effects and any reversal. The House passed it 87-58 and the law took effect September 1, 2025.",
+      "nay_description": "Voted against passing Senate Bill 1257, which makes health plans that cover a gender transition procedure also cover its side effects and any reversal. The House passed it 87-58 and the law took effect September 1, 2025.",
+      "_current": {
+        "question": "Read 3rd time RV#2153",
+        "tally": "87-58",
+        "old_sentences": 5,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1570131,
+      "measure_id": "HB 521",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted to pass House Bill 521, which tightens the rules for curbside voting, including a sworn statement of need. The bill became law after the Texas House passed it 84-54.",
+      "nay_description": "Voted against House Bill 521, which tightens the rules for curbside voting, including a sworn statement of need. The bill became law after the Texas House passed it 84-54.",
+      "_current": {
+        "question": "Read 3rd time RV#2293",
+        "tally": "84-54",
+        "old_sentences": 4,
+        "old_chars": 492
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1570293,
+      "measure_id": "HB 493",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted to pass House Bill 493, which bars people convicted of first- or second-degree felonies from serving as poll watchers. The bill became law after the Texas House passed it 86-52.",
+      "nay_description": "Voted against House Bill 493, which bars people convicted of first- or second-degree felonies from serving as poll watchers. The bill became law after the Texas House passed it 86-52.",
+      "_current": {
+        "question": "Read 3rd time RV#2292",
+        "tally": "86-52",
+        "old_sentences": 4,
+        "old_chars": 328
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1571090,
+      "measure_id": "HB 1586",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass House Bill 1586, which makes the state post the school vaccine exemption form online for anyone to print. The House passed it 83-54, the Senate agreed, and the law took effect September 1, 2025.",
+      "nay_description": "Voted against passing House Bill 1586, which makes the state post the school vaccine exemption form online for anyone to print. The House passed it 83-54, the Senate agreed, and the law took effect September 1, 2025.",
+      "_current": {
+        "question": "Read 3rd time RV#2465",
+        "tally": "83-54",
+        "old_sentences": 6,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1571911,
+      "measure_id": "HB 5115",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass House Bill 5115, which raises certain election fraud from a misdemeanor to a second-degree felony. The bill became law after the Texas House passed it 88-54.",
+      "nay_description": "Voted against House Bill 5115, which raises certain election fraud from a misdemeanor to a second-degree felony. The bill became law after the Texas House passed it 88-54.",
+      "_current": {
+        "question": "Read 3rd time RV#2619",
+        "tally": "88-54",
+        "old_sentences": 4,
+        "old_chars": 407
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1571942,
+      "measure_id": "SB 2284",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass Senate Bill 2284, which extends the ban on local firearm rules to bows, crossbows and arrows. The bill became law after the Texas House passed it 96-43.",
+      "nay_description": "Voted against Senate Bill 2284, which extends the ban on local firearm rules to bows, crossbows and arrows. The bill became law after the Texas House passed it 96-43.",
+      "_current": {
+        "question": "Read 3rd time RV#2595",
+        "tally": "96-43",
+        "old_sentences": 4,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1572782,
+      "measure_id": "HB 3441",
+      "vote_date": "2025-05-16",
+      "yea_description": "Voted to pass House Bill 3441, which lets people harmed by a vaccine sue its maker if the maker advertised it in Texas. The bill became law after the Texas House passed it 88-31.",
+      "nay_description": "Voted against House Bill 3441, which lets people harmed by a vaccine sue its maker if the maker advertised it in Texas. The bill became law after the Texas House passed it 88-31.",
+      "_current": {
+        "question": "Read 3rd time RV#2868",
+        "tally": "88-31",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1575103,
+      "measure_id": "SB 21",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted to pass Senate Bill 21, which created the Texas Strategic Bitcoin Reserve managed by the comptroller. The bill became law after the Texas House passed it 101-42.",
+      "nay_description": "Voted against Senate Bill 21, which created the Texas Strategic Bitcoin Reserve managed by the comptroller. The bill became law after the Texas House passed it 101-42.",
+      "_current": {
+        "question": "Read 3rd time RV#3153",
+        "tally": "101-42",
+        "old_sentences": 5,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1575967,
+      "measure_id": "SB 33",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 33, which bars government offices from using public money to help someone obtain an abortion. The bill became law after the Texas House passed it 87-58.",
+      "nay_description": "Voted against Senate Bill 33, which bars government offices from using public money to help someone obtain an abortion. The bill became law after the Texas House passed it 87-58.",
+      "_current": {
+        "question": "Read 3rd time RV#3195",
+        "tally": "87-58",
+        "old_sentences": 4,
+        "old_chars": 286
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1576825,
+      "measure_id": "SB 11",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 11, which lets school boards create a daily school prayer and religious-reading period. The bill became law after the Texas House passed it 88-48.",
+      "nay_description": "Voted against Senate Bill 11, which lets school boards create a daily school prayer and religious-reading period. The bill became law after the Texas House passed it 88-48.",
+      "_current": {
+        "question": "Read 3rd time RV#3315",
+        "tally": "88-48",
+        "old_sentences": 4,
+        "old_chars": 420
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1576843,
+      "measure_id": "SB 965",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 965, which protects a public school employee's religious speech or prayer while working. The bill became law after the Texas House passed it 86-48.",
+      "nay_description": "Voted against Senate Bill 965, which protects a public school employee's religious speech or prayer while working. The bill became law after the Texas House passed it 86-48.",
+      "_current": {
+        "question": "Read 3rd time RV#3339",
+        "tally": "86-48",
+        "old_sentences": 4,
+        "old_chars": 281
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1576867,
+      "measure_id": "SB 1036",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass Senate Bill 1036, which makes home solar sellers register, carry insurance and give buyers five days to cancel. The bill became law after the Texas House passed it 94-37.",
+      "nay_description": "Voted against Senate Bill 1036, which makes home solar sellers register, carry insurance and give buyers five days to cancel. The bill became law after the Texas House passed it 94-37.",
+      "_current": {
+        "question": "Read 3rd time RV#3312",
+        "tally": "94-37",
+        "old_sentences": 4,
+        "old_chars": 440
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1578072,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-25",
+      "yea_description": "Voted to pass Senate Bill 8, which requires every sheriff who runs a jail to seek a deal letting local officers help enforce immigration law. The bill became law after the Texas House passed it 86-47.",
+      "nay_description": "Voted against Senate Bill 8, which requires every sheriff who runs a jail to seek a deal letting local officers help enforce immigration law. The bill became law after the Texas House passed it 86-47.",
+      "_current": {
+        "question": "Read 3rd time RV#3502",
+        "tally": "86-47",
+        "old_sentences": 4,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1578076,
+      "measure_id": "SB 12",
+      "vote_date": "2025-05-25",
+      "yea_description": "Voted to pass Senate Bill 12, which bars public schools from diversity duties and from teaching about sexual orientation or gender identity. The bill became law after the Texas House passed it 88-47.",
+      "nay_description": "Voted against Senate Bill 12, which bars public schools from diversity duties and from teaching about sexual orientation or gender identity. The bill became law after the Texas House passed it 88-47.",
+      "_current": {
+        "question": "Read 3rd time RV#3506",
+        "tally": "88-47",
+        "old_sentences": 4,
+        "old_chars": 368
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1578719,
+      "measure_id": "SB 2835",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted to pass Senate Bill 2835, which lets cities approve apartment buildings of up to six stories with one stairway. The bill became law after the Texas House passed it 81-57.",
+      "nay_description": "Voted against Senate Bill 2835, which lets cities approve apartment buildings of up to six stories with one stairway. The bill became law after the Texas House passed it 81-57.",
+      "_current": {
+        "question": "Read 3rd time RV#3664",
+        "tally": "81-57",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1579859,
+      "measure_id": "SB 2337",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 2337, which makes shareholder advisory firms disclose advice based on environmental or diversity goals. The bill became law after the Texas House passed it 92-50.",
+      "nay_description": "Voted against Senate Bill 2337, which makes shareholder advisory firms disclose advice based on environmental or diversity goals. The bill became law after the Texas House passed it 92-50.",
+      "_current": {
+        "question": "Read 3rd time RV#3866",
+        "tally": "92-50",
+        "old_sentences": 4,
+        "old_chars": 428
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1579929,
+      "measure_id": "SB 510",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 510, which lets the secretary of state withhold voter-registration money from county officials who miss deadlines. The bill became law after the Texas House passed it 109-33.",
+      "nay_description": "Voted against Senate Bill 510, which lets the secretary of state withhold voter-registration money from county officials who miss deadlines. The bill became law after the Texas House passed it 109-33.",
+      "_current": {
+        "question": "Read 3rd time RV#3885",
+        "tally": "109-33",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1579978,
+      "measure_id": "SB 15",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 15, which caps lot-size rules on new subdivisions in large cities at 3,000 square feet. The bill became law after the Texas House passed it 86-43.",
+      "nay_description": "Voted against Senate Bill 15, which caps lot-size rules on new subdivisions in large cities at 3,000 square feet. The bill became law after the Texas House passed it 86-43.",
+      "_current": {
+        "question": "Read 3rd time RV#3837",
+        "tally": "86-43",
+        "old_sentences": 4,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1580064,
+      "measure_id": "SB 1362",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1362, which bars Texas offices from using red flag gun orders unless state law allows them. The bill became law after the Texas House passed it 86-53.",
+      "nay_description": "Voted against Senate Bill 1362, which bars Texas offices from using red flag gun orders unless state law allows them. The bill became law after the Texas House passed it 86-53.",
+      "_current": {
+        "question": "Read 3rd time RV#3869",
+        "tally": "86-53",
+        "old_sentences": 4,
+        "old_chars": 428
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1580073,
+      "measure_id": "SB 2972",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 2972, which limits the campus free-speech law to students and employees and bars overnight speech events. The bill became law after the Texas House passed it 97-39.",
+      "nay_description": "Voted against Senate Bill 2972, which limits the campus free-speech law to students and employees and bars overnight speech events. The bill became law after the Texas House passed it 97-39.",
+      "_current": {
+        "question": "Read 3rd time RV#3879",
+        "tally": "97-39",
+        "old_sentences": 4,
+        "old_chars": 406
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1581609,
+      "measure_id": "SB 17",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted yes on the final version of Senate Bill 17, which bars governments, companies and certain people tied to hostile countries from buying Texas property. The Texas House adopted the compromise 85-57, and it took effect September 1, 2025.",
+      "nay_description": "Voted no on the final version of Senate Bill 17, which bars governments, companies and certain people tied to hostile countries from buying Texas property. The Texas House adopted the compromise 85-57, and it took effect September 1, 2025.",
+      "_current": {
+        "question": "House adopts conference committee report RV#4047",
+        "tally": "85-57",
+        "old_sentences": 7,
+        "old_chars": 522
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1582092,
+      "measure_id": "HB 121",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to accept the Senate's version of House Bill 121, a school safety bill that makes districts renew any exception to the armed officer rule yearly. The House agreed 97-38, and it took effect September 1, 2025.",
+      "nay_description": "Voted against accepting the Senate's version of House Bill 121, a school safety bill that makes districts renew any exception to the armed officer rule yearly. The House agreed 97-38, and it took effect September 1, 2025.",
+      "_current": {
+        "question": "House concurs in Senate amendment(s) RV#4079",
+        "tally": "97-38",
+        "old_sentences": 14,
+        "old_chars": 1250
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1582405,
+      "measure_id": "SB 37",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted yes on the final version of Senate Bill 37, which gives public university boards control over core courses, provost hires and faculty senates. The Texas House adopted the compromise 83-47, and it took effect September 1, 2025.",
+      "nay_description": "Voted no on the final version of Senate Bill 37, which gives public university boards control over core courses, provost hires and faculty senates. The Texas House adopted the compromise 83-47, and it took effect September 1, 2025.",
+      "_current": {
+        "question": "House adopts conference committee report RV#4104",
+        "tally": "83-47",
+        "old_sentences": 7,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1582919,
+      "measure_id": "SB 13",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to approve the final, negotiated version of Senate Bill 13, a school library law giving elected school boards final approval of every library book. The Texas House approved the report 81-48 and the law took effect September 1, 2025.",
+      "nay_description": "Voted against the final, negotiated version of Senate Bill 13, a school library law giving elected school boards final approval of every library book. The Texas House approved the report 81-48 and the law took effect September 1, 2025.",
+      "_current": {
+        "question": "House adopts conference committee report RV#4115",
+        "tally": "81-48",
+        "old_sentences": 6,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1582950,
+      "measure_id": "SB 2024",
+      "vote_date": "2025-06-01",
+      "yea_description": "Voted yes on the final version of Senate Bill 2024, which bans vapes packaged or shaped to appeal to children and vapes made in China. The Texas House adopted the compromise 96-35, and it took effect September 1, 2025.",
+      "nay_description": "Voted no on the final version of Senate Bill 2024, which bans vapes packaged or shaped to appeal to children and vapes made in China. The Texas House adopted the compromise 96-35, and it took effect September 1, 2025.",
+      "_current": {
+        "question": "House adopts conference committee report RV#4165",
+        "tally": "96-35",
+        "old_sentences": 8,
+        "old_chars": 728
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1592100,
+      "measure_id": "SB 379",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted to pass the House version of Senate Bill 379, which barred food aid from buying sugary soft drinks. The House passed it 90-37 before a later House-Senate deal became law and also covered sweetened drinks without bubbles and candy.",
+      "nay_description": "Voted against the House version of Senate Bill 379, which barred food aid from buying sugary soft drinks. The House passed it 90-37 before a later House-Senate deal became law and also covered sweetened drinks without bubbles and candy.",
+      "_current": {
+        "question": "Read 3rd time RV#3308",
+        "tally": "90-37",
+        "old_sentences": 4,
+        "old_chars": 388
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1483210,
+      "measure_id": "SB 2",
+      "vote_date": "2025-02-05",
+      "yea_description": "Voted to pass Senate Bill 2, which created education savings accounts families can use for private school tuition. The bill became law after the Texas Senate passed it 19-12.",
+      "nay_description": "Voted against Senate Bill 2, which created education savings accounts families can use for private school tuition. The bill became law after the Texas Senate passed it 19-12.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "19-12",
+        "old_sentences": 4,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1520079,
+      "measure_id": "SJR 18",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted to send Senate Joint Resolution 18, a proposed constitutional amendment permanently barring state taxes on capital gains. The Texas Senate approved it 24-6 and put it on the November 4, 2025 statewide ballot.",
+      "nay_description": "Voted against sending Senate Joint Resolution 18, a proposed constitutional amendment permanently barring state taxes on capital gains. The Texas Senate approved it 24-6 and put it on the November 4, 2025 statewide ballot.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 397
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1522230,
+      "measure_id": "SB 15",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass Senate Bill 15, which caps lot-size rules on new subdivisions in large cities at 3,000 square feet. The bill became law after the Texas Senate passed it 24-7.",
+      "nay_description": "Voted against Senate Bill 15, which caps lot-size rules on new subdivisions in large cities at 3,000 square feet. The bill became law after the Texas Senate passed it 24-7.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1522908,
+      "measure_id": "SB 13",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass Senate Bill 13, a school library law giving elected school boards final approval of every library book. The bill became law after the Texas Senate passed it 23-8.",
+      "nay_description": "Voted against Senate Bill 13, a school library law giving elected school boards final approval of every library book. The bill became law after the Texas Senate passed it 23-8.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "23-8",
+        "old_sentences": 4,
+        "old_chars": 322
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1523046,
+      "measure_id": "SB 12",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass Senate Bill 12, which bars public schools from diversity duties and from teaching about sexual orientation or gender identity. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 12, which bars public schools from diversity duties and from teaching about sexual orientation or gender identity. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 5,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1523169,
+      "measure_id": "SB 17",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass Senate Bill 17, which bars governments, companies and certain people tied to hostile countries from buying Texas property. The bill became law after the Texas Senate passed it 24-7.",
+      "nay_description": "Voted against Senate Bill 17, which bars governments, companies and certain people tied to hostile countries from buying Texas property. The bill became law after the Texas Senate passed it 24-7.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 355
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1524539,
+      "measure_id": "SB 11",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted to pass Senate Bill 11, which lets school boards create a daily school prayer and religious-reading period. The bill became law after the Texas Senate passed it 23-7.",
+      "nay_description": "Voted against Senate Bill 11, which lets school boards create a daily school prayer and religious-reading period. The bill became law after the Texas Senate passed it 23-7.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "23-7",
+        "old_sentences": 4,
+        "old_chars": 420
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1529212,
+      "measure_id": "SB 1362",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to pass Senate Bill 1362, which bars Texas offices from using red flag gun orders unless state law allows them. The bill became law after the Texas Senate passed it 19-11.",
+      "nay_description": "Voted against Senate Bill 1362, which bars Texas offices from using red flag gun orders unless state law allows them. The bill became law after the Texas Senate passed it 19-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "19-11",
+        "old_sentences": 4,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1533610,
+      "measure_id": "SB 965",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted to pass Senate Bill 965, which protects a public school employee's religious speech or prayer while working. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 965, which protects a public school employee's religious speech or prayer while working. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 282
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1539641,
+      "measure_id": "SB 1036",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass Senate Bill 1036, which makes home solar sellers register, carry insurance and give buyers five days to cancel. The bill became law after the Texas Senate passed it 22-8.",
+      "nay_description": "Voted against Senate Bill 1036, which makes home solar sellers register, carry insurance and give buyers five days to cancel. The bill became law after the Texas Senate passed it 22-8.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "22-8",
+        "old_sentences": 4,
+        "old_chars": 440
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1550482,
+      "measure_id": "SB 33",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 33, which bars government offices from using public money to help someone obtain an abortion. The bill became law after the Texas Senate passed it 22-9.",
+      "nay_description": "Voted against Senate Bill 33, which bars government offices from using public money to help someone obtain an abortion. The bill became law after the Texas Senate passed it 22-9.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "22-9",
+        "old_sentences": 4,
+        "old_chars": 286
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1550655,
+      "measure_id": "SB 37",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass Senate Bill 37, which gives public university boards control over core courses, provost hires and faculty senates. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 37, which gives public university boards control over core courses, provost hires and faculty senates. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 339
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1557810,
+      "measure_id": "SB 1257",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted to pass Senate Bill 1257, which makes health plans that cover a gender transition procedure also cover its side effects and any reversal. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 1257, which makes health plans that cover a gender transition procedure also cover its side effects and any reversal. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 370
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1568579,
+      "measure_id": "SB 2337",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted to pass Senate Bill 2337, which makes shareholder advisory firms disclose advice based on environmental or diversity goals. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 2337, which makes shareholder advisory firms disclose advice based on environmental or diversity goals. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1568736,
+      "measure_id": "HJR 98",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted for House Joint Resolution 98, which asked Congress for a constitutional convention to limit federal spending and set term limits. The Texas Senate backed the request 17-14, and it became Texas's official application to Congress.",
+      "nay_description": "Voted against House Joint Resolution 98, which asked Congress for a constitutional convention to limit federal spending and set term limits. The Texas Senate backed the request 17-14, and it became Texas's official application to Congress.",
+      "_current": {
+        "question": "Adopted",
+        "tally": "17-14",
+        "old_sentences": 5,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1570671,
+      "measure_id": "SB 510",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted to pass Senate Bill 510, which lets the secretary of state withhold voter-registration money from county officials who miss deadlines. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against Senate Bill 510, which lets the secretary of state withhold voter-registration money from county officials who miss deadlines. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1571446,
+      "measure_id": "SB 2972",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass Senate Bill 2972, which limits the campus free-speech law to students and employees and bars overnight speech events. The bill became law after the Texas Senate passed it 21-10.",
+      "nay_description": "Voted against Senate Bill 2972, which limits the campus free-speech law to students and employees and bars overnight speech events. The bill became law after the Texas Senate passed it 21-10.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "21-10",
+        "old_sentences": 4,
+        "old_chars": 407
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1578444,
+      "measure_id": "HB 5033",
+      "vote_date": "2025-05-25",
+      "yea_description": "Voted to pass House Bill 5033, which ends state car emissions inspections only if the federal requirement is removed. The bill became law after the Texas Senate passed it 21-10.",
+      "nay_description": "Voted against House Bill 5033, which ends state car emissions inspections only if the federal requirement is removed. The bill became law after the Texas Senate passed it 21-10.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "21-10",
+        "old_sentences": 4,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1581098,
+      "measure_id": "HB 3441",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted to pass House Bill 3441, which lets people harmed by a vaccine sue its maker if the maker advertised it in Texas. The bill became law after the Texas Senate passed it 21-10.",
+      "nay_description": "Voted against House Bill 3441, which lets people harmed by a vaccine sue its maker if the maker advertised it in Texas. The bill became law after the Texas Senate passed it 21-10.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "21-10",
+        "old_sentences": 4,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1581600,
+      "measure_id": "HB 521",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass House Bill 521, which tightens the rules for curbside voting, including a sworn statement of need. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against House Bill 521, which tightens the rules for curbside voting, including a sworn statement of need. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 493
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1581625,
+      "measure_id": "HB 223",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass House Bill 223, which makes cities seek competing offers for lobbying contracts. The bill became law after the Texas Senate passed it 19-12.",
+      "nay_description": "Voted against House Bill 223, which makes cities seek competing offers for lobbying contracts. The bill became law after the Texas Senate passed it 19-12.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "19-12",
+        "old_sentences": 4,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1581662,
+      "measure_id": "HB 5115",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass House Bill 5115, which raises certain election fraud from a misdemeanor to a second-degree felony. The bill became law after the Texas Senate passed it 21-10.",
+      "nay_description": "Voted against House Bill 5115, which raises certain election fraud from a misdemeanor to a second-degree felony. The bill became law after the Texas Senate passed it 21-10.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "21-10",
+        "old_sentences": 4,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1583930,
+      "measure_id": "SB 21",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to accept the final House-Senate deal on Senate Bill 21, which created the Texas Strategic Bitcoin Reserve managed by the comptroller. The bill became law after the Texas Senate approved the compromise 23-8.",
+      "nay_description": "Voted against the final House-Senate deal on Senate Bill 21, which created the Texas Strategic Bitcoin Reserve managed by the comptroller. The bill became law after the Texas Senate approved the compromise 23-8.",
+      "_current": {
+        "question": "Senate adopts conference committee report",
+        "tally": "23-8",
+        "old_sentences": 5,
+        "old_chars": 490
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1585629,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the final House-Senate deal on Senate Bill 8, which requires every sheriff who runs a jail to seek a deal letting local officers help enforce immigration law. The bill became law after the Texas Senate approved it 20-11.",
+      "nay_description": "Voted against the final House-Senate deal on Senate Bill 8, which requires every sheriff who runs a jail to seek a deal letting local officers help enforce immigration law. The bill became law after the Texas Senate approved it 20-11.",
+      "_current": {
+        "question": "Senate adopts conference committee report",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1587476,
+      "measure_id": "HB 493",
+      "vote_date": "2025-06-01",
+      "yea_description": "Voted to approve the final, negotiated version of House Bill 493, which bars people convicted of first- or second-degree felonies from serving as poll watchers. The Senate adopted the report 23-8 and the law took effect September 1, 2025.",
+      "nay_description": "Voted against the final, negotiated version of House Bill 493, which bars people convicted of first- or second-degree felonies from serving as poll watchers. The Senate adopted the report 23-8 and the law took effect September 1, 2025.",
+      "_current": {
+        "question": "Senate adopts conference committee report",
+        "tally": "23-8",
+        "old_sentences": 7,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1592264,
+      "measure_id": "SB 379",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to pass the Senate version of Senate Bill 379, which barred food aid from buying sugary soft drinks. The Senate passed it 22-8 before a later House-Senate deal became law and narrowed the ban to sweetened drinks and candy.",
+      "nay_description": "Voted against the Senate version of Senate Bill 379, which barred food aid from buying sugary soft drinks. The Senate passed it 22-8 before a later House-Senate deal became law and narrowed the ban to sweetened drinks and candy.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "22-8",
+        "old_sentences": 4,
+        "old_chars": 352
+      }
+    }
+  ]
+}

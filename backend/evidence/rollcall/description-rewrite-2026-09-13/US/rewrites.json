@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "US",
+      "chamber": "house",
+      "session": "117-1",
+      "roll": 260,
+      "measure_id": "H R 4",
+      "vote_date": "2021-08-24",
+      "yea_description": "Voted for H.R. 4, the John R. Lewis Voting Rights Advancement Act, which restored federal approval of voting changes in places with a record of discrimination. The House passed it 219-212.",
+      "nay_description": "Voted against H.R. 4, the John R. Lewis Voting Rights Advancement Act, which restored federal approval of voting changes in places with a record of discrimination. The House passed it 219-212.",
+      "_current": {
+        "question": "On Passage",
+        "tally": "219-212",
+        "old_sentences": 2,
+        "old_chars": 240
+      }
+    }
+  ]
+}

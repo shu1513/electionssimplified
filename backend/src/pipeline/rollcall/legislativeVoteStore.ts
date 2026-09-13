@@ -2,6 +2,7 @@ import type { Pool } from "pg";
 
 import { parseFederalMeasure } from "./federalMeasures.js";
 import type { LegislativeVoteChamber, LegislativeVoteReviewStatus } from "./legislativeVotes.js";
+import { describeRollCallDescriptionLengthProblem } from "./rollCallDescriptionLength.js";
 
 type Queryable = Pick<Pool, "query">;
 
@@ -519,6 +520,7 @@ export async function applyLegislativeVoteJudgment(
         throw new Error(`${name}: ${field} does not cite this roll call's tally ${tally}; describe the vote being approved`);
       }
     }
+    assertDescriptionLengths(name, judgment.yeaDescription, judgment.nayDescription);
     // 2. Superseded-stage gate: another kept floor vote on the same measure
     //    in the same chamber, on or after this one's date, means this vote
     //    may not be the chamber's final action, and a record citing only
@@ -607,4 +609,125 @@ export async function applyLegislativeVoteJudgment(
     [row.id, judgment.yeaDescription, judgment.nayDescription, labelsJson, judgment.officialVoteDate, judgment.reviewStatus]
   );
   return "updated";
+}
+
+// 3. Length gate (2026-09-13): a description is the vote, the bill's plain
+//    effect, and the tally — not a bill digest. See rollCallDescriptionLength.ts.
+function assertDescriptionLengths(name: string, yeaDescription: string, nayDescription: string): void {
+  for (const [field, text] of [
+    ["yea_description", yeaDescription],
+    ["nay_description", nayDescription],
+  ] as const) {
+    const problem = describeRollCallDescriptionLengthProblem(text);
+    if (problem !== null) {
+      throw new Error(`${name}: ${field} ${problem}`);
+    }
+  }
+}
+
+export type LegislativeVoteDescriptionRewrite = {
+  jurisdiction: string;
+  chamber: LegislativeVoteChamber;
+  session: string;
+  rollNumber: number;
+  measureId: string | null;
+  voteDate: string;
+  yeaDescription: string;
+  nayDescription: string;
+};
+
+export type LegislativeVoteDescriptionRewriteResult = {
+  outcome: "unchanged" | "updated";
+  id: string;
+  oldYeaDescription: string;
+  oldNayDescription: string;
+};
+
+/**
+ * Wording-only change to an APPROVED roll call: the two sentences move,
+ * labels, dates, and review status stay exactly as judged. Used by the
+ * description-length campaign (rollcall:rewrite), where re-running the
+ * full judgment would re-litigate stage acknowledgements and overwrite
+ * labels added by later backfills. Gated on the tally and on length like
+ * an approval; refuses a pending row (judge it instead).
+ */
+export async function applyLegislativeVoteDescriptionRewrite(
+  db: Queryable,
+  rewrite: LegislativeVoteDescriptionRewrite
+): Promise<LegislativeVoteDescriptionRewriteResult> {
+  const current = await db.query<{
+    id: string;
+    measure_id: string | null;
+    vote_date: string;
+    review_status: LegislativeVoteReviewStatus;
+    yeas: number;
+    nays: number;
+    yea_description: string | null;
+    nay_description: string | null;
+  }>(
+    `SELECT id, measure_id, vote_date::text AS vote_date, review_status, yeas, nays, yea_description, nay_description
+       FROM legislative_votes
+      WHERE jurisdiction = $1
+        AND chamber = $2
+        AND session = $3
+        AND roll_number = $4
+      FOR UPDATE`,
+    [rewrite.jurisdiction, rewrite.chamber, rewrite.session, rewrite.rollNumber]
+  );
+  const row = current.rows[0];
+  const name = `${rewrite.jurisdiction} ${rewrite.chamber} ${rewrite.session} roll ${rewrite.rollNumber}`;
+  if (!row) {
+    throw new Error(`${name} is not in legislative_votes`);
+  }
+  if (!sameMeasure(row.measure_id, rewrite.measureId) || row.vote_date !== rewrite.voteDate) {
+    throw new Error(
+      `${name} is ${row.measure_id ?? "no measure"} on ${row.vote_date}, but the rewrite says ${rewrite.measureId ?? "no measure"} on ${rewrite.voteDate}`
+    );
+  }
+  if (row.review_status !== "approved" || row.yea_description === null || row.nay_description === null) {
+    throw new Error(`${name} is ${row.review_status}; rollcall:rewrite only rewords approved roll calls (use rollcall:judge)`);
+  }
+  if (rewrite.yeaDescription.toLowerCase() === rewrite.nayDescription.toLowerCase()) {
+    throw new Error(`${name}: yea_description and nay_description are the same sentence`);
+  }
+  const base = {
+    outcome: "unchanged" as const,
+    id: row.id,
+    oldYeaDescription: row.yea_description,
+    oldNayDescription: row.nay_description,
+  };
+  if (row.yea_description === rewrite.yeaDescription && row.nay_description === rewrite.nayDescription) {
+    return base;
+  }
+  const tally = `${row.yeas}-${row.nays}`;
+  const tallyPattern = new RegExp(`(?<![\\d-])${row.yeas}-${row.nays}(?!\\d)`);
+  for (const [field, text] of [
+    ["yea_description", rewrite.yeaDescription],
+    ["nay_description", rewrite.nayDescription],
+  ] as const) {
+    if (!tallyPattern.test(text)) {
+      throw new Error(`${name}: ${field} does not cite this roll call's tally ${tally}`);
+    }
+  }
+  assertDescriptionLengths(name, rewrite.yeaDescription, rewrite.nayDescription);
+  // The freeze trigger refuses edits to an approved row, so the row passes
+  // through pending and is re-approved in the same transaction — the same
+  // two steps rollcall:judge takes for a corrected approved judgment.
+  await db.query(
+    `UPDATE legislative_votes
+        SET review_status = 'pending',
+            reviewed_at = NULL
+      WHERE id = $1`,
+    [row.id]
+  );
+  await db.query(
+    `UPDATE legislative_votes
+        SET yea_description = $2,
+            nay_description = $3,
+            review_status = 'approved',
+            reviewed_at = now()
+      WHERE id = $1`,
+    [row.id, rewrite.yeaDescription, rewrite.nayDescription]
+  );
+  return { ...base, outcome: "updated" };
 }

@@ -1,0 +1,256 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WY/rewrites.json",
+  "dryRun": false,
+  "rolls": 35,
+  "updatedRolls": 35,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 792,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WY:house:2157:1488229",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1498230",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1500225",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1502833",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1504261",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1504265",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1504299",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1504563",
+      "outcome": "updated",
+      "rewritten": 32,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2157:1504899",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1640448",
+      "outcome": "updated",
+      "rewritten": 34,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1644185",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1648095",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1648998",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1651597",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1652857",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1653001",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1653079",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1653913",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1654905",
+      "outcome": "updated",
+      "rewritten": 34,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:house:2213:1655202",
+      "outcome": "updated",
+      "rewritten": 34,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1472116",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1472166",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1472543",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1496298",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1497435",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1503522",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1504059",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1504898",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1505444",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1505869",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1506086",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1506616",
+      "outcome": "updated",
+      "rewritten": 9,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2157:1507367",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2213:1634007",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "WY:senate:2213:1652524",
+      "outcome": "updated",
+      "rewritten": 10,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

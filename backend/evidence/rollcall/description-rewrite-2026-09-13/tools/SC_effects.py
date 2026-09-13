@@ -1,0 +1,18 @@
+EFFECTS = {
+ "H 3927": "the Ending Illegal Discrimination and Restoring Merit-Based Opportunity Act, a bill to bar diversity offices in government and schools",
+ "H 3045": "a bill to create the crime of obscene visual representations of child sexual abuse",
+ "H 3645": "a bill to increase paid parental leave for state employees",
+ "S 171": "which makes it illegal to put an unsafe used tire on a car or light truck",
+ "H 3276": "the South Carolina Hands-Free and Distracted Driving Act, which bars drivers from holding a phone",
+ "S 214": "which rewrote the Commission for Minority Affairs as the Commission for Community Advancement and Engagement",
+ "S 287": "which limits vape sales to products cleared by the federal Food and Drug Administration",
+ "H 4760": "a bill to make giving a pregnant woman abortion-inducing drugs a felony",
+ "H 4216": "a state income tax cut taxing the first $30,000 at 1.99 percent and the rest at 5.21 percent",
+ "H 4767": "a bill to ban noncompete clauses in doctors' employment contracts",
+ "H 4764": "a bill to require every jail-running agency to sign a federal immigration enforcement agreement",
+ "H 4756": "the South Carolina Student Physical Privacy Act, which sets school restrooms and locker rooms aside by sex at birth",
+ "S 933": "which set legislator pay at $15,000 plus a $32,500 in-district allowance",
+ "S 508": "which widened the monuments and memorials that may not be moved without the General Assembly's approval",
+ "H 5683": "a bill to redraw South Carolina's seven U.S. House districts",
+ "H 3558": "which set the rules for South Carolina's commissioners to an Article V constitutional convention",
+}

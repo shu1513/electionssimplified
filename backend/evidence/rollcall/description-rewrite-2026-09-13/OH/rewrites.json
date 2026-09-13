@@ -1,0 +1,356 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1742433648,
+      "measure_id": "SB 1",
+      "vote_date": "2025-03-19",
+      "yea_description": "Voted to pass S.B. 1, the Advance Ohio Higher Education Act, which banned diversity offices at public universities and barred faculty strikes. It passed the Ohio House 59-34 and was signed into law.",
+      "nay_description": "Voted against passing S.B. 1, the Advance Ohio Higher Education Act, which banned diversity offices at public universities and barred faculty strikes. It passed the Ohio House 59-34 and was signed into law.",
+      "_current": {
+        "question": "Passed",
+        "tally": "59-34",
+        "old_sentences": 2,
+        "old_chars": 294
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1750287866,
+      "measure_id": "HB 116",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted to pass H.B. 116, the Ohio Blockchain Basics Act, which bars governments from impairing a person's right to hold or accept digital assets. It passed the Ohio House 70-26.",
+      "nay_description": "Voted against passing H.B. 116, the Ohio Blockchain Basics Act, which bars governments from impairing a person's right to hold or accept digital assets. It passed the Ohio House 70-26.",
+      "_current": {
+        "question": "Passed",
+        "tally": "70-26",
+        "old_sentences": 4,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1762391504,
+      "measure_id": "SB 50",
+      "vote_date": "2025-11-05",
+      "yea_description": "Voted to pass S.B. 50, a bill to let 14- and 15-year-olds work until 9 p.m. year-round with a parent's approval. It passed the Ohio House 62-30 and was vetoed by the Governor.",
+      "nay_description": "Voted against passing S.B. 50, a bill to let 14- and 15-year-olds work until 9 p.m. year-round with a parent's approval. It passed the Ohio House 62-30 and was vetoed by the Governor.",
+      "_current": {
+        "question": "Passed",
+        "tally": "62-30",
+        "old_sentences": 2,
+        "old_chars": 297
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763604123,
+      "measure_id": "SB 293",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to pass S.B. 293, which required mailed absentee ballots to arrive by the close of polls on Election Day. It passed the Ohio House 61-30 and was signed into law.",
+      "nay_description": "Voted against passing S.B. 293, which required mailed absentee ballots to arrive by the close of polls on Election Day. It passed the Ohio House 61-30 and was signed into law.",
+      "_current": {
+        "question": "Passed",
+        "tally": "61-30",
+        "old_sentences": 2,
+        "old_chars": 381
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763605433,
+      "measure_id": "HB 88",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to pass H.B. 88, which increased penalties for trafficking cocaine, fentanyl, heroin and methamphetamine. It passed the Ohio House 71-18.",
+      "nay_description": "Voted against passing H.B. 88, which increased penalties for trafficking cocaine, fentanyl, heroin and methamphetamine. It passed the Ohio House 71-18.",
+      "_current": {
+        "question": "Passed",
+        "tally": "71-18",
+        "old_sentences": 2,
+        "old_chars": 352
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763614397,
+      "measure_id": "HB 485",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to pass H.B. 485, the Baby Olivia Act, which required schools to teach human development with an ultrasound video. It passed the Ohio House 59-27.",
+      "nay_description": "Voted against passing H.B. 485, the Baby Olivia Act, which required schools to teach human development with an ultrasound video. It passed the Ohio House 59-27.",
+      "_current": {
+        "question": "Passed",
+        "tally": "59-27",
+        "old_sentences": 2,
+        "old_chars": 329
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763617311,
+      "measure_id": "HB 492",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to pass Substitute House Bill 492, which widened the crime of interfering with an officer making an arrest and raised its penalty. The House passed it 59-21, the Senate later passed it 24-9, and Governor Mike DeWine signed it on July 7, 2026.",
+      "nay_description": "Voted against Substitute House Bill 492, which widened the crime of interfering with an officer making an arrest and raised its penalty. The House passed it 59-21, the Senate later passed it 24-9, and Governor Mike DeWine signed it on July 7, 2026.",
+      "_current": {
+        "question": "Passed",
+        "tally": "59-21",
+        "old_sentences": 7,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763637329,
+      "measure_id": "SB 56",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted yes on the final compromise version of Senate Bill 56, Ohio's marijuana rewrite, which moved adult-use rules into the medical chapter and capped dispensaries at 400. The House agreed to the conference report 52-34, and it became law.",
+      "nay_description": "Voted no on the final compromise version of Senate Bill 56, Ohio's marijuana rewrite, which moved adult-use rules into the medical chapter and capped dispensaries at 400. The House agreed to the conference report 52-34, and it became law.",
+      "_current": {
+        "question": "Conference report agreed to",
+        "tally": "52-34",
+        "old_sentences": 8,
+        "old_chars": 633
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1772069636,
+      "measure_id": "HB 503",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted to pass H.B. 503, which required voter approval before a municipality cuts or repeals an income tax reciprocity credit. It passed the Ohio House 65-27.",
+      "nay_description": "Voted against passing H.B. 503, which required voter approval before a municipality cuts or repeals an income tax reciprocity credit. It passed the Ohio House 65-27.",
+      "_current": {
+        "question": "Passed",
+        "tally": "65-27",
+        "old_sentences": 2,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1773874979,
+      "measure_id": "HB 92",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass H.B. 92, which barred municipalities from putting a lien on rental property over a tenant's unpaid water bills. It passed the Ohio House 67-30.",
+      "nay_description": "Voted against passing H.B. 92, which barred municipalities from putting a lien on rental property over a tenant's unpaid water bills. It passed the Ohio House 67-30.",
+      "_current": {
+        "question": "Passed",
+        "tally": "67-30",
+        "old_sentences": 2,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1774485008,
+      "measure_id": "HB 249",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted to pass H.B. 249, the Indecent Exposure Modernization Act, which created the offense of unlawful adult cabaret performance. It passed the Ohio House 63-32.",
+      "nay_description": "Voted against passing H.B. 249, the Indecent Exposure Modernization Act, which created the offense of unlawful adult cabaret performance. It passed the Ohio House 63-32.",
+      "_current": {
+        "question": "Passed",
+        "tally": "63-32",
+        "old_sentences": 2,
+        "old_chars": 372
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1774485447,
+      "measure_id": "HB 252",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted to pass H.B. 252, which created new burglary and trespass offenses that no longer require force, stealth or deception. It passed the Ohio House 70-25.",
+      "nay_description": "Voted against passing H.B. 252, which created new burglary and trespass offenses that no longer require force, stealth or deception. It passed the Ohio House 70-25.",
+      "_current": {
+        "question": "Passed",
+        "tally": "70-25",
+        "old_sentences": 2,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1774487705,
+      "measure_id": "HB 347",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted to pass H.B. 347, the SHE WINS Act, which permitted an elective abortion only after a 24-hour informed consent meeting. It passed the Ohio House 64-32.",
+      "nay_description": "Voted against passing H.B. 347, the SHE WINS Act, which permitted an elective abortion only after a 24-hour informed consent meeting. It passed the Ohio House 64-32.",
+      "_current": {
+        "question": "Passed",
+        "tally": "64-32",
+        "old_sentences": 2,
+        "old_chars": 345
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1781055485,
+      "measure_id": "HB 319",
+      "vote_date": "2026-06-09",
+      "yea_description": "Voted to pass H.B. 319, the Clinical Teaching Subsidy Reform Act, which set a yearly clinical teaching subsidy for public medical schools. It passed the Ohio House 70-26.",
+      "nay_description": "Voted against passing H.B. 319, the Clinical Teaching Subsidy Reform Act, which set a yearly clinical teaching subsidy for public medical schools. It passed the Ohio House 70-26.",
+      "_current": {
+        "question": "Passed",
+        "tally": "70-26",
+        "old_sentences": 2,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1781207418,
+      "measure_id": "HB 173",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted yes on accepting the Senate's changes to House Bill 173, which took electric submetering companies out of the legal definition of a public utility. The Ohio House agreed 56-35, but the governor vetoed the bill on June 24, 2026.",
+      "nay_description": "Voted no on accepting the Senate's changes to House Bill 173, which took electric submetering companies out of the legal definition of a public utility. The Ohio House agreed 56-35, but the governor vetoed the bill on June 24, 2026.",
+      "_current": {
+        "question": "Concurred in Senate amendments",
+        "tally": "56-35",
+        "old_sentences": 8,
+        "old_chars": 723
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1743028529,
+      "measure_id": "SB 1",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 1, the Advance Ohio Higher Education Act, which banned diversity offices at public universities and barred faculty strikes. The Ohio Senate agreed 20-11, and the governor signed it on March 28, 2025.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 1, the Advance Ohio Higher Education Act, which banned diversity offices at public universities and barred faculty strikes. The Ohio Senate agreed 20-11, and the governor signed it on March 28, 2025.",
+      "_current": {
+        "question": "Concurred in House amendments",
+        "tally": "20-11",
+        "old_sentences": 4,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1744237690,
+      "measure_id": "SB 50",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass S.B. 50, a bill to let 14- and 15-year-olds work until 9 p.m. year-round with a parent's approval. It passed the Ohio Senate 24-9 and was vetoed by the Governor.",
+      "nay_description": "Voted against passing S.B. 50, a bill to let 14- and 15-year-olds work until 9 p.m. year-round with a parent's approval. It passed the Ohio Senate 24-9 and was vetoed by the Governor.",
+      "_current": {
+        "question": "Passed",
+        "tally": "24-9",
+        "old_sentences": 2,
+        "old_chars": 297
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1750290051,
+      "measure_id": "SB 172",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted to pass S.B. 172, which required public officials to allow the arrest of anyone unlawfully present for deportation proceedings. It passed the Ohio Senate 23-8.",
+      "nay_description": "Voted against passing S.B. 172, which required public officials to allow the arrest of anyone unlawfully present for deportation proceedings. It passed the Ohio Senate 23-8.",
+      "_current": {
+        "question": "Passed",
+        "tally": "23-8",
+        "old_sentences": 2,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1763696144,
+      "measure_id": "SB 293",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 293, which required mailed absentee ballots to arrive by the close of polls on Election Day. The Senate agreed 23-10 and the governor signed it on December 19, 2025.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 293, which required mailed absentee ballots to arrive by the close of polls on Election Day. The Senate agreed 23-10 and the governor signed it on December 19, 2025.",
+      "_current": {
+        "question": "Concurred in House amendments",
+        "tally": "23-10",
+        "old_sentences": 5,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1765324310,
+      "measure_id": "SB 56",
+      "vote_date": "2025-12-09",
+      "yea_description": "Voted to agree to the conference report on S.B. 56, Ohio's marijuana rewrite, which moved adult-use rules into the medical chapter and capped dispensaries at 400. It passed the Ohio Senate 22-7 and was signed into law.",
+      "nay_description": "Voted against the conference report on S.B. 56, Ohio's marijuana rewrite, which moved adult-use rules into the medical chapter and capped dispensaries at 400. It passed the Ohio Senate 22-7 and was signed into law.",
+      "_current": {
+        "question": "Conference report agreed to",
+        "tally": "22-7",
+        "old_sentences": 2,
+        "old_chars": 400
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1781149605,
+      "measure_id": "HB 492",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted to pass House Bill 492, which widened the crime of interfering with an officer making an arrest and raised its penalty. The Senate passed it 24-9 and the governor signed it on July 7, 2026.",
+      "nay_description": "Voted against passing House Bill 492, which widened the crime of interfering with an officer making an arrest and raised its penalty. The Senate passed it 24-9 and the governor signed it on July 7, 2026.",
+      "_current": {
+        "question": "Passed",
+        "tally": "24-9",
+        "old_sentences": 5,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1781162536,
+      "measure_id": "HB 173",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted to pass House Bill 173, which took electric submetering companies out of the legal definition of a public utility. The Senate passed it 24-9, the House agreed the next day, and the governor vetoed it on June 24, 2026.",
+      "nay_description": "Voted against passing House Bill 173, which took electric submetering companies out of the legal definition of a public utility. The Senate passed it 24-9, the House agreed the next day, and the governor vetoed it on June 24, 2026.",
+      "_current": {
+        "question": "Passed",
+        "tally": "24-9",
+        "old_sentences": 6,
+        "old_chars": 562
+      }
+    }
+  ]
+}

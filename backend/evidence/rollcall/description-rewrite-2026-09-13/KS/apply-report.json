@@ -1,0 +1,200 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/KS/rewrites.json",
+  "dryRun": false,
+  "rolls": 27,
+  "updatedRolls": 27,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 1977,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "KS:house:2178:1478079",
+      "outcome": "updated",
+      "rewritten": 71,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1490405",
+      "outcome": "updated",
+      "rewritten": 71,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1495761",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1523393",
+      "outcome": "updated",
+      "rewritten": 70,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1524944",
+      "outcome": "updated",
+      "rewritten": 72,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1525875",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1526411",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1527278",
+      "outcome": "updated",
+      "rewritten": 72,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1528112",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1529499",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543277",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543283",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543322",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543783",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1543820",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1544084",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1544195",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1637133",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1654275",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1671987",
+      "outcome": "updated",
+      "rewritten": 73,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679834",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679846",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679897",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679944",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1679992",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1680080",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KS:house:2178:1680330",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

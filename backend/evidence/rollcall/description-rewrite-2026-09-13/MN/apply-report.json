@@ -1,0 +1,32 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/MN/rewrites.json",
+  "dryRun": false,
+  "rolls": 3,
+  "updatedRolls": 3,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 269,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "MN:house:2151:1570373",
+      "outcome": "updated",
+      "rewritten": 113,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "MN:house:2217:1588802",
+      "outcome": "updated",
+      "rewritten": 112,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "MN:senate:2217:1587239",
+      "outcome": "updated",
+      "rewritten": 44,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

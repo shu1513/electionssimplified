@@ -1,0 +1,788 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1498074,
+      "measure_id": "HB 7066",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted to pass House Bill 7066, which makes every school name an administrator to handle contacts with federal immigration officers. It passed the Connecticut House of Representatives 94-49 and became law.",
+      "nay_description": "Voted against passing House Bill 7066, which makes every school name an administrator to handle contacts with federal immigration officers. It passed the Connecticut House of Representatives 94-49 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 27 EMERGENCY CERTIFICATION",
+        "tally": "94-49",
+        "old_sentences": 10,
+        "old_chars": 995
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1562360,
+      "measure_id": "HB 7042",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted to pass House Bill 7042, which lets people sue gun makers and sellers that fail to keep reasonable controls over sales. It passed the Connecticut House of Representatives 100-46 and became law.",
+      "nay_description": "Voted against passing House Bill 7042, which lets people sue gun makers and sellers that fail to keep reasonable controls over sales. It passed the Connecticut House of Representatives 100-46 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 54 AS AMENDED",
+        "tally": "100-46",
+        "old_sentences": 9,
+        "old_chars": 1041
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1564141,
+      "measure_id": "HB 5004",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted to pass House Bill 5004, which sets new state targets for cutting greenhouse gases and creates a Clean Economy Council. It passed the Connecticut House of Representatives 98-47 and became law.",
+      "nay_description": "Voted against passing House Bill 5004, which sets new state targets for cutting greenhouse gases and creates a Clean Economy Council. It passed the Connecticut House of Representatives 98-47 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 62 AS AMENDED",
+        "tally": "98-47",
+        "old_sentences": 10,
+        "old_chars": 1032
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1567355,
+      "measure_id": "HB 6907",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass HB 6907, a bill to limit production quotas at large warehouse distribution centers. The Connecticut House passed it 97-48. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 6907, a bill to limit production quotas at large warehouse distribution centers. The Connecticut House passed it 97-48. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 72 AS AMENDED",
+        "tally": "97-48",
+        "old_sentences": 6,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1571795,
+      "measure_id": "HB 7248",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass HB 7248, a bill to let the public health commissioner put water cross-connection rules into effect early. The Connecticut House passed it 101-46. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7248, a bill to let the public health commissioner put water cross-connection rules into effect early. The Connecticut House passed it 101-46. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 117 AS AMENDED",
+        "tally": "101-46",
+        "old_sentences": 5,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1571909,
+      "measure_id": "HB 6477",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass HB 6477, a bill to require a plan for translating state forms for people with limited English. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 6477, a bill to require a plan for translating state forms for people with limited English. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 118 AS AMENDED",
+        "tally": "100-46",
+        "old_sentences": 4,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1572537,
+      "measure_id": "HB 7158",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass HB 7158, a bill to let a provider send a minor's safety plan to the child's school with consent. The Connecticut House passed it 105-42. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7158, a bill to let a provider send a minor's safety plan to the child's school with consent. The Connecticut House passed it 105-42. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 123 AS AMENDED",
+        "tally": "105-42",
+        "old_sentences": 6,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1573756,
+      "measure_id": "HB 7065",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted to pass HB 7065, a bill to take possession of small amounts of psilocybin out of criminal penalties. The Connecticut House passed it 74-65. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7065, a bill to take possession of small amounts of psilocybin out of criminal penalties. The Connecticut House passed it 74-65. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 145",
+        "tally": "74-65",
+        "old_sentences": 4,
+        "old_chars": 278
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1574203,
+      "measure_id": "SB 1234",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass Senate Bill 1234, which bars publicly funded libraries from e-book deals that restrict everyday lending. It passed the Connecticut House of Representatives 106-38 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1234, which bars publicly funded libraries from e-book deals that restrict everyday lending. It passed the Connecticut House of Representatives 106-38 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 129 AS AMENDED",
+        "tally": "106-38",
+        "old_sentences": 4,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1574717,
+      "measure_id": "HB 7035",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass HB 7035, a bill to bar any town from banning multifamily housing or duplexes outright. The Connecticut House passed it 94-54. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7035, a bill to bar any town from banning multifamily housing or duplexes outright. The Connecticut House passed it 94-54. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 154 AS AMENDED",
+        "tally": "94-54",
+        "old_sentences": 4,
+        "old_chars": 207
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1574761,
+      "measure_id": "HB 7210",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass HB 7210, a bill to make halfway house contracts follow each resident's discharge plan. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7210, a bill to make halfway house contracts follow each resident's discharge plan. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 158 AS AMENDED",
+        "tally": "100-46",
+        "old_sentences": 6,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1576768,
+      "measure_id": "HB 6844",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass HB 6844, a bill to stop towns cutting a retiree's pension over workers' compensation disability benefits. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 6844, a bill to stop towns cutting a retiree's pension over workers' compensation disability benefits. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 183 AS AMENDED",
+        "tally": "100-46",
+        "old_sentences": 7,
+        "old_chars": 602
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1578815,
+      "measure_id": "SB 1367",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass Senate Bill 1367, which bars bail bond agents from seizing someone at a hospital, school or house of worship. It passed the Connecticut House of Representatives 93-55 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1367, which bars bail bond agents from seizing someone at a hospital, school or house of worship. It passed the Connecticut House of Representatives 93-55 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 173 AS AMENDED",
+        "tally": "93-55",
+        "old_sentences": 10,
+        "old_chars": 893
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1579228,
+      "measure_id": "HB 5002",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted to pass HB 5002, a bill to make towns allow small multi-unit housing on business-zoned land and rewrite zoning law. The Connecticut House passed it 84-67. The Governor vetoed it, so it did not become law.",
+      "nay_description": "Voted against HB 5002, a bill to make towns allow small multi-unit housing on business-zoned land and rewrite zoning law. The Connecticut House passed it 84-67. The Governor vetoed it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 196 AS AMENDED",
+        "tally": "84-67",
+        "old_sentences": 7,
+        "old_chars": 446
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1580476,
+      "measure_id": "SB 9",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 9, which makes insurers and lenders tell customers about flood risk and flood insurance. It passed the Connecticut House of Representatives 115-33 and became law.",
+      "nay_description": "Voted against passing Senate Bill 9, which makes insurers and lenders tell customers about flood risk and flood insurance. It passed the Connecticut House of Representatives 115-33 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 200 AS AMENDED",
+        "tally": "115-33",
+        "old_sentences": 8,
+        "old_chars": 945
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1580657,
+      "measure_id": "SB 1221",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1221, which expands the state retirement savings program to home care aides from July 2026. It passed the Connecticut House of Representatives 102-38 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1221, which expands the state retirement savings program to home care aides from July 2026. It passed the Connecticut House of Representatives 102-38 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 199",
+        "tally": "102-38",
+        "old_sentences": 11,
+        "old_chars": 914
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1581838,
+      "measure_id": "SB 7",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to pass SB 7, a bill to protect access to emergency and reproductive health care if federal rules weaken. The Connecticut House passed it 92-55. The Senate never took up the House's changes, so it did not become law.",
+      "nay_description": "Voted against SB 7, a bill to protect access to emergency and reproductive health care if federal rules weaken. The Connecticut House passed it 92-55. The Senate never took up the House's changes, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 227 AS AMENDED",
+        "tally": "92-55",
+        "old_sentences": 7,
+        "old_chars": 584
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1581896,
+      "measure_id": "SB 3",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to pass Senate Bill 3, which requires advertised prices to include every fee and creates a right to repair. It passed the Connecticut House of Representatives 112-34 and became law.",
+      "nay_description": "Voted against passing Senate Bill 3, which requires advertised prices to include every fee and creates a right to repair. It passed the Connecticut House of Representatives 112-34 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 221 AS AMENDED",
+        "tally": "112-34",
+        "old_sentences": 9,
+        "old_chars": 796
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1582627,
+      "measure_id": "SB 1",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass Senate Bill 1, which creates a permanent fund for early childhood education and adds special education money. It passed the Connecticut House of Representatives 101-45 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which creates a permanent fund for early childhood education and adds special education money. It passed the Connecticut House of Representatives 101-45 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 251 AS AMENDED",
+        "tally": "101-45",
+        "old_sentences": 10,
+        "old_chars": 897
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1583345,
+      "measure_id": "SB 1328",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1328, which bars private companies from owning or running state prisons. It passed the Connecticut House of Representatives 109-37 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1328, which bars private companies from owning or running state prisons. It passed the Connecticut House of Representatives 109-37 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 217",
+        "tally": "109-37",
+        "old_sentences": 5,
+        "old_chars": 519
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1583673,
+      "measure_id": "SB 1427",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted to pass SB 1427, a bill to open paid family and medical leave to certain school employees. The Connecticut House passed it 102-46. The Senate did not vote on it again, so it did not become law.",
+      "nay_description": "Voted against SB 1427, a bill to open paid family and medical leave to certain school employees. The Connecticut House passed it 102-46. The Senate did not vote on it again, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 291 AS AMENDED",
+        "tally": "102-46",
+        "old_sentences": 5,
+        "old_chars": 412
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1584471,
+      "measure_id": "SB 1444",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted to pass Senate Bill 1444, which lets towns fast-track turning commercial buildings into housing. It passed the Connecticut House of Representatives 105-43 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1444, which lets towns fast-track turning commercial buildings into housing. It passed the Connecticut House of Representatives 105-43 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 310 AS AMENDED",
+        "tally": "105-43",
+        "old_sentences": 7,
+        "old_chars": 675
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1584485,
+      "measure_id": "SB 1542",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted to pass Senate Bill 1542, which bars police from handcuffing a child under 14 except for public safety. It passed the Connecticut House of Representatives 99-49 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1542, which bars police from handcuffing a child under 14 except for public safety. It passed the Connecticut House of Representatives 99-49 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 307 AS AMENDED",
+        "tally": "99-49",
+        "old_sentences": 5,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1584512,
+      "measure_id": "HB 7087",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted to pass HB 7087, a bill to set the rules for community solar subscriptions. The Connecticut House passed it 103-42. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 7087, a bill to set the rules for community solar subscriptions. The Connecticut House passed it 103-42. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 299 AS AMENDED",
+        "tally": "103-42",
+        "old_sentences": 5,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1584862,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass SB 8, a bill to let striking workers claim unemployment benefits after fourteen days. The Connecticut House passed it 87-59. The Governor vetoed it, so it did not become law.",
+      "nay_description": "Voted against SB 8, a bill to let striking workers claim unemployment benefits after fourteen days. The Connecticut House passed it 87-59. The Governor vetoed it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 236 AS AMENDED",
+        "tally": "87-59",
+        "old_sentences": 6,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1585101,
+      "measure_id": "SB 1187",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted to pass Senate Bill 1187, which limits when a sewer authority can take a person's home over unpaid bills. It passed the Connecticut House of Representatives 84-65 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1187, which limits when a sewer authority can take a person's home over unpaid bills. It passed the Connecticut House of Representatives 84-65 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 368 AS AMENDED",
+        "tally": "84-65",
+        "old_sentences": 9,
+        "old_chars": 767
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1585141,
+      "measure_id": "SB 1312",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted to pass Senate Bill 1312, which changes several unemployment and workplace rules, including a shorter employer protest window. It passed the Connecticut House of Representatives 96-42 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1312, which changes several unemployment and workplace rules, including a shorter employer protest window. It passed the Connecticut House of Representatives 96-42 and became law.",
+      "_current": {
+        "question": "House Roll Call Vote 296 AS AMENDED",
+        "tally": "96-42",
+        "old_sentences": 11,
+        "old_chars": 843
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1585175,
+      "measure_id": "HB 5269",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted to pass HB 5269, a bill to tighten online gambling rules, including one account per platform and no credit cards. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 5269, a bill to tighten online gambling rules, including one account per platform and no credit cards. The Connecticut House passed it 100-46. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House Roll Call Vote 356 AS AMENDED",
+        "tally": "100-46",
+        "old_sentences": 5,
+        "old_chars": 303
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "house",
+      "session": "2174",
+      "roll": 1609277,
+      "measure_id": "HB 8002",
+      "vote_date": "2025-11-12",
+      "yea_description": "Voted to pass HB 8002, which requires every town to adopt a housing growth plan and creates first-time homebuyer savings accounts. The Connecticut House passed it 90-56 in the November 2025 special session. The Senate passed it unchanged, and the Governor signed it as Public Act 25-1.",
+      "nay_description": "Voted against HB 8002, which requires every town to adopt a housing growth plan and creates first-time homebuyer savings accounts. The Connecticut House passed it 90-56 in the November 2025 special session. The Senate passed it unchanged, and the Governor signed it as Public Act 25-1.",
+      "_current": {
+        "question": "House Roll Call Vote 385 EMERGENCY CERTIFICATION",
+        "tally": "90-56",
+        "old_sentences": 5,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1498834,
+      "measure_id": "HB 7066",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted to pass House Bill 7066, which makes every school name an administrator to handle contacts with federal immigration officers. It passed the Connecticut State Senate 25-9 and became law.",
+      "nay_description": "Voted against passing House Bill 7066, which makes every school name an administrator to handle contacts with federal immigration officers. It passed the Connecticut State Senate 25-9 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 38",
+        "tally": "25-9",
+        "old_sentences": 10,
+        "old_chars": 982
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1564447,
+      "measure_id": "SB 1221",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted to pass Senate Bill 1221, which expands the state retirement savings program to home care aides from July 2026. It passed the Connecticut State Senate 25-11 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1221, which expands the state retirement savings program to home care aides from July 2026. It passed the Connecticut State Senate 25-11 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 114",
+        "tally": "25-11",
+        "old_sentences": 11,
+        "old_chars": 901
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1567016,
+      "measure_id": "SB 1187",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass Senate Bill 1187, which limits when a sewer authority can take a person's home over unpaid bills. It passed the Connecticut State Senate 23-11 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1187, which limits when a sewer authority can take a person's home over unpaid bills. It passed the Connecticut State Senate 23-11 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 116",
+        "tally": "23-11",
+        "old_sentences": 9,
+        "old_chars": 755
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1568447,
+      "measure_id": "SB 1427",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted to pass SB 1427, a bill to open paid family and medical leave to certain school employees. The Connecticut Senate passed it 24-11. The House later passed a changed version and the Senate never took it up again, so it did not become law.",
+      "nay_description": "Voted against SB 1427, a bill to open paid family and medical leave to certain school employees. The Connecticut Senate passed it 24-11. The House later passed a changed version and the Senate never took it up again, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 142",
+        "tally": "24-11",
+        "old_sentences": 4,
+        "old_chars": 324
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1570619,
+      "measure_id": "SB 6",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted to pass SB 6, a bill to expand state supports for children under five and disconnected youth. The Connecticut Senate passed it 22-12. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 6, a bill to expand state supports for children under five and disconnected youth. The Connecticut Senate passed it 22-12. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 155",
+        "tally": "22-12",
+        "old_sentences": 5,
+        "old_chars": 367
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1571145,
+      "measure_id": "SB 1356",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass SB 1356, a bill to widen the consumer data privacy law to more companies, data brokers and social media. The Connecticut Senate passed it 26-9. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 1356, a bill to widen the consumer data privacy law to more companies, data brokers and social media. The Connecticut Senate passed it 26-9. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 158",
+        "tally": "26-9",
+        "old_sentences": 6,
+        "old_chars": 381
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1571789,
+      "measure_id": "SB 1222",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass SB 1222, a bill to extend workers' compensation to public works employees traveling to emergency call-ins. The Connecticut Senate passed it 24-12. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 1222, a bill to extend workers' compensation to public works employees traveling to emergency call-ins. The Connecticut Senate passed it 24-12. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 169",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1572213,
+      "measure_id": "SB 9",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass Senate Bill 9, which makes insurers and lenders tell customers about flood risk and flood insurance. It passed the Connecticut State Senate 28-8 and became law.",
+      "nay_description": "Voted against passing Senate Bill 9, which makes insurers and lenders tell customers about flood risk and flood insurance. It passed the Connecticut State Senate 28-8 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 176",
+        "tally": "28-8",
+        "old_sentences": 8,
+        "old_chars": 931
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1572240,
+      "measure_id": "SB 1488",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to pass SB 1488, a bill to let the Comptroller withhold payment from contractors under a prevailing wage stop work order. The Connecticut Senate passed it 27-8. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 1488, a bill to let the Comptroller withhold payment from contractors under a prevailing wage stop work order. The Connecticut Senate passed it 27-8. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 162",
+        "tally": "27-8",
+        "old_sentences": 4,
+        "old_chars": 294
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1572263,
+      "measure_id": "SB 3",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted to pass Senate Bill 3, which requires advertised prices to include every fee and creates a right to repair. It passed the Connecticut State Senate 25-10 and became law.",
+      "nay_description": "Voted against passing Senate Bill 3, which requires advertised prices to include every fee and creates a right to repair. It passed the Connecticut State Senate 25-10 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 184",
+        "tally": "25-10",
+        "old_sentences": 9,
+        "old_chars": 783
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1574188,
+      "measure_id": "SB 1371",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass SB 1371, a bill to require just cause and a neutral hearing officer before firing a tenured teacher. The Connecticut Senate passed it 27-8. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 1371, a bill to require just cause and a neutral hearing officer before firing a tenured teacher. The Connecticut Senate passed it 27-8. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 190",
+        "tally": "27-8",
+        "old_sentences": 6,
+        "old_chars": 471
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1574542,
+      "measure_id": "SB 1481",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted to pass SB 1481, a bill to make Medicaid providers agree in writing not to discriminate. The Connecticut Senate passed it 24-11. The House did not vote on it, so it did not become law.",
+      "nay_description": "Voted against SB 1481, a bill to make Medicaid providers agree in writing not to discriminate. The Connecticut Senate passed it 24-11. The House did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 200",
+        "tally": "24-11",
+        "old_sentences": 4,
+        "old_chars": 281
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1576161,
+      "measure_id": "HB 6913",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass House Bill 6913, which bars nursing homes and assisted living communities from discriminating against residents. It passed the Connecticut State Senate 26-10 and became law.",
+      "nay_description": "Voted against passing House Bill 6913, which bars nursing homes and assisted living communities from discriminating against residents. It passed the Connecticut State Senate 26-10 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 217",
+        "tally": "26-10",
+        "old_sentences": 8,
+        "old_chars": 812
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1576677,
+      "measure_id": "SB 7",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted to pass SB 7, a bill to protect access to emergency and reproductive health care if federal rules weaken. The Connecticut Senate passed it 25-10. The House later passed a changed version and the Senate never took it up again, so it did not become law.",
+      "nay_description": "Voted against SB 7, a bill to protect access to emergency and reproductive health care if federal rules weaken. The Connecticut Senate passed it 25-10. The House later passed a changed version and the Senate never took it up again, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 232",
+        "tally": "25-10",
+        "old_sentences": 7,
+        "old_chars": 595
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1580237,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass SB 8, a bill to let striking workers claim unemployment benefits after fourteen days. The Connecticut Senate passed it 24-11. The Governor vetoed it, so it did not become law.",
+      "nay_description": "Voted against SB 8, a bill to let striking workers claim unemployment benefits after fourteen days. The Connecticut Senate passed it 24-11. The Governor vetoed it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 248",
+        "tally": "24-11",
+        "old_sentences": 6,
+        "old_chars": 372
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1580352,
+      "measure_id": "SB 1312",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1312, which changes several unemployment and workplace rules, including a shorter employer protest window. It passed the Connecticut State Senate 25-11 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1312, which changes several unemployment and workplace rules, including a shorter employer protest window. It passed the Connecticut State Senate 25-11 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 250",
+        "tally": "25-11",
+        "old_sentences": 11,
+        "old_chars": 831
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1580725,
+      "measure_id": "SB 1358",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass Senate Bill 1358, which makes state agencies raise nonprofit human services contract rates with inflation from 2027. It passed the Connecticut State Senate 28-8 and became law.",
+      "nay_description": "Voted against passing Senate Bill 1358, which makes state agencies raise nonprofit human services contract rates with inflation from 2027. It passed the Connecticut State Senate 28-8 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 259",
+        "tally": "28-8",
+        "old_sentences": 6,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1581993,
+      "measure_id": "HB 7042",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to pass House Bill 7042, which lets people sue gun makers and sellers that fail to keep reasonable controls over sales. It passed the Connecticut State Senate 25-11 and became law.",
+      "nay_description": "Voted against passing House Bill 7042, which lets people sue gun makers and sellers that fail to keep reasonable controls over sales. It passed the Connecticut State Senate 25-11 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 284",
+        "tally": "25-11",
+        "old_sentences": 9,
+        "old_chars": 1028
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1582313,
+      "measure_id": "HB 5002",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to pass HB 5002, a bill to make towns allow small multi-unit housing on business-zoned land and rewrite zoning law. The Connecticut Senate passed it 20-15. The Governor vetoed it, so it did not become law.",
+      "nay_description": "Voted against HB 5002, a bill to make towns allow small multi-unit housing on business-zoned land and rewrite zoning law. The Connecticut Senate passed it 20-15. The Governor vetoed it, so it did not become law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 323",
+        "tally": "20-15",
+        "old_sentences": 7,
+        "old_chars": 447
+      }
+    },
+    {
+      "jurisdiction": "CT",
+      "chamber": "senate",
+      "session": "2174",
+      "roll": 1584618,
+      "measure_id": "HB 5004",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted to pass House Bill 5004, which sets new state targets for cutting greenhouse gases and creates a Clean Economy Council. It passed the Connecticut State Senate 26-10 and became law.",
+      "nay_description": "Voted against passing House Bill 5004, which sets new state targets for cutting greenhouse gases and creates a Clean Economy Council. It passed the Connecticut State Senate 26-10 and became law.",
+      "_current": {
+        "question": "Senate Roll Call Vote 383",
+        "tally": "26-10",
+        "old_sentences": 10,
+        "old_chars": 1020
+      }
+    }
+  ]
+}

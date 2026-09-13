@@ -1,0 +1,260 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1534869,
+      "measure_id": "H 3927",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass H 3927, the Ending Illegal Discrimination and Restoring Merit-Based Opportunity Act, a bill to bar diversity offices in government and schools. The South Carolina House passed it 82-32. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 3927, the Ending Illegal Discrimination and Restoring Merit-Based Opportunity Act, a bill to bar diversity offices in government and schools. The South Carolina House passed it 82-32. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "82-32",
+        "old_sentences": 8,
+        "old_chars": 715
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1535156,
+      "measure_id": "H 3045",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass H 3045, a bill to create the crime of obscene visual representations of child sexual abuse. The South Carolina House passed it 76-20. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 3045, a bill to create the crime of obscene visual representations of child sexual abuse. The South Carolina House passed it 76-20. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "76-20",
+        "old_sentences": 4,
+        "old_chars": 296
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1561513,
+      "measure_id": "H 3645",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted to pass H 3645, a bill to increase paid parental leave for state employees. The South Carolina House passed it 80-31. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 3645, a bill to increase paid parental leave for state employees. The South Carolina House passed it 80-31. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "80-31",
+        "old_sentences": 4,
+        "old_chars": 270
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1563446,
+      "measure_id": "S 171",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted to pass Senate Bill 171, which makes it illegal to put an unsafe used tire on a car or light truck. The South Carolina House passed it 79-23, and the act became law.",
+      "nay_description": "Voted against passing Senate Bill 171, which makes it illegal to put an unsafe used tire on a car or light truck. The South Carolina House passed it 79-23, and the act became law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "79-23",
+        "old_sentences": 9,
+        "old_chars": 755
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1567547,
+      "measure_id": "H 3276",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 3276, the South Carolina Hands-Free and Distracted Driving Act, which bars drivers from holding a phone. The South Carolina House voted 77-37 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 3276, the South Carolina Hands-Free and Distracted Driving Act, which bars drivers from holding a phone. The South Carolina House voted 77-37 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "77-37",
+        "old_sentences": 8,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1567973,
+      "measure_id": "S 214",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass Senate Bill 214, which rewrote the Commission for Minority Affairs as the Commission for Community Advancement and Engagement. The South Carolina House passed it 76-31, and the act became law.",
+      "nay_description": "Voted against passing Senate Bill 214, which rewrote the Commission for Minority Affairs as the Commission for Community Advancement and Engagement. The South Carolina House passed it 76-31, and the act became law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "76-31",
+        "old_sentences": 8,
+        "old_chars": 782
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1615312,
+      "measure_id": "S 287",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass Senate Bill 287, which limits vape sales to products cleared by the federal Food and Drug Administration. The South Carolina House passed it 66-33, and the act became law.",
+      "nay_description": "Voted against passing Senate Bill 287, which limits vape sales to products cleared by the federal Food and Drug Administration. The South Carolina House passed it 66-33, and the act became law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "66-33",
+        "old_sentences": 9,
+        "old_chars": 876
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1625316,
+      "measure_id": "H 4760",
+      "vote_date": "2026-02-05",
+      "yea_description": "Voted to pass H 4760, a bill to make giving a pregnant woman abortion-inducing drugs a felony. The South Carolina House passed it 76-28. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 4760, a bill to make giving a pregnant woman abortion-inducing drugs a felony. The South Carolina House passed it 76-28. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "76-28",
+        "old_sentences": 7,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1659394,
+      "measure_id": "H 4216",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 4216, a state income tax cut taxing the first $30,000 at 1.99 percent and the rest at 5.21 percent. The South Carolina House voted 71-49 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 4216, a state income tax cut taxing the first $30,000 at 1.99 percent and the rest at 5.21 percent. The South Carolina House voted 71-49 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "71-49",
+        "old_sentences": 9,
+        "old_chars": 716
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1670890,
+      "measure_id": "H 4767",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted to pass H 4767, a bill to ban noncompete clauses in doctors' employment contracts. The South Carolina House passed it 58-53. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 4767, a bill to ban noncompete clauses in doctors' employment contracts. The South Carolina House passed it 58-53. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "58-53",
+        "old_sentences": 5,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1675715,
+      "measure_id": "H 4764",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass H 4764, a bill to require every jail-running agency to sign a federal immigration enforcement agreement. The South Carolina House passed it 84-26. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "nay_description": "Voted against H 4764, a bill to require every jail-running agency to sign a federal immigration enforcement agreement. The South Carolina House passed it 84-26. As of September 2026 the Senate had not voted on it, so it has not become law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "84-26",
+        "old_sentences": 9,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1683203,
+      "measure_id": "H 4756",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 4756, the South Carolina Student Physical Privacy Act, which sets school restrooms and locker rooms aside by sex at birth. The South Carolina House voted 77-31 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 4756, the South Carolina Student Physical Privacy Act, which sets school restrooms and locker rooms aside by sex at birth. The South Carolina House voted 77-31 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "77-31",
+        "old_sentences": 9,
+        "old_chars": 923
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1697896,
+      "measure_id": "S 933",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass Senate Bill 933, which set legislator pay at $15,000 plus a $32,500 in-district allowance. The South Carolina House passed it 59-48, and it became law as Act 200.",
+      "nay_description": "Voted against Senate Bill 933, which set legislator pay at $15,000 plus a $32,500 in-district allowance. The South Carolina House passed it 59-48, and it became law as Act 200.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "59-48",
+        "old_sentences": 6,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1698173,
+      "measure_id": "S 508",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted to adopt the conference report on Senate Bill 508, which widened the monuments and memorials that may not be moved without the General Assembly's approval. The South Carolina House adopted the report 79-28, and it became law as Act 224.",
+      "nay_description": "Voted against the conference report on Senate Bill 508, which widened the monuments and memorials that may not be moved without the General Assembly's approval. The South Carolina House adopted the report 79-28, and it became law as Act 224.",
+      "_current": {
+        "question": "House: Adopt Conference Report",
+        "tally": "79-28",
+        "old_sentences": 5,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1700319,
+      "measure_id": "H 5683",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted to pass House Bill 5683, a bill to redraw South Carolina's seven U.S. House districts. The South Carolina House passed it 74-37. The Senate voted to continue the bill, so it has not passed and is not law.",
+      "nay_description": "Voted against passing House Bill 5683, a bill to redraw South Carolina's seven U.S. House districts. The South Carolina House passed it 74-37. The Senate voted to continue the bill, so it has not passed and is not law.",
+      "_current": {
+        "question": "House: Passage Of Bill",
+        "tally": "74-37",
+        "old_sentences": 5,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1711985,
+      "measure_id": "H 3558",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted to override the Governor's veto of House Bill 3558, which set the rules for South Carolina's commissioners to an Article V constitutional convention. The House voted 74-27 to override and the Senate followed 20-5, so the act became law as Act 247.",
+      "nay_description": "Voted against overriding the Governor's veto of House Bill 3558, which set the rules for South Carolina's commissioners to an Article V constitutional convention. The House voted 74-27 to override and the Senate followed 20-5, so the act became law as Act 247.",
+      "_current": {
+        "question": "House: Override Veto By The Governor",
+        "tally": "74-27",
+        "old_sentences": 5,
+        "old_chars": 459
+      }
+    }
+  ]
+}

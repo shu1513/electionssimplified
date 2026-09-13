@@ -1,0 +1,221 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/AK/rewrites.json",
+  "dryRun": false,
+  "rolls": 30,
+  "updatedRolls": 30,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 113,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "AK:house:2171:1546456",
+      "outcome": "updated",
+      "rewritten": 4,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1562693",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1563282",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1567929",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1570725",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1572959",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1574429",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1645404",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1653447",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1692486",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1699131",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1699348",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1699350",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1699385",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1699781",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1700368",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1700388",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1700401",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1700405",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1701685",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:house:2171:1701704",
+      "outcome": "updated",
+      "rewritten": 5,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1546119",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1548818",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1689719",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1691681",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1696552",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1699328",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1699364",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1699783",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AK:senate:2171:1701656",
+      "outcome": "updated",
+      "rewritten": 1,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2175",
+      "roll": 385812063,
+      "measure_id": "SB 897",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 897, which caps what an electric utility must pay for property damage after a catastrophic wildfire. The Hawaii House gave it final approval 39-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 897, which caps what an electric utility must pay for property damage after a catastrophic wildfire. The Hawaii House gave it final approval 39-10, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in CD 1 with Representative(s) Iwamoto voting aye with reservations; Representative(s) Amato, Garcia, Garrett, Ilagan, La Chica, Matayoshi, Pierick, Poepoe, Tam, Templo voting no (10) and Representative(s) Cochran excused (1).",
+        "tally": "39-10",
+        "old_sentences": 10,
+        "old_chars": 1087
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2175",
+      "roll": 386722839,
+      "measure_id": "SB 1433",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 1433, which lets the needle exchange program give out sterile syringes based on need. The Hawaii House gave it final approval 36-13, and it became law.",
+      "nay_description": "Voted against Senate Bill 1433, which lets the needle exchange program give out sterile syringes based on need. The Hawaii House gave it final approval 36-13, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in CD 1 with Representative(s) Souza voting aye with reservations; Representative(s) Alcos, Chun, Garcia, Kila, Kong, Lamosao, Lee, M., Matsumoto, Muraoka, Olds, Pierick, Reyes Oda, Shimizu voting no (13) and Representative(s) Cochran excused (1).",
+        "tally": "36-13",
+        "old_sentences": 10,
+        "old_chars": 936
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2245",
+      "roll": 417002242,
+      "measure_id": "SB 2239",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 2239, which registers people to vote automatically when they apply for a driver's license or state ID. The Hawaii House gave it final approval 40-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 2239, which registers people to vote automatically when they apply for a driver's license or state ID. The Hawaii House gave it final approval 40-11, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in CD 1 with none voting aye with reservations; Representative(s) Alcos, Cochran, Garcia, Gedeon, Hartsfield, Kila, Kong, Matsumoto, Muraoka, Pierick, Shimizu voting no (11) and none excused (0).",
+        "tally": "40-11",
+        "old_sentences": 9,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2245",
+      "roll": 417475641,
+      "measure_id": "SB 2400",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 2400, which exempts seaglider passenger companies from Hawaii's Water Carrier Act. The Hawaii House gave it final approval 40-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 2400, which exempts seaglider passenger companies from Hawaii's Water Carrier Act. The Hawaii House gave it final approval 40-11, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in CD 1 with none voting aye with reservations; Representative(s) Alcos, Belatti, Cochran, Garcia, Gedeon, Hartsfield, Iwamoto, Muraoka, Perruso, Poepoe, Shimizu voting no (11) and none excused (0).",
+        "tally": "40-11",
+        "old_sentences": 7,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2245",
+      "roll": 418523844,
+      "measure_id": "SB 2694",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 2694, which lets regulated shipping companies raise cargo rates up to 5 percent a year without a full rate case. The Hawaii House gave it final approval 35-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 2694, which lets regulated shipping companies raise cargo rates up to 5 percent a year without a full rate case. The Hawaii House gave it final approval 35-15, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in CD 1 with Representative(s) Reyes Oda, Souza voting aye with reservations; Representative(s) Amato, Belatti, Cochran, Garcia, Gedeon, Grandinetti, Iwamoto, Kapela, Keohokapu-Lee Loy, Lowen, Perruso, Pierick, Poepoe, Shimizu, Tam voting no (15) and Representative(s) Alcos excused (1).",
+        "tally": "35-15",
+        "old_sentences": 10,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "house",
+      "session": "2245",
+      "roll": 418540230,
+      "measure_id": "HB 1961",
+      "vote_date": "2026-04-23",
+      "yea_description": "Voted for House Bill 1961, which makes it a crime to block someone's way into or out of a health care facility. The Hawaii House gave it final approval 40-10, and it became law.",
+      "nay_description": "Voted against House Bill 1961, which makes it a crime to block someone's way into or out of a health care facility. The Hawaii House gave it final approval 40-10, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading as amended in SD 1 with Representative(s) Hussey voting aye with reservations; Representative(s) Alcos, Cochran, Garcia, Gedeon, Iwamoto, Kong, Matsumoto, Muraoka, Pierick, Shimizu voting no (10) and Representative(s) Evslin excused (1).",
+        "tally": "40-10",
+        "old_sentences": 9,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "senate",
+      "session": "2175",
+      "roll": 382016649,
+      "measure_id": "SB 97",
+      "vote_date": "2025-05-02",
+      "yea_description": "Voted for Senate Bill 97, which makes a third excessive speeding offense within five years a misdemeanor with 30 days in jail. The Hawaii Senate gave it final approval 18-7, and it became law.",
+      "nay_description": "Voted against Senate Bill 97, which makes a third excessive speeding offense within five years a misdemeanor with 30 days in jail. The Hawaii Senate gave it final approval 18-7, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading, as amended (CD 2). Ayes, 18; Aye(s) with reservations: none. Noes, 7 (Senator(s) Awa, DeCoite, DeCorte, Fevella, Hashimoto, McKelvey, San Buenaventura). Excused, 0 (none).",
+        "tally": "18-7",
+        "old_sentences": 8,
+        "old_chars": 683
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "senate",
+      "session": "2175",
+      "roll": 383625417,
+      "measure_id": "HB 137",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 137, which requires prison time for a violent felon caught with a gun or ammunition. The Hawaii Senate passed it 15-10, and it became law.",
+      "nay_description": "Voted against House Bill 137, which requires prison time for a violent felon caught with a gun or ammunition. The Hawaii Senate passed it 15-10, and it became law.",
+      "_current": {
+        "question": "Passed Third Reading. Ayes, 15; Aye(s) with reservations: none. Noes, 10 (Senator(s) Awa, DeCoite, DeCorte, Fevella, Gabbard, Ihara, Kidani, McKelvey, Richards, San Buenaventura). Excused, 0 (none). Transmitted to House.",
+        "tally": "15-10",
+        "old_sentences": 7,
+        "old_chars": 562
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "senate",
+      "session": "2175",
+      "roll": 385812062,
+      "measure_id": "SB 897",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 897, which caps what an electric utility must pay for property damage after a catastrophic wildfire. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "nay_description": "Voted against Senate Bill 897, which caps what an electric utility must pay for property damage after a catastrophic wildfire. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading, as amended (CD 1). Ayes, 20; Aye(s) with reservations: Senator(s) Chang, DeCoite, Fukunaga, Kim, Lee, C., McKelvey, Rhoads, San Buenaventura, Wakai. Noes, 5 (Senator(s) Awa, Elefante, Gabbard, Ihara, Keohokalole). Excused, 0 (none).",
+        "tally": "20-5",
+        "old_sentences": 10,
+        "old_chars": 1087
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "senate",
+      "session": "2245",
+      "roll": 418488639,
+      "measure_id": "SB 2697",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 2697, which bans driving on the shoulder of a road, with a $250 fine. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "nay_description": "Voted against Senate Bill 2697, which bans driving on the shoulder of a road, with a $250 fine. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading, as amended (CD 1). Ayes, 20; Aye(s) with reservations: none. Noes, 5 (Senator(s) Awa, DeCorte, Fevella, Keohokalole, San Buenaventura). Excused, 0 (none).",
+        "tally": "20-5",
+        "old_sentences": 9,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "HI",
+      "chamber": "senate",
+      "session": "2245",
+      "roll": 418636851,
+      "measure_id": "HB 2023",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for House Bill 2023, which sets up a state program for speed-limiting devices in cars of drivers suspended for excessive speeding. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "nay_description": "Voted against House Bill 2023, which sets up a state program for speed-limiting devices in cars of drivers suspended for excessive speeding. The Hawaii Senate gave it final approval 20-5, and it became law.",
+      "_current": {
+        "question": "Passed Final Reading, as amended (CD 1). Ayes, 20; Aye(s) with reservations: none . 5 No(es): Senator(s) Awa, Fevella, Kim, McKelvey, San Buenaventura. 0 Excused: none.",
+        "tally": "20-5",
+        "old_sentences": 9,
+        "old_chars": 749
+      }
+    }
+  ]
+}

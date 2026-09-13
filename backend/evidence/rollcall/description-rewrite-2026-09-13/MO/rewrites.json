@@ -1,0 +1,516 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1495925,
+      "measure_id": "HB 544",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 544, a bill to let a federally approved pesticide label satisfy any state cancer warning requirement. The Missouri House passed it 85-72. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 544, a bill to let a federally approved pesticide label satisfy any state cancer warning requirement. The Missouri House passed it 85-72. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 544",
+        "tally": "85-72",
+        "old_sentences": 5,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1495937,
+      "measure_id": "HB 68",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 68, a bill to cut the deadline for most personal injury lawsuits from five years to two. The Missouri House passed it 92-42. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 68, a bill to cut the deadline for most personal injury lawsuits from five years to two. The Missouri House passed it 92-42. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 68",
+        "tally": "92-42",
+        "old_sentences": 6,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1495948,
+      "measure_id": "HB 742",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 742, a bill to bar state departments from spending on diversity, equity and inclusion programs. The Missouri House passed it 108-50. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 742, a bill to bar state departments from spending on diversity, equity and inclusion programs. The Missouri House passed it 108-50. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 742",
+        "tally": "108-50",
+        "old_sentences": 4,
+        "old_chars": 370
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1501819,
+      "measure_id": "HB 875",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted to pass HB 875, a bill to stop public colleges denying recognition or funding to student groups over their beliefs. The Missouri House passed it 108-47. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 875, a bill to stop public colleges denying recognition or funding to student groups over their beliefs. The Missouri House passed it 108-47. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 875",
+        "tally": "108-47",
+        "old_sentences": 4,
+        "old_chars": 324
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1501822,
+      "measure_id": "HB 269",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted to pass HB 269, a bill to create three tax credits for child care donors, employers and providers. The Missouri House passed it 120-34. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 269, a bill to create three tax credits for child care donors, employers and providers. The Missouri House passed it 120-34. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 269",
+        "tally": "120-34",
+        "old_sentences": 5,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1516040,
+      "measure_id": "HB 495",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for House Bill 495, which put the St. Louis police department back under a state-appointed board. The Missouri House gave it final approval 113-39 and it became law.",
+      "nay_description": "Voted against House Bill 495, which put the St. Louis police department back under a state-appointed board. The Missouri House gave it final approval 113-39 and it became law.",
+      "_current": {
+        "question": "House: HBs WITH SENATE AMENDMENTS SS#2 SCS HCS#2 HB 495, A.A. E.C.",
+        "tally": "113-39",
+        "old_sentences": 8,
+        "old_chars": 1108
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1517041,
+      "measure_id": "SB 4",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 4, which let electric utilities charge customers for new gas power plants while still building them. The Missouri House passed it 96-44 and it became law.",
+      "nay_description": "Voted against Senate Bill 4, which let electric utilities charge customers for new gas power plants while still building them. The Missouri House passed it 96-44 and it became law.",
+      "_current": {
+        "question": "House: SBs FOR THIRD READING SS#2 SB 4",
+        "tally": "96-44",
+        "old_sentences": 9,
+        "old_chars": 1314
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1517204,
+      "measure_id": "HB 567",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 567, which repealed the voter-approved paid sick time law and froze the minimum wage after 2026. The Missouri House passed it 96-51 and it became law.",
+      "nay_description": "Voted against House Bill 567, which repealed the voter-approved paid sick time law and froze the minimum wage after 2026. The Missouri House passed it 96-51 and it became law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS#2 HBS 567, 546, 758 & 958, E.C.",
+        "tally": "96-51",
+        "old_sentences": 4,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1528972,
+      "measure_id": "HB 1175",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to pass HB 1175, a bill to bring back the Second Amendment Preservation Act declaring some federal gun laws invalid. The Missouri House passed it 100-51. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 1175, a bill to bring back the Second Amendment Preservation Act declaring some federal gun laws invalid. The Missouri House passed it 100-51. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HB 1175, A.A.",
+        "tally": "100-51",
+        "old_sentences": 6,
+        "old_chars": 350
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1529743,
+      "measure_id": "HB 195",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to pass HB 195, a bill to give a child born alive during an abortion the same rights as any newborn. The Missouri House passed it 109-32. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 195, a bill to give a child born alive during an abortion the same rights as any newborn. The Missouri House passed it 109-32. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HBs 195 & 1119",
+        "tally": "109-32",
+        "old_sentences": 5,
+        "old_chars": 358
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1529752,
+      "measure_id": "HB 437",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to pass HB 437, a bill to rewrite the rules for settlement demands in injury and wrongful death claims. The Missouri House passed it 96-52. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 437, a bill to rewrite the rules for settlement demands in injury and wrongful death claims. The Missouri House passed it 96-52. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 437",
+        "tally": "96-52",
+        "old_sentences": 5,
+        "old_chars": 323
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1535595,
+      "measure_id": "HB 794",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 794, a bill to bar foreign money in ballot measure campaigns and add party challengers at ballot counting. The Missouri House passed it 99-48. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 794, a bill to bar foreign money in ballot measure campaigns and add party challengers at ballot counting. The Missouri House passed it 99-48. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HB 794",
+        "tally": "99-48",
+        "old_sentences": 5,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1539350,
+      "measure_id": "HB 493",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 493, a bill to exempt certain used personal property from state sales tax. The Missouri House passed it 104-41. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 493, a bill to exempt certain used personal property from state sales tax. The Missouri House passed it 104-41. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs 3rd READ - INFORMAL HCS HBs 493 & 635",
+        "tally": "104-41",
+        "old_sentences": 4,
+        "old_chars": 184
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1543852,
+      "measure_id": "HB 344",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass HB 344, a bill to give the state sole control over tobacco and vaping sales rules. The Missouri House passed it 108-29. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 344, a bill to give the state sole control over tobacco and vaping sales rules. The Missouri House passed it 108-29. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs 3rd READ - INFORMAL HCS HB 344",
+        "tally": "108-29",
+        "old_sentences": 5,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1544622,
+      "measure_id": "HB 565",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass HB 565, a bill to narrow when horse and livestock activity sponsors can be sued for ordinary carelessness. The Missouri House passed it 97-51. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 565, a bill to narrow when horse and livestock activity sponsors can be sued for ordinary carelessness. The Missouri House passed it 97-51. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HB 565",
+        "tally": "97-51",
+        "old_sentences": 5,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1548018,
+      "measure_id": "HB 126",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass HB 126, a bill to end no-excuse absentee voting. The Missouri House passed it 85-64. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 126, a bill to end no-excuse absentee voting. The Missouri House passed it 85-64. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs 3rd READ - INFORMAL HCS HBs 126 & 367",
+        "tally": "85-64",
+        "old_sentences": 5,
+        "old_chars": 357
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1551715,
+      "measure_id": "HJR 73",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House Joint Resolution 73, a proposed constitutional amendment repealing the 2024 reproductive-freedom right and restricting abortion. The Missouri House passed it 103-51. It takes effect only if Missouri voters approve it; a joint resolution needs no governor's signature.",
+      "nay_description": "Voted against House Joint Resolution 73, a proposed constitutional amendment repealing the 2024 reproductive-freedom right and restricting abortion. The Missouri House passed it 103-51. It takes effect only if Missouri voters approve it; a joint resolution needs no governor's signature.",
+      "_current": {
+        "question": "House: HJRs FOR THIRD READING HCS HJR 73",
+        "tally": "103-51",
+        "old_sentences": 6,
+        "old_chars": 734
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1554351,
+      "measure_id": "HB 1264",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to pass HB 1264, a bill to treat a building permit as approved if a city or county does not answer within thirty days. The Missouri House passed it 96-37. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 1264, a bill to treat a building permit as approved if a city or county does not answer within thirty days. The Missouri House passed it 96-37. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HB 1264",
+        "tally": "96-37",
+        "old_sentences": 5,
+        "old_chars": 338
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1554799,
+      "measure_id": "HB 918",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to pass HB 918, a bill to make injured people prove the defendant made the exact product involved. The Missouri House passed it 94-57. The Senate did not vote on it, so it did not become law.",
+      "nay_description": "Voted against HB 918, a bill to make injured people prove the defendant made the exact product involved. The Missouri House passed it 94-57. The Senate did not vote on it, so it did not become law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HCS HB 918",
+        "tally": "94-57",
+        "old_sentences": 5,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1563728,
+      "measure_id": "SB 71",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 71, which made breaking into a vehicle or restricted business area second degree burglary. The Missouri House passed it 112-33 and it became law.",
+      "nay_description": "Voted against Senate Bill 71, which made breaking into a vehicle or restricted business area second degree burglary. The Missouri House passed it 112-33 and it became law.",
+      "_current": {
+        "question": "House: SBs 3rd READ - INFORMAL HCS SS SCS SB 71, A.A., E.C.",
+        "tally": "112-33",
+        "old_sentences": 7,
+        "old_chars": 950
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1565418,
+      "measure_id": "HB 595",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for House Bill 595, which stopped cities and counties from passing several kinds of renter protection. The Missouri House passed the conference version 103-37 and it became law.",
+      "nay_description": "Voted against House Bill 595, which stopped cities and counties from passing several kinds of renter protection. The Missouri House passed the conference version 103-37 and it became law.",
+      "_current": {
+        "question": "House: BILLS IN CONFERENCE CCS SS HCS HBS 595 & 343",
+        "tally": "103-37",
+        "old_sentences": 7,
+        "old_chars": 963
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1567074,
+      "measure_id": "HB 594",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 594, which let individuals deduct 100 percent of capital gains from state income tax from 2025. The Missouri House adopted the Senate's version 102-41 and it became law.",
+      "nay_description": "Voted against House Bill 594, which let individuals deduct 100 percent of capital gains from state income tax from 2025. The Missouri House adopted the Senate's version 102-41 and it became law.",
+      "_current": {
+        "question": "House: HBs WITH SENATE AMENDMENTS SS#2 HCS HBs 594 & 508",
+        "tally": "102-41",
+        "old_sentences": 5,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1569572,
+      "measure_id": "HB 145",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for House Bill 145, which closed several kinds of government records, including minors' details and utility billing. The Missouri House gave it final approval 107-50 and it became law.",
+      "nay_description": "Voted against House Bill 145, which closed several kinds of government records, including minors' details and utility billing. The Missouri House gave it final approval 107-50 and it became law.",
+      "_current": {
+        "question": "House: HBs WITH SENATE AMENDMENTS SS SCS HCS HBS 145 & 59, A.A.",
+        "tally": "107-50",
+        "old_sentences": 7,
+        "old_chars": 888
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2169",
+      "roll": 1572256,
+      "measure_id": "SB 152",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Senate Bill 152, which barred foreign nationals from funding or steering ballot measure campaigns. The Missouri House passed it 94-47 and it became law.",
+      "nay_description": "Voted against Senate Bill 152, which barred foreign nationals from funding or steering ballot measure campaigns. The Missouri House passed it 94-47 and it became law.",
+      "_current": {
+        "question": "House: SBs 3rd READ - INFORMAL SS SB 152",
+        "tally": "94-47",
+        "old_sentences": 8,
+        "old_chars": 974
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2226",
+      "roll": 1601420,
+      "measure_id": "HJR 3",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted for House Joint Resolution 3, a proposed constitutional amendment requiring a majority in every congressional district to pass initiatives. The Missouri House passed it 98-58. It went to Missouri voters as Amendment 4 at the August 4, 2026 primary election, and they rejected it.",
+      "nay_description": "Voted against House Joint Resolution 3, a proposed constitutional amendment requiring a majority in every congressional district to pass initiatives. The Missouri House passed it 98-58. It went to Missouri voters as Amendment 4 at the August 4, 2026 primary election, and they rejected it.",
+      "_current": {
+        "question": "House: HJRs FOR THIRD READING HCS HJR 3",
+        "tally": "98-58",
+        "old_sentences": 10,
+        "old_chars": 1224
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "house",
+      "session": "2226",
+      "roll": 1601681,
+      "measure_id": "HB 1",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted for House Bill 1, which redrew Missouri's eight congressional districts in the middle of the decade. The Missouri House passed it 90-65 and the governor signed it into law.",
+      "nay_description": "Voted against House Bill 1, which redrew Missouri's eight congressional districts in the middle of the decade. The Missouri House passed it 90-65 and the governor signed it into law.",
+      "_current": {
+        "question": "House: HBs FOR THIRD READING HB 1",
+        "tally": "90-65",
+        "old_sentences": 4,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2169",
+      "roll": 1498338,
+      "measure_id": "SB 4",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 4, which let electric utilities charge customers for new gas power plants while still building them. The Missouri Senate passed it 22-11 and it became law.",
+      "nay_description": "Voted against Senate Bill 4, which let electric utilities charge customers for new gas power plants while still building them. The Missouri Senate passed it 22-11 and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "22-11",
+        "old_sentences": 9,
+        "old_chars": 1315
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2169",
+      "roll": 1571781,
+      "measure_id": "HB 567",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House Bill 567, which repealed the voter-approved paid sick time law and froze the minimum wage after 2026. The Missouri Senate gave it final approval 22-11 and it became law.",
+      "nay_description": "Voted against House Bill 567, which repealed the voter-approved paid sick time law and froze the minimum wage after 2026. The Missouri Senate gave it final approval 22-11 and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2169",
+      "roll": 1578547,
+      "measure_id": "HJR 73",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House Joint Resolution 73, a proposed constitutional amendment repealing the 2024 reproductive-freedom right and restricting abortion. The Missouri Senate passed it 21-11. It takes effect only if Missouri voters approve it; a joint resolution needs no governor's signature.",
+      "nay_description": "Voted against House Joint Resolution 73, a proposed constitutional amendment repealing the 2024 reproductive-freedom right and restricting abortion. The Missouri Senate passed it 21-11. It takes effect only if Missouri voters approve it; a joint resolution needs no governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "21-11",
+        "old_sentences": 6,
+        "old_chars": 734
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2169",
+      "roll": 1578662,
+      "measure_id": "HB 595",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 595, which stopped cities and counties from passing several kinds of renter protection. The Missouri Senate gave it final approval 23-10 and it became law.",
+      "nay_description": "Voted against House Bill 595, which stopped cities and counties from passing several kinds of renter protection. The Missouri Senate gave it final approval 23-10 and it became law.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "23-10",
+        "old_sentences": 7,
+        "old_chars": 956
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2226",
+      "roll": 1602025,
+      "measure_id": "HJR 3",
+      "vote_date": "2025-09-12",
+      "yea_description": "Voted for House Joint Resolution 3, a proposed constitutional amendment requiring a majority in every congressional district to pass initiatives. The Missouri Senate passed it 21-11. It went to Missouri voters as Amendment 4 at the August 4, 2026 primary election, and they rejected it.",
+      "nay_description": "Voted against House Joint Resolution 3, a proposed constitutional amendment requiring a majority in every congressional district to pass initiatives. The Missouri Senate passed it 21-11. It went to Missouri voters as Amendment 4 at the August 4, 2026 primary election, and they rejected it.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "21-11",
+        "old_sentences": 10,
+        "old_chars": 1225
+      }
+    },
+    {
+      "jurisdiction": "MO",
+      "chamber": "senate",
+      "session": "2226",
+      "roll": 1602026,
+      "measure_id": "HB 1",
+      "vote_date": "2025-09-12",
+      "yea_description": "Voted for House Bill 1, which redrew Missouri's eight congressional districts in the middle of the decade. The Missouri Senate passed it 21-11 and the governor signed it into law.",
+      "nay_description": "Voted against House Bill 1, which redrew Missouri's eight congressional districts in the middle of the decade. The Missouri Senate passed it 21-11 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading",
+        "tally": "21-11",
+        "old_sentences": 4,
+        "old_chars": 598
+      }
+    }
+  ]
+}

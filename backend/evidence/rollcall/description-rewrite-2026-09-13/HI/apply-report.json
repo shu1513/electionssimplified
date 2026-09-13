@@ -1,0 +1,88 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/HI/rewrites.json",
+  "dryRun": false,
+  "rolls": 11,
+  "updatedRolls": 11,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 183,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "HI:house:2175:385812063",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:house:2175:386722839",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:house:2245:417002242",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:house:2245:417475641",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:house:2245:418523844",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:house:2245:418540230",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:senate:2175:382016649",
+      "outcome": "updated",
+      "rewritten": 2,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:senate:2175:383625417",
+      "outcome": "updated",
+      "rewritten": 2,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:senate:2175:385812062",
+      "outcome": "updated",
+      "rewritten": 2,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:senate:2245:418488639",
+      "outcome": "updated",
+      "rewritten": 3,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "HI:senate:2245:418636851",
+      "outcome": "updated",
+      "rewritten": 3,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

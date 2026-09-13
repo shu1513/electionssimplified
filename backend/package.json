@@ -75,6 +75,8 @@
     "rollcall:resolve": "tsx src/scripts/resolveRollCallMembers.ts",
     "rollcall:import": "tsx src/scripts/importRollCallVotes.ts",
     "rollcall:judge": "tsx src/scripts/judgeRollCallVotes.ts",
+    "rollcall:rewrite": "tsx src/scripts/rewriteRollCallDescriptions.ts",
+    "rollcall:export-rewrites": "tsx src/scripts/exportRollCallRewrites.ts",
     "rollcall:oh:fetch": "tsx src/scripts/fetchOhioRollCallVotes.ts",
     "rollcall:oh:resolve": "tsx src/scripts/resolveOhioRollCallMembers.ts",
     "rollcall:oh:import": "tsx src/scripts/importOhioRollCallVotes.ts",

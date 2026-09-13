@@ -1,0 +1,3172 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1490372,
+      "measure_id": "HB 4",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass HB 4, which limits how far a community association can restrict rooftop solar, defining any rule that raises install cost 5% or cuts output 10% as unreasonable. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 517 of 2025.",
+      "nay_description": "Voted against passing HB 4, which limits how far a community association can restrict rooftop solar, defining any rule that raises install cost 5% or cuts output 10% as unreasonable. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 517 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-36",
+        "old_sentences": 6,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1490375,
+      "measure_id": "HB 199",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass HB 199, which changes when the state contacts permanent absentee voters to confirm they still want ballots mailed to them. The Maryland House of Delegates passed it 104-33 and it was signed into law as Chapter 280 of 2025.",
+      "nay_description": "Voted against passing HB 199, which changes when the state contacts permanent absentee voters to confirm they still want ballots mailed to them. The Maryland House of Delegates passed it 104-33 and it was signed into law as Chapter 280 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "104-33",
+        "old_sentences": 7,
+        "old_chars": 649
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1499761,
+      "measure_id": "HB 39",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 39, the Carlton R. Smith Act, which repealed Maryland's crime of knowingly passing on HIV. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 651 of 2025.",
+      "nay_description": "Voted against passing HB 39, the Carlton R. Smith Act, which repealed Maryland's crime of knowingly passing on HIV. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 651 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-36",
+        "old_sentences": 5,
+        "old_chars": 329
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1499807,
+      "measure_id": "HB 297",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 297, which made state health insurance subsidies for young adults buying plans on the exchange permanent. The Maryland House of Delegates passed it 98-37 and it was signed into law as Chapter 721 of 2025.",
+      "nay_description": "Voted against passing HB 297, which made state health insurance subsidies for young adults buying plans on the exchange permanent. The Maryland House of Delegates passed it 98-37 and it was signed into law as Chapter 721 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-37",
+        "old_sentences": 6,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1499848,
+      "measure_id": "HB 277",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted to pass HB 277, which requires water bottle filling stations in new and renovated buildings wherever a drinking fountain is required. The Maryland House of Delegates passed it 105-30 and it was signed into law as Chapter 547 of 2025.",
+      "nay_description": "Voted against passing HB 277, which requires water bottle filling stations in new and renovated buildings wherever a drinking fountain is required. The Maryland House of Delegates passed it 105-30 and it was signed into law as Chapter 547 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "105-30",
+        "old_sentences": 6,
+        "old_chars": 742
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1505639,
+      "measure_id": "HB 324",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted to pass HB 324, which makes every county school board member complete an antibias training course during their term. The Maryland House of Delegates passed it 105-29 and it was signed into law as Chapter 301 of 2025.",
+      "nay_description": "Voted against passing HB 324, which makes every county school board member complete an antibias training course during their term. The Maryland House of Delegates passed it 105-29 and it was signed into law as Chapter 301 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "105-29",
+        "old_sentences": 5,
+        "old_chars": 443
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1505661,
+      "measure_id": "HB 367",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted to pass HB 367, which stops health licensing boards demanding extra proof of English from applicants already licensed in another state that required it. The Maryland House of Delegates passed it 107-27 and it was signed into law as Chapter 731 of 2025.",
+      "nay_description": "Voted against passing HB 367, which stops health licensing boards demanding extra proof of English from applicants already licensed in another state that required it. The Maryland House of Delegates passed it 107-27 and it was signed into law as Chapter 731 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "107-27",
+        "old_sentences": 6,
+        "old_chars": 790
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1505879,
+      "measure_id": "HB 197",
+      "vote_date": "2025-02-28",
+      "yea_description": "Voted to pass HB 197, which makes the state write a plan for restorative practices schools, a discipline model built on relationships and accountability. The Maryland House of Delegates passed it 94-36 and it was signed into law as Chapter 240 of 2025.",
+      "nay_description": "Voted against passing HB 197, which makes the state write a plan for restorative practices schools, a discipline model built on relationships and accountability. The Maryland House of Delegates passed it 94-36 and it was signed into law as Chapter 240 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "94-36",
+        "old_sentences": 7,
+        "old_chars": 698
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1506759,
+      "measure_id": "HB 249",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to pass HB 249, which bars counties and towns from penalizing landlords or tenants because 911 was called to a rental home. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 476 of 2025.",
+      "nay_description": "Voted against passing HB 249, which bars counties and towns from penalizing landlords or tenants because 911 was called to a rental home. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 476 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-37",
+        "old_sentences": 6,
+        "old_chars": 612
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1517921,
+      "measure_id": "HB 390",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass HB 390, which lets a county waive property tax on a rental building whose owner keeps at least a quarter of units affordable for 15 years. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 107 of 2025.",
+      "nay_description": "Voted against passing HB 390, which lets a county waive property tax on a rental building whose owner keeps at least a quarter of units affordable for 15 years. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 107 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-38",
+        "old_sentences": 6,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1517929,
+      "measure_id": "HB 933",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass HB 933, which puts Medicaid nursing home spending under yearly state review of how much goes to front-line staff pay. The Maryland House of Delegates passed it 99-38 and it was signed into law as Chapter 733 of 2025.",
+      "nay_description": "Voted against passing HB 933, which puts Medicaid nursing home spending under yearly state review of how much goes to front-line staff pay. The Maryland House of Delegates passed it 99-38 and it was signed into law as Chapter 733 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-38",
+        "old_sentences": 7,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1518056,
+      "measure_id": "HB 1380",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass HB 1380, which makes minimum childbirth care standards a condition of every hospital's license. The Maryland House of Delegates passed it 101-39 and it was signed into law as Chapter 709 of 2025.",
+      "nay_description": "Voted against passing HB 1380, which makes minimum childbirth care standards a condition of every hospital's license. The Maryland House of Delegates passed it 101-39 and it was signed into law as Chapter 709 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-39",
+        "old_sentences": 6,
+        "old_chars": 661
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1518348,
+      "measure_id": "HB 1045",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass HB 1045, which extends Maryland's medical privacy shield to gender-affirming care records so they cannot be handed to another state. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 469 of 2025.",
+      "nay_description": "Voted against passing HB 1045, which extends Maryland's medical privacy shield to gender-affirming care records so they cannot be handed to another state. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 469 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-37",
+        "old_sentences": 6,
+        "old_chars": 797
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1518351,
+      "measure_id": "HB 666",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass HB 666, which requires insurers and Medicaid to cover a calcium score heart scan that gauges heart disease risk. The Maryland House of Delegates passed it 108-31 and it was signed into law as Chapter 684 of 2025.",
+      "nay_description": "Voted against passing HB 666, which requires insurers and Medicaid to cover a calcium score heart scan that gauges heart disease risk. The Maryland House of Delegates passed it 108-31 and it was signed into law as Chapter 684 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "108-31",
+        "old_sentences": 6,
+        "old_chars": 634
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1518402,
+      "measure_id": "HB 1082",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass HB 1082, which sets up state subsidies to cushion rising health plan premiums on the state exchange in 2026 and 2027. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 468 of 2025.",
+      "nay_description": "Voted against passing HB 1082, which sets up state subsidies to cushion rising health plan premiums on the state exchange in 2026 and 2027. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 468 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-37",
+        "old_sentences": 7,
+        "old_chars": 695
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1518677,
+      "measure_id": "HB 783",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass HB 783, which adds implicit bias and structural racism to the training licensed health workers must complete. The Maryland House of Delegates passed it 101-37 and it was signed into law as Chapter 478 of 2025.",
+      "nay_description": "Voted against passing HB 783, which adds implicit bias and structural racism to the training licensed health workers must complete. The Maryland House of Delegates passed it 101-37 and it was signed into law as Chapter 478 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-37",
+        "old_sentences": 6,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1521502,
+      "measure_id": "HB 765",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted to pass HB 765, which lets hospitals sell patient debt only to a government or nonprofit buyer that cancels it. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 750 of 2025.",
+      "nay_description": "Voted against passing HB 765, which lets hospitals sell patient debt only to a government or nonprofit buyer that cancels it. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 750 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-36",
+        "old_sentences": 7,
+        "old_chars": 762
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1522294,
+      "measure_id": "HB 1294",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted to pass HB 1294, which brings pay advance apps under Maryland's consumer lending law, requiring licenses and limiting fees and tips. The Maryland House of Delegates passed it 99-38 and it became law without the Governor's signature as Chapter 847 of 2025.",
+      "nay_description": "Voted against passing HB 1294, which brings pay advance apps under Maryland's consumer lending law, requiring licenses and limiting fees and tips. The Maryland House of Delegates passed it 99-38 and it became law without the Governor's signature as Chapter 847 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-38",
+        "old_sentences": 6,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1522925,
+      "measure_id": "HB 881",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted to pass HB 881, which sends more collected child support straight to families on cash assistance, rising to 100% by fiscal 2031. The Maryland House of Delegates passed it 106-31 and it was signed into law as Chapter 373 of 2025.",
+      "nay_description": "Voted against passing HB 881, which sends more collected child support straight to families on cash assistance, rising to 100% by fiscal 2031. The Maryland House of Delegates passed it 106-31 and it was signed into law as Chapter 373 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "106-31",
+        "old_sentences": 6,
+        "old_chars": 644
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1523180,
+      "measure_id": "HB 1085",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass HB 1085, which extends a property tax exemption to housing built by the nonprofit arms of every housing authority in the state. The Maryland House of Delegates passed it 103-34 and it was signed into law as Chapter 169 of 2025.",
+      "nay_description": "Voted against passing HB 1085, which extends a property tax exemption to housing built by the nonprofit arms of every housing authority in the state. The Maryland House of Delegates passed it 103-34 and it was signed into law as Chapter 169 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-34",
+        "old_sentences": 6,
+        "old_chars": 545
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1525718,
+      "measure_id": "HB 731",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass HB 731, which creates a state coalition to build wildlife crossings and cut collisions between animals and vehicles. The Maryland House of Delegates passed it 101-36 and it was signed into law as Chapter 549 of 2025.",
+      "nay_description": "Voted against passing HB 731, which creates a state coalition to build wildlife crossings and cut collisions between animals and vehicles. The Maryland House of Delegates passed it 101-36 and it was signed into law as Chapter 549 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-36",
+        "old_sentences": 7,
+        "old_chars": 992
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1525730,
+      "measure_id": "HB 1111",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass HB 1111, which opens a state solar incentive to panels built over retention ponds and old quarries. The Maryland House of Delegates passed it 101-37 and it was signed into law as Chapter 458 of 2025.",
+      "nay_description": "Voted against passing HB 1111, which opens a state solar incentive to panels built over retention ponds and old quarries. The Maryland House of Delegates passed it 101-37 and it was signed into law as Chapter 458 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-37",
+        "old_sentences": 5,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1525762,
+      "measure_id": "HB 1315",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass HB 1315, which locks pharmacist vaccine rules and insurance coverage to the federal recommendations in force at the end of 2024. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 738 of 2025.",
+      "nay_description": "Voted against passing HB 1315, which locks pharmacist vaccine rules and insurance coverage to the federal recommendations in force at the end of 2024. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 738 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-36",
+        "old_sentences": 6,
+        "old_chars": 739
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1533870,
+      "measure_id": "HB 102",
+      "vote_date": "2025-03-28",
+      "yea_description": "Voted to pass HB 102, which delays the start of Maryland's paid family and medical leave program, with contributions beginning January 1, 2027. The Maryland House of Delegates passed it 95-34 and it was signed into law as Chapter 363 of 2025.",
+      "nay_description": "Voted against passing HB 102, which delays the start of Maryland's paid family and medical leave program, with contributions beginning January 1, 2027. The Maryland House of Delegates passed it 95-34 and it was signed into law as Chapter 363 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "95-34",
+        "old_sentences": 6,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1537949,
+      "measure_id": "SB 848",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to pass SB 848, which created a state grant program to help people get abortion care, funded from leftover insurer abortion accounts. The Maryland House of Delegates passed it 98-33 and it was signed into law as Chapter 436 of 2025.",
+      "nay_description": "Voted against passing SB 848, which created a state grant program to help people get abortion care, funded from leftover insurer abortion accounts. The Maryland House of Delegates passed it 98-33 and it was signed into law as Chapter 436 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-33",
+        "old_sentences": 6,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1544290,
+      "measure_id": "SB 432",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass SB 432, the Expungement Reform Act of 2025, which starts the waiting period to erase an old record when the full sentence ends and adds qualifying offenses. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 95 of 2025.",
+      "nay_description": "Voted against passing SB 432, the Expungement Reform Act of 2025, which starts the waiting period to erase an old record when the full sentence ends and adds qualifying offenses. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 95 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-38",
+        "old_sentences": 7,
+        "old_chars": 760
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1545522,
+      "measure_id": "HB 161",
+      "vote_date": "2025-04-05",
+      "yea_description": "Voted to pass HB 161, which lets the state force local school curriculum into line with new statewide content standards. The Maryland House of Delegates passed it 97-38 and it was signed into law as Chapter 245 of 2025.",
+      "nay_description": "Voted against passing HB 161, which lets the state force local school curriculum into line with new statewide content standards. The Maryland House of Delegates passed it 97-38 and it was signed into law as Chapter 245 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-38",
+        "old_sentences": 6,
+        "old_chars": 656
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1545740,
+      "measure_id": "HB 983",
+      "vote_date": "2025-04-05",
+      "yea_description": "Voted to pass HB 983, which requires election help in another language, including access to a translator, in counties with a real need. The Maryland House of Delegates passed it 97-30 and it was signed into law as Chapter 278 of 2025.",
+      "nay_description": "Voted against passing HB 983, which requires election help in another language, including access to a translator, in counties with a real need. The Maryland House of Delegates passed it 97-30 and it was signed into law as Chapter 278 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-30",
+        "old_sentences": 5,
+        "old_chars": 562
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1545844,
+      "measure_id": "HB 1378",
+      "vote_date": "2025-04-05",
+      "yea_description": "Voted to pass HB 1378, which cut how much money child sexual abuse victims can win from the state, local governments, and school boards in reopened cases. The Maryland House of Delegates passed it 91-41 and it was signed into law as Chapter 104 of 2025.",
+      "nay_description": "Voted against passing HB 1378, which cut how much money child sexual abuse victims can win from the state, local governments, and school boards in reopened cases. The Maryland House of Delegates passed it 91-41 and it was signed into law as Chapter 104 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "91-41",
+        "old_sentences": 7,
+        "old_chars": 646
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546789,
+      "measure_id": "SB 856",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 856, the Maryland Tenant Mold Protection Act, which puts mold duties on landlords and creates a state mold information website. The Maryland House of Delegates passed it 103-35 and it was signed into law as Chapter 539 of 2025.",
+      "nay_description": "Voted against passing SB 856, the Maryland Tenant Mold Protection Act, which puts mold duties on landlords and creates a state mold information website. The Maryland House of Delegates passed it 103-35 and it was signed into law as Chapter 539 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-35",
+        "old_sentences": 5,
+        "old_chars": 625
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546802,
+      "measure_id": "HB 15",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 15, which creates a legal form for worker cooperatives, businesses owned and controlled by the people who work there. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 198 of 2025.",
+      "nay_description": "Voted against passing HB 15, which creates a legal form for worker cooperatives, businesses owned and controlled by the people who work there. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 198 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-37",
+        "old_sentences": 7,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546805,
+      "measure_id": "HB 424",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 424, which gives the state Prescription Drug Affordability Board more power to cap what Marylanders pay for high-priced drugs. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 611 of 2025.",
+      "nay_description": "Voted against passing HB 424, which gives the state Prescription Drug Affordability Board more power to cap what Marylanders pay for high-priced drugs. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 611 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-38",
+        "old_sentences": 9,
+        "old_chars": 1001
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546815,
+      "measure_id": "SB 901",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 901, which makes the companies behind packaging and paper products pay for and run the recycling of what they sell. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 431 of 2025.",
+      "nay_description": "Voted against passing SB 901, which makes the companies behind packaging and paper products pay for and run the recycling of what they sell. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 431 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-36",
+        "old_sentences": 6,
+        "old_chars": 774
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546825,
+      "measure_id": "SB 425",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 425, which raises the fees coal ash producers pay and tightens the rules on storing it. The Maryland House of Delegates passed it 98-33 and it was signed into law as Chapter 529 of 2025.",
+      "nay_description": "Voted against passing SB 425, which raises the fees coal ash producers pay and tightens the rules on storing it. The Maryland House of Delegates passed it 98-33 and it was signed into law as Chapter 529 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-33",
+        "old_sentences": 7,
+        "old_chars": 760
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546848,
+      "measure_id": "SB 154",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 154, which keeps $14 million a year flowing to free lawyers for tenants facing eviction through fiscal 2028. The Maryland House of Delegates passed it 99-40 and it was signed into law as Chapter 457 of 2025.",
+      "nay_description": "Voted against passing SB 154, which keeps $14 million a year flowing to free lawyers for tenants facing eviction through fiscal 2028. The Maryland House of Delegates passed it 99-40 and it was signed into law as Chapter 457 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-40",
+        "old_sentences": 6,
+        "old_chars": 701
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546862,
+      "measure_id": "HB 431",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 431, which voids consumer contract clauses that shorten the time a person has to sue. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 194 of 2025.",
+      "nay_description": "Voted against passing HB 431, which voids consumer contract clauses that shorten the time a person has to sue. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 194 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-38",
+        "old_sentences": 5,
+        "old_chars": 635
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546864,
+      "measure_id": "HB 974",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 974, which locks in no-cost coverage of preventive care as the federal rules stood at the end of 2024. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 745 of 2025.",
+      "nay_description": "Voted against passing HB 974, which locks in no-cost coverage of preventive care as the federal rules stood at the end of 2024. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 745 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-37",
+        "old_sentences": 7,
+        "old_chars": 820
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546875,
+      "measure_id": "HB 634",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 634, which gives recently released prisoners a way to pay off or clear old state tax debt from years they were incarcerated. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 734 of 2025.",
+      "nay_description": "Voted against passing HB 634, which gives recently released prisoners a way to pay off or clear old state tax debt from years they were incarcerated. The Maryland House of Delegates passed it 103-36 and it was signed into law as Chapter 734 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-36",
+        "old_sentences": 6,
+        "old_chars": 866
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546877,
+      "measure_id": "HB 502",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 502, which makes the state a model employer of people with disabilities through a new office and hiring initiative. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 1 of 2025.",
+      "nay_description": "Voted against passing HB 502, which makes the state a model employer of people with disabilities through a new office and hiring initiative. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 1 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-37",
+        "old_sentences": 5,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546881,
+      "measure_id": "HB 1020",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1020, the Fair Medical Debt Reporting Act, which keeps medical debt off credit reports and out of loan decisions. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 121 of 2025.",
+      "nay_description": "Voted against passing HB 1020, the Fair Medical Debt Reporting Act, which keeps medical debt off credit reports and out of loan decisions. The Maryland House of Delegates passed it 102-37 and it was signed into law as Chapter 121 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-37",
+        "old_sentences": 6,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1546900,
+      "measure_id": "HB 1424",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1424, the Protect Our Federal Workers Act, which opens state emergency loans and aid to Marylanders who lost federal jobs. The Maryland House of Delegates passed it 105-33 and it was signed into law as Chapter 97 of 2025.",
+      "nay_description": "Voted against passing HB 1424, the Protect Our Federal Workers Act, which opens state emergency loans and aid to Marylanders who lost federal jobs. The Maryland House of Delegates passed it 105-33 and it was signed into law as Chapter 97 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "105-33",
+        "old_sentences": 7,
+        "old_chars": 876
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547015,
+      "measure_id": "SB 250",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 250, which raises environmental fees and penalties and tightens the rules on dams. The Maryland House of Delegates passed it 96-44 and it was signed into law as Chapter 432 of 2025.",
+      "nay_description": "Voted against passing SB 250, which raises environmental fees and penalties and tightens the rules on dams. The Maryland House of Delegates passed it 96-44 and it was signed into law as Chapter 432 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-44",
+        "old_sentences": 6,
+        "old_chars": 620
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547029,
+      "measure_id": "HB 1222",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1222, the Maryland Values Act, which keeps federal immigration agents out of the non-public parts of schools, libraries, courthouses, and public clinics. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 718 of 2025.",
+      "nay_description": "Voted against passing HB 1222, the Maryland Values Act, which keeps federal immigration agents out of the non-public parts of schools, libraries, courthouses, and public clinics. The Maryland House of Delegates passed it 101-38 and it was signed into law as Chapter 718 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-38",
+        "old_sentences": 9,
+        "old_chars": 1047
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547040,
+      "measure_id": "SB 767",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 767, which gives Calvert County deputy sheriffs and correctional deputies the right to unionize and bargain over pay and benefits. The Maryland House of Delegates passed it 108-27 and it was signed into law as Chapter 132 of 2025.",
+      "nay_description": "Voted against passing SB 767, which gives Calvert County deputy sheriffs and correctional deputies the right to unionize and bargain over pay and benefits. The Maryland House of Delegates passed it 108-27 and it was signed into law as Chapter 132 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "108-27",
+        "old_sentences": 4,
+        "old_chars": 507
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547104,
+      "measure_id": "SB 93",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 93, which makes local election boards remind voters that they can request a mail-in ballot. The Maryland House of Delegates passed it 104-36 and it was signed into law as Chapter 310 of 2025.",
+      "nay_description": "Voted against passing SB 93, which makes local election boards remind voters that they can request a mail-in ballot. The Maryland House of Delegates passed it 104-36 and it was signed into law as Chapter 310 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "104-36",
+        "old_sentences": 5,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547122,
+      "measure_id": "SB 842",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 842, which lets the state seize illegally sold vapes without a warrant. The Maryland House of Delegates passed it 105-33 and it was signed into law as Chapter 305 of 2025.",
+      "nay_description": "Voted against passing SB 842, which lets the state seize illegally sold vapes without a warrant. The Maryland House of Delegates passed it 105-33 and it was signed into law as Chapter 305 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "105-33",
+        "old_sentences": 6,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547340,
+      "measure_id": "HB 861",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 861, which makes ride-hailing companies such as Uber and Lyft show drivers a weekly summary of fares collected and the driver's share. The Maryland House of Delegates passed it 103-37 and it was signed into law as Chapter 506 of 2025.",
+      "nay_description": "Voted against passing HB 861, which makes ride-hailing companies such as Uber and Lyft show drivers a weekly summary of fares collected and the driver's share. The Maryland House of Delegates passed it 103-37 and it was signed into law as Chapter 506 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-37",
+        "old_sentences": 6,
+        "old_chars": 663
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547377,
+      "measure_id": "HB 1046",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1046, which stops vehicle repair contracts from excluding defects the manufacturer already knew about. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 207 of 2025.",
+      "nay_description": "Voted against passing HB 1046, which stops vehicle repair contracts from excluding defects the manufacturer already knew about. The Maryland House of Delegates passed it 100-38 and it was signed into law as Chapter 207 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-38",
+        "old_sentences": 5,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547601,
+      "measure_id": "SB 666",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 666, which guarantees $250,000 a year in operating grants for local anti-poverty community action agencies through fiscal 2030. The Maryland House of Delegates passed it 109-30 and it was signed into law as Chapter 288 of 2025.",
+      "nay_description": "Voted against passing SB 666, which guarantees $250,000 a year in operating grants for local anti-poverty community action agencies through fiscal 2030. The Maryland House of Delegates passed it 109-30 and it was signed into law as Chapter 288 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "109-30",
+        "old_sentences": 6,
+        "old_chars": 544
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2164",
+      "roll": 1547666,
+      "measure_id": "HB 1473",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1473, which widens state agencies' duty to serve people with limited English or a disability, with more translated forms and notices. The Maryland House of Delegates passed it 104-35 and it was signed into law as Chapter 434 of 2025.",
+      "nay_description": "Voted against passing HB 1473, which widens state agencies' duty to serve people with limited English or a disability, with more translated forms and notices. The Maryland House of Delegates passed it 104-35 and it was signed into law as Chapter 434 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "104-35",
+        "old_sentences": 6,
+        "old_chars": 708
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1625374,
+      "measure_id": "HB 444",
+      "vote_date": "2026-02-03",
+      "yea_description": "Voted to pass HB 444, which bans state and local 287(g) agreements that let local officers enforce federal civil immigration law. The Maryland House of Delegates passed it 99-40 and it was signed into law as Chapter 2 of 2026.",
+      "nay_description": "Voted against passing HB 444, which bans state and local 287(g) agreements that let local officers enforce federal civil immigration law. The Maryland House of Delegates passed it 99-40 and it was signed into law as Chapter 2 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-40",
+        "old_sentences": 7,
+        "old_chars": 652
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1644170,
+      "measure_id": "HB 220",
+      "vote_date": "2026-02-20",
+      "yea_description": "Voted to pass HB 220, which caps what landlords with water submeters can charge tenants at what the water provider actually charged. The Maryland House of Delegates passed it 95-34 and it was signed into law as Chapter 262 of 2026.",
+      "nay_description": "Voted against passing HB 220, which caps what landlords with water submeters can charge tenants at what the water provider actually charged. The Maryland House of Delegates passed it 95-34 and it was signed into law as Chapter 262 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "95-34",
+        "old_sentences": 6,
+        "old_chars": 664
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1654403,
+      "measure_id": "HB 372",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass HB 372, which writes federal emergency care rules for pregnancy into state law, including ending a pregnancy when needed to stabilize the patient. The Maryland House of Delegates passed it 97-37 and it was signed into law as Chapter 789 of 2026.",
+      "nay_description": "Voted against passing HB 372, which writes federal emergency care rules for pregnancy into state law, including ending a pregnancy when needed to stabilize the patient. The Maryland House of Delegates passed it 97-37 and it was signed into law as Chapter 789 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-37",
+        "old_sentences": 7,
+        "old_chars": 833
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1654465,
+      "measure_id": "HB 263",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass HB 263, which makes local buses stop at the door of early voting centers within half a mile of their route. The Maryland House of Delegates passed it 107-27 and it was signed into law as Chapter 106 of 2026.",
+      "nay_description": "Voted against passing HB 263, which makes local buses stop at the door of early voting centers within half a mile of their route. The Maryland House of Delegates passed it 107-27 and it was signed into law as Chapter 106 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "107-27",
+        "old_sentences": 7,
+        "old_chars": 730
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1654634,
+      "measure_id": "HB 85",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass HB 85, which creates a legal path to permanently affordable co-op housing with capped resale prices. The Maryland House of Delegates passed it 103-33 and it was signed into law as Chapter 260 of 2026.",
+      "nay_description": "Voted against passing HB 85, which creates a legal path to permanently affordable co-op housing with capped resale prices. The Maryland House of Delegates passed it 103-33 and it was signed into law as Chapter 260 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-33",
+        "old_sentences": 7,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1656495,
+      "measure_id": "HB 557",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass HB 557, which lets people check in advance whether their criminal record disqualifies them from an occupational license, for up to $100. The Maryland House of Delegates passed it 96-28 and it was signed into law as Chapter 302 of 2026.",
+      "nay_description": "Voted against passing HB 557, which lets people check in advance whether their criminal record disqualifies them from an occupational license, for up to $100. The Maryland House of Delegates passed it 96-28 and it was signed into law as Chapter 302 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-28",
+        "old_sentences": 6,
+        "old_chars": 703
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1656497,
+      "measure_id": "HB 200",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass HB 200, which requires home sellers to give buyers flood-risk information before signing a contract, starting July 2027. The Maryland House of Delegates passed it 94-35 and it was signed into law as Chapter 776 of 2026.",
+      "nay_description": "Voted against passing HB 200, which requires home sellers to give buyers flood-risk information before signing a contract, starting July 2027. The Maryland House of Delegates passed it 94-35 and it was signed into law as Chapter 776 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "94-35",
+        "old_sentences": 5,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1660453,
+      "measure_id": "HB 252",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass HB 252, which lets the state require lead paint removal contractors to carry a bond or liability insurance. The Maryland House of Delegates passed it 92-37 and it was signed into law as Chapter 359 of 2026.",
+      "nay_description": "Voted against passing HB 252, which lets the state require lead paint removal contractors to carry a bond or liability insurance. The Maryland House of Delegates passed it 92-37 and it was signed into law as Chapter 359 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "92-37",
+        "old_sentences": 6,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1660926,
+      "measure_id": "HB 280",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass HB 280, which writes federal mental health parity rules into state law so insurers treat mental health care no worse than physical care. The Maryland House of Delegates passed it 93-35 and it was signed into law as Chapter 11 of 2026.",
+      "nay_description": "Voted against passing HB 280, which writes federal mental health parity rules into state law so insurers treat mental health care no worse than physical care. The Maryland House of Delegates passed it 93-35 and it was signed into law as Chapter 11 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "93-35",
+        "old_sentences": 8,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1662530,
+      "measure_id": "HB 480",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to pass HB 480, which requires ride-hailing companies to keep a written deactivation policy with an appeal process for drivers they cut off. The Maryland House of Delegates passed it 98-38 and it was signed into law as Chapter 232 of 2026.",
+      "nay_description": "Voted against passing HB 480, which requires ride-hailing companies to keep a written deactivation policy with an appeal process for drivers they cut off. The Maryland House of Delegates passed it 98-38 and it was signed into law as Chapter 232 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-38",
+        "old_sentences": 6,
+        "old_chars": 542
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1670806,
+      "measure_id": "HB 1490",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 1490, which stops cash assistance being cut off when a parent has good cause not to cooperate with child support enforcement. The Maryland House of Delegates passed it 103-30 and it was signed into law as Chapter 763 of 2026.",
+      "nay_description": "Voted against passing HB 1490, which stops cash assistance being cut off when a parent has good cause not to cooperate with child support enforcement. The Maryland House of Delegates passed it 103-30 and it was signed into law as Chapter 763 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-30",
+        "old_sentences": 5,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1670879,
+      "measure_id": "HB 115",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 115, which requires prisons to send monthly release lists to election officials so eligible people get their voter registration restored. The Maryland House of Delegates passed it 100-33.",
+      "nay_description": "Voted against passing HB 115, which requires prisons to send monthly release lists to election officials so eligible people get their voter registration restored. The Maryland House of Delegates passed it 100-33.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-33",
+        "old_sentences": 4,
+        "old_chars": 375
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1670997,
+      "measure_id": "HB 250",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 250, which lets the environment department fine violators of water use, reservoir, and dam safety rules. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 273 of 2026.",
+      "nay_description": "Voted against passing HB 250, which lets the environment department fine violators of water use, reservoir, and dam safety rules. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 273 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-37",
+        "old_sentences": 6,
+        "old_chars": 650
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671033,
+      "measure_id": "HB 254",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 254, the Supporting Inclusive Community Adaptation Act, which creates a state climate resilience grant fund and brings communities into project planning. The Maryland House of Delegates passed it 98-35 and it was signed into law as Chapter 76 of 2026.",
+      "nay_description": "Voted against passing HB 254, the Supporting Inclusive Community Adaptation Act, which creates a state climate resilience grant fund and brings communities into project planning. The Maryland House of Delegates passed it 98-35 and it was signed into law as Chapter 76 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-35",
+        "old_sentences": 6,
+        "old_chars": 612
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671137,
+      "measure_id": "HB 1530",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 1530, which cuts the Maryland tax filing history undocumented students need for in-state tuition from three years to two. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 799 of 2026.",
+      "nay_description": "Voted against passing HB 1530, which cuts the Maryland tax filing history undocumented students need for in-state tuition from three years to two. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 799 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-36",
+        "old_sentences": 6,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671156,
+      "measure_id": "HB 1148",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass HB 1148, which helps heirs keep an inherited home out of tax sale through a new Legacy Protection Program. The Maryland House of Delegates passed it 99-34 and it was signed into law as Chapter 718 of 2026.",
+      "nay_description": "Voted against passing HB 1148, which helps heirs keep an inherited home out of tax sale through a new Legacy Protection Program. The Maryland House of Delegates passed it 99-34 and it was signed into law as Chapter 718 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-34",
+        "old_sentences": 6,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671754,
+      "measure_id": "HB 1249",
+      "vote_date": "2026-03-23",
+      "yea_description": "Voted to pass HB 1249, which stops certified recovery homes from turning away people on addiction treatment medication such as buprenorphine or methadone. The Maryland House of Delegates passed it 102-33 and it was signed into law as Chapter 793 of 2026.",
+      "nay_description": "Voted against passing HB 1249, which stops certified recovery homes from turning away people on addiction treatment medication such as buprenorphine or methadone. The Maryland House of Delegates passed it 102-33 and it was signed into law as Chapter 793 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "102-33",
+        "old_sentences": 5,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671836,
+      "measure_id": "HB 637",
+      "vote_date": "2026-03-21",
+      "yea_description": "Voted to pass HB 637, which gives Maryland its own vaccine and screening recommendations, issued by the state health secretary rather than federal advisers. The Maryland House of Delegates passed it 98-32 and it was signed into law as Chapter 7 of 2026.",
+      "nay_description": "Voted against passing HB 637, which gives Maryland its own vaccine and screening recommendations, issued by the state health secretary rather than federal advisers. The Maryland House of Delegates passed it 98-32 and it was signed into law as Chapter 7 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-32",
+        "old_sentences": 7,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671896,
+      "measure_id": "HB 405",
+      "vote_date": "2026-03-21",
+      "yea_description": "Voted to pass HB 405, which stops condo and homeowners association rules from blocking electric vehicle chargers in shared parking spaces. The Maryland House of Delegates passed it 94-28 and it was signed into law as Chapter 753 of 2026.",
+      "nay_description": "Voted against passing HB 405, which stops condo and homeowners association rules from blocking electric vehicle chargers in shared parking spaces. The Maryland House of Delegates passed it 94-28 and it was signed into law as Chapter 753 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "94-28",
+        "old_sentences": 7,
+        "old_chars": 825
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671918,
+      "measure_id": "HB 734",
+      "vote_date": "2026-03-21",
+      "yea_description": "Voted to pass HB 734, which keeps the farmland property tax break for community solar projects approved by the end of 2030. The Maryland House of Delegates passed it 101-27 and it was signed into law as Chapter 45 of 2026.",
+      "nay_description": "Voted against passing HB 734, which keeps the farmland property tax break for community solar projects approved by the end of 2030. The Maryland House of Delegates passed it 101-27 and it was signed into law as Chapter 45 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-27",
+        "old_sentences": 7,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671927,
+      "measure_id": "HB 711",
+      "vote_date": "2026-03-21",
+      "yea_description": "Voted to pass HB 711, the Data Privacy Act, which bars companies from selling personal data to government bodies engaged in civil immigration enforcement. The Maryland House of Delegates passed it 94-35 and it became law without the Governor's signature as Chapter 874 of 2026.",
+      "nay_description": "Voted against passing HB 711, the Data Privacy Act, which bars companies from selling personal data to government bodies engaged in civil immigration enforcement. The Maryland House of Delegates passed it 94-35 and it became law without the Governor's signature as Chapter 874 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "94-35",
+        "old_sentences": 6,
+        "old_chars": 871
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1671980,
+      "measure_id": "HB 1578",
+      "vote_date": "2026-03-21",
+      "yea_description": "Voted to pass HB 1578, which extends Maryland's minority business contracting program to July 2031. The Maryland House of Delegates passed it 98-32 and it was signed into law as Chapter 82 of 2026.",
+      "nay_description": "Voted against passing HB 1578, which extends Maryland's minority business contracting program to July 2031. The Maryland House of Delegates passed it 98-32 and it was signed into law as Chapter 82 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-32",
+        "old_sentences": 5,
+        "old_chars": 718
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1680477,
+      "measure_id": "SB 831",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 831, which strengthens labor protections, including a ban on employer-run employee organizations outside federal labor law. The Maryland House of Delegates passed it 99-36 and it was signed into law as Chapter 167 of 2026.",
+      "nay_description": "Voted against passing SB 831, which strengthens labor protections, including a ban on employer-run employee organizations outside federal labor law. The Maryland House of Delegates passed it 99-36 and it was signed into law as Chapter 167 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-36",
+        "old_sentences": 7,
+        "old_chars": 776
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1680517,
+      "measure_id": "SB 656",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 656, which lets people harmed by banned cosmetic ingredients sue and creates a restitution fund for victims of harmful hair chemicals. The Maryland House of Delegates passed it 101-34.",
+      "nay_description": "Voted against passing SB 656, which lets people harmed by banned cosmetic ingredients sue and creates a restitution fund for victims of harmful hair chemicals. The Maryland House of Delegates passed it 101-34.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-34",
+        "old_sentences": 5,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1680521,
+      "measure_id": "SB 475",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 475, the PACE Act, which bars prosecutors from using a defendant's song lyrics or other creative work as evidence unless strict tests are met. The Maryland House of Delegates passed it 99-35 and it was signed into law as Chapter 517 of 2026.",
+      "nay_description": "Voted against passing SB 475, the PACE Act, which bars prosecutors from using a defendant's song lyrics or other creative work as evidence unless strict tests are met. The Maryland House of Delegates passed it 99-35 and it was signed into law as Chapter 517 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-35",
+        "old_sentences": 10,
+        "old_chars": 896
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1680685,
+      "measure_id": "SB 417",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 417, the Maryland Worker Freedom Act, which lets workers skip employer meetings about politics or religion without punishment. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 221 of 2026.",
+      "nay_description": "Voted against passing SB 417, the Maryland Worker Freedom Act, which lets workers skip employer meetings about politics or religion without punishment. The Maryland House of Delegates passed it 96-37 and it was signed into law as Chapter 221 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-37",
+        "old_sentences": 7,
+        "old_chars": 864
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1680735,
+      "measure_id": "SB 136",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass SB 136, which gives police officers of the Alcohol, Tobacco, and Cannabis Commission collective bargaining rights. The Maryland House of Delegates passed it 99-33 and it was signed into law as Chapter 65 of 2026.",
+      "nay_description": "Voted against passing SB 136, which gives police officers of the Alcohol, Tobacco, and Cannabis Commission collective bargaining rights. The Maryland House of Delegates passed it 99-33 and it was signed into law as Chapter 65 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-33",
+        "old_sentences": 3,
+        "old_chars": 320
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1681677,
+      "measure_id": "SB 334",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass SB 334, which bans selling pistols that a small add-on part can quickly turn into machine guns, starting January 2027. The Maryland House of Delegates passed it 91-40 and it was signed into law as Chapter 771 of 2026.",
+      "nay_description": "Voted against passing SB 334, which bans selling pistols that a small add-on part can quickly turn into machine guns, starting January 2027. The Maryland House of Delegates passed it 91-40 and it was signed into law as Chapter 771 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "91-40",
+        "old_sentences": 7,
+        "old_chars": 799
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682184,
+      "measure_id": "HB 284",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 284, which requires gun dealers to report a break-in or theft of guns to the State Police within 24 hours. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 85 of 2026.",
+      "nay_description": "Voted against passing HB 284, which requires gun dealers to report a break-in or theft of guns to the State Police within 24 hours. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 85 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-36",
+        "old_sentences": 7,
+        "old_chars": 753
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682211,
+      "measure_id": "HB 578",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 578, which tightens endangered species protections, including state-designated essential habitats. The Maryland House of Delegates passed it 99-34 and it was signed into law as Chapter 211 of 2026.",
+      "nay_description": "Voted against passing HB 578, which tightens endangered species protections, including state-designated essential habitats. The Maryland House of Delegates passed it 99-34 and it was signed into law as Chapter 211 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-34",
+        "old_sentences": 6,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682279,
+      "measure_id": "HB 1135",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 1135, which lets pharmacists order a vaccine for anyone three or older so someone else can give it. The Maryland House of Delegates passed it 103-29 and it was signed into law as Chapter 270 of 2026.",
+      "nay_description": "Voted against passing HB 1135, which lets pharmacists order a vaccine for anyone three or older so someone else can give it. The Maryland House of Delegates passed it 103-29 and it was signed into law as Chapter 270 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "103-29",
+        "old_sentences": 5,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682956,
+      "measure_id": "HB 994",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 994, which requires travel sellers to carry at least $1 million in liability insurance and file proof yearly. The Maryland House of Delegates passed it 97-34 and it was signed into law as Chapter 611 of 2026.",
+      "nay_description": "Voted against passing HB 994, which requires travel sellers to carry at least $1 million in liability insurance and file proof yearly. The Maryland House of Delegates passed it 97-34 and it was signed into law as Chapter 611 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-34",
+        "old_sentences": 6,
+        "old_chars": 612
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682963,
+      "measure_id": "SB 305",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass SB 305, which extends $1 million a year through fiscal 2029 for job training in auto repair for formerly incarcerated people. The Maryland House of Delegates passed it 98-34 and it was signed into law as Chapter 403 of 2026.",
+      "nay_description": "Voted against passing SB 305, which extends $1 million a year through fiscal 2029 for job training in auto repair for formerly incarcerated people. The Maryland House of Delegates passed it 98-34 and it was signed into law as Chapter 403 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-34",
+        "old_sentences": 5,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1682972,
+      "measure_id": "HB 351",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 351, the No Kings Act, which lets people sue federal officers in state court for violating their rights. The Maryland House of Delegates passed it 97-35 and it was signed into law as Chapter 459 of 2026.",
+      "nay_description": "Voted against passing HB 351, the No Kings Act, which lets people sue federal officers in state court for violating their rights. The Maryland House of Delegates passed it 97-35 and it was signed into law as Chapter 459 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-35",
+        "old_sentences": 7,
+        "old_chars": 799
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683092,
+      "measure_id": "SB 523",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass SB 523, which makes the state map and protect vernal pools, seasonal wetlands where amphibians breed. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 164 of 2026.",
+      "nay_description": "Voted against passing SB 523, which makes the state map and protect vernal pools, seasonal wetlands where amphibians breed. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 164 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-36",
+        "old_sentences": 6,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683172,
+      "measure_id": "HB 497",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 497, which extends a temporary protective order in abuse cases to 14 days from issuance, up from 7 days from service. The Maryland House of Delegates passed it 101-31 and it was signed into law as Chapter 791 of 2026.",
+      "nay_description": "Voted against passing HB 497, which extends a temporary protective order in abuse cases to 14 days from issuance, up from 7 days from service. The Maryland House of Delegates passed it 101-31 and it was signed into law as Chapter 791 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-31",
+        "old_sentences": 5,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683232,
+      "measure_id": "SB 792",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass SB 792, which makes every hospital adopt a policy on what it does during an immigration enforcement action on site. The Maryland House of Delegates passed it 99-33 and it was signed into law as Chapter 162 of 2026.",
+      "nay_description": "Voted against passing SB 792, which makes every hospital adopt a policy on what it does during an immigration enforcement action on site. The Maryland House of Delegates passed it 99-33 and it was signed into law as Chapter 162 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-33",
+        "old_sentences": 8,
+        "old_chars": 828
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683953,
+      "measure_id": "HB 1016",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 1016, which voids noncompete clauses binding architects at large firms that move out of Maryland. The Maryland House of Delegates passed it 101-29 and it was signed into law as Chapter 301 of 2026.",
+      "nay_description": "Voted against passing HB 1016, which voids noncompete clauses binding architects at large firms that move out of Maryland. The Maryland House of Delegates passed it 101-29 and it was signed into law as Chapter 301 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-29",
+        "old_sentences": 7,
+        "old_chars": 764
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683974,
+      "measure_id": "SB 791",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass SB 791, the Community Trust Act, which requires a judicial warrant before local jails hold someone for federal immigration enforcement. The Maryland House of Delegates passed it 92-37.",
+      "nay_description": "Voted against passing SB 791, the Community Trust Act, which requires a judicial warrant before local jails hold someone for federal immigration enforcement. The Maryland House of Delegates passed it 92-37.",
+      "_current": {
+        "question": "Third Reading Passed with Amendments",
+        "tally": "92-37",
+        "old_sentences": 5,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1683978,
+      "measure_id": "HB 895",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 895, which bans grocery stores and delivery services from using a shopper's personal data to charge them a higher price on food. The Maryland House of Delegates passed it 100-31 and it was signed into law as Chapter 154 of 2026.",
+      "nay_description": "Voted against passing HB 895, which bans grocery stores and delivery services from using a shopper's personal data to charge them a higher price on food. The Maryland House of Delegates passed it 100-31 and it was signed into law as Chapter 154 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-31",
+        "old_sentences": 7,
+        "old_chars": 850
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684000,
+      "measure_id": "HB 624",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 624, the Safe Staffing Act of 2026, which gives hospital staff seats on committees that set staffing levels. The Maryland House of Delegates passed it 96-35 and it was signed into law as Chapter 236 of 2026.",
+      "nay_description": "Voted against passing HB 624, the Safe Staffing Act of 2026, which gives hospital staff seats on committees that set staffing levels. The Maryland House of Delegates passed it 96-35 and it was signed into law as Chapter 236 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-35",
+        "old_sentences": 7,
+        "old_chars": 778
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684021,
+      "measure_id": "HB 315",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 315, which bars landlords from rejecting housing voucher holders over their income or credit history. The Maryland House of Delegates passed it 96-34 and it was signed into law as Chapter 772 of 2026.",
+      "nay_description": "Voted against passing HB 315, which bars landlords from rejecting housing voucher holders over their income or credit history. The Maryland House of Delegates passed it 96-34 and it was signed into law as Chapter 772 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-34",
+        "old_sentences": 7,
+        "old_chars": 969
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684027,
+      "measure_id": "SB 187",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 187, which reclassifies the women's prerelease unit as a prerelease facility that prepares incarcerated women for release. The Maryland House of Delegates passed it 101-36 and it became law without the Governor's signature as Chapter 876 of 2026.",
+      "nay_description": "Voted against passing SB 187, which reclassifies the women's prerelease unit as a prerelease facility that prepares incarcerated women for release. The Maryland House of Delegates passed it 101-36 and it became law without the Governor's signature as Chapter 876 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-36",
+        "old_sentences": 6,
+        "old_chars": 819
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684033,
+      "measure_id": "SB 937",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 937, the Maryland Fair Chance Housing Act, which limits when landlords with five or more units may screen applicants' criminal records. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 752 of 2026.",
+      "nay_description": "Voted against passing SB 937, the Maryland Fair Chance Housing Act, which limits when landlords with five or more units may screen applicants' criminal records. The Maryland House of Delegates passed it 97-36 and it was signed into law as Chapter 752 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed with Amendments",
+        "tally": "97-36",
+        "old_sentences": 9,
+        "old_chars": 1331
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684270,
+      "measure_id": "HB 1076",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 1076, which makes community colleges offer over-the-counter birth control on campus and public colleges report yearly on access to it. The Maryland House of Delegates passed it 98-32.",
+      "nay_description": "Voted against passing HB 1076, which makes community colleges offer over-the-counter birth control on campus and public colleges report yearly on access to it. The Maryland House of Delegates passed it 98-32.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-32",
+        "old_sentences": 4,
+        "old_chars": 360
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684344,
+      "measure_id": "SB 1",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 1, which bars police from covering their faces on duty except undercover and requires them to wear identification. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 612 of 2026.",
+      "nay_description": "Voted against passing SB 1, which bars police from covering their faces on duty except undercover and requires them to wear identification. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 612 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-37",
+        "old_sentences": 7,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684397,
+      "measure_id": "SB 12",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 12, which requires landlords of buildings with 10 or more units to provide air conditioning from June 1 through September 30. The Maryland House of Delegates passed it 101-34 and it was signed into law as Chapter 664 of 2026.",
+      "nay_description": "Voted against passing SB 12, which requires landlords of buildings with 10 or more units to provide air conditioning from June 1 through September 30. The Maryland House of Delegates passed it 101-34 and it was signed into law as Chapter 664 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-34",
+        "old_sentences": 7,
+        "old_chars": 802
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684466,
+      "measure_id": "SB 729",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 729, which extends free eviction lawyers to mobile home park residents. The Maryland House of Delegates passed it 101-35 and it was signed into law as Chapter 754 of 2026.",
+      "nay_description": "Voted against passing SB 729, which extends free eviction lawyers to mobile home park residents. The Maryland House of Delegates passed it 101-35 and it was signed into law as Chapter 754 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "101-35",
+        "old_sentences": 5,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684554,
+      "measure_id": "SB 810",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 810, the Maryland Values Act of 2026, which widens the places immigration agents may not freely enter and bars schools from aiding enforcement. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 161 of 2026.",
+      "nay_description": "Voted against passing SB 810, the Maryland Values Act of 2026, which widens the places immigration agents may not freely enter and bars schools from aiding enforcement. The Maryland House of Delegates passed it 100-37 and it was signed into law as Chapter 161 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-37",
+        "old_sentences": 7,
+        "old_chars": 807
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684711,
+      "measure_id": "HB 571",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 571, which extends the housing authority tax exemption to subsidiaries of nonprofit housing corporations. The Maryland House of Delegates passed it 96-33 and it was signed into law as Chapter 727 of 2026.",
+      "nay_description": "Voted against passing HB 571, which extends the housing authority tax exemption to subsidiaries of nonprofit housing corporations. The Maryland House of Delegates passed it 96-33 and it was signed into law as Chapter 727 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-33",
+        "old_sentences": 6,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684716,
+      "measure_id": "HB 1017",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 1017, which bans privately run jails, prisons, and immigration detention facilities in Maryland. The Maryland House of Delegates passed it 95-36 and it was signed into law as Chapter 173 of 2026.",
+      "nay_description": "Voted against passing HB 1017, which bans privately run jails, prisons, and immigration detention facilities in Maryland. The Maryland House of Delegates passed it 95-36 and it was signed into law as Chapter 173 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "95-36",
+        "old_sentences": 8,
+        "old_chars": 1052
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684719,
+      "measure_id": "HB 963",
+      "vote_date": "2026-04-11",
+      "yea_description": "Voted to pass HB 963, which lets non-citizens be appointed to settle a relative's estate. The Maryland House of Delegates passed it 99-32 and it was signed into law as Chapter 537 of 2026.",
+      "nay_description": "Voted against passing HB 963, which lets non-citizens be appointed to settle a relative's estate. The Maryland House of Delegates passed it 99-32 and it was signed into law as Chapter 537 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-32",
+        "old_sentences": 6,
+        "old_chars": 521
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684953,
+      "measure_id": "SB 775",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 775, which requires guns handed in at buyback programs to be destroyed. The Maryland House of Delegates passed it 96-36 and it was signed into law as Chapter 430 of 2026.",
+      "nay_description": "Voted against passing SB 775, which requires guns handed in at buyback programs to be destroyed. The Maryland House of Delegates passed it 96-36 and it was signed into law as Chapter 430 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-36",
+        "old_sentences": 6,
+        "old_chars": 725
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684977,
+      "measure_id": "HB 573",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 573, which lets housing discrimination be proven by a practice's effect on a protected group, not just intent. The Maryland House of Delegates passed it 98-34 and it was signed into law as Chapter 778 of 2026.",
+      "nay_description": "Voted against passing HB 573, which lets housing discrimination be proven by a practice's effect on a protected group, not just intent. The Maryland House of Delegates passed it 98-34 and it was signed into law as Chapter 778 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "98-34",
+        "old_sentences": 6,
+        "old_chars": 788
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1684982,
+      "measure_id": "HB 894",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 894, which stops local governments from requiring off-street parking for housing built within a quarter mile of a rail station. The Maryland House of Delegates passed it 100-32 and it was signed into law as Chapter 592 of 2026.",
+      "nay_description": "Voted against passing HB 894, which stops local governments from requiring off-street parking for housing built within a quarter mile of a rail station. The Maryland House of Delegates passed it 100-32 and it was signed into law as Chapter 592 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-32",
+        "old_sentences": 9,
+        "old_chars": 1324
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685422,
+      "measure_id": "SB 249",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 249, which requires a separate state license to make, distribute, or sell vapes. The Maryland House of Delegates passed it 106-30 and it was signed into law as Chapter 415 of 2026.",
+      "nay_description": "Voted against passing SB 249, which requires a separate state license to make, distribute, or sell vapes. The Maryland House of Delegates passed it 106-30 and it was signed into law as Chapter 415 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "106-30",
+        "old_sentences": 6,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685426,
+      "measure_id": "SB 322",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 322, which restores jury eligibility once a person finishes a prison sentence, parole, or probation. The Maryland House of Delegates passed it 97-36 and it became law without the Governor's signature as Chapter 875 of 2026.",
+      "nay_description": "Voted against passing SB 322, which restores jury eligibility once a person finishes a prison sentence, parole, or probation. The Maryland House of Delegates passed it 97-36 and it became law without the Governor's signature as Chapter 875 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "97-36",
+        "old_sentences": 7,
+        "old_chars": 701
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685440,
+      "measure_id": "SB 141",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 141, which makes it a crime to knowingly spread an election deepfake carrying false information to sway or block votes. The Maryland House of Delegates passed it 85-38 and it was signed into law as Chapter 444 of 2026.",
+      "nay_description": "Voted against passing SB 141, which makes it a crime to knowingly spread an election deepfake carrying false information to sway or block votes. The Maryland House of Delegates passed it 85-38 and it was signed into law as Chapter 444 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "85-38",
+        "old_sentences": 9,
+        "old_chars": 1016
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685474,
+      "measure_id": "HB 191",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 191, which makes shops accept cash for everyday essentials such as food, medicine, and fuel on in-person sales under $300. The Maryland House of Delegates passed it 99-28 and it was signed into law as Chapter 714 of 2026.",
+      "nay_description": "Voted against passing HB 191, which makes shops accept cash for everyday essentials such as food, medicine, and fuel on in-person sales under $300. The Maryland House of Delegates passed it 99-28 and it was signed into law as Chapter 714 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-28",
+        "old_sentences": 8,
+        "old_chars": 842
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685496,
+      "measure_id": "SB 872",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 872, which widens which rental units fall under the lead paint law for housing built before 1978. The Maryland House of Delegates passed it 99-36 and it was signed into law as Chapter 225 of 2026.",
+      "nay_description": "Voted against passing SB 872, which widens which rental units fall under the lead paint law for housing built before 1978. The Maryland House of Delegates passed it 99-36 and it was signed into law as Chapter 225 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "99-36",
+        "old_sentences": 6,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685503,
+      "measure_id": "HB 103",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 103, which bars consumer contracts from waiving or limiting the remedies state and federal law give consumers. The Maryland House of Delegates passed it 84-32.",
+      "nay_description": "Voted against passing HB 103, which bars consumer contracts from waiving or limiting the remedies state and federal law give consumers. The Maryland House of Delegates passed it 84-32.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "84-32",
+        "old_sentences": 4,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685506,
+      "measure_id": "SB 94",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 94, which bans tips on pay advances and consumer loans and brings pay advance providers under consumer protection law. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 170 of 2026.",
+      "nay_description": "Voted against passing SB 94, which bans tips on pay advances and consumer loans and brings pay advance providers under consumer protection law. The Maryland House of Delegates passed it 100-36 and it was signed into law as Chapter 170 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "100-36",
+        "old_sentences": 6,
+        "old_chars": 619
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685509,
+      "measure_id": "HB 168",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 168, which opens state housing funds to housing built for teachers and lets school land be used for it. The Maryland House of Delegates passed it 89-32 and it was signed into law as Chapter 678 of 2026.",
+      "nay_description": "Voted against passing HB 168, which opens state housing funds to housing built for teachers and lets school land be used for it. The Maryland House of Delegates passed it 89-32 and it was signed into law as Chapter 678 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "89-32",
+        "old_sentences": 7,
+        "old_chars": 809
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1685987,
+      "measure_id": "SB 949",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 949, which writes absentee ballot deadlines into state law, including rules when federal law sets a different deadline. The Maryland House of Delegates passed it 96-36 and it was signed into law as Chapter 440 of 2026.",
+      "nay_description": "Voted against passing SB 949, which writes absentee ballot deadlines into state law, including rules when federal law sets a different deadline. The Maryland House of Delegates passed it 96-36 and it was signed into law as Chapter 440 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "96-36",
+        "old_sentences": 7,
+        "old_chars": 673
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "house",
+      "session": "2240",
+      "roll": 1716681,
+      "measure_id": "HB 862",
+      "vote_date": "2026-08-03",
+      "yea_description": "Voted to override the Governor's veto of HB 862, which sets a minimum crew of two on freight trains sharing a corridor with passenger trains, with fines up to $25,000. The Maryland House of Delegates overrode the veto 99-30, so the bill became Chapter 879 of 2026.",
+      "nay_description": "Voted against overriding the Governor's veto of HB 862, which sets a minimum crew of two on freight trains sharing a corridor with passenger trains, with fines up to $25,000. The Maryland House of Delegates overrode the veto 99-30, so the bill became Chapter 879 of 2026.",
+      "_current": {
+        "question": "Overridden",
+        "tally": "99-30",
+        "old_sentences": 7,
+        "old_chars": 715
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1524890,
+      "measure_id": "SB 432",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted to pass SB 432, the Expungement Reform Act of 2025, which starts the waiting period to erase an old record when the full sentence ends and adds qualifying offenses. The Maryland Senate passed it 36-11 and it was signed into law as Chapter 95 of 2025.",
+      "nay_description": "Voted against passing SB 432, the Expungement Reform Act of 2025, which starts the waiting period to erase an old record when the full sentence ends and adds qualifying offenses. The Maryland Senate passed it 36-11 and it was signed into law as Chapter 95 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "36-11",
+        "old_sentences": 7,
+        "old_chars": 747
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1531850,
+      "measure_id": "SB 425",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 425, which raises the fees coal ash producers pay and tightens the rules on storing it. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 529 of 2025.",
+      "nay_description": "Voted against passing SB 425, which raises the fees coal ash producers pay and tightens the rules on storing it. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 529 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 7,
+        "old_chars": 748
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1531912,
+      "measure_id": "SB 154",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 154, which keeps $14 million a year flowing to free lawyers for tenants facing eviction through fiscal 2028. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 457 of 2025.",
+      "nay_description": "Voted against passing SB 154, which keeps $14 million a year flowing to free lawyers for tenants facing eviction through fiscal 2028. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 457 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 6,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1531942,
+      "measure_id": "SB 250",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 250, which raises environmental fees and penalties and tightens the rules on dams. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 432 of 2025.",
+      "nay_description": "Voted against passing SB 250, which raises environmental fees and penalties and tightens the rules on dams. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 432 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-14",
+        "old_sentences": 6,
+        "old_chars": 608
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1532080,
+      "measure_id": "SB 848",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 848, which created a state grant program to help people get abortion care, funded from leftover insurer abortion accounts. The Maryland Senate passed it 29-15 and it was signed into law as Chapter 436 of 2025.",
+      "nay_description": "Voted against passing SB 848, which created a state grant program to help people get abortion care, funded from leftover insurer abortion accounts. The Maryland Senate passed it 29-15 and it was signed into law as Chapter 436 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "29-15",
+        "old_sentences": 6,
+        "old_chars": 614
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1532329,
+      "measure_id": "SB 599",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 599, which restores $5 million a year for behavioral health crisis response grants for fiscal years 2027 through 2029. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 666 of 2025.",
+      "nay_description": "Voted against passing SB 599, which restores $5 million a year for behavioral health crisis response grants for fiscal years 2027 through 2029. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 666 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-13",
+        "old_sentences": 5,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559634,
+      "measure_id": "HB 324",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 324, which makes every county school board member complete an antibias training course during their term. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 301 of 2025.",
+      "nay_description": "Voted against passing HB 324, which makes every county school board member complete an antibias training course during their term. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 301 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 5,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559663,
+      "measure_id": "HB 161",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 161, which lets the state force local school curriculum into line with new statewide content standards. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 245 of 2025.",
+      "nay_description": "Voted against passing HB 161, which lets the state force local school curriculum into line with new statewide content standards. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 245 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-12",
+        "old_sentences": 6,
+        "old_chars": 644
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559821,
+      "measure_id": "HB 390",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 390, which lets a county waive property tax on a rental building whose owner keeps at least a quarter of units affordable for 15 years. The Maryland Senate passed it 37-10 and it was signed into law as Chapter 107 of 2025.",
+      "nay_description": "Voted against passing HB 390, which lets a county waive property tax on a rental building whose owner keeps at least a quarter of units affordable for 15 years. The Maryland Senate passed it 37-10 and it was signed into law as Chapter 107 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "37-10",
+        "old_sentences": 6,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559843,
+      "measure_id": "HB 452",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 452, which extends state dark-sky lighting rules to state parks and trails. The Maryland Senate passed it 36-11 and it was signed into law as Chapter 389 of 2025.",
+      "nay_description": "Voted against passing HB 452, which extends state dark-sky lighting rules to state parks and trails. The Maryland Senate passed it 36-11 and it was signed into law as Chapter 389 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "36-11",
+        "old_sentences": 7,
+        "old_chars": 931
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559874,
+      "measure_id": "HB 197",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 197, which makes the state write a plan for restorative practices schools, a discipline model built on relationships and accountability. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 240 of 2025.",
+      "nay_description": "Voted against passing HB 197, which makes the state write a plan for restorative practices schools, a discipline model built on relationships and accountability. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 240 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 7,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559912,
+      "measure_id": "HB 199",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 199, which changes when the state contacts permanent absentee voters to confirm they still want ballots mailed to them. The Maryland Senate passed it 36-10 and it was signed into law as Chapter 280 of 2025.",
+      "nay_description": "Voted against passing HB 199, which changes when the state contacts permanent absentee voters to confirm they still want ballots mailed to them. The Maryland Senate passed it 36-10 and it was signed into law as Chapter 280 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "36-10",
+        "old_sentences": 6,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1559974,
+      "measure_id": "HB 765",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 765, which lets hospitals sell patient debt only to a government or nonprofit buyer that cancels it. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 750 of 2025.",
+      "nay_description": "Voted against passing HB 765, which lets hospitals sell patient debt only to a government or nonprofit buyer that cancels it. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 750 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-12",
+        "old_sentences": 7,
+        "old_chars": 749
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1560002,
+      "measure_id": "HB 277",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 277, which requires water bottle filling stations in new and renovated buildings wherever a drinking fountain is required. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 547 of 2025.",
+      "nay_description": "Voted against passing HB 277, which requires water bottle filling stations in new and renovated buildings wherever a drinking fountain is required. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 547 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-12",
+        "old_sentences": 6,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1560051,
+      "measure_id": "HB 502",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 502, which makes the state a model employer of people with disabilities through a new office and hiring initiative. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 1 of 2025.",
+      "nay_description": "Voted against passing HB 502, which makes the state a model employer of people with disabilities through a new office and hiring initiative. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 1 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-12",
+        "old_sentences": 5,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1560780,
+      "measure_id": "HB 1380",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 1380, which makes minimum childbirth care standards a condition of every hospital's license. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 709 of 2025.",
+      "nay_description": "Voted against passing HB 1380, which makes minimum childbirth care standards a condition of every hospital's license. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 709 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-12",
+        "old_sentences": 6,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1560961,
+      "measure_id": "HB 1085",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass HB 1085, which extends a property tax exemption to housing built by the nonprofit arms of every housing authority in the state. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 169 of 2025.",
+      "nay_description": "Voted against passing HB 1085, which extends a property tax exemption to housing built by the nonprofit arms of every housing authority in the state. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 169 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 6,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561522,
+      "measure_id": "HB 4",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 4, which limits how far a community association can restrict rooftop solar, defining any rule that raises install cost 5% or cuts output 10% as unreasonable. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 517 of 2025.",
+      "nay_description": "Voted against passing HB 4, which limits how far a community association can restrict rooftop solar, defining any rule that raises install cost 5% or cuts output 10% as unreasonable. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 517 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 6,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561539,
+      "measure_id": "HB 367",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 367, which stops health licensing boards demanding extra proof of English from applicants already licensed in another state that required it. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 731 of 2025.",
+      "nay_description": "Voted against passing HB 367, which stops health licensing boards demanding extra proof of English from applicants already licensed in another state that required it. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 731 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-13",
+        "old_sentences": 6,
+        "old_chars": 777
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561540,
+      "measure_id": "HB 731",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 731, which creates a state coalition to build wildlife crossings and cut collisions between animals and vehicles. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 549 of 2025.",
+      "nay_description": "Voted against passing HB 731, which creates a state coalition to build wildlife crossings and cut collisions between animals and vehicles. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 549 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 5,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561552,
+      "measure_id": "HB 39",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 39, the Carlton R. Smith Act, which repealed Maryland's crime of knowingly passing on HIV. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 651 of 2025.",
+      "nay_description": "Voted against passing HB 39, the Carlton R. Smith Act, which repealed Maryland's crime of knowingly passing on HIV. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 651 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 5,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561561,
+      "measure_id": "HB 1045",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 1045, which extends Maryland's medical privacy shield to gender-affirming care records so they cannot be handed to another state. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 469 of 2025.",
+      "nay_description": "Voted against passing HB 1045, which extends Maryland's medical privacy shield to gender-affirming care records so they cannot be handed to another state. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 469 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 6,
+        "old_chars": 784
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561703,
+      "measure_id": "HB 1222",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1222, the Maryland Values Act, which keeps federal immigration agents out of the non-public parts of schools, libraries, courthouses, and public clinics. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 718 of 2025.",
+      "nay_description": "Voted against passing HB 1222, the Maryland Values Act, which keeps federal immigration agents out of the non-public parts of schools, libraries, courthouses, and public clinics. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 718 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 9,
+        "old_chars": 1034
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561754,
+      "measure_id": "SB 901",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 901, which makes the companies behind packaging and paper products pay for and run the recycling of what they sell. The Maryland Senate passed it 33-11 and it was signed into law as Chapter 431 of 2025.",
+      "nay_description": "Voted against passing SB 901, which makes the companies behind packaging and paper products pay for and run the recycling of what they sell. The Maryland Senate passed it 33-11 and it was signed into law as Chapter 431 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-11",
+        "old_sentences": 6,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561841,
+      "measure_id": "HB 1082",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1082, which sets up state subsidies to cushion rising health plan premiums on the state exchange in 2026 and 2027. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 468 of 2025.",
+      "nay_description": "Voted against passing HB 1082, which sets up state subsidies to cushion rising health plan premiums on the state exchange in 2026 and 2027. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 468 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-12",
+        "old_sentences": 7,
+        "old_chars": 682
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561850,
+      "measure_id": "HB 424",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass HB 424, which gives the state Prescription Drug Affordability Board more power to cap what Marylanders pay for high-priced drugs. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 611 of 2025.",
+      "nay_description": "Voted against passing HB 424, which gives the state Prescription Drug Affordability Board more power to cap what Marylanders pay for high-priced drugs. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 611 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-12",
+        "old_sentences": 9,
+        "old_chars": 988
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561863,
+      "measure_id": "HB 933",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 933, which puts Medicaid nursing home spending under yearly state review of how much goes to front-line staff pay. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 733 of 2025.",
+      "nay_description": "Voted against passing HB 933, which puts Medicaid nursing home spending under yearly state review of how much goes to front-line staff pay. The Maryland Senate passed it 34-13 and it was signed into law as Chapter 733 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-13",
+        "old_sentences": 7,
+        "old_chars": 724
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561870,
+      "measure_id": "HB 1315",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1315, which locks pharmacist vaccine rules and insurance coverage to the federal recommendations in force at the end of 2024. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 738 of 2025.",
+      "nay_description": "Voted against passing HB 1315, which locks pharmacist vaccine rules and insurance coverage to the federal recommendations in force at the end of 2024. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 738 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-12",
+        "old_sentences": 6,
+        "old_chars": 726
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561920,
+      "measure_id": "HB 1310",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass HB 1310, which widens the program that redistributes donated prescription drugs, adding over-the-counter drugs and out-of-state donors. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 705 of 2025.",
+      "nay_description": "Voted against passing HB 1310, which widens the program that redistributes donated prescription drugs, adding over-the-counter drugs and out-of-state donors. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 705 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-12",
+        "old_sentences": 6,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561936,
+      "measure_id": "HB 783",
+      "vote_date": "2025-04-05",
+      "yea_description": "Voted to pass HB 783, which adds implicit bias and structural racism to the training licensed health workers must complete. The Maryland Senate passed it 29-13 and it was signed into law as Chapter 478 of 2025.",
+      "nay_description": "Voted against passing HB 783, which adds implicit bias and structural racism to the training licensed health workers must complete. The Maryland Senate passed it 29-13 and it was signed into law as Chapter 478 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "29-13",
+        "old_sentences": 6,
+        "old_chars": 634
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1561941,
+      "measure_id": "HB 1294",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1294, which brings pay advance apps under Maryland's consumer lending law, requiring licenses and limiting fees and tips. The Maryland Senate passed it 28-17 and it became law without the Governor's signature as Chapter 847 of 2025.",
+      "nay_description": "Voted against passing HB 1294, which brings pay advance apps under Maryland's consumer lending law, requiring licenses and limiting fees and tips. The Maryland Senate passed it 28-17 and it became law without the Governor's signature as Chapter 847 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "28-17",
+        "old_sentences": 6,
+        "old_chars": 674
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1562223,
+      "measure_id": "SB 608",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 608, which eases the paperwork crime victims need for a U visa, letting a lawyer request the certification form. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 114 of 2025.",
+      "nay_description": "Voted against passing SB 608, which eases the paperwork crime victims need for a U visa, letting a lawyer request the certification form. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 114 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-12",
+        "old_sentences": 5,
+        "old_chars": 574
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1562559,
+      "measure_id": "HB 795",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted to pass HB 795, which makes public employers count hours in the way that helps workers qualify for federal Public Service Loan Forgiveness. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 324 of 2025.",
+      "nay_description": "Voted against passing HB 795, which makes public employers count hours in the way that helps workers qualify for federal Public Service Loan Forgiveness. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 324 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-13",
+        "old_sentences": 6,
+        "old_chars": 776
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1562634,
+      "measure_id": "HB 861",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass HB 861, which makes ride-hailing companies such as Uber and Lyft show drivers a weekly summary of fares collected and the driver's share. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 506 of 2025.",
+      "nay_description": "Voted against passing HB 861, which makes ride-hailing companies such as Uber and Lyft show drivers a weekly summary of fares collected and the driver's share. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 506 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-11",
+        "old_sentences": 6,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1565951,
+      "measure_id": "HB 983",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass HB 983, which requires election help in another language, including access to a translator, in counties with a real need. The Maryland Senate passed it 32-12 and it was signed into law as Chapter 278 of 2025.",
+      "nay_description": "Voted against passing HB 983, which requires election help in another language, including access to a translator, in counties with a real need. The Maryland Senate passed it 32-12 and it was signed into law as Chapter 278 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-12",
+        "old_sentences": 5,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1572563,
+      "measure_id": "HB 1424",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1424, the Protect Our Federal Workers Act, which opens state emergency loans and aid to Marylanders who lost federal jobs. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 97 of 2025.",
+      "nay_description": "Voted against passing HB 1424, the Protect Our Federal Workers Act, which opens state emergency loans and aid to Marylanders who lost federal jobs. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 97 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-13",
+        "old_sentences": 7,
+        "old_chars": 863
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1572861,
+      "measure_id": "HB 881",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 881, which sends more collected child support straight to families on cash assistance, rising to 100% by fiscal 2031. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 373 of 2025.",
+      "nay_description": "Voted against passing HB 881, which sends more collected child support straight to families on cash assistance, rising to 100% by fiscal 2031. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 373 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-13",
+        "old_sentences": 6,
+        "old_chars": 631
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2164",
+      "roll": 1572933,
+      "measure_id": "HB 1473",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass HB 1473, which widens state agencies' duty to serve people with limited English or a disability, with more translated forms and notices. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 434 of 2025.",
+      "nay_description": "Voted against passing HB 1473, which widens state agencies' duty to serve people with limited English or a disability, with more translated forms and notices. The Maryland Senate passed it 33-13 and it was signed into law as Chapter 434 of 2025.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-13",
+        "old_sentences": 6,
+        "old_chars": 695
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1633580,
+      "measure_id": "HB 444",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass HB 444, which bans state and local 287(g) agreements that let local officers enforce federal civil immigration law. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 2 of 2026.",
+      "nay_description": "Voted against passing HB 444, which bans state and local 287(g) agreements that let local officers enforce federal civil immigration law. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 2 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-13",
+        "old_sentences": 7,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1660583,
+      "measure_id": "SB 322",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass SB 322, which restores jury eligibility once a person finishes a prison sentence, parole, or probation. The Maryland Senate passed it 32-11 and it became law without the Governor's signature as Chapter 875 of 2026.",
+      "nay_description": "Voted against passing SB 322, which restores jury eligibility once a person finishes a prison sentence, parole, or probation. The Maryland Senate passed it 32-11 and it became law without the Governor's signature as Chapter 875 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-11",
+        "old_sentences": 7,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1660657,
+      "measure_id": "SB 439",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass SB 439, which protects firefighters and medics from discipline for holding a medical cannabis certification or testing positive while holding one. The Maryland Senate passed it 33-11 and it was signed into law as Chapter 183 of 2026.",
+      "nay_description": "Voted against passing SB 439, which protects firefighters and medics from discipline for holding a medical cannabis certification or testing positive while holding one. The Maryland Senate passed it 33-11 and it was signed into law as Chapter 183 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-11",
+        "old_sentences": 6,
+        "old_chars": 705
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1672573,
+      "measure_id": "SB 94",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted to pass SB 94, which bans tips on pay advances and consumer loans and brings pay advance providers under consumer protection law. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 170 of 2026.",
+      "nay_description": "Voted against passing SB 94, which bans tips on pay advances and consumer loans and brings pay advance providers under consumer protection law. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 170 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-13",
+        "old_sentences": 6,
+        "old_chars": 606
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1672905,
+      "measure_id": "SB 334",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted to pass SB 334, which bans selling pistols that a small add-on part can quickly turn into machine guns, starting January 2027. The Maryland Senate passed it 28-16 and it was signed into law as Chapter 771 of 2026.",
+      "nay_description": "Voted against passing SB 334, which bans selling pistols that a small add-on part can quickly turn into machine guns, starting January 2027. The Maryland Senate passed it 28-16 and it was signed into law as Chapter 771 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "28-16",
+        "old_sentences": 7,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1673247,
+      "measure_id": "SB 417",
+      "vote_date": "2026-03-23",
+      "yea_description": "Voted to pass SB 417, the Maryland Worker Freedom Act, which lets workers skip employer meetings about politics or religion without punishment. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 221 of 2026.",
+      "nay_description": "Voted against passing SB 417, the Maryland Worker Freedom Act, which lets workers skip employer meetings about politics or religion without punishment. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 221 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-12",
+        "old_sentences": 7,
+        "old_chars": 852
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1677562,
+      "measure_id": "HB 734",
+      "vote_date": "2026-04-03",
+      "yea_description": "Voted to pass HB 734, which keeps the farmland property tax break for community solar projects approved by the end of 2030. The Maryland Senate passed it 34-10 and it was signed into law as Chapter 45 of 2026.",
+      "nay_description": "Voted against passing HB 734, which keeps the farmland property tax break for community solar projects approved by the end of 2030. The Maryland Senate passed it 34-10 and it was signed into law as Chapter 45 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-10",
+        "old_sentences": 6,
+        "old_chars": 672
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680493,
+      "measure_id": "HB 284",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 284, which requires gun dealers to report a break-in or theft of guns to the State Police within 24 hours. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 85 of 2026.",
+      "nay_description": "Voted against passing HB 284, which requires gun dealers to report a break-in or theft of guns to the State Police within 24 hours. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 85 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-11",
+        "old_sentences": 7,
+        "old_chars": 741
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680506,
+      "measure_id": "HB 250",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 250, which lets the environment department fine violators of water use, reservoir, and dam safety rules. The Maryland Senate passed it 32-12 and it was signed into law as Chapter 273 of 2026.",
+      "nay_description": "Voted against passing HB 250, which lets the environment department fine violators of water use, reservoir, and dam safety rules. The Maryland Senate passed it 32-12 and it was signed into law as Chapter 273 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-12",
+        "old_sentences": 6,
+        "old_chars": 638
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680526,
+      "measure_id": "HB 571",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 571, which extends the housing authority tax exemption to subsidiaries of nonprofit housing corporations. The Maryland Senate passed it 24-17 and it was signed into law as Chapter 727 of 2026.",
+      "nay_description": "Voted against passing HB 571, which extends the housing authority tax exemption to subsidiaries of nonprofit housing corporations. The Maryland Senate passed it 24-17 and it was signed into law as Chapter 727 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "24-17",
+        "old_sentences": 6,
+        "old_chars": 471
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680639,
+      "measure_id": "HB 1135",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 1135, which lets pharmacists order a vaccine for anyone three or older so someone else can give it. The Maryland Senate passed it 33-9 and it was signed into law as Chapter 270 of 2026.",
+      "nay_description": "Voted against passing HB 1135, which lets pharmacists order a vaccine for anyone three or older so someone else can give it. The Maryland Senate passed it 33-9 and it was signed into law as Chapter 270 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-9",
+        "old_sentences": 5,
+        "old_chars": 584
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680646,
+      "measure_id": "HB 115",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 115, which requires prisons to send monthly release lists to election officials so eligible people get their voter registration restored. The Maryland Senate passed it 30-13.",
+      "nay_description": "Voted against passing HB 115, which requires prisons to send monthly release lists to election officials so eligible people get their voter registration restored. The Maryland Senate passed it 30-13.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "30-13",
+        "old_sentences": 4,
+        "old_chars": 362
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680665,
+      "measure_id": "HB 637",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 637, which gives Maryland its own vaccine and screening recommendations, issued by the state health secretary rather than federal advisers. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 7 of 2026.",
+      "nay_description": "Voted against passing HB 637, which gives Maryland its own vaccine and screening recommendations, issued by the state health secretary rather than federal advisers. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 7 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-13",
+        "old_sentences": 7,
+        "old_chars": 754
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680681,
+      "measure_id": "HB 372",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 372, which writes federal emergency care rules for pregnancy into state law, including ending a pregnancy when needed to stabilize the patient. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 789 of 2026.",
+      "nay_description": "Voted against passing HB 372, which writes federal emergency care rules for pregnancy into state law, including ending a pregnancy when needed to stabilize the patient. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 789 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-12",
+        "old_sentences": 7,
+        "old_chars": 821
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1680838,
+      "measure_id": "HB 252",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted to pass HB 252, which lets the state require lead paint removal contractors to carry a bond or liability insurance. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 359 of 2026.",
+      "nay_description": "Voted against passing HB 252, which lets the state require lead paint removal contractors to carry a bond or liability insurance. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 359 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-11",
+        "old_sentences": 6,
+        "old_chars": 517
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681395,
+      "measure_id": "HB 220",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 220, which caps what landlords with water submeters can charge tenants at what the water provider actually charged. The Maryland Senate passed it 31-11 and it was signed into law as Chapter 262 of 2026.",
+      "nay_description": "Voted against passing HB 220, which caps what landlords with water submeters can charge tenants at what the water provider actually charged. The Maryland Senate passed it 31-11 and it was signed into law as Chapter 262 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-11",
+        "old_sentences": 6,
+        "old_chars": 652
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681425,
+      "measure_id": "HB 994",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 994, which requires travel sellers to carry at least $1 million in liability insurance and file proof yearly. The Maryland Senate passed it 28-14 and it was signed into law as Chapter 611 of 2026.",
+      "nay_description": "Voted against passing HB 994, which requires travel sellers to carry at least $1 million in liability insurance and file proof yearly. The Maryland Senate passed it 28-14 and it was signed into law as Chapter 611 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "28-14",
+        "old_sentences": 6,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681570,
+      "measure_id": "HB 351",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 351, the No Kings Act, which lets people sue federal officers in state court for violating their rights. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 459 of 2026.",
+      "nay_description": "Voted against passing HB 351, the No Kings Act, which lets people sue federal officers in state court for violating their rights. The Maryland Senate passed it 31-12 and it was signed into law as Chapter 459 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-12",
+        "old_sentences": 7,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681646,
+      "measure_id": "HB 254",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 254, the Supporting Inclusive Community Adaptation Act, which creates a state climate resilience grant fund and brings communities into project planning. The Maryland Senate passed it 24-10 and it was signed into law as Chapter 76 of 2026.",
+      "nay_description": "Voted against passing HB 254, the Supporting Inclusive Community Adaptation Act, which creates a state climate resilience grant fund and brings communities into project planning. The Maryland Senate passed it 24-10 and it was signed into law as Chapter 76 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "24-10",
+        "old_sentences": 6,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681648,
+      "measure_id": "HB 969",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 969, which requires public EV chargers to bill by the kilowatt-hour with any service fee itemized on the receipt. The Maryland Senate passed it 24-9 and it was signed into law as Chapter 281 of 2026.",
+      "nay_description": "Voted against passing HB 969, which requires public EV chargers to bill by the kilowatt-hour with any service fee itemized on the receipt. The Maryland Senate passed it 24-9 and it was signed into law as Chapter 281 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "24-9",
+        "old_sentences": 6,
+        "old_chars": 653
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681669,
+      "measure_id": "SB 656",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass SB 656, which lets people harmed by banned cosmetic ingredients sue and creates a restitution fund for victims of harmful hair chemicals. The Maryland Senate passed it 32-10.",
+      "nay_description": "Voted against passing SB 656, which lets people harmed by banned cosmetic ingredients sue and creates a restitution fund for victims of harmful hair chemicals. The Maryland Senate passed it 32-10.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-10",
+        "old_sentences": 4,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1681848,
+      "measure_id": "HB 315",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass HB 315, which bars landlords from rejecting housing voucher holders over their income or credit history. The Maryland Senate passed it 33-10 and it was signed into law as Chapter 772 of 2026.",
+      "nay_description": "Voted against passing HB 315, which bars landlords from rejecting housing voucher holders over their income or credit history. The Maryland Senate passed it 33-10 and it was signed into law as Chapter 772 of 2026.",
+      "_current": {
+        "question": "Third Readings Passed with Amendments",
+        "tally": "33-10",
+        "old_sentences": 7,
+        "old_chars": 957
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1682134,
+      "measure_id": "SB 237",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass SB 237, which binds Maryland's presidential electors to vote for the candidate who nominated them. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 469 of 2026.",
+      "nay_description": "Voted against passing SB 237, which binds Maryland's presidential electors to vote for the candidate who nominated them. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 469 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-10",
+        "old_sentences": 6,
+        "old_chars": 625
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1682274,
+      "measure_id": "SB 475",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass SB 475, the PACE Act, which bars prosecutors from using a defendant's song lyrics or other creative work as evidence unless strict tests are met. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 517 of 2026.",
+      "nay_description": "Voted against passing SB 475, the PACE Act, which bars prosecutors from using a defendant's song lyrics or other creative work as evidence unless strict tests are met. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 517 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-10",
+        "old_sentences": 10,
+        "old_chars": 884
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1682539,
+      "measure_id": "HB 1017",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 1017, which bans privately run jails, prisons, and immigration detention facilities in Maryland. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 173 of 2026.",
+      "nay_description": "Voted against passing HB 1017, which bans privately run jails, prisons, and immigration detention facilities in Maryland. The Maryland Senate passed it 32-10 and it was signed into law as Chapter 173 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-10",
+        "old_sentences": 8,
+        "old_chars": 1040
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683005,
+      "measure_id": "HB 548",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 548, the Maryland Housing Certainty Act, which judges housing applications only by the rules in force when filed and vests approvals for five years. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 591 of 2026.",
+      "nay_description": "Voted against passing HB 548, the Maryland Housing Certainty Act, which judges housing applications only by the rules in force when filed and vests approvals for five years. The Maryland Senate passed it 34-12 and it was signed into law as Chapter 591 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-12",
+        "old_sentences": 6,
+        "old_chars": 683
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683024,
+      "measure_id": "HB 405",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 405, which stops condo and homeowners association rules from blocking electric vehicle chargers in shared parking spaces. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 753 of 2026.",
+      "nay_description": "Voted against passing HB 405, which stops condo and homeowners association rules from blocking electric vehicle chargers in shared parking spaces. The Maryland Senate passed it 32-11 and it was signed into law as Chapter 753 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-11",
+        "old_sentences": 7,
+        "old_chars": 813
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683059,
+      "measure_id": "HB 1076",
+      "vote_date": "2026-04-10",
+      "yea_description": "Voted to pass HB 1076, which makes community colleges offer over-the-counter birth control on campus and public colleges report yearly on access to it. The Maryland Senate passed it 32-13.",
+      "nay_description": "Voted against passing HB 1076, which makes community colleges offer over-the-counter birth control on campus and public colleges report yearly on access to it. The Maryland Senate passed it 32-13.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-13",
+        "old_sentences": 4,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683113,
+      "measure_id": "HB 1530",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 1530, which cuts the Maryland tax filing history undocumented students need for in-state tuition from three years to two. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 799 of 2026.",
+      "nay_description": "Voted against passing HB 1530, which cuts the Maryland tax filing history undocumented students need for in-state tuition from three years to two. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 799 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-14",
+        "old_sentences": 6,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683225,
+      "measure_id": "HB 103",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 103, which bars consumer contracts from waiving or limiting the remedies state and federal law give consumers. The Maryland Senate passed it 35-11.",
+      "nay_description": "Voted against passing HB 103, which bars consumer contracts from waiving or limiting the remedies state and federal law give consumers. The Maryland Senate passed it 35-11.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683266,
+      "measure_id": "HB 191",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 191, which makes shops accept cash for everyday essentials such as food, medicine, and fuel on in-person sales under $300. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 714 of 2026.",
+      "nay_description": "Voted against passing HB 191, which makes shops accept cash for everyday essentials such as food, medicine, and fuel on in-person sales under $300. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 714 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 8,
+        "old_chars": 830
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683284,
+      "measure_id": "HB 168",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 168, which opens state housing funds to housing built for teachers and lets school land be used for it. The Maryland Senate passed it 34-10 and it was signed into law as Chapter 678 of 2026.",
+      "nay_description": "Voted against passing HB 168, which opens state housing funds to housing built for teachers and lets school land be used for it. The Maryland Senate passed it 34-10 and it was signed into law as Chapter 678 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "34-10",
+        "old_sentences": 5,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683387,
+      "measure_id": "SB 810",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 810, the Maryland Values Act of 2026, which widens the places immigration agents may not freely enter and bars schools from aiding enforcement. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 161 of 2026.",
+      "nay_description": "Voted against passing SB 810, the Maryland Values Act of 2026, which widens the places immigration agents may not freely enter and bars schools from aiding enforcement. The Maryland Senate passed it 33-14 and it was signed into law as Chapter 161 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-14",
+        "old_sentences": 7,
+        "old_chars": 794
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683412,
+      "measure_id": "SB 791",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 791, the Community Trust Act, which requires a judicial warrant before local jails hold someone for federal immigration enforcement. The Maryland Senate passed it 32-15.",
+      "nay_description": "Voted against passing SB 791, the Community Trust Act, which requires a judicial warrant before local jails hold someone for federal immigration enforcement. The Maryland Senate passed it 32-15.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-15",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683428,
+      "measure_id": "HB 1490",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 1490, which stops cash assistance being cut off when a parent has good cause not to cooperate with child support enforcement. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 763 of 2026.",
+      "nay_description": "Voted against passing HB 1490, which stops cash assistance being cut off when a parent has good cause not to cooperate with child support enforcement. The Maryland Senate passed it 35-12 and it was signed into law as Chapter 763 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-12",
+        "old_sentences": 5,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1683604,
+      "measure_id": "SB 949",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 949, which writes absentee ballot deadlines into state law, including rules when federal law sets a different deadline. The Maryland Senate passed it 35-10 and it was signed into law as Chapter 440 of 2026.",
+      "nay_description": "Voted against passing SB 949, which writes absentee ballot deadlines into state law, including rules when federal law sets a different deadline. The Maryland Senate passed it 35-10 and it was signed into law as Chapter 440 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-10",
+        "old_sentences": 7,
+        "old_chars": 661
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1691962,
+      "measure_id": "HB 711",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 711, the Data Privacy Act, which bars companies from selling personal data to government bodies engaged in civil immigration enforcement. The Maryland Senate passed it 28-8 and it became law without the Governor's signature as Chapter 874 of 2026.",
+      "nay_description": "Voted against passing HB 711, the Data Privacy Act, which bars companies from selling personal data to government bodies engaged in civil immigration enforcement. The Maryland Senate passed it 28-8 and it became law without the Governor's signature as Chapter 874 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "28-8",
+        "old_sentences": 6,
+        "old_chars": 858
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1691964,
+      "measure_id": "SB 937",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 937, the Maryland Fair Chance Housing Act, which limits when landlords with five or more units may screen applicants' criminal records. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 752 of 2026.",
+      "nay_description": "Voted against passing SB 937, the Maryland Fair Chance Housing Act, which limits when landlords with five or more units may screen applicants' criminal records. The Maryland Senate passed it 31-13 and it was signed into law as Chapter 752 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "31-13",
+        "old_sentences": 9,
+        "old_chars": 1319
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1691971,
+      "measure_id": "SB 187",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 187, which reclassifies the women's prerelease unit as a prerelease facility that prepares incarcerated women for release. The Maryland Senate passed it 32-13 and it became law without the Governor's signature as Chapter 876 of 2026.",
+      "nay_description": "Voted against passing SB 187, which reclassifies the women's prerelease unit as a prerelease facility that prepares incarcerated women for release. The Maryland Senate passed it 32-13 and it became law without the Governor's signature as Chapter 876 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-13",
+        "old_sentences": 6,
+        "old_chars": 806
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1691980,
+      "measure_id": "HB 573",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 573, which lets housing discrimination be proven by a practice's effect on a protected group, not just intent. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 778 of 2026.",
+      "nay_description": "Voted against passing HB 573, which lets housing discrimination be proven by a practice's effect on a protected group, not just intent. The Maryland Senate passed it 33-12 and it was signed into law as Chapter 778 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "33-12",
+        "old_sentences": 6,
+        "old_chars": 776
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1692000,
+      "measure_id": "SB 255",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 255, the Voting Rights Act of 2026, which lets voters challenge local election systems that weaken minority groups' ability to elect their candidates. The Maryland Senate passed it 32-14 and it was signed into law as Chapter 157 of 2026.",
+      "nay_description": "Voted against passing SB 255, the Voting Rights Act of 2026, which lets voters challenge local election systems that weaken minority groups' ability to elect their candidates. The Maryland Senate passed it 32-14 and it was signed into law as Chapter 157 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-14",
+        "old_sentences": 7,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1692009,
+      "measure_id": "SB 12",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 12, which requires landlords of buildings with 10 or more units to provide air conditioning from June 1 through September 30. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 664 of 2026.",
+      "nay_description": "Voted against passing SB 12, which requires landlords of buildings with 10 or more units to provide air conditioning from June 1 through September 30. The Maryland Senate passed it 35-11 and it was signed into law as Chapter 664 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "35-11",
+        "old_sentences": 7,
+        "old_chars": 789
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1692057,
+      "measure_id": "SB 1",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 1, which bars police from covering their faces on duty except undercover and requires them to wear identification. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 612 of 2026.",
+      "nay_description": "Voted against passing SB 1, which bars police from covering their faces on duty except undercover and requires them to wear identification. The Maryland Senate passed it 32-13 and it was signed into law as Chapter 612 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "32-13",
+        "old_sentences": 7,
+        "old_chars": 774
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1692303,
+      "measure_id": "HB 1249",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 1249, which stops certified recovery homes from turning away people on addiction treatment medication such as buprenorphine or methadone. The Maryland Senate passed it 36-10 and it was signed into law as Chapter 793 of 2026.",
+      "nay_description": "Voted against passing HB 1249, which stops certified recovery homes from turning away people on addiction treatment medication such as buprenorphine or methadone. The Maryland Senate passed it 36-10 and it was signed into law as Chapter 793 of 2026.",
+      "_current": {
+        "question": "Third Reading Passed",
+        "tally": "36-10",
+        "old_sentences": 5,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "MD",
+      "chamber": "senate",
+      "session": "2240",
+      "roll": 1716682,
+      "measure_id": "HB 862",
+      "vote_date": "2026-08-03",
+      "yea_description": "Voted to override the Governor's veto of HB 862, which sets a minimum crew of two on freight trains sharing a corridor with passenger trains, with fines up to $25,000. The Maryland Senate overrode the veto 33-11, so the bill became Chapter 879 of 2026.",
+      "nay_description": "Voted against overriding the Governor's veto of HB 862, which sets a minimum crew of two on freight trains sharing a corridor with passenger trains, with fines up to $25,000. The Maryland Senate overrode the veto 33-11, so the bill became Chapter 879 of 2026.",
+      "_current": {
+        "question": "Overridden",
+        "tally": "33-11",
+        "old_sentences": 7,
+        "old_chars": 703
+      }
+    }
+  ]
+}

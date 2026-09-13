@@ -1,0 +1,2788 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 841881,
+      "measure_id": "HB 212",
+      "vote_date": "2019-04-11",
+      "yea_description": "Voted to pass House Bill 212, the Anti-Road Rage Act, which bars staying in the interstate fast lane more than a mile and a half without passing. The House passed it 61-24 and it became law.",
+      "nay_description": "Voted against passing House Bill 212, the Anti-Road Rage Act, which bars staying in the interstate fast lane more than a mile and a half without passing. The House passed it 61-24 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "61-24",
+        "old_sentences": 4,
+        "old_chars": 439
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 850156,
+      "measure_id": "HB 233",
+      "vote_date": "2019-04-23",
+      "yea_description": "Voted to pass House Bill 233, a bill to flag voters who may have moved using postal and other records. The House passed it 70-26, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 233, a bill to flag voters who may have moved using postal and other records. The House passed it 70-26, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "70-26",
+        "old_sentences": 4,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 861380,
+      "measure_id": "HB 361",
+      "vote_date": "2019-05-08",
+      "yea_description": "Voted to pass House Bill 361, the Fantasy Contests Act, which legalized paid fantasy sports with registration, age checks and a tax. The House passed it 74-22 and it became law.",
+      "nay_description": "Voted against passing House Bill 361, the Fantasy Contests Act, which legalized paid fantasy sports with registration, age checks and a tax. The House passed it 74-22 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "74-22",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 862047,
+      "measure_id": "HB 380",
+      "vote_date": "2019-05-09",
+      "yea_description": "Voted to pass House Bill 380, which rebuilt the parole system, setting how much of a sentence must be served before parole. The House passed it 73-27 and it became law.",
+      "nay_description": "Voted against passing House Bill 380, which rebuilt the parole system, setting how much of a sentence must be served before parole. The House passed it 73-27 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "73-27",
+        "old_sentences": 4,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 863631,
+      "measure_id": "SB 193",
+      "vote_date": "2019-05-14",
+      "yea_description": "Voted to pass Senate Bill 193, which cut unemployment pay from 26 weeks to 14 and raised the weekly maximum by $10. The House passed it 74-26 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 193, which cut unemployment pay from 26 weeks to 14 and raised the weekly maximum by $10. The House passed it 74-26 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "74-26",
+        "old_sentences": 4,
+        "old_chars": 447
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 868739,
+      "measure_id": "HB 491",
+      "vote_date": "2019-05-21",
+      "yea_description": "Voted to pass House Bill 491, called Gianna's Law, a bill to require doctors to try to save a child born alive after an abortion. The House passed it 66-18, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 491, called Gianna's Law, a bill to require doctors to try to save a child born alive after an abortion. The House passed it 66-18, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "66-18",
+        "old_sentences": 4,
+        "old_chars": 510
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 870365,
+      "measure_id": "SB 69",
+      "vote_date": "2019-05-23",
+      "yea_description": "Voted to pass Senate Bill 69, which abolished the marriage license, replacing it with sworn statements filed with the probate judge. The House passed it 67-26 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 69, which abolished the marriage license, replacing it with sworn statements filed with the probate judge. The House passed it 67-26 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "67-26",
+        "old_sentences": 4,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 875179,
+      "measure_id": "HB 498",
+      "vote_date": "2019-05-30",
+      "yea_description": "Voted to pass House Bill 498, which made every public college adopt a free expression policy and banned free speech zones. The House passed it 73-26 and it became law.",
+      "nay_description": "Voted against passing House Bill 498, which made every public college adopt a free expression policy and banned free speech zones. The House passed it 73-26 and it became law.",
+      "_current": {
+        "question": "Fridy motion to Concur In and Adopt",
+        "tally": "73-26",
+        "old_sentences": 4,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 875747,
+      "measure_id": "SB 397",
+      "vote_date": "2019-05-31",
+      "yea_description": "Voted to pass Senate Bill 397, which asked voters to replace the elected State Board of Education with an appointed commission. The House passed it 78-21 and it went to the voters.",
+      "nay_description": "Voted against passing Senate Bill 397, which asked voters to replace the elected State Board of Education with an appointed commission. The House passed it 78-21 and it went to the voters.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "78-21",
+        "old_sentences": 4,
+        "old_chars": 478
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1621",
+      "roll": 875913,
+      "measure_id": "HB 209",
+      "vote_date": "2019-05-31",
+      "yea_description": "Voted to pass House Bill 209, which lets a retired officer with 20 years of service serve as an armed school resource officer. The House passed it 55-41 and it became law.",
+      "nay_description": "Voted against passing House Bill 209, which lets a retired officer with 20 years of service serve as an armed school resource officer. The House passed it 55-41 and it became law.",
+      "_current": {
+        "question": "Pettus motion to Concur In and Adopt",
+        "tally": "55-41",
+        "old_sentences": 4,
+        "old_chars": 396
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1706",
+      "roll": 920063,
+      "measure_id": "HB 147",
+      "vote_date": "2020-02-11",
+      "yea_description": "Voted to pass House Bill 147, which barred cities from starting new taxes on what people earn at work. The House passed it 74-27 and it became law.",
+      "nay_description": "Voted against passing House Bill 147, which barred cities from starting new taxes on what people earn at work. The House passed it 74-27 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "74-27",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1706",
+      "roll": 947969,
+      "measure_id": "HB 34",
+      "vote_date": "2020-03-10",
+      "yea_description": "Voted to pass House Bill 34, a bill to make impounding a car optional when police stop an unlicensed driver. The House passed it 61-32, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 34, a bill to make impounding a car optional when police stop an unlicensed driver. The House passed it 61-32, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "61-32",
+        "old_sentences": 4,
+        "old_chars": 548
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 999235,
+      "measure_id": "HB 24",
+      "vote_date": "2021-02-09",
+      "yea_description": "Voted to pass House Bill 24, a bill to let some nonviolent prisoners ask to be sentenced again under newer guidelines. The House passed it 63-33, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 24, a bill to let some nonviolent prisoners ask to be sentenced again under newer guidelines. The House passed it 63-33, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 33",
+        "tally": "63-33",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1019608,
+      "measure_id": "HB 385",
+      "vote_date": "2021-03-02",
+      "yea_description": "Voted to pass House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The House passed it 69-30 and it became law.",
+      "nay_description": "Voted against passing House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The House passed it 69-30 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 243",
+        "tally": "69-30",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1019613,
+      "measure_id": "HB 103",
+      "vote_date": "2021-03-02",
+      "yea_description": "Voted to pass House Bill 103, which lets businesses and churches stay open during a disease emergency if they follow safety rules. The House passed it 75-22 and it became law.",
+      "nay_description": "Voted against passing House Bill 103, which lets businesses and churches stay open during a disease emergency if they follow safety rules. The House passed it 75-22 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 238",
+        "tally": "75-22",
+        "old_sentences": 4,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1024976,
+      "measure_id": "HB 404",
+      "vote_date": "2021-03-09",
+      "yea_description": "Voted to pass House Bill 404, which let college athletes be paid for the use of their name, image or likeness. The House passed it 63-31 and it became law.",
+      "nay_description": "Voted against passing House Bill 404, which let college athletes be paid for the use of their name, image or likeness. The House passed it 63-31 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 326",
+        "tally": "63-31",
+        "old_sentences": 4,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1026862,
+      "measure_id": "HB 246",
+      "vote_date": "2021-03-11",
+      "yea_description": "Voted to pass House Bill 246, which let schools teach yoga again, with English pose names and no chanting or namaste. The House passed it 73-25 and it became law.",
+      "nay_description": "Voted against passing House Bill 246, which let schools teach yoga again, with English pose names and no chanting or namaste. The House passed it 73-25 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 387",
+        "tally": "73-25",
+        "old_sentences": 4,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1029124,
+      "measure_id": "HB 72",
+      "vote_date": "2021-03-16",
+      "yea_description": "Voted to pass House Bill 72, a bill to shorten supervised release for the longest prison sentences. The House passed it 58-38, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 72, a bill to shorten supervised release for the longest prison sentences. The House passed it 58-38, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 445",
+        "tally": "58-38",
+        "old_sentences": 4,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1029612,
+      "measure_id": "HB 184",
+      "vote_date": "2021-03-16",
+      "yea_description": "Voted to pass House Bill 184, a bill to make reporting to the state immunization registry compulsory. The House passed it 73-27, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 184, a bill to make reporting to the state immunization registry compulsory. The House passed it 73-27, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 465",
+        "tally": "73-27",
+        "old_sentences": 4,
+        "old_chars": 478
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1031172,
+      "measure_id": "HB 391",
+      "vote_date": "2021-03-18",
+      "yea_description": "Voted to pass House Bill 391, which barred transgender girls from girls' school sports. The House passed it 74-19 and it became law.",
+      "nay_description": "Voted against passing House Bill 391, which barred transgender girls from girls' school sports. The House passed it 74-19 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 480",
+        "tally": "74-19",
+        "old_sentences": 4,
+        "old_chars": 414
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1031548,
+      "measure_id": "HB 445",
+      "vote_date": "2021-03-18",
+      "yea_description": "Voted to pass House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 74-25, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 74-25, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 490",
+        "tally": "74-25",
+        "old_sentences": 4,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1031588,
+      "measure_id": "HB 285",
+      "vote_date": "2021-03-18",
+      "yea_description": "Voted to pass House Bill 285, which banned curbside voting, requiring every voting machine to sit inside a named building. The House passed it 74-25 and it became law.",
+      "nay_description": "Voted against passing House Bill 285, which banned curbside voting, requiring every voting machine to sit inside a named building. The House passed it 74-25 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 496",
+        "tally": "74-25",
+        "old_sentences": 4,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1045935,
+      "measure_id": "HB 90",
+      "vote_date": "2021-04-06",
+      "yea_description": "Voted to pass House Bill 90, called CiCi and Jay's Law, a bill to ban holding a phone while driving. The House vote was 47-48 and the bill failed.",
+      "nay_description": "Voted against passing House Bill 90, called CiCi and Jay's Law, a bill to ban holding a phone while driving. The House vote was 47-48 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 660",
+        "tally": "47-48",
+        "old_sentences": 4,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1046381,
+      "measure_id": "HB 388",
+      "vote_date": "2021-04-06",
+      "yea_description": "Voted to pass House Bill 388, which asked voters to require a six-month wait before new election rules take effect. The House passed it 75-24 and it went to the voters.",
+      "nay_description": "Voted against passing House Bill 388, which asked voters to require a six-month wait before new election rules take effect. The House passed it 75-24 and it went to the voters.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 653",
+        "tally": "75-24",
+        "old_sentences": 4,
+        "old_chars": 388
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1048304,
+      "measure_id": "SB 308",
+      "vote_date": "2021-04-08",
+      "yea_description": "Voted to pass Senate Bill 308, which made sheriffs approve concealed carry permits unless one of eleven listed reasons applies. The House passed it 69-18 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 308, which made sheriffs approve concealed carry permits unless one of eleven listed reasons applies. The House passed it 69-18 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 704",
+        "tally": "69-18",
+        "old_sentences": 4,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1051692,
+      "measure_id": "SB 107",
+      "vote_date": "2021-04-13",
+      "yea_description": "Voted to pass Senate Bill 107, which froze city police jurisdictions at their 2021 boundaries and shrank planning jurisdictions. The House passed it 61-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 107, which froze city police jurisdictions at their 2021 boundaries and shrank planning jurisdictions. The House passed it 61-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 792",
+        "tally": "61-28",
+        "old_sentences": 4,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1052093,
+      "measure_id": "SB 117",
+      "vote_date": "2021-04-13",
+      "yea_description": "Voted to pass Senate Bill 117, which let people clear old misdemeanor and some felony convictions from their record. The House passed it 57-38 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 117, which let people clear old misdemeanor and some felony convictions from their record. The House passed it 57-38 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 813",
+        "tally": "57-38",
+        "old_sentences": 4,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1054860,
+      "measure_id": "HB 239",
+      "vote_date": "2021-04-15",
+      "yea_description": "Voted to pass House Bill 239, a bill to raise the penalty for causing injury or death while fleeing police. The House passed it 76-24, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 239, a bill to raise the penalty for causing injury or death while fleeing police. The House passed it 76-24, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 889",
+        "tally": "76-24",
+        "old_sentences": 4,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1057114,
+      "measure_id": "HB 238",
+      "vote_date": "2021-04-20",
+      "yea_description": "Voted to pass House Bill 238, a bill to suspend boating certificates for boating or driving under the influence. The House vote was 42-45 and the bill failed.",
+      "nay_description": "Voted against passing House Bill 238, a bill to suspend boating certificates for boating or driving under the influence. The House vote was 42-45 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 903",
+        "tally": "42-45",
+        "old_sentences": 4,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1061266,
+      "measure_id": "HB 631",
+      "vote_date": "2021-04-22",
+      "yea_description": "Voted to pass House Bill 631, which set up reservoir upkeep grants paid for by a $5 yearly fee on every registered boat. The House passed it 77-20 and it became law.",
+      "nay_description": "Voted against passing House Bill 631, which set up reservoir upkeep grants paid for by a $5 yearly fee on every registered boat. The House passed it 77-20 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 952",
+        "tally": "77-20",
+        "old_sentences": 4,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1066323,
+      "measure_id": "HB 202",
+      "vote_date": "2021-04-29",
+      "yea_description": "Voted to pass House Bill 202, a bill to free grand jury witnesses to talk about their own testimony. The House passed it 71-21, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 202, a bill to free grand jury witnesses to talk about their own testimony. The House passed it 71-21, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1069",
+        "tally": "71-21",
+        "old_sentences": 4,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1073639,
+      "measure_id": "HB 273",
+      "vote_date": "2021-05-06",
+      "yea_description": "Voted to pass House Bill 273, which raised the tobacco and vaping age from 19 to 21 and banned candy-style vape packaging. The House passed it 58-25 and it became law.",
+      "nay_description": "Voted against passing House Bill 273, which raised the tobacco and vaping age from 19 to 21 and banned candy-style vape packaging. The House passed it 58-25 and it became law.",
+      "_current": {
+        "question": "Drummond motion to Concur In and Adopt Roll Call 1125",
+        "tally": "58-25",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1073791,
+      "measure_id": "SB 46",
+      "vote_date": "2021-05-06",
+      "yea_description": "Voted to pass Senate Bill 46, the Compassion Act, which created a medical cannabis program for 16 listed conditions. The House passed it 68-34, and Governor Ivey signed it into law as Act 2021-450.",
+      "nay_description": "Voted against passing Senate Bill 46, the Compassion Act, which created a medical cannabis program for 16 listed conditions. The House passed it 68-34, and Governor Ivey signed it into law as Act 2021-450.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1146",
+        "tally": "68-34",
+        "old_sentences": 4,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1078918,
+      "measure_id": "SB 323",
+      "vote_date": "2021-05-17",
+      "yea_description": "Voted to pass Senate Bill 323, which let prisoners earn up to 12 months off a sentence by finishing education programs. The House passed it 67-29 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 323, which let prisoners earn up to 12 months off a sentence by finishing education programs. The House passed it 67-29 and it became law.",
+      "_current": {
+        "question": "Hill motion to Concur In and Adopt Roll Call 1206",
+        "tally": "67-29",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1756",
+      "roll": 1078959,
+      "measure_id": "SB 94",
+      "vote_date": "2021-05-17",
+      "yea_description": "Voted to pass Senate Bill 94, a bill to delay by two years the rule holding back third graders who cannot read well enough. The House passed it 68-27, but Governor Ivey vetoed it and the delay never took effect.",
+      "nay_description": "Voted against passing Senate Bill 94, a bill to delay by two years the rule holding back third graders who cannot read well enough. The House passed it 68-27, but Governor Ivey vetoed it and the delay never took effect.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1224",
+        "tally": "68-27",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1146848,
+      "measure_id": "HB 52",
+      "vote_date": "2022-02-16",
+      "yea_description": "Voted to pass House Bill 52, which gave judges more room over how much of a split sentence to impose after a probation breach. The House passed it 71-28 and it became law.",
+      "nay_description": "Voted against passing House Bill 52, which gave judges more room over how much of a split sentence to impose after a probation breach. The House passed it 71-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 221",
+        "tally": "71-28",
+        "old_sentences": 4,
+        "old_chars": 411
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1150547,
+      "measure_id": "HB 2",
+      "vote_date": "2022-02-22",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 75-27, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 75-27, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 282",
+        "tally": "75-27",
+        "old_sentences": 4,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1167430,
+      "measure_id": "HB 272",
+      "vote_date": "2022-03-10",
+      "yea_description": "Voted to pass House Bill 272, which let Alabamians carry a concealed handgun without a permit. The House passed it 70-29 and it became law.",
+      "nay_description": "Voted against passing House Bill 272, which let Alabamians carry a concealed handgun without a permit. The House passed it 70-29 and it became law.",
+      "_current": {
+        "question": "Stringer motion to Concur In and Adopt Roll Call 577",
+        "tally": "70-29",
+        "old_sentences": 4,
+        "old_chars": 447
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1167692,
+      "measure_id": "HB 194",
+      "vote_date": "2022-03-10",
+      "yea_description": "Voted to pass House Bill 194, which barred election officials from taking private money to run elections. The House passed it 72-28 and it became law.",
+      "nay_description": "Voted against passing House Bill 194, which barred election officials from taking private money to run elections. The House passed it 72-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 585",
+        "tally": "72-28",
+        "old_sentences": 4,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1171782,
+      "measure_id": "HB 312",
+      "vote_date": "2022-03-17",
+      "yea_description": "Voted to pass House Bill 312, a bill to bar teaching a listed set of divisive ideas about race, sex and religion. The House passed it 65-32, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 312, a bill to bar teaching a listed set of divisive ideas about race, sex and religion. The House passed it 65-32, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 653",
+        "tally": "65-32",
+        "old_sentences": 4,
+        "old_chars": 555
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1171971,
+      "measure_id": "HB 239",
+      "vote_date": "2022-03-17",
+      "yea_description": "Voted to pass House Bill 239, a bill to raise the penalty for causing injury or death while fleeing police. The House passed it 79-21, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 239, a bill to raise the penalty for causing injury or death while fleeing police. The House passed it 79-21, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 661",
+        "tally": "79-21",
+        "old_sentences": 4,
+        "old_chars": 536
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1172297,
+      "measure_id": "HB 63",
+      "vote_date": "2022-03-17",
+      "yea_description": "Voted to pass House Bill 63, a bill to ban handing someone a part-filled voter registration or absentee form. The House passed it 73-28, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 63, a bill to ban handing someone a part-filled voter registration or absentee form. The House passed it 73-28, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 657",
+        "tally": "73-28",
+        "old_sentences": 4,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1178746,
+      "measure_id": "HB 230",
+      "vote_date": "2022-03-29",
+      "yea_description": "Voted to pass House Bill 230, which banned leg and waist restraints on pregnant prisoners during pregnancy, labor and six weeks after birth. The House passed it 78-21 and it became law.",
+      "nay_description": "Voted against passing House Bill 230, which banned leg and waist restraints on pregnant prisoners during pregnancy, labor and six weeks after birth. The House passed it 78-21 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 747",
+        "tally": "78-21",
+        "old_sentences": 4,
+        "old_chars": 500
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1179024,
+      "measure_id": "SB 171",
+      "vote_date": "2022-03-29",
+      "yea_description": "Voted to pass Senate Bill 171, the Alabama Numeracy Act, which overhauled early grade math with 60 minutes a day and twice-yearly screening. The House passed it 76-24 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 171, the Alabama Numeracy Act, which overhauled early grade math with 60 minutes a day and twice-yearly screening. The House passed it 76-24 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 734",
+        "tally": "76-24",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1181465,
+      "measure_id": "HB 337",
+      "vote_date": "2022-03-31",
+      "yea_description": "Voted to pass House Bill 337, a bill to raise the penalties for fleeing police. The House passed it 72-25, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 337, a bill to raise the penalties for fleeing police. The House passed it 72-25, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 841",
+        "tally": "72-25",
+        "old_sentences": 4,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1184501,
+      "measure_id": "SB 224",
+      "vote_date": "2022-04-06",
+      "yea_description": "Voted to pass Senate Bill 224, which requires people claiming unemployment pay to contact three employers a week with proof. The House passed it 76-24 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 224, which requires people claiming unemployment pay to contact three employers a week with proof. The House passed it 76-24 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 935",
+        "tally": "76-24",
+        "old_sentences": 4,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185166,
+      "measure_id": "SB 2",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass Senate Bill 2, the Alabama Second Amendment Protection Act, which barred enforcing presidential orders limiting guns. The House passed it 68-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 2, the Alabama Second Amendment Protection Act, which barred enforcing presidential orders limiting guns. The House passed it 68-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 961",
+        "tally": "68-28",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185249,
+      "measure_id": "SB 184",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass Senate Bill 184, which made it a felony to give a minor puberty blockers, cross-sex hormones or gender surgery. The House passed it 66-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 184, which made it a felony to give a minor puberty blockers, cross-sex hormones or gender surgery. The House passed it 66-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 957",
+        "tally": "66-28",
+        "old_sentences": 4,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185330,
+      "measure_id": "HB 95",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The House passed it 77-20 and it became law.",
+      "nay_description": "Voted against passing House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The House passed it 77-20 and it became law.",
+      "_current": {
+        "question": "Gray motion to Concur In and Adopt Roll Call 968",
+        "tally": "77-20",
+        "old_sentences": 4,
+        "old_chars": 437
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185519,
+      "measure_id": "SB 38",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass Senate Bill 38, a bill to ask voters to fold the State Auditor's office into the State Treasurer's. The House vote was 46-36, short of the three fifths a constitutional amendment needs, and the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 38, a bill to ask voters to fold the State Auditor's office into the State Treasurer's. The House vote was 46-36, short of the three fifths a constitutional amendment needs, and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 966",
+        "tally": "46-36",
+        "old_sentences": 4,
+        "old_chars": 497
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185525,
+      "measure_id": "SB 255",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass Senate Bill 255, a bill to require the Governor's approval before a state health order could take effect. The House vote was 40-53 and the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 255, a bill to require the Governor's approval before a state health order could take effect. The House vote was 40-53 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 996",
+        "tally": "40-53",
+        "old_sentences": 4,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185548,
+      "measure_id": "HB 322",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass House Bill 322, which requires students to use the school restroom matching the sex on their original birth certificate. The House passed it 70-26 and it became law.",
+      "nay_description": "Voted against passing House Bill 322, which requires students to use the school restroom matching the sex on their original birth certificate. The House passed it 70-26 and it became law.",
+      "_current": {
+        "question": "Stadthagen motion to Concur In and Adopt Roll Call 978",
+        "tally": "70-26",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1836",
+      "roll": 1185980,
+      "measure_id": "SB 313",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass Senate Bill 313, which barred officials from spending public money to campaign for or against a ballot measure. The House passed it 73-26 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 313, which barred officials from spending public money to campaign for or against a ballot measure. The House passed it 73-26 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 989",
+        "tally": "73-26",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1854",
+      "roll": 1109371,
+      "measure_id": "HB 5",
+      "vote_date": "2021-09-29",
+      "yea_description": "Voted to pass House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The House passed it 75-25 and it became law.",
+      "nay_description": "Voted against passing House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The House passed it 75-25 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 6",
+        "tally": "75-25",
+        "old_sentences": 4,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1854",
+      "roll": 1109375,
+      "measure_id": "HB 6",
+      "vote_date": "2021-09-29",
+      "yea_description": "Voted to pass House Bill 6, which put $154 million of state money into prisons. The House passed it 78-22 and it became law.",
+      "nay_description": "Voted against passing House Bill 6, which put $154 million of state money into prisons. The House passed it 78-22 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 8",
+        "tally": "78-22",
+        "old_sentences": 4,
+        "old_chars": 386
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1854",
+      "roll": 1109394,
+      "measure_id": "HB 2",
+      "vote_date": "2021-09-29",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 77-23 and it became law.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 77-23 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 11",
+        "tally": "77-23",
+        "old_sentences": 4,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1854",
+      "roll": 1109477,
+      "measure_id": "HB 4",
+      "vote_date": "2021-10-01",
+      "yea_description": "Voted to pass House Bill 4, which let the state borrow up to $785 million to build prisons. The House passed it 74-22 and it became law.",
+      "nay_description": "Voted against passing House Bill 4, which let the state borrow up to $785 million to build prisons. The House passed it 74-22 and it became law.",
+      "_current": {
+        "question": "Clouse motion to Concur In and Adopt Roll Call 12",
+        "tally": "74-22",
+        "old_sentences": 4,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1111175,
+      "measure_id": "HB 2",
+      "vote_date": "2021-11-01",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 68-35 and it became law.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The House passed it 68-35 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 10",
+        "tally": "68-35",
+        "old_sentences": 4,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1111185,
+      "measure_id": "HB 1",
+      "vote_date": "2021-11-01",
+      "yea_description": "Voted to pass House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The House passed it 65-38 and it became law.",
+      "nay_description": "Voted against passing House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The House passed it 65-38 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 4",
+        "tally": "65-38",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1115492,
+      "measure_id": "SB 1",
+      "vote_date": "2021-11-03",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 76-26 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 76-26 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 16",
+        "tally": "76-26",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1115493,
+      "measure_id": "SB 2",
+      "vote_date": "2021-11-03",
+      "yea_description": "Voted to pass Senate Bill 2, the Alabama Second Amendment Protection Act, which barred enforcing presidential orders limiting guns. The House passed it 76-26 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 2, the Alabama Second Amendment Protection Act, which barred enforcing presidential orders limiting guns. The House passed it 76-26 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 17",
+        "tally": "76-26",
+        "old_sentences": 4,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1115542,
+      "measure_id": "SB 15",
+      "vote_date": "2021-11-04",
+      "yea_description": "Voted to pass Senate Bill 15, which requires a parent's written consent before a minor may get a COVID-19 vaccine. The House passed it 59-19 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 15, which requires a parent's written consent before a minor may get a COVID-19 vaccine. The House passed it 59-19 and it became law.",
+      "_current": {
+        "question": "Marques motion to Concur In and Adopt Roll Call 26",
+        "tally": "59-19",
+        "old_sentences": 4,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "1857",
+      "roll": 1115544,
+      "measure_id": "SB 9",
+      "vote_date": "2021-11-04",
+      "yea_description": "Voted to pass Senate Bill 9, which requires employers who mandate COVID-19 vaccination to let workers claim an exemption. The House passed it 75-27 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 9, which requires employers who mandate COVID-19 vaccination to let workers claim an exemption. The House passed it 75-27 and it became law.",
+      "_current": {
+        "question": "Jones (M) motion to Concur In and Adopt Roll Call 27",
+        "tally": "75-27",
+        "old_sentences": 4,
+        "old_chars": 481
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1300210,
+      "measure_id": "SB 1",
+      "vote_date": "2023-04-11",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 79-24 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 79-24 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "79-24",
+        "old_sentences": 4,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1307256,
+      "measure_id": "HB 131",
+      "vote_date": "2023-04-20",
+      "yea_description": "Voted to pass House Bill 131, which stops the parole board considering a prisoner who is facing a new criminal charge. The House passed its version 79-23, agreed to the Senate's version 97-1, and it became law.",
+      "nay_description": "Voted against passing House Bill 131, which stops the parole board considering a prisoner who is facing a new criminal charge. The House passed its version 79-23, agreed to the Senate's version 97-1, and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "79-23",
+        "old_sentences": 4,
+        "old_chars": 517
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1316694,
+      "measure_id": "SB 10",
+      "vote_date": "2023-05-02",
+      "yea_description": "Voted to pass Senate Bill 10, which bars vote counting machines that can go online or contain modem technology. The House passed it 77-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 10, which bars vote counting machines that can go online or contain modem technology. The House passed it 77-28 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "77-28",
+        "old_sentences": 4,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1316753,
+      "measure_id": "SB 9",
+      "vote_date": "2023-05-02",
+      "yea_description": "Voted to pass Senate Bill 9, which requires employers who mandate COVID-19 vaccination to let workers claim an exemption. The House passed this version 78-27, later agreed to the final version 96-3, and it became law.",
+      "nay_description": "Voted against passing Senate Bill 9, which requires employers who mandate COVID-19 vaccination to let workers claim an exemption. The House passed this version 78-27, later agreed to the final version 96-3, and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "78-27",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1318421,
+      "measure_id": "HB 209",
+      "vote_date": "2023-05-04",
+      "yea_description": "Voted to pass House Bill 209, which lets a retired officer with 20 years of service serve as an armed school resource officer. The House passed it 76-28, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 209, which lets a retired officer with 20 years of service serve as an armed school resource officer. The House passed it 76-28, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "76-28",
+        "old_sentences": 4,
+        "old_chars": 525
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1321392,
+      "measure_id": "HB 379",
+      "vote_date": "2023-05-09",
+      "yea_description": "Voted to pass House Bill 379, the Alabama Property Protection Act, which bars listed foreign governments from buying Alabama land. The House passed its own version 73-23, and the narrower Senate version became law.",
+      "nay_description": "Voted against passing House Bill 379, the Alabama Property Protection Act, which bars listed foreign governments from buying Alabama land. The House passed its own version 73-23, and the narrower Senate version became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "73-23",
+        "old_sentences": 4,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1323541,
+      "measure_id": "HB 363",
+      "vote_date": "2023-05-11",
+      "yea_description": "Voted to pass House Bill 363, which changed how public charter schools are overseen and funded in their first year. The House passed this version 76-25, later agreed to the final version 98-3, and it became law.",
+      "nay_description": "Voted against passing House Bill 363, which changed how public charter schools are overseen and funded in their first year. The House passed this version 76-25, later agreed to the final version 98-3, and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "76-25",
+        "old_sentences": 4,
+        "old_chars": 508
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1325638,
+      "measure_id": "HB 229",
+      "vote_date": "2023-05-16",
+      "yea_description": "Voted to pass House Bill 229, a bill to let some prisoners sentenced under the habitual felony offender law seek resentencing. The House passed it 64-37, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 229, a bill to let some prisoners sentenced under the habitual felony offender law seek resentencing. The House passed it 64-37, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "64-37",
+        "old_sentences": 4,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1326682,
+      "measure_id": "HB 392",
+      "vote_date": "2023-05-17",
+      "yea_description": "Voted to pass House Bill 392, a bill to make federal gun bans a state crime. The House passed it 64-36, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 392, a bill to make federal gun bans a state crime. The House passed it 64-36, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "64-36",
+        "old_sentences": 4,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1333046,
+      "measure_id": "SB 278",
+      "vote_date": "2023-05-25",
+      "yea_description": "Voted to pass Senate Bill 278, which set up a state loan fund for colleges in financial trouble. The House passed this version 66-27, later agreed to the final version 97-0, and it became law.",
+      "nay_description": "Voted against passing Senate Bill 278, which set up a state loan fund for colleges in financial trouble. The House passed this version 66-27, later agreed to the final version 97-0, and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "66-27",
+        "old_sentences": 4,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1336162,
+      "measure_id": "SB 206",
+      "vote_date": "2023-05-31",
+      "yea_description": "Voted to pass Senate Bill 206, the Retail Theft Crime Prevention Act, which made stealing over $2,500 of goods a Class B felony. The law also created the crime of organized retail theft for groups that steal and resell goods, the House passed it 76-27, and it became law.",
+      "nay_description": "Voted against passing Senate Bill 206, the Retail Theft Crime Prevention Act, which made stealing over $2,500 of goods a Class B felony. The law also created the crime of organized retail theft for groups that steal and resell goods, the House passed it 76-27, and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "76-27",
+        "old_sentences": 4,
+        "old_chars": 475
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1336165,
+      "measure_id": "SB 261",
+      "vote_date": "2023-05-31",
+      "yea_description": "Voted to pass Senate Bill 261, which barred government contracts with companies that boycott fossil fuels, timber, farming or guns. The House passed it 74-27 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 261, which barred government contracts with companies that boycott fossil fuels, timber, farming or guns. The House passed it 74-27 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "74-27",
+        "old_sentences": 4,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2014",
+      "roll": 1339599,
+      "measure_id": "SB 301",
+      "vote_date": "2023-06-06",
+      "yea_description": "Voted to pass Senate Bill 301, which made it an offense to hold a phone while driving badly, with fines up to $150. The House passed it 57-37 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 301, which made it an offense to hold a phone while driving badly, with fines up to $150. The House passed it 57-37 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass as Amended",
+        "tally": "57-37",
+        "old_sentences": 4,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2060",
+      "roll": 1350857,
+      "measure_id": "HB 5",
+      "vote_date": "2023-07-19",
+      "yea_description": "Voted to pass House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The House passed it 74-27.",
+      "nay_description": "Voted against passing House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The House passed it 74-27.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "74-27",
+        "old_sentences": 4,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1396245,
+      "measure_id": "HB 129",
+      "vote_date": "2024-02-27",
+      "yea_description": "Voted to pass House Bill 129, the CHOOSE Act, which pays families $7,000 per child toward private school costs through tax credits. The House passed it 69-34 and it became law.",
+      "nay_description": "Voted against passing House Bill 129, the CHOOSE Act, which pays families $7,000 per child toward private school costs through tax credits. The House passed it 69-34 and it became law.",
+      "_current": {
+        "question": "Passed House Of Origin",
+        "tally": "69-34",
+        "old_sentences": 4,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1404902,
+      "measure_id": "SB 1",
+      "vote_date": "2024-03-07",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 75-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The House passed it 75-28 and it became law.",
+      "_current": {
+        "question": "Passed Second House",
+        "tally": "75-28",
+        "old_sentences": 4,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1405149,
+      "measure_id": "SB 129",
+      "vote_date": "2024-03-07",
+      "yea_description": "Voted to pass Senate Bill 129, which shut down diversity, equity and inclusion offices in state agencies, schools and public colleges. The House passed it 75-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 129, which shut down diversity, equity and inclusion offices in state agencies, schools and public colleges. The House passed it 75-28 and it became law.",
+      "_current": {
+        "question": "Passed Second House",
+        "tally": "75-28",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1419812,
+      "measure_id": "HB 22",
+      "vote_date": "2024-04-02",
+      "yea_description": "Voted to pass House Bill 22, which called for an assistant principal in every public school and set out the job. The House passed it 66-18 and it became law.",
+      "nay_description": "Voted against passing House Bill 22, which called for an assistant principal in every public school and set out the job. The House passed it 66-18 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 353",
+        "tally": "66-18",
+        "old_sentences": 4,
+        "old_chars": 510
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1425563,
+      "measure_id": "HB 111",
+      "vote_date": "2024-04-11",
+      "yea_description": "Voted to pass House Bill 111, a bill to write fixed meanings for male and female into every Alabama law. The House passed it 77-24, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 111, a bill to write fixed meanings for male and female into every Alabama law. The House passed it 77-24, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 523",
+        "tally": "77-24",
+        "old_sentences": 4,
+        "old_chars": 436
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1425650,
+      "measure_id": "HB 363",
+      "vote_date": "2024-04-11",
+      "yea_description": "Voted to pass House Bill 363, which changed how public charter schools are overseen and funded in their first year. The House passed it 76-21, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 363, which changed how public charter schools are overseen and funded in their first year. The House passed it 76-21, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 520",
+        "tally": "76-21",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1432637,
+      "measure_id": "HB 63",
+      "vote_date": "2024-04-23",
+      "yea_description": "Voted to pass House Bill 63, a bill to ban handing someone a part-filled voter registration or absentee form. The House passed it 60-34, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 63, a bill to ban handing someone a part-filled voter registration or absentee form. The House passed it 60-34, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 745",
+        "tally": "60-34",
+        "old_sentences": 4,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1432866,
+      "measure_id": "HB 130",
+      "vote_date": "2024-04-23",
+      "yea_description": "Voted to pass House Bill 130, a bill to widen limits on classroom talk about sexual orientation and gender identity up to eighth grade. The House passed it 74-25, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 130, a bill to widen limits on classroom talk about sexual orientation and gender identity up to eighth grade. The House passed it 74-25, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 734",
+        "tally": "74-25",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1434894,
+      "measure_id": "HB 385",
+      "vote_date": "2024-04-25",
+      "yea_description": "Voted to pass House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The House passed it 72-28, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The House passed it 72-28, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 795",
+        "tally": "72-28",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1436740,
+      "measure_id": "HB 36",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass House Bill 36, a bill to make having a pistol fitted with a machine gun conversion part a Class C felony. The House passed it 60-38, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 36, a bill to make having a pistol fitted with a machine gun conversion part a Class C felony. The House passed it 60-38, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 946",
+        "tally": "60-38",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1436817,
+      "measure_id": "HB 195",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass House Bill 195, a bill to make school sex education teach that avoiding sex outside marriage is best. The House passed it 72-22, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 195, a bill to make school sex education teach that avoiding sex outside marriage is best. The House passed it 72-22, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 950",
+        "tally": "72-22",
+        "old_sentences": 4,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1437008,
+      "measure_id": "HB 356",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted to pass House Bill 356, the Pregnancy Resource Act, a bill to give a state income tax credit for gifts to pregnancy centers. The House passed it 75-28, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 356, the Pregnancy Resource Act, a bill to give a state income tax credit for gifts to pregnancy centers. The House passed it 75-28, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 966",
+        "tally": "75-28",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1437151,
+      "measure_id": "HB 151",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted for the compromise version of House Bill 151, a bill to ask voters to allow a school lottery, electronic gaming sites and a tribal gaming deal. The House agreed 72-29, but the Senate rejected the same version and the bill died.",
+      "nay_description": "Voted against the compromise version of House Bill 151, a bill to ask voters to allow a school lottery, electronic gaming sites and a tribal gaming deal. The House agreed 72-29, but the Senate rejected the same version and the bill died.",
+      "_current": {
+        "question": "Blackshear Concur In and Adopt Conference Committee Report - Roll Call 941",
+        "tally": "72-29",
+        "old_sentences": 4,
+        "old_chars": 522
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1437155,
+      "measure_id": "HB 152",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted for the compromise version of House Bill 152, a bill to set the rules for gambling in Alabama if voters approved it. The House agreed 70-29 and the bill died with the amendment.",
+      "nay_description": "Voted against the compromise version of House Bill 152, a bill to set the rules for gambling in Alabama if voters approved it. The House agreed 70-29 and the bill died with the amendment.",
+      "_current": {
+        "question": "Blackshear Concur In and Adopt Conference Committee Report - Roll Call 942",
+        "tally": "70-29",
+        "old_sentences": 4,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1438138,
+      "measure_id": "SB 186",
+      "vote_date": "2024-05-02",
+      "yea_description": "Voted to pass Senate Bill 186, which banned ranked-choice voting in Alabama. The House passed it 74-28 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 186, which banned ranked-choice voting in Alabama. The House passed it 74-28 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 1092",
+        "tally": "74-28",
+        "old_sentences": 4,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2103",
+      "roll": 1441138,
+      "measure_id": "SB 231",
+      "vote_date": "2024-05-07",
+      "yea_description": "Voted for the compromise version of Senate Bill 231, which cut off state business incentives for employers that recognize a union without a secret ballot. The House agreed 73-29 and it became law.",
+      "nay_description": "Voted against the compromise version of Senate Bill 231, which cut off state business incentives for employers that recognize a union without a secret ballot. The House agreed 73-29 and it became law.",
+      "_current": {
+        "question": "Stadthagen Concur In and Adopt Concurrence Request for Conference Committee - Roll Call 1158",
+        "tally": "73-29",
+        "old_sentences": 4,
+        "old_chars": 584
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1486877,
+      "measure_id": "HB 29",
+      "vote_date": "2025-02-11",
+      "yea_description": "Voted to pass House Bill 29, a bill to make unemployment claimants in larger counties contact five employers a week. The Alabama House of Representatives passed it 76-25, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 29, a bill to make unemployment claimants in larger counties contact five employers a week. The Alabama House of Representatives passed it 76-25, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 54",
+        "tally": "76-25",
+        "old_sentences": 4,
+        "old_chars": 647
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1507290,
+      "measure_id": "SB 116",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass Senate Bill 116, which made it a crime to have, sell or use a part that turns a pistol into a machine gun. The Alabama House of Representatives passed it 77-23 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 116, which made it a crime to have, sell or use a part that turns a pistol into a machine gun. The Alabama House of Representatives passed it 77-23 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 372",
+        "tally": "77-23",
+        "old_sentences": 4,
+        "old_chars": 519
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1519986,
+      "measure_id": "HB 30",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted to pass House Bill 30, a bill to make probate judges audit one precinct's ballots after every general election. The Alabama House of Representatives passed it 63-30, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 30, a bill to make probate judges audit one precinct's ballots after every general election. The Alabama House of Representatives passed it 63-30, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 425",
+        "tally": "63-30",
+        "old_sentences": 4,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1522711,
+      "measure_id": "HB 234",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted to pass House Bill 234, called Alyssa's Law, a bill to give school staff wearable panic buttons that call police. The Alabama House of Representatives passed it 58-30, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 234, called Alyssa's Law, a bill to give school staff wearable panic buttons that call police. The Alabama House of Representatives passed it 58-30, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 515",
+        "tally": "58-30",
+        "old_sentences": 4,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1543491,
+      "measure_id": "HB 357",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 357, which taxed heated tobacco products at about half the cigarette rate. The Alabama House of Representatives passed its version 58-37 and the bill became law.",
+      "nay_description": "Voted against passing House Bill 357, which taxed heated tobacco products at about half the cigarette rate. The Alabama House of Representatives passed its version 58-37 and the bill became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 804",
+        "tally": "58-37",
+        "old_sentences": 4,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1551126,
+      "measure_id": "HB 7",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass House Bill 7, the Laken Riley Act, a bill to let state and local police enforce federal immigration law by agreement. The Alabama House of Representatives passed it 74-26, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 7, the Laken Riley Act, a bill to let state and local police enforce federal immigration law by agreement. The Alabama House of Representatives passed it 74-26, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 883",
+        "tally": "74-26",
+        "old_sentences": 4,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1551361,
+      "measure_id": "HB 247",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass House Bill 247, the Gulf of America Act, a bill to rename the Gulf of Mexico in Alabama law. The Alabama House of Representatives passed it 72-26, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 247, the Gulf of America Act, a bill to rename the Gulf of Mexico in Alabama law. The Alabama House of Representatives passed it 72-26, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 877",
+        "tally": "72-26",
+        "old_sentences": 4,
+        "old_chars": 521
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1566772,
+      "measure_id": "HB 445",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama House of Representatives agreed 60-27 and the bill became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama House of Representatives agreed 60-27 and the bill became law.",
+      "_current": {
+        "question": "Whitt Concur In and Adopt - Roll Call 1198",
+        "tally": "60-27",
+        "old_sentences": 4,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1566797,
+      "measure_id": "HB 8",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted to agree to the Senate's version of House Bill 8, which limited unauthorized vapes to licensed vape stores that keep out anyone under 21. The Alabama House of Representatives agreed 52-43 and the bill became law.",
+      "nay_description": "Voted against agreeing to the Senate's version of House Bill 8, which limited unauthorized vapes to licensed vape stores that keep out anyone under 21. The Alabama House of Representatives agreed 52-43 and the bill became law.",
+      "_current": {
+        "question": "Drummond Concur In and Adopt - Roll Call 1197",
+        "tally": "52-43",
+        "old_sentences": 4,
+        "old_chars": 548
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2148",
+      "roll": 1573029,
+      "measure_id": "HB 202",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted to agree to the Senate's version of House Bill 202, a bill to free grand jury witnesses to talk about their own testimony. The Alabama House of Representatives agreed 73-28 and the bill became law.",
+      "nay_description": "Voted against agreeing to the Senate's version of House Bill 202, a bill to free grand jury witnesses to talk about their own testimony. The Alabama House of Representatives agreed 73-28 and the bill became law.",
+      "_current": {
+        "question": "Reynolds Concur In and Adopt - Roll Call 1246",
+        "tally": "73-28",
+        "old_sentences": 4,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1614139,
+      "measure_id": "HB 95",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted to pass House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The Alabama House of Representatives passed it 69-25.",
+      "nay_description": "Voted against passing House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The Alabama House of Representatives passed it 69-25.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 4",
+        "tally": "69-25",
+        "old_sentences": 5,
+        "old_chars": 699
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1635385,
+      "measure_id": "SB 71",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted to pass Senate Bill 71, which stops state agencies setting pollution limits tougher than federal rules. The Alabama House of Representatives passed it 67-34 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 71, which stops state agencies setting pollution limits tougher than federal rules. The Alabama House of Representatives passed it 67-34 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 447",
+        "tally": "67-34",
+        "old_sentences": 5,
+        "old_chars": 559
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1642547,
+      "measure_id": "HB 360",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass House Bill 360, a bill to create a yearly sales tax holiday for guns, ammunition and hunting supplies. The Alabama House of Representatives passed it 72-29, but the Senate never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing House Bill 360, a bill to create a yearly sales tax holiday for guns, ammunition and hunting supplies. The Alabama House of Representatives passed it 72-29, but the Senate never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 525",
+        "tally": "72-29",
+        "old_sentences": 4,
+        "old_chars": 579
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1643558,
+      "measure_id": "HB 86",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass House Bill 86, which makes the parole board weigh a prisoner's work and education when deciding on release. The Alabama House of Representatives passed it 77-22 and it became law.",
+      "nay_description": "Voted against passing House Bill 86, which makes the parole board weigh a prisoner's work and education when deciding on release. The Alabama House of Representatives passed it 77-22 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 568",
+        "tally": "77-22",
+        "old_sentences": 4,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1643628,
+      "measure_id": "HB 2",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama House of Representatives passed it 73-30 and it became law.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama House of Representatives passed it 73-30 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 536",
+        "tally": "73-30",
+        "old_sentences": 4,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1675418,
+      "measure_id": "HB 475",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted to agree to the Senate's version of House Bill 475, the Power to the People Act, which freezes electric base rates until 2029 and bars billing customers for lobbying. The Alabama House of Representatives agreed 72-26 and the bill became law.",
+      "nay_description": "Voted against agreeing to the Senate's version of House Bill 475, the Power to the People Act, which freezes electric base rates until 2029 and bars billing customers for lobbying. The Alabama House of Representatives agreed 72-26 and the bill became law.",
+      "_current": {
+        "question": "Smith motion to Concur in and Adopt Senate Amendment to HB475",
+        "tally": "72-26",
+        "old_sentences": 7,
+        "old_chars": 896
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1679896,
+      "measure_id": "SB 57",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to agree to the final version of Senate Bill 57, which tells Alabama to seek federal permission to stop candy and soda being bought with SNAP benefits. The Alabama House of Representatives agreed 77-22 and the bill became law.",
+      "nay_description": "Voted against agreeing to the final version of Senate Bill 57, which tells Alabama to seek federal permission to stop candy and soda being bought with SNAP benefits. The Alabama House of Representatives agreed 77-22 and the bill became law.",
+      "_current": {
+        "question": "Ingram motion to Concur In and Adopt Conference Committee Report - Roll Call 1355",
+        "tally": "77-22",
+        "old_sentences": 4,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1679940,
+      "measure_id": "SB 5",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass Senate Bill 5, which asks voters to require every public school to play the national anthem at least once a week. The Alabama House of Representatives passed it 75-27.",
+      "nay_description": "Voted against passing Senate Bill 5, which asks voters to require every public school to play the national anthem at least once a week. The Alabama House of Representatives passed it 75-27.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 1353",
+        "tally": "75-27",
+        "old_sentences": 5,
+        "old_chars": 548
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2218",
+      "roll": 1679974,
+      "measure_id": "SB 341",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to agree to the final version of Senate Bill 341, which lets Alabama try speed cameras in one interstate work zone. The Alabama House of Representatives agreed 76-23 and the bill became law.",
+      "nay_description": "Voted against agreeing to the final version of Senate Bill 341, which lets Alabama try speed cameras in one interstate work zone. The Alabama House of Representatives agreed 76-23 and the bill became law.",
+      "_current": {
+        "question": "Kirkland motion to Concur In and Adopt in Conference Committee - Roll Call 1341",
+        "tally": "76-23",
+        "old_sentences": 4,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "house",
+      "session": "2262",
+      "roll": 1694623,
+      "measure_id": "HB 1",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The House passed it 75-29 on a party-line vote, and it became law.",
+      "nay_description": "Voted against passing House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The House passed it 75-29 on a party-line vote, and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 2",
+        "tally": "75-29",
+        "old_sentences": 4,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 826324,
+      "measure_id": "SB 119",
+      "vote_date": "2019-03-21",
+      "yea_description": "Voted to pass Senate Bill 119, a bill to end Common Core standards in Alabama schools. The Senate passed it 23-7, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 119, a bill to end Common Core standards in Alabama schools. The Senate passed it 23-7, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "23-7",
+        "old_sentences": 4,
+        "old_chars": 492
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 826377,
+      "measure_id": "SB 22",
+      "vote_date": "2019-03-21",
+      "yea_description": "Voted to pass Senate Bill 22, a bill to let taxpayers send part of a state refund to a private border wall group. The Senate passed it 23-6, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 22, a bill to let taxpayers send part of a state refund to a private border wall group. The Senate passed it 23-6, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "23-6",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 835992,
+      "measure_id": "SB 222",
+      "vote_date": "2019-04-04",
+      "yea_description": "Voted to pass Senate Bill 222, a bill to end the election of county school superintendents. The Senate passed it 19-10, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 222, a bill to end the election of county school superintendents. The Senate passed it 19-10, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "19-10",
+        "old_sentences": 4,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 852080,
+      "measure_id": "SB 220",
+      "vote_date": "2019-04-25",
+      "yea_description": "Voted to pass Senate Bill 220, a bill to ask voters to allow a paper-ticket state lottery. The Senate passed it 21-12, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 220, a bill to ask voters to allow a paper-ticket state lottery. The Senate passed it 21-12, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "21-12",
+        "old_sentences": 4,
+        "old_chars": 468
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 861143,
+      "measure_id": "SB 128",
+      "vote_date": "2019-05-07",
+      "yea_description": "Voted to pass Senate Bill 128, which made photographing someone else's ballot at a polling place a misdemeanor. The Senate passed it 23-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 128, which made photographing someone else's ballot at a polling place a misdemeanor. The Senate passed it 23-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "23-7",
+        "old_sentences": 4,
+        "old_chars": 390
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 861734,
+      "measure_id": "SB 236",
+      "vote_date": "2019-05-09",
+      "yea_description": "Voted to pass Senate Bill 236, which set up a commission to study medical marijuana and extended Carly's Law by a year. The Senate passed it 17-6 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 236, which set up a commission to study medical marijuana and extended Carly's Law by a year. The Senate passed it 17-6 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "17-6",
+        "old_sentences": 4,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 873644,
+      "measure_id": "HB 361",
+      "vote_date": "2019-05-28",
+      "yea_description": "Voted to pass House Bill 361, the Fantasy Contests Act, which legalized paid fantasy sports with registration, age checks and a tax. The Senate passed it 22-8 and it became law.",
+      "nay_description": "Voted against passing House Bill 361, the Fantasy Contests Act, which legalized paid fantasy sports with registration, age checks and a tax. The Senate passed it 22-8 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "22-8",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1621",
+      "roll": 875886,
+      "measure_id": "HB 423",
+      "vote_date": "2019-05-31",
+      "yea_description": "Voted to pass House Bill 423, a bill to make kindergarten compulsory. The Senate vote was 13-18 and the bill failed.",
+      "nay_description": "Voted against passing House Bill 423, a bill to make kindergarten compulsory. The Senate vote was 13-18 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "13-18",
+        "old_sentences": 4,
+        "old_chars": 378
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1706",
+      "roll": 937125,
+      "measure_id": "HB 147",
+      "vote_date": "2020-02-27",
+      "yea_description": "Voted to pass House Bill 147, which barred cities from starting new taxes on what people earn at work. The Senate passed it 27-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 147, which barred cities from starting new taxes on what people earn at work. The Senate passed it 27-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "27-7",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1706",
+      "roll": 950624,
+      "measure_id": "SB 165",
+      "vote_date": "2020-03-12",
+      "yea_description": "Voted to pass Senate Bill 165, the Compassion Act, a bill to create a medical cannabis program for 16 listed conditions. The Senate passed it 22-11, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 165, the Compassion Act, a bill to create a medical cannabis program for 16 listed conditions. The Senate passed it 22-11, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1021832,
+      "measure_id": "SB 158",
+      "vote_date": "2021-03-04",
+      "yea_description": "Voted to pass Senate Bill 158, a bill to build a statewide database of police misconduct. The Senate passed it 21-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 158, a bill to build a statewide database of police misconduct. The Senate passed it 21-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 442",
+        "tally": "21-8",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1024562,
+      "measure_id": "SB 214",
+      "vote_date": "2021-03-09",
+      "yea_description": "Voted to pass Senate Bill 214, a bill to ask voters to allow a lottery, five casinos and sports betting. The Senate vote was 19-13 and the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 214, a bill to ask voters to allow a lottery, five casinos and sports betting. The Senate vote was 19-13 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 474",
+        "tally": "19-13",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1043087,
+      "measure_id": "SB 97",
+      "vote_date": "2021-04-01",
+      "yea_description": "Voted to pass Senate Bill 97, a bill to end most states of emergency after 45 days unless the Legislature extends them. The Senate passed it 24-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 97, a bill to end most states of emergency after 45 days unless the Legislature extends them. The Senate passed it 24-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 721",
+        "tally": "24-8",
+        "old_sentences": 4,
+        "old_chars": 597
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1051414,
+      "measure_id": "SB 94",
+      "vote_date": "2021-04-13",
+      "yea_description": "Voted to pass Senate Bill 94, a bill to delay by two years the rule holding back third graders who cannot read well enough. The Senate passed it 23-9, but Governor Ivey vetoed it and the delay never took effect.",
+      "nay_description": "Voted against passing Senate Bill 94, a bill to delay by two years the rule holding back third graders who cannot read well enough. The Senate passed it 23-9, but Governor Ivey vetoed it and the delay never took effect.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 924",
+        "tally": "23-9",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1051702,
+      "measure_id": "SB 319",
+      "vote_date": "2021-04-13",
+      "yea_description": "Voted to pass Senate Bill 319, a second bill to ask voters to allow a lottery, casinos and sports betting. The Senate passed it 23-9, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 319, a second bill to ask voters to allow a lottery, casinos and sports betting. The Senate passed it 23-9, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 960",
+        "tally": "23-9",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1057291,
+      "measure_id": "SB 91",
+      "vote_date": "2021-04-20",
+      "yea_description": "Voted to pass Senate Bill 91, a bill to ban racial profiling in traffic stops and require data collection. The Senate passed it 19-7, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 91, a bill to ban racial profiling in traffic stops and require data collection. The Senate passed it 19-7, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1040",
+        "tally": "19-7",
+        "old_sentences": 4,
+        "old_chars": 494
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1057454,
+      "measure_id": "HB 123",
+      "vote_date": "2021-04-20",
+      "yea_description": "Voted to pass House Bill 123, which let prosecutors, judges, legislators and police keep their details off the public voter list. The Senate passed it 18-10 and it became law.",
+      "nay_description": "Voted against passing House Bill 123, which let prosecutors, judges, legislators and police keep their details off the public voter list. The Senate passed it 18-10 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1081",
+        "tally": "18-10",
+        "old_sentences": 4,
+        "old_chars": 449
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1057884,
+      "measure_id": "HB 385",
+      "vote_date": "2021-04-20",
+      "yea_description": "Voted to pass House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The Senate passed it 18-6 and it became law.",
+      "nay_description": "Voted against passing House Bill 385, which rewrote sex education, deleting the rule that classes call homosexuality unacceptable. The Senate passed it 18-6 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1053",
+        "tally": "18-6",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1060108,
+      "measure_id": "HB 116",
+      "vote_date": "2021-04-22",
+      "yea_description": "Voted to pass House Bill 116, the Alabama Voter Confidence Act, which allowed one trial audit of the 2022 general election. The Senate passed it 21-6 and it became law.",
+      "nay_description": "Voted against passing House Bill 116, the Alabama Voter Confidence Act, which allowed one trial audit of the 2022 general election. The Senate passed it 21-6 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1143",
+        "tally": "21-6",
+        "old_sentences": 4,
+        "old_chars": 445
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1060614,
+      "measure_id": "HB 154",
+      "vote_date": "2021-04-22",
+      "yea_description": "Voted to pass House Bill 154, which requires every campaign finance report to be filed electronically in a public database. The Senate passed it 17-12 and it became law.",
+      "nay_description": "Voted against passing House Bill 154, which requires every campaign finance report to be filed electronically in a public database. The Senate passed it 17-12 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1146",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 433
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1074242,
+      "measure_id": "SB 46",
+      "vote_date": "2021-05-06",
+      "yea_description": "Voted to pass Senate Bill 46, the Compassion Act, which created a medical cannabis program for 16 listed conditions. The Senate passed it 20-9, and Governor Ivey signed it into law as Act 2021-450.",
+      "nay_description": "Voted against passing Senate Bill 46, the Compassion Act, which created a medical cannabis program for 16 listed conditions. The Senate passed it 20-9, and Governor Ivey signed it into law as Act 2021-450.",
+      "_current": {
+        "question": "Melson motion to Concur In and Adopt Roll Call 1393",
+        "tally": "20-9",
+        "old_sentences": 4,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1756",
+      "roll": 1074303,
+      "measure_id": "HB 246",
+      "vote_date": "2021-05-06",
+      "yea_description": "Voted to pass House Bill 246, which let schools teach yoga again, with English pose names and no chanting or namaste. The Senate passed it 23-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 246, which let schools teach yoga again, with English pose names and no chanting or namaste. The Senate passed it 23-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1408",
+        "tally": "23-7",
+        "old_sentences": 4,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1140071,
+      "measure_id": "SB 168",
+      "vote_date": "2022-02-10",
+      "yea_description": "Voted to pass Senate Bill 168, which made fentanyl test strips legal. The Senate passed it 19-5 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 168, which made fentanyl test strips legal. The Senate passed it 19-5 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 201",
+        "tally": "19-5",
+        "old_sentences": 4,
+        "old_chars": 414
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1140220,
+      "measure_id": "SB 26",
+      "vote_date": "2022-02-10",
+      "yea_description": "Voted to pass Senate Bill 26, the Agent Billy Clardy III Act, a bill to give Alabama its own wiretap power for felony drug cases. The Senate vote was 13-13 and the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 26, the Agent Billy Clardy III Act, a bill to give Alabama its own wiretap power for felony drug cases. The Senate vote was 13-13 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 196",
+        "tally": "13-13",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1146018,
+      "measure_id": "SB 79",
+      "vote_date": "2022-02-16",
+      "yea_description": "Voted to pass Senate Bill 79, a bill to set statewide fair-hearing rules for school discipline. The Senate passed it 24-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 79, a bill to set statewide fair-hearing rules for school discipline. The Senate passed it 24-8, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 312",
+        "tally": "24-8",
+        "old_sentences": 4,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1150254,
+      "measure_id": "SB 200",
+      "vote_date": "2022-02-22",
+      "yea_description": "Voted to pass Senate Bill 200, which delayed by two years the rule holding back third graders who cannot read well enough. The Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 200, which delayed by two years the rule holding back third graders who cannot read well enough. The Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 368",
+        "tally": "20-12",
+        "old_sentences": 4,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1152379,
+      "measure_id": "SB 184",
+      "vote_date": "2022-02-23",
+      "yea_description": "Voted to pass Senate Bill 184, which made it a felony to give a minor puberty blockers, cross-sex hormones or gender surgery. The Senate passed it 24-6 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 184, which made it a felony to give a minor puberty blockers, cross-sex hormones or gender surgery. The Senate passed it 24-6 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 383",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1158840,
+      "measure_id": "SB 51",
+      "vote_date": "2022-03-01",
+      "yea_description": "Voted to pass Senate Bill 51, a bill to require every school system to employ a mental health service coordinator. The Senate vote was 10-16 and the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 51, a bill to require every school system to employ a mental health service coordinator. The Senate vote was 10-16 and the bill failed.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 454",
+        "tally": "10-16",
+        "old_sentences": 4,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1167429,
+      "measure_id": "HB 272",
+      "vote_date": "2022-03-10",
+      "yea_description": "Voted to pass House Bill 272, which let Alabamians carry a concealed handgun without a permit. The Senate passed it 24-6 and it became law.",
+      "nay_description": "Voted against passing House Bill 272, which let Alabamians carry a concealed handgun without a permit. The Senate passed it 24-6 and it became law.",
+      "_current": {
+        "question": "Reed motion to Concur In and Adopt Roll Call 555",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 447
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1180303,
+      "measure_id": "SB 158",
+      "vote_date": "2022-03-30",
+      "yea_description": "Voted to pass Senate Bill 158, a bill to build a statewide database of police misconduct. The Senate passed it 18-8 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 158, a bill to build a statewide database of police misconduct. The Senate passed it 18-8 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 809",
+        "tally": "18-8",
+        "old_sentences": 4,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1180925,
+      "measure_id": "SB 301",
+      "vote_date": "2022-03-31",
+      "yea_description": "Voted to pass Senate Bill 301, which made it an offense to hold a phone while driving badly, with fines up to $150. The Senate passed it 16-6, but the other chamber never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 301, which made it an offense to hold a phone while driving badly, with fines up to $150. The Senate passed it 16-6, but the other chamber never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 894",
+        "tally": "16-6",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1836",
+      "roll": 1185160,
+      "measure_id": "HB 194",
+      "vote_date": "2022-04-07",
+      "yea_description": "Voted to pass House Bill 194, which barred election officials from taking private money to run elections. The Senate passed it 25-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 194, which barred election officials from taking private money to run elections. The Senate passed it 25-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 1060",
+        "tally": "25-7",
+        "old_sentences": 4,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1854",
+      "roll": 1109471,
+      "measure_id": "HB 2",
+      "vote_date": "2021-10-01",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Senate passed it 24-6 and it became law.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Senate passed it 24-6 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 19",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1857",
+      "roll": 1111153,
+      "measure_id": "SB 1",
+      "vote_date": "2021-11-01",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 25-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 25-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 9",
+        "tally": "25-7",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1857",
+      "roll": 1115467,
+      "measure_id": "HB 1",
+      "vote_date": "2021-11-03",
+      "yea_description": "Voted to pass House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The Senate passed it 22-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The Senate passed it 22-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 34",
+        "tally": "22-7",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "1857",
+      "roll": 1115491,
+      "measure_id": "HB 2",
+      "vote_date": "2021-11-03",
+      "yea_description": "Voted to pass House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Senate passed it 25-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 2, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Senate passed it 25-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass Roll Call 35",
+        "tally": "25-7",
+        "old_sentences": 4,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1325654,
+      "measure_id": "SB 181",
+      "vote_date": "2023-05-16",
+      "yea_description": "Voted to pass Senate Bill 181, a bill to set statewide fair-hearing rules for students facing suspension or expulsion. The vote was 11-20, short of the majority the Senate needed, so the bill failed.",
+      "nay_description": "Voted against passing Senate Bill 181, a bill to set statewide fair-hearing rules for students facing suspension or expulsion. The vote was 11-20, short of the majority the Senate needed, so the bill failed.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "11-20",
+        "old_sentences": 3,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1327663,
+      "measure_id": "SB 261",
+      "vote_date": "2023-05-18",
+      "yea_description": "Voted to pass Senate Bill 261, which barred government contracts with companies that boycott fossil fuels, timber, farming or guns. The Senate passed it 27-8 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 261, which barred government contracts with companies that boycott fossil fuels, timber, farming or guns. The Senate passed it 27-8 and it became law.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "27-8",
+        "old_sentences": 4,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1327840,
+      "measure_id": "HB 379",
+      "vote_date": "2023-05-18",
+      "yea_description": "Voted to pass House Bill 379, the Alabama Property Protection Act, which bars listed foreign governments from buying Alabama land. The Senate passed it 26-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 379, the Alabama Property Protection Act, which bars listed foreign governments from buying Alabama land. The Senate passed it 26-7 and it became law.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "26-7",
+        "old_sentences": 4,
+        "old_chars": 497
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1331411,
+      "measure_id": "SB 263",
+      "vote_date": "2023-05-24",
+      "yea_description": "Voted to pass Senate Bill 263, which widened the tax-credit scholarship program and raised its yearly cap to $40 million. The Senate passed it 26-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 263, which widened the tax-credit scholarship program and raised its yearly cap to $40 million. The Senate passed it 26-7 and it became law.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "26-7",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1333288,
+      "measure_id": "HB 125",
+      "vote_date": "2023-05-25",
+      "yea_description": "Voted to pass House Bill 125, a mid-year spending bill adding $207.6 million from the general fund and $10 million for veterans. The Senate passed this version 28-7, agreed to the final version 27-3 the next day, and it became law.",
+      "nay_description": "Voted against passing House Bill 125, a mid-year spending bill adding $207.6 million from the general fund and $10 million for veterans. The Senate passed this version 28-7, agreed to the final version 27-3 the next day, and it became law.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "28-7",
+        "old_sentences": 3,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1336287,
+      "measure_id": "HB 363",
+      "vote_date": "2023-05-31",
+      "yea_description": "Voted to pass House Bill 363, which changed how public charter schools are overseen and funded in their first year. The Senate passed it 26-8 on its second vote of the day and it became law.",
+      "nay_description": "Voted against passing House Bill 363, which changed how public charter schools are overseen and funded in their first year. The Senate passed it 26-8 on its second vote of the day and it became law.",
+      "_current": {
+        "question": "Read Again a Third Time and Pass as Amended",
+        "tally": "26-8",
+        "old_sentences": 4,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2014",
+      "roll": 1336890,
+      "measure_id": "HB 289",
+      "vote_date": "2023-06-01",
+      "yea_description": "Voted to pass House Bill 289, which set out who may see police body camera and dashboard camera video. The Senate passed it 21-8 and it became law.",
+      "nay_description": "Voted against passing House Bill 289, which set out who may see police body camera and dashboard camera video. The Senate passed it 21-8 and it became law.",
+      "_current": {
+        "question": "Read a Third Time and Pass",
+        "tally": "21-8",
+        "old_sentences": 4,
+        "old_chars": 444
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2060",
+      "roll": 1350905,
+      "measure_id": "SB 5",
+      "vote_date": "2023-07-21",
+      "yea_description": "Voted for the compromise version of Senate Bill 5, which asks voters to require every public school to play the national anthem at least once a week. The Senate agreed 24-6 and it became law.",
+      "nay_description": "Voted against the compromise version of Senate Bill 5, which asks voters to require every public school to play the national anthem at least once a week. The Senate agreed 24-6 and it became law.",
+      "_current": {
+        "question": "Concur In and Adopt",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 390
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2060",
+      "roll": 1350910,
+      "measure_id": "HB 5",
+      "vote_date": "2023-07-21",
+      "yea_description": "Voted to pass House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The Senate passed its own amended version 23-7.",
+      "nay_description": "Voted against passing House Bill 5, which put $400 million of federal pandemic relief money into building two men's prisons. The Senate passed its own amended version 23-7.",
+      "_current": {
+        "question": "Read A Third Time And Passed As Amended",
+        "tally": "23-7",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1383756,
+      "measure_id": "SB 1",
+      "vote_date": "2024-02-13",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 26-8 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 26-8 and it became law.",
+      "_current": {
+        "question": "Passed House Of Origin",
+        "tally": "26-8",
+        "old_sentences": 4,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1384609,
+      "measure_id": "SB 10",
+      "vote_date": "2024-02-14",
+      "yea_description": "Voted to pass Senate Bill 10, which bars vote counting machines that can go online or contain modem technology. The Senate passed it 25-7, but the House never voted on it and the bill died when the session ended.",
+      "nay_description": "Voted against passing Senate Bill 10, which bars vote counting machines that can go online or contain modem technology. The Senate passed it 25-7, but the House never voted on it and the bill died when the session ended.",
+      "_current": {
+        "question": "Passed House Of Origin",
+        "tally": "25-7",
+        "old_sentences": 4,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1392591,
+      "measure_id": "SB 129",
+      "vote_date": "2024-02-22",
+      "yea_description": "Voted to pass Senate Bill 129, which shut down diversity, equity and inclusion offices in state agencies, schools and public colleges. The Senate passed it 26-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 129, which shut down diversity, equity and inclusion offices in state agencies, schools and public colleges. The Senate passed it 26-7 and it became law.",
+      "_current": {
+        "question": "Passed House Of Origin",
+        "tally": "26-7",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1404666,
+      "measure_id": "HB 129",
+      "vote_date": "2024-03-07",
+      "yea_description": "Voted to pass House Bill 129, the CHOOSE Act, which pays families $7,000 per child toward private school costs through tax credits. The Senate passed it 23-9 and it became law.",
+      "nay_description": "Voted against passing House Bill 129, the CHOOSE Act, which pays families $7,000 per child toward private school costs through tax credits. The Senate passed it 23-9 and it became law.",
+      "_current": {
+        "question": "Passed Second House",
+        "tally": "23-9",
+        "old_sentences": 4,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1405649,
+      "measure_id": "HB 152",
+      "vote_date": "2024-03-07",
+      "yea_description": "Voted to pass House Bill 152, a bill to set the rules for gambling in Alabama if voters approved it. The Senate passed it with its own amendments 22-11.",
+      "nay_description": "Voted against passing House Bill 152, a bill to set the rules for gambling in Alabama if voters approved it. The Senate passed it with its own amendments 22-11.",
+      "_current": {
+        "question": "Passed Second House",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2103",
+      "roll": 1437113,
+      "measure_id": "HB 151",
+      "vote_date": "2024-04-30",
+      "yea_description": "Voted for the compromise version of House Bill 151, a bill to ask voters to allow a school lottery, electronic gaming sites and a tribal gaming deal. The Senate vote was 20-15, short of the three fifths a constitutional amendment needs, so the bill died.",
+      "nay_description": "Voted against the compromise version of House Bill 151, a bill to ask voters to allow a school lottery, electronic gaming sites and a tribal gaming deal. The Senate vote was 20-15, short of the three fifths a constitutional amendment needs, so the bill died.",
+      "_current": {
+        "question": "Albritton to Concur In and Adopt Conf Rpt",
+        "tally": "20-15",
+        "old_sentences": 4,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1488709,
+      "measure_id": "SB 63",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass Senate Bill 63, which bars releasing a person in the country illegally until police take fingerprints and DNA. The Alabama Senate passed it 24-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 63, which bars releasing a person in the country illegally until police take fingerprints and DNA. The Alabama Senate passed it 24-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 86",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 538
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1488934,
+      "measure_id": "SB 53",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass the Senate's version of Senate Bill 53, which made knowingly bringing a person into Alabama who is in the country illegally a felony. The Alabama Senate passed its version 24-8 and the bill became law.",
+      "nay_description": "Voted against passing the Senate's version of Senate Bill 53, which made knowingly bringing a person into Alabama who is in the country illegally a felony. The Alabama Senate passed its version 24-8 and the bill became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 96",
+        "tally": "24-8",
+        "old_sentences": 4,
+        "old_chars": 676
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1566046,
+      "measure_id": "HB 445",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted to pass House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama Senate passed it 19-13 and the bill became law.",
+      "nay_description": "Voted against passing House Bill 445, the Anti-Aggravated Riot Act, which created new crimes around protests with mandatory jail time. The Alabama Senate passed it 19-13 and the bill became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 997",
+        "tally": "19-13",
+        "old_sentences": 4,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1567082,
+      "measure_id": "HB 357",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass House Bill 357, which taxed heated tobacco products at about half the cigarette rate. The Alabama Senate passed it 24-6 and the bill became law.",
+      "nay_description": "Voted against passing House Bill 357, which taxed heated tobacco products at about half the cigarette rate. The Alabama Senate passed it 24-6 and the bill became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 1006",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2148",
+      "roll": 1567089,
+      "measure_id": "HB 165",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to pass House Bill 165, which made Juneteenth an official state holiday. The Alabama Senate passed it 13-5, with 16 senators absent, and it became law.",
+      "nay_description": "Voted against passing House Bill 165, which made Juneteenth an official state holiday. The Alabama Senate passed it 13-5, with 16 senators absent, and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 1011",
+        "tally": "13-5",
+        "old_sentences": 4,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2218",
+      "roll": 1622181,
+      "measure_id": "SB 71",
+      "vote_date": "2026-02-03",
+      "yea_description": "Voted to pass Senate Bill 71, which stops state agencies setting pollution limits tougher than federal rules. The Alabama Senate passed it 27-7 and it became law.",
+      "nay_description": "Voted against passing Senate Bill 71, which stops state agencies setting pollution limits tougher than federal rules. The Alabama Senate passed it 27-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass as Amended - Roll Call 229",
+        "tally": "27-7",
+        "old_sentences": 5,
+        "old_chars": 540
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2218",
+      "roll": 1674032,
+      "measure_id": "HB 95",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted to pass House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The Alabama Senate passed it 22-7.",
+      "nay_description": "Voted against passing House Bill 95, which gave prisoners a break from court fines and fees just after release, with a repayment plan. The Alabama Senate passed it 22-7.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 1000",
+        "tally": "22-7",
+        "old_sentences": 6,
+        "old_chars": 788
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2218",
+      "roll": 1679865,
+      "measure_id": "HB 580",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to pass House Bill 580, which limits faculty senates at public colleges to an advisory role and sets state tenure rules. The Alabama Senate passed it 27-7 and it became law.",
+      "nay_description": "Voted against passing House Bill 580, which limits faculty senates at public colleges to an advisory role and sets state tenure rules. The Alabama Senate passed it 27-7 and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 1312",
+        "tally": "27-7",
+        "old_sentences": 6,
+        "old_chars": 703
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2262",
+      "roll": 1694713,
+      "measure_id": "SB 1",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 26-7 on a party-line vote, and it became law.",
+      "nay_description": "Voted against passing Senate Bill 1, which redrew the 35 Alabama Senate districts using the 2020 census. The Senate passed it 26-7 on a party-line vote, and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 7",
+        "tally": "26-7",
+        "old_sentences": 4,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "AL",
+      "chamber": "senate",
+      "session": "2262",
+      "roll": 1695918,
+      "measure_id": "HB 1",
+      "vote_date": "2026-05-08",
+      "yea_description": "Voted to pass House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The Senate passed it 27-8 on a party-line vote, and it became law.",
+      "nay_description": "Voted against passing House Bill 1, which redrew Alabama's seven U.S. House districts using the 2020 census. The Senate passed it 27-8 on a party-line vote, and it became law.",
+      "_current": {
+        "question": "Motion to Read a Third Time and Pass - Roll Call 10",
+        "tally": "27-8",
+        "old_sentences": 4,
+        "old_chars": 425
+      }
+    }
+  ]
+}

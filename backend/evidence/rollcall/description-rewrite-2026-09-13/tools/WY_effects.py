@@ -1,0 +1,46 @@
+_BILLS = {
+ 1488229: "House Bill 318", 1498230: "Senate File 4", 1500225: "Senate File 152", 1502833: "House Bill 117", 1504261: "Senate File 107",
+ 1504265: "Senate File 34", 1504299: "House Bill 64", 1504563: "Senate File 160", 1504899: "Senate File 132", 1640448: "House Bill 25",
+ 1644185: "Senate File 5", 1648095: "Senate File 20", 1648998: "Senate File 4", 1651597: "Senate File 59", 1652857: "Senate File 58",
+ 1653001: "Senate File 35", 1653079: "Senate File 95", 1653913: "Senate File 88", 1654905: "Senate File 99", 1655202: "Senate File 121",
+ 1472116: "Senate File 15", 1472166: "Senate File 16", 1472543: "Senate File 4", 1496298: "House Bill 42", 1497435: "House Bill 116",
+ 1503522: "House Bill 136", 1504059: "House Bill 62", 1504898: "Senate File 132", 1505444: "House Bill 259", 1505869: "Senate File 44",
+ 1506086: "House Bill 64", 1506616: "House Bill 36", 1507367: "Senate File 34", 1634007: "Senate File 8", 1652524: "Senate File 70",
+}
+_OVERRIDE = {1504299, 1504899, 1504898, 1506086, 1506616}
+OPEN = {r: ((f"Voted to override the governor's veto of {b}", f"Voted against overriding the governor's veto of {b}") if r in _OVERRIDE else (f"Voted for {b}", f"Voted against {b}")) for r, b in _BILLS.items()}
+IDX = {
+ 12: {"eff": "which raises what Wyoming Medicaid pays ambulance services to the full Medicare rate for two years"},
+}
+EFFECTS = {
+ "HB 318": "which widens voter roll checks to look for non-citizens and voters licensed in another state",
+ "SF 4": "which makes state park rangers and managers peace officers and lets them act outside a park",
+ "SF 152": "which funds the response to the 2024 wildfires and expands the state forester's fire duties",
+ "HB 117": "which funds 18 water projects and adds $80 million to two large dam and canal rebuilds",
+ "SF 107": "which voids most agreements that stop a worker from taking a job with a competitor",
+ "SF 34": "which counts more school building space when the state pays districts for maintenance",
+ "HB 64": "which requires an ultrasound at least 48 hours before a medication abortion",
+ "SF 160": "which opens court-run treatment programs to people with mental illness",
+ "SF 132": "which bans drone flights over critical infrastructure",
+ "HB 25": "which lets adult students keep the Wyoming's Tomorrow scholarship after a break in enrollment",
+ "SF 5": "which lets struggling county hospitals file for bankruptcy instead of closing",
+ "SF 20": "which stops state and local government offices selling or trading personal data without consent",
+ "SF 59": "which creates a statewide reading and language program from kindergarten through twelfth grade",
+ "SF 58": "which makes the Wyoming Indian Child Welfare Act permanent",
+ "SF 35": "which makes every school district adopt a policy on student cell phones in school",
+ "SF 95": "which lets private providers handle driver's license tests and motor vehicle services",
+ "SF 88": "which bars registered sex offenders from living within a thousand feet of a child care facility",
+ "SF 99": "which gives electric utilities legal easements for old power lines never put in writing",
+ "SF 121": "which lets pharmacists assess patients and prescribe under board rules",
+ "SF 15": "which lets the state regulate oil and gas waste pits wherever they sit",
+ "SF 16": "which requires the state to notify tribal governments about nearby industrial projects",
+ "HB 42": "which requires clinics that perform surgical abortions to hold a surgical center license",
+ "HB 116": "which makes out-of-state driver's licenses held by people without lawful immigration status invalid",
+ "HB 136": "which lets volunteer firefighters and medics join the state health plan with premium help",
+ "HB 62": "which widens the prostitution law to cover sexual touching, not just sexual intrusion",
+ "HB 259": "which spends about $207 million on school buildings, mostly a new Campbell County high school",
+ "SF 44": "which requires University of Wyoming and community college students to play sports by biological sex",
+ "HB 36": "which extends the Hathaway scholarship to short job-training programs",
+ "SF 8": "which makes crossing county or state lines to evade police or continue a crime a separate offense",
+ "SF 70": "which funds 24 water projects for 2026 and sets a deadline on the Alkali Creek Reservoir",
+}

@@ -1,0 +1,2388 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1478874,
+      "measure_id": "HB 2074",
+      "vote_date": "2025-02-03",
+      "yea_description": "Voted for House Bill 2074, which lets school safety grants pay for safety officers, equipment, training and building work. The Arizona House passed it 35-24, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2074, which lets school safety grants pay for safety officers, equipment, training and building work. The Arizona House passed it 35-24, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "35-24",
+        "old_sentences": 6,
+        "old_chars": 666
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1483044,
+      "measure_id": "HB 2007",
+      "vote_date": "2025-02-06",
+      "yea_description": "Voted for House Bill 2007, a bill to ban paying anyone by the number of voter registration forms they collect. The Arizona House passed it 34-23, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2007, a bill to ban paying anyone by the number of voter registration forms they collect. The Arizona House passed it 34-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "34-23",
+        "old_sentences": 4,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1483092,
+      "measure_id": "HB 2006",
+      "vote_date": "2025-02-06",
+      "yea_description": "Voted for House Bill 2006, a bill to make private senders of official-looking election mail print Not from a Government Agency on it. The Arizona House passed it 37-19, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2006, a bill to make private senders of official-looking election mail print Not from a Government Agency on it. The Arizona House passed it 37-19, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "37-19",
+        "old_sentences": 4,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1486183,
+      "measure_id": "HB 2017",
+      "vote_date": "2025-02-11",
+      "yea_description": "Voted for House Bill 2017, a bill to close voting centers and cut back early voting sites. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2017, a bill to close voting centers and cut back early voting sites. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-26",
+        "old_sentences": 5,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487074,
+      "measure_id": "HB 2088",
+      "vote_date": "2025-02-11",
+      "yea_description": "Voted for House Bill 2088, a bill to let the state water director shrink a groundwater management area. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2088, a bill to let the state water director shrink a groundwater management area. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-26",
+        "old_sentences": 4,
+        "old_chars": 379
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487550,
+      "measure_id": "HB 2114",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 2114, which raises the penalty for an adult over 21 who has sex with a teenager aged 15 to 17. The Arizona House passed it 39-20, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2114, which raises the penalty for an adult over 21 who has sex with a teenager aged 15 to 17. The Arizona House passed it 39-20, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "39-20",
+        "old_sentences": 4,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487581,
+      "measure_id": "HB 2089",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 2089, a bill to let voters end a groundwater management area by petition after ten years. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2089, a bill to let voters end a groundwater management area by petition after ten years. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-27",
+        "old_sentences": 5,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487586,
+      "measure_id": "HB 2004",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 2004, a bill to stop county recorders sending voter registration cards to out-of-state addresses. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2004, a bill to stop county recorders sending voter registration cards to out-of-state addresses. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-27",
+        "old_sentences": 4,
+        "old_chars": 412
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487729,
+      "measure_id": "HB 2062",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 2062, a bill to set one meaning for sex-based words across state law. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2062, a bill to set one meaning for sex-based words across state law. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-27",
+        "old_sentences": 5,
+        "old_chars": 485
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1487906,
+      "measure_id": "HB 2202",
+      "vote_date": "2025-02-12",
+      "yea_description": "Voted for House Bill 2202, a bill to let farmers move an old groundwater pumping right onto new ground. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2202, a bill to let farmers move an old groundwater pumping right onto new ground. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-27",
+        "old_sentences": 4,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1491220,
+      "measure_id": "HB 2375",
+      "vote_date": "2025-02-17",
+      "yea_description": "Voted for House Bill 2375, a bill to make schools answer summer requests to assess a child for a disability within 15 days. The Arizona House passed it 33-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2375, a bill to make schools answer summer requests to assess a child for a disability within 15 days. The Arizona House passed it 33-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-26",
+        "old_sentences": 3,
+        "old_chars": 346
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1494778,
+      "measure_id": "HB 2110",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for House Bill 2110, which makes cities open at least 10 percent of older commercial property to housing. The Arizona House passed it 42-16, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2110, which makes cities open at least 10 percent of older commercial property to housing. The Arizona House passed it 42-16, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "42-16",
+        "old_sentences": 6,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1495180,
+      "measure_id": "HB 2291",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for House Bill 2291, which ends the rule that a pharmacist must put a red cap on a bottle of prescription opioids. The Arizona House passed it 36-22, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2291, which ends the rule that a pharmacist must put a red cap on a bottle of prescription opioids. The Arizona House passed it 36-22, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "36-22",
+        "old_sentences": 4,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1495196,
+      "measure_id": "HB 2450",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for House Bill 2450, a bill to tie how long unemployment benefits last to the jobless rate, from 12 to 24 weeks. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2450, a bill to tie how long unemployment benefits last to the jobless rate, from 12 to 24 weeks. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-26",
+        "old_sentences": 5,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1498712,
+      "measure_id": "HB 2121",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 2121, a bill to make able-bodied adults under 60 join a work program to keep food assistance. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2121, a bill to make able-bodied adults under 60 join a work program to keep food assistance. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-27",
+        "old_sentences": 4,
+        "old_chars": 376
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1499114,
+      "measure_id": "HB 2122",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 2122, a bill to stop Arizona easing the work rule attached to food assistance. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2122, a bill to stop Arizona easing the work rule attached to food assistance. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-27",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1499431,
+      "measure_id": "HB 2447",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 2447, which makes cities let staff approve site plans and land splits without a public hearing. The Arizona House passed it 38-22, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2447, which makes cities let staff approve site plans and land splits without a public hearing. The Arizona House passed it 38-22, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "38-22",
+        "old_sentences": 7,
+        "old_chars": 545
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500064,
+      "measure_id": "HB 2374",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2374, which raises the offense class for stalking, threats and assault done by agents of a foreign government. The Arizona House passed it 35-25, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2374, which raises the offense class for stalking, threats and assault done by agents of a foreign government. The Arizona House passed it 35-25, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "35-25",
+        "old_sentences": 5,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500404,
+      "measure_id": "HB 2527",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2527, a bill to bar retiring a power plant until a plant of equal output is available. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2527, a bill to bar retiring a power plant until a plant of equal output is available. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-27",
+        "old_sentences": 4,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500433,
+      "measure_id": "HB 2788",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2788, a bill to make electric utilities file a 15-year resource plan every three years. The Arizona House passed it 31-28, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2788, a bill to make electric utilities file a 15-year resource plan every three years. The Arizona House passed it 31-28, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-28",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500460,
+      "measure_id": "HB 2173",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2173, which bars health licensing boards from asking applicants whether they ever sought mental health help. The Arizona House passed it 34-25, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2173, which bars health licensing boards from asking applicants whether they ever sought mental health help. The Arizona House passed it 34-25, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "34-25",
+        "old_sentences": 5,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500479,
+      "measure_id": "HB 2165",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2165, a bill to make the state seek federal permission to keep food assistance from being spent on soda. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2165, a bill to make the state seek federal permission to keep food assistance from being spent on soda. The Arizona House passed it 32-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-27",
+        "old_sentences": 4,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1500664,
+      "measure_id": "HB 2573",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for House Bill 2573, a bill to move wine grapes and soil-free crops outside Arizona's irrigation limits. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2573, a bill to move wine grapes and soil-free crops outside Arizona's irrigation limits. The Arizona House passed it 33-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-27",
+        "old_sentences": 4,
+        "old_chars": 384
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1503398,
+      "measure_id": "HB 2154",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 2154, a bill to drop voters from the early ballot list when their mail comes back undelivered. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2154, a bill to drop voters from the early ballot list when their mail comes back undelivered. The Arizona House passed it 32-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-26",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1503490,
+      "measure_id": "HB 2607",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 2607, which sets fixed prison terms of 5 to 15 years for carrying 200 grams or more of fentanyl in a vehicle. The Arizona House passed it 46-12, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2607, which sets fixed prison terms of 5 to 15 years for carrying 200 grams or more of fentanyl in a vehicle. The Arizona House passed it 46-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "46-12",
+        "old_sentences": 6,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1503753,
+      "measure_id": "HB 2880",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for House Bill 2880, which bans overnight encampments on university and community college campuses. The Arizona House passed it 41-17, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2880, which bans overnight encampments on university and community college campuses. The Arizona House passed it 41-17, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "41-17",
+        "old_sentences": 6,
+        "old_chars": 635
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1506024,
+      "measure_id": "HB 2440",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for House Bill 2440, a bill to shield county supervisors from prosecution for voting against certifying an election. The Arizona House passed it 33-24, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2440, a bill to shield county supervisors from prosecution for voting against certifying an election. The Arizona House passed it 33-24, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-24",
+        "old_sentences": 5,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1513980,
+      "measure_id": "HB 2574",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted for House Bill 2574, a bill to let counties approve small subdivisions without a water supply test. The Arizona House passed it 31-26, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2574, a bill to let counties approve small subdivisions without a water supply test. The Arizona House passed it 31-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-26",
+        "old_sentences": 4,
+        "old_chars": 389
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1520278,
+      "measure_id": "SB 1437",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Senate Bill 1437, which makes school board members and substitute teachers report suspected child abuse. The Arizona House passed it 38-20, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1437, which makes school board members and substitute teachers report suspected child abuse. The Arizona House passed it 38-20, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "38-20",
+        "old_sentences": 5,
+        "old_chars": 557
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1527145,
+      "measure_id": "SB 1060",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for Senate Bill 1060, which makes police forces give an officer the papers 24 hours before an internal inquiry interview. The Arizona House passed it 38-20, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1060, which makes police forces give an officer the papers 24 hours before an internal inquiry interview. The Arizona House passed it 38-20, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "38-20",
+        "old_sentences": 8,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1528727,
+      "measure_id": "SB 1159",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 1159, which raises the unpaid wage claim a worker can bring to the Industrial Commission from $5,000 to $12,000. The Arizona House passed it 42-15, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1159, which raises the unpaid wage claim a worker can bring to the Industrial Commission from $5,000 to $12,000. The Arizona House passed it 42-15, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "42-15",
+        "old_sentences": 4,
+        "old_chars": 384
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1530896,
+      "measure_id": "SB 1071",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 1071, a bill to check food assistance households against lottery and gambling winnings. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1071, a bill to check food assistance households against lottery and gambling winnings. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 5,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1531379,
+      "measure_id": "SB 1501",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 1501, a bill to require electricity grid security reviews every two years. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1501, a bill to require electricity grid security reviews every two years. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 4,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1541854,
+      "measure_id": "SB 1333",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for Senate Bill 1333, which pushes the state to place foster children in family homes rather than group settings. The Arizona House passed it 44-11, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1333, which pushes the state to place foster children in family homes rather than group settings. The Arizona House passed it 44-11, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "44-11",
+        "old_sentences": 5,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1544215,
+      "measure_id": "SB 1164",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for Senate Bill 1164, a bill to push local officials toward federal immigration enforcement and make jails honor detainers. The Arizona House passed it 33-26, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1164, a bill to push local officials toward federal immigration enforcement and make jails honor detainers. The Arizona House passed it 33-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-26",
+        "old_sentences": 6,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1545093,
+      "measure_id": "SB 1461",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for Senate Bill 1461, which stops a police officer being fired for failing probation after a promotion. The Arizona House passed it 42-17, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1461, which stops a police officer being fired for failing probation after a promotion. The Arizona House passed it 42-17, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "42-17",
+        "old_sentences": 5,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1547246,
+      "measure_id": "SB 1296",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted for Senate Bill 1296, a bill to make unemployment claimants report five job search actions every week. The Arizona House passed it 32-23, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1296, a bill to make unemployment claimants report five job search actions every week. The Arizona House passed it 32-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-23",
+        "old_sentences": 5,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1548760,
+      "measure_id": "SB 1584",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 1584, a bill to make the state and local governments hire on merit and nothing else. The Arizona House passed it 31-21, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1584, a bill to make the state and local governments hire on merit and nothing else. The Arizona House passed it 31-21, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-21",
+        "old_sentences": 5,
+        "old_chars": 472
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1548881,
+      "measure_id": "SB 1123",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 1123, a bill to set security rules for the paper ballots are printed on. The Arizona House passed it 31-21, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1123, a bill to set security rules for the paper ballots are printed on. The Arizona House passed it 31-21, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-21",
+        "old_sentences": 5,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1549877,
+      "measure_id": "SB 1612",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1612, a bill to put the state health program under Arizona's procurement rules. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1612, a bill to put the state health program under Arizona's procurement rules. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1549878,
+      "measure_id": "SB 1089",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1089, a bill to make the transport department explain passing over the cheapest bid. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1089, a bill to make the transport department explain passing over the cheapest bid. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-25",
+        "old_sentences": 4,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1549942,
+      "measure_id": "SB 1280",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1280, a bill to make counties publish the cast vote record within 48 hours of the county count. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1280, a bill to make counties publish the cast vote record within 48 hours of the county count. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-25",
+        "old_sentences": 5,
+        "old_chars": 457
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1550082,
+      "measure_id": "SB 1705",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1705, a bill to let a court fine a local official personally for making local gun rules. The Arizona House passed it 31-24, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1705, a bill to let a court fine a local official personally for making local gun rules. The Arizona House passed it 31-24, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-24",
+        "old_sentences": 4,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1550159,
+      "measure_id": "SB 1256",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1256, a bill to bar state agencies from using diversity, equity and inclusion programs in hiring. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1256, a bill to bar state agencies from using diversity, equity and inclusion programs in hiring. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-25",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1550685,
+      "measure_id": "SB 1610",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 1610, a bill to make county jails send arrestees' details to federal immigration agents. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1610, a bill to make county jails send arrestees' details to federal immigration agents. The Arizona House passed it 33-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-25",
+        "old_sentences": 4,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1551093,
+      "measure_id": "SB 1462",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 1462, which extends the law on sharing explicit images to computer-made fakes of real people. The Arizona House passed it 33-24, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1462, which extends the law on sharing explicit images to computer-made fakes of real people. The Arizona House passed it 33-24, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-24",
+        "old_sentences": 5,
+        "old_chars": 465
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1551353,
+      "measure_id": "SB 1378",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 1378, which stops a homeowners association banning a political flag. The Arizona House passed it 32-25, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1378, which stops a homeowners association banning a political flag. The Arizona House passed it 32-25, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 5,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1558911,
+      "measure_id": "SB 1316",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for Senate Bill 1316, which makes Arizona's review of deaths tied to pregnancy permanent. The Arizona House passed it 42-14, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1316, which makes Arizona's review of deaths tied to pregnancy permanent. The Arizona House passed it 42-14, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "42-14",
+        "old_sentences": 5,
+        "old_chars": 494
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1559077,
+      "measure_id": "SB 1694",
+      "vote_date": "2025-04-28",
+      "yea_description": "Voted for Senate Bill 1694, a bill to cut off state money to any public college that offers a diversity, equity and inclusion course. The Arizona House passed it 32-23, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1694, a bill to cut off state money to any public college that offers a diversity, equity and inclusion course. The Arizona House passed it 32-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-23",
+        "old_sentences": 4,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1562137,
+      "measure_id": "SB 1590",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 1590, which removes the yearly dollar limit on insurance coverage for autism therapy. The Arizona House passed it 43-12, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1590, which removes the yearly dollar limit on insurance coverage for autism therapy. The Arizona House passed it 43-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "43-12",
+        "old_sentences": 6,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563544,
+      "measure_id": "SB 1020",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1020, a bill to stop universities and community colleges banning guns on campus. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1020, a bill to stop universities and community colleges banning guns on campus. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 4,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563579,
+      "measure_id": "SB 1014",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1014, a bill to take firearm suppressors off Arizona's list of prohibited weapons. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1014, a bill to take firearm suppressors off Arizona's list of prohibited weapons. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 4,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563639,
+      "measure_id": "SB 1002",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1002, a bill to stop school staff using a pupil's chosen name or pronoun without written parental permission. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1002, a bill to stop school staff using a pupil's chosen name or pronoun without written parental permission. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563691,
+      "measure_id": "SB 1003",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1003, a bill to make schools provide separate restrooms and changing rooms on request. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1003, a bill to make schools provide separate restrooms and changing rooms on request. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 4,
+        "old_chars": 405
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563694,
+      "measure_id": "SB 1586",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1586, a bill to make clinicians liable for the cost of reversing gender transition care given to a minor. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1586, a bill to make clinicians liable for the cost of reversing gender transition care given to a minor. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 5,
+        "old_chars": 423
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563724,
+      "measure_id": "SB 1036",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1036, a bill to let any resident sue over public money being used to sway an election. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1036, a bill to let any resident sue over public money being used to sway an election. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 5,
+        "old_chars": 413
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563753,
+      "measure_id": "SB 1307",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1307, which makes the state plan for small electric aircraft landing pads and charging from September 2026. The Arizona House passed it 44-12, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1307, which makes the state plan for small electric aircraft landing pads and charging from September 2026. The Arizona House passed it 44-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "44-12",
+        "old_sentences": 5,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1563788,
+      "measure_id": "SB 1725",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1725, a bill to cut the fentanyl amount that triggers the toughest sentences from 200 grams to 9. The Arizona House passed it 31-26, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1725, a bill to cut the fentanyl amount that triggers the toughest sentences from 200 grams to 9. The Arizona House passed it 31-26, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-26",
+        "old_sentences": 4,
+        "old_chars": 315
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1564528,
+      "measure_id": "SB 1088",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for Senate Bill 1088, a bill to tie Arizona government and its contractors to federal immigration enforcement. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1088, a bill to tie Arizona government and its contractors to federal immigration enforcement. The Arizona House passed it 31-27, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-27",
+        "old_sentences": 5,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1564920,
+      "measure_id": "SB 1064",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1064, a bill to set minimum security standards for vote counting machines. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1064, a bill to set minimum security standards for vote counting machines. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 4,
+        "old_chars": 414
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1564990,
+      "measure_id": "SB 1052",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1052, a bill to take the vote away from citizens who have never lived in the United States. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1052, a bill to take the vote away from citizens who have never lived in the United States. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 4,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565001,
+      "measure_id": "SB 1310",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1310, a bill to make filing a fake claim against someone's property a class 4 felony. The Arizona House passed it 34-23, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1310, a bill to make filing a fake claim against someone's property a class 4 felony. The Arizona House passed it 34-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "34-23",
+        "old_sentences": 4,
+        "old_chars": 342
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565002,
+      "measure_id": "SB 1098",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1098, a bill to require proof of identity to hand in an early ballot. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1098, a bill to require proof of identity to hand in an early ballot. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 5,
+        "old_chars": 397
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565057,
+      "measure_id": "SB 1295",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1295, which makes using a computer-made voice, image or video of a real person to cheat people a felony. The Arizona House passed it 40-17, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1295, which makes using a computer-made voice, image or video of a real person to cheat people a felony. The Arizona House passed it 40-17, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "40-17",
+        "old_sentences": 5,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565143,
+      "measure_id": "SB 1143",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1143, a bill to block government records showing who owns firearms. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1143, a bill to block government records showing who owns firearms. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 4,
+        "old_chars": 419
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565150,
+      "measure_id": "SB 1268",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1268, a bill to make hospitals ask patients about their immigration status. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1268, a bill to make hospitals ask patients about their immigration status. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 4,
+        "old_chars": 485
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565513,
+      "measure_id": "SB 1518",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 1518, a bill to make old groundwater pumping rights tradable. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1518, a bill to make old groundwater pumping rights tradable. The Arizona House passed it 32-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "32-25",
+        "old_sentences": 4,
+        "old_chars": 416
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1565762,
+      "measure_id": "SB 1300",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 1300, a bill to let Cochise County voters decide groundwater limits for part of the San Simon valley. The Arizona House passed it 31-23, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1300, a bill to let Cochise County voters decide groundwater limits for part of the San Simon valley. The Arizona House passed it 31-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-23",
+        "old_sentences": 4,
+        "old_chars": 390
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1566387,
+      "measure_id": "SB 1097",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 1097, a bill to make public schools serve as polling places and close on election days. The Arizona House passed it 31-23, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1097, a bill to make public schools serve as polling places and close on election days. The Arizona House passed it 31-23, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-23",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1567301,
+      "measure_id": "SB 1353",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for Senate Bill 1353, which gives larger cities 15 working days to answer a single-family home permit request. The Arizona House passed it 44-14, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1353, which gives larger cities 15 working days to answer a single-family home permit request. The Arizona House passed it 44-14, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "44-14",
+        "old_sentences": 7,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1567335,
+      "measure_id": "SB 1351",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for Senate Bill 1351, which creates a new felony of gift card theft. The Arizona House passed it 33-25, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1351, which creates a new felony of gift card theft. The Arizona House passed it 33-25, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "33-25",
+        "old_sentences": 5,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1584733,
+      "measure_id": "SB 1247",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted for Senate Bill 1247, which raises the age for buying tobacco and vaping products from 18 to 21. The Arizona House passed it 39-13, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1247, which raises the age for buying tobacco and vaping products from 18 to 21. The Arizona House passed it 39-13, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "39-13",
+        "old_sentences": 4,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1592452,
+      "measure_id": "SB 1514",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 1514, a bill to make arbitration binding for warehouse workers. The Arizona House passed it 34-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1514, a bill to make arbitration binding for warehouse workers. The Arizona House passed it 34-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "34-25",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1594680,
+      "measure_id": "SB 1019",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for Senate Bill 1019, a bill to ban photo enforcement of traffic laws. The Arizona House passed it 34-22, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1019, a bill to ban photo enforcement of traffic laws. The Arizona House passed it 34-22, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "34-22",
+        "old_sentences": 4,
+        "old_chars": 337
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1594703,
+      "measure_id": "SB 1001",
+      "vote_date": "2025-06-24",
+      "yea_description": "Voted for Senate Bill 1001, a bill to let counties count early ballots on site and tighten late drop-offs. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1001, a bill to let counties count early ballots on site and tighten late drop-offs. The Arizona House passed it 31-25, and the Governor vetoed it.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 4,
+        "old_chars": 485
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1595696,
+      "measure_id": "SB 1529",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 1529, which makes cities keep ready-made house plans any builder can use. The Arizona House passed it 44-12, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1529, which makes cities keep ready-made house plans any builder can use. The Arizona House passed it 44-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "44-12",
+        "old_sentences": 6,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "house",
+      "session": "2155",
+      "roll": 1595751,
+      "measure_id": "SB 1537",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 1537, which sets up a state license for housing people move into after prison. The Arizona House passed it 31-25, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1537, which sets up a state license for housing people move into after prison. The Arizona House passed it 31-25, and the Governor signed it into law.",
+      "_current": {
+        "question": "House - Third Reading",
+        "tally": "31-25",
+        "old_sentences": 5,
+        "old_chars": 470
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1486522,
+      "measure_id": "SB 1003",
+      "vote_date": "2025-02-11",
+      "yea_description": "Voted for Senate Bill 1003, a bill to make schools provide separate restrooms and changing rooms on request. The Arizona Senate passed it 17-9, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1003, a bill to make schools provide separate restrooms and changing rooms on request. The Arizona Senate passed it 17-9, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-9",
+        "old_sentences": 4,
+        "old_chars": 405
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1495006,
+      "measure_id": "SB 1002",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for Senate Bill 1002, a bill to stop school staff using a pupil's chosen name or pronoun without written parental permission. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1002, a bill to stop school staff using a pupil's chosen name or pronoun without written parental permission. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 481
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1495018,
+      "measure_id": "SB 1256",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for Senate Bill 1256, a bill to bar state agencies from using diversity, equity and inclusion programs in hiring. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1256, a bill to bar state agencies from using diversity, equity and inclusion programs in hiring. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 428
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1495101,
+      "measure_id": "SB 1019",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for Senate Bill 1019, a bill to ban photo enforcement of traffic laws. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1019, a bill to ban photo enforcement of traffic laws. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-13",
+        "old_sentences": 4,
+        "old_chars": 338
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1499978,
+      "measure_id": "SB 1064",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate Bill 1064, a bill to set minimum security standards for vote counting machines. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1064, a bill to set minimum security standards for vote counting machines. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1500046,
+      "measure_id": "SB 1052",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate Bill 1052, a bill to take the vote away from citizens who have never lived in the United States. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1052, a bill to take the vote away from citizens who have never lived in the United States. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 366
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1500188,
+      "measure_id": "SB 1268",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate Bill 1268, a bill to make hospitals ask patients about their immigration status. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1268, a bill to make hospitals ask patients about their immigration status. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 486
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1500244,
+      "measure_id": "SB 1725",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate Bill 1725, a bill to cut the fentanyl amount that triggers the toughest sentences from 200 grams to 9. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1725, a bill to cut the fentanyl amount that triggers the toughest sentences from 200 grams to 9. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1500284,
+      "measure_id": "SB 1310",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted for Senate Bill 1310, a bill to make filing a fake claim against someone's property a class 4 felony. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1310, a bill to make filing a fake claim against someone's property a class 4 felony. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1501530,
+      "measure_id": "SB 1060",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1060, which makes police forces give an officer the papers 24 hours before an internal inquiry interview. The Arizona Senate passed it 20-9, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1060, which makes police forces give an officer the papers 24 hours before an internal inquiry interview. The Arizona Senate passed it 20-9, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "20-9",
+        "old_sentences": 8,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1501563,
+      "measure_id": "SB 1014",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1014, a bill to take firearm suppressors off Arizona's list of prohibited weapons. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1014, a bill to take firearm suppressors off Arizona's list of prohibited weapons. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 333
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1501577,
+      "measure_id": "SB 1020",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1020, a bill to stop universities and community colleges banning guns on campus. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1020, a bill to stop universities and community colleges banning guns on campus. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1501740,
+      "measure_id": "SB 1612",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1612, a bill to put the state health program under Arizona's procurement rules. The Arizona Senate passed it 18-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1612, a bill to put the state health program under Arizona's procurement rules. The Arizona Senate passed it 18-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "18-11",
+        "old_sentences": 4,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1501761,
+      "measure_id": "SB 1164",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted for Senate Bill 1164, a bill to push local officials toward federal immigration enforcement and make jails honor detainers. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1164, a bill to push local officials toward federal immigration enforcement and make jails honor detainers. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 6,
+        "old_chars": 449
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1503358,
+      "measure_id": "SB 1123",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted for Senate Bill 1123, a bill to set security rules for the paper ballots are printed on. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1123, a bill to set security rules for the paper ballots are printed on. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1504424,
+      "measure_id": "SB 1351",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate Bill 1351, which creates a new felony of gift card theft. The Arizona Senate passed it 16-10, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1351, which creates a new felony of gift card theft. The Arizona Senate passed it 16-10, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-10",
+        "old_sentences": 5,
+        "old_chars": 461
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1504506,
+      "measure_id": "SB 1518",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate Bill 1518, a bill to make old groundwater pumping rights tradable. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1518, a bill to make old groundwater pumping rights tradable. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-11",
+        "old_sentences": 4,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1504554,
+      "measure_id": "SB 1308",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate Bill 1308, which tightens the rules for sober living homes. The Arizona Senate passed it 20-7, and the Governor signed it into law.",
+      "nay_description": "Voted against Senate Bill 1308, which tightens the rules for sober living homes. The Arizona Senate passed it 20-7, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "20-7",
+        "old_sentences": 5,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1504671,
+      "measure_id": "SB 1584",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate Bill 1584, a bill to make the state and local governments hire on merit and nothing else. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1584, a bill to make the state and local governments hire on merit and nothing else. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-11",
+        "old_sentences": 5,
+        "old_chars": 473
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1504889,
+      "measure_id": "SB 1694",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for Senate Bill 1694, a bill to cut off state money to any public college that offers a diversity, equity and inclusion course. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1694, a bill to cut off state money to any public college that offers a diversity, equity and inclusion course. The Arizona Senate passed it 16-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-11",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1505951,
+      "measure_id": "SB 1088",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 1088, a bill to tie Arizona government and its contractors to federal immigration enforcement. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1088, a bill to tie Arizona government and its contractors to federal immigration enforcement. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 436
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1505995,
+      "measure_id": "SB 1098",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 1098, a bill to require proof of identity to hand in an early ballot. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1098, a bill to require proof of identity to hand in an early ballot. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 398
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1506197,
+      "measure_id": "SB 1143",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 1143, a bill to block government records showing who owns firearms. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1143, a bill to block government records showing who owns firearms. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 420
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1506355,
+      "measure_id": "SB 1586",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 1586, a bill to make clinicians liable for the cost of reversing gender transition care given to a minor. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1586, a bill to make clinicians liable for the cost of reversing gender transition care given to a minor. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1506405,
+      "measure_id": "SB 1097",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 1097, a bill to make public schools serve as polling places and close on election days. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1097, a bill to make public schools serve as polling places and close on election days. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1507354,
+      "measure_id": "SB 1705",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted for Senate Bill 1705, a bill to let a court fine a local official personally for making local gun rules. The Arizona Senate passed it 16-9, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1705, a bill to let a court fine a local official personally for making local gun rules. The Arizona Senate passed it 16-9, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-9",
+        "old_sentences": 4,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1512282,
+      "measure_id": "SB 1610",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for Senate Bill 1610, a bill to make county jails send arrestees' details to federal immigration agents. The Arizona Senate passed it 17-10, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1610, a bill to make county jails send arrestees' details to federal immigration agents. The Arizona Senate passed it 17-10, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-10",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1517526,
+      "measure_id": "SB 1089",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 1089, a bill to make the transport department explain passing over the cheapest bid. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against Senate Bill 1089, a bill to make the transport department explain passing over the cheapest bid. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1527485,
+      "measure_id": "HB 2447",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 2447, which makes cities let staff approve site plans and land splits without a public hearing. The Arizona Senate passed it 19-8, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2447, which makes cities let staff approve site plans and land splits without a public hearing. The Arizona Senate passed it 19-8, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "19-8",
+        "old_sentences": 7,
+        "old_chars": 545
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1532796,
+      "measure_id": "HB 2291",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for House Bill 2291, which ends the rule that a pharmacist must put a red cap on a bottle of prescription opioids. The Arizona Senate passed it 16-13, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2291, which ends the rule that a pharmacist must put a red cap on a bottle of prescription opioids. The Arizona Senate passed it 16-13, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-13",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1534405,
+      "measure_id": "HB 2114",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for House Bill 2114, which raises the penalty for an adult over 21 who has sex with a teenager aged 15 to 17. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2114, which raises the penalty for an adult over 21 who has sex with a teenager aged 15 to 17. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 4,
+        "old_chars": 425
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1539396,
+      "measure_id": "HB 2165",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 2165, a bill to make the state seek federal permission to keep food assistance from being spent on soda. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2165, a bill to make the state seek federal permission to keep food assistance from being spent on soda. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1539490,
+      "measure_id": "HB 2004",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 2004, a bill to stop county recorders sending voter registration cards to out-of-state addresses. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2004, a bill to stop county recorders sending voter registration cards to out-of-state addresses. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 413
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1539608,
+      "measure_id": "HB 2062",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 2062, a bill to set one meaning for sex-based words across state law. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2062, a bill to set one meaning for sex-based words across state law. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 5,
+        "old_chars": 486
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1541785,
+      "measure_id": "HB 2202",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2202, a bill to let farmers move an old groundwater pumping right onto new ground. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2202, a bill to let farmers move an old groundwater pumping right onto new ground. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-14",
+        "old_sentences": 4,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1541844,
+      "measure_id": "HB 2099",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2099, a bill to require Arizona officials to help enforce federal immigration law. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2099, a bill to require Arizona officials to help enforce federal immigration law. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 5,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1541937,
+      "measure_id": "HB 2089",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2089, a bill to let voters end a groundwater management area by petition after ten years. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2089, a bill to let voters end a groundwater management area by petition after ten years. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-14",
+        "old_sentences": 5,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1542303,
+      "measure_id": "HB 2449",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2449, a bill to check state health coverage members against gambling records. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2449, a bill to check state health coverage members against gambling records. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 4,
+        "old_chars": 405
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1543086,
+      "measure_id": "HB 2088",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2088, a bill to let the state water director shrink a groundwater management area. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2088, a bill to let the state water director shrink a groundwater management area. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-14",
+        "old_sentences": 4,
+        "old_chars": 380
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1543237,
+      "measure_id": "HB 2203",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2203, a bill to widen the years used to set how much groundwater a farm may keep pumping. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2203, a bill to widen the years used to set how much groundwater a farm may keep pumping. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-14",
+        "old_sentences": 4,
+        "old_chars": 355
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1543723,
+      "measure_id": "HB 2007",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 2007, a bill to ban paying anyone by the number of voter registration forms they collect. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2007, a bill to ban paying anyone by the number of voter registration forms they collect. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1543990,
+      "measure_id": "HB 2006",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 2006, a bill to make private senders of official-looking election mail print Not from a Government Agency on it. The Arizona Senate passed it 16-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2006, a bill to make private senders of official-looking election mail print Not from a Government Agency on it. The Arizona Senate passed it 16-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-12",
+        "old_sentences": 4,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1544413,
+      "measure_id": "HB 2514",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 2514, which makes schools tell parents before releasing a student's directory information. The Arizona Senate passed it 18-11, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2514, which makes schools tell parents before releasing a student's directory information. The Arizona Senate passed it 18-11, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "18-11",
+        "old_sentences": 5,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1548507,
+      "measure_id": "HB 2438",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House Bill 2438, a bill to stop a person changing the sex recorded on their birth certificate. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2438, a bill to stop a person changing the sex recorded on their birth certificate. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1548811,
+      "measure_id": "HB 2169",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House Bill 2169, a bill to make school boards meet in public buildings and post all meeting materials online. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2169, a bill to make school boards meet in public buildings and post all meeting materials online. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 5,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1548979,
+      "measure_id": "HB 2375",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House Bill 2375, a bill to make schools answer summer requests to assess a child for a disability within 15 days. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2375, a bill to make schools answer summer requests to assess a child for a disability within 15 days. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 3,
+        "old_chars": 347
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1549778,
+      "measure_id": "HB 2527",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2527, a bill to bar retiring a power plant until a plant of equal output is available. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2527, a bill to bar retiring a power plant until a plant of equal output is available. The Arizona Senate passed it 17-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 4,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1549805,
+      "measure_id": "HB 2574",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2574, a bill to let counties approve small subdivisions without a water supply test. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2574, a bill to let counties approve small subdivisions without a water supply test. The Arizona Senate passed it 16-14, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-14",
+        "old_sentences": 4,
+        "old_chars": 390
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1549814,
+      "measure_id": "HB 2607",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2607, which sets fixed prison terms of 5 to 15 years for carrying 200 grams or more of fentanyl in a vehicle. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2607, which sets fixed prison terms of 5 to 15 years for carrying 200 grams or more of fentanyl in a vehicle. The Arizona Senate passed it 17-13, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-13",
+        "old_sentences": 6,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1550078,
+      "measure_id": "HB 2788",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2788, a bill to make electric utilities file a 15-year resource plan every three years. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2788, a bill to make electric utilities file a 15-year resource plan every three years. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1550194,
+      "measure_id": "HB 2653",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2653, which lets crime victims and witnesses keep their names out of public records. The Arizona Senate passed it 22-7, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2653, which lets crime victims and witnesses keep their names out of public records. The Arizona Senate passed it 22-7, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "22-7",
+        "old_sentences": 5,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1551152,
+      "measure_id": "HB 2573",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 2573, a bill to move wine grapes and soil-free crops outside Arizona's irrigation limits. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2573, a bill to move wine grapes and soil-free crops outside Arizona's irrigation limits. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-13",
+        "old_sentences": 4,
+        "old_chars": 385
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560172,
+      "measure_id": "HB 2154",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2154, a bill to drop voters from the early ballot list when their mail comes back undelivered. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2154, a bill to drop voters from the early ballot list when their mail comes back undelivered. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 410
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560244,
+      "measure_id": "HB 2221",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2221, a bill to stop cities cutting police budgets below the previous year's. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2221, a bill to stop cities cutting police budgets below the previous year's. The Arizona Senate passed it 16-13, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-13",
+        "old_sentences": 4,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560273,
+      "measure_id": "HB 2222",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2222, a bill to require 30 days' warning before a public body settles a case. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2222, a bill to require 30 days' warning before a public body settles a case. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 420
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560323,
+      "measure_id": "HB 2122",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2122, a bill to stop Arizona easing the work rule attached to food assistance. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2122, a bill to stop Arizona easing the work rule attached to food assistance. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 428
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560325,
+      "measure_id": "HB 2121",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2121, a bill to make able-bodied adults under 60 join a work program to keep food assistance. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2121, a bill to make able-bodied adults under 60 join a work program to keep food assistance. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 377
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560390,
+      "measure_id": "HB 2074",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2074, which lets school safety grants pay for safety officers, equipment, training and building work. The Arizona Senate passed it 17-12, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2074, which lets school safety grants pay for safety officers, equipment, training and building work. The Arizona Senate passed it 17-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 6,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560413,
+      "measure_id": "HB 2046",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2046, a bill to set out how the hand count check on election results is run. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2046, a bill to set out how the hand count check on election results is run. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 431
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560471,
+      "measure_id": "HB 2233",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2233, a bill to make the Corporation Commission vote in public before lobbying. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2233, a bill to make the Corporation Commission vote in public before lobbying. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 4,
+        "old_chars": 423
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560493,
+      "measure_id": "HB 2440",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2440, a bill to shield county supervisors from prosecution for voting against certifying an election. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2440, a bill to shield county supervisors from prosecution for voting against certifying an election. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 5,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560518,
+      "measure_id": "HB 2017",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2017, a bill to close voting centers and cut back early voting sites. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2017, a bill to close voting centers and cut back early voting sites. The Arizona Senate passed it 17-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-12",
+        "old_sentences": 5,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560753,
+      "measure_id": "HB 2450",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2450, a bill to tie how long unemployment benefits last to the jobless rate, from 12 to 24 weeks. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2450, a bill to tie how long unemployment benefits last to the jobless rate, from 12 to 24 weeks. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 5,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560790,
+      "measure_id": "HB 2570",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2570, a bill to let irrigation users petition to cap new irrigation outside groundwater zones. The Arizona Senate passed it 16-12, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2570, a bill to let irrigation users petition to cap new irrigation outside groundwater zones. The Arizona Senate passed it 16-12, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-12",
+        "old_sentences": 4,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1560913,
+      "measure_id": "HB 2611",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for House Bill 2611, known as Preston's Law, which makes an assault by a group that injures the victim a class 4 felony. The Arizona Senate passed it 18-10, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2611, known as Preston's Law, which makes an assault by a group that injures the victim a class 4 felony. The Arizona Senate passed it 18-10, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "18-10",
+        "old_sentences": 5,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1562091,
+      "measure_id": "HB 2880",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 2880, which bans overnight encampments on university and community college campuses. The Arizona Senate passed it 18-10, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2880, which bans overnight encampments on university and community college campuses. The Arizona Senate passed it 18-10, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "18-10",
+        "old_sentences": 6,
+        "old_chars": 636
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1566377,
+      "measure_id": "HB 2868",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for House Bill 2868, a bill to ban diversity, equity and inclusion offices across much of Arizona government. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2868, a bill to ban diversity, equity and inclusion offices across much of Arizona government. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 5,
+        "old_chars": 432
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1566821,
+      "measure_id": "HB 2895",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for House Bill 2895, a bill to make public bodies post task order contracts online. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "nay_description": "Voted against House Bill 2895, a bill to make public bodies post task order contracts online. The Arizona Senate passed it 17-11, and the Governor vetoed it.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "17-11",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1567388,
+      "measure_id": "HB 2928",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 2928, which makes counties allow small second homes on lots zoned for one house. The Arizona Senate passed it 21-6, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2928, which makes counties allow small second homes on lots zoned for one house. The Arizona Senate passed it 21-6, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "21-6",
+        "old_sentences": 7,
+        "old_chars": 600
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1568089,
+      "measure_id": "HB 2195",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 2195, which makes apps aimed at children keep mature advertising off their screens. The Arizona Senate passed it 16-9, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2195, which makes apps aimed at children keep mature advertising off their screens. The Arizona Senate passed it 16-9, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-9",
+        "old_sentences": 6,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1592311,
+      "measure_id": "HB 2386",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for House Bill 2386, which sets yearly pay benchmarks so the state police can compete with big city and county forces. The Arizona Senate passed it 22-6, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2386, which sets yearly pay benchmarks so the state police can compete with big city and county forces. The Arizona Senate passed it 22-6, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "22-6",
+        "old_sentences": 5,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "AZ",
+      "chamber": "senate",
+      "session": "2155",
+      "roll": 1592838,
+      "measure_id": "HB 2374",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for House Bill 2374, which raises the offense class for stalking, threats and assault done by agents of a foreign government. The Arizona Senate passed it 16-12, and the Governor signed it into law.",
+      "nay_description": "Voted against House Bill 2374, which raises the offense class for stalking, threats and assault done by agents of a foreign government. The Arizona Senate passed it 16-12, and the Governor signed it into law.",
+      "_current": {
+        "question": "Senate - Third Reading",
+        "tally": "16-12",
+        "old_sentences": 5,
+        "old_chars": 505
+      }
+    }
+  ]
+}

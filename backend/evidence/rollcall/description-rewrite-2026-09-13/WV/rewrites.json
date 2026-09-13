@@ -1,0 +1,500 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1509162,
+      "measure_id": "HB 2710",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted for House Bill 2710, the Truth in Giving Act, a bill to make resale stores post who benefits from donated goods. The House passed it 70-27, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 2710, the Truth in Giving Act, a bill to make resale stores post who benefits from donated goods. The House passed it 70-27, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 47)",
+        "tally": "70-27",
+        "old_sentences": 4,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1517068,
+      "measure_id": "HB 2719",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 2719, a bill to end the ban on companies giving money directly to candidates. The House rejected it 41-54, so it did not become law.",
+      "nay_description": "Voted against House Bill 2719, a bill to end the ban on companies giving money directly to candidates. The House rejected it 41-54, so it did not become law.",
+      "_current": {
+        "question": "House rejected (Roll No. 87)",
+        "tally": "41-54",
+        "old_sentences": 4,
+        "old_chars": 417
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1524865,
+      "measure_id": "SB 460",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for Senate Bill 460, a bill to let parents opt children out of school vaccine requirements for religious reasons. The House rejected it 42-56, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 460, a bill to let parents opt children out of school vaccine requirements for religious reasons. The House rejected it 42-56, so it did not become law.",
+      "_current": {
+        "question": "House rejected (Roll No. 162)",
+        "tally": "42-56",
+        "old_sentences": 4,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1530804,
+      "measure_id": "HB 3276",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for House Bill 3276, a bill to let public water and sewer utilities raise rates yearly without a hearing. The House passed it 70-28, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 3276, a bill to let public water and sewer utilities raise rates yearly without a hearing. The House passed it 70-28, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 286)",
+        "tally": "70-28",
+        "old_sentences": 4,
+        "old_chars": 388
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1534352,
+      "measure_id": "HB 3412",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for House Bill 3412, a bill to remove the Legislature from the state's Freedom of Information Act. The House passed it 58-42, but the two chambers never agreed on a final version, so it did not become law.",
+      "nay_description": "Voted against House Bill 3412, a bill to remove the Legislature from the state's Freedom of Information Act. The House passed it 58-42, but the two chambers never agreed on a final version, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 359)",
+        "tally": "58-42",
+        "old_sentences": 4,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1534391,
+      "measure_id": "HB 3446",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for House Bill 3446, a bill to make every public high school help each student file the federal student aid form. The House passed it 75-24, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 3446, a bill to make every public high school help each student file the federal student aid form. The House passed it 75-24, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 360)",
+        "tally": "75-24",
+        "old_sentences": 4,
+        "old_chars": 514
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1541471,
+      "measure_id": "HB 2013",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 2013, which takes civil service and grievance rights away from new hires in five state agencies. The House agreed to the Senate version 70-27 and it became law.",
+      "nay_description": "Voted against House Bill 2013, which takes civil service and grievance rights away from new hires in five state agencies. The House agreed to the Senate version 70-27 and it became law.",
+      "_current": {
+        "question": "House concurred in Senate amendment and passed bill (Roll No. 423)",
+        "tally": "70-27",
+        "old_sentences": 5,
+        "old_chars": 603
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2196",
+      "roll": 1545492,
+      "measure_id": "SB 526",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted for Senate Bill 526, which lets pharmacists prescribe drugs for flu, COVID-19 and RSV confirmed by a simple test. The House passed it 72-25 and it became law.",
+      "nay_description": "Voted against Senate Bill 526, which lets pharmacists prescribe drugs for flu, COVID-19 and RSV confirmed by a simple test. The House passed it 72-25 and it became law.",
+      "_current": {
+        "question": "Passed House (Roll No. 507)",
+        "tally": "72-25",
+        "old_sentences": 4,
+        "old_chars": 554
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1616514,
+      "measure_id": "HB 4081",
+      "vote_date": "2026-01-23",
+      "yea_description": "Voted for House Bill 4081, a bill to create grants for food and hygiene pantries at public colleges. The House passed it 71-22, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 4081, a bill to create grants for food and hygiene pantries at public colleges. The House passed it 71-22, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 12)",
+        "tally": "71-22",
+        "old_sentences": 4,
+        "old_chars": 438
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1628052,
+      "measure_id": "HB 4198",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted for House Bill 4198, a bill to make every employer check new hires through E-Verify. The House passed it 69-24 and the Senate passed a changed version, but the House never agreed to those changes, so it did not become law.",
+      "nay_description": "Voted against House Bill 4198, a bill to make every employer check new hires through E-Verify. The House passed it 69-24 and the Senate passed a changed version, but the House never agreed to those changes, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 71)",
+        "tally": "69-24",
+        "old_sentences": 4,
+        "old_chars": 538
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1650500,
+      "measure_id": "HB 5319",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted for House Bill 5319, a bill to make camping without permission on public property a crime. The House passed it 62-32, but the Senate never voted on it, so it did not become law.",
+      "nay_description": "Voted against House Bill 5319, a bill to make camping without permission on public property a crime. The House passed it 62-32, but the Senate never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed House (Roll No. 266)",
+        "tally": "62-32",
+        "old_sentences": 4,
+        "old_chars": 576
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1661373,
+      "measure_id": "SB 641",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted for Senate Bill 641, which narrows which aboveground storage tanks the state regulates near drinking water. The House passed it 58-34 and it became law.",
+      "nay_description": "Voted against Senate Bill 641, which narrows which aboveground storage tanks the state regulates near drinking water. The House passed it 58-34 and it became law.",
+      "_current": {
+        "question": "Passed House (Roll No. 431)",
+        "tally": "58-34",
+        "old_sentences": 5,
+        "old_chars": 780
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1661410,
+      "measure_id": "SB 586",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted for Senate Bill 586, which limits backflow prevention inspections at public water systems to once every three years. The House passed it 68-27 and it became law.",
+      "nay_description": "Voted against Senate Bill 586, which limits backflow prevention inspections at public water systems to once every three years. The House passed it 68-27 and it became law.",
+      "_current": {
+        "question": "Passed House (Roll No. 430)",
+        "tally": "68-27",
+        "old_sentences": 4,
+        "old_chars": 593
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "house",
+      "session": "2254",
+      "roll": 1663279,
+      "measure_id": "HB 4025",
+      "vote_date": "2026-03-14",
+      "yea_description": "Voted for House Bill 4025, which takes civil service and grievance rights away from new hires in the three health departments. The House agreed to the Senate version 62-34 and it became law.",
+      "nay_description": "Voted against House Bill 4025, which takes civil service and grievance rights away from new hires in the three health departments. The House agreed to the Senate version 62-34 and it became law.",
+      "_current": {
+        "question": "House concurred in Senate amendment and passed bill (Roll No. 670)",
+        "tally": "62-34",
+        "old_sentences": 5,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1496143,
+      "measure_id": "SB 460",
+      "vote_date": "2025-02-21",
+      "yea_description": "Voted for Senate Bill 460, a bill to let parents opt children out of school vaccine requirements for religious reasons. The Senate passed it 20-12, but the House rejected its own amended version, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 460, a bill to let parents opt children out of school vaccine requirements for religious reasons. The Senate passed it 20-12, but the House rejected its own amended version, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 18)",
+        "tally": "20-12",
+        "old_sentences": 4,
+        "old_chars": 486
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1518120,
+      "measure_id": "SB 592",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for Senate Bill 592, a bill to remove several kinds of storage tanks from the post-2014 chemical spill safety law. The Senate passed it 25-7, but the House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 592, a bill to remove several kinds of storage tanks from the post-2014 chemical spill safety law. The Senate passed it 25-7, but the House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 113)",
+        "tally": "25-7",
+        "old_sentences": 4,
+        "old_chars": 576
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1519785,
+      "measure_id": "SB 548",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Senate Bill 548, a bill to require yearly youth violence prevention training in public schools. The Senate passed it 26-8, but the House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 548, a bill to require yearly youth violence prevention training in public schools. The Senate passed it 26-8, but the House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 122)",
+        "tally": "26-8",
+        "old_sentences": 4,
+        "old_chars": 586
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1524953,
+      "measure_id": "SB 579",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for Senate Bill 579, a bill to bar Home Rule cities from protecting groups state law does not already protect. The Senate passed it 25-8, but the House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 579, a bill to bar Home Rule cities from protecting groups state law does not already protect. The Senate passed it 25-8, but the House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 159)",
+        "tally": "25-8",
+        "old_sentences": 4,
+        "old_chars": 475
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1530842,
+      "measure_id": "SB 718",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 718, a bill to make hospitals publish their prices, facility fees and insurer discount contracts. The Senate passed it 22-12, but the House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 718, a bill to make hospitals publish their prices, facility fees and insurer discount contracts. The Senate passed it 22-12, but the House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 249)",
+        "tally": "22-12",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1534410,
+      "measure_id": "SB 730",
+      "vote_date": "2025-04-02",
+      "yea_description": "Voted for Senate Bill 730, a bill to make forest carbon offset deals be registered with the state and recorded at the courthouse. The Senate rejected it 16-18, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 730, a bill to make forest carbon offset deals be registered with the state and recorded at the courthouse. The Senate rejected it 16-18, so it did not become law.",
+      "_current": {
+        "question": "Rejected by Senate (Roll No. 285)",
+        "tally": "16-18",
+        "old_sentences": 4,
+        "old_chars": 406
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1535821,
+      "measure_id": "HB 2513",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for House Bill 2513, which raises required yearly training for county school board members from seven hours to twelve. The Senate passed it 27-7 and it became law.",
+      "nay_description": "Voted against House Bill 2513, which raises required yearly training for county school board members from seven hours to twelve. The Senate passed it 27-7 and it became law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 303)",
+        "tally": "27-7",
+        "old_sentences": 4,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1539358,
+      "measure_id": "HB 2013",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 2013, which takes civil service and grievance rights away from new hires in five state agencies. The Senate passed it 24-10 and it became law.",
+      "nay_description": "Voted against House Bill 2013, which takes civil service and grievance rights away from new hires in five state agencies. The Senate passed it 24-10 and it became law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 358)",
+        "tally": "24-10",
+        "old_sentences": 5,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1541880,
+      "measure_id": "HB 3017",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 3017, a bill to make counties inspect every ballot-counting machine for modems before early voting. The Senate rejected the amended bill 16-18, so it did not become law.",
+      "nay_description": "Voted against House Bill 3017, a bill to make counties inspect every ballot-counting machine for modems before early voting. The Senate rejected the amended bill 16-18, so it did not become law.",
+      "_current": {
+        "question": "Rejected by Senate (Roll No. 403)",
+        "tally": "16-18",
+        "old_sentences": 3,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1543284,
+      "measure_id": "HB 3444",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for House Bill 3444, which repeals the old laws on newborn eye medication and reporting. The Senate passed it 18-15 and it became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 3444, which repeals the old laws on newborn eye medication and reporting. The Senate passed it 18-15 and it became law without the Governor's signature.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 447)",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1545631,
+      "measure_id": "HB 3412",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted for House Bill 3412, a bill to remove the Legislature from the state's Freedom of Information Act. The Senate passed it 25-9, but the House never agreed to the rewrite, so it did not become law.",
+      "nay_description": "Voted against House Bill 3412, a bill to remove the Legislature from the state's Freedom of Information Act. The Senate passed it 25-9, but the House never agreed to the rewrite, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 503)",
+        "tally": "25-9",
+        "old_sentences": 4,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1546665,
+      "measure_id": "SB 587",
+      "vote_date": "2025-04-12",
+      "yea_description": "Voted for Senate Bill 587, which doubles the point at which governments must seek competing construction bids to $50,000. The Senate agreed to the House version 27-7 and it became law.",
+      "nay_description": "Voted against Senate Bill 587, which doubles the point at which governments must seek competing construction bids to $50,000. The Senate agreed to the House version 27-7 and it became law.",
+      "_current": {
+        "question": "Senate concurred in House amendments and passed bill (Roll No. 553)",
+        "tally": "27-7",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2254",
+      "roll": 1652310,
+      "measure_id": "SB 963",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 963, a bill to limit when a domestic violence protective order can take away a person's guns. The Senate passed it 22-11, but the House never voted on passage, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 963, a bill to limit when a domestic violence protective order can take away a person's guns. The Senate passed it 22-11, but the House never voted on passage, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 346)",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2254",
+      "roll": 1652674,
+      "measure_id": "SB 420",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted for Senate Bill 420, a bill to push utilities to run coal plants at about two thirds of full output year round. The Senate passed it 22-11, but the House never voted on it, so it did not become law.",
+      "nay_description": "Voted against Senate Bill 420, a bill to push utilities to run coal plants at about two thirds of full output year round. The Senate passed it 22-11, but the House never voted on it, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 323)",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2254",
+      "roll": 1656964,
+      "measure_id": "HB 4005",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted for House Bill 4005, the Workforce Development Act of 2026, which follows federal law on which jobs are closed to workers under 18. The Senate passed it 27-7 and it became law.",
+      "nay_description": "Voted against House Bill 4005, the Workforce Development Act of 2026, which follows federal law on which jobs are closed to workers under 18. The Senate passed it 27-7 and it became law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 368)",
+        "tally": "27-7",
+        "old_sentences": 4,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2254",
+      "roll": 1662321,
+      "measure_id": "HB 4025",
+      "vote_date": "2026-03-13",
+      "yea_description": "Voted for House Bill 4025, which takes civil service and grievance rights away from new hires in the three health departments. The Senate passed it 24-9 and it became law.",
+      "nay_description": "Voted against House Bill 4025, which takes civil service and grievance rights away from new hires in the three health departments. The Senate passed it 24-9 and it became law.",
+      "_current": {
+        "question": "Passed Senate with amended title (Roll No. 527)",
+        "tally": "24-9",
+        "old_sentences": 5,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2254",
+      "roll": 1662807,
+      "measure_id": "SB 641",
+      "vote_date": "2026-03-13",
+      "yea_description": "Voted for Senate Bill 641, which narrows which aboveground storage tanks the state regulates near drinking water. The Senate agreed to the House version 25-8 and it became law.",
+      "nay_description": "Voted against Senate Bill 641, which narrows which aboveground storage tanks the state regulates near drinking water. The Senate agreed to the House version 25-8 and it became law.",
+      "_current": {
+        "question": "Senate concurred in House amendments and passed bill (Roll No. 600)",
+        "tally": "25-8",
+        "old_sentences": 5,
+        "old_chars": 798
+      }
+    }
+  ]
+}

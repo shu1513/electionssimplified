@@ -1,0 +1,424 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/TX/rewrites.json",
+  "dryRun": false,
+  "rolls": 59,
+  "updatedRolls": 59,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 4060,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "TX:house:2160:1532010",
+      "outcome": "updated",
+      "rewritten": 116,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1541623",
+      "outcome": "updated",
+      "rewritten": 122,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1551194",
+      "outcome": "updated",
+      "rewritten": 121,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1558765",
+      "outcome": "updated",
+      "rewritten": 117,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1559068",
+      "outcome": "updated",
+      "rewritten": 107,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1567009",
+      "outcome": "updated",
+      "rewritten": 121,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1568356",
+      "outcome": "updated",
+      "rewritten": 120,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1569381",
+      "outcome": "updated",
+      "rewritten": 119,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1570131",
+      "outcome": "updated",
+      "rewritten": 111,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1570293",
+      "outcome": "updated",
+      "rewritten": 111,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1571090",
+      "outcome": "updated",
+      "rewritten": 113,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1571911",
+      "outcome": "updated",
+      "rewritten": 116,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1571942",
+      "outcome": "updated",
+      "rewritten": 114,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1572782",
+      "outcome": "updated",
+      "rewritten": 97,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1575103",
+      "outcome": "updated",
+      "rewritten": 117,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1575967",
+      "outcome": "updated",
+      "rewritten": 118,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1576825",
+      "outcome": "updated",
+      "rewritten": 113,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1576843",
+      "outcome": "updated",
+      "rewritten": 110,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1576867",
+      "outcome": "updated",
+      "rewritten": 108,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1578072",
+      "outcome": "updated",
+      "rewritten": 110,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1578076",
+      "outcome": "updated",
+      "rewritten": 112,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1578719",
+      "outcome": "updated",
+      "rewritten": 113,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1579859",
+      "outcome": "updated",
+      "rewritten": 116,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1579929",
+      "outcome": "updated",
+      "rewritten": 116,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1579978",
+      "outcome": "updated",
+      "rewritten": 105,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1580064",
+      "outcome": "updated",
+      "rewritten": 113,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1580073",
+      "outcome": "updated",
+      "rewritten": 110,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1581609",
+      "outcome": "updated",
+      "rewritten": 116,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1582092",
+      "outcome": "updated",
+      "rewritten": 111,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1582405",
+      "outcome": "updated",
+      "rewritten": 109,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1582919",
+      "outcome": "updated",
+      "rewritten": 108,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1582950",
+      "outcome": "updated",
+      "rewritten": 107,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1592100",
+      "outcome": "updated",
+      "rewritten": 105,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1483210",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1520079",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1522230",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1522908",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1523046",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1523169",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1524539",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1529212",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1533610",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1539641",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1550482",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1550655",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1557810",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1568579",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1568736",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1570671",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1571446",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1578444",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1581098",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1581600",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1581625",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1581662",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1583930",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1585629",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1587476",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1592264",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

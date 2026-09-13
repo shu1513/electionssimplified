@@ -1,0 +1,1652 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1493834,
+      "measure_id": "HB 137",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for House Bill 137, which lets air pollution enforcement rest only on data gathered by federally approved methods. The Kentucky House voted 73-16, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 137, which lets air pollution enforcement rest only on data gathered by federally approved methods. The Kentucky House voted 73-16, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Third Reading RCS# 32",
+        "tally": "73-16",
+        "old_sentences": 4,
+        "old_chars": 413
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1505169,
+      "measure_id": "HB 520",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted for House Bill 520, which lowers the bar for police to refuse a public records request. The Kentucky House voted 78-21, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 520, which lowers the bar for police to refuse a public records request. The Kentucky House voted 78-21, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Third Reading RCS# 135",
+        "tally": "78-21",
+        "old_sentences": 4,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1516642,
+      "measure_id": "SB 202",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for Senate Bill 202, which puts intoxicating hemp drinks under alcohol control, capped at 5 milligrams per serving and 21 to buy. The Kentucky House voted 77-17, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 202, which puts intoxicating hemp drinks under alcohol control, capped at 5 milligrams per serving and 21 to buy. The Kentucky House voted 77-17, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Third Reading RCS# 226",
+        "tally": "77-17",
+        "old_sentences": 4,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1518196,
+      "measure_id": "HB 455",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for House Bill 455, which creates an election investigations unit in the Attorney General's office. The Kentucky House voted 71-17, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 455, which creates an election investigations unit in the Attorney General's office. The Kentucky House voted 71-17, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Third Reading RCS# 295",
+        "tally": "71-17",
+        "old_sentences": 4,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529575,
+      "measure_id": "HB 6",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 6, which bars state agencies from issuing most new regulations after March 2025 without a certified exception. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 6, which bars state agencies from issuing most new regulations after March 2025 without a certified exception. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 317",
+        "tally": "80-20",
+        "old_sentences": 4,
+        "old_chars": 481
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529581,
+      "measure_id": "SB 84",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 84, which tells courts to decide what a law means themselves instead of deferring to the agency's reading. The Kentucky House voted 74-18, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 84, which tells courts to decide what a law means themselves instead of deferring to the agency's reading. The Kentucky House voted 74-18, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 336",
+        "tally": "74-18",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529582,
+      "measure_id": "HB 136",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 136, which makes the prison system report far more each year about people leaving prison. The Kentucky House voted 80-17, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 136, which makes the prison system report far more each year about people leaving prison. The Kentucky House voted 80-17, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 327",
+        "tally": "80-17",
+        "old_sentences": 4,
+        "old_chars": 419
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529584,
+      "measure_id": "HB 424",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 424, which lets public colleges remove tenured faculty for failing performance requirements. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 424, which lets public colleges remove tenured faculty for failing performance requirements. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 319",
+        "tally": "80-20",
+        "old_sentences": 4,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529588,
+      "measure_id": "HB 695",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 695, which bars changing Medicaid eligibility or coverage without legislative approval and seeks work requirements. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 695, which bars changing Medicaid eligibility or coverage without legislative approval and seeks work requirements. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 316",
+        "tally": "80-20",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529592,
+      "measure_id": "HB 399",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 399, which creates new crimes for disrupting the General Assembly, rising to a felony for a third offense. The Kentucky House voted 69-28, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 399, which creates new crimes for disrupting the General Assembly, rising to a felony for a third offense. The Kentucky House voted 69-28, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 329",
+        "tally": "69-28",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529599,
+      "measure_id": "SB 65",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky House voted 75-18, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky House voted 75-18, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 334",
+        "tally": "75-18",
+        "old_sentences": 4,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529602,
+      "measure_id": "SB 183",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky House voted 72-17, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky House voted 72-17, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 332",
+        "tally": "72-17",
+        "old_sentences": 4,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529606,
+      "measure_id": "SB 89",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 89, which narrows which waters Kentucky's environmental protection law covers to four categories. The Kentucky House voted 66-23, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 89, which narrows which waters Kentucky's environmental protection law covers to four categories. The Kentucky House voted 66-23, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 339",
+        "tally": "66-23",
+        "old_sentences": 4,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529607,
+      "measure_id": "HB 90",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 90, which licenses freestanding birth centers and lists nine procedures a doctor may perform under the abortion law. The Kentucky House voted 77-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 90, which licenses freestanding birth centers and lists nine procedures a doctor may perform under the abortion law. The Kentucky House voted 77-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 326",
+        "tally": "77-20",
+        "old_sentences": 4,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529618,
+      "measure_id": "HB 2",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 2, which voids sales tax notices on currency and bullion sold after August 2024 and lets buyers sue for refunds. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 2, which voids sales tax notices on currency and bullion sold after August 2024 and lets buyers sue for refunds. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 315",
+        "tally": "80-19",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529619,
+      "measure_id": "HB 495",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 495, which bars Medicaid money for cross-sex hormones or gender surgery and cancels the conversion therapy order. The Kentucky House voted 78-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 495, which bars Medicaid money for cross-sex hormones or gender surgery and cancels the conversion therapy order. The Kentucky House voted 78-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 311",
+        "tally": "78-20",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529622,
+      "measure_id": "HB 398",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky House voted 78-22, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky House voted 78-22, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 318",
+        "tally": "78-22",
+        "old_sentences": 5,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529633,
+      "measure_id": "HB 694",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 694, which redirects teacher retiree health money into the pension fund once the health fund is full. The Kentucky House voted 67-27, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 694, which redirects teacher retiree health money into the pension fund once the health fund is full. The Kentucky House voted 67-27, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 328",
+        "tally": "67-27",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529812,
+      "measure_id": "HB 216",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 216, which exempts most Department of Agriculture employees from the ban on receiving farm funds from their agency. The Kentucky House voted 79-15, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 216, which exempts most Department of Agriculture employees from the ban on receiving farm funds from their agency. The Kentucky House voted 79-15, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 313",
+        "tally": "79-15",
+        "old_sentences": 4,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1529818,
+      "measure_id": "HB 4",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 4, which bars public colleges from spending money on diversity, equity and inclusion and from treating people differently by race or sex. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 4, which bars public colleges from spending money on diversity, equity and inclusion and from treating people differently by race or sex. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Third Reading RCS# 330",
+        "tally": "79-19",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1530505,
+      "measure_id": "HB 664",
+      "vote_date": "2025-03-28",
+      "yea_description": "Voted for House Bill 664, which lets a police officer in a highway work zone ticket speeders with a camera device. The Kentucky House voted 76-20, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 664, which lets a police officer in a highway work zone ticket speeders with a camera device. The Kentucky House voted 76-20, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Third Reading RCS# 365",
+        "tally": "76-20",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1530633,
+      "measure_id": "HB 662",
+      "vote_date": "2025-03-28",
+      "yea_description": "Voted for House Bill 662, which lets judges and their families have personal details removed from public agency records within 72 hours. The Kentucky House voted 77-17, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 662, which lets judges and their families have personal details removed from public agency records within 72 hours. The Kentucky House voted 77-17, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Third Reading RCS# 354",
+        "tally": "77-17",
+        "old_sentences": 5,
+        "old_chars": 665
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2179",
+      "roll": 1530717,
+      "measure_id": "HB 606",
+      "vote_date": "2025-03-28",
+      "yea_description": "Voted for House Bill 606, which lets local governments in different counties jointly develop large job sites with their own taxing district. The Kentucky House voted 82-17, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 606, which lets local governments in different counties jointly develop large job sites with their own taxing district. The Kentucky House voted 82-17, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Third Reading RCS# 361",
+        "tally": "82-17",
+        "old_sentences": 4,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1626655,
+      "measure_id": "HB 7",
+      "vote_date": "2026-02-09",
+      "yea_description": "Voted for House Bill 7, which lets school districts put cameras on bus stop arms and fine drivers who pass a stopped bus. The Kentucky House voted 78-15, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 7, which lets school districts put cameras on bus stop arms and fine drivers who pass a stopped bus. The Kentucky House voted 78-15, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Veto Override RCS# 70",
+        "tally": "78-15",
+        "old_sentences": 4,
+        "old_chars": 434
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1663923,
+      "measure_id": "HB 1",
+      "vote_date": "2026-03-16",
+      "yea_description": "Voted for House Bill 1, which enrolls Kentucky in a federal tax credit for donations to school scholarship organizations. The Kentucky House voted 77-14, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 1, which enrolls Kentucky in a federal tax credit for donations to school scholarship organizations. The Kentucky House voted 77-14, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 255",
+        "tally": "77-14",
+        "old_sentences": 4,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1670413,
+      "measure_id": "SB 104",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted for Senate Bill 104, which creates the crime of impeding a first responder within 25 feet after a warning. The Kentucky House voted 79-16, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 104, which creates the crime of impeding a first responder within 25 feet after a warning. The Kentucky House voted 79-16, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Veto Override RCS# 321",
+        "tally": "79-16",
+        "old_sentences": 4,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1671526,
+      "measure_id": "SB 195",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 195, which shields road contractors from most lawsuits once a government accepts a finished road project. The Kentucky House voted 66-25, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 195, which shields road contractors from most lawsuits once a government accepts a finished road project. The Kentucky House voted 66-25, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Veto Override RCS# 330",
+        "tally": "66-25",
+        "old_sentences": 4,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1671539,
+      "measure_id": "SB 29",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 29, which bars counties from charging fees or requiring permits from out-of-county landfills handling their waste. The Kentucky House voted 70-19, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 29, which bars counties from charging fees or requiring permits from out-of-county landfills handling their waste. The Kentucky House voted 70-19, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Veto Override RCS# 335",
+        "tally": "70-19",
+        "old_sentences": 4,
+        "old_chars": 471
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1674521,
+      "measure_id": "HB 58",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for House Bill 58, which limits automated license plate readers to listed uses and caps data storage at 90 days. The Kentucky House voted 70-19, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 58, which limits automated license plate readers to listed uses and caps data storage at 90 days. The Kentucky House voted 70-19, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Veto Override RCS# 361",
+        "tally": "70-19",
+        "old_sentences": 4,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1674562,
+      "measure_id": "SB 183",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky House voted 76-15, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky House voted 76-15, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 388",
+        "tally": "76-15",
+        "old_sentences": 5,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1674574,
+      "measure_id": "HB 627",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for House Bill 627, which caps auto insurance payments for crash medical care at the workers' compensation fee schedule. The Kentucky House voted 75-14, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 627, which caps auto insurance payments for crash medical care at the workers' compensation fee schedule. The Kentucky House voted 75-14, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Veto Override RCS# 404",
+        "tally": "75-14",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1675554,
+      "measure_id": "HB 677",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted for House Bill 677, which sets up the permit system for storing carbon dioxide underground. The Kentucky House voted 61-28, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 677, which sets up the permit system for storing carbon dioxide underground. The Kentucky House voted 61-28, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "House: Veto Override RCS# 445",
+        "tally": "61-28",
+        "old_sentences": 4,
+        "old_chars": 474
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1675555,
+      "measure_id": "SB 199",
+      "vote_date": "2026-04-01",
+      "yea_description": "Voted for Senate Bill 199, which makes a federally approved pesticide label a sufficient warning, blocking most failure-to-warn lawsuits. The Kentucky House voted 56-32, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 199, which makes a federally approved pesticide label a sufficient warning, blocking most failure-to-warn lawsuits. The Kentucky House voted 56-32, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 409",
+        "tally": "56-32",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682823,
+      "measure_id": "SB 251",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 251, which lets the prison system set death penalty procedures by internal policy instead of public regulation. The Kentucky House voted 74-16, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 251, which lets the prison system set death penalty procedures by internal policy instead of public regulation. The Kentucky House voted 74-16, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 484",
+        "tally": "74-16",
+        "old_sentences": 4,
+        "old_chars": 407
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682824,
+      "measure_id": "HB 490",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 490, which lets public college boards remove faculty for financial reasons such as low enrollment. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 490, which lets public college boards remove faculty for financial reasons such as low enrollment. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 465",
+        "tally": "80-19",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682832,
+      "measure_id": "SB 4",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 4, which creates a required principal leadership practicum and redraws the Jefferson County school board. The Kentucky House voted 78-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 4, which creates a required principal leadership practicum and redraws the Jefferson County school board. The Kentucky House voted 78-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 476",
+        "tally": "78-19",
+        "old_sentences": 4,
+        "old_chars": 470
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682834,
+      "measure_id": "HB 10",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 10, which requires Attorney General approval of large state settlements in the 180 days before a new Governor. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 10, which requires Attorney General approval of large state settlements in the 180 days before a new Governor. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 456",
+        "tally": "79-19",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682849,
+      "measure_id": "HB 355",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 355, which gives one year to sue a real property appraiser and replaces the appraisers board. The Kentucky House voted 79-15, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 355, which gives one year to sue a real property appraiser and replaces the appraisers board. The Kentucky House voted 79-15, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 462",
+        "tally": "79-15",
+        "old_sentences": 4,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682856,
+      "measure_id": "SB 100",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky House voted 79-18, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky House voted 79-18, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 480",
+        "tally": "79-18",
+        "old_sentences": 4,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682868,
+      "measure_id": "SB 77",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 77, which creates a state fund for clinical trials of ibogaine as a treatment for opioid addiction. The Kentucky House voted 77-18, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 77, which creates a state fund for clinical trials of ibogaine as a treatment for opioid addiction. The Kentucky House voted 77-18, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 479",
+        "tally": "77-18",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682885,
+      "measure_id": "SB 1",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 1, which applies state school board rules to Jefferson County and caps superintendent budget transfers. The Kentucky House voted 79-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 1, which applies state school board rules to Jefferson County and caps superintendent budget transfers. The Kentucky House voted 79-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 475",
+        "tally": "79-20",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682889,
+      "measure_id": "HB 387",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 387, which exempts veterinarians from reporting controlled substances to the state drug monitoring system. The Kentucky House voted 83-16, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 387, which exempts veterinarians from reporting controlled substances to the state drug monitoring system. The Kentucky House voted 83-16, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 464",
+        "tally": "83-16",
+        "old_sentences": 4,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682893,
+      "measure_id": "HB 139",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 139, which bars buying voting equipment that records votes with barcodes or QR codes. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 139, which bars buying voting equipment that records votes with barcodes or QR codes. The Kentucky House voted 80-20, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 459",
+        "tally": "80-20",
+        "old_sentences": 4,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682934,
+      "measure_id": "SB 173",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 173, which makes the Medicaid agency post its plans online and send every proposed change to the legislature. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 173, which makes the Medicaid agency post its plans online and send every proposed change to the legislature. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 481",
+        "tally": "80-19",
+        "old_sentences": 4,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682936,
+      "measure_id": "HB 312",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 312, which creates a concealed carry license for people aged 18 to 20. The Kentucky House voted 81-18, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 312, which creates a concealed carry license for people aged 18 to 20. The Kentucky House voted 81-18, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 461",
+        "tally": "81-18",
+        "old_sentences": 4,
+        "old_chars": 416
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682939,
+      "measure_id": "SB 65",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 478",
+        "tally": "79-19",
+        "old_sentences": 4,
+        "old_chars": 472
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682942,
+      "measure_id": "SB 59",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 59, which bars using public money, buildings or employees to campaign on ballot questions. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 59, which bars using public money, buildings or employees to campaign on ballot questions. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 477",
+        "tally": "80-19",
+        "old_sentences": 4,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682943,
+      "measure_id": "HB 78",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 78, which bars most lawsuits against gun makers and sellers over crimes committed with their guns. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 78, which bars most lawsuits against gun makers and sellers over crimes committed with their guns. The Kentucky House voted 80-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 457",
+        "tally": "80-19",
+        "old_sentences": 5,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1683991,
+      "measure_id": "SB 324",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for Senate Bill 324, which lets unused film tax credit money carry forward and adds video games and commercials. The Kentucky House voted 80-15, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 324, which lets unused film tax credit money carry forward and adds video games and commercials. The Kentucky House voted 80-15, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Veto Override RCS# 502",
+        "tally": "80-15",
+        "old_sentences": 4,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1684100,
+      "measure_id": "SB 66",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for Senate Bill 66, which adds clonazepam, cyclobenzaprine and fentanyl to the drugs that make driving illegal at any amount. The Kentucky House voted 79-15, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 66, which adds clonazepam, cyclobenzaprine and fentanyl to the drugs that make driving illegal at any amount. The Kentucky House voted 79-15, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "House: Veto Override RCS# 500",
+        "tally": "79-15",
+        "old_sentences": 4,
+        "old_chars": 473
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1492901,
+      "measure_id": "SB 2",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted for Senate Bill 2, which bars public money for cosmetic or elective procedures, including gender surgery, for prisoners. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 2, which bars public money for cosmetic or elective procedures, including gender surgery, for prisoners. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3362",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1506432,
+      "measure_id": "SB 9",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted for Senate Bill 9, which requires school districts to give staff who give birth up to 30 days of paid maternity leave. The Kentucky Senate voted 31-7, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 9, which requires school districts to give staff who give birth up to 30 days of paid maternity leave. The Kentucky Senate voted 31-7, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading W/sfa1 sfa2 RSN# 3435",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1515347,
+      "measure_id": "HB 45",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted for House Bill 45, which bars foreign nationals from giving to or spending on Kentucky ballot question campaigns. The Kentucky Senate voted 29-6, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 45, which bars foreign nationals from giving to or spending on Kentucky ballot question campaigns. The Kentucky Senate voted 29-6, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading W/scs1 RSN# 3467",
+        "tally": "29-6",
+        "old_sentences": 4,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1516615,
+      "measure_id": "HB 4",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass House Bill 4, which bars public colleges from spending money on diversity, equity and inclusion and from treating people differently by race or sex. The Kentucky Senate voted 32-6, and the bill later became law over the Governor's veto.",
+      "nay_description": "Voted against passing House Bill 4, which bars public colleges from spending money on diversity, equity and inclusion and from treating people differently by race or sex. The Kentucky Senate voted 32-6, and the bill later became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading W/sfta 19 RSN# 3503",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 506
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1516636,
+      "measure_id": "HB 137",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for House Bill 137, which lets air pollution enforcement rest only on data gathered by federally approved methods. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 137, which lets air pollution enforcement rest only on data gathered by federally approved methods. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3491",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 413
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517647,
+      "measure_id": "HB 241",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 241, which lets districts make up storm days with longer school days and caps online school enrollment. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 241, which lets districts make up storm days with longer school days and caps online school enrollment. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3543",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517666,
+      "measure_id": "SB 100",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky Senate voted 32-6, and the bill became law.",
+      "nay_description": "Voted against Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky Senate voted 32-6, and the bill became law.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3519",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517669,
+      "measure_id": "HB 6",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Bill 6, which bars state agencies from issuing most new regulations after March 2025 without a certified exception. The Kentucky Senate voted 29-6, and the bill later became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 6, which bars state agencies from issuing most new regulations after March 2025 without a certified exception. The Kentucky Senate voted 29-6, and the bill later became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3510",
+        "tally": "29-6",
+        "old_sentences": 4,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517690,
+      "measure_id": "HJR 15",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for House Joint Resolution 15, which orders the Ten Commandments monument returned to permanent display at the Capitol. The Kentucky Senate voted 32-6, and the resolution became law without the Governor's signature.",
+      "nay_description": "Voted against House Joint Resolution 15, which orders the Ten Commandments monument returned to permanent display at the Capitol. The Kentucky Senate voted 32-6, and the resolution became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3537",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 373
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517715,
+      "measure_id": "SB 202",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 202, which puts intoxicating hemp drinks under alcohol control, capped at 5 milligrams per serving and 21 to buy. The Kentucky Senate voted 22-13, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 202, which puts intoxicating hemp drinks under alcohol control, capped at 5 milligrams per serving and 21 to buy. The Kentucky Senate voted 22-13, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3523",
+        "tally": "22-13",
+        "old_sentences": 4,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1518159,
+      "measure_id": "HB 2",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for House Bill 2, which voids sales tax notices on currency and bullion sold after August 2024 and lets buyers sue for refunds. The Kentucky Senate voted 30-6, and the bill later became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 2, which voids sales tax notices on currency and bullion sold after August 2024 and lets buyers sue for refunds. The Kentucky Senate voted 30-6, and the bill later became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3545",
+        "tally": "30-6",
+        "old_sentences": 4,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1518204,
+      "measure_id": "HB 520",
+      "vote_date": "2025-03-14",
+      "yea_description": "Voted for House Bill 520, which lowers the bar for police to refuse a public records request. The Kentucky Senate voted 25-12, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 520, which lowers the bar for police to refuse a public records request. The Kentucky Senate voted 25-12, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3569",
+        "tally": "25-12",
+        "old_sentences": 4,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529580,
+      "measure_id": "SB 84",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 84, which tells courts to decide what a law means themselves instead of deferring to the agency's reading. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 84, which tells courts to decide what a law means themselves instead of deferring to the agency's reading. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3587",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529583,
+      "measure_id": "HB 136",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 136, which makes the prison system report far more each year about people leaving prison. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 136, which makes the prison system report far more each year about people leaving prison. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3666",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 419
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529585,
+      "measure_id": "HB 424",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 424, which lets public colleges remove tenured faculty for failing performance requirements. The Kentucky Senate voted 29-9, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 424, which lets public colleges remove tenured faculty for failing performance requirements. The Kentucky Senate voted 29-9, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3616",
+        "tally": "29-9",
+        "old_sentences": 4,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529589,
+      "measure_id": "HB 695",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 695, which bars changing Medicaid eligibility or coverage without legislative approval and seeks work requirements. The Kentucky Senate voted 29-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 695, which bars changing Medicaid eligibility or coverage without legislative approval and seeks work requirements. The Kentucky Senate voted 29-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3605",
+        "tally": "29-7",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529593,
+      "measure_id": "HB 399",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 399, which creates new crimes for disrupting the General Assembly, rising to a felony for a third offense. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 399, which creates new crimes for disrupting the General Assembly, rising to a felony for a third offense. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3667",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529596,
+      "measure_id": "SB 65",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3585",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529601,
+      "measure_id": "SB 183",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3589",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 372
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529605,
+      "measure_id": "SB 89",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 89, which narrows which waters Kentucky's environmental protection law covers to four categories. The Kentucky Senate voted 29-8, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 89, which narrows which waters Kentucky's environmental protection law covers to four categories. The Kentucky Senate voted 29-8, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3588",
+        "tally": "29-8",
+        "old_sentences": 4,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529608,
+      "measure_id": "HB 90",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 90, which licenses freestanding birth centers and lists nine procedures a doctor may perform under the abortion law. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 90, which licenses freestanding birth centers and lists nine procedures a doctor may perform under the abortion law. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3665",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529611,
+      "measure_id": "SB 28",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 28, which creates a Department of Agriculture grant and loan program for farm and agribusiness projects. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 28, which creates a Department of Agriculture grant and loan program for farm and agribusiness projects. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3586",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529620,
+      "measure_id": "HB 495",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 495, which bars Medicaid money for cross-sex hormones or gender surgery and cancels the conversion therapy order. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 495, which bars Medicaid money for cross-sex hormones or gender surgery and cancels the conversion therapy order. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3598",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529623,
+      "measure_id": "HB 398",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky Senate voted 29-9, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky Senate voted 29-9, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3604",
+        "tally": "29-9",
+        "old_sentences": 5,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529634,
+      "measure_id": "HB 694",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 694, which redirects teacher retiree health money into the pension fund once the health fund is full. The Kentucky Senate voted 29-8, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 694, which redirects teacher retiree health money into the pension fund once the health fund is full. The Kentucky Senate voted 29-8, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3668",
+        "tally": "29-8",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1529813,
+      "measure_id": "HB 216",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for House Bill 216, which exempts most Department of Agriculture employees from the ban on receiving farm funds from their agency. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 216, which exempts most Department of Agriculture employees from the ban on receiving farm funds from their agency. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3601",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1530504,
+      "measure_id": "HB 664",
+      "vote_date": "2025-03-28",
+      "yea_description": "Voted for House Bill 664, which lets a police officer in a highway work zone ticket speeders with a camera device. The Kentucky Senate voted 29-7, and the Governor signed the bill into law.",
+      "nay_description": "Voted against House Bill 664, which lets a police officer in a highway work zone ticket speeders with a camera device. The Kentucky Senate voted 29-7, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading W/scs1 sfa2 sfta2 RSN# 3673",
+        "tally": "29-7",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1655689,
+      "measure_id": "SB 137",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted for Senate Bill 137, which lets foreign-trained doctors get a provisional license to work in underserved areas. The Kentucky Senate voted 30-7, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 137, which lets foreign-trained doctors get a provisional license to work in underserved areas. The Kentucky Senate voted 30-7, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3884",
+        "tally": "30-7",
+        "old_sentences": 4,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1669300,
+      "measure_id": "HB 189",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 189, which makes it illegal to sit, stand or stay on a state road right-of-way not marked for pedestrians. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 189, which makes it illegal to sit, stand or stay on a state road right-of-way not marked for pedestrians. The Kentucky Senate voted 31-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3980",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 522
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1671519,
+      "measure_id": "SB 101",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for Senate Bill 101, which requires expelling students in grades 6 to 12 for at least a year for injuring a school employee. The Kentucky Senate voted 32-6, and the Governor signed the bill into law.",
+      "nay_description": "Voted against Senate Bill 101, which requires expelling students in grades 6 to 12 for at least a year for injuring a school employee. The Kentucky Senate voted 32-6, and the Governor signed the bill into law.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4020",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 475
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1671561,
+      "measure_id": "HB 398",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky Senate voted 30-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 398, which bars state workplace safety rules for private employers stricter than federal rules. The Kentucky Senate voted 30-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4026",
+        "tally": "30-6",
+        "old_sentences": 4,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1671862,
+      "measure_id": "HB 627",
+      "vote_date": "2026-03-27",
+      "yea_description": "Voted for House Bill 627, which caps auto insurance payments for crash medical care at the workers' compensation fee schedule. The Kentucky Senate voted 24-8, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 627, which caps auto insurance payments for crash medical care at the workers' compensation fee schedule. The Kentucky Senate voted 24-8, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4034",
+        "tally": "24-8",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674515,
+      "measure_id": "SB 219",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 219, which raises the payday loan limit from $500 to $600 with yearly inflation adjustments up to $850. The Kentucky Senate voted 32-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 219, which raises the payday loan limit from $500 to $600 with yearly inflation adjustments up to $850. The Kentucky Senate voted 32-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4076",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 458
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674531,
+      "measure_id": "SB 199",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 199, which makes a federally approved pesticide label a sufficient warning, blocking most failure-to-warn lawsuits. The Kentucky Senate voted 24-12, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 199, which makes a federally approved pesticide label a sufficient warning, blocking most failure-to-warn lawsuits. The Kentucky Senate voted 24-12, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4084",
+        "tally": "24-12",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674561,
+      "measure_id": "SB 183",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which sets rules for the firms that vote public pension funds' shares, requiring analysis before voting against boards. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4038",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674572,
+      "measure_id": "SB 195",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 195, which shields road contractors from most lawsuits once a government accepts a finished road project. The Kentucky Senate voted 29-9, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 195, which shields road contractors from most lawsuits once a government accepts a finished road project. The Kentucky Senate voted 29-9, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4075",
+        "tally": "29-9",
+        "old_sentences": 4,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674599,
+      "measure_id": "SB 104",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 104, which creates the crime of impeding a first responder within 25 feet after a warning. The Kentucky Senate voted 32-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 104, which creates the crime of impeding a first responder within 25 feet after a warning. The Kentucky Senate voted 32-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4074",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 430
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682822,
+      "measure_id": "SB 251",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 251, which lets the prison system set death penalty procedures by internal policy instead of public regulation. The Kentucky Senate voted 30-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 251, which lets the prison system set death penalty procedures by internal policy instead of public regulation. The Kentucky Senate voted 30-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4152",
+        "tally": "30-7",
+        "old_sentences": 4,
+        "old_chars": 407
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682825,
+      "measure_id": "HB 490",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 490, which lets public college boards remove faculty for financial reasons such as low enrollment. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 490, which lets public college boards remove faculty for financial reasons such as low enrollment. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4171",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682831,
+      "measure_id": "SB 4",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 4, which creates a required principal leadership practicum and redraws the Jefferson County school board. The Kentucky Senate voted 30-8, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 4, which creates a required principal leadership practicum and redraws the Jefferson County school board. The Kentucky Senate voted 30-8, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4146",
+        "tally": "30-8",
+        "old_sentences": 4,
+        "old_chars": 470
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682835,
+      "measure_id": "HB 10",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 10, which requires Attorney General approval of large state settlements in the 180 days before a new Governor. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 10, which requires Attorney General approval of large state settlements in the 180 days before a new Governor. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4162",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682841,
+      "measure_id": "SB 291",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 291, which requires every scrap metal recycler to hold a state license and log every transaction. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 291, which requires every scrap metal recycler to hold a state license and log every transaction. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4154",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682850,
+      "measure_id": "HB 355",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 355, which gives one year to sue a real property appraiser and replaces the appraisers board. The Kentucky Senate voted 30-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 355, which gives one year to sue a real property appraiser and replaces the appraisers board. The Kentucky Senate voted 30-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4168",
+        "tally": "30-6",
+        "old_sentences": 4,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682855,
+      "measure_id": "SB 100",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 100, which gives the Attorney General two seats on the commission that reviews power plant retirements. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4150",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682867,
+      "measure_id": "SB 77",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 77, which creates a state fund for clinical trials of ibogaine as a treatment for opioid addiction. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 77, which creates a state fund for clinical trials of ibogaine as a treatment for opioid addiction. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4149",
+        "tally": "31-6",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682884,
+      "measure_id": "SB 1",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 1, which applies state school board rules to Jefferson County and caps superintendent budget transfers. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 1, which applies state school board rules to Jefferson County and caps superintendent budget transfers. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4145",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682890,
+      "measure_id": "HB 387",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 387, which exempts veterinarians from reporting controlled substances to the state drug monitoring system. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 387, which exempts veterinarians from reporting controlled substances to the state drug monitoring system. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4170",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682894,
+      "measure_id": "HB 139",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 139, which bars buying voting equipment that records votes with barcodes or QR codes. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 139, which bars buying voting equipment that records votes with barcodes or QR codes. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4165",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682933,
+      "measure_id": "SB 173",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 173, which makes the Medicaid agency post its plans online and send every proposed change to the legislature. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 173, which makes the Medicaid agency post its plans online and send every proposed change to the legislature. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4151",
+        "tally": "32-6",
+        "old_sentences": 5,
+        "old_chars": 581
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682937,
+      "measure_id": "HB 312",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 312, which creates a concealed carry license for people aged 18 to 20. The Kentucky Senate voted 28-9, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 312, which creates a concealed carry license for people aged 18 to 20. The Kentucky Senate voted 28-9, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4167",
+        "tally": "28-9",
+        "old_sentences": 4,
+        "old_chars": 416
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682938,
+      "measure_id": "SB 65",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels five proposed agency regulations that legislative committees found deficient. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4148",
+        "tally": "32-6",
+        "old_sentences": 4,
+        "old_chars": 472
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682941,
+      "measure_id": "SB 59",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 59, which bars using public money, buildings or employees to campaign on ballot questions. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 59, which bars using public money, buildings or employees to campaign on ballot questions. The Kentucky Senate voted 31-7, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4147",
+        "tally": "31-7",
+        "old_sentences": 4,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682944,
+      "measure_id": "HB 78",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 78, which bars most lawsuits against gun makers and sellers over crimes committed with their guns. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against House Bill 78, which bars most lawsuits against gun makers and sellers over crimes committed with their guns. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4163",
+        "tally": "31-6",
+        "old_sentences": 5,
+        "old_chars": 638
+      }
+    }
+  ]
+}

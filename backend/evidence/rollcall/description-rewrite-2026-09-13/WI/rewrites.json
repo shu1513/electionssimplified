@@ -1,0 +1,2004 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1493267,
+      "measure_id": "AB 1",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for Assembly Bill 1, a bill to make school report cards use the same score cutoffs and definitions every year. The Assembly passed it 54-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 1, a bill to make school report cards use the same score cutoffs and definitions every year. The Assembly passed it 54-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-44",
+        "old_sentences": 5,
+        "old_chars": 843
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1493523,
+      "measure_id": "AB 4",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for Assembly Bill 4, a bill to require civics lessons in public, charter and voucher schools from the 2027-28 school year. The Assembly passed it 52-46, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 4, a bill to require civics lessons in public, charter and voucher schools from the 2027-28 school year. The Assembly passed it 52-46, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "52-46",
+        "old_sentences": 4,
+        "old_chars": 564
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1493536,
+      "measure_id": "AB 2",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for Assembly Bill 2, which requires every school board to ban pupils' phones during class time by July 2026. The Assembly passed it 53-45 and it became law as 2025 Wisconsin Act 42.",
+      "nay_description": "Voted against Assembly Bill 2, which requires every school board to ban pupils' phones during class time by July 2026. The Assembly passed it 53-45 and it became law as 2025 Wisconsin Act 42.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-45",
+        "old_sentences": 5,
+        "old_chars": 674
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1493715,
+      "measure_id": "AB 5",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for Assembly Bill 5, a bill to make school boards post their adopted textbook lists online and let residents inspect them. The Assembly passed it 54-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 5, a bill to make school boards post their adopted textbook lists online and let residents inspect them. The Assembly passed it 54-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-43",
+        "old_sentences": 5,
+        "old_chars": 778
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1494273,
+      "measure_id": "AB 3",
+      "vote_date": "2025-02-19",
+      "yea_description": "Voted for Assembly Bill 3, a bill to require schools to teach cursive writing by the end of fifth grade. The Assembly passed it 51-46, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 3, a bill to require schools to teach cursive writing by the end of fifth grade. The Assembly passed it 51-46, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-46",
+        "old_sentences": 2,
+        "old_chars": 381
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1516987,
+      "measure_id": "AB 87",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Assembly Bill 87, a bill to require immediate restitution from human traffickers and add related penalties. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 87, a bill to require immediate restitution from human traffickers and add related penalties. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 6,
+        "old_chars": 765
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1517055,
+      "measure_id": "AB 85",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Assembly Bill 85, a bill to make the state recommend revoking supervision whenever a person is charged with a crime. The Assembly passed it 53-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 85, a bill to make the state recommend revoking supervision whenever a person is charged with a crime. The Assembly passed it 53-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-43",
+        "old_sentences": 5,
+        "old_chars": 628
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1517188,
+      "measure_id": "AB 66",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Assembly Bill 66, a bill to bar prosecutors from dropping or reducing certain charges without a judge's approval. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 66, a bill to bar prosecutors from dropping or reducing certain charges without a judge's approval. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 3,
+        "old_chars": 586
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1517600,
+      "measure_id": "AB 91",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Assembly Bill 91, a bill to split the cost of Milwaukee school resource officers between the district and the city. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 91, a bill to split the cost of Milwaukee school resource officers between the district and the city. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 3,
+        "old_chars": 509
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1517763,
+      "measure_id": "AB 89",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Assembly Bill 89, which raises the penalties for repeat theft and lets prosecutors add up separate thefts. The Assembly passed it 71-26 and it became law as 2025 Wisconsin Act 106.",
+      "nay_description": "Voted against Assembly Bill 89, which raises the penalties for repeat theft and lets prosecutors add up separate thefts. The Assembly passed it 71-26 and it became law as 2025 Wisconsin Act 106.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "71-26",
+        "old_sentences": 5,
+        "old_chars": 626
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1519709,
+      "measure_id": "AB 24",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Assembly Bill 24, a bill to make sheriffs ask felony jail inmates for proof of lawful presence in the United States. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 24, a bill to make sheriffs ask felony jail inmates for proof of lawful presence in the United States. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-43",
+        "old_sentences": 6,
+        "old_chars": 844
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522508,
+      "measure_id": "AB 102",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 102, a bill to make college sports teams men's, women's or coed by sex at birth and bar men from women's teams. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 102, a bill to make college sports teams men's, women's or coed by sex at birth and bar men from women's teams. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "50-43",
+        "old_sentences": 4,
+        "old_chars": 678
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522672,
+      "measure_id": "AB 100",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 100, a bill to make school sports teams boys, girls or coed by sex at birth and bar boys from girls' teams. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 100, a bill to make school sports teams boys, girls or coed by sex at birth and bar boys from girls' teams. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-43",
+        "old_sentences": 4,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522724,
+      "measure_id": "AB 103",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 103, a bill to require school policies keeping pupils' legal names and pronouns unless a parent files a notarized request. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 103, a bill to require school policies keeping pupils' legal names and pronouns unless a parent files a notarized request. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "50-43",
+        "old_sentences": 5,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522835,
+      "measure_id": "AB 104",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 104, a bill to bar gender transition medical treatment for anyone under 18. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 104, a bill to bar gender transition medical treatment for anyone under 18. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "50-43",
+        "old_sentences": 5,
+        "old_chars": 804
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553530,
+      "measure_id": "AB 162",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 162, a bill to make state job training programs track and publish how well they work. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 162, a bill to make state job training programs track and publish how well they work. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 5,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553662,
+      "measure_id": "AB 167",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 167, a bill to widen what counts as misconduct that disqualifies a worker from unemployment benefits. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 167, a bill to widen what counts as misconduct that disqualifies a worker from unemployment benefits. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 6,
+        "old_chars": 904
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553690,
+      "measure_id": "AB 73",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 73, a bill to write treatment court and commercial court dockets into state law. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 73, a bill to write treatment court and commercial court dockets into state law. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 6,
+        "old_chars": 760
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553695,
+      "measure_id": "AB 164",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 164, a bill to rename unemployment insurance reemployment assistance and tighten weekly job search rules. The Assembly passed it 53-42, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 164, a bill to rename unemployment insurance reemployment assistance and tighten weekly job search rules. The Assembly passed it 53-42, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 6,
+        "old_chars": 791
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553728,
+      "measure_id": "AB 168",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 168, a bill to tighten identity checks and fraud controls in unemployment insurance. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 168, a bill to tighten identity checks and fraud controls in unemployment insurance. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 6,
+        "old_chars": 800
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1553838,
+      "measure_id": "AB 166",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 166, a bill to make every college report graduates' salaries, debt and graduation rates each year. The Assembly passed it 56-39, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 166, a bill to make every college report graduates' salaries, debt and graduation rates each year. The Assembly passed it 56-39, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "56-39",
+        "old_sentences": 6,
+        "old_chars": 971
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1554222,
+      "measure_id": "AB 169",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 169, a bill to make unemployment claimants report every job offer and interview each week. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 169, a bill to make unemployment claimants report every job offer and interview each week. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 4,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1554274,
+      "measure_id": "AB 165",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 165, a bill to bar local governments from spending their own money on guaranteed income programs. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 165, a bill to bar local governments from spending their own money on guaranteed income programs. The Assembly passed it 53-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-42",
+        "old_sentences": 5,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1601824,
+      "measure_id": "AB 58",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted for Assembly Bill 58, a bill to allow only the U.S., Wisconsin and agency flags on government and school buildings. The Assembly passed it 50-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 58, a bill to allow only the U.S., Wisconsin and agency flags on government and school buildings. The Assembly passed it 50-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "50-44",
+        "old_sentences": 3,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1601825,
+      "measure_id": "AB 211",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted for Assembly Bill 211, a bill to exempt some cigar and pipe bars from Wisconsin's indoor smoking ban. The Assembly passed it 57-37, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 211, a bill to exempt some cigar and pipe bars from Wisconsin's indoor smoking ban. The Assembly passed it 57-37, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "57-37",
+        "old_sentences": 4,
+        "old_chars": 605
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1601828,
+      "measure_id": "AB 308",
+      "vote_date": "2025-09-11",
+      "yea_description": "Voted for Assembly Bill 308, a bill to bar public money from paying for health care for people not lawfully present in the United States. The Assembly passed it 51-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 308, a bill to bar public money from paying for health care for people not lawfully present in the United States. The Assembly passed it 51-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-44",
+        "old_sentences": 4,
+        "old_chars": 615
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1603897,
+      "measure_id": "SB 76",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Senate Bill 76, a bill to limit what prosecutors can do with domestic abuse, sexual assault and other listed charges. The Assembly agreed to it 53-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 76, a bill to limit what prosecutors can do with domestic abuse, sexual assault and other listed charges. The Assembly agreed to it 53-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "53-43",
+        "old_sentences": 6,
+        "old_chars": 973
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609642,
+      "measure_id": "AB 614",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 614, a bill to write a teacher's authority to remove a disruptive pupil from class into state law. The Assembly passed it 54-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 614, a bill to write a teacher's authority to remove a disruptive pupil from class into state law. The Assembly passed it 54-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-43",
+        "old_sentences": 5,
+        "old_chars": 844
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609656,
+      "measure_id": "AB 617",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 617, a bill to change absentee voting rules, including letting voters fix faulty ballot envelopes. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 617, a bill to change absentee voting rules, including letting voters fix faulty ballot envelopes. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 6,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609657,
+      "measure_id": "SB 10",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Senate Bill 10, a bill to make every public high school let military recruiters into common areas. The Assembly agreed to it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 10, a bill to make every public high school let military recruiters into common areas. The Assembly agreed to it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "55-42",
+        "old_sentences": 5,
+        "old_chars": 709
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609660,
+      "measure_id": "AB 648",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 648, a bill to create new state aid for school districts that merge from July 2026. The Assembly passed it 54-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 648, a bill to create new state aid for school districts that merge from July 2026. The Assembly passed it 54-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-43",
+        "old_sentences": 5,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609667,
+      "measure_id": "AB 644",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 644, a bill to raise state aid for school districts that merge in 2027 through 2029. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 644, a bill to raise state aid for school districts that merge in 2027 through 2029. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 2,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609669,
+      "measure_id": "AB 592",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 592, which sets up a two-year program to train science teachers. The Assembly passed it 68-30 and it became law as 2025 Wisconsin Act 95.",
+      "nay_description": "Voted against Assembly Bill 592, which sets up a two-year program to train science teachers. The Assembly passed it 68-30 and it became law as 2025 Wisconsin Act 95.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "68-30",
+        "old_sentences": 5,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609678,
+      "measure_id": "AB 582",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 582, a bill to make at least 72 general education credits transfer between state universities and technical colleges. The Assembly passed it 55-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 582, a bill to make at least 72 general education credits transfer between state universities and technical colleges. The Assembly passed it 55-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "55-43",
+        "old_sentences": 8,
+        "old_chars": 1066
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609704,
+      "measure_id": "AB 647",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 647, a bill to give school boards that share whole grades a four-year grant of $500 per pupil. The Assembly passed it 54-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 647, a bill to give school boards that share whole grades a four-year grant of $500 per pupil. The Assembly passed it 54-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-43",
+        "old_sentences": 3,
+        "old_chars": 443
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1609705,
+      "measure_id": "AB 385",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted for Assembly Bill 385, a bill to make online political donation platforms verify card security codes and U.S. billing addresses. The Assembly passed it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 385, a bill to make online political donation platforms verify card security codes and U.S. billing addresses. The Assembly passed it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "55-42",
+        "old_sentences": 4,
+        "old_chars": 682
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1613583,
+      "measure_id": "AB 380",
+      "vote_date": "2026-01-13",
+      "yea_description": "Voted for Assembly Bill 380, a bill to stop pay for judges suspended by the Supreme Court over criminal misconduct. The Assembly passed it 57-42, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 380, a bill to stop pay for judges suspended by the Supreme Court over criminal misconduct. The Assembly passed it 57-42, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "57-42",
+        "old_sentences": 3,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1613595,
+      "measure_id": "SB 146",
+      "vote_date": "2026-01-13",
+      "yea_description": "Voted for Senate Bill 146, a bill to bar anyone convicted of a violent felony from ever changing their name. The Assembly agreed to it 54-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 146, a bill to bar anyone convicted of a violent felony from ever changing their name. The Assembly agreed to it 54-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "54-45",
+        "old_sentences": 4,
+        "old_chars": 551
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1613613,
+      "measure_id": "AB 281",
+      "vote_date": "2026-01-13",
+      "yea_description": "Voted for Assembly Bill 281, a bill to require employers doing business with state government to use E-Verify. The Assembly passed it 54-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 281, a bill to require employers doing business with state government to use E-Verify. The Assembly passed it 54-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-45",
+        "old_sentences": 5,
+        "old_chars": 765
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614174,
+      "measure_id": "SB 214",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Senate Bill 214, a bill to let out-of-state health providers treat Wisconsin patients by telehealth after registering. The Assembly agreed to it 52-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 214, a bill to let out-of-state health providers treat Wisconsin patients by telehealth after registering. The Assembly agreed to it 52-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "52-44",
+        "old_sentences": 5,
+        "old_chars": 741
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614181,
+      "measure_id": "AB 38",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Assembly Bill 38, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Assembly passed it 61-33, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 38, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Assembly passed it 61-33, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "61-33",
+        "old_sentences": 2,
+        "old_chars": 354
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614194,
+      "measure_id": "AB 226",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Assembly Bill 226, a bill to bar school meals containing five listed additives including red dye 3. The Assembly passed it 53-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 226, a bill to bar school meals containing five listed additives including red dye 3. The Assembly passed it 53-43, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-43",
+        "old_sentences": 2,
+        "old_chars": 393
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614204,
+      "measure_id": "AB 377",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Assembly Bill 377, a bill to make English Wisconsin's official language. The Assembly passed it 51-45, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 377, a bill to make English Wisconsin's official language. The Assembly passed it 51-45, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-45",
+        "old_sentences": 4,
+        "old_chars": 575
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614218,
+      "measure_id": "AB 457",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Assembly Bill 457, a bill to bar school boards from asking voters for money until their state financial reports are current. The Assembly passed it 52-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 457, a bill to bar school boards from asking voters for money until their state financial reports are current. The Assembly passed it 52-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "52-44",
+        "old_sentences": 5,
+        "old_chars": 650
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614265,
+      "measure_id": "AB 461",
+      "vote_date": "2026-01-15",
+      "yea_description": "Voted for Assembly Bill 461, a bill to let taxpayers subtract overtime pay from Wisconsin taxable income. The Assembly passed it 61-35, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 461, a bill to let taxpayers subtract overtime pay from Wisconsin taxable income. The Assembly passed it 61-35, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "61-35",
+        "old_sentences": 4,
+        "old_chars": 521
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1614720,
+      "measure_id": "AB 840",
+      "vote_date": "2026-01-20",
+      "yea_description": "Voted for Assembly Bill 840, a bill to set water, power and cost rules for the largest data centers. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 840, a bill to set water, power and cost rules for the largest data centers. The Assembly passed it 53-44, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 5,
+        "old_chars": 559
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1615869,
+      "measure_id": "AB 415",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Assembly Bill 415, a bill to bar state devices from opening apps or AI tools controlled by a foreign adversary. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 415, a bill to bar state devices from opening apps or AI tools controlled by a foreign adversary. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 5,
+        "old_chars": 785
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1615923,
+      "measure_id": "SB 7",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Senate Bill 7, a bill to bar foreign adversary governments and citizens from owning Wisconsin real property. The Assembly agreed to it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 7, a bill to bar foreign adversary governments and citizens from owning Wisconsin real property. The Assembly agreed to it 55-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "55-42",
+        "old_sentences": 7,
+        "old_chars": 926
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1616128,
+      "measure_id": "AB 663",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Assembly Bill 663, a bill to restrict University of Wisconsin partnerships with foreign adversary countries. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 663, a bill to restrict University of Wisconsin partnerships with foreign adversary countries. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 6,
+        "old_chars": 958
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1616130,
+      "measure_id": "AB 662",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Assembly Bill 662, a bill to bar state agencies from contracting with businesses owned by a foreign adversary. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 662, a bill to bar state agencies from contracting with businesses owned by a foreign adversary. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 5,
+        "old_chars": 823
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1616267,
+      "measure_id": "AB 672",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Assembly Bill 672, a bill to make harassing dissidents or journalists on behalf of a foreign government a crime. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 672, a bill to make harassing dissidents or journalists on behalf of a foreign government a crime. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 6,
+        "old_chars": 882
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1616397,
+      "measure_id": "AB 673",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Assembly Bill 673, a bill to bar state-funded facilities from using genetic sequencers made in foreign adversary countries. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 673, a bill to bar state-funded facilities from using genetic sequencers made in foreign adversary countries. The Assembly passed it 53-44, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "53-44",
+        "old_sentences": 5,
+        "old_chars": 758
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1632126,
+      "measure_id": "SB 405",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Senate Bill 405, a bill to let people sue providers who performed gender transition procedures on them as minors. The Assembly agreed to it 53-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 405, a bill to let people sue providers who performed gender transition procedures on them as minors. The Assembly agreed to it 53-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "53-45",
+        "old_sentences": 5,
+        "old_chars": 827
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1632467,
+      "measure_id": "SB 432",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Senate Bill 432, a bill to widen who must report child abuse and what must go to the police. The Assembly agreed to it 61-37, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 432, a bill to widen who must report child abuse and what must go to the police. The Assembly agreed to it 61-37, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "61-37",
+        "old_sentences": 5,
+        "old_chars": 686
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1632556,
+      "measure_id": "SB 610",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Senate Bill 610, a bill to add homeless shelters to the places where dealing drugs carries an extra penalty. The Assembly agreed to it 56-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 610, a bill to add homeless shelters to the places where dealing drugs carries an extra penalty. The Assembly agreed to it 56-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "56-42",
+        "old_sentences": 5,
+        "old_chars": 757
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1632852,
+      "measure_id": "SB 532",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Senate Bill 532, a bill to stop University of Wisconsin campuses charging extra fees for online-only courses. The Assembly agreed to it 53-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 532, a bill to stop University of Wisconsin campuses charging extra fees for online-only courses. The Assembly agreed to it 53-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "53-45",
+        "old_sentences": 4,
+        "old_chars": 733
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1632980,
+      "measure_id": "AB 1005",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Assembly Bill 1005, a bill to base UW-Madison undergraduate admissions mainly on ACT or SAT scores. The Assembly passed it 52-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 1005, a bill to base UW-Madison undergraduate admissions mainly on ACT or SAT scores. The Assembly passed it 52-45, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "52-45",
+        "old_sentences": 4,
+        "old_chars": 559
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1635573,
+      "measure_id": "AB 629",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Assembly Bill 629, a bill to let police act against drones that pose a credible threat. The Assembly passed it 57-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 629, a bill to let police act against drones that pose a credible threat. The Assembly passed it 57-42, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "57-42",
+        "old_sentences": 5,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1635598,
+      "measure_id": "SB 485",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Senate Bill 485, which lets group homes and residential care centers for children use video cameras in common areas. The Assembly agreed to it 79-20 and it became law as 2025 Wisconsin Act 184.",
+      "nay_description": "Voted against Senate Bill 485, which lets group homes and residential care centers for children use video cameras in common areas. The Assembly agreed to it 79-20 and it became law as 2025 Wisconsin Act 184.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "79-20",
+        "old_sentences": 5,
+        "old_chars": 620
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1635686,
+      "measure_id": "AB 446",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Assembly Bill 446, which tells state and local governments to consider a set definition of antisemitism in discrimination cases. The Assembly passed it 66-33 and it became law as 2025 Wisconsin Act 143.",
+      "nay_description": "Voted against Assembly Bill 446, which tells state and local governments to consider a set definition of antisemitism in discrimination cases. The Assembly passed it 66-33 and it became law as 2025 Wisconsin Act 143.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "66-33",
+        "old_sentences": 5,
+        "old_chars": 709
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1636038,
+      "measure_id": "AB 793",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Assembly Bill 793, a bill to create an Office of Internal Audit at the state pension agency. The Assembly passed it 56-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 793, a bill to create an Office of Internal Audit at the state pension agency. The Assembly passed it 56-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "56-43",
+        "old_sentences": 4,
+        "old_chars": 675
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1638011,
+      "measure_id": "SB 785",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Senate Bill 785, which requires a public website where anyone can look up a teaching license and any investigation results. The Assembly agreed to it 66-32 and it became law as 2025 Wisconsin Act 185.",
+      "nay_description": "Voted against Senate Bill 785, which requires a public website where anyone can look up a teaching license and any investigation results. The Assembly agreed to it 66-32 and it became law as 2025 Wisconsin Act 185.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "66-32",
+        "old_sentences": 4,
+        "old_chars": 623
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639107,
+      "measure_id": "SB 389",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 389, a bill to end the automatic yearly $325 per pupil increase in school district revenue limits after 2026. The Assembly agreed to it 54-40, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 389, a bill to end the automatic yearly $325 per pupil increase in school district revenue limits after 2026. The Assembly agreed to it 54-40, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "54-40",
+        "old_sentences": 4,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639112,
+      "measure_id": "SB 431",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 431, a bill to widen when employers may turn someone away because of a pending criminal charge. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 431, a bill to widen when employers may turn someone away because of a pending criminal charge. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "54-41",
+        "old_sentences": 4,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639148,
+      "measure_id": "SB 176",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Assembly agreed to it 60-34, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Assembly agreed to it 60-34, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "60-34",
+        "old_sentences": 3,
+        "old_chars": 484
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639154,
+      "measure_id": "SB 36",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 36, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Assembly agreed to it 60-31, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 36, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Assembly agreed to it 60-31, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "60-31",
+        "old_sentences": 3,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639558,
+      "measure_id": "SB 420",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 420, a bill to bar local governments from passing rights of nature ordinances. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 420, a bill to bar local governments from passing rights of nature ordinances. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in",
+        "tally": "54-41",
+        "old_sentences": 3,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639884,
+      "measure_id": "AB 963",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Assembly Bill 963, a bill to make large social media companies get parental consent before a minor can hold an account. The Assembly passed it 60-35, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 963, a bill to make large social media companies get parental consent before a minor can hold an account. The Assembly passed it 60-35, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "60-35",
+        "old_sentences": 3,
+        "old_chars": 496
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1639914,
+      "measure_id": "SB 799",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Senate Bill 799, a bill to give parents more access to their children's health records. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 799, a bill to give parents more access to their children's health records. The Assembly agreed to it 54-41, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and concurred in as amended",
+        "tally": "54-41",
+        "old_sentences": 6,
+        "old_chars": 815
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1640046,
+      "measure_id": "AB 996",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Assembly Bill 996, a bill to have the state match the federal $1,000 deposit into each Wisconsin child's Trump account. The Assembly passed it 62-35, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 996, a bill to have the state match the federal $1,000 deposit into each Wisconsin child's Trump account. The Assembly passed it 62-35, but the Senate did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "62-35",
+        "old_sentences": 3,
+        "old_chars": 443
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1640331,
+      "measure_id": "AB 180",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Assembly Bill 180, which orders the state to seek federal permission to stop candy and soft drinks being bought with FoodShare. The Assembly passed it 71-22 and it became law as 2025 Wisconsin Act 116.",
+      "nay_description": "Voted against Assembly Bill 180, which orders the state to seek federal permission to stop candy and soft drinks being bought with FoodShare. The Assembly passed it 71-22 and it became law as 2025 Wisconsin Act 116.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "71-22",
+        "old_sentences": 6,
+        "old_chars": 727
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1640348,
+      "measure_id": "AB 1027",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for Assembly Bill 1027, a bill to tighten food stamp work requirements, raising the age limit from 50 to 65. The Assembly passed it 54-39, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 1027, a bill to tighten food stamp work requirements, raising the age limit from 50 to 65. The Assembly passed it 54-39, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "54-39",
+        "old_sentences": 5,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1519793,
+      "measure_id": "AB 1",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Assembly Bill 1, a bill to make school report cards use the same score cutoffs and definitions every year. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 1, a bill to make school report cards use the same score cutoffs and definitions every year. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 844
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1519840,
+      "measure_id": "SB 4",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Senate Bill 4, a bill to set state rules for direct primary care subscription agreements. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 4, a bill to set state rules for direct primary care subscription agreements. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 4,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1519897,
+      "measure_id": "SB 25",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for Senate Bill 25, a bill to bar private criminal complaints against police officers over deaths once the district attorney declines. The Senate passed it 19-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 25, a bill to bar private criminal complaints against police officers over deaths once the district attorney declines. The Senate passed it 19-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "19-13",
+        "old_sentences": 4,
+        "old_chars": 590
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1553496,
+      "measure_id": "SB 76",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 76, a bill to limit what prosecutors can do with domestic abuse, sexual assault and other listed charges. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 76, a bill to limit what prosecutors can do with domestic abuse, sexual assault and other listed charges. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 968
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1572080,
+      "measure_id": "SB 56",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Senate Bill 56, which lets the state forgive loans to private water utilities used to replace lead service lines. The Senate passed it 17-16 and it became law as 2025 Wisconsin Act 8.",
+      "nay_description": "Voted against Senate Bill 56, which lets the state forgive loans to private water utilities used to replace lead service lines. The Senate passed it 17-16 and it became law as 2025 Wisconsin Act 8.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "17-16",
+        "old_sentences": 5,
+        "old_chars": 574
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1572104,
+      "measure_id": "SB 146",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Senate Bill 146, a bill to bar anyone convicted of a violent felony from ever changing their name. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 146, a bill to bar anyone convicted of a violent felony from ever changing their name. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 546
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1572138,
+      "measure_id": "AB 73",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for Assembly Bill 73, a bill to write treatment court and commercial court dockets into state law. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 73, a bill to write treatment court and commercial court dockets into state law. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592319,
+      "measure_id": "SB 182",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 182, which funds grants to technical colleges to train more emergency medical workers. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 35.",
+      "nay_description": "Voted against Senate Bill 182, which funds grants to technical colleges to train more emergency medical workers. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 35.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 662
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592343,
+      "measure_id": "AB 85",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Assembly Bill 85, a bill to make the state recommend revoking supervision whenever a person is charged with a crime. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 85, a bill to make the state recommend revoking supervision whenever a person is charged with a crime. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 629
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592350,
+      "measure_id": "SB 108",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 108, which sets up a statewide online system for sharing a child's mental health safety plan. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 10.",
+      "nay_description": "Voted against Senate Bill 108, which sets up a statewide online system for sharing a child's mental health safety plan. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 10.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592439,
+      "measure_id": "SB 94",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 94, a bill to make urging or organizing a riot a felony. The Senate passed it 18-14, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Senate Bill 94, a bill to make urging or organizing a riot a felony. The Senate passed it 18-14, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 4,
+        "old_chars": 465
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592450,
+      "measure_id": "AB 87",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Assembly Bill 87, a bill to require immediate restitution from human traffickers and add related penalties. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 87, a bill to require immediate restitution from human traffickers and add related penalties. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-14",
+        "old_sentences": 6,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592545,
+      "measure_id": "SB 106",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 106, which creates a new kind of inpatient psychiatric treatment center for children and young people under 21. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 9.",
+      "nay_description": "Voted against Senate Bill 106, which creates a new kind of inpatient psychiatric treatment center for children and young people under 21. The Senate passed it 18-14 and it became law as 2025 Wisconsin Act 9.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592623,
+      "measure_id": "SB 41",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 41, a bill to create school safety grants of up to $20,000, with the funding removed before the vote. The Senate passed it 18-14, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Senate Bill 41, a bill to create school safety grants of up to $20,000, with the funding removed before the vote. The Senate passed it 18-14, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 4,
+        "old_chars": 557
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592633,
+      "measure_id": "SB 184",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 184, a bill to bar governments from restricting vehicles or devices because of the energy source that powers them. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 184, a bill to bar governments from restricting vehicles or devices because of the energy source that powers them. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 4,
+        "old_chars": 522
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592689,
+      "measure_id": "SB 10",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 10, a bill to make every public high school let military recruiters into common areas. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 10, a bill to make every public high school let military recruiters into common areas. The Senate passed it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 704
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1592710,
+      "measure_id": "SB 279",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted for Senate Bill 279, which funds grants for police agencies to buy a real-time data-sharing platform. The Senate passed it 17-15 and it became law as 2025 Wisconsin Act 58.",
+      "nay_description": "Voted against Senate Bill 279, which funds grants for police agencies to buy a real-time data-sharing platform. The Senate passed it 17-15 and it became law as 2025 Wisconsin Act 58.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "17-15",
+        "old_sentences": 5,
+        "old_chars": 603
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1603901,
+      "measure_id": "AB 162",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Assembly Bill 162, a bill to make state job training programs track and publish how well they work. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 162, a bill to make state job training programs track and publish how well they work. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 737
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1603902,
+      "measure_id": "AB 168",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Assembly Bill 168, a bill to tighten identity checks and fraud controls in unemployment insurance. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 168, a bill to tighten identity checks and fraud controls in unemployment insurance. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 801
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1603905,
+      "measure_id": "AB 5",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Assembly Bill 5, a bill to make school boards post their adopted textbook lists online and let residents inspect them. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 5, a bill to make school boards post their adopted textbook lists online and let residents inspect them. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 779
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1603913,
+      "measure_id": "AB 35",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Assembly Bill 35, which lets a candidate withdraw from the ballot after filing by paying a fee. The Senate agreed to it 19-14 and it became law as 2025 Wisconsin Act 43.",
+      "nay_description": "Voted against Assembly Bill 35, which lets a candidate withdraw from the ballot after filing by paying a fee. The Senate agreed to it 19-14 and it became law as 2025 Wisconsin Act 43.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "19-14",
+        "old_sentences": 6,
+        "old_chars": 611
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1603915,
+      "measure_id": "AB 169",
+      "vote_date": "2025-10-14",
+      "yea_description": "Voted for Assembly Bill 169, a bill to make unemployment claimants report every job offer and interview each week. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 169, a bill to make unemployment claimants report every job offer and interview each week. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 649
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609438,
+      "measure_id": "SB 16",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Senate Bill 16, a bill to bar school districts from joining an athletic association that ignores open records laws. The Senate passed it 22-11, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 16, a bill to bar school districts from joining an athletic association that ignores open records laws. The Senate passed it 22-11, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609458,
+      "measure_id": "SB 432",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Senate Bill 432, a bill to widen who must report child abuse and what must go to the police. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 432, a bill to widen who must report child abuse and what must go to the police. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 681
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609464,
+      "measure_id": "SB 389",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Senate Bill 389, a bill to end the automatic yearly $325 per pupil increase in school district revenue limits after 2026. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 389, a bill to end the automatic yearly $325 per pupil increase in school district revenue limits after 2026. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609469,
+      "measure_id": "AB 211",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Assembly Bill 211, a bill to exempt some cigar and pipe bars from Wisconsin's indoor smoking ban. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 211, a bill to exempt some cigar and pipe bars from Wisconsin's indoor smoking ban. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 606
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609480,
+      "measure_id": "SB 532",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Senate Bill 532, a bill to stop University of Wisconsin campuses charging extra fees for online-only courses. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 532, a bill to stop University of Wisconsin campuses charging extra fees for online-only courses. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 3,
+        "old_chars": 493
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609481,
+      "measure_id": "AB 165",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Assembly Bill 165, a bill to bar local governments from spending their own money on guaranteed income programs. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 165, a bill to bar local governments from spending their own money on guaranteed income programs. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 531
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609484,
+      "measure_id": "AB 308",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Assembly Bill 308, a bill to bar public money from paying for health care for people not lawfully present in the United States. The Senate agreed to it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 308, a bill to bar public money from paying for health care for people not lawfully present in the United States. The Senate agreed to it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "21-12",
+        "old_sentences": 4,
+        "old_chars": 616
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1609541,
+      "measure_id": "SB 394",
+      "vote_date": "2025-11-18",
+      "yea_description": "Voted for Senate Bill 394, a bill to make damaging a historical monument on public property a felony. The Senate passed it 18-15, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Senate Bill 394, a bill to make damaging a historical monument on public property a felony. The Senate passed it 18-15, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 2,
+        "old_chars": 327
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1615057,
+      "measure_id": "SB 36",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted for Senate Bill 36, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Senate passed it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 36, a bill to let taxpayers subtract tips from Wisconsin taxable income for 2025 through 2028. The Senate passed it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "21-12",
+        "old_sentences": 3,
+        "old_chars": 403
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1615064,
+      "measure_id": "SB 610",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted for Senate Bill 610, a bill to add homeless shelters to the places where dealing drugs carries an extra penalty. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 610, a bill to add homeless shelters to the places where dealing drugs carries an extra penalty. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 752
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1615131,
+      "measure_id": "AB 167",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted for Assembly Bill 167, a bill to widen what counts as misconduct that disqualifies a worker from unemployment benefits. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 167, a bill to widen what counts as misconduct that disqualifies a worker from unemployment benefits. The Senate agreed to it 18-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-14",
+        "old_sentences": 6,
+        "old_chars": 905
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1615445,
+      "measure_id": "AB 457",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted for Assembly Bill 457, a bill to bar school boards from asking voters for money until their state financial reports are current. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 457, a bill to bar school boards from asking voters for money until their state financial reports are current. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1629702,
+      "measure_id": "SB 384",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Senate Bill 384, a bill to require the same care for a child born alive after an attempted abortion as any newborn. The Senate passed it 17-16, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Senate Bill 384, a bill to require the same care for a child born alive after an attempted abortion as any newborn. The Senate passed it 17-16, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "17-16",
+        "old_sentences": 4,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630075,
+      "measure_id": "SB 431",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Senate Bill 431, a bill to widen when employers may turn someone away because of a pending criminal charge. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 431, a bill to widen when employers may turn someone away because of a pending criminal charge. The Senate passed it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 605
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630282,
+      "measure_id": "SB 420",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Senate Bill 420, a bill to bar local governments from passing rights of nature ordinances. The Senate passed it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 420, a bill to bar local governments from passing rights of nature ordinances. The Senate passed it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "19-14",
+        "old_sentences": 3,
+        "old_chars": 421
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630296,
+      "measure_id": "AB 100",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 100, a bill to make school sports teams boys, girls or coed by sex at birth and bar boys from girls' teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 100, a bill to make school sports teams boys, girls or coed by sex at birth and bar boys from girls' teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630339,
+      "measure_id": "AB 102",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 102, a bill to make college sports teams men's, women's or coed by sex at birth and bar men from women's teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 102, a bill to make college sports teams men's, women's or coed by sex at birth and bar men from women's teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 4,
+        "old_chars": 679
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630414,
+      "measure_id": "AB 103",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 103, a bill to require school policies keeping pupils' legal names and pronouns unless a parent files a notarized request. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 103, a bill to require school policies keeping pupils' legal names and pronouns unless a parent files a notarized request. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 732
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630502,
+      "measure_id": "AB 223",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 223, which requires people who collect nomination paper signatures to be Wisconsin voters. The Senate agreed to it 19-14 and it became law as 2025 Wisconsin Act 126.",
+      "nay_description": "Voted against Assembly Bill 223, which requires people who collect nomination paper signatures to be Wisconsin voters. The Senate agreed to it 19-14 and it became law as 2025 Wisconsin Act 126.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "19-14",
+        "old_sentences": 5,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630631,
+      "measure_id": "AB 104",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 104, a bill to bar gender transition medical treatment for anyone under 18. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 104, a bill to bar gender transition medical treatment for anyone under 18. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 805
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630865,
+      "measure_id": "AB 614",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 614, a bill to write a teacher's authority to remove a disruptive pupil from class into state law. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 614, a bill to write a teacher's authority to remove a disruptive pupil from class into state law. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "19-14",
+        "old_sentences": 5,
+        "old_chars": 845
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1636786,
+      "measure_id": "SB 287",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Senate Bill 287, a bill to require government agencies to check every new hire through E-Verify. The Senate passed it 18-15, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "nay_description": "Voted against Senate Bill 287, a bill to require government agencies to check every new hire through E-Verify. The Senate passed it 18-15, but the Assembly did not vote on it before the session's last floor period ended, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "18-15",
+        "old_sentences": 3,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1637223,
+      "measure_id": "AB 415",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Assembly Bill 415, a bill to bar state devices from opening apps or AI tools controlled by a foreign adversary. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 415, a bill to bar state devices from opening apps or AI tools controlled by a foreign adversary. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 5,
+        "old_chars": 786
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1637263,
+      "measure_id": "AB 672",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Assembly Bill 672, a bill to make harassing dissidents or journalists on behalf of a foreign government a crime. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 672, a bill to make harassing dissidents or journalists on behalf of a foreign government a crime. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "19-14",
+        "old_sentences": 6,
+        "old_chars": 883
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1637506,
+      "measure_id": "AB 663",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Assembly Bill 663, a bill to restrict University of Wisconsin partnerships with foreign adversary countries. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 663, a bill to restrict University of Wisconsin partnerships with foreign adversary countries. The Senate agreed to it 19-14, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "19-14",
+        "old_sentences": 6,
+        "old_chars": 959
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1637587,
+      "measure_id": "SB 825",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Senate Bill 825, which lets major highway projects clear environmental review earlier with less federal involvement. The Senate passed it 24-9 and it became law as 2025 Wisconsin Act 110.",
+      "nay_description": "Voted against Senate Bill 825, which lets major highway projects clear environmental review earlier with less federal involvement. The Senate passed it 24-9 and it became law as 2025 Wisconsin Act 110.",
+      "_current": {
+        "question": "Senate: Read a third time and passed",
+        "tally": "24-9",
+        "old_sentences": 5,
+        "old_chars": 828
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1637600,
+      "measure_id": "AB 673",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for Assembly Bill 673, a bill to bar state-funded facilities from using genetic sequencers made in foreign adversary countries. The Senate agreed to it 20-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 673, a bill to bar state-funded facilities from using genetic sequencers made in foreign adversary countries. The Senate agreed to it 20-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "20-13",
+        "old_sentences": 5,
+        "old_chars": 759
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1664187,
+      "measure_id": "AB 461",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Assembly Bill 461, a bill to let taxpayers subtract overtime pay from Wisconsin taxable income. The Senate agreed to it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 461, a bill to let taxpayers subtract overtime pay from Wisconsin taxable income. The Senate agreed to it 21-12, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "21-12",
+        "old_sentences": 4,
+        "old_chars": 522
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1664414,
+      "measure_id": "AB 595",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Assembly Bill 595, a bill to require daily voter list checks against license, death and felony records. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 595, a bill to require daily voter list checks against license, death and felony records. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 914
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1664622,
+      "measure_id": "SB 176",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Senate accepted the Assembly's rewrite of the bill 20-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Senate accepted the Assembly's rewrite of the bill 20-13, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Assembly Substitute Amendment 1 concurred in",
+        "tally": "20-13",
+        "old_sentences": 3,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1664719,
+      "measure_id": "AB 180",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Assembly Bill 180, which orders the state to seek federal permission to stop candy and soft drinks being bought with FoodShare. The Senate agreed to it 25-8 and it became law as 2025 Wisconsin Act 116.",
+      "nay_description": "Voted against Assembly Bill 180, which orders the state to seek federal permission to stop candy and soft drinks being bought with FoodShare. The Senate agreed to it 25-8 and it became law as 2025 Wisconsin Act 116.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "25-8",
+        "old_sentences": 6,
+        "old_chars": 727
+      }
+    }
+  ]
+}

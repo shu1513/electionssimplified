@@ -1,0 +1,655 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/ID/rewrites.json",
+  "dryRun": false,
+  "rolls": 92,
+  "updatedRolls": 92,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 3891,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "ID:house:2168:1472604",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1475188",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1476384",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1482442",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1498343",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1499312",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1503952",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1504827",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1506825",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1514666",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1519169",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1522104",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1525975",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1527851",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1529738",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1531058",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1531141",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1536653",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1536661",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1536751",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1536768",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2168:1537326",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1631851",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1650920",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1651383",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1655502",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1659089",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1663815",
+      "outcome": "updated",
+      "rewritten": 59,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1664666",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1664909",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1664924",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1665847",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1667035",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1667235",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1667976",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1668904",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1669006",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1671296",
+      "outcome": "updated",
+      "rewritten": 59,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1671344",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1671400",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1673160",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:house:2246:1676245",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1492015",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1498505",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1501482",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1502103",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1502341",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1504438",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1505054",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1506523",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1509492",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1516255",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1517421",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1517454",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1518096",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1519034",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1519287",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1520194",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1525625",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1527820",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1527882",
+      "outcome": "updated",
+      "rewritten": 26,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1528070",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1529328",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1531006",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1532746",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1532841",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1533289",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1536122",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1537329",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2168:1537403",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1646485",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1647991",
+      "outcome": "updated",
+      "rewritten": 25,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1649553",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1649959",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1652106",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1657406",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1666665",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1666704",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1667122",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1667128",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1667232",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1668922",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1669024",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1669385",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1671596",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1671823",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1673035",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1673263",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1674240",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1675360",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1675366",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "ID:senate:2246:1675495",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/SC/rewrites.json",
+  "dryRun": false,
+  "rolls": 16,
+  "updatedRolls": 16,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 1603,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "SC:house:2194:1534869",
+      "outcome": "updated",
+      "rewritten": 105,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1535156",
+      "outcome": "updated",
+      "rewritten": 89,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1561513",
+      "outcome": "updated",
+      "rewritten": 102,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1563446",
+      "outcome": "updated",
+      "rewritten": 92,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1567547",
+      "outcome": "updated",
+      "rewritten": 105,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1567973",
+      "outcome": "updated",
+      "rewritten": 98,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1615312",
+      "outcome": "updated",
+      "rewritten": 94,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1625316",
+      "outcome": "updated",
+      "rewritten": 96,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1659394",
+      "outcome": "updated",
+      "rewritten": 112,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1670890",
+      "outcome": "updated",
+      "rewritten": 106,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1675715",
+      "outcome": "updated",
+      "rewritten": 103,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1683203",
+      "outcome": "updated",
+      "rewritten": 100,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1697896",
+      "outcome": "updated",
+      "rewritten": 100,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1698173",
+      "outcome": "updated",
+      "rewritten": 101,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1700319",
+      "outcome": "updated",
+      "rewritten": 105,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SC:house:2194:1711985",
+      "outcome": "updated",
+      "rewritten": 95,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

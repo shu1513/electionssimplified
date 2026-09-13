@@ -294,7 +294,16 @@ import every roll call. Regex builds a queue; it never decides truth.
   the conference report on…`; `Voted to override the veto of…`; suspension
   votes read as passage. Tally closes the record: `It passed/failed the
   House/Senate <yeas>-<nays>.` Past tense, ≤ 2 sentences, no modals (quality
-  gate rejects `future_promise`). Say "passed the House", never "became law",
+  gate rejects `future_promise`). **Hard gate since 2026-09-13** (every state
+  had drifted to 6-sentence bill digests): `rollcall:judge` and
+  `rollcall:rewrite` refuse a description over 3 sentences, 320 characters,
+  or 30 words in one sentence (`rollCallDescriptionLength.ts`). The one-line
+  effect says what changes for people — who pays, who is covered, what is
+  now allowed or banned — not the bill's mechanics; the reader who wants
+  the mechanics has the bill link. Reword approved rolls with
+  `rollcall:export-rewrites` → edit → `rollcall:rewrite` (wording-only:
+  labels, dates, and review status stay; fan-out records are rewritten in
+  place with identity transitions). Say "passed the House", never "became law",
   unless the bill was enacted. Omnibus votes get only the dominant slug(s),
   not every provision. `Not Voting` / `Present` rows are skipped.
 - `source_url` = Clerk XML / Senate XML / state roll-call page; `event_date` =

@@ -1,0 +1,2164 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1550181,
+      "measure_id": "AB 90",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Assembly Bill 90, which extends the rights of children in state custody to regional treatment facilities. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 90, which extends the rights of children in state custody to regional treatment facilities. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 7,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1550524,
+      "measure_id": "AB 96",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Assembly Bill 96, which makes counties of 100,000 or more people include an extreme heat plan in their master plan. The Nevada Assembly passed an earlier version 29-13, and the bill was later signed into law.",
+      "nay_description": "Voted against Assembly Bill 96, which makes counties of 100,000 or more people include an extreme heat plan in their master plan. The Nevada Assembly passed an earlier version 29-13, and the bill was later signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "29-13",
+        "old_sentences": 10,
+        "old_chars": 827
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551228,
+      "measure_id": "AB 119",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 119, a bill to let the Attorney General sue to stop private armed paramilitary groups. The Nevada Assembly passed it 27-15, but a Senate committee let it die at a deadline, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 119, a bill to let the Attorney General sue to stop private armed paramilitary groups. The Nevada Assembly passed it 27-15, but a Senate committee let it die at a deadline, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551264,
+      "measure_id": "AB 235",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 235, which lets reproductive health workers and others hide their home address in public records. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 235, which lets reproductive health workers and others hide their home address in public records. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "33-9",
+        "old_sentences": 7,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551302,
+      "measure_id": "AB 217",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 217, a bill to bar schools from letting federal immigration officers on school grounds without a warrant. The Nevada Assembly passed it 31-11, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 217, a bill to bar schools from letting federal immigration officers on school grounds without a warrant. The Nevada Assembly passed it 31-11, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "31-11",
+        "old_sentences": 3,
+        "old_chars": 468
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551571,
+      "measure_id": "AB 306",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 306, a bill to require at least 10 mail ballot drop-off sites in Clark County and 5 in Washoe County. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 306, a bill to require at least 10 mail ballot drop-off sites in Clark County and 5 in Washoe County. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 4,
+        "old_chars": 506
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551589,
+      "measure_id": "AB 241",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 241, which requires every county and city to allow apartment buildings on land zoned for business. The Nevada Assembly passed an earlier version 28-14, and the bill was later signed into law with Senate changes.",
+      "nay_description": "Voted against Assembly Bill 241, which requires every county and city to allow apartment buildings on land zoned for business. The Nevada Assembly passed an earlier version 28-14, and the bill was later signed into law with Senate changes.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 9,
+        "old_chars": 765
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551673,
+      "measure_id": "AB 185",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 185, a bill to stop homeowners associations banning licensed child care homes. The Nevada Assembly passed it 32-10, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 185, a bill to stop homeowners associations banning licensed child care homes. The Nevada Assembly passed it 32-10, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "32-10",
+        "old_sentences": 4,
+        "old_chars": 598
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1551754,
+      "measure_id": "AB 155",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 155, a bill to make student-teacher ratios something school districts must negotiate with unions. The Nevada Assembly passed it 26-16, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 155, a bill to make student-teacher ratios something school districts must negotiate with unions. The Nevada Assembly passed it 26-16, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-16",
+        "old_sentences": 4,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1552350,
+      "measure_id": "AB 140",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Assembly Bill 140, a bill to end the fixed four-year life of a driver authorization card. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 140, a bill to end the fixed four-year life of a driver authorization card. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 3,
+        "old_chars": 482
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1552615,
+      "measure_id": "AB 194",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Assembly Bill 194, which bans releasing balloons that float away, with fines up to $250. The Nevada Assembly passed it 26-15, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 194, which bans releasing balloons that float away, with fines up to $250. The Nevada Assembly passed it 26-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-15",
+        "old_sentences": 7,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1552619,
+      "measure_id": "AB 496",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Assembly Bill 496, a bill to make county clerks publish daily mail ballot counts and names of voters with questioned signatures. The Nevada Assembly passed it 26-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 496, a bill to make county clerks publish daily mail ballot counts and names of voters with questioned signatures. The Nevada Assembly passed it 26-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-15",
+        "old_sentences": 4,
+        "old_chars": 565
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1552732,
+      "measure_id": "AB 445",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Assembly Bill 445, a bill to give library staff immunity for good faith acts of providing access to library materials. The Nevada Assembly passed it 32-9, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 445, a bill to give library staff immunity for good faith acts of providing access to library materials. The Nevada Assembly passed it 32-9, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "32-9",
+        "old_sentences": 3,
+        "old_chars": 384
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1553680,
+      "measure_id": "AB 121",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 121, which makes landlords offer a fee-free way to pay rent and list rent as one figure including all fees. The Nevada Assembly passed an earlier version 27-15, and the bill was later signed into law with Senate changes.",
+      "nay_description": "Voted against Assembly Bill 121, which makes landlords offer a fee-free way to pay rent and list rent as one figure including all fees. The Nevada Assembly passed an earlier version 27-15, and the bill was later signed into law with Senate changes.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 9,
+        "old_chars": 797
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1553732,
+      "measure_id": "AB 280",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 280, a bill to make landlords refund application fees when they rent to someone else without doing the check. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 280, a bill to make landlords refund application fees when they rent to someone else without doing the check. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 570
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1553745,
+      "measure_id": "AB 283",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 283, a bill to make landlords, not tenants, file first in fast-track eviction cases. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 283, a bill to make landlords, not tenants, file first in fast-track eviction cases. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1553750,
+      "measure_id": "AB 44",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 44, a bill to make manipulating the price of food, housing, fuel or medicine an illegal restraint of trade. The Nevada Assembly passed it 24-18, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 44, a bill to make manipulating the price of food, housing, fuel or medicine an illegal restraint of trade. The Nevada Assembly passed it 24-18, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "24-18",
+        "old_sentences": 4,
+        "old_chars": 508
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1553821,
+      "measure_id": "AB 112",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 112, a bill to let union-covered workers use earned sick leave to care for family members. The Nevada Assembly passed it 29-13, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 112, a bill to let union-covered workers use earned sick leave to care for family members. The Nevada Assembly passed it 29-13, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "29-13",
+        "old_sentences": 4,
+        "old_chars": 459
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554018,
+      "measure_id": "AB 488",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 488, a bill to widen when a human trafficking victim can have a conviction erased. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 488, a bill to widen when a human trafficking victim can have a conviction erased. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554207,
+      "measure_id": "AB 223",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 223, a bill to give renters a faster court route to force repairs and hold back rent. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 223, a bill to give renters a faster court route to force repairs and hold back rent. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554233,
+      "measure_id": "AB 201",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 201, a bill to seal more eviction court records from public view. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 201, a bill to seal more eviction court records from public view. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554237,
+      "measure_id": "AB 209",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 209, a bill to give people in prostitution immunity from prosecution when evidence came from their own call for help. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 209, a bill to give people in prostitution immunity from prosecution when evidence came from their own call for help. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 474
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554310,
+      "measure_id": "AB 282",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 282, a bill to make hospitals and doctors investigate disputed medical bill charges within 30 days. The Nevada Assembly passed it 26-16, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 282, a bill to make hospitals and doctors investigate disputed medical bill charges within 30 days. The Nevada Assembly passed it 26-16, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-16",
+        "old_sentences": 4,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554356,
+      "measure_id": "AB 245",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 245, a bill to bar people under 21 from having a semiautomatic shotgun or centerfire rifle. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 245, a bill to bar people under 21 from having a semiautomatic shotgun or centerfire rifle. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554429,
+      "measure_id": "AB 343",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 343, which makes hospitals publish their standard charges and a list of 300 shoppable services. The Nevada Assembly passed it 28-14. The Senate later replaced that lawsuit with a state complaint process, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 343, which makes hospitals publish their standard charges and a list of 300 shoppable services. The Nevada Assembly passed it 28-14. The Senate later replaced that lawsuit with a state complaint process, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 10,
+        "old_chars": 733
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554449,
+      "measure_id": "AB 89",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 89, which limits strip searches of children in juvenile facilities to cases of reasonable suspicion. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 89, which limits strip searches of children in juvenile facilities to cases of reasonable suspicion. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 8,
+        "old_chars": 661
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554516,
+      "measure_id": "AB 434",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 434, a bill to bar employers from punishing workers who skip meetings pushing the employer's religious or political views. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 434, a bill to bar employers from punishing workers who skip meetings pushing the employer's religious or political views. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554734,
+      "measure_id": "AB 480",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Assembly Bill 480, a bill to write the disparate impact standard into Nevada's fair housing law. The Nevada Assembly passed it 30-12, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 480, a bill to write the disparate impact standard into Nevada's fair housing law. The Nevada Assembly passed it 30-12, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "30-12",
+        "old_sentences": 4,
+        "old_chars": 469
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1554912,
+      "measure_id": "AB 411",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Assembly Bill 411, a bill to let abortion pill prescription labels carry the practice name instead of the prescriber's. The Nevada Assembly passed it 26-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 411, a bill to let abortion pill prescription labels carry the practice name instead of the prescriber's. The Nevada Assembly passed it 26-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-15",
+        "old_sentences": 4,
+        "old_chars": 442
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1568169,
+      "measure_id": "SB 352",
+      "vote_date": "2025-05-08",
+      "yea_description": "Voted for Senate Bill 352, a bill to widen the ban on discrimination by health insurers to race, age, disability and sex. The Nevada Assembly passed it 26-15, but the governor vetoed the final version, so it never became law.",
+      "nay_description": "Voted against Senate Bill 352, a bill to widen the ban on discrimination by health insurers to race, age, disability and sex. The Nevada Assembly passed it 26-15, but the governor vetoed the final version, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-15",
+        "old_sentences": 4,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575046,
+      "measure_id": "SB 99",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 99, a bill to let Lake Tahoe local governments charge builders a fee on large new homes for affordable housing. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 99, a bill to let Lake Tahoe local governments charge builders a fee on large new homes for affordable housing. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 516
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575366,
+      "measure_id": "AB 416",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 416, a bill to stop schools and public libraries removing library materials because of their content. The Nevada Assembly passed it 29-13, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 416, a bill to stop schools and public libraries removing library materials because of their content. The Nevada Assembly passed it 29-13, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "29-13",
+        "old_sentences": 4,
+        "old_chars": 465
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575920,
+      "measure_id": "SB 102",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 102, a bill to make filing a false election document or serving as a fake presidential elector a felony. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 102, a bill to make filing a false election document or serving as a fake presidential elector a felony. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575936,
+      "measure_id": "SB 155",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 155, a bill to let non-citizens authorized to work who served as police elsewhere be hired as peace officers. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 155, a bill to let non-citizens authorized to work who served as police elsewhere be hired as peace officers. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575985,
+      "measure_id": "SB 166",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 166, which bars insurers from refusing or repricing a policy based on a dog's breed. The Nevada Assembly passed it 30-12, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 166, which bars insurers from refusing or repricing a policy based on a dog's breed. The Nevada Assembly passed it 30-12, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "30-12",
+        "old_sentences": 9,
+        "old_chars": 625
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1575998,
+      "measure_id": "SB 347",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 347, which sets rules for taking and returning guns when someone is placed on a mental health crisis hold. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 347, which sets rules for taking and returning guns when someone is placed on a mental health crisis hold. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 9,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576066,
+      "measure_id": "SB 183",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 183, which caps a child welfare permanency caseworker at 30 children. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 183, which caps a child welfare permanency caseworker at 30 children. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "33-9",
+        "old_sentences": 9,
+        "old_chars": 668
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576114,
+      "measure_id": "SB 246",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 246, which lets women get gynecological and pregnancy care without a referral or prior approval. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 246, which lets women get gynecological and pregnancy care without a referral or prior approval. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 8,
+        "old_chars": 704
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576208,
+      "measure_id": "SB 301",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 301, a bill to let state peace officers outside the civil service join state employee collective bargaining. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 301, a bill to let state peace officers outside the civil service join state employee collective bargaining. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576494,
+      "measure_id": "SB 171",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 171, a bill to shield providers of lawful gender-affirming care from licensing punishment and out-of-state probes. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 171, a bill to shield providers of lawful gender-affirming care from licensing punishment and out-of-state probes. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 630
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576923,
+      "measure_id": "SB 161",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Senate Bill 161, which gives teachers' unions and school districts a binding arbitration option when a contract expires. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 161, which gives teachers' unions and school districts a binding arbitration option when a contract expires. The Nevada Assembly passed it 33-9, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "33-9",
+        "old_sentences": 4,
+        "old_chars": 551
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576988,
+      "measure_id": "SB 443",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Senate Bill 443, which requires prevailing wages on large utility projects such as gas pipeline replacements and power plants. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 443, which requires prevailing wages on large utility projects such as gas pipeline replacements and power plants. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1576990,
+      "measure_id": "SB 414",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Senate Bill 414, a bill to make public officials disclose any company stock worth $5,000 or more. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 414, a bill to make public officials disclose any company stock worth $5,000 or more. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 557
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1577015,
+      "measure_id": "SB 298",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Senate Bill 298, which bars denying a police officer a raise or seniority increase as punishment during an investigation. The Nevada Assembly passed it 28-14, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 298, which bars denying a police officer a raise or seniority increase as punishment during an investigation. The Nevada Assembly passed it 28-14, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 3,
+        "old_chars": 427
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1577027,
+      "measure_id": "SB 89",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Senate Bill 89, a bill to bar people convicted of hate crimes from buying or owning a gun. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 89, a bill to bar people convicted of hate crimes from buying or owning a gun. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1578338,
+      "measure_id": "AB 105",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Assembly Bill 105, a bill to make carrying a gun at or within 100 feet of a polling place a crime. The Nevada Assembly passed it 27-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 105, a bill to make carrying a gun at or within 100 feet of a polling place a crime. The Nevada Assembly passed it 27-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-14",
+        "old_sentences": 3,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1578347,
+      "measure_id": "AB 589",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Assembly Bill 589, a bill to bar governments from collecting or sharing data identifying people with autism. The Nevada Assembly passed it 27-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 589, a bill to bar governments from collecting or sharing data identifying people with autism. The Nevada Assembly passed it 27-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-14",
+        "old_sentences": 3,
+        "old_chars": 519
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1579499,
+      "measure_id": "AB 259",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Assembly Bill 259, a bill to bar charging more than the Medicare negotiated price for those drugs in Nevada. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 259, a bill to bar charging more than the Medicare negotiated price for those drugs in Nevada. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 564
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1580715,
+      "measure_id": "AB 483",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Assembly Bill 483, which moves health license applications to the front of the line for people committed to working in underserved communities. The Nevada Assembly passed it 29-13, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 483, which moves health license applications to the front of the line for people committed to working in underserved communities. The Nevada Assembly passed it 29-13, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "29-13",
+        "old_sentences": 7,
+        "old_chars": 646
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1581090,
+      "measure_id": "AB 91",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 91, a bill to let the parole board give a second look to people serving time for serious felonies after ten years. The Nevada Assembly passed it 27-15, but the Senate never voted on it, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 91, a bill to let the parole board give a second look to people serving time for serious felonies after ten years. The Nevada Assembly passed it 27-15, but the Senate never voted on it, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1581111,
+      "measure_id": "AB 204",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 204, a bill to bar medical debt collectors from threatening arrest, home liens or bank account seizures. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 204, a bill to bar medical debt collectors from threatening arrest, home liens or bank account seizures. The Nevada Assembly passed it 28-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 4,
+        "old_chars": 481
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1581201,
+      "measure_id": "AB 123",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 123, which makes threatening a candidate for public office a crime. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 123, which makes threatening a candidate for public office a crime. The Nevada Assembly passed it 27-15, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 8,
+        "old_chars": 737
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1581341,
+      "measure_id": "AB 414",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 414, a bill to add air quality duties to the safety programs of large warehouse-type workplaces. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 414, a bill to add air quality duties to the safety programs of large warehouse-type workplaces. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 3,
+        "old_chars": 574
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1582251,
+      "measure_id": "AB 597",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted for Assembly Bill 597, a bill to let voters with no party pick one major party's primary ballot. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 597, a bill to let voters with no party pick one major party's primary ballot. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 500
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1582786,
+      "measure_id": "SB 156",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted for Senate Bill 156, a bill to create a Special Counsel for the Prevention of Gun Violence in the Attorney General's office. The Nevada Assembly passed it 25-14, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 156, a bill to create a Special Counsel for the Prevention of Gun Violence in the Attorney General's office. The Nevada Assembly passed it 25-14, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "25-14",
+        "old_sentences": 3,
+        "old_chars": 505
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583017,
+      "measure_id": "SB 128",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted for Senate Bill 128, a bill to bar health insurers from relying on artificial intelligence alone to deny care. The Nevada Assembly passed it 23-16, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 128, a bill to bar health insurers from relying on artificial intelligence alone to deny care. The Nevada Assembly passed it 23-16, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "23-16",
+        "old_sentences": 4,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583179,
+      "measure_id": "SB 85",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 85, a bill to make Nevada's collection of traffic stop data permanent. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 85, a bill to make Nevada's collection of traffic stop data permanent. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583193,
+      "measure_id": "SB 182",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 182, a bill to write maximum patients per nurse into law for large Clark and Washoe County hospitals. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 182, a bill to write maximum patients per nurse into law for large Clark and Washoe County hospitals. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 515
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583676,
+      "measure_id": "SB 173",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 173, a bill to ban added PFAS chemicals from carpets, food packaging, cosmetics and children's products. The Nevada Assembly passed it 27-15, but the Senate never voted on the Assembly's changes, so it never became law.",
+      "nay_description": "Voted against Senate Bill 173, a bill to ban added PFAS chemicals from carpets, food packaging, cosmetics and children's products. The Nevada Assembly passed it 27-15, but the Senate never voted on the Assembly's changes, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 640
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583741,
+      "measure_id": "SB 63",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 63, a bill to require parental consent before online services handle data of children under 13. The Nevada Assembly passed it 26-15, but the Senate never voted on the Assembly's version, so it never became law.",
+      "nay_description": "Voted against Senate Bill 63, a bill to require parental consent before online services handle data of children under 13. The Nevada Assembly passed it 26-15, but the Senate never voted on the Assembly's version, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "26-15",
+        "old_sentences": 4,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583877,
+      "measure_id": "SB 442",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 442, which makes utilities publish quarterly reports on how often they shut off power, gas or water at homes. The Nevada Assembly passed it 28-14, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 442, which makes utilities publish quarterly reports on how often they shut off power, gas or water at homes. The Nevada Assembly passed it 28-14, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "28-14",
+        "old_sentences": 8,
+        "old_chars": 586
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1583891,
+      "measure_id": "SB 217",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 217, a bill to protect assisted reproduction and require most large health plans to cover infertility treatment. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 217, a bill to protect assisted reproduction and require most large health plans to cover infertility treatment. The Nevada Assembly passed it 27-15, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "27-15",
+        "old_sentences": 4,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1584185,
+      "measure_id": "SB 260",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Senate Bill 260, which starts state rules protecting workers from wildfire smoke when the air quality index reaches 150. The Nevada Assembly passed it 32-10, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 260, which starts state rules protecting workers from wildfire smoke when the air quality index reaches 150. The Nevada Assembly passed it 32-10, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "32-10",
+        "old_sentences": 8,
+        "old_chars": 772
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "house",
+      "session": "2144",
+      "roll": 1586837,
+      "measure_id": "SB 157",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 157, which makes independent laboratory testing of cannabis a requirement rather than a choice. The Nevada Assembly passed it 31-11, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 157, which makes independent laboratory testing of cannabis a requirement rather than a choice. The Nevada Assembly passed it 31-11, and the bill was signed into law.",
+      "_current": {
+        "question": "Assembly Final Passage",
+        "tally": "31-11",
+        "old_sentences": 8,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1548312,
+      "measure_id": "SB 102",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 102, a bill to make filing a false election document or serving as a fake presidential elector a felony. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 102, a bill to make filing a false election document or serving as a fake presidential elector a felony. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 510
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1549434,
+      "measure_id": "SB 370",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 370, which puts a deadline on replacing the ownership papers for a manufactured home. The Nevada Senate passed it 16-5, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 370, which puts a deadline on replacing the ownership papers for a manufactured home. The Nevada Senate passed it 16-5, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-5",
+        "old_sentences": 9,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1550210,
+      "measure_id": "SB 301",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 301, a bill to let state peace officers outside the civil service join state employee collective bargaining. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 301, a bill to let state peace officers outside the civil service join state employee collective bargaining. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 4,
+        "old_chars": 474
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1550566,
+      "measure_id": "SB 141",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 141, a bill to make every jail write a policy for transgender, non-binary and intersex prisoners. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 141, a bill to make every jail write a policy for transgender, non-binary and intersex prisoners. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 519
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1550646,
+      "measure_id": "SB 414",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 414, a bill to make public officials disclose any company stock worth $5,000 or more. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 414, a bill to make public officials disclose any company stock worth $5,000 or more. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1552221,
+      "measure_id": "SB 324",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted for Senate Bill 324, a bill to ban selling water in small disposable plastic bottles in communities bordering Lake Tahoe. The Nevada Senate passed it 16-4, but the Assembly never voted on it, so it never became law.",
+      "nay_description": "Voted against Senate Bill 324, a bill to ban selling water in small disposable plastic bottles in communities bordering Lake Tahoe. The Nevada Senate passed it 16-4, but the Assembly never voted on it, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 4,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1552223,
+      "measure_id": "SB 155",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted for Senate Bill 155, a bill to let non-citizens authorized to work who served as police elsewhere be hired as peace officers. The Nevada Senate passed it 13-7, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 155, a bill to let non-citizens authorized to work who served as police elsewhere be hired as peace officers. The Nevada Senate passed it 13-7, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-7",
+        "old_sentences": 4,
+        "old_chars": 488
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1552296,
+      "measure_id": "SB 99",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted for Senate Bill 99, a bill to let Lake Tahoe local governments charge builders a fee on large new homes for affordable housing. The Nevada Senate passed it 14-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 99, a bill to let Lake Tahoe local governments charge builders a fee on large new homes for affordable housing. The Nevada Senate passed it 14-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-6",
+        "old_sentences": 4,
+        "old_chars": 513
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1553044,
+      "measure_id": "SB 188",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Senate Bill 188, which requires health providers to give free, accurate language help to patients who do not speak English well. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 188, which requires health providers to give free, accurate language help to patients who do not speak English well. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 9,
+        "old_chars": 925
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1553489,
+      "measure_id": "SB 171",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 171, a bill to shield providers of lawful gender-affirming care from licensing punishment and out-of-state probes. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 171, a bill to shield providers of lawful gender-affirming care from licensing punishment and out-of-state probes. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 627
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1553538,
+      "measure_id": "SB 128",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 128, a bill to bar health insurers from relying on artificial intelligence alone to deny care. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 128, a bill to bar health insurers from relying on artificial intelligence alone to deny care. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1553772,
+      "measure_id": "SB 166",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 166, which bars insurers from refusing or repricing a policy based on a dog's breed. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 166, which bars insurers from refusing or repricing a policy based on a dog's breed. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 9,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1554298,
+      "measure_id": "SB 284",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 284, which stops the state using a foster child's own Social Security or veterans benefits to pay for their care. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 284, which stops the state using a foster child's own Social Security or veterans benefits to pay for their care. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 8,
+        "old_chars": 745
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1556367,
+      "measure_id": "SB 410",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 410, a bill to make dependents' insurance part of what local governments must negotiate with unions. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 410, a bill to make dependents' insurance part of what local governments must negotiate with unions. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1569423,
+      "measure_id": "AB 306",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for Assembly Bill 306, a bill to require at least 10 mail ballot drop-off sites in Clark County and 5 in Washoe County. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 306, a bill to require at least 10 mail ballot drop-off sites in Clark County and 5 in Washoe County. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-8",
+        "old_sentences": 4,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1573177,
+      "measure_id": "SB 161",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for Senate Bill 161, which gives teachers' unions and school districts a binding arbitration option when a contract expires. The Nevada Senate passed it 14-6, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 161, which gives teachers' unions and school districts a binding arbitration option when a contract expires. The Nevada Senate passed it 14-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-6",
+        "old_sentences": 4,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1573331,
+      "measure_id": "SB 89",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for Senate Bill 89, a bill to bar people convicted of hate crimes from buying or owning a gun. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 89, a bill to bar people convicted of hate crimes from buying or owning a gun. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-8",
+        "old_sentences": 4,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1573426,
+      "measure_id": "AB 90",
+      "vote_date": "2025-05-19",
+      "yea_description": "Voted for Assembly Bill 90, which extends the rights of children in state custody to regional treatment facilities. The Nevada Senate passed it 12-8, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 90, which extends the rights of children in state custody to regional treatment facilities. The Nevada Senate passed it 12-8, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-8",
+        "old_sentences": 7,
+        "old_chars": 664
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575479,
+      "measure_id": "SB 88",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 88, which bars collecting medical debt from people after they leave prison. The Nevada Senate passed the debt-wiping version 14-7, and the bill was later signed into law as a ban on collecting the debt.",
+      "nay_description": "Voted against Senate Bill 88, which bars collecting medical debt from people after they leave prison. The Nevada Senate passed the debt-wiping version 14-7, and the bill was later signed into law as a ban on collecting the debt.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 6,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575497,
+      "measure_id": "AB 411",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 411, a bill to let abortion pill prescription labels carry the practice name instead of the prescriber's. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 411, a bill to let abortion pill prescription labels carry the practice name instead of the prescriber's. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575513,
+      "measure_id": "AB 244",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 244, a bill to ban polystyrene foam food containers, starting with large restaurant chains in October 2025. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 244, a bill to ban polystyrene foam food containers, starting with large restaurant chains in October 2025. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 3,
+        "old_chars": 473
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575514,
+      "measure_id": "AB 280",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 280, a bill to make landlords refund application fees when they rent to someone else without doing the check. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 280, a bill to make landlords refund application fees when they rent to someone else without doing the check. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575542,
+      "measure_id": "AB 245",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 245, a bill to bar people under 21 from having a semiautomatic shotgun or centerfire rifle. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 245, a bill to bar people under 21 from having a semiautomatic shotgun or centerfire rifle. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-8",
+        "old_sentences": 4,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575560,
+      "measure_id": "AB 420",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 420, which makes school districts publish a yearly report on force used by their own police. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 420, which makes school districts publish a yearly report on force used by their own police. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 9,
+        "old_chars": 792
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575587,
+      "measure_id": "AB 201",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 201, a bill to seal more eviction court records from public view. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 201, a bill to seal more eviction court records from public view. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575611,
+      "measure_id": "AB 223",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 223, a bill to give renters a faster court route to force repairs and hold back rent. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 223, a bill to give renters a faster court route to force repairs and hold back rent. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 520
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575648,
+      "measure_id": "AB 140",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 140, a bill to end the fixed four-year life of a driver authorization card. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 140, a bill to end the fixed four-year life of a driver authorization card. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 3,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575651,
+      "measure_id": "AB 480",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 480, a bill to write the disparate impact standard into Nevada's fair housing law. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 480, a bill to write the disparate impact standard into Nevada's fair housing law. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575676,
+      "measure_id": "AB 235",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Assembly Bill 235, which lets reproductive health workers and others hide their home address in public records. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 235, which lets reproductive health workers and others hide their home address in public records. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 7,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1575990,
+      "measure_id": "AB 96",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 96, which makes counties of 100,000 or more people include an extreme heat plan in their master plan. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 96, which makes counties of 100,000 or more people include an extreme heat plan in their master plan. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 9,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576530,
+      "measure_id": "AB 209",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 209, a bill to give people in prostitution immunity from prosecution when evidence came from their own call for help. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 209, a bill to give people in prostitution immunity from prosecution when evidence came from their own call for help. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 4,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576604,
+      "measure_id": "AB 434",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 434, a bill to bar employers from punishing workers who skip meetings pushing the employer's religious or political views. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 434, a bill to bar employers from punishing workers who skip meetings pushing the employer's religious or political views. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 511
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576634,
+      "measure_id": "AB 445",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 445, a bill to give library staff immunity for good faith acts of providing access to library materials. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 445, a bill to give library staff immunity for good faith acts of providing access to library materials. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 3,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576711,
+      "measure_id": "AB 496",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 496, a bill to make county clerks publish daily mail ballot counts and names of voters with questioned signatures. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 496, a bill to make county clerks publish daily mail ballot counts and names of voters with questioned signatures. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 3,
+        "old_chars": 493
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576737,
+      "measure_id": "SB 39",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 39, which sets up a state loan fund for work that reduces damage from disasters. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 39, which sets up a state loan fund for work that reduces damage from disasters. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 8,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576740,
+      "measure_id": "AB 241",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 241, which requires every county and city to allow apartment buildings on land zoned for business. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 241, which requires every county and city to allow apartment buildings on land zoned for business. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576758,
+      "measure_id": "SB 182",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 182, a bill to write maximum patients per nurse into law for large Clark and Washoe County hospitals. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 182, a bill to write maximum patients per nurse into law for large Clark and Washoe County hospitals. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576817,
+      "measure_id": "AB 283",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 283, a bill to make landlords, not tenants, file first in fast-track eviction cases. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 283, a bill to make landlords, not tenants, file first in fast-track eviction cases. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576883,
+      "measure_id": "AB 121",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 121, which makes landlords offer a fee-free way to pay rent and list rent as one figure including all fees. The Nevada Senate passed it 16-5, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 121, which makes landlords offer a fee-free way to pay rent and list rent as one figure including all fees. The Nevada Senate passed it 16-5, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-5",
+        "old_sentences": 9,
+        "old_chars": 835
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576919,
+      "measure_id": "AB 194",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 194, which bans releasing balloons that float away, with fines up to $250. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 194, which bans releasing balloons that float away, with fines up to $250. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 7,
+        "old_chars": 652
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576924,
+      "measure_id": "AB 44",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Assembly Bill 44, a bill to make manipulating the price of food, housing, fuel or medicine an illegal restraint of trade. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 44, a bill to make manipulating the price of food, housing, fuel or medicine an illegal restraint of trade. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 498
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576931,
+      "measure_id": "AB 488",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 488, a bill to widen when a human trafficking victim can have a conviction erased. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 488, a bill to widen when a human trafficking victim can have a conviction erased. The Nevada Senate passed it 14-7, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 4,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1576960,
+      "measure_id": "AB 343",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 343, which makes hospitals publish their standard charges and a list of 300 shoppable services. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 343, which makes hospitals publish their standard charges and a list of 300 shoppable services. The Nevada Senate passed it 13-8, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 10,
+        "old_chars": 757
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1577060,
+      "measure_id": "AB 112",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 112, a bill to let union-covered workers use earned sick leave to care for family members. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 112, a bill to let union-covered workers use earned sick leave to care for family members. The Nevada Senate passed it 15-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 4,
+        "old_chars": 456
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1577938,
+      "measure_id": "AB 155",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 155, a bill to make student-teacher ratios something school districts must negotiate with unions. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 155, a bill to make student-teacher ratios something school districts must negotiate with unions. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 4,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1577969,
+      "measure_id": "AB 527",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 527, which lets school districts put cameras on school buses to catch drivers who pass a stopped bus. The Nevada Senate passed it 15-5, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 527, which lets school districts put cameras on school buses to catch drivers who pass a stopped bus. The Nevada Senate passed it 15-5, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-5",
+        "old_sentences": 11,
+        "old_chars": 765
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1577997,
+      "measure_id": "AB 217",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 217, a bill to bar schools from letting federal immigration officers on school grounds without a warrant. The Nevada Senate passed it 14-6, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 217, a bill to bar schools from letting federal immigration officers on school grounds without a warrant. The Nevada Senate passed it 14-6, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-6",
+        "old_sentences": 3,
+        "old_chars": 480
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578000,
+      "measure_id": "AB 185",
+      "vote_date": "2025-05-23",
+      "yea_description": "Voted for Assembly Bill 185, a bill to stop homeowners associations banning licensed child care homes. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 185, a bill to stop homeowners associations banning licensed child care homes. The Nevada Senate passed it 16-4, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 3,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578362,
+      "measure_id": "SB 172",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Senate Bill 172, the Agricultural Workers' Bill of Rights, a bill to give farm workers earlier meal breaks and visitor access. The Nevada Senate passed it 13-7, but the Assembly never voted on final passage, so it never became law.",
+      "nay_description": "Voted against Senate Bill 172, the Agricultural Workers' Bill of Rights, a bill to give farm workers earlier meal breaks and visitor access. The Nevada Senate passed it 13-7, but the Assembly never voted on final passage, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-7",
+        "old_sentences": 4,
+        "old_chars": 437
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578452,
+      "measure_id": "SB 424",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Senate Bill 424, which charges private ambulance companies a fee and returns the money as higher Medicaid rates. The Nevada Senate passed it 16-4, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 424, which charges private ambulance companies a fee and returns the money as higher Medicaid rates. The Nevada Senate passed it 16-4, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 8,
+        "old_chars": 795
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578514,
+      "measure_id": "SB 217",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Senate Bill 217, a bill to protect assisted reproduction and require most large health plans to cover infertility treatment. The Nevada Senate passed it 15-5, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 217, a bill to protect assisted reproduction and require most large health plans to cover infertility treatment. The Nevada Senate passed it 15-5, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-5",
+        "old_sentences": 4,
+        "old_chars": 549
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578609,
+      "measure_id": "SB 173",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Senate Bill 173, a bill to ban added PFAS chemicals from carpets, food packaging, cosmetics and children's products. The Nevada Senate passed it 13-7, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "nay_description": "Voted against Senate Bill 173, a bill to ban added PFAS chemicals from carpets, food packaging, cosmetics and children's products. The Nevada Senate passed it 13-7, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-7",
+        "old_sentences": 4,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578729,
+      "measure_id": "SB 76",
+      "vote_date": "2025-05-26",
+      "yea_description": "Voted for Senate Bill 76, which sets up a state fund paying up to $25,000 to people cheated in securities fraud. The Nevada Senate passed it 13-7, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 76, which sets up a state fund paying up to $25,000 to people cheated in securities fraud. The Nevada Senate passed it 13-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-7",
+        "old_sentences": 7,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578740,
+      "measure_id": "SB 63",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 63, a bill to require parental consent before online services handle data of children under 13. The Nevada Senate passed it 13-8, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "nay_description": "Voted against Senate Bill 63, a bill to require parental consent before online services handle data of children under 13. The Nevada Senate passed it 13-8, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 695
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578859,
+      "measure_id": "SB 391",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 391, a bill to cap corporate purchases of Nevada homes at 100 a year. Nevada requires a two-thirds majority for a bill that creates a fee, so the 13-8 vote in the Senate was not enough and the bill failed.",
+      "nay_description": "Voted against Senate Bill 391, a bill to cap corporate purchases of Nevada homes at 100 a year. Nevada requires a two-thirds majority for a bill that creates a fee, so the 13-8 vote in the Senate was not enough and the bill failed.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1580564,
+      "measure_id": "SB 156",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 156, a bill to create a Special Counsel for the Prevention of Gun Violence in the Attorney General's office. The Nevada Senate passed it 11-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 156, a bill to create a Special Counsel for the Prevention of Gun Violence in the Attorney General's office. The Nevada Senate passed it 11-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "11-8",
+        "old_sentences": 3,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1580575,
+      "measure_id": "SB 193",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 193, a bill to put $10 million into lowering mortgage rates for first-time buyers. The Nevada Senate passed it 14-5, but the Assembly never voted on it, so it never became law.",
+      "nay_description": "Voted against Senate Bill 193, a bill to put $10 million into lowering mortgage rates for first-time buyers. The Nevada Senate passed it 14-5, but the Assembly never voted on it, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-5",
+        "old_sentences": 4,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1580710,
+      "measure_id": "SB 85",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for Senate Bill 85, a bill to make Nevada's collection of traffic stop data permanent. The Nevada Senate passed it 11-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Senate Bill 85, a bill to make Nevada's collection of traffic stop data permanent. The Nevada Senate passed it 11-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "11-8",
+        "old_sentences": 4,
+        "old_chars": 476
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1581651,
+      "measure_id": "AB 589",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted for Assembly Bill 589, a bill to bar governments from collecting or sharing data identifying people with autism. The Nevada Senate passed it 13-7, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 589, a bill to bar governments from collecting or sharing data identifying people with autism. The Nevada Senate passed it 13-7, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-7",
+        "old_sentences": 3,
+        "old_chars": 516
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1582218,
+      "measure_id": "AB 105",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted for Assembly Bill 105, a bill to make carrying a gun at or within 100 feet of a polling place a crime. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 105, a bill to make carrying a gun at or within 100 feet of a polling place a crime. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 3,
+        "old_chars": 412
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1582302,
+      "measure_id": "SB 260",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted for Senate Bill 260, which starts state rules protecting workers from wildfire smoke when the air quality index reaches 150. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "nay_description": "Voted against Senate Bill 260, which starts state rules protecting workers from wildfire smoke when the air quality index reaches 150. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 8,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1582877,
+      "measure_id": "AB 123",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted for Assembly Bill 123, which makes threatening a candidate for public office a crime. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 123, which makes threatening a candidate for public office a crime. The Nevada Senate passed it 14-7, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-7",
+        "old_sentences": 8,
+        "old_chars": 734
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583311,
+      "measure_id": "AB 259",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 259, a bill to bar charging more than the Medicare negotiated price for those drugs in Nevada. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 259, a bill to bar charging more than the Medicare negotiated price for those drugs in Nevada. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583340,
+      "measure_id": "AB 460",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 460, which gives parents a form for naming a guardian to raise their child if they cannot. The Nevada Senate passed it 16-4, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 460, which gives parents a form for naming a guardian to raise their child if they cannot. The Nevada Senate passed it 16-4, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "16-4",
+        "old_sentences": 9,
+        "old_chars": 789
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583619,
+      "measure_id": "AB 204",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 204, a bill to bar medical debt collectors from threatening arrest, home liens or bank account seizures. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 204, a bill to bar medical debt collectors from threatening arrest, home liens or bank account seizures. The Nevada Senate passed it 12-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-8",
+        "old_sentences": 4,
+        "old_chars": 478
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583621,
+      "measure_id": "AB 414",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 414, a bill to add air quality duties to the safety programs of large warehouse-type workplaces. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 414, a bill to add air quality duties to the safety programs of large warehouse-type workplaces. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 3,
+        "old_chars": 571
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583650,
+      "measure_id": "AB 282",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 282, a bill to make hospitals and doctors investigate disputed medical bill charges within 30 days. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 282, a bill to make hospitals and doctors investigate disputed medical bill charges within 30 days. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 590
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583679,
+      "measure_id": "AB 540",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 540, which puts $133 million of state money into a new attainable housing fund. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 540, which puts $133 million of state money into a new attainable housing fund. The Nevada Senate passed it 15-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "15-6",
+        "old_sentences": 9,
+        "old_chars": 857
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583686,
+      "measure_id": "AB 416",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 416, a bill to stop schools and public libraries removing library materials because of their content. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 416, a bill to stop schools and public libraries removing library materials because of their content. The Nevada Senate passed it 13-8, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 4,
+        "old_chars": 462
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583696,
+      "measure_id": "AB 597",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 597, a bill to let voters with no party pick one major party's primary ballot. The Nevada Senate passed it 12-9, but the governor vetoed the bill, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 597, a bill to let voters with no party pick one major party's primary ballot. The Nevada Senate passed it 12-9, but the governor vetoed the bill, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "12-9",
+        "old_sentences": 4,
+        "old_chars": 497
+      }
+    },
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1583907,
+      "measure_id": "AB 483",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted for Assembly Bill 483, which moves health license applications to the front of the line for people committed to working in underserved communities. The Nevada Senate passed it 14-6, and the bill was signed into law.",
+      "nay_description": "Voted against Assembly Bill 483, which moves health license applications to the front of the line for people committed to working in underserved communities. The Nevada Senate passed it 14-6, and the bill was signed into law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "14-6",
+        "old_sentences": 7,
+        "old_chars": 643
+      }
+    }
+  ]
+}

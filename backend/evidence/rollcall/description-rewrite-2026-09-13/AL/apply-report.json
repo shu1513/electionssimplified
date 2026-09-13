@@ -1,0 +1,1229 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/AL/rewrites.json",
+  "dryRun": false,
+  "rolls": 174,
+  "updatedRolls": 174,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 8837,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "AL:house:1621:841881",
+      "outcome": "updated",
+      "rewritten": 47,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:850156",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:861380",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:862047",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:863631",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:868739",
+      "outcome": "updated",
+      "rewritten": 41,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:870365",
+      "outcome": "updated",
+      "rewritten": 45,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:875179",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:875747",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1621:875913",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1706:920063",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1706:947969",
+      "outcome": "updated",
+      "rewritten": 47,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:999235",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1019608",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1019613",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1024976",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1026862",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1029124",
+      "outcome": "updated",
+      "rewritten": 50,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1029612",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1031172",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1031548",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1031588",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1045935",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1046381",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1048304",
+      "outcome": "updated",
+      "rewritten": 47,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1051692",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1052093",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1054860",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1057114",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1061266",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1066323",
+      "outcome": "updated",
+      "rewritten": 49,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1073639",
+      "outcome": "updated",
+      "rewritten": 40,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1073791",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1078918",
+      "outcome": "updated",
+      "rewritten": 51,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1756:1078959",
+      "outcome": "updated",
+      "rewritten": 52,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1146848",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1150547",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1167430",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1167692",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1171782",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1171971",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1172297",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1178746",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1179024",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1181465",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1184501",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185166",
+      "outcome": "updated",
+      "rewritten": 55,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185249",
+      "outcome": "updated",
+      "rewritten": 54,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185330",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185519",
+      "outcome": "updated",
+      "rewritten": 48,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185525",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185548",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1836:1185980",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1854:1109371",
+      "outcome": "updated",
+      "rewritten": 56,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1854:1109375",
+      "outcome": "updated",
+      "rewritten": 55,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1854:1109394",
+      "outcome": "updated",
+      "rewritten": 55,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1854:1109477",
+      "outcome": "updated",
+      "rewritten": 53,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1111175",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1111185",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1115492",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1115493",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1115542",
+      "outcome": "updated",
+      "rewritten": 43,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:1857:1115544",
+      "outcome": "updated",
+      "rewritten": 57,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1300210",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1307256",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1316694",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1316753",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1318421",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1321392",
+      "outcome": "updated",
+      "rewritten": 79,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1323541",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1325638",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1326682",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1333046",
+      "outcome": "updated",
+      "rewritten": 77,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1336162",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1336165",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2014:1339599",
+      "outcome": "updated",
+      "rewritten": 75,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2060:1350857",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1396245",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1404902",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1405149",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1419812",
+      "outcome": "updated",
+      "rewritten": 69,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1425563",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1425650",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1432637",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1432866",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1434894",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1436740",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1436817",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1437008",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1437151",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1437155",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1438138",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2103:1441138",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1486877",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1507290",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1519986",
+      "outcome": "updated",
+      "rewritten": 81,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1522711",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1543491",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1551126",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1551361",
+      "outcome": "updated",
+      "rewritten": 85,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1566772",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1566797",
+      "outcome": "updated",
+      "rewritten": 83,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2148:1573029",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1614139",
+      "outcome": "updated",
+      "rewritten": 84,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1635385",
+      "outcome": "updated",
+      "rewritten": 89,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1642547",
+      "outcome": "updated",
+      "rewritten": 89,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1643558",
+      "outcome": "updated",
+      "rewritten": 89,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1643628",
+      "outcome": "updated",
+      "rewritten": 91,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1675418",
+      "outcome": "updated",
+      "rewritten": 88,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1679896",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1679940",
+      "outcome": "updated",
+      "rewritten": 92,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2218:1679974",
+      "outcome": "updated",
+      "rewritten": 86,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:house:2262:1694623",
+      "outcome": "updated",
+      "rewritten": 92,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:826324",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:826377",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:835992",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:852080",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:861143",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:861734",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:873644",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1621:875886",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1706:937125",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1706:950624",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1021832",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1024562",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1043087",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1051414",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1051702",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1057291",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1057454",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1057884",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1060108",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1060614",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1074242",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1756:1074303",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1140071",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1140220",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1146018",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1150254",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1152379",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1158840",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1167429",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1180303",
+      "outcome": "updated",
+      "rewritten": 17,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1180925",
+      "outcome": "updated",
+      "rewritten": 15,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1836:1185160",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1854:1109471",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1857:1111153",
+      "outcome": "updated",
+      "rewritten": 21,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1857:1115467",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:1857:1115491",
+      "outcome": "updated",
+      "rewritten": 20,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1325654",
+      "outcome": "updated",
+      "rewritten": 24,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1327663",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1327840",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1331411",
+      "outcome": "updated",
+      "rewritten": 26,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1333288",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1336287",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2014:1336890",
+      "outcome": "updated",
+      "rewritten": 23,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2060:1350905",
+      "outcome": "updated",
+      "rewritten": 24,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2060:1350910",
+      "outcome": "updated",
+      "rewritten": 24,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1383756",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1384609",
+      "outcome": "updated",
+      "rewritten": 26,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1392591",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1404666",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1405649",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2103:1437113",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1488709",
+      "outcome": "updated",
+      "rewritten": 26,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1488934",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1566046",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1567082",
+      "outcome": "updated",
+      "rewritten": 25,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2148:1567089",
+      "outcome": "updated",
+      "rewritten": 16,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2218:1622181",
+      "outcome": "updated",
+      "rewritten": 29,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2218:1674032",
+      "outcome": "updated",
+      "rewritten": 24,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2218:1679865",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2262:1694713",
+      "outcome": "updated",
+      "rewritten": 28,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AL:senate:2262:1695918",
+      "outcome": "updated",
+      "rewritten": 30,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

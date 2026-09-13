@@ -1,0 +1,884 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1491965,
+      "measure_id": "HB 1041",
+      "vote_date": "2025-02-18",
+      "yea_description": "Voted for House Bill 1041, which makes colleges label sports teams by sex and bars males from women's teams. The Indiana House passed it 71-25, and it became law.",
+      "nay_description": "Voted against House Bill 1041, which makes colleges label sports teams by sex and bars males from women's teams. The Indiana House passed it 71-25, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "71-25",
+        "old_sentences": 5,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1522403,
+      "measure_id": "SB 424",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Senate Bill 424, which lets electric utilities charge customers for planning a small nuclear reactor before holding a permit. The Indiana House passed the bill 59-30, and it became law.",
+      "nay_description": "Voted against Senate Bill 424, which lets electric utilities charge customers for planning a small nuclear reactor before holding a permit. The Indiana House passed the bill 59-30, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "59-30",
+        "old_sentences": 8,
+        "old_chars": 616
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1524703,
+      "measure_id": "SB 450",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for Senate Bill 450, which sets rules for Indiana's delegates to any constitutional convention. The Indiana House passed the bill 69-27, and it became law.",
+      "nay_description": "Voted against Senate Bill 450, which sets rules for Indiana's delegates to any constitutional convention. The Indiana House passed the bill 69-27, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "69-27",
+        "old_sentences": 6,
+        "old_chars": 589
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1535941,
+      "measure_id": "SB 365",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for Senate Bill 365, which makes the state track whether career course graduates end up in matching jobs. The Indiana House passed the bill 66-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 365, which makes the state track whether career course graduates end up in matching jobs. The Indiana House passed the bill 66-24, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "66-24",
+        "old_sentences": 9,
+        "old_chars": 733
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1539781,
+      "measure_id": "SB 2",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for Senate Bill 2, which requires Healthy Indiana Plan adults to work, train or volunteer at least 20 hours a week. The Indiana House passed the bill 66-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 2, which requires Healthy Indiana Plan adults to work, train or volunteer at least 20 hours a week. The Indiana House passed the bill 66-28, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "66-28",
+        "old_sentences": 8,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1548365,
+      "measure_id": "SB 423",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 423, which sets up a program for building small nuclear reactors with early costs on customer bills. The Indiana House passed the bill 67-29, and it became law.",
+      "nay_description": "Voted against Senate Bill 423, which sets up a program for building small nuclear reactors with early costs on customer bills. The Indiana House passed the bill 67-29, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "67-29",
+        "old_sentences": 9,
+        "old_chars": 671
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1549534,
+      "measure_id": "HB 1393",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 1393, which makes jails alert the sheriff when they book someone believed to be in the country unlawfully. The Indiana House agreed to the Senate's version 58-19, and it became law.",
+      "nay_description": "Voted against House Bill 1393, which makes jails alert the sheriff when they book someone believed to be in the country unlawfully. The Indiana House agreed to the Senate's version 58-19, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "58-19",
+        "old_sentences": 5,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1549561,
+      "measure_id": "HB 1079",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for House Bill 1079, which cuts the wait before a storage firm may sell a tenant's belongings from 90 days to 45. The Indiana House agreed to the final version 64-21, and it became law.",
+      "nay_description": "Voted against House Bill 1079, which cuts the wait before a storage firm may sell a tenant's belongings from 90 days to 45. The Indiana House agreed to the final version 64-21, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "64-21",
+        "old_sentences": 5,
+        "old_chars": 379
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1550985,
+      "measure_id": "HB 1037",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House Bill 1037, which stops local governments setting stricter building site run-off rules than the state. The Indiana House agreed to the final version 68-20, and it became law.",
+      "nay_description": "Voted against House Bill 1037, which stops local governments setting stricter building site run-off rules than the state. The Indiana House agreed to the final version 68-20, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "68-20",
+        "old_sentences": 9,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1555035,
+      "measure_id": "HB 1680",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for House Bill 1680, which requires proof of citizenship for some voter registrations and adds regular election checks. The Indiana House adopted the final version 65-25, and it became law.",
+      "nay_description": "Voted against House Bill 1680, which requires proof of citizenship for some voter registrations and adds regular election checks. The Indiana House adopted the final version 65-25, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "65-25",
+        "old_sentences": 17,
+        "old_chars": 1209
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1556465,
+      "measure_id": "SB 289",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 289, which bars public employers and schools from using race or sex in hiring, admissions or aid. The Indiana House backed the final version 64-26, and it became law.",
+      "nay_description": "Voted against Senate Bill 289, which bars public employers and schools from using race or sex in hiring, admissions or aid. The Indiana House backed the final version 64-26, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "64-26",
+        "old_sentences": 5,
+        "old_chars": 696
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1556472,
+      "measure_id": "HB 1003",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana House adopted the final version 67-25, and it became law.",
+      "nay_description": "Voted against House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana House adopted the final version 67-25, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "67-25",
+        "old_sentences": 15,
+        "old_chars": 1077
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1556507,
+      "measure_id": "SB 526",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 526, which changes how absentee ballots that must be rejected are handled in voting machine tests. The Indiana House backed the final version 65-26, and it became law.",
+      "nay_description": "Voted against Senate Bill 526, which changes how absentee ballots that must be rejected are handled in voting machine tests. The Indiana House backed the final version 65-26, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "65-26",
+        "old_sentences": 8,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1556821,
+      "measure_id": "SB 358",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 358, which raises school reading standards and tightens a school choice fund. The Indiana House adopted the final version 58-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 358, which raises school reading standards and tightens a school choice fund. The Indiana House adopted the final version 58-28, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "58-28",
+        "old_sentences": 13,
+        "old_chars": 1000
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2143",
+      "roll": 1556843,
+      "measure_id": "SB 475",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 475, which bans new noncompete deals that stop doctors working for a rival after leaving a hospital. The Indiana House backed the final version 65-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 475, which bans new noncompete deals that stop doctors working for a rival after leaving a hospital. The Indiana House backed the final version 65-21, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "65-21",
+        "old_sentences": 5,
+        "old_chars": 523
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1618337,
+      "measure_id": "HB 1274",
+      "vote_date": "2026-01-28",
+      "yea_description": "Voted for House Bill 1274, which stops insurers making customers post no-gun signs. The Indiana House passed the bill 69-25, and it became law.",
+      "nay_description": "Voted against House Bill 1274, which stops insurers making customers post no-gun signs. The Indiana House passed the bill 69-25, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "69-25",
+        "old_sentences": 6,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1626087,
+      "measure_id": "SB 258",
+      "vote_date": "2026-02-09",
+      "yea_description": "Voted for Senate Bill 258, which removes Indiana's own permit system for nuclear power plants. The Indiana House passed the bill 64-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 258, which removes Indiana's own permit system for nuclear power plants. The Indiana House passed the bill 64-28, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "64-28",
+        "old_sentences": 10,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1628208,
+      "measure_id": "SB 112",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted for Senate Bill 112, which treats a candidate's withdrawal papers as a request to update their voter address. The Indiana House passed the bill 72-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 112, which treats a candidate's withdrawal papers as a request to update their voter address. The Indiana House passed the bill 72-24, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "72-24",
+        "old_sentences": 5,
+        "old_chars": 354
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1631741,
+      "measure_id": "SB 76",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for Senate Bill 76, which makes local governments help enforce federal immigration law, including honoring holds. The Indiana House passed the bill 61-28, and it became law.",
+      "nay_description": "Voted against Senate Bill 76, which makes local governments help enforce federal immigration law, including honoring holds. The Indiana House passed the bill 61-28, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "61-28",
+        "old_sentences": 14,
+        "old_chars": 1033
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1637695,
+      "measure_id": "HB 1150",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for House Bill 1150, which limits what homeowners groups and local governments may regulate, including flag displays. The Indiana House agreed to the final version 72-19, and it became law.",
+      "nay_description": "Voted against House Bill 1150, which limits what homeowners groups and local governments may regulate, including flag displays. The Indiana House agreed to the final version 72-19, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "72-19",
+        "old_sentences": 10,
+        "old_chars": 812
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1638743,
+      "measure_id": "HB 1355",
+      "vote_date": "2026-02-19",
+      "yea_description": "Voted for House Bill 1355, which puts state review of large livestock farms on a 90-day clock. The Indiana House agreed to the final version 73-22, and it became law.",
+      "nay_description": "Voted against House Bill 1355, which puts state review of large livestock farms on a 90-day clock. The Indiana House agreed to the final version 73-22, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "73-22",
+        "old_sentences": 13,
+        "old_chars": 970
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1642560,
+      "measure_id": "SB 277",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate Bill 277, which repeals 84 sections of environment law and turns many agency duties into choices. The Indiana House passed the bill 53-45, and it became law.",
+      "nay_description": "Voted against Senate Bill 277, which repeals 84 sections of environment law and turns many agency duties into choices. The Indiana House passed the bill 53-45, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "53-45",
+        "old_sentences": 17,
+        "old_chars": 1092
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1642646,
+      "measure_id": "SB 284",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate Bill 284, which limits civilian police oversight boards to an advisory role. The Indiana House passed the bill 70-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 284, which limits civilian police oversight boards to an advisory role. The Indiana House passed the bill 70-25, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "70-25",
+        "old_sentences": 7,
+        "old_chars": 478
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1642738,
+      "measure_id": "SB 285",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate Bill 285, which makes camping or sleeping on government land a crime after a warning. The Indiana House passed the bill 53-44, and it became law.",
+      "nay_description": "Voted against Senate Bill 285, which makes camping or sleeping on government land a crime after a warning. The Indiana House passed the bill 53-44, and it became law.",
+      "_current": {
+        "question": "House - Third reading",
+        "tally": "53-44",
+        "old_sentences": 10,
+        "old_chars": 832
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1643905,
+      "measure_id": "HB 1273",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 1273, which makes shareholder advisory firms disclose when advice against management lacks a financial study. The Indiana House agreed to the final version 72-20, and it became law.",
+      "nay_description": "Voted against House Bill 1273, which makes shareholder advisory firms disclose when advice against management lacks a financial study. The Indiana House agreed to the final version 72-20, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "72-20",
+        "old_sentences": 10,
+        "old_chars": 811
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1644741,
+      "measure_id": "HB 1001",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 1001, which requires yearly local housing reports from 2027 and changes what builders must fit. The Indiana House agreed to the final version 72-21, and it became law.",
+      "nay_description": "Voted against House Bill 1001, which requires yearly local housing reports from 2027 and changes what builders must fit. The Indiana House agreed to the final version 72-21, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "72-21",
+        "old_sentences": 16,
+        "old_chars": 1196
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1645961,
+      "measure_id": "HB 1302",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for House Bill 1302, which loosens several labor and safety rules, including minor employment registration. The Indiana House agreed to the final version 69-25, and it became law.",
+      "nay_description": "Voted against House Bill 1302, which loosens several labor and safety rules, including minor employment registration. The Indiana House agreed to the final version 69-25, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "69-25",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1646022,
+      "measure_id": "HB 1193",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for House Bill 1193, which stops the Civil Rights Commission acting as a person's lawyer in discrimination cases. The Indiana House agreed to the final version 66-29, and it became law.",
+      "nay_description": "Voted against House Bill 1193, which stops the Civil Rights Commission acting as a person's lawyer in discrimination cases. The Indiana House agreed to the final version 66-29, and it became law.",
+      "_current": {
+        "question": "House - House concurred with Senate amendments",
+        "tally": "66-29",
+        "old_sentences": 12,
+        "old_chars": 926
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1648201,
+      "measure_id": "HB 1368",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for House Bill 1368, which rebuilds the rules for storing carbon dioxide underground so the state can take over permits. The Indiana House agreed to the final version 57-40, and it became law.",
+      "nay_description": "Voted against House Bill 1368, which rebuilds the rules for storing carbon dioxide underground so the state can take over permits. The Indiana House agreed to the final version 57-40, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. House concurred with Senate amendments",
+        "tally": "57-40",
+        "old_sentences": 21,
+        "old_chars": 1312
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1648339,
+      "measure_id": "HB 1003",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana House adopted the final version 69-28, and it became law.",
+      "nay_description": "Voted against House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana House adopted the final version 69-28, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "69-28",
+        "old_sentences": 17,
+        "old_chars": 1107
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1484850,
+      "measure_id": "SB 450",
+      "vote_date": "2025-02-10",
+      "yea_description": "Voted for Senate Bill 450, which sets rules for Indiana's delegates to any constitutional convention. The Indiana Senate passed the bill 33-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 450, which sets rules for Indiana's delegates to any constitutional convention. The Indiana Senate passed the bill 33-16, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "33-16",
+        "old_sentences": 6,
+        "old_chars": 590
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1495551,
+      "measure_id": "SB 409",
+      "vote_date": "2025-02-20",
+      "yea_description": "Voted for Senate Bill 409, which protects a parent's job when they attend a school attendance or special education meeting. The Indiana Senate passed the bill 30-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 409, which protects a parent's job when they attend a school attendance or special education meeting. The Indiana Senate passed the bill 30-19, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 645
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1524754,
+      "measure_id": "HB 1393",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for House Bill 1393, which makes jails alert the sheriff when they book someone believed to be in the country unlawfully. The Indiana Senate passed it 37-10, and it became law.",
+      "nay_description": "Voted against House Bill 1393, which makes jails alert the sheriff when they book someone believed to be in the country unlawfully. The Indiana Senate passed it 37-10, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "37-10",
+        "old_sentences": 5,
+        "old_chars": 446
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1526255,
+      "measure_id": "SB 424",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for Senate Bill 424, which lets electric utilities charge customers for planning a small nuclear reactor before holding a permit. The Indiana Senate passed the bill 32-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 424, which lets electric utilities charge customers for planning a small nuclear reactor before holding a permit. The Indiana Senate passed the bill 32-15, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "32-15",
+        "old_sentences": 8,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1540370,
+      "measure_id": "HB 1634",
+      "vote_date": "2025-04-08",
+      "yea_description": "Voted for House Bill 1634, which adds math screening for kindergarten through second grade from the 2026-2027 school year. The Indiana Senate passed the bill 38-11, and it became law.",
+      "nay_description": "Voted against House Bill 1634, which adds math screening for kindergarten through second grade from the 2026-2027 school year. The Indiana Senate passed the bill 38-11, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "38-11",
+        "old_sentences": 11,
+        "old_chars": 906
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1548822,
+      "measure_id": "HB 1037",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for House Bill 1037, which stops local governments setting stricter building site run-off rules than the state. The Indiana Senate passed the bill 31-18, and it became law.",
+      "nay_description": "Voted against House Bill 1037, which stops local governments setting stricter building site run-off rules than the state. The Indiana Senate passed the bill 31-18, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "31-18",
+        "old_sentences": 9,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1551274,
+      "measure_id": "SB 423",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 423, which sets up a program for building small nuclear reactors with early costs on customer bills. The Indiana Senate passed the bill 34-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 423, which sets up a program for building small nuclear reactors with early costs on customer bills. The Indiana Senate passed the bill 34-12, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "34-12",
+        "old_sentences": 9,
+        "old_chars": 748
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1551292,
+      "measure_id": "SB 2",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 2, which requires Healthy Indiana Plan adults to work, train or volunteer at least 20 hours a week. The Indiana Senate passed the bill 37-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 2, which requires Healthy Indiana Plan adults to work, train or volunteer at least 20 hours a week. The Indiana Senate passed the bill 37-10, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "37-10",
+        "old_sentences": 8,
+        "old_chars": 772
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1555540,
+      "measure_id": "HB 1680",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for House Bill 1680, which requires proof of citizenship for some voter registrations and adds regular election checks. The Indiana Senate adopted the final version 36-9, and it became law.",
+      "nay_description": "Voted against House Bill 1680, which requires proof of citizenship for some voter registrations and adds regular election checks. The Indiana Senate adopted the final version 36-9, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "36-9",
+        "old_sentences": 17,
+        "old_chars": 1209
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1556820,
+      "measure_id": "SB 358",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 358, which raises school reading standards and tightens a school choice fund. The Indiana Senate adopted the final version 37-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 358, which raises school reading standards and tightens a school choice fund. The Indiana Senate adopted the final version 37-12, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "37-12",
+        "old_sentences": 13,
+        "old_chars": 1001
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1556836,
+      "measure_id": "HB 1003",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana Senate adopted the final version 30-20, and it became law.",
+      "nay_description": "Voted against House Bill 1003, which makes labs and scan centers post cash prices for 50 common services and cuts some patient bills. The Indiana Senate adopted the final version 30-20, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "30-20",
+        "old_sentences": 15,
+        "old_chars": 1078
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1556839,
+      "measure_id": "SB 289",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 289, which bars public employers and schools from using race or sex in hiring, admissions or aid. The Indiana Senate backed the final version 34-16, and it became law.",
+      "nay_description": "Voted against Senate Bill 289, which bars public employers and schools from using race or sex in hiring, admissions or aid. The Indiana Senate backed the final version 34-16, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "34-16",
+        "old_sentences": 5,
+        "old_chars": 697
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1556915,
+      "measure_id": "SB 526",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 526, which changes how absentee ballots that must be rejected are handled in voting machine tests. The Indiana Senate backed the final version 40-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 526, which changes how absentee ballots that must be rejected are handled in voting machine tests. The Indiana Senate backed the final version 40-10, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "40-10",
+        "old_sentences": 8,
+        "old_chars": 809
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1557738,
+      "measure_id": "HB 1004",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 1004, which caps what big hospital groups may charge employers at 260 percent of Medicare. The Indiana Senate adopted the final version 37-13, and it became law.",
+      "nay_description": "Voted against House Bill 1004, which caps what big hospital groups may charge employers at 260 percent of Medicare. The Indiana Senate adopted the final version 37-13, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "37-13",
+        "old_sentences": 13,
+        "old_chars": 1020
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2143",
+      "roll": 1558096,
+      "measure_id": "SB 140",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 140, which sets network and payment rules for pharmacy benefit managers. The Indiana Senate adopted the final version 39-10, and it became law.",
+      "nay_description": "Voted against Senate Bill 140, which sets network and payment rules for pharmacy benefit managers. The Indiana Senate adopted the final version 39-10, and it became law.",
+      "_current": {
+        "question": "Senate - Rules Suspended. Conference Committee Report 1",
+        "tally": "39-10",
+        "old_sentences": 11,
+        "old_chars": 901
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1616240,
+      "measure_id": "SB 258",
+      "vote_date": "2026-01-22",
+      "yea_description": "Voted for Senate Bill 258, which removes Indiana's own permit system for nuclear power plants. The Indiana Senate passed the bill 36-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 258, which removes Indiana's own permit system for nuclear power plants. The Indiana Senate passed the bill 36-9, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "36-9",
+        "old_sentences": 10,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1632010,
+      "measure_id": "HB 1150",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for House Bill 1150, which limits what homeowners groups and local governments may regulate, including flag displays. The Indiana Senate passed the bill 37-10, and it became law.",
+      "nay_description": "Voted against House Bill 1150, which limits what homeowners groups and local governments may regulate, including flag displays. The Indiana Senate passed the bill 37-10, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "37-10",
+        "old_sentences": 10,
+        "old_chars": 801
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1642595,
+      "measure_id": "HB 1424",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 1424, which lets small food producers with up to $1.5 million in sales sell without a license or inspection. The Indiana Senate passed the bill 38-10, and it became law.",
+      "nay_description": "Voted against House Bill 1424, which lets small food producers with up to $1.5 million in sales sell without a license or inspection. The Indiana Senate passed the bill 38-10, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "38-10",
+        "old_sentences": 13,
+        "old_chars": 1013
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1642619,
+      "measure_id": "HB 1368",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 1368, which rebuilds the rules for storing carbon dioxide underground so the state can take over permits. The Indiana Senate passed the bill 29-19, and it became law.",
+      "nay_description": "Voted against House Bill 1368, which rebuilds the rules for storing carbon dioxide underground so the state can take over permits. The Indiana Senate passed the bill 29-19, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "29-19",
+        "old_sentences": 21,
+        "old_chars": 1301
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1642852,
+      "measure_id": "HB 1001",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 1001, which requires yearly local housing reports from 2027 and changes what builders must fit. The Indiana Senate passed the bill 35-13, and it became law.",
+      "nay_description": "Voted against House Bill 1001, which requires yearly local housing reports from 2027 and changes what builders must fit. The Indiana Senate passed the bill 35-13, and it became law.",
+      "_current": {
+        "question": "Senate - Third reading",
+        "tally": "35-13",
+        "old_sentences": 16,
+        "old_chars": 1185
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1645121,
+      "measure_id": "SB 78",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate Bill 78, which extends the school phone ban to the whole school day. The Indiana Senate agreed to the final version 36-12, and it became law.",
+      "nay_description": "Voted against Senate Bill 78, which extends the school phone ban to the whole school day. The Indiana Senate agreed to the final version 36-12, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "36-12",
+        "old_sentences": 11,
+        "old_chars": 743
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1645175,
+      "measure_id": "SB 76",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate Bill 76, which makes local governments help enforce federal immigration law, including honoring holds. The Indiana Senate agreed to the final version 37-11, and it became law.",
+      "nay_description": "Voted against Senate Bill 76, which makes local governments help enforce federal immigration law, including honoring holds. The Indiana Senate agreed to the final version 37-11, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "37-11",
+        "old_sentences": 14,
+        "old_chars": 1046
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1645191,
+      "measure_id": "SB 277",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for Senate Bill 277, which repeals 84 sections of environment law and turns many agency duties into choices. The Indiana Senate agreed to the final version 26-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 277, which repeals 84 sections of environment law and turns many agency duties into choices. The Indiana Senate agreed to the final version 26-21, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "26-21",
+        "old_sentences": 17,
+        "old_chars": 1105
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1646484,
+      "measure_id": "SB 285",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for Senate Bill 285, which makes camping or sleeping on government land a crime after a warning. The Indiana Senate agreed to the final version 28-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 285, which makes camping or sleeping on government land a crime after a warning. The Indiana Senate agreed to the final version 28-22, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "28-22",
+        "old_sentences": 10,
+        "old_chars": 845
+      }
+    },
+    {
+      "jurisdiction": "IN",
+      "chamber": "senate",
+      "session": "2234",
+      "roll": 1647209,
+      "measure_id": "SB 270",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted for Senate Bill 270, which forces many townships to merge or close based on a state points system. The Indiana Senate agreed to the final version 34-15, and it became law.",
+      "nay_description": "Voted against Senate Bill 270, which forces many townships to merge or close based on a state points system. The Indiana Senate agreed to the final version 34-15, and it became law.",
+      "_current": {
+        "question": "Senate - Senate concurred with House amendments",
+        "tally": "34-15",
+        "old_sentences": 16,
+        "old_chars": 996
+      }
+    }
+  ]
+}

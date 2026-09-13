@@ -1,0 +1,2212 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1499787,
+      "measure_id": "HB 4052",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for House Bill 4052, a bill to bar legislators and their staff from signing nondisclosure agreements about official work. The House passed it 80-28. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4052, a bill to bar legislators and their staff from signing nondisclosure agreements about official work. The House passed it 80-28. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #13",
+        "tally": "80-28",
+        "old_sentences": 5,
+        "old_chars": 350
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1522293,
+      "measure_id": "HB 4170",
+      "vote_date": "2025-03-18",
+      "yea_description": "Voted for House Bill 4170, a bill to cut the state income tax rate from 4.25% to 4.05% and make future automatic cuts permanent. The House passed it 65-43. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4170, a bill to cut the state income tax rate from 4.25% to 4.05% and make future automatic cuts permanent. The House passed it 65-43. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #32",
+        "tally": "65-43",
+        "old_sentences": 5,
+        "old_chars": 355
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1553226,
+      "measure_id": "HB 4159",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for House Bill 4159, a bill to base early grade reading standards on the science of reading. The House passed it 65-40. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4159, a bill to base early grade reading standards on the science of reading. The House passed it 65-40. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #55",
+        "tally": "65-40",
+        "old_sentences": 6,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1565448,
+      "measure_id": "HB 4027",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 4027, the zoning half of a plan to repeal the 2023 state siting law for large wind and solar projects. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4027, the zoning half of a plan to repeal the 2023 state siting law for large wind and solar projects. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #72",
+        "tally": "58-48",
+        "old_sentences": 6,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1565659,
+      "measure_id": "HB 4028",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 4028, a bill to repeal the 2023 law letting the state override local zoning for large wind and solar projects. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4028, a bill to repeal the 2023 law letting the state override local zoning for large wind and solar projects. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #73",
+        "tally": "58-48",
+        "old_sentences": 5,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1570119,
+      "measure_id": "HB 4242",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for House Bill 4242, a bill to make health professionals keep patient records physically in the United States or Canada. The House passed it 71-39. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4242, a bill to make health professionals keep patient records physically in the United States or Canada. The House passed it 71-39. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #88",
+        "tally": "71-39",
+        "old_sentences": 4,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1570252,
+      "measure_id": "HB 4283",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 4283, a bill to let a utility running pre-2024 gas engines in the Upper Peninsula skip clean energy filings. The House passed it 83-26. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4283, a bill to let a utility running pre-2024 gas engines in the Upper Peninsula skip clean energy filings. The House passed it 83-26. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #92",
+        "tally": "83-26",
+        "old_sentences": 6,
+        "old_chars": 589
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1574022,
+      "measure_id": "HB 4222",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House Bill 4222, a bill to make every school have a crisis team and review emergency plans every three years. The House passed it 80-26. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4222, a bill to make every school have a crisis team and review emergency plans every three years. The House passed it 80-26. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #105",
+        "tally": "80-26",
+        "old_sentences": 5,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1574131,
+      "measure_id": "HB 4315",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House Bill 4315, a bill to make the State Police build and hand out school safety training each year. The House passed it 82-24. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4315, a bill to make the State Police build and hand out school safety training each year. The House passed it 82-24. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #112",
+        "tally": "82-24",
+        "old_sentences": 5,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1575080,
+      "measure_id": "HB 4340",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 4340, a bill to bar people who are not citizens or qualified immigrants from most public assistance. The House passed it 63-43. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4340, a bill to bar people who are not citizens or qualified immigrants from most public assistance. The House passed it 63-43. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #77",
+        "tally": "63-43",
+        "old_sentences": 4,
+        "old_chars": 328
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1575120,
+      "measure_id": "HB 4341",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 4341, a bill to bar people who are not citizens or qualified immigrants from state housing programs. The House passed it 63-43. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4341, a bill to bar people who are not citizens or qualified immigrants from state housing programs. The House passed it 63-43. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #78",
+        "tally": "63-43",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1575242,
+      "measure_id": "HB 4338",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 4338, a bill to void city and township rules that limit cooperation with federal immigration officials. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4338, a bill to void city and township rules that limit cooperation with federal immigration officials. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #74",
+        "tally": "58-48",
+        "old_sentences": 6,
+        "old_chars": 499
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1575285,
+      "measure_id": "HB 4342",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 4342, a bill to withhold revenue sharing from local governments that limit immigration cooperation. The House passed it 57-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4342, a bill to withhold revenue sharing from local governments that limit immigration cooperation. The House passed it 57-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #76",
+        "tally": "57-49",
+        "old_sentences": 5,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1575768,
+      "measure_id": "HB 4339",
+      "vote_date": "2025-05-01",
+      "yea_description": "Voted for House Bill 4339, a bill to void county rules that limit cooperation with federal immigration officials. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4339, a bill to void county rules that limit cooperation with federal immigration officials. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #75",
+        "tally": "58-48",
+        "old_sentences": 6,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1580897,
+      "measure_id": "HB 4066",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 4066, a bill to make schools label sports teams by sex as listed on the original birth certificate. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4066, a bill to make schools label sports teams by sex as listed on the original birth certificate. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #131",
+        "tally": "58-46",
+        "old_sentences": 5,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1581057,
+      "measure_id": "HB 4469",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 4469, a bill to let schools decide who plays school sports by biological sex at birth. The House passed it 59-45. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4469, a bill to let schools decide who plays school sports by biological sex at birth. The House passed it 59-45. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #132",
+        "tally": "59-45",
+        "old_sentences": 5,
+        "old_chars": 323
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1591722,
+      "measure_id": "HB 4356",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted for House Bill 4356, a bill to mail notices to voters who have not voted in 8 years and make them confirm their address. The House passed it 56-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4356, a bill to mail notices to voters who have not voted in 8 years and make them confirm their address. The House passed it 56-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #156",
+        "tally": "56-41",
+        "old_sentences": 6,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1597553,
+      "measure_id": "HB 4369",
+      "vote_date": "2025-07-01",
+      "yea_description": "Voted for House Bill 4369, a bill to bar schools from serving food with certain dyes and additives from July 2028. The House passed it 58-47. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4369, a bill to bar schools from serving food with certain dyes and additives from July 2028. The House passed it 58-47. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #170",
+        "tally": "58-47",
+        "old_sentences": 5,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1601423,
+      "measure_id": "HB 4024",
+      "vote_date": "2025-09-04",
+      "yea_description": "Voted for House Bill 4024, the student restroom privacy act, a bill to require school restrooms to be used by sex at birth. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4024, the student restroom privacy act, a bill to require school restrooms to be used by sex at birth. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #190",
+        "tally": "58-46",
+        "old_sentences": 5,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1602847,
+      "measure_id": "HB 4664",
+      "vote_date": "2025-09-16",
+      "yea_description": "Voted for House Bill 4664, a bill to make blocking traffic during a highway protest a crime carrying up to 93 days in jail. The House passed it 61-42. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4664, a bill to make blocking traffic during a highway protest a crime carrying up to 93 days in jail. The House passed it 61-42. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #205",
+        "tally": "61-42",
+        "old_sentences": 5,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1602852,
+      "measure_id": "HB 4515",
+      "vote_date": "2025-09-17",
+      "yea_description": "Voted for House Bill 4515, a bill to put the recipient's photo and signature on the Bridge card for food and cash aid. The House passed it 60-38. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4515, a bill to put the recipient's photo and signature on the Bridge card for food and cash aid. The House passed it 60-38. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #216",
+        "tally": "60-38",
+        "old_sentences": 5,
+        "old_chars": 325
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1603004,
+      "measure_id": "HB 4746",
+      "vote_date": "2025-09-03",
+      "yea_description": "Voted for House Bill 4746, which makes the state give every food or cash aid recipient a chip-enabled Bridge Card within a year. The House passed it 77-28 and it became law.",
+      "nay_description": "Voted against House Bill 4746, which makes the state give every food or cash aid recipient a chip-enabled Bridge Card within a year. The House passed it 77-28 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #186",
+        "tally": "77-28",
+        "old_sentences": 5,
+        "old_chars": 344
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1603012,
+      "measure_id": "HB 4602",
+      "vote_date": "2025-09-09",
+      "yea_description": "Voted for House Bill 4602, a bill to let local election boards build their own test ballots from any source. The House passed it 63-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4602, a bill to let local election boards build their own test ballots from any source. The House passed it 63-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #198",
+        "tally": "63-41",
+        "old_sentences": 6,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1603162,
+      "measure_id": "HB 4160",
+      "vote_date": "2025-09-24",
+      "yea_description": "Voted for House Bill 4160, a bill to bar state rules stricter than federal standards without a finding of clear need. The House passed it 59-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4160, a bill to bar state rules stricter than federal standards without a finding of clear need. The House passed it 59-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #223",
+        "tally": "59-41",
+        "old_sentences": 6,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1603559,
+      "measure_id": "HB 4951",
+      "vote_date": "2025-09-25",
+      "yea_description": "Voted for House Bill 4951, which sets a new 24 percent wholesale tax on marijuana to pay for road work. The House passed it 78-21 and it became law.",
+      "nay_description": "Voted against House Bill 4951, which sets a new 24 percent wholesale tax on marijuana to pay for road work. The House passed it 78-21 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #234",
+        "tally": "78-21",
+        "old_sentences": 5,
+        "old_chars": 313
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1604199,
+      "measure_id": "HB 4747",
+      "vote_date": "2025-10-21",
+      "yea_description": "Voted for House Bill 4747, a bill to let taxpayers deduct contributions to other states' college and disability savings plans. The House passed it 72-32. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4747, a bill to let taxpayers deduct contributions to other states' college and disability savings plans. The House passed it 72-32. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #255",
+        "tally": "72-32",
+        "old_sentences": 6,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1610619,
+      "measure_id": "HB 4915",
+      "vote_date": "2025-12-11",
+      "yea_description": "Voted for House Bill 4915, a bill to bar requiring implicit bias training for health professional licenses. The House passed it 56-45. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4915, a bill to bar requiring implicit bias training for health professional licenses. The House passed it 56-45. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #325",
+        "tally": "56-45",
+        "old_sentences": 4,
+        "old_chars": 307
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1612945,
+      "measure_id": "HB 4933",
+      "vote_date": "2025-12-17",
+      "yea_description": "Voted for House Bill 4933, a bill to repeal state licensing of fee-charging personnel agencies. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4933, a bill to repeal state licensing of fee-charging personnel agencies. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #359",
+        "tally": "57-46",
+        "old_sentences": 5,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1612982,
+      "measure_id": "HB 4486",
+      "vote_date": "2025-12-17",
+      "yea_description": "Voted for House Bill 4486, a bill to bar local governments from banning natural gas or propane. The House passed it 61-42. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4486, a bill to bar local governments from banning natural gas or propane. The House passed it 61-42. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #358",
+        "tally": "61-42",
+        "old_sentences": 5,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1614247,
+      "measure_id": "HB 4492",
+      "vote_date": "2026-01-14",
+      "yea_description": "Voted for House Bill 4492, a bill to let employers require tipped workers to share tips. The House passed it 57-52. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4492, a bill to let employers require tipped workers to share tips. The House passed it 57-52. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #7",
+        "tally": "57-52",
+        "old_sentences": 7,
+        "old_chars": 630
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1624562,
+      "measure_id": "HB 4445",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted for House Bill 4445, a bill to let hunters bait deer anywhere in Michigan during open deer seasons. The House passed it 66-38. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4445, a bill to let hunters bait deer anywhere in Michigan during open deer seasons. The House passed it 66-38. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #25",
+        "tally": "66-38",
+        "old_sentences": 6,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1639774,
+      "measure_id": "HB 5037",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for House Bill 5037, a bill to set a 15-year time limit for charging the new fertility fraud crime. The House passed it 61-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5037, a bill to set a 15-year time limit for charging the new fertility fraud crime. The House passed it 61-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #36",
+        "tally": "61-48",
+        "old_sentences": 5,
+        "old_chars": 326
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1639920,
+      "measure_id": "HB 5035",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for House Bill 5035, a bill to let people harmed by fertility fraud sue for three times their damages. The House passed it 61-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5035, a bill to let people harmed by fertility fraud sue for three times their damages. The House passed it 61-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #34",
+        "tally": "61-48",
+        "old_sentences": 6,
+        "old_chars": 449
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1639930,
+      "measure_id": "HB 5036",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted for House Bill 5036, a bill to make fertility fraud a felony carrying up to 5 years in prison. The House passed it 60-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5036, a bill to make fertility fraud a felony carrying up to 5 years in prison. The House passed it 60-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #35",
+        "tally": "60-49",
+        "old_sentences": 6,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1645895,
+      "measure_id": "HB 5298",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 5298, a bill to make a passenger's own auto insurance pay first for injuries in limousines and charter buses. The House passed it 67-40. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5298, a bill to make a passenger's own auto insurance pay first for injuries in limousines and charter buses. The House passed it 67-40. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #51",
+        "tally": "67-40",
+        "old_sentences": 5,
+        "old_chars": 392
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1659777,
+      "measure_id": "HB 4949",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted for House Bill 4949, a bill to widen the shield protecting sport shooting ranges from noise lawsuits. The House passed it 56-51. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4949, a bill to widen the shield protecting sport shooting ranges from noise lawsuits. The House passed it 56-51. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #79",
+        "tally": "56-51",
+        "old_sentences": 6,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1664011,
+      "measure_id": "HB 4582",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted for House Bill 4582, a bill to restore the rule that property owners owe no duty to warn visitors of open and obvious dangers. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4582, a bill to restore the rule that property owners owe no duty to warn visitors of open and obvious dangers. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #85",
+        "tally": "58-48",
+        "old_sentences": 6,
+        "old_chars": 519
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1668467,
+      "measure_id": "HB 5652",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted for House Bill 5652, a bill to bar neighbors within 5 miles of an existing motor racing track from suing it. The House passed it 64-38. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5652, a bill to bar neighbors within 5 miles of an existing motor racing track from suing it. The House passed it 64-38. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #103",
+        "tally": "64-38",
+        "old_sentences": 6,
+        "old_chars": 543
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1683988,
+      "measure_id": "HB 4765",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 4765, a bill to make the state check every voter registrant's citizenship against databases. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4765, a bill to make the state check every voter registrant's citizenship against databases. The House passed it 58-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #107",
+        "tally": "58-46",
+        "old_sentences": 5,
+        "old_chars": 441
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1683989,
+      "measure_id": "HB 4720",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 4720, a bill to bar voting systems with parts from companies on the federal security threat list. The House passed it 63-41. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4720, a bill to bar voting systems with parts from companies on the federal security threat list. The House passed it 63-41. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #106",
+        "tally": "63-41",
+        "old_sentences": 5,
+        "old_chars": 357
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1698056,
+      "measure_id": "HB 5710",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted for House Bill 5710, the utility-rules half of a plan to repeal Michigan's clean energy standards. The House passed it 58-47. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5710, the utility-rules half of a plan to repeal Michigan's clean energy standards. The House passed it 58-47. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #139",
+        "tally": "58-47",
+        "old_sentences": 7,
+        "old_chars": 681
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1698058,
+      "measure_id": "HB 5711",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted for House Bill 5711, a bill to repeal Michigan's clean energy standards, including 100% clean energy by 2040. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5711, a bill to repeal Michigan's clean energy standards, including 100% clean energy by 2040. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #140",
+        "tally": "57-48",
+        "old_sentences": 7,
+        "old_chars": 802
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1699477,
+      "measure_id": "HB 5744",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for House Bill 5744, a bill to make shooting at an occupied vehicle a felony carrying up to 10 years. The House passed it 79-24. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5744, a bill to make shooting at an occupied vehicle a felony carrying up to 10 years. The House passed it 79-24. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #150",
+        "tally": "79-24",
+        "old_sentences": 5,
+        "old_chars": 396
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1701016,
+      "measure_id": "HB 5505",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for House Bill 5505, a bill to create a digital oversight office in the Legislature. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5505, a bill to create a digital oversight office in the Legislature. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #154",
+        "tally": "57-46",
+        "old_sentences": 5,
+        "old_chars": 415
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1701041,
+      "measure_id": "HB 5504",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for House Bill 5504, a bill to create a State Digital Service Office to review big state software projects. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5504, a bill to create a State Digital Service Office to review big state software projects. The House passed it 57-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #153",
+        "tally": "57-46",
+        "old_sentences": 5,
+        "old_chars": 437
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1705291,
+      "measure_id": "HB 5520",
+      "vote_date": "2026-06-03",
+      "yea_description": "Voted for House Bill 5520, a bill to bring back holding third graders back for reading from the 2027-2028 school year. The House passed it 57-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5520, a bill to bring back holding third graders back for reading from the 2027-2028 school year. The House passed it 57-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #175",
+        "tally": "57-49",
+        "old_sentences": 6,
+        "old_chars": 719
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1705314,
+      "measure_id": "HB 6013",
+      "vote_date": "2026-06-03",
+      "yea_description": "Voted for House Bill 6013, a bill to suspend Bridge cards used outside Michigan for more than 90 days in a row. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 6013, a bill to suspend Bridge cards used outside Michigan for more than 90 days in a row. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #179",
+        "tally": "58-48",
+        "old_sentences": 5,
+        "old_chars": 365
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1705360,
+      "measure_id": "HB 5812",
+      "vote_date": "2026-06-03",
+      "yea_description": "Voted for House Bill 5812, a bill to bar the state from waiving food assistance work requirements without legislative approval. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5812, a bill to bar the state from waiving food assistance work requirements without legislative approval. The House passed it 58-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #180",
+        "tally": "58-48",
+        "old_sentences": 5,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1705400,
+      "measure_id": "HB 4467",
+      "vote_date": "2026-06-03",
+      "yea_description": "Voted for House Bill 4467, a bill to bar puberty blockers, cross-sex hormones and gender surgery for minors. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4467, a bill to bar puberty blockers, cross-sex hormones and gender surgery for minors. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #177",
+        "tally": "57-48",
+        "old_sentences": 6,
+        "old_chars": 661
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1705441,
+      "measure_id": "HB 4466",
+      "vote_date": "2026-06-03",
+      "yea_description": "Voted for House Bill 4466, a bill to let the state discipline health professionals who break the proposed minor gender care ban. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 4466, a bill to let the state discipline health professionals who break the proposed minor gender care ban. The House passed it 57-48. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #176",
+        "tally": "57-48",
+        "old_sentences": 5,
+        "old_chars": 338
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1707949,
+      "measure_id": "HB 5536",
+      "vote_date": "2026-06-04",
+      "yea_description": "Voted for House Bill 5536, a bill to narrow state wetland protection to wetlands connected to federally protected waters. The House passed it 57-51. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5536, a bill to narrow state wetland protection to wetlands connected to federally protected waters. The House passed it 57-51. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #182",
+        "tally": "57-51",
+        "old_sentences": 6,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1708516,
+      "measure_id": "HB 5574",
+      "vote_date": "2026-06-09",
+      "yea_description": "Voted for House Bill 5574, a bill to make it a crime to ignore a first responder's warning and come within 25 feet to interfere. The House passed it 74-30. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5574, a bill to make it a crime to ignore a first responder's warning and come within 25 feet to interfere. The House passed it 74-30. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #187",
+        "tally": "74-30",
+        "old_sentences": 6,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1709231,
+      "measure_id": "HB 5820",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 5820, a bill to move up the deadline for teacher training courses to add dyslexia instruction. The House passed it 56-50. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5820, a bill to move up the deadline for teacher training courses to add dyslexia instruction. The House passed it 56-50. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #204",
+        "tally": "56-50",
+        "old_sentences": 6,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1709241,
+      "measure_id": "HB 5934",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 5934, a bill to refund building permit fees when the state misses its decision deadline. The House passed it 75-30. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5934, a bill to refund building permit fees when the state misses its decision deadline. The House passed it 75-30. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #199",
+        "tally": "75-30",
+        "old_sentences": 4,
+        "old_chars": 274
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1709243,
+      "measure_id": "HB 5935",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 5935, a bill to make the state cite the rule behind any building permit denial. The House passed it 81-24. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5935, a bill to make the state cite the rule behind any building permit denial. The House passed it 81-24. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #200",
+        "tally": "81-24",
+        "old_sentences": 5,
+        "old_chars": 360
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1709258,
+      "measure_id": "HB 5819",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 5819, a bill to move up the required start of standards-based reading materials to July 2026. The House passed it 56-50. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5819, a bill to move up the required start of standards-based reading materials to July 2026. The House passed it 56-50. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #203",
+        "tally": "56-50",
+        "old_sentences": 5,
+        "old_chars": 330
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1709286,
+      "measure_id": "HB 5933",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 5933, a bill to change how the state handles building and trade permit applications. The House passed it 79-26. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5933, a bill to change how the state handles building and trade permit applications. The House passed it 79-26. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #198",
+        "tally": "79-26",
+        "old_sentences": 5,
+        "old_chars": 445
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1710242,
+      "measure_id": "HB 5069",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted for House Bill 5069, a bill to ban food containing certain dyes and additives from 2029. The House passed it 56-51. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5069, a bill to ban food containing certain dyes and additives from 2029. The House passed it 56-51. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #224",
+        "tally": "56-51",
+        "old_sentences": 5,
+        "old_chars": 354
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1710339,
+      "measure_id": "HB 6038",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted for House Bill 6038, a bill to limit when the state can ask for changes to a wetland permit application. The House passed it 61-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 6038, a bill to limit when the state can ask for changes to a wetland permit application. The House passed it 61-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #226",
+        "tally": "61-46",
+        "old_sentences": 5,
+        "old_chars": 363
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1710358,
+      "measure_id": "HB 5845",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted for House Bill 5845, a bill to keep electronic poll book data for 22 months after an election. The House passed it 62-45. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5845, a bill to keep electronic poll book data for 22 months after an election. The House passed it 62-45. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #216",
+        "tally": "62-45",
+        "old_sentences": 5,
+        "old_chars": 281
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1710948,
+      "measure_id": "HB 5081",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for House Bill 5081, a bill to make every school district employ a dyslexia teacher by 2027. The House passed it 66-40. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5081, a bill to make every school district employ a dyslexia teacher by 2027. The House passed it 66-40. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #229",
+        "tally": "66-40",
+        "old_sentences": 5,
+        "old_chars": 405
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1711904,
+      "measure_id": "HB 5145",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for House Bill 5145, a bill to bar accepting an applicant's own statement as proof of identity or income for public assistance. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5145, a bill to bar accepting an applicant's own statement as proof of identity or income for public assistance. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #236",
+        "tally": "58-49",
+        "old_sentences": 6,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712560,
+      "measure_id": "HB 5936",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 5936, a bill to make the state refund the full fee when it misses an environmental permit deadline. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5936, a bill to make the state refund the full fee when it misses an environmental permit deadline. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #259",
+        "tally": "58-49",
+        "old_sentences": 6,
+        "old_chars": 405
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712562,
+      "measure_id": "HB 5502",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted for House Bill 5502, a bill to exempt wetlands created by accident from state regulation. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5502, a bill to exempt wetlands created by accident from state regulation. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #248",
+        "tally": "58-49",
+        "old_sentences": 5,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712577,
+      "measure_id": "HB 5938",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 5938, a bill to require wetland permit hearings within 30 days of a complete application. The House passed it 62-45. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5938, a bill to require wetland permit hearings within 30 days of a complete application. The House passed it 62-45. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #261",
+        "tally": "62-45",
+        "old_sentences": 5,
+        "old_chars": 408
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712580,
+      "measure_id": "HB 5707",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted for House Bill 5707, a bill to let landowners dig a pond under 1 acre for home use without a state permit. The House passed it 63-44. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5707, a bill to let landowners dig a pond under 1 acre for home use without a state permit. The House passed it 63-44. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #249",
+        "tally": "63-44",
+        "old_sentences": 6,
+        "old_chars": 536
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712614,
+      "measure_id": "HB 5974",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted for House Bill 5974, a bill to give parents the right to see a minor's medical records. The House passed it 61-46. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5974, a bill to give parents the right to see a minor's medical records. The House passed it 61-46. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #253",
+        "tally": "61-46",
+        "old_sentences": 6,
+        "old_chars": 429
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712639,
+      "measure_id": "HB 5937",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 5937, a bill to cut the time the state has to say whether a permit application is complete from 30 days to 7. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5937, a bill to cut the time the state has to say whether a permit application is complete from 30 days to 7. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #260",
+        "tally": "58-49",
+        "old_sentences": 5,
+        "old_chars": 346
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712660,
+      "measure_id": "HB 5082",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted for House Bill 5082, a bill to make the state assess whether land is a wetland within 60 days, for free. The House passed it 57-50. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5082, a bill to make the state assess whether land is a wetland within 60 days, for free. The House passed it 57-50. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #247",
+        "tally": "57-50",
+        "old_sentences": 5,
+        "old_chars": 314
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1715716,
+      "measure_id": "SB 294",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 294, which lets agencies require a care deposit from the owner of an animal seized in a torture case. The House passed it 84-24 and it became law.",
+      "nay_description": "Voted against Senate Bill 294, which lets agencies require a care deposit from the owner of an animal seized in a torture case. The House passed it 84-24 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #293",
+        "tally": "84-24",
+        "old_sentences": 7,
+        "old_chars": 565
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1715721,
+      "measure_id": "SB 723",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 723, which widens the transformational brownfield program, allowing another $80 million a year of tax capture. The House passed it 82-26 and it became law.",
+      "nay_description": "Voted against Senate Bill 723, which widens the transformational brownfield program, allowing another $80 million a year of tax capture. The House passed it 82-26 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #289",
+        "tally": "82-26",
+        "old_sentences": 5,
+        "old_chars": 792
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1715727,
+      "measure_id": "HB 4350",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 4350, which lets people put out small amounts of feed for wild birds near home despite deer feeding bans. The House agreed to the Senate version 76-32 and it became law.",
+      "nay_description": "Voted against House Bill 4350, which lets people put out small amounts of feed for wild birds near home despite deer feeding bans. The House agreed to the Senate version 76-32 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Roll Call #319",
+        "tally": "76-32",
+        "old_sentences": 5,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1715729,
+      "measure_id": "SB 293",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 293, which lets agencies require a care deposit from the owner of an animal seized in a cruelty case. The House passed it 84-24 and it became law.",
+      "nay_description": "Voted against Senate Bill 293, which lets agencies require a care deposit from the owner of an animal seized in a cruelty case. The House passed it 84-24 and it became law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #292",
+        "tally": "84-24",
+        "old_sentences": 7,
+        "old_chars": 560
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1552473,
+      "measure_id": "SB 111",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted for Senate Bill 111, a bill to create a personal protection order for older and vulnerable adults. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 111, a bill to create a personal protection order for older and vulnerable adults. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 44",
+        "tally": "19-18",
+        "old_sentences": 6,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556441,
+      "measure_id": "SB 31",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 31, a bill to make hospitals let a birthing patient have a partner and a doula present from 2027. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 31, a bill to make hospitals let a birthing patient have a partner and a doula present from 2027. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 53",
+        "tally": "22-14",
+        "old_sentences": 6,
+        "old_chars": 546
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556457,
+      "measure_id": "SB 29",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 29, a bill to make the state health disparities plan address biased care for pregnant patients. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 29, a bill to make the state health disparities plan address biased care for pregnant patients. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 51",
+        "tally": "22-14",
+        "old_sentences": 5,
+        "old_chars": 397
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556539,
+      "measure_id": "SB 30",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 30, the biased and unjust care reporting act, a bill to collect reports of biased care from pregnant patients. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 30, the biased and unjust care reporting act, a bill to collect reports of biased care from pregnant patients. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 52",
+        "tally": "22-14",
+        "old_sentences": 5,
+        "old_chars": 500
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556621,
+      "measure_id": "SB 34",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 34, a bill to add lactating status to Michigan's civil rights law. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 34, a bill to add lactating status to Michigan's civil rights law. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 56",
+        "tally": "22-14",
+        "old_sentences": 5,
+        "old_chars": 287
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556623,
+      "measure_id": "SB 37",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 37, a bill to make insurers cover pregnancy care given at home by in-network providers. The Senate passed it 27-9. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 37, a bill to make insurers cover pregnancy care given at home by in-network providers. The Senate passed it 27-9. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 58",
+        "tally": "27-9",
+        "old_sentences": 4,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1556648,
+      "measure_id": "SB 33",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted for Senate Bill 33, a bill to let an advance directive say which treatment a person wants if pregnant. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 33, a bill to let an advance directive say which treatment a person wants if pregnant. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 55",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1567332,
+      "measure_id": "SB 3",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for Senate Bill 3, a bill to create a state prescription drug affordability board that can cap drug prices. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 3, a bill to create a state prescription drug affordability board that can cap drug prices. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 68",
+        "tally": "20-15",
+        "old_sentences": 6,
+        "old_chars": 487
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1575335,
+      "measure_id": "SB 234",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 234, a bill to make every school adopt a policy limiting student cellphone use during school hours. The Senate passed it 28-9. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 234, a bill to make every school adopt a policy limiting student cellphone use during school hours. The Senate passed it 28-9. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 78",
+        "tally": "28-9",
+        "old_sentences": 5,
+        "old_chars": 364
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1579547,
+      "measure_id": "SB 257",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 257, a bill to give survivors of criminal sexual conduct more time to sue. The Senate passed it 25-9. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 257, a bill to give survivors of criminal sexual conduct more time to sue. The Senate passed it 25-9. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 140",
+        "tally": "25-9",
+        "old_sentences": 6,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1579594,
+      "measure_id": "SB 260",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 260, a bill to end governmental immunity for schools sued over sexual abuse they negligently allowed. The Senate passed it 25-9. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 260, a bill to end governmental immunity for schools sued over sexual abuse they negligently allowed. The Senate passed it 25-9. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 143",
+        "tally": "25-9",
+        "old_sentences": 5,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1579628,
+      "measure_id": "SB 78",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 78, a bill to let people convicted of felonies before age 18 ask a court to set them aside after 15 years. The Senate passed it 23-11. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 78, a bill to let people convicted of felonies before age 18 ask a court to set them aside after 15 years. The Senate passed it 23-11. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 139",
+        "tally": "23-11",
+        "old_sentences": 6,
+        "old_chars": 470
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1589760,
+      "measure_id": "SB 134",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for Senate Bill 134, a bill to widen Michigan's consumer protection law and raise fines to $25,000 per person misled. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 134, a bill to widen Michigan's consumer protection law and raise fines to $25,000 per person misled. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 158",
+        "tally": "19-18",
+        "old_sentences": 6,
+        "old_chars": 504
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595345,
+      "measure_id": "SB 154",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 154, a bill to make it a crime to use force or threats to interfere with reproductive health care. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 154, a bill to make it a crime to use force or threats to interfere with reproductive health care. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 178",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595359,
+      "measure_id": "SB 225",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 225, a bill to bar concealed pistols in the State Capitol and legislative office buildings. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 225, a bill to bar concealed pistols in the State Capitol and legislative office buildings. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 173",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 366
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595428,
+      "measure_id": "SB 331",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 331, a bill to bar guns without serial numbers and unlicensed 3D-printed guns. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 331, a bill to bar guns without serial numbers and unlicensed 3D-printed guns. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 175",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 451
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595529,
+      "measure_id": "SB 226",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 226, a bill to bar all guns in the State Capitol and legislative office buildings. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 226, a bill to bar all guns in the State Capitol and legislative office buildings. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 174",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 391
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595545,
+      "measure_id": "SB 224",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for Senate Bill 224, a bill to ban bump stocks and multiburst trigger activators. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 224, a bill to ban bump stocks and multiburst trigger activators. The Senate passed it 22-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 172",
+        "tally": "22-14",
+        "old_sentences": 6,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595821,
+      "measure_id": "SB 319",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 319, a bill to make minimum staffing a required bargaining topic for police and firefighters. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 319, a bill to make minimum staffing a required bargaining topic for police and firefighters. The Senate passed it 19-18. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 189",
+        "tally": "19-18",
+        "old_sentences": 6,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1595924,
+      "measure_id": "SB 46",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for Senate Bill 46, a bill to let the state investigate unsafe water complaints in mobile home parks with their own pipes. The Senate passed it 28-9. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 46, a bill to let the state investigate unsafe water complaints in mobile home parks with their own pipes. The Senate passed it 28-9. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 183",
+        "tally": "28-9",
+        "old_sentences": 4,
+        "old_chars": 357
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1600099,
+      "measure_id": "SB 360",
+      "vote_date": "2025-08-26",
+      "yea_description": "Voted for Senate Bill 360, a bill to require reasonable security safeguards for personal information held by businesses and agencies. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 360, a bill to require reasonable security safeguards for personal information held by businesses and agencies. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 212",
+        "tally": "19-15",
+        "old_sentences": 6,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1600100,
+      "measure_id": "SB 247",
+      "vote_date": "2025-08-26",
+      "yea_description": "Voted for Senate Bill 247, a bill to charge hazardous waste disposal wells a per-gallon fee for host community grants. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 247, a bill to charge hazardous waste disposal wells a per-gallon fee for host community grants. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 218",
+        "tally": "19-15",
+        "old_sentences": 5,
+        "old_chars": 369
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1600111,
+      "measure_id": "SB 246",
+      "vote_date": "2025-08-26",
+      "yea_description": "Voted for Senate Bill 246, a bill to pause new hazardous waste disposal licenses for 5 years. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 246, a bill to pause new hazardous waste disposal licenses for 5 years. The Senate passed it 19-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 217",
+        "tally": "19-15",
+        "old_sentences": 6,
+        "old_chars": 542
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603069,
+      "measure_id": "SB 533",
+      "vote_date": "2025-09-17",
+      "yea_description": "Voted for Senate Bill 533, a bill to fine people up to $1,000 for lying about election rules to stop someone voting. The Senate passed it 19-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 533, a bill to fine people up to $1,000 for lying about election rules to stop someone voting. The Senate passed it 19-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 227",
+        "tally": "19-14",
+        "old_sentences": 5,
+        "old_chars": 433
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603118,
+      "measure_id": "SB 576",
+      "vote_date": "2025-09-25",
+      "yea_description": "Voted for Senate Bill 576, a bill to create a revolving fund for energy-saving projects in state facilities. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 576, a bill to create a revolving fund for energy-saving projects in state facilities. The Senate passed it 19-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 246",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 381
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603627,
+      "measure_id": "SB 579",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for Senate Bill 579, which pushes back to October 2029 the end dates for a set of state environmental fees. The Senate agreed to the House version 21-15 and it became law.",
+      "nay_description": "Voted against Senate Bill 579, which pushes back to October 2029 the end dates for a set of state environmental fees. The Senate agreed to the House version 21-15 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 268",
+        "tally": "21-15",
+        "old_sentences": 5,
+        "old_chars": 394
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603641,
+      "measure_id": "HB 4183",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for House Bill 4183, which raises the state motor fuel tax from 31 cents a gallon to at least 51 cents from 2026 for roads. The Senate passed it 24-12 and it became law.",
+      "nay_description": "Voted against House Bill 4183, which raises the state motor fuel tax from 31 cents a gallon to at least 51 cents from 2026 for roads. The Senate passed it 24-12 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 272",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603651,
+      "measure_id": "HB 4951",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for House Bill 4951, which sets a new 24 percent wholesale tax on marijuana to pay for road work. The Senate passed it 19-17 and it became law.",
+      "nay_description": "Voted against House Bill 4951, which sets a new 24 percent wholesale tax on marijuana to pay for road work. The Senate passed it 19-17 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 264",
+        "tally": "19-17",
+        "old_sentences": 5,
+        "old_chars": 314
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603871,
+      "measure_id": "SB 577",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for Senate Bill 577, which extends the fees that pay to train and certify public water supply operators to 2029. The Senate agreed to the House version 23-13 and it became law.",
+      "nay_description": "Voted against Senate Bill 577, which extends the fees that pay to train and certify public water supply operators to 2029. The Senate agreed to the House version 23-13 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 266",
+        "tally": "23-13",
+        "old_sentences": 4,
+        "old_chars": 292
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603881,
+      "measure_id": "SB 578",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for Senate Bill 578, which creates the Neighborhood Roads Fund and the Infrastructure Projects Authority Fund. The Senate agreed to the House version 21-15 and it became law.",
+      "nay_description": "Voted against Senate Bill 578, which creates the Neighborhood Roads Fund and the Infrastructure Projects Authority Fund. The Senate agreed to the House version 21-15 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 267",
+        "tally": "21-15",
+        "old_sentences": 4,
+        "old_chars": 291
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1608965,
+      "measure_id": "SB 515",
+      "vote_date": "2025-10-23",
+      "yea_description": "Voted for Senate Bill 515, a bill to make landlords install a carbon monoxide detector in rentals with fuel-burning appliances. The Senate passed it 23-12. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 515, a bill to make landlords install a carbon monoxide detector in rentals with fuel-burning appliances. The Senate passed it 23-12. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 281",
+        "tally": "23-12",
+        "old_sentences": 5,
+        "old_chars": 345
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1610113,
+      "measure_id": "HB 5055",
+      "vote_date": "2025-11-13",
+      "yea_description": "Voted for House Bill 5055, which lets legislative sergeants at arms with police commissions enforce state law to guard lawmakers. The Senate passed it 20-16 and it became law.",
+      "nay_description": "Voted against House Bill 5055, which lets legislative sergeants at arms with police commissions enforce state law to guard lawmakers. The Senate passed it 20-16 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 303",
+        "tally": "20-16",
+        "old_sentences": 5,
+        "old_chars": 580
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1612946,
+      "measure_id": "SB 462",
+      "vote_date": "2025-12-18",
+      "yea_description": "Voted for Senate Bill 462, a bill to require a state license to sell tobacco and vaping products at retail. The Senate passed it 19-16. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 462, a bill to require a state license to sell tobacco and vaping products at retail. The Senate passed it 19-16. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 352",
+        "tally": "19-16",
+        "old_sentences": 5,
+        "old_chars": 479
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1612977,
+      "measure_id": "SB 232",
+      "vote_date": "2025-12-09",
+      "yea_description": "Voted for Senate Bill 232, a bill to let the state lower the Michigan Reconnect grant age from 25 to as low as 21. The Senate passed it 25-10. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 232, a bill to let the state lower the Michigan Reconnect grant age from 25 to as low as 21. The Senate passed it 25-10. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 317",
+        "tally": "25-10",
+        "old_sentences": 5,
+        "old_chars": 329
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1664043,
+      "measure_id": "SB 451",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted for Senate Bill 451, a bill to bar medical debt from credit reports. The Senate passed it 27-8. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 451, a bill to bar medical debt from credit reports. The Senate passed it 27-8. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 26",
+        "tally": "27-8",
+        "old_sentences": 5,
+        "old_chars": 424
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1685320,
+      "measure_id": "SB 296",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for Senate Bill 296, a bill to bar hospitals from requiring nurses to work beyond scheduled hours from June 2027. The Senate passed it 21-16. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 296, a bill to bar hospitals from requiring nurses to work beyond scheduled hours from June 2027. The Senate passed it 21-16. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 52",
+        "tally": "21-16",
+        "old_sentences": 5,
+        "old_chars": 527
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1688698,
+      "measure_id": "SB 145",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted for Senate Bill 145, a bill to bar employers from asking job applicants about past pay or credit history. The Senate passed it 19-16. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 145, a bill to bar employers from asking job applicants about past pay or credit history. The Senate passed it 19-16. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 58",
+        "tally": "19-16",
+        "old_sentences": 6,
+        "old_chars": 595
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1693747,
+      "measure_id": "SB 760",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate Bill 760, a bill to bar AI chatbots from acting as friends or partners for minors. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 760, a bill to bar AI chatbots from acting as friends or partners for minors. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 66",
+        "tally": "20-17",
+        "old_sentences": 6,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1693819,
+      "measure_id": "SB 758",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate Bill 758, a bill to make online services set minors' accounts to the most private settings by default. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 758, a bill to make online services set minors' accounts to the most private settings by default. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 64",
+        "tally": "20-17",
+        "old_sentences": 6,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1693876,
+      "measure_id": "SB 757",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate Bill 757, a bill to bar social media apps from showing minors algorithm-chosen feeds without parental consent. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 757, a bill to bar social media apps from showing minors algorithm-chosen feeds without parental consent. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 63",
+        "tally": "20-17",
+        "old_sentences": 5,
+        "old_chars": 483
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1702706,
+      "measure_id": "SB 311",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for Senate Bill 311, a bill to raise child care subsidy payments to providers each year with inflation from 2027. The Senate passed it 21-14. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 311, a bill to raise child care subsidy payments to providers each year with inflation from 2027. The Senate passed it 21-14. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 103",
+        "tally": "21-14",
+        "old_sentences": 4,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1702766,
+      "measure_id": "SB 310",
+      "vote_date": "2026-05-20",
+      "yea_description": "Voted for Senate Bill 310, a bill to write the Tri-Share child care program into law. The Senate passed it 22-13. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 310, a bill to write the Tri-Share child care program into law. The Senate passed it 22-13. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 102",
+        "tally": "22-13",
+        "old_sentences": 5,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1709955,
+      "measure_id": "SB 807",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted for Senate Bill 807, a bill to create a state-run retirement savings program for workers without an employer plan. The Senate passed it 20-18. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 807, a bill to create a state-run retirement savings program for workers without an employer plan. The Senate passed it 20-18. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 130",
+        "tally": "20-18",
+        "old_sentences": 6,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1709961,
+      "measure_id": "SB 961",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for Senate Bill 961, the State Voting Rights Act, a bill to bar election rules that hold back a protected class of voters. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 961, the State Voting Rights Act, a bill to bar election rules that hold back a protected class of voters. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 121",
+        "tally": "20-17",
+        "old_sentences": 5,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1709991,
+      "measure_id": "SB 963",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for Senate Bill 963, the Language Assistance for Elections Act, a bill to require election help in other languages where needed. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 963, the Language Assistance for Elections Act, a bill to require election help in other languages where needed. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 123",
+        "tally": "20-17",
+        "old_sentences": 5,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1710020,
+      "measure_id": "SB 962",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for Senate Bill 962, a bill to create a Michigan voting and elections database and institute with public universities. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 962, a bill to create a Michigan voting and elections database and institute with public universities. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 122",
+        "tally": "20-17",
+        "old_sentences": 5,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1710228,
+      "measure_id": "SB 964",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for Senate Bill 964, a bill to make local governments report election changes to the Secretary of State from 2028. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 964, a bill to make local governments report election changes to the Secretary of State from 2028. The Senate passed it 20-17. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 126",
+        "tally": "20-17",
+        "old_sentences": 5,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1710569,
+      "measure_id": "SB 977",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for Senate Bill 977, a bill to seek a federal waiver for a reinsurance program that lowers individual market premiums. The Senate passed it 20-16. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 977, a bill to seek a federal waiver for a reinsurance program that lowers individual market premiums. The Senate passed it 20-16. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 147",
+        "tally": "20-16",
+        "old_sentences": 4,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1710576,
+      "measure_id": "SB 967",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for Senate Bill 967, a bill to let developers claim a new state low-income housing tax credit from 2027. The Senate passed it 23-13. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 967, a bill to let developers claim a new state low-income housing tax credit from 2027. The Senate passed it 23-13. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 139",
+        "tally": "23-13",
+        "old_sentences": 5,
+        "old_chars": 371
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1710888,
+      "measure_id": "SB 973",
+      "vote_date": "2026-06-18",
+      "yea_description": "Voted for Senate Bill 973, a bill to create a Michigan-run health insurance exchange by 2028. The Senate passed it 20-16. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 973, a bill to create a Michigan-run health insurance exchange by 2028. The Senate passed it 20-16. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 143",
+        "tally": "20-16",
+        "old_sentences": 4,
+        "old_chars": 313
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1711422,
+      "measure_id": "SB 49",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted for Senate Bill 49, a bill to raise Michigan's workplace safety fines to match federal fines. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 49, a bill to raise Michigan's workplace safety fines to match federal fines. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 151",
+        "tally": "20-15",
+        "old_sentences": 7,
+        "old_chars": 580
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1712122,
+      "measure_id": "SB 1041",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for Senate Bill 1041, a bill to bar hotels from raising prices more than 20% during a declared emergency. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 1041, a bill to bar hotels from raising prices more than 20% during a declared emergency. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 161",
+        "tally": "20-15",
+        "old_sentences": 5,
+        "old_chars": 468
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1712125,
+      "measure_id": "SB 1043",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for Senate Bill 1043, a bill to bar fuel sellers from raising prices more than 20% during a market disruption. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 1043, a bill to bar fuel sellers from raising prices more than 20% during a market disruption. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 163",
+        "tally": "20-15",
+        "old_sentences": 5,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1712127,
+      "measure_id": "SB 1042",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for Senate Bill 1042, a bill to bar sellers from raising prices on food and supplies more than 20% during an emergency. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 1042, a bill to bar sellers from raising prices on food and supplies more than 20% during an emergency. The Senate passed it 20-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 162",
+        "tally": "20-15",
+        "old_sentences": 5,
+        "old_chars": 527
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713892,
+      "measure_id": "SB 947",
+      "vote_date": "2026-07-02",
+      "yea_description": "Voted for Senate Bill 947, a bill to overhaul Michigan's dam safety law with registration and safety plans for every dam. The Senate passed it 22-15. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 947, a bill to overhaul Michigan's dam safety law with registration and safety plans for every dam. The Senate passed it 22-15. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 173",
+        "tally": "22-15",
+        "old_sentences": 6,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713910,
+      "measure_id": "HB 5807",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 5807, which lets qualifying out-of-state insurers use the new housing tax credit against the retaliatory tax. The Senate passed it 21-15 and it became law.",
+      "nay_description": "Voted against House Bill 5807, which lets qualifying out-of-state insurers use the new housing tax credit against the retaliatory tax. The Senate passed it 21-15 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 182",
+        "tally": "21-15",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713920,
+      "measure_id": "HB 4187",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 4187, which cuts the income tax money set aside for the Renew Michigan cleanup fund for three years. The Senate passed it 26-10 and it became law.",
+      "nay_description": "Voted against House Bill 4187, which cuts the income tax money set aside for the Renew Michigan cleanup fund for three years. The Senate passed it 26-10 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 205",
+        "tally": "26-10",
+        "old_sentences": 5,
+        "old_chars": 411
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713924,
+      "measure_id": "HB 4064",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 4064, which bars a sitting state lawmaker from taking pay to lobby government officials. The Senate passed it 28-8 and it became law.",
+      "nay_description": "Voted against House Bill 4064, which bars a sitting state lawmaker from taking pay to lobby government officials. The Senate passed it 28-8 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 196",
+        "tally": "28-8",
+        "old_sentences": 5,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713929,
+      "measure_id": "SB 373",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 373, a bill to bar leases that charge an extra fee on every allowed way of paying rent. The Senate passed it 24-12 and the House passed it 99-5. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "nay_description": "Voted against Senate Bill 373, a bill to bar leases that charge an extra fee on every allowed way of paying rent. The Senate passed it 24-12 and the House passed it 99-5. The bill has passed the Legislature and is awaiting the governor's decision.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 193",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 341
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713931,
+      "measure_id": "HB 5806",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 5806, which creates a state housing opportunity tax credit for low-income housing projects from 2027. The Senate passed it 21-15 and it became law.",
+      "nay_description": "Voted against House Bill 5806, which creates a state housing opportunity tax credit for low-income housing projects from 2027. The Senate passed it 21-15 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 181",
+        "tally": "21-15",
+        "old_sentences": 5,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713935,
+      "measure_id": "HB 6043",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for House Bill 6043, which writes the Tri-Share child care program into law. The Senate passed it 23-13 and it became law.",
+      "nay_description": "Voted against House Bill 6043, which writes the Tri-Share child care program into law. The Senate passed it 23-13 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 184",
+        "tally": "23-13",
+        "old_sentences": 6,
+        "old_chars": 432
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713938,
+      "measure_id": "SB 81",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 81, which extends the Indigent Defense Commission's work to young people in juvenile courts. The Senate agreed to the House version 23-13 and it became law.",
+      "nay_description": "Voted against Senate Bill 81, which extends the Indigent Defense Commission's work to young people in juvenile courts. The Senate agreed to the House version 23-13 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 215",
+        "tally": "23-13",
+        "old_sentences": 5,
+        "old_chars": 357
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713940,
+      "measure_id": "SB 723",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 723, which widens the transformational brownfield program, allowing another $80 million a year of tax capture. The Senate agreed to the House version 24-12 and it became law.",
+      "nay_description": "Voted against Senate Bill 723, which widens the transformational brownfield program, allowing another $80 million a year of tax capture. The Senate agreed to the House version 24-12 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 221",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 811
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713958,
+      "measure_id": "SB 903",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 903, which sets conditions school districts must meet to keep extra funding for students who need more help. The Senate agreed to the House version 24-12 and it became law.",
+      "nay_description": "Voted against Senate Bill 903, which sets conditions school districts must meet to keep extra funding for students who need more help. The Senate agreed to the House version 24-12 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 222",
+        "tally": "24-12",
+        "old_sentences": 5,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1713967,
+      "measure_id": "SB 966",
+      "vote_date": "2026-07-03",
+      "yea_description": "Voted for Senate Bill 966, which tells the state housing authority to run a housing opportunity tax credit program from 2027. The Senate agreed to the House version 22-14 and it became law.",
+      "nay_description": "Voted against Senate Bill 966, which tells the state housing authority to run a housing opportunity tax credit program from 2027. The Senate agreed to the House version 22-14 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Roll Call: Roll Call # 223",
+        "tally": "22-14",
+        "old_sentences": 6,
+        "old_chars": 391
+      }
+    }
+  ]
+}

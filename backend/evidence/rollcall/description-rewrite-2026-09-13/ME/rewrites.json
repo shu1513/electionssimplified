@@ -1,0 +1,1764 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1548445,
+      "measure_id": "LD 1185",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted yes on LD 1185, which bars anyone under 18 from marrying. The Maine House passed it 93-52 and it became law.",
+      "nay_description": "Voted no on LD 1185, which bars anyone under 18 from marrying. The Maine House passed it 93-52 and it became law.",
+      "_current": {
+        "question": "Acc Maj Ought To Pass Rep RC #86",
+        "tally": "93-52",
+        "old_sentences": 5,
+        "old_chars": 319
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1549183,
+      "measure_id": "LD 585",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted yes on LD 585, which widens what Efficiency Maine may spend its power-grid money on beyond heat pumps. The Maine House passed it 77-72 and it became law.",
+      "nay_description": "Voted no on LD 585, which widens what Efficiency Maine may spend its power-grid money on beyond heat pumps. The Maine House passed it 77-72 and it became law.",
+      "_current": {
+        "question": "Acc Maj Ought To Pass Rep RC #82",
+        "tally": "77-72",
+        "old_sentences": 6,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1570088,
+      "measure_id": "LD 163",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted yes on LD 163, which makes health insurance cover over-the-counter birth control with no copay. The Maine House passed it 73-69 and it became law.",
+      "nay_description": "Voted no on LD 163, which makes health insurance cover over-the-counter birth control with no copay. The Maine House passed it 73-69 and it became law.",
+      "_current": {
+        "question": "Acc Min Otp As Amended Rep RC #124",
+        "tally": "73-69",
+        "old_sentences": 6,
+        "old_chars": 556
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1570256,
+      "measure_id": "LD 54",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted yes on LD 54, which makes employers with 10 or more workers list the pay range in every job posting. The Maine House passed it 73-69 and it became law.",
+      "nay_description": "Voted no on LD 54, which makes employers with 10 or more workers list the pay range in every job posting. The Maine House passed it 73-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #125",
+        "tally": "73-69",
+        "old_sentences": 6,
+        "old_chars": 466
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1571130,
+      "measure_id": "LD 1080",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted yes on LD 1080, which bars utilities from demanding a deposit based on how much a new customer earns. The Maine House passed it 77-63 and it became law.",
+      "nay_description": "Voted no on LD 1080, which bars utilities from demanding a deposit based on how much a new customer earns. The Maine House passed it 77-63 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #141",
+        "tally": "77-63",
+        "old_sentences": 5,
+        "old_chars": 472
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1574213,
+      "measure_id": "LD 538",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted yes on LD 538, which lets pharmacies print a facility name instead of the prescriber on abortion pill labels. The Maine House passed it 75-71 and it became law.",
+      "nay_description": "Voted no on LD 538, which lets pharmacies print a facility name instead of the prescriber on abortion pill labels. The Maine House passed it 75-71 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #148",
+        "tally": "75-71",
+        "old_sentences": 6,
+        "old_chars": 558
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1576079,
+      "measure_id": "LD 21",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted yes on LD 21, which reframes school threat assessment policies around students who may pose a threat of violence. The Maine House passed it 79-65 and it became law.",
+      "nay_description": "Voted no on LD 21, which reframes school threat assessment policies around students who may pose a threat of violence. The Maine House passed it 79-65 and it became law.",
+      "_current": {
+        "question": "Acc Maj Ought To Pass Rep RC #169",
+        "tally": "79-65",
+        "old_sentences": 5,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1579017,
+      "measure_id": "LD 784",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted yes on LD 784, which limits insurance denials for first responders' medical screening tests. The Maine House passed it 78-62 and it became law.",
+      "nay_description": "Voted no on LD 784, which limits insurance denials for first responders' medical screening tests. The Maine House passed it 78-62 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #188",
+        "tally": "78-62",
+        "old_sentences": 7,
+        "old_chars": 819
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1579051,
+      "measure_id": "LD 61",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted yes on LD 61, which makes employers tell workers before watching them with electronic monitoring. The Maine House passed it 73-63 and it became law.",
+      "nay_description": "Voted no on LD 61, which makes employers tell workers before watching them with electronic monitoring. The Maine House passed it 73-63 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #197",
+        "tally": "73-63",
+        "old_sentences": 9,
+        "old_chars": 791
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1580645,
+      "measure_id": "LD 493",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted yes on LD 493, which adds forever chemicals to recommended well water tests and requires landlords to test. The Maine House passed it 78-69 and it became law.",
+      "nay_description": "Voted no on LD 493, which adds forever chemicals to recommended well water tests and requires landlords to test. The Maine House passed it 78-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #216",
+        "tally": "78-69",
+        "old_sentences": 5,
+        "old_chars": 433
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1583054,
+      "measure_id": "LD 1366",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted yes on LD 1366, which ends the sentencing split between crack and powder cocaine. The Maine House passed it 74-67 and it became law.",
+      "nay_description": "Voted no on LD 1366, which ends the sentencing split between crack and powder cocaine. The Maine House passed it 74-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #255",
+        "tally": "74-67",
+        "old_sentences": 7,
+        "old_chars": 591
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1584033,
+      "measure_id": "LD 589",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted yes on LD 589, which makes farm workers subject to the state minimum wage. The Maine House passed it 74-73 and it became law.",
+      "nay_description": "Voted no on LD 589, which makes farm workers subject to the state minimum wage. The Maine House passed it 74-73 and it became law.",
+      "_current": {
+        "question": "Enactment RC #292",
+        "tally": "74-73",
+        "old_sentences": 6,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1584131,
+      "measure_id": "LD 1768",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted yes on LD 1768, which lets the state housing fund be spent on keeping mobile home parks affordable. The Maine House passed it 79-69 and it became law.",
+      "nay_description": "Voted no on LD 1768, which lets the state housing fund be spent on keeping mobile home parks affordable. The Maine House passed it 79-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #297",
+        "tally": "79-69",
+        "old_sentences": 5,
+        "old_chars": 562
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1584884,
+      "measure_id": "LD 1900",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted yes on LD 1900, which lets four tribes form power districts on their land with the same rights as towns. The Maine House passed it 75-67 and it became law.",
+      "nay_description": "Voted no on LD 1900, which lets four tribes form power districts on their land with the same rights as towns. The Maine House passed it 75-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Ought To Pass Rep RC #328",
+        "tally": "75-67",
+        "old_sentences": 5,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1585332,
+      "measure_id": "LD 1117",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted yes on LD 1117, which lets preapprenticeship grants pay for child care, transportation, tools and stipends. The Maine House passed it 108-34 and it became law.",
+      "nay_description": "Voted no on LD 1117, which lets preapprenticeship grants pay for child care, transportation, tools and stipends. The Maine House passed it 108-34 and it became law.",
+      "_current": {
+        "question": "Enactment RC #333",
+        "tally": "108-34",
+        "old_sentences": 10,
+        "old_chars": 923
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1585483,
+      "measure_id": "LD 1078",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted yes on LD 1078, which lets needle exchange programs run mobile sites and deliver syringes. The Maine House passed it 74-65 and it became law.",
+      "nay_description": "Voted no on LD 1078, which lets needle exchange programs run mobile sites and deliver syringes. The Maine House passed it 74-65 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #345",
+        "tally": "74-65",
+        "old_sentences": 5,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1586788,
+      "measure_id": "LD 1145",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted yes on LD 1145, which gives mobile home park residents a real chance to buy the park before it is sold. The Maine House passed it 81-64 and it became law.",
+      "nay_description": "Voted no on LD 1145, which gives mobile home park residents a real chance to buy the park before it is sold. The Maine House passed it 81-64 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #366",
+        "tally": "81-64",
+        "old_sentences": 6,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1587268,
+      "measure_id": "LD 598",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted to accept the Senate's version of LD 598, which makes employers with 10 or more workers pay two hours' wages for a cancelled shift. The House agreed 76-69, and the bill became law without the governor's signature as Public Law Chapter 418.",
+      "nay_description": "Voted against accepting the Senate's version of LD 598, which makes employers with 10 or more workers pay two hours' wages for a cancelled shift. The House agreed 76-69, and the bill became law without the governor's signature as Public Law Chapter 418.",
+      "_current": {
+        "question": "Recede And Concur RC #395",
+        "tally": "76-69",
+        "old_sentences": 7,
+        "old_chars": 665
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1587779,
+      "measure_id": "LD 537",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted yes on LD 537, which lets a family sue someone who shares a child's private information. The Maine House passed it 78-69 and it became law.",
+      "nay_description": "Voted no on LD 537, which lets a family sue someone who shares a child's private information. The Maine House passed it 78-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #406",
+        "tally": "78-69",
+        "old_sentences": 6,
+        "old_chars": 501
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1587988,
+      "measure_id": "LD 1016",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted to accept the committee's ought-to-pass report on LD 1016, which charges buyers of a mobile home park $10,000 per lot for a new state fund. The report was accepted 75-65 and the bill became law as Public Law Chapter 398.",
+      "nay_description": "Voted against accepting the committee's ought-to-pass report on LD 1016, which charges buyers of a mobile home park $10,000 per lot for a new state fund. The report was accepted 75-65 and the bill became law as Public Law Chapter 398.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #425",
+        "tally": "75-65",
+        "old_sentences": 8,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1589170,
+      "measure_id": "LD 215",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted yes on LD 215, which caps general assistance for people living in large recovery homes. The Maine House passed it 76-65 and it became law.",
+      "nay_description": "Voted no on LD 215, which caps general assistance for people living in large recovery homes. The Maine House passed it 76-65 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #447",
+        "tally": "76-65",
+        "old_sentences": 6,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1589596,
+      "measure_id": "LD 913",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted yes on LD 913, which makes ticket sellers show the full price up front and bans ticket bots. The Maine House passed it 76-71 and it became law.",
+      "nay_description": "Voted no on LD 913, which makes ticket sellers show the full price up front and bans ticket bots. The Maine House passed it 76-71 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #450",
+        "tally": "76-71",
+        "old_sentences": 6,
+        "old_chars": 567
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590321,
+      "measure_id": "LD 1934",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 1934, which requires shielded, down-pointing outdoor lighting on new public installations from October 2026. The Maine House passed it 74-72 and it became law.",
+      "nay_description": "Voted no on LD 1934, which requires shielded, down-pointing outdoor lighting on new public installations from October 2026. The Maine House passed it 74-72 and it became law.",
+      "_current": {
+        "question": "Enactment RC #476",
+        "tally": "74-72",
+        "old_sentences": 7,
+        "old_chars": 848
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590351,
+      "measure_id": "LD 1723",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 1723, which requires 90 days' written notice before raising lot rent in manufactured housing communities. The Maine House passed it 78-67 and it became law.",
+      "nay_description": "Voted no on LD 1723, which requires 90 days' written notice before raising lot rent in manufactured housing communities. The Maine House passed it 78-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #468",
+        "tally": "78-67",
+        "old_sentences": 7,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590626,
+      "measure_id": "LD 911",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 911, which keeps ranked-choice elections ranked when a candidate drops out fewer than 70 days before. The Maine House passed it 74-68 and it became law.",
+      "nay_description": "Voted no on LD 911, which keeps ranked-choice elections ranked when a candidate drops out fewer than 70 days before. The Maine House passed it 74-68 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #502",
+        "tally": "74-68",
+        "old_sentences": 5,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590866,
+      "measure_id": "LD 1784",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 1784, which makes every police agency publish its rules in plain language on a public website. The Maine House passed it 73-69 and it became law.",
+      "nay_description": "Voted no on LD 1784, which makes every police agency publish its rules in plain language on a public website. The Maine House passed it 73-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #499",
+        "tally": "73-69",
+        "old_sentences": 6,
+        "old_chars": 631
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590925,
+      "measure_id": "LD 613",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 613, which shortens the waiting period in Maine's Death with Dignity law. The Maine House agreed 79-62 and the bill became law.",
+      "nay_description": "Voted no on LD 613, which shortens the waiting period in Maine's Death with Dignity law. The Maine House agreed 79-62 and the bill became law.",
+      "_current": {
+        "question": "Recede And Concur RC #508",
+        "tally": "79-62",
+        "old_sentences": 9,
+        "old_chars": 813
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590978,
+      "measure_id": "LD 1868",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 1868, a clean electricity bill making sellers buy a rising share of clean power, 10 percent by 2040. The Maine House passed it 77-68 and it became law.",
+      "nay_description": "Voted no on LD 1868, a clean electricity bill making sellers buy a rising share of clean power, 10 percent by 2040. The Maine House passed it 77-68 and it became law.",
+      "_current": {
+        "question": "Enactment RC #515",
+        "tally": "77-68",
+        "old_sentences": 11,
+        "old_chars": 833
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1590993,
+      "measure_id": "LD 670",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 670, which adds coercion to what counts as abuse for domestic abuse protection orders. The Maine House passed it 76-69 and it became law.",
+      "nay_description": "Voted no on LD 670, which adds coercion to what counts as abuse for domestic abuse protection orders. The Maine House passed it 76-69 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #518",
+        "tally": "76-69",
+        "old_sentences": 5,
+        "old_chars": 448
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1591136,
+      "measure_id": "LD 427",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 427, which caps town parking rules at one off-street space per home in growth areas. The Maine House agreed 82-65 and the bill became law.",
+      "nay_description": "Voted no on LD 427, which caps town parking rules at one off-street space per home in growth areas. The Maine House agreed 82-65 and the bill became law.",
+      "_current": {
+        "question": "Recede And Concur RC #534",
+        "tally": "82-65",
+        "old_sentences": 7,
+        "old_chars": 525
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1591534,
+      "measure_id": "LD 1871",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 1871, which lets victims of sex trafficking ask a court to seal convictions caused by the trafficking. The Maine House passed it 89-58 and it became law.",
+      "nay_description": "Voted no on LD 1871, which lets victims of sex trafficking ask a court to seal convictions caused by the trafficking. The Maine House passed it 89-58 and it became law.",
+      "_current": {
+        "question": "Enactment RC #542",
+        "tally": "89-58",
+        "old_sentences": 8,
+        "old_chars": 582
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1591741,
+      "measure_id": "LD 1937",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 1937, which makes hospitals give free care to patients with family income at or below twice the poverty level. The Maine House passed it 75-72 and it became law.",
+      "nay_description": "Voted no on LD 1937, which makes hospitals give free care to patients with family income at or below twice the poverty level. The Maine House passed it 75-72 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #543",
+        "tally": "75-72",
+        "old_sentences": 6,
+        "old_chars": 578
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1591745,
+      "measure_id": "LD 93",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 93, which opens the state's bulk vaccine purchase program to every Maine resident, adults included. The Maine House passed it 78-70 and it became law.",
+      "nay_description": "Voted no on LD 93, which opens the state's bulk vaccine purchase program to every Maine resident, adults included. The Maine House passed it 78-70 and it became law.",
+      "_current": {
+        "question": "Enactment RC #556",
+        "tally": "78-70",
+        "old_sentences": 8,
+        "old_chars": 684
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1591991,
+      "measure_id": "LD 1849",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 1849, which bars charging a child under 11 with a juvenile crime except for murder or manslaughter. The Maine House passed it 76-71 and it became law.",
+      "nay_description": "Voted no on LD 1849, which bars charging a child under 11 with a juvenile crime except for murder or manslaughter. The Maine House passed it 76-71 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #562",
+        "tally": "76-71",
+        "old_sentences": 6,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1592017,
+      "measure_id": "LD 1971",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted yes on LD 1971, which bars local police and jails from spending money or time helping enforce federal civil immigration law. The Maine House passed it 75-73 and it became law.",
+      "nay_description": "Voted no on LD 1971, which bars local police and jails from spending money or time helping enforce federal civil immigration law. The Maine House passed it 75-73 and it became law.",
+      "_current": {
+        "question": "Enactment RC #574",
+        "tally": "75-73",
+        "old_sentences": 7,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1592313,
+      "measure_id": "LD 556",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted yes on LD 556, which bars towns from stopping a person picking any safe heating or energy system on the market. The Maine House passed it 78-67 and it became law.",
+      "nay_description": "Voted no on LD 556, which bars towns from stopping a person picking any safe heating or energy system on the market. The Maine House passed it 78-67 and it became law.",
+      "_current": {
+        "question": "Enactment RC #582",
+        "tally": "78-67",
+        "old_sentences": 7,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1594835,
+      "measure_id": "LD 1126",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes to accept the Senate's version of LD 1126, a gun serial-number bill barring guns with no serial number and requiring background checks for frames. The Maine House agreed 73-67, and it became law without the governor's signature in January 2026.",
+      "nay_description": "Voted no on accepting the Senate's version of LD 1126, a gun serial-number bill barring guns with no serial number and requiring background checks for frames. The Maine House agreed 73-67, and it became law without the governor's signature in January 2026.",
+      "_current": {
+        "question": "Recede And Concur RC #595",
+        "tally": "73-67",
+        "old_sentences": 8,
+        "old_chars": 651
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1594847,
+      "measure_id": "LD 166",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on LD 166, which bars pharmacies from holding a license to sell tobacco. The Maine House agreed 71-68 and the bill became law.",
+      "nay_description": "Voted no on LD 166, which bars pharmacies from holding a license to sell tobacco. The Maine House agreed 71-68 and the bill became law.",
+      "_current": {
+        "question": "Recede And Concur RC #590",
+        "tally": "71-68",
+        "old_sentences": 7,
+        "old_chars": 512
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1647559,
+      "measure_id": "LD 2037",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted yes on LD 2037, which sets a new schedule for cutting carbon dioxide limits on power plants. The Maine House passed it 71-66 and it became law.",
+      "nay_description": "Voted no on LD 2037, which sets a new schedule for cutting carbon dioxide limits on power plants. The Maine House passed it 71-66 and it became law.",
+      "_current": {
+        "question": "Enactment RC #627",
+        "tally": "71-66",
+        "old_sentences": 7,
+        "old_chars": 492
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1654878,
+      "measure_id": "LD 1587",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted yes on LD 1587, which lets the Bureau of Labor Standards open investigations and issue subpoenas on its own. The Maine House agreed 72-68 and the bill became law.",
+      "nay_description": "Voted no on LD 1587, which lets the Bureau of Labor Standards open investigations and issue subpoenas on its own. The Maine House agreed 72-68 and the bill became law.",
+      "_current": {
+        "question": "Recede And Concur RC #631",
+        "tally": "72-68",
+        "old_sentences": 7,
+        "old_chars": 594
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1658072,
+      "measure_id": "LD 517",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted yes on LD 517, which requires a warning on political ads that use fake audio, video or images of a candidate. The Maine House passed it 73-65 and it became law.",
+      "nay_description": "Voted no on LD 517, which requires a warning on political ads that use fake audio, video or images of a candidate. The Maine House passed it 73-65 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #641",
+        "tally": "73-65",
+        "old_sentences": 8,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1664341,
+      "measure_id": "LD 1949",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted yes on LD 1949, which makes utility regulators weigh the effect on household bills when carrying out their duties. The Maine House passed it 86-56 and it became law.",
+      "nay_description": "Voted no on LD 1949, which makes utility regulators weigh the effect on household bills when carrying out their duties. The Maine House passed it 86-56 and it became law.",
+      "_current": {
+        "question": "Enactment RC #650",
+        "tally": "86-56",
+        "old_sentences": 6,
+        "old_chars": 584
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1668557,
+      "measure_id": "LD 2114",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted yes on LD 2114, which lets public preschool take 3-year-olds, not just 4-year-olds. The Maine House passed it 75-68 and it became law.",
+      "nay_description": "Voted no on LD 2114, which lets public preschool take 3-year-olds, not just 4-year-olds. The Maine House passed it 75-68 and it became law.",
+      "_current": {
+        "question": "Enactment RC #666",
+        "tally": "75-68",
+        "old_sentences": 6,
+        "old_chars": 583
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1668608,
+      "measure_id": "LD 1730",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted yes on LD 1730, which lets residents plug small solar panels into an ordinary outlet to offset home electricity use. The Maine House passed it 79-65 and it became law.",
+      "nay_description": "Voted no on LD 1730, which lets residents plug small solar panels into an ordinary outlet to offset home electricity use. The Maine House passed it 79-65 and it became law.",
+      "_current": {
+        "question": "Enactment RC #665",
+        "tally": "79-65",
+        "old_sentences": 6,
+        "old_chars": 634
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1668769,
+      "measure_id": "LD 2107",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted yes on LD 2107, which sets up security grants for nonprofits to protect against hate crimes and terror attacks. The Maine House passed it 76-68 and it became law.",
+      "nay_description": "Voted no on LD 2107, which sets up security grants for nonprofits to protect against hate crimes and terror attacks. The Maine House passed it 76-68 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #669",
+        "tally": "76-68",
+        "old_sentences": 5,
+        "old_chars": 528
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1669503,
+      "measure_id": "LD 2057",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted yes on LD 2057, which lets the state housing authority make construction loans for low-income housing on its own. The Maine House passed it 74-67 and it became law.",
+      "nay_description": "Voted no on LD 2057, which lets the state housing authority make construction loans for low-income housing on its own. The Maine House passed it 74-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp-am By Ca \"a\" RC #675",
+        "tally": "74-67",
+        "old_sentences": 5,
+        "old_chars": 449
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1671273,
+      "measure_id": "LD 2051",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted yes on LD 2051, which pays for food help for some lawfully present immigrants who cannot get SNAP. The Maine House passed it 76-67 and it became law.",
+      "nay_description": "Voted no on LD 2051, which pays for food help for some lawfully present immigrants who cannot get SNAP. The Maine House passed it 76-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #693",
+        "tally": "76-67",
+        "old_sentences": 7,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1676321,
+      "measure_id": "LD 2058",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted yes on LD 2058, which frees jails from holding people solely for civil violations of federal immigration law. The Maine House passed it 77-71 and it became law.",
+      "nay_description": "Voted no on LD 2058, which frees jails from holding people solely for civil violations of federal immigration law. The Maine House passed it 77-71 and it became law.",
+      "_current": {
+        "question": "Enactment RC #730",
+        "tally": "77-71",
+        "old_sentences": 7,
+        "old_chars": 534
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1676325,
+      "measure_id": "LD 2146",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted yes on LD 2146, which makes the state vaccine board also weigh national doctors' groups when picking vaccines. The Maine House passed it 86-58 and it became law.",
+      "nay_description": "Voted no on LD 2146, which makes the state vaccine board also weigh national doctors' groups when picking vaccines. The Maine House passed it 86-58 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #725",
+        "tally": "86-58",
+        "old_sentences": 7,
+        "old_chars": 870
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1677418,
+      "measure_id": "LD 1966",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted yes on LD 1966, which makes electric bills show more charges and changes how small solar is billed. The Maine House passed it 77-70 and it became law.",
+      "nay_description": "Voted no on LD 1966, which makes electric bills show more charges and changes how small solar is billed. The Maine House passed it 77-70 and it became law.",
+      "_current": {
+        "question": "Enactment RC #737",
+        "tally": "77-70",
+        "old_sentences": 8,
+        "old_chars": 999
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1678710,
+      "measure_id": "LD 2176",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted yes on LD 2176, which bars landlords from handing out tenants' private information to pressure them into moving. The Maine House passed it 75-73 and it became law.",
+      "nay_description": "Voted no on LD 2176, which bars landlords from handing out tenants' private information to pressure them into moving. The Maine House passed it 75-73 and it became law.",
+      "_current": {
+        "question": "Enactment RC #763",
+        "tally": "75-73",
+        "old_sentences": 6,
+        "old_chars": 597
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1678714,
+      "measure_id": "LD 2231",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted yes on LD 2231, which limits mobile home park lot rent increases to once a year and lets residents force mediation. The Maine House passed it 78-67 and it became law.",
+      "nay_description": "Voted no on LD 2231, which limits mobile home park lot rent increases to once a year and lets residents force mediation. The Maine House passed it 78-67 and it became law.",
+      "_current": {
+        "question": "Acc Maj Otp-am By Ca \"a\" RC #757",
+        "tally": "78-67",
+        "old_sentences": 7,
+        "old_chars": 741
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1679820,
+      "measure_id": "LD 2106",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted yes on LD 2106, which bars staff at schools, clinics and libraries from voluntarily letting immigration agents into private areas. The Maine House passed it 79-69 and it became law.",
+      "nay_description": "Voted no on LD 2106, which bars staff at schools, clinics and libraries from voluntarily letting immigration agents into private areas. The Maine House passed it 79-69 and it became law.",
+      "_current": {
+        "question": "Enactment RC #798",
+        "tally": "79-69",
+        "old_sentences": 8,
+        "old_chars": 779
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1680941,
+      "measure_id": "LD 785",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted yes on LD 785, which lets the Mi'kmaq Nation elect a representative to the Maine House from 2026. The Maine House passed it 83-64 and it became law.",
+      "nay_description": "Voted no on LD 785, which lets the Mi'kmaq Nation elect a representative to the Maine House from 2026. The Maine House passed it 83-64 and it became law.",
+      "_current": {
+        "question": "Report A Otp-am By Ca-a RC #808",
+        "tally": "83-64",
+        "old_sentences": 5,
+        "old_chars": 538
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1682143,
+      "measure_id": "LD 1519",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted yes on LD 1519, which makes e-cigarette brand owners pay for programs that collect and dispose of used devices. The Maine House passed it 75-68 and it became law.",
+      "nay_description": "Voted no on LD 1519, which makes e-cigarette brand owners pay for programs that collect and dispose of used devices. The Maine House passed it 75-68 and it became law.",
+      "_current": {
+        "question": "Enactment RC #816",
+        "tally": "75-68",
+        "old_sentences": 7,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1543527,
+      "measure_id": "LD 585",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted yes on LD 585, which widens what Efficiency Maine may spend its power-grid money on beyond heat pumps. The Maine Senate passed it 19-15 and it became law.",
+      "nay_description": "Voted no on LD 585, which widens what Efficiency Maine may spend its power-grid money on beyond heat pumps. The Maine Senate passed it 19-15 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass Report RC #103",
+        "tally": "19-15",
+        "old_sentences": 6,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1555067,
+      "measure_id": "LD 1185",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted yes on LD 1185, which bars anyone under 18 from marrying. The Maine Senate passed it 19-11 and it became law.",
+      "nay_description": "Voted no on LD 1185, which bars anyone under 18 from marrying. The Maine Senate passed it 19-11 and it became law.",
+      "_current": {
+        "question": "Enactment RC #125",
+        "tally": "19-11",
+        "old_sentences": 6,
+        "old_chars": 353
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1571118,
+      "measure_id": "LD 54",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted yes on LD 54, which makes employers with 10 or more workers list the pay range in every job posting. The Maine Senate passed it 21-13 and it became law.",
+      "nay_description": "Voted no on LD 54, which makes employers with 10 or more workers list the pay range in every job posting. The Maine Senate passed it 21-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #162",
+        "tally": "21-13",
+        "old_sentences": 6,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1571240,
+      "measure_id": "LD 163",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted yes on LD 163, which makes health insurance cover over-the-counter birth control with no copay. The Maine Senate passed it 21-13 and it became law.",
+      "nay_description": "Voted no on LD 163, which makes health insurance cover over-the-counter birth control with no copay. The Maine Senate passed it 21-13 and it became law.",
+      "_current": {
+        "question": "Accept Minority Ought To Pass As Amended Report RC #160",
+        "tally": "21-13",
+        "old_sentences": 6,
+        "old_chars": 557
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1574011,
+      "measure_id": "LD 1080",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted yes on LD 1080, which bars utilities from demanding a deposit based on how much a new customer earns. The Maine Senate passed it 19-13 and it became law.",
+      "nay_description": "Voted no on LD 1080, which bars utilities from demanding a deposit based on how much a new customer earns. The Maine Senate passed it 19-13 and it became law.",
+      "_current": {
+        "question": "Passage To Be Engrossed As Amended RC #177",
+        "tally": "19-13",
+        "old_sentences": 5,
+        "old_chars": 473
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1574113,
+      "measure_id": "LD 784",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted yes on LD 784, which limits insurance denials for first responders' medical screening tests. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 784, which limits insurance denials for first responders' medical screening tests. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #181",
+        "tally": "20-12",
+        "old_sentences": 7,
+        "old_chars": 820
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1574972,
+      "measure_id": "LD 538",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted yes on LD 538, which lets pharmacies print a facility name instead of the prescriber on abortion pill labels. The Maine Senate passed it 19-13 and it became law.",
+      "nay_description": "Voted no on LD 538, which lets pharmacies print a facility name instead of the prescriber on abortion pill labels. The Maine Senate passed it 19-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #198",
+        "tally": "19-13",
+        "old_sentences": 6,
+        "old_chars": 559
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1575341,
+      "measure_id": "LD 21",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted yes on LD 21, which reframes school threat assessment policies around students who may pose a threat of violence. The Maine Senate passed it 18-14 and it became law.",
+      "nay_description": "Voted no on LD 21, which reframes school threat assessment policies around students who may pose a threat of violence. The Maine Senate passed it 18-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass Report RC #204",
+        "tally": "18-14",
+        "old_sentences": 5,
+        "old_chars": 525
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1579868,
+      "measure_id": "LD 61",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted yes on LD 61, which makes employers tell workers before watching them with electronic monitoring. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 61, which makes employers tell workers before watching them with electronic monitoring. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #239",
+        "tally": "20-14",
+        "old_sentences": 9,
+        "old_chars": 816
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1583352,
+      "measure_id": "LD 589",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted yes on LD 589, which makes farm workers subject to the state minimum wage. The Maine Senate passed it 22-12 and it became law.",
+      "nay_description": "Voted no on LD 589, which makes farm workers subject to the state minimum wage. The Maine Senate passed it 22-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #289",
+        "tally": "22-12",
+        "old_sentences": 5,
+        "old_chars": 422
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1583357,
+      "measure_id": "LD 1768",
+      "vote_date": "2025-06-02",
+      "yea_description": "Voted yes on LD 1768, which lets the state housing fund be spent on keeping mobile home parks affordable. The Maine Senate passed it 23-11 and it became law.",
+      "nay_description": "Voted no on LD 1768, which lets the state housing fund be spent on keeping mobile home parks affordable. The Maine Senate passed it 23-11 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #302",
+        "tally": "23-11",
+        "old_sentences": 5,
+        "old_chars": 562
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1584137,
+      "measure_id": "LD 1117",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted yes on LD 1117, which lets preapprenticeship grants pay for child care, transportation, tools and stipends. The Maine Senate passed it 24-8 and it became law.",
+      "nay_description": "Voted no on LD 1117, which lets preapprenticeship grants pay for child care, transportation, tools and stipends. The Maine Senate passed it 24-8 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #337",
+        "tally": "24-8",
+        "old_sentences": 7,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1584436,
+      "measure_id": "LD 1366",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted yes on LD 1366, which ends the sentencing split between crack and powder cocaine. The Maine Senate passed it 16-15 and it became law.",
+      "nay_description": "Voted no on LD 1366, which ends the sentencing split between crack and powder cocaine. The Maine Senate passed it 16-15 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #311",
+        "tally": "16-15",
+        "old_sentences": 6,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1585711,
+      "measure_id": "LD 1900",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted yes on LD 1900, which lets four tribes form power districts on their land with the same rights as towns. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 1900, which lets four tribes form power districts on their land with the same rights as towns. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass Report RC #374",
+        "tally": "20-12",
+        "old_sentences": 5,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1585732,
+      "measure_id": "LD 1145",
+      "vote_date": "2025-06-05",
+      "yea_description": "Voted yes on LD 1145, which gives mobile home park residents a real chance to buy the park before it is sold. The Maine Senate passed it 25-7 and it became law.",
+      "nay_description": "Voted no on LD 1145, which gives mobile home park residents a real chance to buy the park before it is sold. The Maine Senate passed it 25-7 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #361",
+        "tally": "25-7",
+        "old_sentences": 6,
+        "old_chars": 669
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1586829,
+      "measure_id": "LD 1078",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted yes on LD 1078, which lets needle exchange programs run mobile sites and deliver syringes. The Maine Senate passed it 20-11 and it became law.",
+      "nay_description": "Voted no on LD 1078, which lets needle exchange programs run mobile sites and deliver syringes. The Maine Senate passed it 20-11 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #394",
+        "tally": "20-11",
+        "old_sentences": 5,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1587780,
+      "measure_id": "LD 537",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted yes on LD 537, which lets a family sue someone who shares a child's private information. The Maine Senate passed it 18-14 and it became law.",
+      "nay_description": "Voted no on LD 537, which lets a family sue someone who shares a child's private information. The Maine Senate passed it 18-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #441",
+        "tally": "18-14",
+        "old_sentences": 6,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1588827,
+      "measure_id": "LD 598",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted yes on LD 598, which makes employers with 10 or more workers pay two hours' wages for a cancelled shift. The Maine Senate passed it 18-16 and it became law.",
+      "nay_description": "Voted no on LD 598, which makes employers with 10 or more workers pay two hours' wages for a cancelled shift. The Maine Senate passed it 18-16 and it became law.",
+      "_current": {
+        "question": "Enactment RC #453",
+        "tally": "18-16",
+        "old_sentences": 10,
+        "old_chars": 866
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1588849,
+      "measure_id": "LD 1934",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted yes on LD 1934, which requires shielded, down-pointing outdoor lighting on new public installations from October 2026. The Maine Senate passed it 24-7 and it became law.",
+      "nay_description": "Voted no on LD 1934, which requires shielded, down-pointing outdoor lighting on new public installations from October 2026. The Maine Senate passed it 24-7 and it became law.",
+      "_current": {
+        "question": "Passage To Be Engrossed As Amended RC #463",
+        "tally": "24-7",
+        "old_sentences": 7,
+        "old_chars": 773
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1588941,
+      "measure_id": "LD 1016",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted to accept the House's final version of LD 1016, which charges buyers of a mobile home park $10,000 per lot for a new state fund. The Senate agreed 18-15, and the governor signed it as Public Law Chapter 398.",
+      "nay_description": "Voted against accepting the House's final version of LD 1016, which charges buyers of a mobile home park $10,000 per lot for a new state fund. The Senate agreed 18-15, and the governor signed it as Public Law Chapter 398.",
+      "_current": {
+        "question": "Recede And Concur RC #461",
+        "tally": "18-15",
+        "old_sentences": 6,
+        "old_chars": 638
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1589006,
+      "measure_id": "LD 913",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted yes on LD 913, which makes ticket sellers show the full price up front and bans ticket bots. The Maine Senate passed it 21-10 and it became law.",
+      "nay_description": "Voted no on LD 913, which makes ticket sellers show the full price up front and bans ticket bots. The Maine Senate passed it 21-10 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #464",
+        "tally": "21-10",
+        "old_sentences": 6,
+        "old_chars": 568
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1589984,
+      "measure_id": "LD 1937",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted yes on LD 1937, which makes hospitals give free care to patients with family income at or below twice the poverty level. The Maine Senate passed it 21-14 and it became law.",
+      "nay_description": "Voted no on LD 1937, which makes hospitals give free care to patients with family income at or below twice the poverty level. The Maine Senate passed it 21-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #487",
+        "tally": "21-14",
+        "old_sentences": 6,
+        "old_chars": 579
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1590110,
+      "measure_id": "LD 427",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted yes on LD 427, which caps town parking rules at one off-street space per home in growth areas. The Maine Senate passed the broader version 19-16.",
+      "nay_description": "Voted no on LD 427, which caps town parking rules at one off-street space per home in growth areas. The Maine Senate passed the broader version 19-16.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #470",
+        "tally": "19-16",
+        "old_sentences": 7,
+        "old_chars": 601
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1590127,
+      "measure_id": "LD 613",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted yes on LD 613, which shortens the waiting period in Maine's Death with Dignity law. The Maine Senate passed it 18-15 and it became law.",
+      "nay_description": "Voted no on LD 613, which shortens the waiting period in Maine's Death with Dignity law. The Maine Senate passed it 18-15 and it became law.",
+      "_current": {
+        "question": "Passage To Be Engrossed As Amended RC #499",
+        "tally": "18-15",
+        "old_sentences": 8,
+        "old_chars": 796
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1590154,
+      "measure_id": "LD 215",
+      "vote_date": "2025-06-12",
+      "yea_description": "Voted yes on LD 215, which caps general assistance for people living in large recovery homes. The Maine Senate passed it 22-13 and it became law.",
+      "nay_description": "Voted no on LD 215, which caps general assistance for people living in large recovery homes. The Maine Senate passed it 22-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #475",
+        "tally": "22-13",
+        "old_sentences": 6,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1590624,
+      "measure_id": "LD 911",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 911, which keeps ranked-choice elections ranked when a candidate drops out fewer than 70 days before. The Maine Senate passed it 21-13 and it became law.",
+      "nay_description": "Voted no on LD 911, which keeps ranked-choice elections ranked when a candidate drops out fewer than 70 days before. The Maine Senate passed it 21-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #531",
+        "tally": "21-13",
+        "old_sentences": 5,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1590627,
+      "measure_id": "LD 1723",
+      "vote_date": "2025-06-13",
+      "yea_description": "Voted yes on LD 1723, which requires 90 days' written notice before raising lot rent in manufactured housing communities. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 1723, which requires 90 days' written notice before raising lot rent in manufactured housing communities. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #540",
+        "tally": "20-12",
+        "old_sentences": 7,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591150,
+      "measure_id": "LD 1784",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 1784, which makes every police agency publish its rules in plain language on a public website. The Maine Senate passed it 17-16 and it became law.",
+      "nay_description": "Voted no on LD 1784, which makes every police agency publish its rules in plain language on a public website. The Maine Senate passed it 17-16 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #554",
+        "tally": "17-16",
+        "old_sentences": 6,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591254,
+      "measure_id": "LD 1871",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 1871, which lets victims of sex trafficking ask a court to seal convictions caused by the trafficking. The Maine Senate passed it 22-12 and it became law.",
+      "nay_description": "Voted no on LD 1871, which lets victims of sex trafficking ask a court to seal convictions caused by the trafficking. The Maine Senate passed it 22-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #560",
+        "tally": "22-12",
+        "old_sentences": 7,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591267,
+      "measure_id": "LD 670",
+      "vote_date": "2025-06-16",
+      "yea_description": "Voted yes on LD 670, which adds coercion to what counts as abuse for domestic abuse protection orders. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 670, which adds coercion to what counts as abuse for domestic abuse protection orders. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #563",
+        "tally": "20-12",
+        "old_sentences": 5,
+        "old_chars": 449
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591746,
+      "measure_id": "LD 93",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 93, which opens the state's bulk vaccine purchase program to every Maine resident, adults included. The Maine Senate passed it 20-13 and it became law.",
+      "nay_description": "Voted no on LD 93, which opens the state's bulk vaccine purchase program to every Maine resident, adults included. The Maine Senate passed it 20-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #599",
+        "tally": "20-13",
+        "old_sentences": 7,
+        "old_chars": 652
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591936,
+      "measure_id": "LD 1868",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 1868, a clean electricity bill making sellers buy a rising share of clean power, 10 percent by 2040. The Maine Senate passed it 19-16 and it became law.",
+      "nay_description": "Voted no on LD 1868, a clean electricity bill making sellers buy a rising share of clean power, 10 percent by 2040. The Maine Senate passed it 19-16 and it became law.",
+      "_current": {
+        "question": "Enactment RC #612",
+        "tally": "19-16",
+        "old_sentences": 8,
+        "old_chars": 495
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1591992,
+      "measure_id": "LD 1849",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted yes on LD 1849, which bars charging a child under 11 with a juvenile crime except for murder or manslaughter. The Maine Senate passed it 20-15 and it became law.",
+      "nay_description": "Voted no on LD 1849, which bars charging a child under 11 with a juvenile crime except for murder or manslaughter. The Maine Senate passed it 20-15 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #615",
+        "tally": "20-15",
+        "old_sentences": 6,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1592547,
+      "measure_id": "LD 1971",
+      "vote_date": "2025-06-18",
+      "yea_description": "Voted yes on LD 1971, which bars local police and jails from spending money or time helping enforce federal civil immigration law. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 1971, which bars local police and jails from spending money or time helping enforce federal civil immigration law. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Enactment RC #634",
+        "tally": "20-14",
+        "old_sentences": 7,
+        "old_chars": 642
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1594826,
+      "measure_id": "LD 556",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on LD 556, which bars towns from stopping a person picking any safe heating or energy system on the market. The Maine Senate passed it 18-14 and it became law.",
+      "nay_description": "Voted no on LD 556, which bars towns from stopping a person picking any safe heating or energy system on the market. The Maine Senate passed it 18-14 and it became law.",
+      "_current": {
+        "question": "Enactment RC #646",
+        "tally": "18-14",
+        "old_sentences": 7,
+        "old_chars": 573
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1595032,
+      "measure_id": "LD 1126",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on LD 1126, a gun serial-number bill barring guns with no serial number and requiring background checks for frames. The Maine Senate passed it 17-16 and it became law.",
+      "nay_description": "Voted no on LD 1126, a gun serial-number bill barring guns with no serial number and requiring background checks for frames. The Maine Senate passed it 17-16 and it became law.",
+      "_current": {
+        "question": "Enactment RC #654",
+        "tally": "17-16",
+        "old_sentences": 10,
+        "old_chars": 725
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1595041,
+      "measure_id": "LD 166",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes on LD 166, which bars pharmacies from holding a license to sell tobacco. The Maine Senate passed it 17-16 and it became law.",
+      "nay_description": "Voted no on LD 166, which bars pharmacies from holding a license to sell tobacco. The Maine Senate passed it 17-16 and it became law.",
+      "_current": {
+        "question": "Enactment RC #650",
+        "tally": "17-16",
+        "old_sentences": 6,
+        "old_chars": 454
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1631625,
+      "measure_id": "LD 2037",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted yes on LD 2037, which sets a new schedule for cutting carbon dioxide limits on power plants. The Maine Senate passed it 19-13 and it became law.",
+      "nay_description": "Voted no on LD 2037, which sets a new schedule for cutting carbon dioxide limits on power plants. The Maine Senate passed it 19-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass Report RC #714",
+        "tally": "19-13",
+        "old_sentences": 6,
+        "old_chars": 460
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1646248,
+      "measure_id": "LD 1587",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted yes on LD 1587, which lets the Bureau of Labor Standards open investigations and issue subpoenas on its own. The Maine Senate passed it 18-14 and it became law.",
+      "nay_description": "Voted no on LD 1587, which lets the Bureau of Labor Standards open investigations and issue subpoenas on its own. The Maine Senate passed it 18-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #725",
+        "tally": "18-14",
+        "old_sentences": 7,
+        "old_chars": 784
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1655394,
+      "measure_id": "LD 1949",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted yes on LD 1949, which makes utility regulators weigh the effect on household bills when carrying out their duties. The Maine Senate passed it 21-12 and it became law.",
+      "nay_description": "Voted no on LD 1949, which makes utility regulators weigh the effect on household bills when carrying out their duties. The Maine Senate passed it 21-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #736",
+        "tally": "21-12",
+        "old_sentences": 5,
+        "old_chars": 552
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1661402,
+      "measure_id": "LD 517",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted yes on LD 517, which requires a warning on political ads that use fake audio, video or images of a candidate. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 517, which requires a warning on political ads that use fake audio, video or images of a candidate. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #759",
+        "tally": "20-14",
+        "old_sentences": 6,
+        "old_chars": 580
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1664130,
+      "measure_id": "LD 1730",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted yes on LD 1730, which lets residents plug small solar panels into an ordinary outlet to offset home electricity use. The Maine Senate passed it 25-8 and it became law.",
+      "nay_description": "Voted no on LD 1730, which lets residents plug small solar panels into an ordinary outlet to offset home electricity use. The Maine Senate passed it 25-8 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #767",
+        "tally": "25-8",
+        "old_sentences": 5,
+        "old_chars": 601
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1666449,
+      "measure_id": "LD 2114",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted yes on LD 2114, which lets public preschool take 3-year-olds, not just 4-year-olds. The Maine Senate passed it 18-14 and it became law.",
+      "nay_description": "Voted no on LD 2114, which lets public preschool take 3-year-olds, not just 4-year-olds. The Maine Senate passed it 18-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #779",
+        "tally": "18-14",
+        "old_sentences": 6,
+        "old_chars": 621
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1668516,
+      "measure_id": "LD 2057",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted yes on LD 2057, which lets the state housing authority make construction loans for low-income housing on its own. The Maine Senate passed it 22-13 and it became law.",
+      "nay_description": "Voted no on LD 2057, which lets the state housing authority make construction loans for low-income housing on its own. The Maine Senate passed it 22-13 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #788",
+        "tally": "22-13",
+        "old_sentences": 5,
+        "old_chars": 450
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1669869,
+      "measure_id": "LD 2107",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted yes on LD 2107, which sets up security grants for nonprofits to protect against hate crimes and terror attacks. The Maine Senate passed it 21-14 and it became law.",
+      "nay_description": "Voted no on LD 2107, which sets up security grants for nonprofits to protect against hate crimes and terror attacks. The Maine Senate passed it 21-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #793",
+        "tally": "21-14",
+        "old_sentences": 5,
+        "old_chars": 529
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1672744,
+      "measure_id": "LD 2051",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted yes on LD 2051, which pays for food help for some lawfully present immigrants who cannot get SNAP. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 2051, which pays for food help for some lawfully present immigrants who cannot get SNAP. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #822",
+        "tally": "20-12",
+        "old_sentences": 7,
+        "old_chars": 694
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1673194,
+      "measure_id": "LD 2058",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted yes on LD 2058, which frees jails from holding people solely for civil violations of federal immigration law. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 2058, which frees jails from holding people solely for civil violations of federal immigration law. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #824",
+        "tally": "20-12",
+        "old_sentences": 6,
+        "old_chars": 502
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1676026,
+      "measure_id": "LD 2146",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted yes on LD 2146, which makes the state vaccine board also weigh national doctors' groups when picking vaccines. The Maine Senate passed it 23-10 and it became law.",
+      "nay_description": "Voted no on LD 2146, which makes the state vaccine board also weigh national doctors' groups when picking vaccines. The Maine Senate passed it 23-10 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #842",
+        "tally": "23-10",
+        "old_sentences": 7,
+        "old_chars": 912
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1677077,
+      "measure_id": "LD 1966",
+      "vote_date": "2026-04-06",
+      "yea_description": "Voted yes on LD 1966, which makes electric bills show more charges and changes how small solar is billed. The Maine Senate passed it 20-12 and it became law.",
+      "nay_description": "Voted no on LD 1966, which makes electric bills show more charges and changes how small solar is billed. The Maine Senate passed it 20-12 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #875",
+        "tally": "20-12",
+        "old_sentences": 7,
+        "old_chars": 967
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1678354,
+      "measure_id": "LD 2176",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted yes on LD 2176, which bars landlords from handing out tenants' private information to pressure them into moving. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 2176, which bars landlords from handing out tenants' private information to pressure them into moving. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #901",
+        "tally": "20-14",
+        "old_sentences": 5,
+        "old_chars": 474
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1679427,
+      "measure_id": "LD 2231",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted yes on LD 2231, which limits mobile home park lot rent increases to once a year and lets residents force mediation. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 2231, which limits mobile home park lot rent increases to once a year and lets residents force mediation. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #915",
+        "tally": "20-14",
+        "old_sentences": 7,
+        "old_chars": 747
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1679434,
+      "measure_id": "LD 2106",
+      "vote_date": "2026-04-08",
+      "yea_description": "Voted yes on LD 2106, which bars staff at schools, clinics and libraries from voluntarily letting immigration agents into private areas. The Maine Senate passed it 20-14 and it became law.",
+      "nay_description": "Voted no on LD 2106, which bars staff at schools, clinics and libraries from voluntarily letting immigration agents into private areas. The Maine Senate passed it 20-14 and it became law.",
+      "_current": {
+        "question": "Accept Majority Ought To Pass As Amended Report RC #917",
+        "tally": "20-14",
+        "old_sentences": 7,
+        "old_chars": 674
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1680940,
+      "measure_id": "LD 785",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted yes on LD 785, which lets the Mi'kmaq Nation elect a representative to the Maine House from 2026. The Maine Senate passed it 22-11 and it became law.",
+      "nay_description": "Voted no on LD 785, which lets the Mi'kmaq Nation elect a representative to the Maine House from 2026. The Maine Senate passed it 22-11 and it became law.",
+      "_current": {
+        "question": "Accept Report 'a' Ought To Pass As Amended RC #944",
+        "tally": "22-11",
+        "old_sentences": 5,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1682144,
+      "measure_id": "LD 1519",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted yes on LD 1519, which makes e-cigarette brand owners pay for programs that collect and dispose of used devices. The Maine Senate passed it 21-13 and it became law.",
+      "nay_description": "Voted no on LD 1519, which makes e-cigarette brand owners pay for programs that collect and dispose of used devices. The Maine Senate passed it 21-13 and it became law.",
+      "_current": {
+        "question": "Enactment RC #957",
+        "tally": "21-13",
+        "old_sentences": 8,
+        "old_chars": 786
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1682318,
+      "measure_id": "LD 493",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted yes on LD 493, which adds forever chemicals to recommended well water tests and requires landlords to test. The Maine Senate passed it 21-13 and it became law.",
+      "nay_description": "Voted no on LD 493, which adds forever chemicals to recommended well water tests and requires landlords to test. The Maine Senate passed it 21-13 and it became law.",
+      "_current": {
+        "question": "Enactment RC #956",
+        "tally": "21-13",
+        "old_sentences": 6,
+        "old_chars": 467
+      }
+    }
+  ]
+}

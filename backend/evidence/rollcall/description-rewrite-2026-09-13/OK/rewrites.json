@@ -1,0 +1,1012 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1604843,
+      "measure_id": "SB 460",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for Senate Bill 460, which makes natural gas the state's preferred fuel for new power plants with no end date. The Oklahoma House passed it 70-19. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 460, which makes natural gas the state's preferred fuel for new power plants with no end date. The Oklahoma House passed it 70-19. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "70-19",
+        "old_sentences": 11,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605179,
+      "measure_id": "SB 713",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to override the Governor's veto of Senate Bill 713, which makes wind farms fit warning lights that stay off until a plane is near. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of Senate Bill 713, which makes wind farms fit warning lights that stay off until a plane is near. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "_current": {
+        "question": "House: VETO OVERRIDE WITHOUT EMERGENCY",
+        "tally": "68-17",
+        "old_sentences": 13,
+        "old_chars": 1015
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605300,
+      "measure_id": "SB 889",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for Senate Bill 889, which makes hospitals publish their prices and bars those that do not from chasing patients for payment. The Oklahoma House passed it 51-38. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 889, which makes hospitals publish their prices and bars those that do not from chasing patients for payment. The Oklahoma House passed it 51-38. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "51-38",
+        "old_sentences": 16,
+        "old_chars": 1318
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605411,
+      "measure_id": "SB 109",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 109, which makes health plans pay for cancer gene tests and scans for people at higher risk. The Oklahoma House passed it 68-20. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 109, which makes health plans pay for cancer gene tests and scans for people at higher risk. The Oklahoma House passed it 68-20. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "68-20",
+        "old_sentences": 14,
+        "old_chars": 962
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605731,
+      "measure_id": "HB 1727",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for House Bill 1727, which opens the Oklahoma's Promise scholarship to more teachers' children. The Oklahoma House passed it 60-27. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1727, which opens the Oklahoma's Promise scholarship to more teachers' children. The Oklahoma House passed it 60-27. The Governor signed it.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "60-27",
+        "old_sentences": 11,
+        "old_chars": 902
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605826,
+      "measure_id": "HB 2263",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of House Bill 2263, which bans holding a phone while driving through a school zone or work zone. The Oklahoma House voted 68-21 to override the veto. The Senate did the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of House Bill 2263, which bans holding a phone while driving through a school zone or work zone. The Oklahoma House voted 68-21 to override the veto. The Senate did the same, so the bill became law.",
+      "_current": {
+        "question": "House: VETO OVERRIDE WITHOUT EMERGENCY",
+        "tally": "68-21",
+        "old_sentences": 14,
+        "old_chars": 885
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605860,
+      "measure_id": "SB 631",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of Senate Bill 631, which adds firing a gun into a home or building to the crimes requiring 85 percent of the sentence served. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of Senate Bill 631, which adds firing a gun into a home or building to the crimes requiring 85 percent of the sentence served. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "_current": {
+        "question": "House: VETO OVERRIDE WITHOUT EMERGENCY",
+        "tally": "68-17",
+        "old_sentences": 8,
+        "old_chars": 819
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605886,
+      "measure_id": "SB 212",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 212, which sets up a two-year trial of new routes into teaching called TeachForwardOK. The Oklahoma House passed it 51-29. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 212, which sets up a two-year trial of new routes into teaching called TeachForwardOK. The Oklahoma House passed it 51-29. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "51-29",
+        "old_sentences": 13,
+        "old_chars": 979
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606105,
+      "measure_id": "SB 250",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for Senate Bill 250, which lets tips cover more of a tipped worker's minimum wage. The Oklahoma House passed it 74-19. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 250, which lets tips cover more of a tipped worker's minimum wage. The Oklahoma House passed it 74-19. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "74-19",
+        "old_sentences": 14,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606294,
+      "measure_id": "SB 1027",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for Senate Bill 1027, which requires plain-word summaries on citizen petition signature pages. The Oklahoma House passed it 69-23. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1027, which requires plain-word summaries on citizen petition signature pages. The Oklahoma House passed it 69-23. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "69-23",
+        "old_sentences": 20,
+        "old_chars": 1355
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606324,
+      "measure_id": "HB 1601",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted for House Bill 1601, which lets school staff add their own sick days to paid maternity leave. The Oklahoma House passed it 58-27. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1601, which lets school staff add their own sick days to paid maternity leave. The Oklahoma House passed it 58-27. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "58-27",
+        "old_sentences": 12,
+        "old_chars": 819
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606363,
+      "measure_id": "HB 2764",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026 and sets a path for more cuts. The Oklahoma House passed it 74-19. The Governor signed it.",
+      "nay_description": "Voted against House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026 and sets a path for more cuts. The Oklahoma House passed it 74-19. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "74-19",
+        "old_sentences": 13,
+        "old_chars": 756
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606425,
+      "measure_id": "SB 942",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 942, which bans discrimination in schools and colleges and treats anti-Semitism as a form of it. The Oklahoma House passed it 56-29. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 942, which bans discrimination in schools and colleges and treats anti-Semitism as a form of it. The Oklahoma House passed it 56-29. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "56-29",
+        "old_sentences": 17,
+        "old_chars": 1181
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606574,
+      "measure_id": "SB 364",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 364, which widens the ban on paddling students with disabilities. The Oklahoma House passed it 63-25. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 364, which widens the ban on paddling students with disabilities. The Oklahoma House passed it 63-25. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "63-25",
+        "old_sentences": 11,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606789,
+      "measure_id": "SB 743",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 743, which raises the penalty for disturbing a religious service and adds a buffer zone outside. The Oklahoma House passed it 73-21. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 743, which raises the penalty for disturbing a religious service and adds a buffer zone outside. The Oklahoma House passed it 73-21. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "73-21",
+        "old_sentences": 14,
+        "old_chars": 894
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606947,
+      "measure_id": "SB 139",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for Senate Bill 139, which made every school district ban student phones for the 2025-2026 school year. The Oklahoma House passed it 51-39. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 139, which made every school district ban student phones for the 2025-2026 school year. The Oklahoma House passed it 51-39. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "51-39",
+        "old_sentences": 13,
+        "old_chars": 805
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1607831,
+      "measure_id": "HB 1393",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted for House Bill 1393, which requires signed parental consent before a special education child is moved to alternate tests. The Oklahoma House passed it 71-23. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1393, which requires signed parental consent before a special education child is moved to alternate tests. The Oklahoma House passed it 71-23. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "71-23",
+        "old_sentences": 12,
+        "old_chars": 1065
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1607872,
+      "measure_id": "HB 1003",
+      "vote_date": "2025-05-15",
+      "yea_description": "Voted for House Bill 1003, which raises the age below which sex is always a crime to under 18 with a close-in-age rule. The Oklahoma House passed it 60-21. It became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 1003, which raises the age below which sex is always a crime to under 18 with a close-in-age rule. The Oklahoma House passed it 60-21. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "60-21",
+        "old_sentences": 12,
+        "old_chars": 914
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1608099,
+      "measure_id": "SB 758",
+      "vote_date": "2025-04-29",
+      "yea_description": "Voted for Senate Bill 758, which stops online lesson days counting as class time from the 2026-2027 school year. The Oklahoma House passed it 53-32. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 758, which stops online lesson days counting as class time from the 2026-2027 school year. The Oklahoma House passed it 53-32. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "53-32",
+        "old_sentences": 14,
+        "old_chars": 925
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1608374,
+      "measure_id": "SB 991",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for Senate Bill 991, which adopts the International Holocaust Remembrance Alliance definition of anti-Semitism. The Oklahoma House passed it 62-24. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 991, which adopts the International Holocaust Remembrance Alliance definition of anti-Semitism. The Oklahoma House passed it 62-24. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "62-24",
+        "old_sentences": 10,
+        "old_chars": 630
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1608521,
+      "measure_id": "SB 998",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 998, which lets electric companies charge customers for new plants sooner and with less review. The Oklahoma House passed it 51-39. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 998, which lets electric companies charge customers for new plants sooner and with less review. The Oklahoma House passed it 51-39. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "51-39",
+        "old_sentences": 16,
+        "old_chars": 982
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1608572,
+      "measure_id": "SB 176",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 176, which lets people pick up several months of birth control at a time. The Oklahoma House passed it 65-25. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 176, which lets people pick up several months of birth control at a time. The Oklahoma House passed it 65-25. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "65-25",
+        "old_sentences": 11,
+        "old_chars": 792
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1608868,
+      "measure_id": "SB 658",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 658, which stops the child welfare agency ruling out foster parents over their beliefs about sexual orientation. The Oklahoma House passed it 68-19. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 658, which stops the child welfare agency ruling out foster parents over their beliefs about sexual orientation. The Oklahoma House passed it 68-19. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "68-19",
+        "old_sentences": 12,
+        "old_chars": 863
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1661140,
+      "measure_id": "HB 3151",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted for House Bill 3151, which raises the minimum number of school days for districts that count instruction in hours. The Oklahoma House passed it 62-28. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3151, which raises the minimum number of school days for districts that count instruction in hours. The Oklahoma House passed it 62-28. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "62-28",
+        "old_sentences": 12,
+        "old_chars": 967
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1681732,
+      "measure_id": "HB 4071",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for House Bill 4071, which sets up a one-time $250 state deposit into a child's federal Trump Account. The Oklahoma House passed it 61-30. The Governor signed it.",
+      "nay_description": "Voted against House Bill 4071, which sets up a one-time $250 state deposit into a child's federal Trump Account. The Oklahoma House passed it 61-30. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "61-30",
+        "old_sentences": 10,
+        "old_chars": 697
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1690364,
+      "measure_id": "SB 137",
+      "vote_date": "2026-04-28",
+      "yea_description": "Voted for Senate Bill 137, which bars one more group of inmates from serving time at home on an electronic monitor. The Oklahoma House passed it 72-18. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 137, which bars one more group of inmates from serving time at home on an electronic monitor. The Oklahoma House passed it 72-18. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "72-18",
+        "old_sentences": 10,
+        "old_chars": 694
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1691377,
+      "measure_id": "SB 1833",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate Bill 1833, which orders the state to seek a federal waiver barring candy and soda from food aid. The Oklahoma House passed it 62-17. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1833, which orders the state to seek a federal waiver barring candy and soda from food aid. The Oklahoma House passed it 62-17. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "62-17",
+        "old_sentences": 10,
+        "old_chars": 949
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1691501,
+      "measure_id": "SB 1344",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for Senate Bill 1344, which pays a drug maker to produce a cheaper fast-acting insulin. The Oklahoma House passed it 68-22. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1344, which pays a drug maker to produce a cheaper fast-acting insulin. The Oklahoma House passed it 68-22. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "68-22",
+        "old_sentences": 13,
+        "old_chars": 807
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1693121,
+      "measure_id": "SB 1618",
+      "vote_date": "2026-05-04",
+      "yea_description": "Voted for Senate Bill 1618, which makes a court use a risk report before setting release terms in a violent case. The Oklahoma House passed it 62-23. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1618, which makes a court use a risk report before setting release terms in a violent case. The Oklahoma House passed it 62-23. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "62-23",
+        "old_sentences": 12,
+        "old_chars": 768
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1693704,
+      "measure_id": "SB 1443",
+      "vote_date": "2026-05-05",
+      "yea_description": "Voted for Senate Bill 1443, which tells health plans to weigh how sick a patient is when paying for anesthesia. The Oklahoma House passed it 68-17. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1443, which tells health plans to weigh how sick a patient is when paying for anesthesia. The Oklahoma House passed it 68-17. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "68-17",
+        "old_sentences": 11,
+        "old_chars": 900
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1693845,
+      "measure_id": "HB 3644",
+      "vote_date": "2026-05-05",
+      "yea_description": "Voted for House Bill 3644, the Blake Burgess Act, which sets rules for hospitals to spot and treat dangerous blood clots. The Oklahoma House passed it 68-21. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3644, the Blake Burgess Act, which sets rules for hospitals to spot and treat dangerous blood clots. The Oklahoma House passed it 68-21. The Governor signed it.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "68-21",
+        "old_sentences": 12,
+        "old_chars": 922
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1694669,
+      "measure_id": "HB 3834",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for House Bill 3834, which lets the state help pay for trials of ibogaine as an addiction treatment. The Oklahoma House passed it 69-21. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3834, which lets the state help pay for trials of ibogaine as an addiction treatment. The Oklahoma House passed it 69-21. The Governor signed it.",
+      "_current": {
+        "question": "House: FOURTH READING",
+        "tally": "69-21",
+        "old_sentences": 12,
+        "old_chars": 1016
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1695006,
+      "measure_id": "SB 504",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 504, which ends marriage before the age of 18. The Oklahoma House passed it 51-36. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 504, which ends marriage before the age of 18. The Oklahoma House passed it 51-36. It became law without the Governor's signature.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "51-36",
+        "old_sentences": 12,
+        "old_chars": 586
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1695078,
+      "measure_id": "SB 2084",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 2084, which caps what a state college may pay a professor to settle a state-law wrongful firing claim. The Oklahoma House passed it 70-21. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 2084, which caps what a state college may pay a professor to settle a state-law wrongful firing claim. The Oklahoma House passed it 70-21. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "70-21",
+        "old_sentences": 15,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605043,
+      "measure_id": "HB 1576",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of House Bill 1576, which makes Medicaid cover rapid whole genome testing for very ill children. The Oklahoma Senate voted 36-9 to override the veto. The House did the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of House Bill 1576, which makes Medicaid cover rapid whole genome testing for very ill children. The Oklahoma Senate voted 36-9 to override the veto. The House did the same, so the bill became law.",
+      "_current": {
+        "question": "Senate: VETO OVERRIDE WITH EMERGENCY",
+        "tally": "36-9",
+        "old_sentences": 12,
+        "old_chars": 1003
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605178,
+      "measure_id": "SB 713",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of Senate Bill 713, which makes wind farms fit warning lights that stay off until a plane is near. The Oklahoma Senate voted 32-15 to override the veto. The House then did the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of Senate Bill 713, which makes wind farms fit warning lights that stay off until a plane is near. The Oklahoma Senate voted 32-15 to override the veto. The House then did the same, so the bill became law.",
+      "_current": {
+        "question": "Senate: VETO OVERRIDE NO EMERGENCY",
+        "tally": "32-15",
+        "old_sentences": 13,
+        "old_chars": 1007
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605410,
+      "measure_id": "SB 109",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 109, which makes health plans pay for cancer gene tests and scans for people at higher risk. The Oklahoma Senate passed it 35-11. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 109, which makes health plans pay for cancer gene tests and scans for people at higher risk. The Oklahoma Senate passed it 35-11. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "35-11",
+        "old_sentences": 14,
+        "old_chars": 963
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605730,
+      "measure_id": "HB 1727",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for House Bill 1727, which opens the Oklahoma's Promise scholarship to more teachers' children. The Oklahoma Senate passed it 35-10. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1727, which opens the Oklahoma's Promise scholarship to more teachers' children. The Oklahoma Senate passed it 35-10. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "35-10",
+        "old_sentences": 11,
+        "old_chars": 903
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605785,
+      "measure_id": "HB 2049",
+      "vote_date": "2025-04-30",
+      "yea_description": "Voted for House Bill 2049, which makes the state check that Medicaid plans cover mental health care as fully as other care. The Oklahoma Senate passed it 33-11. It became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 2049, which makes the state check that Medicaid plans cover mental health care as fully as other care. The Oklahoma Senate passed it 33-11. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "33-11",
+        "old_sentences": 12,
+        "old_chars": 857
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1605885,
+      "measure_id": "SB 212",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for Senate Bill 212, which sets up a two-year trial of new routes into teaching called TeachForwardOK. The Oklahoma Senate passed it 34-10. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 212, which sets up a two-year trial of new routes into teaching called TeachForwardOK. The Oklahoma Senate passed it 34-10. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "34-10",
+        "old_sentences": 13,
+        "old_chars": 980
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606355,
+      "measure_id": "HB 1087",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted for House Bill 1087, which adds a day to the school year and extends the teacher pay scale for long-serving teachers. The Oklahoma Senate passed it 35-12. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1087, which adds a day to the school year and extends the teacher pay scale for long-serving teachers. The Oklahoma Senate passed it 35-12. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "35-12",
+        "old_sentences": 11,
+        "old_chars": 793
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606364,
+      "measure_id": "HB 2764",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026 and sets a path for more cuts. The Oklahoma Senate passed it 34-11. The Governor signed it.",
+      "nay_description": "Voted against House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026 and sets a path for more cuts. The Oklahoma Senate passed it 34-11. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "34-11",
+        "old_sentences": 13,
+        "old_chars": 757
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606422,
+      "measure_id": "SB 942",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for Senate Bill 942, which bans discrimination in schools and colleges and treats anti-Semitism as a form of it. The Oklahoma Senate passed it 31-15. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 942, which bans discrimination in schools and colleges and treats anti-Semitism as a form of it. The Oklahoma Senate passed it 31-15. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "31-15",
+        "old_sentences": 17,
+        "old_chars": 1182
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606467,
+      "measure_id": "SB 54",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of Senate Bill 54, which widens the crime of aggravated drunk driving and makes it a felony. The Oklahoma Senate voted 33-14 to override the veto. The House did the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of Senate Bill 54, which widens the crime of aggravated drunk driving and makes it a felony. The Oklahoma Senate voted 33-14 to override the veto. The House did the same, so the bill became law.",
+      "_current": {
+        "question": "Senate: VETO OVERRIDE NO EMERGENCY",
+        "tally": "33-14",
+        "old_sentences": 11,
+        "old_chars": 929
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606572,
+      "measure_id": "SB 364",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted for Senate Bill 364, which widens the ban on paddling students with disabilities. The Oklahoma Senate passed it 31-16. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 364, which widens the ban on paddling students with disabilities. The Oklahoma Senate passed it 31-16. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "31-16",
+        "old_sentences": 11,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606944,
+      "measure_id": "SB 139",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 139, which made every school district ban student phones for the 2025-2026 school year. The Oklahoma Senate passed it 30-15. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 139, which made every school district ban student phones for the 2025-2026 school year. The Oklahoma Senate passed it 30-15. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "30-15",
+        "old_sentences": 13,
+        "old_chars": 806
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1607941,
+      "measure_id": "SB 20",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 20, which adds immigration and English language checks for commercial truck drivers. The Oklahoma Senate passed it 36-10. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 20, which adds immigration and English language checks for commercial truck drivers. The Oklahoma Senate passed it 36-10. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "36-10",
+        "old_sentences": 14,
+        "old_chars": 1069
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1608096,
+      "measure_id": "SB 758",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 758, which stops online lesson days counting as class time from the 2026-2027 school year. The Oklahoma Senate passed it 33-14. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 758, which stops online lesson days counting as class time from the 2026-2027 school year. The Oklahoma Senate passed it 33-14. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "33-14",
+        "old_sentences": 14,
+        "old_chars": 926
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1608371,
+      "measure_id": "SB 991",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for Senate Bill 991, which adopts the International Holocaust Remembrance Alliance definition of anti-Semitism. The Oklahoma Senate passed it 27-15. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 991, which adopts the International Holocaust Remembrance Alliance definition of anti-Semitism. The Oklahoma Senate passed it 27-15. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "27-15",
+        "old_sentences": 10,
+        "old_chars": 631
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1608518,
+      "measure_id": "SB 998",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted for Senate Bill 998, which lets electric companies charge customers for new plants sooner and with less review. The Oklahoma Senate passed it 26-20. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 998, which lets electric companies charge customers for new plants sooner and with less review. The Oklahoma Senate passed it 26-20. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "26-20",
+        "old_sentences": 16,
+        "old_chars": 983
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1608571,
+      "measure_id": "SB 176",
+      "vote_date": "2025-05-21",
+      "yea_description": "Voted for Senate Bill 176, which lets people pick up several months of birth control at a time. The Oklahoma Senate passed it 30-16. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 176, which lets people pick up several months of birth control at a time. The Oklahoma Senate passed it 30-16. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "30-16",
+        "old_sentences": 11,
+        "old_chars": 793
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1623252,
+      "measure_id": "SB 743",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted for Senate Bill 743, which raises the penalty for disturbing a religious service and adds a buffer zone outside. The Oklahoma Senate passed it 31-15. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 743, which raises the penalty for disturbing a religious service and adds a buffer zone outside. The Oklahoma Senate passed it 31-15. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "31-15",
+        "old_sentences": 14,
+        "old_chars": 895
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1669258,
+      "measure_id": "SB 1344",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for Senate Bill 1344, which pays a drug maker to produce a cheaper fast-acting insulin. The Oklahoma Senate passed it 32-13. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1344, which pays a drug maker to produce a cheaper fast-acting insulin. The Oklahoma Senate passed it 32-13. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "32-13",
+        "old_sentences": 13,
+        "old_chars": 808
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1684205,
+      "measure_id": "HB 4071",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted for House Bill 4071, which sets up a one-time $250 state deposit into a child's federal Trump Account. The Oklahoma Senate passed it 25-19. The Governor signed it.",
+      "nay_description": "Voted against House Bill 4071, which sets up a one-time $250 state deposit into a child's federal Trump Account. The Oklahoma Senate passed it 25-19. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "25-19",
+        "old_sentences": 10,
+        "old_chars": 698
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1685459,
+      "measure_id": "SB 1847",
+      "vote_date": "2026-04-20",
+      "yea_description": "Voted for Senate Bill 1847, which widens who can get Medicaid care at home instead of in a nursing home. The Oklahoma Senate passed it 35-11. It became law without the Governor's signature.",
+      "nay_description": "Voted against Senate Bill 1847, which widens who can get Medicaid care at home instead of in a nursing home. The Oklahoma Senate passed it 35-11. It became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "35-11",
+        "old_sentences": 14,
+        "old_chars": 971
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1690007,
+      "measure_id": "HB 3151",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for House Bill 3151, which raises the minimum number of school days for districts that count instruction in hours. The Oklahoma Senate passed it 30-17. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3151, which raises the minimum number of school days for districts that count instruction in hours. The Oklahoma Senate passed it 30-17. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "30-17",
+        "old_sentences": 12,
+        "old_chars": 968
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1690366,
+      "measure_id": "HB 3644",
+      "vote_date": "2026-04-28",
+      "yea_description": "Voted for House Bill 3644, the Blake Burgess Act, which sets rules for hospitals to spot and treat dangerous blood clots. The Oklahoma Senate passed it 36-11. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3644, the Blake Burgess Act, which sets rules for hospitals to spot and treat dangerous blood clots. The Oklahoma Senate passed it 36-11. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "36-11",
+        "old_sentences": 12,
+        "old_chars": 923
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1691781,
+      "measure_id": "HB 3834",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House Bill 3834, which lets the state help pay for trials of ibogaine as an addiction treatment. The Oklahoma Senate passed it 33-9. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3834, which lets the state help pay for trials of ibogaine as an addiction treatment. The Oklahoma Senate passed it 33-9. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "33-9",
+        "old_sentences": 12,
+        "old_chars": 1016
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1691843,
+      "measure_id": "HB 3467",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House Bill 3467, which extends paid maternity leave for school staff to parents who adopt. The Oklahoma Senate passed it 36-10. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3467, which extends paid maternity leave for school staff to parents who adopt. The Oklahoma Senate passed it 36-10. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "36-10",
+        "old_sentences": 8,
+        "old_chars": 521
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1691905,
+      "measure_id": "HB 3985",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House Bill 3985, which lets property owners in big cities claim money when local government stops enforcing camping laws. The Oklahoma Senate passed it 30-16. The Governor signed it.",
+      "nay_description": "Voted against House Bill 3985, which lets property owners in big cities claim money when local government stops enforcing camping laws. The Oklahoma Senate passed it 30-16. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "30-16",
+        "old_sentences": 14,
+        "old_chars": 1002
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1692107,
+      "measure_id": "HB 1168",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted for House Bill 1168, which makes it a felony to supply abortion pills for an illegal abortion. The Oklahoma Senate passed it 37-10. The Governor signed it.",
+      "nay_description": "Voted against House Bill 1168, which makes it a felony to supply abortion pills for an illegal abortion. The Oklahoma Senate passed it 37-10. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "37-10",
+        "old_sentences": 12,
+        "old_chars": 819
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1698160,
+      "measure_id": "SB 259",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for Senate Bill 259, which tightens rules on wasting groundwater and bars data centers from cooling with evaporating groundwater. The Oklahoma Senate passed it 38-10. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 259, which tightens rules on wasting groundwater and bars data centers from cooling with evaporating groundwater. The Oklahoma Senate passed it 38-10. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "38-10",
+        "old_sentences": 14,
+        "old_chars": 902
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1698177,
+      "measure_id": "SB 1451",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted for Senate Bill 1451, which asks people registering to vote where they were registered before so the old record can be removed. The Oklahoma Senate passed it 35-9. The Governor signed it.",
+      "nay_description": "Voted against Senate Bill 1451, which asks people registering to vote where they were registered before so the old record can be removed. The Oklahoma Senate passed it 35-9. The Governor signed it.",
+      "_current": {
+        "question": "Senate: FOURTH READING",
+        "tally": "35-9",
+        "old_sentences": 11,
+        "old_chars": 733
+      }
+    }
+  ]
+}

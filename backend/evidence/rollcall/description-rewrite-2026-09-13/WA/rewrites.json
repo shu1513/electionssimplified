@@ -1,0 +1,3524 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1489418,
+      "measure_id": "HB 1215",
+      "vote_date": "2025-02-13",
+      "yea_description": "Voted to pass House Bill 1215, which removes the line in the state's suggested advance directive form that cancelled it during pregnancy. The Washington House approved it 57-36.",
+      "nay_description": "Voted against passing House Bill 1215, which removes the line in the state's suggested advance directive form that cancelled it during pregnancy. The Washington House approved it 57-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-36",
+        "old_sentences": 7,
+        "old_chars": 525
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1503196,
+      "measure_id": "HB 1291",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted to pass House Bill 1291, a bill to stop health plans from making patients meet their deductible before covering labor and delivery care. The Washington House passed it 56-39. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 1291, a bill to stop health plans from making patients meet their deductible before covering labor and delivery care. The Washington House passed it 56-39. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-39",
+        "old_sentences": 7,
+        "old_chars": 550
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1503658,
+      "measure_id": "HB 1177",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted to pass House Bill 1177, which requires the state to serve every family on the child welfare housing assistance waiting list, aiming to end the list. The Washington House approved it 62-35.",
+      "nay_description": "Voted against passing House Bill 1177, which requires the state to serve every family on the child welfare housing assistance waiting list, aiming to end the list. The Washington House approved it 62-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "62-35",
+        "old_sentences": 8,
+        "old_chars": 771
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1503806,
+      "measure_id": "HB 1080",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted to pass House Bill 1080, a bill to make hotels and short-term rentals include every mandatory fee in the advertised room rate. The Washington House passed it 58-39. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 1080, a bill to make hotels and short-term rentals include every mandatory fee in the advertised room rate. The Washington House passed it 58-39. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-39",
+        "old_sentences": 6,
+        "old_chars": 518
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1504127,
+      "measure_id": "HB 1068",
+      "vote_date": "2025-03-03",
+      "yea_description": "Voted to pass House Bill 1068, which gives state prison managers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington House approved it 72-25.",
+      "nay_description": "Voted against passing House Bill 1068, which gives state prison managers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington House approved it 72-25.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "72-25",
+        "old_sentences": 6,
+        "old_chars": 452
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1505287,
+      "measure_id": "HB 1081",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to pass House Bill 1081, which gives homeowners approached by unsolicited buyers the right to a buyer-paid appraisal and a chance to cancel. The Washington House approved it 56-39.",
+      "nay_description": "Voted against passing House Bill 1081, which gives homeowners approached by unsolicited buyers the right to a buyer-paid appraisal and a chance to cancel. The Washington House approved it 56-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-39",
+        "old_sentences": 11,
+        "old_chars": 886
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1506526,
+      "measure_id": "HB 1494",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to pass House Bill 1494, which widens the property tax break for new apartment buildings that set aside homes at lower rents. The Washington House approved it 63-34.",
+      "nay_description": "Voted against passing House Bill 1494, which widens the property tax break for new apartment buildings that set aside homes at lower rents. The Washington House approved it 63-34.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "63-34",
+        "old_sentences": 10,
+        "old_chars": 799
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1507525,
+      "measure_id": "HB 1875",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass House Bill 1875, which lets workers use paid sick leave to prepare for or attend an immigration hearing, their own or a family member's. The Washington House approved it 58-39.",
+      "nay_description": "Voted against passing House Bill 1875, which lets workers use paid sick leave to prepare for or attend an immigration hearing, their own or a family member's. The Washington House approved it 58-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-39",
+        "old_sentences": 9,
+        "old_chars": 803
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508327,
+      "measure_id": "HB 1696",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass House Bill 1696, which raises the income limit for the Covenant Homeownership Program's down payment help to 120% of county median income. The Washington House approved it 57-39.",
+      "nay_description": "Voted against passing House Bill 1696, which raises the income limit for the Covenant Homeownership Program's down payment help to 120% of county median income. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-39",
+        "old_sentences": 7,
+        "old_chars": 636
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508889,
+      "measure_id": "HB 1232",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted to pass House Bill 1232, which tightens health and safety rules for private detention facilities, including nonprofit operators. The Washington House approved it 56-38.",
+      "nay_description": "Voted against passing House Bill 1232, which tightens health and safety rules for private detention facilities, including nonprofit operators. The Washington House approved it 56-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-38",
+        "old_sentences": 12,
+        "old_chars": 967
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508908,
+      "measure_id": "HB 1423",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted to pass House Bill 1423, a bill to let cities pilot cameras that catch illegally loud vehicles in street-racing enforcement zones. The Washington House passed it 57-40. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 1423, a bill to let cities pilot cameras that catch illegally loud vehicles in street-racing enforcement zones. The Washington House passed it 57-40. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-40",
+        "old_sentences": 8,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508909,
+      "measure_id": "HB 1821",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted to pass House Bill 1821, which lets labor-management committees and union benefit trusts get contractors' payroll records for public works jobs. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing House Bill 1821, which lets labor-management committees and union benefit trusts get contractors' payroll records for public works jobs. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-38",
+        "old_sentences": 7,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508987,
+      "measure_id": "HB 1622",
+      "vote_date": "2025-03-08",
+      "yea_description": "Voted to pass House Bill 1622, a bill to make public employers bargain with unions before adopting artificial intelligence tools that affect pay or reviews. The Washington House passed it 58-38. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 1622, a bill to make public employers bargain with unions before adopting artificial intelligence tools that affect pay or reviews. The Washington House passed it 58-38. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-38",
+        "old_sentences": 7,
+        "old_chars": 620
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508988,
+      "measure_id": "HB 1531",
+      "vote_date": "2025-03-08",
+      "yea_description": "Voted to pass House Bill 1531, which makes it state policy that public health responses to contagious disease follow the best available science, including vaccines. The Washington House approved it 58-35.",
+      "nay_description": "Voted against passing House Bill 1531, which makes it state policy that public health responses to contagious disease follow the best available science, including vaccines. The Washington House approved it 58-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-35",
+        "old_sentences": 7,
+        "old_chars": 595
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1508995,
+      "measure_id": "HB 1971",
+      "vote_date": "2025-03-08",
+      "yea_description": "Voted to pass House Bill 1971, which makes health plans that cover hormone therapy pay for a full year's supply picked up at one time. The Washington House approved it 58-38.",
+      "nay_description": "Voted against passing House Bill 1971, which makes health plans that cover hormone therapy pay for a full year's supply picked up at one time. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-38",
+        "old_sentences": 10,
+        "old_chars": 891
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1511981,
+      "measure_id": "HB 1644",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass House Bill 1644, which toughens child labor enforcement, with fines of at least $15,000 for a violation that seriously hurts a minor. The Washington House approved it 60-35.",
+      "nay_description": "Voted against passing House Bill 1644, which toughens child labor enforcement, with fines of at least $15,000 for a violation that seriously hurts a minor. The Washington House approved it 60-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "60-35",
+        "old_sentences": 11,
+        "old_chars": 897
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1515591,
+      "measure_id": "HB 1747",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass House Bill 1747, which bars employers from rejecting everyone with a criminal record and from looking at records before a conditional job offer. The Washington House approved it 56-40.",
+      "nay_description": "Voted against passing House Bill 1747, which bars employers from rejecting everyone with a criminal record and from looking at records before a conditional job offer. The Washington House approved it 56-40.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-40",
+        "old_sentences": 11,
+        "old_chars": 1036
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1515649,
+      "measure_id": "HB 1183",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass House Bill 1183, which changes local building rules so homes cost less to build, including letting insulated walls reach into setbacks. The Washington House approved it 56-39.",
+      "nay_description": "Voted against passing House Bill 1183, which changes local building rules so homes cost less to build, including letting insulated walls reach into setbacks. The Washington House approved it 56-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-39",
+        "old_sentences": 12,
+        "old_chars": 1159
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1515688,
+      "measure_id": "HB 1141",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass House Bill 1141, which gives workers on licensed cannabis farms the right to form a union and bargain as a group. The Washington House approved it 55-40.",
+      "nay_description": "Voted against passing House Bill 1141, which gives workers on licensed cannabis farms the right to form a union and bargain as a group. The Washington House approved it 55-40.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "55-40",
+        "old_sentences": 8,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1528077,
+      "measure_id": "SB 5122",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted to pass Senate Bill 5122, which makes Washington-based companies send their federal merger filings to the state Attorney General at the same time. The Washington House approved it 59-39.",
+      "nay_description": "Voted against passing Senate Bill 5122, which makes Washington-based companies send their federal merger filings to the state Attorney General at the same time. The Washington House approved it 59-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-39",
+        "old_sentences": 8,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1542322,
+      "measure_id": "SB 5093",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 5093, which ends coroner authority over deaths from abortion, premature birth, or stillbirth and repeals the crime of concealing a birth. The Washington House approved it 58-39.",
+      "nay_description": "Voted against passing Senate Bill 5093, which ends coroner authority over deaths from abortion, premature birth, or stillbirth and repeals the crime of concealing a birth. The Washington House approved it 58-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "58-39",
+        "old_sentences": 6,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1543144,
+      "measure_id": "SB 5662",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 5662, which lets cities in large eastern Washington counties waive utility hookup fees for shelters and affordable housing. The Washington House approved it 64-33.",
+      "nay_description": "Voted against passing Senate Bill 5662, which lets cities in large eastern Washington counties waive utility hookup fees for shelters and affordable housing. The Washington House approved it 64-33.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "64-33",
+        "old_sentences": 7,
+        "old_chars": 641
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1543166,
+      "measure_id": "SB 5525",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 5525, a state layoff notice law requiring employers with 50 or more workers to give 60 days' notice of mass layoffs. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing Senate Bill 5525, a state layoff notice law requiring employers with 50 or more workers to give 60 days' notice of mass layoffs. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "59-38",
+        "old_sentences": 9,
+        "old_chars": 766
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1543189,
+      "measure_id": "SB 5480",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass Senate Bill 5480, which keeps medical debt off credit reports and makes any medical debt that is reported unenforceable. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing Senate Bill 5480, which keeps medical debt off credit reports and makes any medical debt that is reported unenforceable. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-38",
+        "old_sentences": 8,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1543823,
+      "measure_id": "SB 5175",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Bill 5175, which delays the deadlines for solar panel makers to fund panel recycling programs to 2030 and 2031. The Washington House approved it 58-37.",
+      "nay_description": "Voted against passing Senate Bill 5175, which delays the deadlines for solar panel makers to fund panel recycling programs to 2030 and 2031. The Washington House approved it 58-37.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-37",
+        "old_sentences": 8,
+        "old_chars": 643
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1544915,
+      "measure_id": "SB 5714",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Bill 5714, which makes it license-threatening misconduct for a bail recovery agent to enforce a civil immigration warrant. The Washington House approved it 58-37.",
+      "nay_description": "Voted against passing Senate Bill 5714, which makes it license-threatening misconduct for a bail recovery agent to enforce a civil immigration warrant. The Washington House approved it 58-37.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-37",
+        "old_sentences": 7,
+        "old_chars": 592
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1545127,
+      "measure_id": "SB 5651",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass Senate Bill 5651, which raises the amount in a debtor's bank account protected from creditors from $1,000 to $2,000. The Washington House approved it 61-34.",
+      "nay_description": "Voted against passing Senate Bill 5651, which raises the amount in a debtor's bank account protected from creditors from $1,000 to $2,000. The Washington House approved it 61-34.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "61-34",
+        "old_sentences": 8,
+        "old_chars": 632
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1545855,
+      "measure_id": "SB 5494",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass Senate Bill 5494, which creates a state program requiring certified firms for renovation work on older homes and buildings with lead paint. The Washington House approved it 63-33.",
+      "nay_description": "Voted against passing Senate Bill 5494, which creates a state program requiring certified firms for renovation work on older homes and buildings with lead paint. The Washington House approved it 63-33.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "63-33",
+        "old_sentences": 9,
+        "old_chars": 801
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546391,
+      "measure_id": "SB 5184",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass Senate Bill 5184, which caps how much off-street parking cities and counties may require, with none for affordable and senior housing. The Washington House approved it 64-31.",
+      "nay_description": "Voted against passing Senate Bill 5184, which caps how much off-street parking cities and counties may require, with none for affordable and senior housing. The Washington House approved it 64-31.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "64-31",
+        "old_sentences": 9,
+        "old_chars": 944
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546397,
+      "measure_id": "SB 5463",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass Senate Bill 5463, which requires every self-insured employer to handle injured workers' compensation claims in good faith. The Washington House approved it 64-32.",
+      "nay_description": "Voted against passing Senate Bill 5463, which requires every self-insured employer to handle injured workers' compensation claims in good faith. The Washington House approved it 64-32.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "64-32",
+        "old_sentences": 9,
+        "old_chars": 760
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546499,
+      "measure_id": "SB 5375",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted to pass Senate Bill 5375, which adds clergy to the people who must report suspected child abuse, with no exception for privileged conversations. The Washington House approved it 64-31.",
+      "nay_description": "Voted against passing Senate Bill 5375, which adds clergy to the people who must report suspected child abuse, with no exception for privileged conversations. The Washington House approved it 64-31.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "64-31",
+        "old_sentences": 8,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546684,
+      "measure_id": "SB 5632",
+      "vote_date": "2025-04-12",
+      "yea_description": "Voted to pass Senate Bill 5632, which extends Washington's abortion and gender-affirming care shield law to help such as money, rides, and information. The Washington House approved it 58-36.",
+      "nay_description": "Voted against passing Senate Bill 5632, which extends Washington's abortion and gender-affirming care shield law to help such as money, rides, and information. The Washington House approved it 58-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-36",
+        "old_sentences": 9,
+        "old_chars": 776
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546742,
+      "measure_id": "SB 5040",
+      "vote_date": "2025-04-12",
+      "yea_description": "Voted to pass Senate Bill 5040, which gives police officers in every city and county interest arbitration, where a neutral arbitrator settles contract disputes. The Washington House approved it 59-35.",
+      "nay_description": "Voted against passing Senate Bill 5040, which gives police officers in every city and county interest arbitration, where a neutral arbitrator settles contract disputes. The Washington House approved it 59-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-35",
+        "old_sentences": 8,
+        "old_chars": 688
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1546992,
+      "measure_id": "SB 5217",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 5217, the Healthy Starts Act, which makes employers pay workers for breaks to pump breast milk and widens rights for pregnant workers. The Washington House approved it 71-25.",
+      "nay_description": "Voted against passing Senate Bill 5217, the Healthy Starts Act, which makes employers pay workers for breaks to pump breast milk and widens rights for pregnant workers. The Washington House approved it 71-25.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "71-25",
+        "old_sentences": 11,
+        "old_chars": 942
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1547769,
+      "measure_id": "SB 5104",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 5104, which bars employers from using immigration threats to stop workers from claiming wage and labor rights, with fines up to $10,000. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing Senate Bill 5104, which bars employers from using immigration threats to stop workers from claiming wage and labor rights, with fines up to $10,000. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-38",
+        "old_sentences": 8,
+        "old_chars": 656
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1547909,
+      "measure_id": "SB 5232",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 5232, which lets the state keep housing aid flowing to elderly or disabled adults who move onto Social Security. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing Senate Bill 5232, which lets the state keep housing aid flowing to elderly or disabled adults who move onto Social Security. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "59-38",
+        "old_sentences": 9,
+        "old_chars": 817
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1548059,
+      "measure_id": "SB 5284",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass Senate Bill 5284, which makes companies that sell packaging and paper in Washington pay for a statewide recycling program. The Washington House approved it 51-45.",
+      "nay_description": "Voted against passing Senate Bill 5284, which makes companies that sell packaging and paper in Washington pay for a statewide recycling program. The Washington House approved it 51-45.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "51-45",
+        "old_sentences": 9,
+        "old_chars": 775
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1548624,
+      "measure_id": "SB 5313",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass Senate Bill 5313, which bars landlords from making tenants give up the right to sue or sign nondisclosure agreements about the lease. The Washington House approved it 58-38.",
+      "nay_description": "Voted against passing Senate Bill 5313, which bars landlords from making tenants give up the right to sue or sign nondisclosure agreements about the lease. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "58-38",
+        "old_sentences": 8,
+        "old_chars": 634
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1549327,
+      "measure_id": "SB 5503",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass Senate Bill 5503, which changes how the state labor relations commission handles public-sector union cases, including faster hearings. The Washington House approved it 59-36.",
+      "nay_description": "Voted against passing Senate Bill 5503, which changes how the state labor relations commission handles public-sector union cases, including faster hearings. The Washington House approved it 59-36.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "59-36",
+        "old_sentences": 8,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1549473,
+      "measure_id": "SB 5101",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass Senate Bill 5101, which lets hate crime victims and their family members take leave or ask for safety changes at work. The Washington House approved it 59-38.",
+      "nay_description": "Voted against passing Senate Bill 5101, which lets hate crime victims and their family members take leave or ask for safety changes at work. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "59-38",
+        "old_sentences": 7,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1551830,
+      "measure_id": "HB 1308",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1308, which defines what a personnel file includes and requires employers to give workers a free copy within 21 days. The Washington House approved it 56-40.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1308, which defines what a personnel file includes and requires employers to give workers a free copy within 21 days. The Washington House approved it 56-40.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "56-40",
+        "old_sentences": 10,
+        "old_chars": 942
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1551862,
+      "measure_id": "HB 2041",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass House Bill 2041, a bill to cut Apple Health coverage after pregnancy from 12 months to six for people approved from July 2026. The Washington House passed it 56-40. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2041, a bill to cut Apple Health coverage after pregnancy from 12 months to six for people approved from July 2026. The Washington House passed it 56-40. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-40",
+        "old_sentences": 8,
+        "old_chars": 524
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1551894,
+      "measure_id": "HB 2040",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass House Bill 2040, which stops the state clawing back Aged, Blind, or Disabled cash aid when federal disability payments later cover the same months. The Washington House approved it 56-39.",
+      "nay_description": "Voted against passing House Bill 2040, which stops the state clawing back Aged, Blind, or Disabled cash aid when federal disability payments later cover the same months. The Washington House approved it 56-39.",
+      "_current": {
+        "question": "House Final Passage on Reconsideration",
+        "tally": "56-39",
+        "old_sentences": 8,
+        "old_chars": 667
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1551899,
+      "measure_id": "HB 2039",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass House Bill 2039, which passes all current child support through to families on cash welfare instead of the state keeping most of it. The Washington House approved it 56-40.",
+      "nay_description": "Voted against passing House Bill 2039, which passes all current child support through to families on cash welfare instead of the state keeping most of it. The Washington House approved it 56-40.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-40",
+        "old_sentences": 7,
+        "old_chars": 621
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1551948,
+      "measure_id": "HB 1332",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1332, which makes ride-hailing companies show drivers any bonus paid per trip and provide 24 months of trip receipts on request. The Washington House approved it 59-37.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1332, which makes ride-hailing companies show drivers any bonus paid per trip and provide 24 months of trip receipts on request. The Washington House approved it 59-37.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "59-37",
+        "old_sentences": 10,
+        "old_chars": 908
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1552240,
+      "measure_id": "HB 1052",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1052, which makes a hate crime provable when bias was part of the reason for an attack, not the sole reason. The Washington House approved it 59-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1052, which makes a hate crime provable when bias was part of the reason for an attack, not the sole reason. The Washington House approved it 59-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "59-38",
+        "old_sentences": 7,
+        "old_chars": 605
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1552360,
+      "measure_id": "HB 1213",
+      "vote_date": "2025-04-19",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1213, which lets workers take paid family leave in four-hour blocks and extends job protection to smaller employers. The Washington House approved it 57-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1213, which lets workers take paid family leave in four-hour blocks and extends job protection to smaller employers. The Washington House approved it 57-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-38",
+        "old_sentences": 10,
+        "old_chars": 727
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1552538,
+      "measure_id": "HB 1409",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1409, which speeds up the required cuts in carbon pollution from transportation fuels under the clean fuels program. The Washington House approved it 54-43.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1409, which speeds up the required cuts in carbon pollution from transportation fuels under the clean fuels program. The Washington House approved it 54-43.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "54-43",
+        "old_sentences": 10,
+        "old_chars": 882
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1552588,
+      "measure_id": "HB 1154",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1154, which requires state approval of every landfill permit and renewal, on top of local health department permits. The Washington House approved it 57-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1154, which requires state approval of every landfill permit and renewal, on top of local health department permits. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-39",
+        "old_sentences": 11,
+        "old_chars": 972
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1553729,
+      "measure_id": "SB 5083",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to pass Senate Bill 5083, which caps what state and school employee health plans pay hospitals at 200% of Medicare rates from 2027. The Washington House approved it 57-39.",
+      "nay_description": "Voted against passing Senate Bill 5083, which caps what state and school employee health plans pay hospitals at 200% of Medicare rates from 2027. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "57-39",
+        "old_sentences": 10,
+        "old_chars": 855
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1553959,
+      "measure_id": "HB 1462",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1462, which caps the warming potential of newly made bulk hydrofluorocarbon refrigerants from 2030. The Washington House approved it 58-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1462, which caps the warming potential of newly made bulk hydrofluorocarbon refrigerants from 2030. The Washington House approved it 58-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "58-39",
+        "old_sentences": 11,
+        "old_chars": 802
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1554288,
+      "measure_id": "HB 1163",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1163, which requires a permit, with fingerprints and a safety course, to buy a firearm in Washington. The Washington House approved it 57-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1163, which requires a permit, with fingerprints and a safety course, to buy a firearm in Washington. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-39",
+        "old_sentences": 8,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1554380,
+      "measure_id": "HB 1491",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1491, which makes cities allow denser housing within walking distance of rail and bus rapid transit stations. The Washington House approved it 57-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1491, which makes cities allow denser housing within walking distance of rail and bus rapid transit stations. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-39",
+        "old_sentences": 11,
+        "old_chars": 1111
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1556299,
+      "measure_id": "SB 5686",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted to pass Senate Bill 5686, which opens the state's foreclosure mediation program to condo and homeowner association members behind on dues. The Washington House approved it 56-41.",
+      "nay_description": "Voted against passing Senate Bill 5686, which opens the state's foreclosure mediation program to condo and homeowner association members behind on dues. The Washington House approved it 56-41.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "56-41",
+        "old_sentences": 9,
+        "old_chars": 703
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1558252,
+      "measure_id": "SB 5041",
+      "vote_date": "2025-04-25",
+      "yea_description": "Voted to pass the final version of Senate Bill 5041, which lets striking workers collect unemployment benefits for up to six weeks. The Washington House approved it 51-45.",
+      "nay_description": "Voted against passing the final version of Senate Bill 5041, which lets striking workers collect unemployment benefits for up to six weeks. The Washington House approved it 51-45.",
+      "_current": {
+        "question": "House Final Passage as Recommended by the Conference Committee",
+        "tally": "51-45",
+        "old_sentences": 10,
+        "old_chars": 798
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1558685,
+      "measure_id": "HB 1217",
+      "vote_date": "2025-04-27",
+      "yea_description": "Voted to approve the compromise version of House Bill 1217, which caps yearly rent increases at 7% plus inflation or 10%, whichever is lower. The Washington House approved it 54-44.",
+      "nay_description": "Voted against the compromise version of House Bill 1217, which caps yearly rent increases at 7% plus inflation or 10%, whichever is lower. The Washington House approved it 54-44.",
+      "_current": {
+        "question": "House Final Passage as Recommended by the Conference Committee",
+        "tally": "54-44",
+        "old_sentences": 8,
+        "old_chars": 806
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1619421,
+      "measure_id": "HB 2411",
+      "vote_date": "2026-01-29",
+      "yea_description": "Voted to pass House Bill 2411, which lets state workers receive shared leave when they are hate crime victims or caught up in immigration enforcement. The Washington House approved it 60-36.",
+      "nay_description": "Voted against passing House Bill 2411, which lets state workers receive shared leave when they are hate crime victims or caught up in immigration enforcement. The Washington House approved it 60-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "60-36",
+        "old_sentences": 9,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1623818,
+      "measure_id": "HB 1604",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted to pass House Bill 1604, which sets rules for how local jails search transgender and intersex people, barring searches to learn genital status. The Washington House approved it 56-39.",
+      "nay_description": "Voted against passing House Bill 1604, which sets rules for how local jails search transgender and intersex people, barring searches to learn genital status. The Washington House approved it 56-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "56-39",
+        "old_sentences": 8,
+        "old_chars": 750
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1627889,
+      "measure_id": "HB 1002",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass House Bill 1002, a bill to let county coroner and medical examiner staff get workers' compensation for job-caused post-traumatic stress disorder. The Washington House passed it 70-24. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 1002, a bill to let county coroner and medical examiner staff get workers' compensation for job-caused post-traumatic stress disorder. The Washington House passed it 70-24. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "70-24",
+        "old_sentences": 7,
+        "old_chars": 572
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1629176,
+      "measure_id": "HB 1687",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass House Bill 1687, which lets cities and counties create social housing authorities that build and run mixed-income public rental homes. The Washington House approved it 58-38.",
+      "nay_description": "Voted against passing House Bill 1687, which lets cities and counties create social housing authorities that build and run mixed-income public rental homes. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-38",
+        "old_sentences": 9,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1631017,
+      "measure_id": "HB 2242",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted to pass House Bill 2242, which locks health plans' preventive care coverage to the federal lists as they stood on June 30, 2025. The Washington House approved it 57-39.",
+      "nay_description": "Voted against passing House Bill 2242, which locks health plans' preventive care coverage to the federal lists as they stood on June 30, 2025. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-39",
+        "old_sentences": 10,
+        "old_chars": 844
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1632720,
+      "measure_id": "HB 2355",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass House Bill 2355, which gives nannies, house cleaners, and other domestic workers minimum wage, overtime, written agreements, and notice before firing. The Washington House approved it 57-39.",
+      "nay_description": "Voted against passing House Bill 2355, which gives nannies, house cleaners, and other domestic workers minimum wage, overtime, written agreements, and notice before firing. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-39",
+        "old_sentences": 12,
+        "old_chars": 940
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1632843,
+      "measure_id": "HB 2367",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass House Bill 2367, which ends the cap-and-invest exemption for older coal-fired power plants from 2026. The Washington House approved it 63-33.",
+      "nay_description": "Voted against passing House Bill 2367, which ends the cap-and-invest exemption for older coal-fired power plants from 2026. The Washington House approved it 63-33.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "63-33",
+        "old_sentences": 9,
+        "old_chars": 654
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1633310,
+      "measure_id": "HB 2471",
+      "vote_date": "2026-02-13",
+      "yea_description": "Voted to pass House Bill 2471, which creates a state union law for private workers that applies only if federal labor law stops covering them. The Washington House approved it 58-35.",
+      "nay_description": "Voted against passing House Bill 2471, which creates a state union law for private workers that applies only if federal labor law stops covering them. The Washington House approved it 58-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-35",
+        "old_sentences": 9,
+        "old_chars": 687
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1633906,
+      "measure_id": "HB 2294",
+      "vote_date": "2026-02-13",
+      "yea_description": "Voted to pass House Bill 2294, which voids new property deed clauses that bar a grocery store or pharmacy from opening on the land. The Washington House approved it 69-25.",
+      "nay_description": "Voted against passing House Bill 2294, which voids new property deed clauses that bar a grocery store or pharmacy from opening on the land. The Washington House approved it 69-25.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "69-25",
+        "old_sentences": 12,
+        "old_chars": 1008
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1633934,
+      "measure_id": "HB 1570",
+      "vote_date": "2026-02-14",
+      "yea_description": "Voted to pass House Bill 1570, which lets student workers at Western Washington University form unions and bargain. The Washington House approved it 58-35.",
+      "nay_description": "Voted against passing House Bill 1570, which lets student workers at Western Washington University form unions and bargain. The Washington House approved it 58-35.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-35",
+        "old_sentences": 7,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1633940,
+      "measure_id": "HB 2515",
+      "vote_date": "2026-02-14",
+      "yea_description": "Voted to pass House Bill 2515, a bill to make large data centers buy power under rate plans that protect other customers and use 80% new renewable power. The Washington House passed it 51-41. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2515, a bill to make large data centers buy power under rate plans that protect other customers and use 80% new renewable power. The Washington House passed it 51-41. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "51-41",
+        "old_sentences": 8,
+        "old_chars": 690
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1634248,
+      "measure_id": "HB 2464",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted to pass House Bill 2464, a bill to make private jails and detention centers report deaths, abuse claims, and injuries to the state within a business day. The Washington House passed it 58-38. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2464, a bill to make private jails and detention centers report deaths, abuse claims, and injuries to the state within a business day. The Washington House passed it 58-38. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "58-38",
+        "old_sentences": 7,
+        "old_chars": 649
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1634701,
+      "measure_id": "HB 2244",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted to pass House Bill 2244, a bill to open more government records to the public, including toxicology test results and redacted accident reports. The Washington House passed it 70-26. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2244, a bill to open more government records to the public, including toxicology test results and redacted accident reports. The Washington House passed it 70-26. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "70-26",
+        "old_sentences": 9,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1634720,
+      "measure_id": "HB 2637",
+      "vote_date": "2026-02-16",
+      "yea_description": "Voted to pass House Bill 2637, a bill to keep birth dates, home addresses, location data, and ID numbers held by government agencies out of public records. The Washington House passed it 52-45. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2637, a bill to keep birth dates, home addresses, location data, and ID numbers held by government agencies out of public records. The Washington House passed it 52-45. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "52-45",
+        "old_sentences": 8,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1635736,
+      "measure_id": "HB 2095",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted to pass House Bill 2095, a bill to presume a driver careless when they hit a pedestrian or cyclist in a crosswalk, bike lane, or sidewalk. The Washington House passed it 53-44. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing House Bill 2095, a bill to presume a driver careless when they hit a pedestrian or cyclist in a crosswalk, bike lane, or sidewalk. The Washington House passed it 53-44. As of September 2026 the Senate had not voted on it, so it was not law.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "53-44",
+        "old_sentences": 8,
+        "old_chars": 633
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1648383,
+      "measure_id": "SB 5892",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass Senate Bill 5892, which makes counties send voter list data requests to the Secretary of State and makes leaking the list a felony. The Washington House approved it 57-36.",
+      "nay_description": "Voted against passing Senate Bill 5892, which makes counties send voter list data requests to the Secretary of State and makes leaking the list a felony. The Washington House approved it 57-36.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "57-36",
+        "old_sentences": 8,
+        "old_chars": 619
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1648425,
+      "measure_id": "SB 5917",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass Senate Bill 5917, which lets the Department of Corrections supply abortion medications to health care providers across the state. The Washington House approved it 57-36.",
+      "nay_description": "Voted against passing Senate Bill 5917, which lets the Department of Corrections supply abortion medications to health care providers across the state. The Washington House approved it 57-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-36",
+        "old_sentences": 10,
+        "old_chars": 728
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1650708,
+      "measure_id": "SB 6188",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass Senate Bill 6188, which lets the state write asbestos worker certification rules that go beyond federal minimums. The Washington House approved it 61-33.",
+      "nay_description": "Voted against passing Senate Bill 6188, which lets the state write asbestos worker certification rules that go beyond federal minimums. The Washington House approved it 61-33.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "61-33",
+        "old_sentences": 7,
+        "old_chars": 535
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1651847,
+      "measure_id": "SB 5855",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass Senate Bill 5855, which bars police, including federal officers, from wearing face masks while dealing with the public on duty. The Washington House approved it 56-37.",
+      "nay_description": "Voted against passing Senate Bill 5855, which bars police, including federal officers, from wearing face masks while dealing with the public on duty. The Washington House approved it 56-37.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "56-37",
+        "old_sentences": 7,
+        "old_chars": 604
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1652094,
+      "measure_id": "SB 6081",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass Senate Bill 6081, which keeps records of a person's sex designation change out of public view. The Washington House approved it 57-36.",
+      "nay_description": "Voted against passing Senate Bill 6081, which keeps records of a person's sex designation change out of public view. The Washington House approved it 57-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-36",
+        "old_sentences": 11,
+        "old_chars": 965
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1653992,
+      "measure_id": "SB 6309",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass Senate Bill 6309, which speeds up permits for regional transit authorities such as Sound Transit. The Washington House approved it 56-38.",
+      "nay_description": "Voted against passing Senate Bill 6309, which speeds up permits for regional transit authorities such as Sound Transit. The Washington House approved it 56-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "56-38",
+        "old_sentences": 8,
+        "old_chars": 609
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1654079,
+      "measure_id": "SB 5925",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass Senate Bill 5925, which lets the Attorney General demand documents and sworn statements before suing over civil rights, wage, or immigration-limit violations. The Washington House approved it 56-41.",
+      "nay_description": "Voted against passing Senate Bill 5925, which lets the Attorney General demand documents and sworn statements before suing over civil rights, wage, or immigration-limit violations. The Washington House approved it 56-41.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "56-41",
+        "old_sentences": 8,
+        "old_chars": 744
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1655468,
+      "measure_id": "SB 6026",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass Senate Bill 6026, which makes cities and counties of 30,000 or more allow homes on land zoned for commercial or mixed use. The Washington House approved it 69-27.",
+      "nay_description": "Voted against passing Senate Bill 6026, which makes cities and counties of 30,000 or more allow homes on land zoned for commercial or mixed use. The Washington House approved it 69-27.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "69-27",
+        "old_sentences": 10,
+        "old_chars": 949
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1656302,
+      "measure_id": "SB 5068",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass Senate Bill 5068, which lets prisons and jails hire anyone legally allowed to work in the United States as corrections officers. The Washington House approved it 62-33.",
+      "nay_description": "Voted against passing Senate Bill 5068, which lets prisons and jails hire anyone legally allowed to work in the United States as corrections officers. The Washington House approved it 62-33.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "62-33",
+        "old_sentences": 9,
+        "old_chars": 889
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1656447,
+      "measure_id": "SB 5520",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass Senate Bill 5520, which makes it easier for people wrongly convicted of a felony to win compensation from the state. The Washington House approved it 72-23.",
+      "nay_description": "Voted against passing Senate Bill 5520, which makes it easier for people wrongly convicted of a felony to win compensation from the state. The Washington House approved it 72-23.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "72-23",
+        "old_sentences": 11,
+        "old_chars": 761
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1656567,
+      "measure_id": "SB 5847",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass Senate Bill 5847, which protects injured workers' right to choose their own doctor under workers' compensation. The Washington House approved it 67-28.",
+      "nay_description": "Voted against passing Senate Bill 5847, which protects injured workers' right to choose their own doctor under workers' compensation. The Washington House approved it 67-28.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "67-28",
+        "old_sentences": 8,
+        "old_chars": 691
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1656583,
+      "measure_id": "SB 5981",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass Senate Bill 5981, which bars drug makers from blocking delivery of discounted 340B medicines to clinics serving low-income patients. The Washington House approved it 67-30.",
+      "nay_description": "Voted against passing Senate Bill 5981, which bars drug makers from blocking delivery of discounted 340B medicines to clinics serving low-income patients. The Washington House approved it 67-30.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "67-30",
+        "old_sentences": 8,
+        "old_chars": 769
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1656971,
+      "measure_id": "HB 1155",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1155, which voids every noncompete agreement in Washington, including ones signed years earlier. The Washington House approved it 62-33.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1155, which voids every noncompete agreement in Washington, including ones signed years earlier. The Washington House approved it 62-33.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "62-33",
+        "old_sentences": 9,
+        "old_chars": 961
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1657315,
+      "measure_id": "HB 2266",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2266, which makes cities and counties allow shelters and supportive housing wherever homes or hotels are allowed. The Washington House approved it 56-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2266, which makes cities and counties allow shelters and supportive housing wherever homes or hotels are allowed. The Washington House approved it 56-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "56-39",
+        "old_sentences": 15,
+        "old_chars": 1369
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1657587,
+      "measure_id": "HB 2165",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2165, which creates the crime of falsely posing as a police officer, including federal officers. The Washington House approved it 66-29.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2165, which creates the crime of falsely posing as a police officer, including federal officers. The Washington House approved it 66-29.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "66-29",
+        "old_sentences": 11,
+        "old_chars": 935
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1659315,
+      "measure_id": "SB 6346",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to pass Senate Bill 6346, which creates a 9.9% state income tax on individual income above $1 million a year, starting in 2028. The Washington House approved it 51-46.",
+      "nay_description": "Voted against passing Senate Bill 6346, which creates a 9.9% state income tax on individual income above $1 million a year, starting in 2028. The Washington House approved it 51-46.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "51-46",
+        "old_sentences": 12,
+        "old_chars": 790
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1659823,
+      "measure_id": "HB 2548",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2548, which requires 60 days' notice to the Attorney General before more kinds of hospital and health care mergers and sales. The Washington House approved it 55-41.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2548, which requires 60 days' notice to the Attorney General before more kinds of hospital and health care mergers and sales. The Washington House approved it 55-41.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "55-41",
+        "old_sentences": 11,
+        "old_chars": 931
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1659862,
+      "measure_id": "HB 1170",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1170, which makes large artificial intelligence companies label the images, video, and audio their systems create. The Washington House approved it 55-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1170, which makes large artificial intelligence companies label the images, video, and audio their systems create. The Washington House approved it 55-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "55-38",
+        "old_sentences": 11,
+        "old_chars": 767
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1659870,
+      "measure_id": "HB 2320",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2320, which extends Washington's bans on making illegal guns to 3D printers, milling machines, and the digital files that run them. The Washington House approved it 58-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2320, which extends Washington's bans on making illegal guns to 3D printers, milling machines, and the digital files that run them. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "58-38",
+        "old_sentences": 13,
+        "old_chars": 1139
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1660085,
+      "measure_id": "HB 2156",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2156, which lets the Attorney General appoint investigators for economic and financial crimes. The Washington House approved it 54-41.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2156, which lets the Attorney General appoint investigators for economic and financial crimes. The Washington House approved it 54-41.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate on Reconsideration",
+        "tally": "54-41",
+        "old_sentences": 8,
+        "old_chars": 594
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1660617,
+      "measure_id": "HB 1750",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1750, which sets a separate legal test for claims that a local rule makes voting harder for a minority group. The Washington House approved it 58-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1750, which sets a separate legal test for claims that a local rule makes voting harder for a minority group. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "58-38",
+        "old_sentences": 11,
+        "old_chars": 1045
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1660978,
+      "measure_id": "HB 1903",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1903, which creates a statewide program to help low-income households pay energy bills through credits on their utility bills. The Washington House approved it 70-26.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1903, which creates a statewide program to help low-income households pay energy bills through credits on their utility bills. The Washington House approved it 70-26.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "70-26",
+        "old_sentences": 10,
+        "old_chars": 717
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661028,
+      "measure_id": "HB 1710",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1710, which makes the Attorney General keep a list of local governments with a recent record of voting bias. The Washington House approved it 57-39.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1710, which makes the Attorney General keep a list of local governments with a recent record of voting bias. The Washington House approved it 57-39.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-39",
+        "old_sentences": 11,
+        "old_chars": 1079
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661031,
+      "measure_id": "HB 1974",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1974, which lets cities and counties set up land banks that buy and hold land for affordable housing. The Washington House approved it 59-37.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1974, which lets cities and counties set up land banks that buy and hold land for affordable housing. The Washington House approved it 59-37.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "59-37",
+        "old_sentences": 12,
+        "old_chars": 950
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661089,
+      "measure_id": "HB 2105",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2105, which makes employers tell workers within five days when federal agents ask to see employment records. The Washington House approved it 58-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2105, which makes employers tell workers within five days when federal agents ask to see employment records. The Washington House approved it 58-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "58-38",
+        "old_sentences": 10,
+        "old_chars": 693
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661106,
+      "measure_id": "HB 2225",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2225, which makes companion chatbot companies tell users they are talking to artificial intelligence and protect children. The Washington House approved it 74-21.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2225, which makes companion chatbot companies tell users they are talking to artificial intelligence and protect children. The Washington House approved it 74-21.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "74-21",
+        "old_sentences": 12,
+        "old_chars": 1153
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661148,
+      "measure_id": "SB 6182",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to pass Senate Bill 6182, which creates a state grant program to keep abortion care available for people who cannot pay. The Washington House approved it 57-36.",
+      "nay_description": "Voted against passing Senate Bill 6182, which creates a state grant program to keep abortion care available for people who cannot pay. The Washington House approved it 57-36.",
+      "_current": {
+        "question": "House 3rd Reading & Final Passage",
+        "tally": "57-36",
+        "old_sentences": 7,
+        "old_chars": 730
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661153,
+      "measure_id": "SB 6355",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to pass Senate Bill 6355, which creates the Washington Electric Transmission Authority to build more high-voltage power lines. The Washington House approved it 66-27.",
+      "nay_description": "Voted against passing Senate Bill 6355, which creates the Washington Electric Transmission Authority to build more high-voltage power lines. The Washington House approved it 66-27.",
+      "_current": {
+        "question": "House Final Passage as Amended by the House",
+        "tally": "66-27",
+        "old_sentences": 10,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661726,
+      "measure_id": "HB 1795",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 1795, which limits school restraint and isolation of students to cases of real risk of serious harm to a person. The Washington House approved it 58-37.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 1795, which limits school restraint and isolation of students to cases of real risk of serious harm to a person. The Washington House approved it 58-37.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "58-37",
+        "old_sentences": 12,
+        "old_chars": 1044
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "house",
+      "session": "2166",
+      "roll": 1661847,
+      "measure_id": "HB 2215",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to accept the Senate's changes to House Bill 2215, which brings small fuel suppliers into the cap-and-invest program from 2027. The Washington House approved it 57-38.",
+      "nay_description": "Voted against accepting the Senate's changes to House Bill 2215, which brings small fuel suppliers into the cap-and-invest program from 2027. The Washington House approved it 57-38.",
+      "_current": {
+        "question": "House Final Passage as Amended by the Senate",
+        "tally": "57-38",
+        "old_sentences": 10,
+        "old_chars": 830
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1482772,
+      "measure_id": "SB 5122",
+      "vote_date": "2025-02-05",
+      "yea_description": "Voted to pass Senate Bill 5122, which makes Washington-based companies send their federal merger filings to the state Attorney General at the same time. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing Senate Bill 5122, which makes Washington-based companies send their federal merger filings to the state Attorney General at the same time. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1484150,
+      "measure_id": "SB 5103",
+      "vote_date": "2025-02-07",
+      "yea_description": "Voted to pass Senate Bill 5103, a bill to make the Clemency and Pardons Board consider faster review for people facing deportation. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5103, a bill to make the Clemency and Pardons Board consider faster review for people facing deportation. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 503
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1499558,
+      "measure_id": "SB 5040",
+      "vote_date": "2025-02-25",
+      "yea_description": "Voted to pass Senate Bill 5040, which gives police officers in every city and county interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against passing Senate Bill 5040, which gives police officers in every city and county interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "31-18",
+        "old_sentences": 8,
+        "old_chars": 689
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1500199,
+      "measure_id": "SB 5480",
+      "vote_date": "2025-02-26",
+      "yea_description": "Voted to pass Senate Bill 5480, which keeps medical debt off credit reports and makes any medical debt that is reported unenforceable. The Washington Senate approved it 35-12.",
+      "nay_description": "Voted against passing Senate Bill 5480, which keeps medical debt off credit reports and makes any medical debt that is reported unenforceable. The Washington Senate approved it 35-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "35-12",
+        "old_sentences": 8,
+        "old_chars": 732
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1502646,
+      "measure_id": "SB 5375",
+      "vote_date": "2025-02-28",
+      "yea_description": "Voted to pass Senate Bill 5375, which adds clergy to the people who must report suspected child abuse, with no exception for privileged conversations. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against passing Senate Bill 5375, which adds clergy to the people who must report suspected child abuse, with no exception for privileged conversations. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "28-20",
+        "old_sentences": 8,
+        "old_chars": 722
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1504784,
+      "measure_id": "SB 5632",
+      "vote_date": "2025-03-04",
+      "yea_description": "Voted to pass Senate Bill 5632, which extends Washington's abortion and gender-affirming care shield law to help such as money, rides, and information. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing Senate Bill 5632, which extends Washington's abortion and gender-affirming care shield law to help such as money, rides, and information. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 9,
+        "old_chars": 777
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1506467,
+      "measure_id": "SB 5557",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to pass Senate Bill 5557, which requires hospitals to treat pregnancy emergencies to the standard of care, including ending the pregnancy when that is the treatment. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing Senate Bill 5557, which requires hospitals to treat pregnancy emergencies to the standard of care, including ending the pregnancy when that is the treatment. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 9,
+        "old_chars": 892
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1506493,
+      "measure_id": "SB 5701",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to pass Senate Bill 5701, a bill to give labor-management committees and union benefit trusts access to contractors' payroll records on public works jobs. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5701, a bill to give labor-management committees and union benefit trusts access to contractors' payroll records on public works jobs. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 585
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1506657,
+      "measure_id": "SB 5023",
+      "vote_date": "2025-03-05",
+      "yea_description": "Voted to pass Senate Bill 5023, a bill to give nannies, house cleaners, and other domestic workers minimum wage, overtime, breaks, and written agreements. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5023, a bill to give nannies, house cleaners, and other domestic workers minimum wage, overtime, breaks, and written agreements. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-20",
+        "old_sentences": 9,
+        "old_chars": 694
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1508027,
+      "measure_id": "SB 5123",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass Senate Bill 5123, a bill to add ethnicity, homelessness, immigration status, and neurodivergence to groups protected from bias in public schools. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5123, a bill to add ethnicity, homelessness, immigration status, and neurodivergence to groups protected from bias in public schools. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 467
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1508714,
+      "measure_id": "SB 5328",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted to pass Senate Bill 5328, a bill to license pay advance services and cap their fees at $5 per advance and $10 a month. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5328, a bill to license pay advance services and cap their fees at $5 per advance and $10 a month. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-20",
+        "old_sentences": 8,
+        "old_chars": 623
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1508793,
+      "measure_id": "SB 5494",
+      "vote_date": "2025-03-07",
+      "yea_description": "Voted to pass Senate Bill 5494, which creates a state program requiring certified firms for renovation work on older homes and buildings with lead paint. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against passing Senate Bill 5494, which creates a state program requiring certified firms for renovation work on older homes and buildings with lead paint. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "31-18",
+        "old_sentences": 9,
+        "old_chars": 802
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1509220,
+      "measure_id": "SB 5466",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass Senate Bill 5466, a bill to create the Washington Electric Transmission Authority to expand the state's high-voltage power lines. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5466, a bill to create the Washington Electric Transmission Authority to expand the state's high-voltage power lines. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-20",
+        "old_sentences": 7,
+        "old_chars": 577
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1514946,
+      "measure_id": "SB 5490",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass Senate Bill 5490, a bill to set rules for searching transgender and intersex people in local jails, barring searches to learn genital status. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5490, a bill to set rules for searching transgender and intersex people in local jails, barring searches to learn genital status. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 8,
+        "old_chars": 654
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1515623,
+      "measure_id": "SB 5215",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass Senate Bill 5215, a bill to require trucks carrying dirt, sand, or gravel on paved roads to cover their loads by 2028. The Washington Senate passed it 34-14. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5215, a bill to require trucks carrying dirt, sand, or gravel on paved roads to cover their loads by 2028. The Washington Senate passed it 34-14. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "34-14",
+        "old_sentences": 8,
+        "old_chars": 588
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1515872,
+      "measure_id": "SB 5576",
+      "vote_date": "2025-03-11",
+      "yea_description": "Voted to pass Senate Bill 5576, a bill to let local governments tax short-term rentals up to 4% to fund affordable housing. The Washington Senate passed it 27-21. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5576, a bill to let local governments tax short-term rentals up to 4% to fund affordable housing. The Washington Senate passed it 27-21. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "27-21",
+        "old_sentences": 7,
+        "old_chars": 530
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1515889,
+      "measure_id": "SB 5469",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass Senate Bill 5469, a bill to ban rent-setting software that pools landlords' data to recommend rents and lease terms. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5469, a bill to ban rent-setting software that pools landlords' data to recommend rents and lease terms. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 7,
+        "old_chars": 532
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1516313,
+      "measure_id": "SB 5708",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted to pass Senate Bill 5708, a bill to bar social media apps from showing addictive feeds to minors and to limit late-night notifications to them. The Washington Senate passed it 36-12. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5708, a bill to bar social media apps from showing addictive feeds to minors and to limit late-night notifications to them. The Washington Senate passed it 36-12. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "36-12",
+        "old_sentences": 8,
+        "old_chars": 610
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1530742,
+      "measure_id": "SB 5800",
+      "vote_date": "2025-03-29",
+      "yea_description": "Voted to pass Senate Bill 5800, a bill to let the state sell up to $7 billion in bonds for highway projects, repaid from fuel taxes and vehicle fees. The Washington Senate passed it 35-14. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5800, a bill to let the state sell up to $7 billion in bonds for highway projects, repaid from fuel taxes and vehicle fees. The Washington Senate passed it 35-14. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "35-14",
+        "old_sentences": 7,
+        "old_chars": 510
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1535722,
+      "measure_id": "HB 1052",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted to pass House Bill 1052, which makes a hate crime provable when bias was part of the reason for an attack, not the sole reason. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1052, which makes a hate crime provable when bias was part of the reason for an attack, not the sole reason. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 580
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1537323,
+      "measure_id": "HB 1524",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass House Bill 1524, which widens who counts as an isolated worker entitled to a panic button and harassment training, adding anyone whose coworkers cannot respond. The Washington Senate approved it 37-12.",
+      "nay_description": "Voted against passing House Bill 1524, which widens who counts as an isolated worker entitled to a panic button and harassment training, adding anyone whose coworkers cannot respond. The Washington Senate approved it 37-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "37-12",
+        "old_sentences": 10,
+        "old_chars": 964
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1538541,
+      "measure_id": "HB 1215",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass House Bill 1215, which removes the line in the state's suggested advance directive form that cancelled it during pregnancy. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1215, which removes the line in the state's suggested advance directive form that cancelled it during pregnancy. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 526
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1541869,
+      "measure_id": "HB 1644",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1644, which toughens child labor enforcement, with fines of at least $15,000 for a violation that seriously hurts a minor. The Washington Senate approved it 37-12.",
+      "nay_description": "Voted against passing House Bill 1644, which toughens child labor enforcement, with fines of at least $15,000 for a violation that seriously hurts a minor. The Washington Senate approved it 37-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "37-12",
+        "old_sentences": 11,
+        "old_chars": 898
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1542482,
+      "measure_id": "HB 1308",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1308, which defines what a personnel file includes and requires employers to give workers a free copy within 21 days. The Washington Senate approved it 32-17.",
+      "nay_description": "Voted against passing House Bill 1308, which defines what a personnel file includes and requires employers to give workers a free copy within 21 days. The Washington Senate approved it 32-17.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "32-17",
+        "old_sentences": 10,
+        "old_chars": 917
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1543180,
+      "measure_id": "HB 1821",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted to pass House Bill 1821, which lets labor-management committees and union benefit trusts get contractors' payroll records for public works jobs. The Washington Senate approved it 28-21.",
+      "nay_description": "Voted against passing House Bill 1821, which lets labor-management committees and union benefit trusts get contractors' payroll records for public works jobs. The Washington Senate approved it 28-21.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "28-21",
+        "old_sentences": 7,
+        "old_chars": 593
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1543578,
+      "measure_id": "HB 1081",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 1081, which gives homeowners approached by unsolicited buyers the right to a buyer-paid appraisal and a chance to cancel. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1081, which gives homeowners approached by unsolicited buyers the right to a buyer-paid appraisal and a chance to cancel. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 887
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1543690,
+      "measure_id": "HB 1531",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 1531, which makes it state policy that public health responses to contagious disease follow the best available science, including vaccines. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against passing House Bill 1531, which makes it state policy that public health responses to contagious disease follow the best available science, including vaccines. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "31-18",
+        "old_sentences": 7,
+        "old_chars": 596
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1544864,
+      "measure_id": "HB 1747",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass House Bill 1747, which bars employers from rejecting everyone with a criminal record and from looking at records before a conditional job offer. The Washington Senate approved it 27-22.",
+      "nay_description": "Voted against passing House Bill 1747, which bars employers from rejecting everyone with a criminal record and from looking at records before a conditional job offer. The Washington Senate approved it 27-22.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "27-22",
+        "old_sentences": 11,
+        "old_chars": 1037
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1547614,
+      "measure_id": "HB 1141",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1141, which gives workers on licensed cannabis farms the right to form a union and bargain as a group. The Washington Senate approved it 29-20.",
+      "nay_description": "Voted against passing House Bill 1141, which gives workers on licensed cannabis farms the right to form a union and bargain as a group. The Washington Senate approved it 29-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-20",
+        "old_sentences": 8,
+        "old_chars": 638
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1547807,
+      "measure_id": "HB 1163",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1163, which requires a permit, with fingerprints and a safety course, to buy a firearm in Washington. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 1163, which requires a permit, with fingerprints and a safety course, to buy a firearm in Washington. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "29-19",
+        "old_sentences": 8,
+        "old_chars": 726
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1547907,
+      "measure_id": "HB 1183",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1183, which changes local building rules so homes cost less to build, including letting insulated walls reach into setbacks. The Washington Senate approved it 28-21.",
+      "nay_description": "Voted against passing House Bill 1183, which changes local building rules so homes cost less to build, including letting insulated walls reach into setbacks. The Washington Senate approved it 28-21.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "28-21",
+        "old_sentences": 12,
+        "old_chars": 1160
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1547959,
+      "measure_id": "HB 1696",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1696, which raises the income limit for the Covenant Homeownership Program's down payment help to 120% of county median income. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1696, which raises the income limit for the Covenant Homeownership Program's down payment help to 120% of county median income. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 637
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1547963,
+      "measure_id": "HB 1332",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass House Bill 1332, which makes ride-hailing companies show drivers any bonus paid per trip and provide 24 months of trip receipts on request. The Washington Senate approved it 27-21.",
+      "nay_description": "Voted against passing House Bill 1332, which makes ride-hailing companies show drivers any bonus paid per trip and provide 24 months of trip receipts on request. The Washington Senate approved it 27-21.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "27-21",
+        "old_sentences": 10,
+        "old_chars": 883
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1548615,
+      "measure_id": "HB 1491",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1491, which makes cities allow denser housing within walking distance of rail and bus rapid transit stations. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against passing House Bill 1491, which makes cities allow denser housing within walking distance of rail and bus rapid transit stations. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-18",
+        "old_sentences": 11,
+        "old_chars": 1086
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1548970,
+      "measure_id": "HB 1494",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1494, which widens the property tax break for new apartment buildings that set aside homes at lower rents. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against passing House Bill 1494, which widens the property tax break for new apartment buildings that set aside homes at lower rents. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-18",
+        "old_sentences": 10,
+        "old_chars": 800
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1548981,
+      "measure_id": "HB 1213",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1213, which lets workers take paid family leave in four-hour blocks and extends job protection to smaller employers. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against passing House Bill 1213, which lets workers take paid family leave in four-hour blocks and extends job protection to smaller employers. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "28-20",
+        "old_sentences": 10,
+        "old_chars": 702
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549091,
+      "measure_id": "HB 1154",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1154, which requires state approval of every landfill permit and renewal, on top of local health department permits. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against passing House Bill 1154, which requires state approval of every landfill permit and renewal, on top of local health department permits. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "28-20",
+        "old_sentences": 11,
+        "old_chars": 947
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549155,
+      "measure_id": "HB 1409",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1409, which speeds up the required cuts in carbon pollution from transportation fuels under the clean fuels program. The Washington Senate approved it 25-23.",
+      "nay_description": "Voted against passing House Bill 1409, which speeds up the required cuts in carbon pollution from transportation fuels under the clean fuels program. The Washington Senate approved it 25-23.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "25-23",
+        "old_sentences": 10,
+        "old_chars": 857
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549202,
+      "measure_id": "HB 1875",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1875, which lets workers use paid sick leave to prepare for or attend an immigration hearing, their own or a family member's. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 1875, which lets workers use paid sick leave to prepare for or attend an immigration hearing, their own or a family member's. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 9,
+        "old_chars": 804
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549219,
+      "measure_id": "HB 1177",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1177, which requires the state to serve every family on the child welfare housing assistance waiting list, aiming to end the list. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against passing House Bill 1177, which requires the state to serve every family on the child welfare housing assistance waiting list, aiming to end the list. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-18",
+        "old_sentences": 8,
+        "old_chars": 772
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549260,
+      "measure_id": "HB 1462",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1462, which caps the warming potential of newly made bulk hydrofluorocarbon refrigerants from 2030. The Washington Senate approved it 25-23.",
+      "nay_description": "Voted against passing House Bill 1462, which caps the warming potential of newly made bulk hydrofluorocarbon refrigerants from 2030. The Washington Senate approved it 25-23.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "25-23",
+        "old_sentences": 11,
+        "old_chars": 777
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1549262,
+      "measure_id": "HB 1068",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass House Bill 1068, which gives state prison managers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate approved it 36-12.",
+      "nay_description": "Voted against passing House Bill 1068, which gives state prison managers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate approved it 36-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "36-12",
+        "old_sentences": 6,
+        "old_chars": 453
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1551396,
+      "measure_id": "SB 5093",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5093, which ends coroner authority over deaths from abortion, premature birth, or stillbirth and repeals the crime of concealing a birth. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5093, which ends coroner authority over deaths from abortion, premature birth, or stillbirth and repeals the crime of concealing a birth. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 618
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1551575,
+      "measure_id": "SB 5184",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5184, which caps how much off-street parking cities and counties may require, with none for affordable and senior housing. The Washington Senate approved it 36-13.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5184, which caps how much off-street parking cities and counties may require, with none for affordable and senior housing. The Washington Senate approved it 36-13.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "36-13",
+        "old_sentences": 9,
+        "old_chars": 970
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1552208,
+      "measure_id": "SB 5313",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5313, which bars landlords from making tenants give up the right to sue or sign nondisclosure agreements about the lease. The Washington Senate approved it 36-13.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5313, which bars landlords from making tenants give up the right to sue or sign nondisclosure agreements about the lease. The Washington Senate approved it 36-13.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "36-13",
+        "old_sentences": 8,
+        "old_chars": 660
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1552214,
+      "measure_id": "SB 5232",
+      "vote_date": "2025-04-18",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5232, which lets the state keep housing aid flowing to elderly or disabled adults who move onto Social Security. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5232, which lets the state keep housing aid flowing to elderly or disabled adults who move onto Social Security. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-18",
+        "old_sentences": 9,
+        "old_chars": 843
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1553647,
+      "measure_id": "SB 5651",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5651, which raises the amount in a debtor's bank account protected from creditors from $1,000 to $2,000. The Washington Senate approved it 33-15.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5651, which raises the amount in a debtor's bank account protected from creditors from $1,000 to $2,000. The Washington Senate approved it 33-15.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "33-15",
+        "old_sentences": 8,
+        "old_chars": 658
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1553681,
+      "measure_id": "SB 5463",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5463, which requires every self-insured employer to handle injured workers' compensation claims in good faith. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5463, which requires every self-insured employer to handle injured workers' compensation claims in good faith. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "28-20",
+        "old_sentences": 9,
+        "old_chars": 786
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1554473,
+      "measure_id": "SB 5503",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5503, which changes how the state labor relations commission handles public-sector union cases, including faster hearings. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5503, which changes how the state labor relations commission handles public-sector union cases, including faster hearings. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-18",
+        "old_sentences": 8,
+        "old_chars": 663
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1554768,
+      "measure_id": "SB 5525",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5525, a state layoff notice law requiring employers with 50 or more workers to give 60 days' notice of mass layoffs. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5525, a state layoff notice law requiring employers with 50 or more workers to give 60 days' notice of mass layoffs. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "29-19",
+        "old_sentences": 9,
+        "old_chars": 792
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1554846,
+      "measure_id": "SB 5486",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5486, which requires movie theaters to offer closed captioning devices at every captioned showing and larger chains to run open-caption showings. The Washington Senate approved it 34-14.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5486, which requires movie theaters to offer closed captioning devices at every captioned showing and larger chains to run open-caption showings. The Washington Senate approved it 34-14.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "34-14",
+        "old_sentences": 8,
+        "old_chars": 738
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1555829,
+      "measure_id": "HB 1232",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted to pass House Bill 1232 after the Senate dropped its own changes, which tightens health and safety rules for private detention facilities, including nonprofit operators. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 1232 after the Senate dropped its own changes, which tightens health and safety rules for private detention facilities, including nonprofit operators. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate Final Passage without Senate Amendments",
+        "tally": "29-19",
+        "old_sentences": 12,
+        "old_chars": 1009
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1555836,
+      "measure_id": "SB 5284",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5284, which makes companies that sell packaging and paper in Washington pay for a statewide recycling program. The Washington Senate approved it 27-21.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5284, which makes companies that sell packaging and paper in Washington pay for a statewide recycling program. The Washington Senate approved it 27-21.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "27-21",
+        "old_sentences": 9,
+        "old_chars": 801
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1557398,
+      "measure_id": "SB 5083",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5083, which caps what state and school employee health plans pay hospitals at 200% of Medicare rates from 2027. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5083, which caps what state and school employee health plans pay hospitals at 200% of Medicare rates from 2027. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "29-19",
+        "old_sentences": 10,
+        "old_chars": 881
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1557663,
+      "measure_id": "SB 5686",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5686, which opens the state's foreclosure mediation program to condo and homeowner association members behind on dues. The Washington Senate approved it 27-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5686, which opens the state's foreclosure mediation program to condo and homeowner association members behind on dues. The Washington Senate approved it 27-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "27-19",
+        "old_sentences": 9,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1558618,
+      "measure_id": "SB 5041",
+      "vote_date": "2025-04-25",
+      "yea_description": "Voted to pass the final version of Senate Bill 5041, which lets striking workers collect unemployment benefits for up to six weeks. The Washington Senate approved it 27-21.",
+      "nay_description": "Voted against passing the final version of Senate Bill 5041, which lets striking workers collect unemployment benefits for up to six weeks. The Washington Senate approved it 27-21.",
+      "_current": {
+        "question": "Senate Final Passage as Recommended by Conference Committee",
+        "tally": "27-21",
+        "old_sentences": 10,
+        "old_chars": 799
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1558652,
+      "measure_id": "HB 2039",
+      "vote_date": "2025-04-26",
+      "yea_description": "Voted to pass House Bill 2039, which passes all current child support through to families on cash welfare instead of the state keeping most of it. The Washington Senate approved it 25-22.",
+      "nay_description": "Voted against passing House Bill 2039, which passes all current child support through to families on cash welfare instead of the state keeping most of it. The Washington Senate approved it 25-22.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "25-22",
+        "old_sentences": 7,
+        "old_chars": 622
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1558667,
+      "measure_id": "HB 2040",
+      "vote_date": "2025-04-26",
+      "yea_description": "Voted to pass House Bill 2040, which stops the state clawing back Aged, Blind, or Disabled cash aid when federal disability payments later cover the same months. The Washington Senate approved it 25-22.",
+      "nay_description": "Voted against passing House Bill 2040, which stops the state clawing back Aged, Blind, or Disabled cash aid when federal disability payments later cover the same months. The Washington Senate approved it 25-22.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "25-22",
+        "old_sentences": 8,
+        "old_chars": 668
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1558684,
+      "measure_id": "HB 1217",
+      "vote_date": "2025-04-27",
+      "yea_description": "Voted to approve the compromise version of House Bill 1217, which caps yearly rent increases at 7% plus inflation or 10%, whichever is lower. The Washington Senate approved it 27-20.",
+      "nay_description": "Voted against the compromise version of House Bill 1217, which caps yearly rent increases at 7% plus inflation or 10%, whichever is lower. The Washington Senate approved it 27-20.",
+      "_current": {
+        "question": "Senate Final Passage as Recommended by Conference Committee",
+        "tally": "27-20",
+        "old_sentences": 8,
+        "old_chars": 807
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1558716,
+      "measure_id": "SB 5797",
+      "vote_date": "2025-04-27",
+      "yea_description": "Voted to pass Senate Bill 5797, a bill to tax stocks, bonds, and funds worth more than $50 million at $5 per $1,000 of value. The Washington Senate passed it 26-21. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5797, a bill to tax stocks, bonds, and funds worth more than $50 million at $5 per $1,000 of value. The Washington Senate passed it 26-21. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "26-21",
+        "old_sentences": 6,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1615243,
+      "measure_id": "SB 5280",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass Senate Bill 5280, a bill to cap cryptocurrency kiosk transactions at $1,000 a day and fees at $5 or 5%. The Washington Senate passed it 37-12. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5280, a bill to cap cryptocurrency kiosk transactions at $1,000 a day and fees at $5 or 5%. The Washington Senate passed it 37-12. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "37-12",
+        "old_sentences": 8,
+        "old_chars": 599
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1615268,
+      "measure_id": "SB 5581",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass Senate Bill 5581, a bill to fold walking and biking paths into state and local highway planning. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5581, a bill to fold walking and biking paths into state and local highway planning. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 484
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1616721,
+      "measure_id": "SB 5098",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass Senate Bill 5098, a bill to ban weapons in public buildings where government staff work, playgrounds, sports fields, and county fairs. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5098, a bill to ban weapons in public buildings where government staff work, playgrounds, sports fields, and county fairs. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "29-20",
+        "old_sentences": 9,
+        "old_chars": 648
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1616783,
+      "measure_id": "SB 5331",
+      "vote_date": "2026-01-21",
+      "yea_description": "Voted to pass Senate Bill 5331, a bill to let the Insurance Commissioner order insurers to repay people they harmed and raise fines to $10,000 per violation. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5331, a bill to let the Insurance Commissioner order insurers to repay people they harmed and raise fines to $10,000 per violation. The Washington Senate passed it 29-20. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "29-20",
+        "old_sentences": 6,
+        "old_chars": 463
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1618749,
+      "measure_id": "SB 5067",
+      "vote_date": "2026-01-28",
+      "yea_description": "Voted to pass Senate Bill 5067, a bill to lower the blood alcohol limit for drunk driving from 0.08 to 0.05. The Washington Senate passed it 26-23. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5067, a bill to lower the blood alcohol limit for drunk driving from 0.08 to 0.05. The Washington Senate passed it 26-23. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "26-23",
+        "old_sentences": 7,
+        "old_chars": 525
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1624157,
+      "measure_id": "SB 5972",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted to pass Senate Bill 5972, a bill to give all jail officers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate passed it 34-15. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5972, a bill to give all jail officers interest arbitration, where a neutral arbitrator settles contract disputes. The Washington Senate passed it 34-15. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "34-15",
+        "old_sentences": 5,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1625743,
+      "measure_id": "SB 5993",
+      "vote_date": "2026-02-06",
+      "yea_description": "Voted to pass Senate Bill 5993, a bill to cap interest on medical debt at 1% a year for debt incurred after 2026. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5993, a bill to cap interest on medical debt at 1% a year for debt incurred after 2026. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 6,
+        "old_chars": 485
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1628501,
+      "measure_id": "SB 5917",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass Senate Bill 5917, which lets the Department of Corrections supply abortion medications to health care providers across the state. The Washington Senate approved it 32-17.",
+      "nay_description": "Voted against passing Senate Bill 5917, which lets the Department of Corrections supply abortion medications to health care providers across the state. The Washington Senate approved it 32-17.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "32-17",
+        "old_sentences": 10,
+        "old_chars": 729
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1628811,
+      "measure_id": "SB 5956",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass Senate Bill 5956, a bill to bar schools from disciplining students based only on automated system scores and from using facial recognition to track them. The Washington Senate passed it 35-13. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5956, a bill to bar schools from disciplining students based only on automated system scores and from using facial recognition to track them. The Washington Senate passed it 35-13. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "35-13",
+        "old_sentences": 8,
+        "old_chars": 721
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1629147,
+      "measure_id": "SB 6184",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass Senate Bill 6184, a bill to widen housing programs for homeless and at-risk youth, including paying stipends directly to young people. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 6184, a bill to widen housing programs for homeless and at-risk youth, including paying stipends directly to young people. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 539
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1631095,
+      "measure_id": "SB 6081",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted to pass Senate Bill 6081, which keeps records of a person's sex designation change out of public view. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing Senate Bill 6081, which keeps records of a person's sex designation change out of public view. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 966
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1632819,
+      "measure_id": "SB 5984",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass Senate Bill 5984, a bill to make companion chatbot apps tell users they are talking to artificial intelligence and protect minors from harmful content. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5984, a bill to make companion chatbot apps tell users they are talking to artificial intelligence and protect minors from harmful content. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "38-11",
+        "old_sentences": 8,
+        "old_chars": 654
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1632882,
+      "measure_id": "SB 5061",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass Senate Bill 5061, a bill to make public works contracts raise their minimum hourly wages each year to match the latest prevailing wage. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5061, a bill to make public works contracts raise their minimum hourly wages each year to match the latest prevailing wage. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 436
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1633011,
+      "measure_id": "SB 5906",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted to pass Senate Bill 5906, a bill to limit immigration enforcement at schools, child care sites, health care facilities, and colleges. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5906, a bill to limit immigration enforcement at schools, child care sites, health care facilities, and colleges. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 736
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1633675,
+      "measure_id": "SB 6049",
+      "vote_date": "2026-02-13",
+      "yea_description": "Voted to pass Senate Bill 6049, a bill to keep hate crime survivors' identifying details and staff and student survey answers out of public records. The Washington Senate passed it 30-18. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 6049, a bill to keep hate crime survivors' identifying details and staff and student survey answers out of public records. The Washington Senate passed it 30-18. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-18",
+        "old_sentences": 7,
+        "old_chars": 563
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1633725,
+      "measure_id": "SB 6302",
+      "vote_date": "2026-02-13",
+      "yea_description": "Voted to pass Senate Bill 6302, which requires the state to investigate reports of worker misclassification on public works jobs. The Washington Senate approved it 37-11.",
+      "nay_description": "Voted against passing Senate Bill 6302, which requires the state to investigate reports of worker misclassification on public works jobs. The Washington Senate approved it 37-11.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "37-11",
+        "old_sentences": 9,
+        "old_chars": 723
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1633792,
+      "measure_id": "SB 5496",
+      "vote_date": "2026-02-13",
+      "yea_description": "Voted to pass Senate Bill 5496, a bill to bar businesses from holding more than 100 single-family homes and bar investment firms from buying any. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5496, a bill to bar businesses from holding more than 100 single-family homes and bar investment firms from buying any. The Washington Senate passed it 29-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 8,
+        "old_chars": 581
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1635510,
+      "measure_id": "SB 5924",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted to pass Senate Bill 5924, a bill to let pharmacists prescribe vaccines, birth control, overdose treatments, and drugs for minor conditions from December 2027. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5924, a bill to let pharmacists prescribe vaccines, birth control, overdose treatments, and drugs for minor conditions from December 2027. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "38-11",
+        "old_sentences": 7,
+        "old_chars": 559
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1635744,
+      "measure_id": "SB 5947",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted to pass Senate Bill 5947, a bill to create a state board to design a health plan covering all medically needed care for every resident. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5947, a bill to create a state board to design a health plan covering all medically needed care for every resident. The Washington Senate passed it 30-19. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 6,
+        "old_chars": 541
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1636319,
+      "measure_id": "SB 5360",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted to pass Senate Bill 5360, a bill to make knowingly breaking water pollution, clean air, and hazardous waste laws a felony. The Washington Senate passed it 27-22. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5360, a bill to make knowingly breaking water pollution, clean air, and hazardous waste laws a felony. The Washington Senate passed it 27-22. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "27-22",
+        "old_sentences": 9,
+        "old_chars": 771
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1646832,
+      "measure_id": "HB 2242",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass House Bill 2242, which locks health plans' preventive care coverage to the federal lists as they stood on June 30, 2025. The Washington Senate approved it 36-12.",
+      "nay_description": "Voted against passing House Bill 2242, which locks health plans' preventive care coverage to the federal lists as they stood on June 30, 2025. The Washington Senate approved it 36-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "36-12",
+        "old_sentences": 10,
+        "old_chars": 845
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1646965,
+      "measure_id": "HB 2355",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass House Bill 2355, which gives nannies, house cleaners, and other domestic workers minimum wage, overtime, written agreements, and notice before firing. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against passing House Bill 2355, which gives nannies, house cleaners, and other domestic workers minimum wage, overtime, written agreements, and notice before firing. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "28-20",
+        "old_sentences": 12,
+        "old_chars": 941
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648400,
+      "measure_id": "HB 2320",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass House Bill 2320, which extends Washington's bans on making illegal guns to 3D printers, milling machines, and the digital files that run them. The Washington Senate approved it 29-18.",
+      "nay_description": "Voted against passing House Bill 2320, which extends Washington's bans on making illegal guns to 3D printers, milling machines, and the digital files that run them. The Washington Senate approved it 29-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "29-18",
+        "old_sentences": 13,
+        "old_chars": 1114
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648402,
+      "measure_id": "HB 1750",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass House Bill 1750, which sets a separate legal test for claims that a local rule makes voting harder for a minority group. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1750, which sets a separate legal test for claims that a local rule makes voting harder for a minority group. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 1020
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648403,
+      "measure_id": "HB 2367",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass House Bill 2367, which ends the cap-and-invest exemption for older coal-fired power plants from 2026. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 2367, which ends the cap-and-invest exemption for older coal-fired power plants from 2026. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 9,
+        "old_chars": 655
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648404,
+      "measure_id": "HB 1687",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass House Bill 1687, which lets cities and counties create social housing authorities that build and run mixed-income public rental homes. The Washington Senate approved it 32-17.",
+      "nay_description": "Voted against passing House Bill 1687, which lets cities and counties create social housing authorities that build and run mixed-income public rental homes. The Washington Senate approved it 32-17.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "32-17",
+        "old_sentences": 9,
+        "old_chars": 739
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648405,
+      "measure_id": "SB 6182",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass Senate Bill 6182, which creates a state grant program to keep abortion care available for people who cannot pay. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing Senate Bill 6182, which creates a state grant program to keep abortion care available for people who cannot pay. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 7,
+        "old_chars": 731
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1648423,
+      "measure_id": "SB 5647",
+      "vote_date": "2026-02-28",
+      "yea_description": "Voted to pass Senate Bill 5647, a bill to extend the real estate excise tax exemption to affordable homes sold to low-income households by approved groups. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "nay_description": "Voted against passing Senate Bill 5647, a bill to extend the real estate excise tax exemption to affordable homes sold to low-income households by approved groups. The Washington Senate passed it 38-11. As of September 2026 the House had not voted on it, so it was not law.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "38-11",
+        "old_sentences": 7,
+        "old_chars": 464
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1650661,
+      "measure_id": "HB 1345",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass House Bill 1345, which lets counties allow one backyard accessory dwelling unit on rural lots outside urban growth areas, with strict limits. The Washington Senate approved it 33-15.",
+      "nay_description": "Voted against passing House Bill 1345, which lets counties allow one backyard accessory dwelling unit on rural lots outside urban growth areas, with strict limits. The Washington Senate approved it 33-15.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "33-15",
+        "old_sentences": 10,
+        "old_chars": 795
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1651574,
+      "measure_id": "HB 2165",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass House Bill 2165, which creates the crime of falsely posing as a police officer, including federal officers. The Washington Senate approved it 30-18.",
+      "nay_description": "Voted against passing House Bill 2165, which creates the crime of falsely posing as a police officer, including federal officers. The Washington Senate approved it 30-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-18",
+        "old_sentences": 11,
+        "old_chars": 910
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1651766,
+      "measure_id": "HB 1604",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass House Bill 1604, which sets rules for how local jails search transgender and intersex people, barring searches to learn genital status. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1604, which sets rules for how local jails search transgender and intersex people, barring searches to learn genital status. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1651878,
+      "measure_id": "HB 2384",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass House Bill 2384, which makes continuing care retirement communities that sell life care contracts file an actuarial study from July 2027. The Washington Senate approved it 37-12.",
+      "nay_description": "Voted against passing House Bill 2384, which makes continuing care retirement communities that sell life care contracts file an actuarial study from July 2027. The Washington Senate approved it 37-12.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "37-12",
+        "old_sentences": 13,
+        "old_chars": 1043
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1651880,
+      "measure_id": "HB 2294",
+      "vote_date": "2026-03-03",
+      "yea_description": "Voted to pass House Bill 2294, which voids new property deed clauses that bar a grocery store or pharmacy from opening on the land. The Washington Senate approved it 35-14.",
+      "nay_description": "Voted against passing House Bill 2294, which voids new property deed clauses that bar a grocery store or pharmacy from opening on the land. The Washington Senate approved it 35-14.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "35-14",
+        "old_sentences": 12,
+        "old_chars": 1009
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1652662,
+      "measure_id": "HB 1570",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass House Bill 1570, which lets student workers at Western Washington University form unions and bargain. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 1570, which lets student workers at Western Washington University form unions and bargain. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "29-19",
+        "old_sentences": 7,
+        "old_chars": 533
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1653483,
+      "measure_id": "HB 2471",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass House Bill 2471, which creates a state union law for private workers that applies only if federal labor law stops covering them. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against passing House Bill 2471, which creates a state union law for private workers that applies only if federal labor law stops covering them. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "31-18",
+        "old_sentences": 9,
+        "old_chars": 688
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1653579,
+      "measure_id": "HB 1069",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass House Bill 1069, which makes the state bargain with corrections workers' unions over payments toward extra retirement benefits. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against passing House Bill 1069, which makes the state bargain with corrections workers' unions over payments toward extra retirement benefits. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "31-18",
+        "old_sentences": 6,
+        "old_chars": 545
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1653733,
+      "measure_id": "HB 1710",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass House Bill 1710, which makes the Attorney General keep a list of local governments with a recent record of voting bias. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1710, which makes the Attorney General keep a list of local governments with a recent record of voting bias. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 1054
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1653987,
+      "measure_id": "HB 2266",
+      "vote_date": "2026-03-04",
+      "yea_description": "Voted to pass House Bill 2266, which makes cities and counties allow shelters and supportive housing wherever homes or hotels are allowed. The Washington Senate approved it 29-20.",
+      "nay_description": "Voted against passing House Bill 2266, which makes cities and counties allow shelters and supportive housing wherever homes or hotels are allowed. The Washington Senate approved it 29-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "29-20",
+        "old_sentences": 15,
+        "old_chars": 1344
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1654684,
+      "measure_id": "HB 2411",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 2411, which lets state workers receive shared leave when they are hate crime victims or caught up in immigration enforcement. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 2411, which lets state workers receive shared leave when they are hate crime victims or caught up in immigration enforcement. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage",
+        "tally": "30-19",
+        "old_sentences": 9,
+        "old_chars": 751
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655093,
+      "measure_id": "HB 1155",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 1155, which voids every noncompete agreement in Washington, including ones signed years earlier. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1155, which voids every noncompete agreement in Washington, including ones signed years earlier. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 9,
+        "old_chars": 936
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655349,
+      "measure_id": "HB 2548",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 2548, which requires 60 days' notice to the Attorney General before more kinds of hospital and health care mergers and sales. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 2548, which requires 60 days' notice to the Attorney General before more kinds of hospital and health care mergers and sales. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 11,
+        "old_chars": 906
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655406,
+      "measure_id": "HB 1795",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 1795, which limits school restraint and isolation of students to cases of real risk of serious harm to a person. The Washington Senate approved it 28-20.",
+      "nay_description": "Voted against passing House Bill 1795, which limits school restraint and isolation of students to cases of real risk of serious harm to a person. The Washington Senate approved it 28-20.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "28-20",
+        "old_sentences": 12,
+        "old_chars": 1019
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655460,
+      "measure_id": "HB 2105",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 2105, which makes employers tell workers within five days when federal agents ask to see employment records. The Washington Senate approved it 27-21.",
+      "nay_description": "Voted against passing House Bill 2105, which makes employers tell workers within five days when federal agents ask to see employment records. The Washington Senate approved it 27-21.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "27-21",
+        "old_sentences": 10,
+        "old_chars": 668
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655835,
+      "measure_id": "HB 1974",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 1974, which lets cities and counties set up land banks that buy and hold land for affordable housing. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against passing House Bill 1974, which lets cities and counties set up land banks that buy and hold land for affordable housing. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "30-19",
+        "old_sentences": 12,
+        "old_chars": 925
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1655906,
+      "measure_id": "HB 2156",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 2156, which lets the Attorney General appoint investigators for economic and financial crimes. The Washington Senate approved it 29-19.",
+      "nay_description": "Voted against passing House Bill 2156, which lets the Attorney General appoint investigators for economic and financial crimes. The Washington Senate approved it 29-19.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "29-19",
+        "old_sentences": 8,
+        "old_chars": 569
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1656487,
+      "measure_id": "HB 1903",
+      "vote_date": "2026-03-06",
+      "yea_description": "Voted to pass House Bill 1903, which creates a statewide program to help low-income households pay energy bills through credits on their utility bills. The Washington Senate approved it 35-13.",
+      "nay_description": "Voted against passing House Bill 1903, which creates a statewide program to help low-income households pay energy bills through credits on their utility bills. The Washington Senate approved it 35-13.",
+      "_current": {
+        "question": "Senate 3rd Reading & Final Passage as Amended by the Senate",
+        "tally": "35-13",
+        "old_sentences": 10,
+        "old_chars": 692
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657124,
+      "measure_id": "SB 5068",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5068, which lets prisons and jails hire anyone legally allowed to work in the United States as corrections officers. The Washington Senate approved it 28-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5068, which lets prisons and jails hire anyone legally allowed to work in the United States as corrections officers. The Washington Senate approved it 28-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "28-19",
+        "old_sentences": 9,
+        "old_chars": 915
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657266,
+      "measure_id": "SB 5892",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5892, which makes counties send voter list data requests to the Secretary of State and makes leaking the list a felony. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5892, which makes counties send voter list data requests to the Secretary of State and makes leaking the list a felony. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 645
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657301,
+      "measure_id": "SB 5981",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5981, which bars drug makers from blocking delivery of discounted 340B medicines to clinics serving low-income patients. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5981, which bars drug makers from blocking delivery of discounted 340B medicines to clinics serving low-income patients. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 795
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657372,
+      "measure_id": "SB 5925",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5925, which lets the Attorney General demand documents and sworn statements before suing over civil rights, wage, or immigration-limit violations. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5925, which lets the Attorney General demand documents and sworn statements before suing over civil rights, wage, or immigration-limit violations. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 770
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657454,
+      "measure_id": "SB 5855",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5855, which bars police, including federal officers, from wearing face masks while dealing with the public on duty. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5855, which bars police, including federal officers, from wearing face masks while dealing with the public on duty. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 630
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1657670,
+      "measure_id": "SB 5520",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5520, which makes it easier for people wrongly convicted of a felony to win compensation from the state. The Washington Senate approved it 31-18.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5520, which makes it easier for people wrongly convicted of a felony to win compensation from the state. The Washington Senate approved it 31-18.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "31-18",
+        "old_sentences": 11,
+        "old_chars": 787
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1658193,
+      "measure_id": "SB 6002",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6002, which sets the state's first limits on automated license plate readers, allowing government use only for listed purposes. The Washington Senate approved it 39-10.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6002, which sets the state's first limits on automated license plate readers, allowing government use only for listed purposes. The Washington Senate approved it 39-10.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "39-10",
+        "old_sentences": 12,
+        "old_chars": 1076
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1658477,
+      "measure_id": "SB 6309",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6309, which speeds up permits for regional transit authorities such as Sound Transit. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6309, which speeds up permits for regional transit authorities such as Sound Transit. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 635
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1658737,
+      "measure_id": "SB 6026",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6026, which makes cities and counties of 30,000 or more allow homes on land zoned for commercial or mixed use. The Washington Senate approved it 35-14.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6026, which makes cities and counties of 30,000 or more allow homes on land zoned for commercial or mixed use. The Washington Senate approved it 35-14.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "35-14",
+        "old_sentences": 10,
+        "old_chars": 975
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1658985,
+      "measure_id": "SB 5847",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 5847, which protects injured workers' right to choose their own doctor under workers' compensation. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 5847, which protects injured workers' right to choose their own doctor under workers' compensation. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 8,
+        "old_chars": 717
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1659407,
+      "measure_id": "SB 6188",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6188, which lets the state write asbestos worker certification rules that go beyond federal minimums. The Washington Senate approved it 30-19.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6188, which lets the state write asbestos worker certification rules that go beyond federal minimums. The Washington Senate approved it 30-19.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "30-19",
+        "old_sentences": 7,
+        "old_chars": 561
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1661374,
+      "measure_id": "SB 6355",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6355, which creates the Washington Electric Transmission Authority to build more high-voltage power lines. The Washington Senate approved it 32-17.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6355, which creates the Washington Electric Transmission Authority to build more high-voltage power lines. The Washington Senate approved it 32-17.",
+      "_current": {
+        "question": "Senate Final Passage as Amended by the House",
+        "tally": "32-17",
+        "old_sentences": 10,
+        "old_chars": 755
+      }
+    },
+    {
+      "jurisdiction": "WA",
+      "chamber": "senate",
+      "session": "2166",
+      "roll": 1661470,
+      "measure_id": "SB 6346",
+      "vote_date": "2026-03-11",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 6346, which creates a 9.9% state income tax on individual income above $1 million a year, starting in 2028. The Washington Senate approved it 27-21.",
+      "nay_description": "Voted against accepting the House's changes to Senate Bill 6346, which creates a 9.9% state income tax on individual income above $1 million a year, starting in 2028. The Washington Senate approved it 27-21.",
+      "_current": {
+        "question": "Senate Final Passage As Amended by the House",
+        "tally": "27-21",
+        "old_sentences": 12,
+        "old_chars": 816
+      }
+    }
+  ]
+}

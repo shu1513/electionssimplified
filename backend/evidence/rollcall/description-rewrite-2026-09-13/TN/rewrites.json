@@ -1,0 +1,1300 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1477617,
+      "measure_id": "SB 6002",
+      "vote_date": "2025-01-30",
+      "yea_description": "Voted to pass SB 6002, which creates a state immigration enforcement office directing how local police work with federal agents. The Tennessee House passed it 72-22 (recorded 72-21 in the LegiScan roll, which omits one no vote), and it became law.",
+      "nay_description": "Voted against SB 6002, which creates a state immigration enforcement office directing how local police work with federal agents. The Tennessee House passed it 72-22 (recorded 72-21 in the LegiScan roll, which omits one no vote), and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-21",
+        "old_sentences": 4,
+        "old_chars": 435
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1501024,
+      "measure_id": "HB 618",
+      "vote_date": "2025-02-27",
+      "yea_description": "Voted to pass HB 618, which bars a person from holding two local elected offices at the same time. The Tennessee House passed it 61-27 (recorded 61-26 in the LegiScan roll, which omits one no vote). The Senate later changed when the ban starts, and the bill became law.",
+      "nay_description": "Voted against HB 618, which bars a person from holding two local elected offices at the same time. The Tennessee House passed it 61-27 (recorded 61-26 in the LegiScan roll, which omits one no vote). The Senate later changed when the ban starts, and the bill became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "61-26",
+        "old_sentences": 5,
+        "old_chars": 455
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1509575,
+      "measure_id": "HB 120",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass HB 120, which creates the crime of deliberately blocking a state protective services officer. The Tennessee House passed it 73-20 (recorded 73-19 in the LegiScan roll, which omits one no vote), and it became law.",
+      "nay_description": "Voted against HB 120, which creates the crime of deliberately blocking a state protective services officer. The Tennessee House passed it 73-20 (recorded 73-19 in the LegiScan roll, which omits one no vote), and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-19",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1509630,
+      "measure_id": "HB 22",
+      "vote_date": "2025-03-10",
+      "yea_description": "Voted to pass HB 22, which requires every local governing body to set aside time for public comment at each meeting. The Tennessee House passed it 60-30 (recorded 60-29 in the LegiScan roll, which omits one no vote), and it became law.",
+      "nay_description": "Voted against HB 22, which requires every local governing body to set aside time for public comment at each meeting. The Tennessee House passed it 60-30 (recorded 60-29 in the LegiScan roll, which omits one no vote), and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "60-29",
+        "old_sentences": 4,
+        "old_chars": 368
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1519163,
+      "measure_id": "SB 694",
+      "vote_date": "2025-03-17",
+      "yea_description": "Voted to pass SB 694, which raises the top consumer loan interest rate from 30 to 36 percent a year. The Tennessee House passed it 61-26, and it became law.",
+      "nay_description": "Voted against SB 694, which raises the top consumer loan interest rate from 30 to 36 percent a year. The Tennessee House passed it 61-26, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "61-26",
+        "old_sentences": 4,
+        "old_chars": 276
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1528866,
+      "measure_id": "SB 690",
+      "vote_date": "2025-03-27",
+      "yea_description": "Voted to pass SB 690, which requires school districts to let virtual school students play sports where the association allows. The Tennessee House passed it 73-22, and it became law.",
+      "nay_description": "Voted against SB 690, which requires school districts to let virtual school students play sports where the association allows. The Tennessee House passed it 73-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-22",
+        "old_sentences": 3,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1535748,
+      "measure_id": "HB 749",
+      "vote_date": "2025-04-03",
+      "yea_description": "Voted for House Bill 749, which makes driving with certain out-of-state licenses issued only to people here illegally a misdemeanor. The Tennessee House passed it 68-21, and it became law.",
+      "nay_description": "Voted against House Bill 749, which makes driving with certain out-of-state licenses issued only to people here illegally a misdemeanor. The Tennessee House passed it 68-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "68-21",
+        "old_sentences": 4,
+        "old_chars": 402
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1538713,
+      "measure_id": "HB 1237",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to accept the final version of HB 1237, which bars race-based rules for who sits on state boards. The Tennessee House agreed it 73-22, and it became law.",
+      "nay_description": "Voted against the final version of HB 1237, which bars race-based rules for who sits on state boards. The Tennessee House agreed it 73-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR CONCUR IN SENATE AMENDMENT # 1",
+        "tally": "73-22",
+        "old_sentences": 4,
+        "old_chars": 320
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1538800,
+      "measure_id": "SB 955",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 955, the Medical Ethics Defense Act, which lets providers refuse care that goes against their beliefs. The Tennessee House passed it 71-24, and it became law.",
+      "nay_description": "Voted against SB 955, the Medical Ethics Defense Act, which lets providers refuse care that goes against their beliefs. The Tennessee House passed it 71-24, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-24",
+        "old_sentences": 4,
+        "old_chars": 355
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1538827,
+      "measure_id": "SB 880",
+      "vote_date": "2025-04-07",
+      "yea_description": "Voted to pass SB 880, which bars state pollution limits unless the best science shows a direct link to bodily harm. The Tennessee House passed it 74-22, and it became law.",
+      "nay_description": "Voted against SB 880, which bars state pollution limits unless the best science shows a direct link to bodily harm. The Tennessee House passed it 74-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "74-22",
+        "old_sentences": 5,
+        "old_chars": 547
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1544003,
+      "measure_id": "HB 612",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass HB 612, which cuts what a permit applicant must do to make up for harm to wetlands and streams. The Tennessee House passed it 74-20, and it became law.",
+      "nay_description": "Voted against HB 612, which cuts what a permit applicant must do to make up for harm to wetlands and streams. The Tennessee House passed it 74-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "74-20",
+        "old_sentences": 4,
+        "old_chars": 319
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1544236,
+      "measure_id": "SB 449",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass SB 449, which says Tennessee law does not ban birth control or fertility treatment. The Tennessee House passed it 54-37, and it became law.",
+      "nay_description": "Voted against SB 449, which says Tennessee law does not ban birth control or fertility treatment. The Tennessee House passed it 54-37, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "54-37",
+        "old_sentences": 4,
+        "old_chars": 309
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1544284,
+      "measure_id": "SB 376",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass SB 376, which bars four-year colleges from treating people differently by race, ending race-conscious admissions. The Tennessee House passed it 73-22, and it became law.",
+      "nay_description": "Voted against SB 376, which bars four-year colleges from treating people differently by race, ending race-conscious admissions. The Tennessee House passed it 73-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-22",
+        "old_sentences": 4,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1547660,
+      "measure_id": "SB 799",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass SB 799, which requires statewide parties to pick candidates in primary elections. The Tennessee House passed it 60-25, and it became law.",
+      "nay_description": "Voted against SB 799, which requires statewide parties to pick candidates in primary elections. The Tennessee House passed it 60-25, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "60-25",
+        "old_sentences": 4,
+        "old_chars": 321
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1547955,
+      "measure_id": "HB 1332",
+      "vote_date": "2025-04-14",
+      "yea_description": "Voted to pass HB 1332, which lowers the handgun carry permit age from 21 to 18. The Tennessee House passed it 71-21, and it became law.",
+      "nay_description": "Voted against HB 1332, which lowers the handgun carry permit age from 21 to 18. The Tennessee House passed it 71-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-21",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1548654,
+      "measure_id": "SB 750",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted to pass SB 750, which requires a report by July 2026 on crime linked to people in the country illegally. The Tennessee House passed it 75-20, and it became law.",
+      "nay_description": "Voted against SB 750, which requires a report by July 2026 on crime linked to people in the country illegally. The Tennessee House passed it 75-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "75-20",
+        "old_sentences": 3,
+        "old_chars": 294
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1548823,
+      "measure_id": "SB 1360",
+      "vote_date": "2025-04-15",
+      "yea_description": "Voted for Senate Bill 1360, which widens lawsuit protections for makers and sellers of guns and accessories. The Tennessee House passed it 72-20, and it became law.",
+      "nay_description": "Voted against Senate Bill 1360, which widens lawsuit protections for makers and sellers of guns and accessories. The Tennessee House passed it 72-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-20",
+        "old_sentences": 4,
+        "old_chars": 489
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1550047,
+      "measure_id": "SB 626",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass SB 626, which lets counties get more time to finish counting provisional ballots. The Tennessee House passed it 72-22, and it became law.",
+      "nay_description": "Voted against SB 626, which lets counties get more time to finish counting provisional ballots. The Tennessee House passed it 72-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-22",
+        "old_sentences": 3,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1550532,
+      "measure_id": "SB 1004",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass SB 1004, which spells out which medical conditions qualify as a serious risk under the criminal abortion law. The Tennessee House passed it 71-18, and it became law.",
+      "nay_description": "Voted against SB 1004, which spells out which medical conditions qualify as a serious risk under the criminal abortion law. The Tennessee House passed it 71-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-18",
+        "old_sentences": 5,
+        "old_chars": 391
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1550583,
+      "measure_id": "SB 1034",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass SB 1034, which protects city and county seals with historic imagery from removal without state permission. The Tennessee House passed it 70-24, and it became law.",
+      "nay_description": "Voted against SB 1034, which protects city and county seals with historic imagery from removal without state permission. The Tennessee House passed it 70-24, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-24",
+        "old_sentences": 4,
+        "old_chars": 339
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1550597,
+      "measure_id": "HB 910",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass HB 910, which shuts down the Human Rights Commission and moves its work to the attorney general. The Tennessee House passed it 73-23, and it became law.",
+      "nay_description": "Voted against HB 910, which shuts down the Human Rights Commission and moves its work to the attorney general. The Tennessee House passed it 73-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-23",
+        "old_sentences": 4,
+        "old_chars": 340
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1550606,
+      "measure_id": "SB 227",
+      "vote_date": "2025-04-16",
+      "yea_description": "Voted to pass SB 227, which lets a charity that houses someone in the country illegally be sued for crimes that person commits. The Tennessee House passed it 70-23, and it became law.",
+      "nay_description": "Voted against SB 227, which lets a charity that houses someone in the country illegally be sued for crimes that person commits. The Tennessee House passed it 70-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-23",
+        "old_sentences": 4,
+        "old_chars": 313
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1551312,
+      "measure_id": "HB 622",
+      "vote_date": "2025-04-17",
+      "yea_description": "Voted to pass HB 622, which bars local governments from using race, sex or age in hiring decisions. The Tennessee House passed it 73-24, and it became law.",
+      "nay_description": "Voted against HB 622, which bars local governments from using race, sex or age in hiring decisions. The Tennessee House passed it 73-24, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-24",
+        "old_sentences": 5,
+        "old_chars": 333
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1553646,
+      "measure_id": "SB 670",
+      "vote_date": "2025-04-21",
+      "yea_description": "Voted for Senate Bill 670, which allows changes to small or artificial isolated wetlands without permits. The Tennessee House passed it 71-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 670, which allows changes to small or artificial isolated wetlands without permits. The Tennessee House passed it 71-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-21",
+        "old_sentences": 4,
+        "old_chars": 491
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1554040,
+      "measure_id": "SB 1084",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for Senate Bill 1084, the Dismantling DEI Departments Act, which bars diversity offices and preferences in government and public colleges. The Tennessee House passed it 72-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 1084, the Dismantling DEI Departments Act, which bars diversity offices and preferences in government and public colleges. The Tennessee House passed it 72-25, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-25",
+        "old_sentences": 4,
+        "old_chars": 418
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1554338,
+      "measure_id": "SB 392",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to pass SB 392, which creates the crime of human smuggling for financial gain. The Tennessee House passed it 73-22, and it became law.",
+      "nay_description": "Voted against SB 392, which creates the crime of human smuggling for financial gain. The Tennessee House passed it 73-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-22",
+        "old_sentences": 4,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1554657,
+      "measure_id": "HB 132",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to accept the final version of HB 132, which lets the General Assembly end a governor's state of emergency by joint resolution. The Tennessee House agreed it 72-23, and it became law.",
+      "nay_description": "Voted against the final version of HB 132, which lets the General Assembly end a governor's state of emergency by joint resolution. The Tennessee House agreed it 72-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR 3 CONCUR IN SENATE AMENDMENT # 1",
+        "tally": "72-23",
+        "old_sentences": 4,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1641638,
+      "measure_id": "SB 674",
+      "vote_date": "2026-02-23",
+      "yea_description": "Voted to pass SB 674, which bars cities and counties from setting rules on pay, hours or working conditions beyond state law. The Tennessee House passed it 70-22, and it became law.",
+      "nay_description": "Voted against SB 674, which bars cities and counties from setting rules on pay, hours or working conditions beyond state law. The Tennessee House passed it 70-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-22",
+        "old_sentences": 4,
+        "old_chars": 323
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1655106,
+      "measure_id": "SB 218",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass SB 218, which presumes against releasing a person charged with a gun felony or serious injury on a promise to appear. The Tennessee House passed it 65-25, and it became law.",
+      "nay_description": "Voted against SB 218, which presumes against releasing a person charged with a gun felony or serious injury on a promise to appear. The Tennessee House passed it 65-25, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "65-25",
+        "old_sentences": 4,
+        "old_chars": 313
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1657614,
+      "measure_id": "SB 350",
+      "vote_date": "2026-03-09",
+      "yea_description": "Voted to pass SB 350, which bars landlords from stopping renters having guns in their home or car. The Tennessee House passed it 73-21, and it became law.",
+      "nay_description": "Voted against SB 350, which bars landlords from stopping renters having guns in their home or car. The Tennessee House passed it 73-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-21",
+        "old_sentences": 3,
+        "old_chars": 262
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1661430,
+      "measure_id": "HB 2070",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted for House Bill 2070, the Tennessee Energy Freedom Act, which blocks most climate lawsuits over coal, oil or gas emissions. The Tennessee House passed it 69-18, and it became law.",
+      "nay_description": "Voted against House Bill 2070, the Tennessee Energy Freedom Act, which blocks most climate lawsuits over coal, oil or gas emissions. The Tennessee House passed it 69-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "69-18",
+        "old_sentences": 4,
+        "old_chars": 426
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1663445,
+      "measure_id": "HB 1665",
+      "vote_date": "2026-03-16",
+      "yea_description": "Voted to pass HB 1665, which bars health insurers from requiring providers to ask minors gender identity questions. The Tennessee House passed it 72-21, and it became law.",
+      "nay_description": "Voted against HB 1665, which bars health insurers from requiring providers to ask minors gender identity questions. The Tennessee House passed it 72-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-21",
+        "old_sentences": 4,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1663455,
+      "measure_id": "HB 1705",
+      "vote_date": "2026-03-16",
+      "yea_description": "Voted to pass HB 1705, which requires every state and local government employer to use E-Verify from July 2026. The Tennessee House passed it 73-21, and it became law.",
+      "nay_description": "Voted against HB 1705, which requires every state and local government employer to use E-Verify from July 2026. The Tennessee House passed it 73-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-21",
+        "old_sentences": 3,
+        "old_chars": 295
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1663590,
+      "measure_id": "HB 1704",
+      "vote_date": "2026-03-16",
+      "yea_description": "Voted to pass HB 1704, which makes staying in Tennessee more than 90 days after a final federal removal order a crime. The Tennessee House passed it 73-22, and it became law.",
+      "nay_description": "Voted against HB 1704, which makes staying in Tennessee more than 90 days after a final federal removal order a crime. The Tennessee House passed it 73-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-22",
+        "old_sentences": 4,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1666252,
+      "measure_id": "SB 2364",
+      "vote_date": "2026-03-19",
+      "yea_description": "Voted to pass SB 2364, which makes discrimination complaints filed with the attorney general confidential. The Tennessee House passed it 70-18, and it became law.",
+      "nay_description": "Voted against SB 2364, which makes discrimination complaints filed with the attorney general confidential. The Tennessee House passed it 70-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-18",
+        "old_sentences": 4,
+        "old_chars": 343
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1670926,
+      "measure_id": "SB 1464",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted to pass SB 1464, which keeps secret the names of officers taking part in federal immigration enforcement. The Tennessee House passed it 70-19, and it became law.",
+      "nay_description": "Voted against SB 1464, which keeps secret the names of officers taking part in federal immigration enforcement. The Tennessee House passed it 70-19, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-19",
+        "old_sentences": 4,
+        "old_chars": 272
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1671320,
+      "measure_id": "SB 2222",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted to pass SB 2222, which lets people sue someone who paid a protester for damage the protester caused. The Tennessee House passed it 71-20, and it became law.",
+      "nay_description": "Voted against SB 2222, which lets people sue someone who paid a protester for damage the protester caused. The Tennessee House passed it 71-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-20",
+        "old_sentences": 4,
+        "old_chars": 316
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1672959,
+      "measure_id": "HB 1784",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted to pass HB 1784, which sets January 22 as Sanctity of Life Day. The Tennessee House passed it 69-22, and it became law.",
+      "nay_description": "Voted against HB 1784, which sets January 22 as Sanctity of Life Day. The Tennessee House passed it 69-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "69-22",
+        "old_sentences": 4,
+        "old_chars": 289
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1673379,
+      "measure_id": "HB 1971",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted to pass HB 1971, which narrows the law letting people ask a court to declare a government action unlawful to local bodies. The Tennessee House passed it 56-38, and it became law.",
+      "nay_description": "Voted against HB 1971, which narrows the law letting people ask a court to declare a government action unlawful to local bodies. The Tennessee House passed it 56-38, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "56-38",
+        "old_sentences": 5,
+        "old_chars": 347
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1675750,
+      "measure_id": "SB 1619",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass SB 1619, which closes the route for election offices to take private money. The Tennessee House passed it 72-23, and it became law.",
+      "nay_description": "Voted against SB 1619, which closes the route for election offices to take private money. The Tennessee House passed it 72-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-23",
+        "old_sentences": 4,
+        "old_chars": 402
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1675998,
+      "measure_id": "SB 2031",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass SB 2031, which lets a person sue a provider over gender transition care they were coerced into. The Tennessee House passed it 72-19, and it became law.",
+      "nay_description": "Voted against SB 2031, which lets a person sue a provider over gender transition care they were coerced into. The Tennessee House passed it 72-19, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-19",
+        "old_sentences": 3,
+        "old_chars": 359
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1676934,
+      "measure_id": "SB 1788",
+      "vote_date": "2026-04-06",
+      "yea_description": "Voted to pass SB 1788, which bars moving a homeless person to another jurisdiction without its written agreement. The Tennessee House passed it 76-20, and it became law.",
+      "nay_description": "Voted against SB 1788, which bars moving a homeless person to another jurisdiction without its written agreement. The Tennessee House passed it 76-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "76-20",
+        "old_sentences": 3,
+        "old_chars": 310
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1677121,
+      "measure_id": "HB 2018",
+      "vote_date": "2026-04-06",
+      "yea_description": "Voted to pass HB 2018, which requires sheriffs under federal 287(g) agreements to honor immigration detainers. The Tennessee House passed it 72-23, and it became law.",
+      "nay_description": "Voted against HB 2018, which requires sheriffs under federal 287(g) agreements to honor immigration detainers. The Tennessee House passed it 72-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-23",
+        "old_sentences": 4,
+        "old_chars": 351
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1677693,
+      "measure_id": "HB 2569",
+      "vote_date": "2026-04-07",
+      "yea_description": "Voted to pass HB 2569, which lowers to 50 the age at which hospitals must offer discharged patients a flu shot. The Tennessee House passed it 62-22, and it became law.",
+      "nay_description": "Voted against HB 2569, which lowers to 50 the age at which hospitals must offer discharged patients a flu shot. The Tennessee House passed it 62-22, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "62-22",
+        "old_sentences": 4,
+        "old_chars": 308
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1681381,
+      "measure_id": "SB 2441",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass SB 2441, which requires the state to step in when a virtual school keeps failing. The Tennessee House passed it 69-21, and it became law.",
+      "nay_description": "Voted against SB 2441, which requires the state to step in when a virtual school keeps failing. The Tennessee House passed it 69-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "69-21",
+        "old_sentences": 4,
+        "old_chars": 291
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1681764,
+      "measure_id": "SB 2087",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass SB 2087, which requires principals to tell every parent when a class is cleared because of a violent student. The Tennessee House passed it 57-32, and it became law.",
+      "nay_description": "Voted against SB 2087, which requires principals to tell every parent when a class is cleared because of a violent student. The Tennessee House passed it 57-32, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "57-32",
+        "old_sentences": 3,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1681809,
+      "measure_id": "HB 2616",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass HB 2616, which lets local governing bodies interview director-level candidates behind closed doors. The Tennessee House passed it 61-24, and it became law.",
+      "nay_description": "Voted against HB 2616, which lets local governing bodies interview director-level candidates behind closed doors. The Tennessee House passed it 61-24, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "61-24",
+        "old_sentences": 4,
+        "old_chars": 346
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1681950,
+      "measure_id": "SB 2348",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 2348, which sets library specialist staffing rules for high schools by size. The Tennessee House passed it 70-24, and it became law.",
+      "nay_description": "Voted against Senate Bill 2348, which sets library specialist staffing rules for high schools by size. The Tennessee House passed it 70-24, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-24",
+        "old_sentences": 4,
+        "old_chars": 395
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1682315,
+      "measure_id": "SB 1858",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted to pass SB 1858, which gives the legislature 90 days instead of 15 to fix a redistricting plan a court faults. The Tennessee House passed it 76-20, and it became law.",
+      "nay_description": "Voted against SB 1858, which gives the legislature 90 days instead of 15 to fix a redistricting plan a court faults. The Tennessee House passed it 76-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "76-20",
+        "old_sentences": 4,
+        "old_chars": 357
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1682980,
+      "measure_id": "HB 754",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to accept the final version of HB 754, which makes gender clinics report every gender transition procedure to the state. The Tennessee House agreed it 73-23, and it became law.",
+      "nay_description": "Voted against the final version of HB 754, which makes gender clinics report every gender transition procedure to the state. The Tennessee House agreed it 73-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR #2 AND #4 CONCUR IN SENATE AMENDMENTS",
+        "tally": "73-23",
+        "old_sentences": 4,
+        "old_chars": 432
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1683417,
+      "measure_id": "SB 2459",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to pass SB 2459, which bars the children's services department from asking foster parents how many guns they own. The Tennessee House passed it 72-23, and it became law.",
+      "nay_description": "Voted against SB 2459, which bars the children's services department from asking foster parents how many guns they own. The Tennessee House passed it 72-23, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "72-23",
+        "old_sentences": 4,
+        "old_chars": 302
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1684544,
+      "measure_id": "SB 2412",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass SB 2412, which lets the attorney general sue to enforce the rules on abortion pills, with fines up to $1 million. The Tennessee House passed it 74-20, and it became law.",
+      "nay_description": "Voted against SB 2412, which lets the attorney general sue to enforce the rules on abortion pills, with fines up to $1 million. The Tennessee House passed it 74-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "74-20",
+        "old_sentences": 5,
+        "old_chars": 336
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1685948,
+      "measure_id": "HB 2219",
+      "vote_date": "2026-04-20",
+      "yea_description": "Voted to pass HB 2219, which requires every county sheriff to sign a federal 287(g) immigration enforcement deal. The Tennessee House passed it 71-25, and it became law.",
+      "nay_description": "Voted against HB 2219, which requires every county sheriff to sign a federal 287(g) immigration enforcement deal. The Tennessee House passed it 71-25, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-25",
+        "old_sentences": 4,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1686750,
+      "measure_id": "SB 1665",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted to pass SB 1665, which widens the school pronoun law to cover honorifics such as Mr. or Ms.. The Tennessee House passed it 70-18, and it became law.",
+      "nay_description": "Voted against SB 1665, which widens the school pronoun law to cover honorifics such as Mr. or Ms.. The Tennessee House passed it 70-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "70-18",
+        "old_sentences": 4,
+        "old_chars": 331
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687306,
+      "measure_id": "SB 1915",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Senate Bill 1915, which requires counties and cities to verify every adult benefit applicant is a citizen or legally present. The Tennessee House passed it 73-21, and it became law.",
+      "nay_description": "Voted against Senate Bill 1915, which requires counties and cities to verify every adult benefit applicant is a citizen or legally present. The Tennessee House passed it 73-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-21",
+        "old_sentences": 5,
+        "old_chars": 613
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687313,
+      "measure_id": "SB 1587",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted to pass SB 1587, which makes it a crime to let a person in the country illegally drive a commercial vehicle. The Tennessee House passed it 73-20, and it became law.",
+      "nay_description": "Voted against SB 1587, which makes it a crime to let a person in the country illegally drive a commercial vehicle. The Tennessee House passed it 73-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "73-20",
+        "old_sentences": 3,
+        "old_chars": 255
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687321,
+      "measure_id": "SB 1713",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted for Senate Bill 1713, which requires yearly certification that governments and colleges used no diversity preference. The Tennessee House passed it 66-20, and it became law.",
+      "nay_description": "Voted against Senate Bill 1713, which requires yearly certification that governments and colleges used no diversity preference. The Tennessee House passed it 66-20, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "66-20",
+        "old_sentences": 4,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687331,
+      "measure_id": "HB 1668",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted to pass HB 1668, which creates the crime of jugging, following someone from a bank or store to steal their cash. The Tennessee House passed it 71-21, and it became law.",
+      "nay_description": "Voted against HB 1668, which creates the crime of jugging, following someone from a bank or store to steal their cash. The Tennessee House passed it 71-21, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "71-21",
+        "old_sentences": 4,
+        "old_chars": 299
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687339,
+      "measure_id": "SB 1868",
+      "vote_date": "2026-04-21",
+      "yea_description": "Voted to pass SB 1868, which caps state custody of a child for treatment at six months, extendable once. The Tennessee House passed it 59-25, and it became law.",
+      "nay_description": "Voted against SB 1868, which caps state custody of a child for treatment at six months, extendable once. The Tennessee House passed it 59-25, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "59-25",
+        "old_sentences": 4,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1687800,
+      "measure_id": "SB 468",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to adopt the compromise version of SB 468, which defines sex, male and female in state law and keeps some single-sex spaces separate. The Tennessee House adopted it 71-18, and it became law.",
+      "nay_description": "Voted against the compromise version of SB 468, which defines sex, male and female in state law and keeps some single-sex spaces separate. The Tennessee House adopted it 71-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: MESSAGE CALENDAR MOTION TO ADOPT CONFERENCE COMMITTEE REPORT",
+        "tally": "71-18",
+        "old_sentences": 4,
+        "old_chars": 337
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1688346,
+      "measure_id": "SB 1747",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to pass SB 1747, which makes recklessly firing a gun into the air at a public gathering a misdemeanor. The Tennessee House passed it 63-18, and it became law.",
+      "nay_description": "Voted against SB 1747, which makes recklessly firing a gun into the air at a public gathering a misdemeanor. The Tennessee House passed it 63-18, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR 2 PASSAGE ON THIRD CONSIDERATION",
+        "tally": "63-18",
+        "old_sentences": 4,
+        "old_chars": 332
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1695420,
+      "measure_id": "HB 7002",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass House Bill 7002, which lets lawmakers redraw congressional districts at any time, not just after a census. The Tennessee House passed it 66-24, and it became law as Public Chapter 1.",
+      "nay_description": "Voted against House Bill 7002, which lets lawmakers redraw congressional districts at any time, not just after a census. The Tennessee House passed it 66-24, and it became law as Public Chapter 1.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR PASSAGE ON THIRD CONSIDERATION",
+        "tally": "66-24",
+        "old_sentences": 5,
+        "old_chars": 406
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "house",
+      "session": "2161",
+      "roll": 1695538,
+      "measure_id": "HB 7003",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass House Bill 7003, which redrew Tennessee's congressional district lines in 2026. The Tennessee House passed it 64-25, and it became law as Public Chapter 3.",
+      "nay_description": "Voted against House Bill 7003, which redrew Tennessee's congressional district lines in 2026. The Tennessee House passed it 64-25, and it became law as Public Chapter 3.",
+      "_current": {
+        "question": "FLOOR VOTE: REGULAR CALENDAR AS AMENDED PASSAGE ON THIRD CONSIDERATION",
+        "tally": "64-25",
+        "old_sentences": 4,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1476571,
+      "measure_id": "SB 6002",
+      "vote_date": "2025-01-29",
+      "yea_description": "Voted to pass SB 6002, which creates a state immigration enforcement office directing how local police work with federal agents. The Tennessee Senate passed it 26-7, and it became law.",
+      "nay_description": "Voted against SB 6002, which creates a state immigration enforcement office directing how local police work with federal agents. The Tennessee Senate passed it 26-7, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "26-7",
+        "old_sentences": 4,
+        "old_chars": 372
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1531898,
+      "measure_id": "HB 1237",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to pass HB 1237, which bars race-based rules for who sits on state boards. The Tennessee Senate passed it 24-6, and it became law.",
+      "nay_description": "Voted against HB 1237, which bars race-based rules for who sits on state boards. The Tennessee Senate passed it 24-6, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 297
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1543970,
+      "measure_id": "HB 601",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to pass HB 601, which opens a late-stage innocence appeal to people who pleaded guilty. The Tennessee Senate passed it 24-6, and it became law.",
+      "nay_description": "Voted against HB 601, which opens a late-stage innocence appeal to people who pleaded guilty. The Tennessee Senate passed it 24-6, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "24-6",
+        "old_sentences": 4,
+        "old_chars": 325
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1543982,
+      "measure_id": "SB 336",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted for the Senate version of Senate Bill 336, which changed the child support condition for restoring voting rights to twelve months of compliance. The Senate passed it 24-8, and a later House rewrite became law.",
+      "nay_description": "Voted against the Senate version of Senate Bill 336, which changed the child support condition for restoring voting rights to twelve months of compliance. The Senate passed it 24-8, and a later House rewrite became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "24-8",
+        "old_sentences": 3,
+        "old_chars": 399
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1556833,
+      "measure_id": "HB 1093",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for House Bill 1093, which raises the penalty for machine gun conversion parts to a Class C felony. The Tennessee Senate passed it 23-8, and it became law.",
+      "nay_description": "Voted against House Bill 1093, which raises the penalty for machine gun conversion parts to a Class C felony. The Tennessee Senate passed it 23-8, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "23-8",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1556877,
+      "measure_id": "HB 773",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to pass HB 773, which requires websites carrying official legal notices to be free to view. The Tennessee Senate passed it 23-8, and it became law.",
+      "nay_description": "Voted against HB 773, which requires websites carrying official legal notices to be free to view. The Tennessee Senate passed it 23-8, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "23-8",
+        "old_sentences": 3,
+        "old_chars": 263
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1556906,
+      "measure_id": "SB 229",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted to adopt the compromise version of SB 229, which charges political campaign committees a $150 yearly fee. The Tennessee Senate adopted it 23-6, and it became law.",
+      "nay_description": "Voted against the compromise version of SB 229, which charges political campaign committees a $150 yearly fee. The Tennessee Senate adopted it 23-6, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Motion to Adopt Conference Committee Report",
+        "tally": "23-6",
+        "old_sentences": 4,
+        "old_chars": 382
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1646824,
+      "measure_id": "HB 618",
+      "vote_date": "2026-02-26",
+      "yea_description": "Voted to pass HB 618, which bars a person from holding two local elected offices at the same time. The Tennessee Senate passed it 21-10, and it became law.",
+      "nay_description": "Voted against HB 618, which bars a person from holding two local elected offices at the same time. The Tennessee Senate passed it 21-10, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "21-10",
+        "old_sentences": 4,
+        "old_chars": 346
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1661451,
+      "measure_id": "SB 2028",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to pass SB 2028, which bars cities and counties from setting rules on how wildlife may be taken. The Tennessee Senate passed it 24-7, and it became law.",
+      "nay_description": "Voted against SB 2028, which bars cities and counties from setting rules on how wildlife may be taken. The Tennessee Senate passed it 24-7, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 253
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1661653,
+      "measure_id": "HB 1194",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to pass HB 1194, which extends the work authorization law to almost every private employer. The Tennessee Senate passed it 19-13, and it became law.",
+      "nay_description": "Voted against HB 1194, which extends the work authorization law to almost every private employer. The Tennessee Senate passed it 19-13, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "19-13",
+        "old_sentences": 4,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1675799,
+      "measure_id": "HB 1971",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass HB 1971, which narrows the law letting people ask a court to declare a government action unlawful to local bodies. The Tennessee Senate passed it 18-13, and it became law.",
+      "nay_description": "Voted against HB 1971, which narrows the law letting people ask a court to declare a government action unlawful to local bodies. The Tennessee Senate passed it 18-13, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "18-13",
+        "old_sentences": 5,
+        "old_chars": 348
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1681414,
+      "measure_id": "HB 754",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted to pass HB 754, which makes gender clinics report every gender transition procedure to the state. The Tennessee Senate passed it 24-7, and it became law.",
+      "nay_description": "Voted against HB 754, which makes gender clinics report every gender transition procedure to the state. The Tennessee Senate passed it 24-7, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 409
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1685056,
+      "measure_id": "SB 1868",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to pass SB 1868, which caps state custody of a child for treatment at six months, extendable once. The Tennessee Senate passed it 22-11, and it became law.",
+      "nay_description": "Voted against SB 1868, which caps state custody of a child for treatment at six months, extendable once. The Tennessee Senate passed it 22-11, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "22-11",
+        "old_sentences": 4,
+        "old_chars": 349
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1686179,
+      "measure_id": "SB 2040",
+      "vote_date": "2026-04-20",
+      "yea_description": "Voted for Senate Bill 2040, which bars an owner from controlling a pharmacy plus both a health insurer and drug-benefit manager from 2028. The Tennessee Senate passed it 24-9, and it became law.",
+      "nay_description": "Voted against Senate Bill 2040, which bars an owner from controlling a pharmacy plus both a health insurer and drug-benefit manager from 2028. The Tennessee Senate passed it 24-9, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: as Amended Third Consideration",
+        "tally": "24-9",
+        "old_sentences": 4,
+        "old_chars": 477
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1688548,
+      "measure_id": "HB 1271",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to pass HB 1271, which requires cities and counties to define sex and gender in their rules by physical traits at birth. The Tennessee Senate passed it 24-6, and it became law.",
+      "nay_description": "Voted against HB 1271, which requires cities and counties to define sex and gender in their rules by physical traits at birth. The Tennessee Senate passed it 24-6, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "24-6",
+        "old_sentences": 3,
+        "old_chars": 261
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1688578,
+      "measure_id": "SB 1915",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted to accept the House's version of Senate Bill 1915, which requires counties and cities to verify every adult benefit applicant is a citizen or legally present. The Senate agreed 24-6 and it became law as Public Chapter 1106.",
+      "nay_description": "Voted against accepting the House's version of Senate Bill 1915, which requires counties and cities to verify every adult benefit applicant is a citizen or legally present. The Senate agreed 24-6 and it became law as Public Chapter 1106.",
+      "_current": {
+        "question": "FLOOR VOTE: Motion to Concur House Amendment # 1",
+        "tally": "24-6",
+        "old_sentences": 9,
+        "old_chars": 869
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1690535,
+      "measure_id": "HB 2219",
+      "vote_date": "2026-04-23",
+      "yea_description": "Voted to pass HB 2219, which requires every county sheriff to sign a federal 287(g) immigration enforcement deal. The Tennessee Senate passed it 24-7, and it became law.",
+      "nay_description": "Voted against HB 2219, which requires every county sheriff to sign a federal 287(g) immigration enforcement deal. The Tennessee Senate passed it 24-7, and it became law.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "24-7",
+        "old_sentences": 4,
+        "old_chars": 374
+      }
+    },
+    {
+      "jurisdiction": "TN",
+      "chamber": "senate",
+      "session": "2161",
+      "roll": 1695421,
+      "measure_id": "HB 7002",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass House Bill 7002, which lets lawmakers redraw congressional districts at any time, not just after a census. The Tennessee Senate passed it 22-8, and it became law as Public Chapter 1.",
+      "nay_description": "Voted against House Bill 7002, which lets lawmakers redraw congressional districts at any time, not just after a census. The Tennessee Senate passed it 22-8, and it became law as Public Chapter 1.",
+      "_current": {
+        "question": "FLOOR VOTE: Third Consideration",
+        "tally": "22-8",
+        "old_sentences": 5,
+        "old_chars": 406
+      }
+    }
+  ]
+}

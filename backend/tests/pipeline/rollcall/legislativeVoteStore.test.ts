@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  applyLegislativeVoteDescriptionRewrite,
   applyLegislativeVoteJudgment,
   assertLegislativeVoteStillApproved,
   loadLegislativeVote,
@@ -335,6 +336,18 @@ describe("applyLegislativeVoteJudgment", () => {
     expect(overridden.query.mock.calls[2]?.[1]?.[4]).toBe("2025-05-23");
   });
 
+  it("refuses approval when a description is a bill digest instead of vote + effect + tally", async () => {
+    const digest =
+      "Voted to pass H.R. 1. It cuts taxes. It raises the debt limit. It changes Medicaid work rules. It passed the House 215-214.";
+    await expect(
+      applyLegislativeVoteJudgment(db(stored), { ...judgment, yeaDescription: digest })
+    ).rejects.toThrow(/yea_description has 5 sentences \(max 3\)/);
+    const runOn = `Voted to pass H.R. 1, which ${"cuts taxes and ".repeat(10)}more. It passed the House 215-214.`;
+    await expect(
+      applyLegislativeVoteJudgment(db(stored), { ...judgment, nayDescription: runOn })
+    ).rejects.toThrow(/nay_description has a \d+-word sentence/);
+  });
+
   it("refuses approval when a description does not cite this roll call's tally", async () => {
     await expect(
       applyLegislativeVoteJudgment(db(stored), {
@@ -540,5 +553,72 @@ describe("applyLegislativeVoteJudgment", () => {
     await expect(
       applyLegislativeVoteJudgment(db({ ...stored, is_floor_vote: null }), { ...judgment, reviewStatus: "pending" })
     ).resolves.toBe("updated");
+  });
+});
+
+describe("applyLegislativeVoteDescriptionRewrite", () => {
+  const rewrite = {
+    jurisdiction: "DE",
+    chamber: "house" as const,
+    session: "2163",
+    rollNumber: 1529458,
+    measureId: "HB 67",
+    voteDate: "2025-03-27",
+    yeaDescription: "Voted for House Bill 67, which caps tow fees. The Delaware House passed it 23-14.",
+    nayDescription: "Voted against House Bill 67, which caps tow fees. The Delaware House passed it 23-14.",
+  };
+  const stored = {
+    id: "row-de",
+    measure_id: "HB 67",
+    vote_date: "2025-03-27",
+    review_status: "approved",
+    yeas: 23,
+    nays: 14,
+    yea_description: "Voted for House Bill 67, long digest. The Delaware House passed it 23-14.",
+    nay_description: "Voted against House Bill 67, long digest. The Delaware House passed it 23-14.",
+  };
+  function db(row: Record<string, unknown> | null) {
+    return { query: vi.fn().mockResolvedValueOnce({ rows: row ? [row] : [] }).mockResolvedValue({ rows: [], rowCount: 1 }) };
+  }
+
+  it("updates only the two sentences and reports the old text", async () => {
+    const client = db(stored);
+    await expect(applyLegislativeVoteDescriptionRewrite(client, rewrite)).resolves.toEqual({
+      outcome: "updated",
+      id: "row-de",
+      oldYeaDescription: stored.yea_description,
+      oldNayDescription: stored.nay_description,
+    });
+    // select FOR UPDATE, the pass through pending (freeze trigger), the re-approving write.
+    expect(client.query).toHaveBeenCalledTimes(3);
+    expect(client.query.mock.calls[1]![0]).toMatch(/SET review_status = 'pending',\s+reviewed_at = NULL/);
+    const [sql, params] = client.query.mock.calls[2]! as [string, unknown[]];
+    expect(sql).toMatch(/SET yea_description = \$2,\s+nay_description = \$3,\s+review_status = 'approved',\s+reviewed_at = now\(\)/);
+    expect(sql).not.toMatch(/labels_json|official_vote_date/);
+    expect(params).toEqual(["row-de", rewrite.yeaDescription, rewrite.nayDescription]);
+  });
+
+  it("is a no-op when the text already matches", async () => {
+    const same = db({ ...stored, yea_description: rewrite.yeaDescription, nay_description: rewrite.nayDescription });
+    await expect(applyLegislativeVoteDescriptionRewrite(same, rewrite)).resolves.toMatchObject({ outcome: "unchanged" });
+    expect(same.query).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a pending row, a wrong measure or date, a missing tally, and a digest", async () => {
+    await expect(applyLegislativeVoteDescriptionRewrite(db({ ...stored, review_status: "pending" }), rewrite)).rejects.toThrow(
+      /is pending; rollcall:rewrite only rewords approved/
+    );
+    await expect(applyLegislativeVoteDescriptionRewrite(db(stored), { ...rewrite, measureId: "HB 68" })).rejects.toThrow(/is HB 67 on 2025-03-27/);
+    await expect(applyLegislativeVoteDescriptionRewrite(db(stored), { ...rewrite, voteDate: "2025-03-28" })).rejects.toThrow(/is HB 67 on 2025-03-27/);
+    await expect(
+      applyLegislativeVoteDescriptionRewrite(db(stored), { ...rewrite, yeaDescription: "Voted for House Bill 67. It passed 24-14." })
+    ).rejects.toThrow(/yea_description does not cite this roll call's tally 23-14/);
+    await expect(
+      applyLegislativeVoteDescriptionRewrite(db(stored), {
+        ...rewrite,
+        nayDescription: "Voted against House Bill 67. It caps fees. It posts signs. It photographs cars. It passed 23-14.",
+      })
+    ).rejects.toThrow(/nay_description has 5 sentences/);
+    await expect(applyLegislativeVoteDescriptionRewrite(db(null), rewrite)).rejects.toThrow(/is not in legislative_votes/);
   });
 });
