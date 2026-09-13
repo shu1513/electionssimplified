@@ -409,8 +409,12 @@ async function runBuildMap(db: Queryable, argv: readonly string[]): Promise<void
   console.log(JSON.stringify({ built, skipped, mapped: map.size, mapPath: MAP_PATH }, null, 2));
 }
 
-export type CoverageStage = ManualResearchDemandStage | "election_discovery";
-export const COVERAGE_STAGES: readonly CoverageStage[] = ["election_discovery", ...MANUAL_RESEARCH_DEMAND_STAGES];
+export type CoverageStage = ManualResearchDemandStage | "election_discovery" | "roster_deferral_due";
+export const COVERAGE_STAGES: readonly CoverageStage[] = [
+  "election_discovery",
+  "roster_deferral_due",
+  ...MANUAL_RESEARCH_DEMAND_STAGES,
+];
 
 type DbDistrict = {
   id: string;
@@ -477,6 +481,39 @@ async function loadOpenElectionsDeferrals(db: Queryable, asOfDate: string): Prom
   return new Set(result.rows.map((row) => row.district_id));
 }
 
+type DueRosterDeferral = {
+  id: string;
+  district_id: string;
+  election_id: string | null;
+  blocked_until: string;
+  reason: string;
+  label: string;
+  election_date: string | null;
+};
+
+// A roster deferral past its date is a "candidate list not final" that can
+// now be retried. The roster gap query only surfaces it when the election
+// has zero candidate links; a partial roster keeps the row hidden there.
+async function loadDueRosterDeferrals(db: Queryable, asOfDate: string, districtIds: string[]): Promise<DueRosterDeferral[]> {
+  const result = await db.query<DueRosterDeferral>(
+    `
+      SELECT m.id::text AS id, m.district_id::text AS district_id, m.election_id::text AS election_id,
+        m.blocked_until::text AS blocked_until, m.reason,
+        COALESCE(e.official_ballot_title, m.district_name_snapshot) AS label,
+        e.election_date::text AS election_date
+      FROM public.manual_research_deferrals AS m
+      LEFT JOIN public.elections AS e ON e.id = m.election_id
+      WHERE m.status = 'deferred'
+        AND m.stage = 'candidate_roster'
+        AND m.blocked_until <= $1::date
+        AND m.district_id = ANY($2::uuid[])
+      ORDER BY m.blocked_until ASC
+    `,
+    [asOfDate, districtIds]
+  );
+  return result.rows;
+}
+
 function bump(counts: Partial<Record<CoverageStage, number>>, stage: CoverageStage): void {
   counts[stage] = (counts[stage] ?? 0) + 1;
 }
@@ -523,6 +560,7 @@ export async function buildCoverageReport(
     asOfDate: input.asOfDate,
     horizonDays: input.horizonDays,
   });
+  const dueRosterDeferrals = await loadDueRosterDeferrals(db, input.asOfDate, districtIds);
 
   const staleCutoff = new Date(input.asOfDate);
   staleCutoff.setDate(staleCutoff.getDate() - 180);
@@ -632,6 +670,19 @@ export async function buildCoverageReport(
   for (const gap of ledgerGaps) {
     const { district_id, ...unit } = gap;
     attach(unit, districtsByCandidate.get(gap.target_id) ?? [district_id]);
+  }
+  for (const deferral of dueRosterDeferrals) {
+    attach(
+      {
+        stage: "roster_deferral_due",
+        target_id: deferral.id,
+        election_id: deferral.election_id,
+        state: dbById.get(deferral.district_id)?.state ?? "",
+        label: `${deferral.label} — deferred until ${deferral.blocked_until}: ${deferral.reason}`,
+        election_date: deferral.election_date,
+      },
+      [deferral.district_id]
+    );
   }
 
   const totalsByStage: Partial<Record<CoverageStage, number>> = {};
