@@ -1,0 +1,68 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1567547,
+      "measure_id": "H 3276",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 3276, the Hands-Free and Distracted Driving Act, which bars drivers from holding a phone. The South Carolina House voted 77-37 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 3276, the Hands-Free and Distracted Driving Act, which bars drivers from holding a phone. The South Carolina House voted 77-37 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "77-37",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1659394,
+      "measure_id": "H 4216",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 4216, an income tax cut: 1.99 percent on the first $30,000, 5.21 percent above. The South Carolina House voted 71-49 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 4216, an income tax cut: 1.99 percent on the first $30,000, 5.21 percent above. The South Carolina House voted 71-49 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "71-49",
+        "old_sentences": 2,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1683203,
+      "measure_id": "H 4756",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to agree to the Senate's changes to House Bill 4756, the Student Physical Privacy Act, separating school restrooms and locker rooms by birth sex. The South Carolina House voted 77-31 to accept the Senate's version, and the act became law.",
+      "nay_description": "Voted against agreeing to the Senate's changes to House Bill 4756, the Student Physical Privacy Act, separating school restrooms and locker rooms by birth sex. The South Carolina House voted 77-31 to accept the Senate's version, and the act became law.",
+      "_current": {
+        "question": "House: Concur In Senate Amendments",
+        "tally": "77-31",
+        "old_sentences": 2,
+        "old_chars": 268
+      }
+    },
+    {
+      "jurisdiction": "SC",
+      "chamber": "house",
+      "session": "2194",
+      "roll": 1698173,
+      "measure_id": "S 508",
+      "vote_date": "2026-05-14",
+      "yea_description": "Voted to adopt the conference report on Senate Bill 508, which widened which monuments and memorials may not be moved without the General Assembly's approval. The South Carolina House adopted the report 79-28, and it became law as Act 224.",
+      "nay_description": "Voted against the conference report on Senate Bill 508, which widened which monuments and memorials may not be moved without the General Assembly's approval. The South Carolina House adopted the report 79-28, and it became law as Act 224.",
+      "_current": {
+        "question": "House: Adopt Conference Report",
+        "tally": "79-28",
+        "old_sentences": 2,
+        "old_chars": 242
+      }
+    }
+  ]
+}

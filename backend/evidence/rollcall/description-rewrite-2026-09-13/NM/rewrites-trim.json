@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "1731",
+      "roll": 923369,
+      "measure_id": "SB 5",
+      "vote_date": "2020-02-13",
+      "yea_description": "Voted for Senate Bill 5, the Extreme Risk Firearm Protection Order Act, a red flag law letting courts take guns from a dangerous person. The New Mexico House passed it 39-31, and it became law.",
+      "nay_description": "Voted against Senate Bill 5, the Extreme Risk Firearm Protection Order Act, a red flag law letting courts take guns from a dangerous person. The New Mexico House passed it 39-31, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "39-31",
+        "old_sentences": 2,
+        "old_chars": 200
+      }
+    }
+  ]
+}

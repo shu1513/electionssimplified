@@ -1,0 +1,2 @@
+TRIMP = {"which charges buyers of a mobile home park": "which charges mobile home park buyers $10,000 per lot for a new state fund"}
+ROLL = {1594835: {"yea": "Voted yes to accept the Senate's version of LD 1126, a gun bill barring guns with no serial number and requiring background checks for frames. The Maine House agreed 73-67, and it became law without the governor's signature in January 2026."}}

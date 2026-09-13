@@ -1,0 +1,52 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1587988,
+      "measure_id": "LD 1016",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted to accept the committee's ought-to-pass report on LD 1016, which charges mobile home park buyers $10,000 per lot for a new state fund. The report was accepted 75-65 and the bill became law as Public Law Chapter 398.",
+      "nay_description": "Voted against accepting the committee's ought-to-pass report on LD 1016, which charges mobile home park buyers $10,000 per lot for a new state fund. The report was accepted 75-65 and the bill became law as Public Law Chapter 398.",
+      "_current": {
+        "question": "Acc Maj Otp As Amended Rep RC #425",
+        "tally": "75-65",
+        "old_sentences": 2,
+        "old_chars": 226
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "house",
+      "session": "2181",
+      "roll": 1594835,
+      "measure_id": "LD 1126",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted yes to accept the Senate's version of LD 1126, a gun bill barring guns with no serial number and requiring background checks for frames. The Maine House agreed 73-67, and it became law without the governor's signature in January 2026.",
+      "nay_description": "Voted no on accepting the Senate's version of LD 1126, a gun bill barring guns with no serial number and requiring background checks for frames. The Maine House agreed 73-67, and it became law without the governor's signature in January 2026.",
+      "_current": {
+        "question": "Recede And Concur RC #595",
+        "tally": "73-67",
+        "old_sentences": 2,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "ME",
+      "chamber": "senate",
+      "session": "2181",
+      "roll": 1588941,
+      "measure_id": "LD 1016",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted to accept the House's final version of LD 1016, which charges mobile home park buyers $10,000 per lot for a new state fund. The Senate agreed 18-15, and the governor signed it as Public Law Chapter 398.",
+      "nay_description": "Voted against accepting the House's final version of LD 1016, which charges mobile home park buyers $10,000 per lot for a new state fund. The Senate agreed 18-15, and the governor signed it as Public Law Chapter 398.",
+      "_current": {
+        "question": "Recede And Concur RC #461",
+        "tally": "18-15",
+        "old_sentences": 2,
+        "old_chars": 213
+      }
+    }
+  ]
+}

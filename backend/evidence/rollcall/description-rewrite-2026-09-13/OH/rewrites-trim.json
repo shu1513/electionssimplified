@@ -1,0 +1,68 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "OH",
+      "chamber": "house",
+      "session": "136",
+      "roll": 1763637329,
+      "measure_id": "SB 56",
+      "vote_date": "2025-11-19",
+      "yea_description": "Voted yes on the final compromise version of Senate Bill 56, Ohio's marijuana rewrite, capping dispensaries at 400 and moving adult-use rules into medical law. The House agreed to the conference report 52-34, and it became law.",
+      "nay_description": "Voted no on the final compromise version of Senate Bill 56, Ohio's marijuana rewrite, capping dispensaries at 400 and moving adult-use rules into medical law. The House agreed to the conference report 52-34, and it became law.",
+      "_current": {
+        "question": "Conference report agreed to",
+        "tally": "52-34",
+        "old_sentences": 2,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1743028529,
+      "measure_id": "SB 1",
+      "vote_date": "2025-03-26",
+      "yea_description": "Voted to accept the House's changes to Senate Bill 1, the Advance Ohio Higher Education Act, banning diversity offices at public universities and faculty strikes. The Ohio Senate agreed 20-11, and the governor signed it on March 28, 2025.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 1, the Advance Ohio Higher Education Act, banning diversity offices at public universities and faculty strikes. The Ohio Senate agreed 20-11, and the governor signed it on March 28, 2025.",
+      "_current": {
+        "question": "Concurred in House amendments",
+        "tally": "20-11",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1765324310,
+      "measure_id": "SB 56",
+      "vote_date": "2025-12-09",
+      "yea_description": "Voted to agree to the conference report on S.B. 56, Ohio's marijuana rewrite, capping dispensaries at 400 and moving adult-use rules into medical law. It passed the Ohio Senate 22-7 and was signed into law.",
+      "nay_description": "Voted against the conference report on S.B. 56, Ohio's marijuana rewrite, capping dispensaries at 400 and moving adult-use rules into medical law. It passed the Ohio Senate 22-7 and was signed into law.",
+      "_current": {
+        "question": "Conference report agreed to",
+        "tally": "22-7",
+        "old_sentences": 2,
+        "old_chars": 218
+      }
+    },
+    {
+      "jurisdiction": "OH",
+      "chamber": "senate",
+      "session": "136",
+      "roll": 1776292440,
+      "measure_id": "SB 278",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted to pass S.B. 278, which added punitive damages to what a city that enacts or enforces gun control measures can owe. It passed the Ohio Senate 24-9.",
+      "nay_description": "Voted against passing S.B. 278, which added punitive damages to what a city that enacts or enforces gun control measures can owe. It passed the Ohio Senate 24-9.",
+      "_current": {
+        "question": "Passed",
+        "tally": "24-9",
+        "old_sentences": 2,
+        "old_chars": 211
+      }
+    }
+  ]
+}

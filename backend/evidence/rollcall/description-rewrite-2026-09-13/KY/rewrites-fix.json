@@ -1,0 +1,100 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1674562,
+      "measure_id": "SB 183",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 183, which makes proxy advisers write an economic analysis or warn clients before recommending a vote against a company's board. The Kentucky House voted 76-15, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which makes proxy advisers write an economic analysis or warn clients before recommending a vote against a company's board. The Kentucky House voted 76-15, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 388",
+        "tally": "76-15",
+        "old_sentences": 2,
+        "old_chars": 228
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "house",
+      "session": "2247",
+      "roll": 1682939,
+      "measure_id": "SB 65",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 65, which cancels several agency rules lawmakers found deficient and bars rewriting them until June 2027. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels several agency rules lawmakers found deficient and bars rewriting them until June 2027. The Kentucky House voted 79-19, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "House: Veto Override RCS# 478",
+        "tally": "79-19",
+        "old_sentences": 2,
+        "old_chars": 199
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2179",
+      "roll": 1517666,
+      "measure_id": "SB 100",
+      "vote_date": "2025-03-13",
+      "yea_description": "Voted for Senate Bill 100, which requires every store selling tobacco, nicotine or vaping products to hold a $500 yearly state license. The Kentucky Senate voted 32-6, and the bill became law.",
+      "nay_description": "Voted against Senate Bill 100, which requires every store selling tobacco, nicotine or vaping products to hold a $500 yearly state license. The Kentucky Senate voted 32-6, and the bill became law.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 3519",
+        "tally": "32-6",
+        "old_sentences": 2,
+        "old_chars": 182
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1671561,
+      "measure_id": "HB 398",
+      "vote_date": "2026-03-26",
+      "yea_description": "Voted for House Bill 398, which confirms regulators may let a utility charge customers for a power plant's shutdown costs before its retirement is approved. The Kentucky Senate voted 30-6, and the bill became law without the Governor's signature.",
+      "nay_description": "Voted against House Bill 398, which confirms regulators may let a utility charge customers for a power plant's shutdown costs before its retirement is approved. The Kentucky Senate voted 30-6, and the bill became law without the Governor's signature.",
+      "_current": {
+        "question": "Senate: Third Reading RSN# 4026",
+        "tally": "30-6",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1674561,
+      "measure_id": "SB 183",
+      "vote_date": "2026-03-31",
+      "yea_description": "Voted for Senate Bill 183, which makes proxy advisers write an economic analysis or warn clients before recommending a vote against a company's board. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 183, which makes proxy advisers write an economic analysis or warn clients before recommending a vote against a company's board. The Kentucky Senate voted 31-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4038",
+        "tally": "31-6",
+        "old_sentences": 2,
+        "old_chars": 228
+      }
+    },
+    {
+      "jurisdiction": "KY",
+      "chamber": "senate",
+      "session": "2247",
+      "roll": 1682938,
+      "measure_id": "SB 65",
+      "vote_date": "2026-04-14",
+      "yea_description": "Voted for Senate Bill 65, which cancels several agency rules lawmakers found deficient and bars rewriting them until June 2027. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "nay_description": "Voted against Senate Bill 65, which cancels several agency rules lawmakers found deficient and bars rewriting them until June 2027. The Kentucky Senate voted 32-6, and the bill became law over the Governor's veto.",
+      "_current": {
+        "question": "Senate: Veto Override RSN# 4148",
+        "tally": "32-6",
+        "old_sentences": 2,
+        "old_chars": 199
+      }
+    }
+  ]
+}

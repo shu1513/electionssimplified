@@ -42,6 +42,6 @@ describe("describeRollCallDescriptionLengthProblem", () => {
 
   it("names a run-on sentence", () => {
     const runOn = `Voted to pass House Bill 67, which ${"caps fees and ".repeat(9)}more. It passed 23-14.`;
-    expect(describeRollCallDescriptionLengthProblem(runOn)).toMatch(/-word sentence \(max 30 words per sentence\)/);
+    expect(describeRollCallDescriptionLengthProblem(runOn)).toMatch(/-word sentence \(max 25 words per sentence\)/);
   });
 });

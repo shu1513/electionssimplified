@@ -1,0 +1,52 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "MI",
+      "chamber": "house",
+      "session": "2183",
+      "roll": 1712639,
+      "measure_id": "HB 5937",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for House Bill 5937, a bill to cut the state's time to say whether a permit application is complete from 30 days to 7. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "nay_description": "Voted against House Bill 5937, a bill to cut the state's time to say whether a permit application is complete from 30 days to 7. The House passed it 58-49. The Senate has not voted on it, so it is not law.",
+      "_current": {
+        "question": "House Third Reading: Given Immediate Effect Roll Call #260",
+        "tally": "58-49",
+        "old_sentences": 3,
+        "old_chars": 207
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1579628,
+      "measure_id": "SB 78",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for Senate Bill 78, a bill to let people convicted of felonies before 18 ask a court to set them aside after 15 years. The Senate passed it 23-11. The House has not voted on it, so it is not law.",
+      "nay_description": "Voted against Senate Bill 78, a bill to let people convicted of felonies before 18 ask a court to set them aside after 15 years. The Senate passed it 23-11. The House has not voted on it, so it is not law.",
+      "_current": {
+        "question": "Senate Third Reading: Passed Roll Call # 139",
+        "tally": "23-11",
+        "old_sentences": 3,
+        "old_chars": 205
+      }
+    },
+    {
+      "jurisdiction": "MI",
+      "chamber": "senate",
+      "session": "2183",
+      "roll": 1603641,
+      "measure_id": "HB 4183",
+      "vote_date": "2025-10-03",
+      "yea_description": "Voted for House Bill 4183, which raises the state fuel tax from 31 cents a gallon to at least 51 cents from 2026 for roads. The Senate passed it 24-12 and it became law.",
+      "nay_description": "Voted against House Bill 4183, which raises the state fuel tax from 31 cents a gallon to at least 51 cents from 2026 for roads. The Senate passed it 24-12 and it became law.",
+      "_current": {
+        "question": "Senate Third Reading: Given Immediate Effect Roll Call # 272",
+        "tally": "24-12",
+        "old_sentences": 2,
+        "old_chars": 175
+      }
+    }
+  ]
+}

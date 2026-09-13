@@ -1,0 +1,1444 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1480808,
+      "measure_id": "HB 77",
+      "vote_date": "2025-02-05",
+      "yea_description": "Voted for House Bill 77, a bill making every food business post allergen information for staff and tell customers which allergens menu items contain. The Pennsylvania House passed it 150-52. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 77, a bill making every food business post allergen information for staff and tell customers which allergens menu items contain. The Pennsylvania House passed it 150-52. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 77 PN 29, FINAL PASSAGE",
+        "tally": "150-52",
+        "old_sentences": 3,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1524694,
+      "measure_id": "HB 118",
+      "vote_date": "2025-03-24",
+      "yea_description": "Voted for House Bill 118, a bill doubling criminal fines for breaking the child labor law, to $1,000 for a first violation and $3,000 after. The Pennsylvania House passed it 117-85. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 118, a bill doubling criminal fines for breaking the child labor law, to $1,000 for a first violation and $3,000 after. The Pennsylvania House passed it 117-85. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 118 PN 100, FINAL PASSAGE",
+        "tally": "117-85",
+        "old_sentences": 3,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1525888,
+      "measure_id": "HB 535",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House Bill 535, a bill barring insurers from capping yearly or lifetime payouts for core benefits if the federal protection is repealed. The Pennsylvania House passed it 121-81. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 535, a bill barring insurers from capping yearly or lifetime payouts for core benefits if the federal protection is repealed. The Pennsylvania House passed it 121-81. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 535 PN 528, FINAL PASSAGE",
+        "tally": "121-81",
+        "old_sentences": 3,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1526102,
+      "measure_id": "HB 618",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted for House Bill 618, a bill barring insurers from denying coverage or charging more for a pre-existing condition if the federal protection is repealed. The Pennsylvania House passed it 125-77. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 618, a bill barring insurers from denying coverage or charging more for a pre-existing condition if the federal protection is repealed. The Pennsylvania House passed it 125-77. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 618 PN 618, FINAL PASSAGE",
+        "tally": "125-77",
+        "old_sentences": 3,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1541711,
+      "measure_id": "HB 308",
+      "vote_date": "2025-04-09",
+      "yea_description": "Voted for House Bill 308, a bill making the state write workplace safety standards for public employers, matching what federal law asks of private ones. The Pennsylvania House passed it 111-92. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 308, a bill making the state write workplace safety standards for public employers, matching what federal law asks of private ones. The Pennsylvania House passed it 111-92. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 308 PN 1303, FINAL PASSAGE",
+        "tally": "111-92",
+        "old_sentences": 3,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1553637,
+      "measure_id": "HB 316",
+      "vote_date": "2025-04-22",
+      "yea_description": "Voted for House Bill 316, a bill letting a town deny permits to a company with unpaid taxes, unpaid bills or serious code violations. The Pennsylvania House passed it 114-89. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 316, a bill letting a town deny permits to a company with unpaid taxes, unpaid bills or serious code violations. The Pennsylvania House passed it 114-89. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 316 PN 982, FINAL PASSAGE",
+        "tally": "114-89",
+        "old_sentences": 3,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1555171,
+      "measure_id": "HB 273",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for House Bill 273, a bill letting counties adopt and enforce property maintenance codes, with state grants of up to $100,000 per town. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 273, a bill letting counties adopt and enforce property maintenance codes, with state grants of up to $100,000 per town. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 273 PN 981, FINAL PASSAGE",
+        "tally": "110-93",
+        "old_sentences": 3,
+        "old_chars": 262
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1555383,
+      "measure_id": "HB 743",
+      "vote_date": "2025-04-23",
+      "yea_description": "Voted for House Bill 743, a bill letting a town hand a long-abandoned, blighted property to a land bank that returns vacant property to use. The Pennsylvania House passed it 115-88. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 743, a bill letting a town hand a long-abandoned, blighted property to a land bank that returns vacant property to use. The Pennsylvania House passed it 115-88. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 743 PN 766, FINAL PASSAGE",
+        "tally": "115-88",
+        "old_sentences": 3,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1556945,
+      "measure_id": "HB 643",
+      "vote_date": "2025-04-24",
+      "yea_description": "Voted for House Bill 643, a bill raising the realty transfer tax share for the state housing affordability fund to $110 million a year. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 643, a bill raising the realty transfer tax share for the state housing affordability fund to $110 million a year. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 643 PN 619, FINAL PASSAGE",
+        "tally": "112-91",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1564857,
+      "measure_id": "HB 630",
+      "vote_date": "2025-05-05",
+      "yea_description": "Voted for House Bill 630, a bill extending the equal pay law to race and ethnicity and protecting workers who discuss pay. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 630, a bill extending the equal pay law to race and ethnicity and protecting workers who discuss pay. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 630 PN 767, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1566376,
+      "measure_id": "HB 926",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for House Bill 926, a bill making every hospital, nursing home and other health care site run a program to prevent violence against staff. The Pennsylvania House passed it 124-79. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 926, a bill making every hospital, nursing home and other health care site run a program to prevent violence against staff. The Pennsylvania House passed it 124-79. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 926 PN 1597, FINAL PASSAGE",
+        "tally": "124-79",
+        "old_sentences": 3,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1567516,
+      "measure_id": "HB 504",
+      "vote_date": "2025-05-07",
+      "yea_description": "Voted for House Bill 504, a bill allowing community solar projects, letting people subscribe to a shared site and get credit on their electric bill. The Pennsylvania House passed it 114-89. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 504, a bill allowing community solar projects, letting people subscribe to a shared site and get credit on their electric bill. The Pennsylvania House passed it 114-89. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 504 PN 1628, FINAL PASSAGE",
+        "tally": "114-89",
+        "old_sentences": 3,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1569645,
+      "measure_id": "HB 1062",
+      "vote_date": "2025-05-12",
+      "yea_description": "Voted for House Bill 1062, a bill creating a public registry of owners with serious property code violations left unfixed for a year. The Pennsylvania House passed it 125-78. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1062, a bill creating a public registry of owners with serious property code violations left unfixed for a year. The Pennsylvania House passed it 125-78. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1062 PN 1657, FINAL PASSAGE",
+        "tally": "125-78",
+        "old_sentences": 3,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1570505,
+      "measure_id": "HB 1263",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 1263, a bill creating Keystone Saves, automatically enrolling workers with no retirement plan at work in a state-run savings account. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1263, a bill creating Keystone Saves, automatically enrolling workers with no retirement plan at work in a state-run savings account. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1263 PN 1623, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1570575,
+      "measure_id": "HB 1396",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted for House Bill 1396, an election code rewrite creating in-person early voting and requiring at least two ballot drop boxes in every county. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1396, an election code rewrite creating in-person early voting and requiring at least two ballot drop boxes in every county. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1396 PN 1688, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1571369,
+      "measure_id": "HB 359",
+      "vote_date": "2025-05-14",
+      "yea_description": "Voted for House Bill 359, a bill letting towns spend some tax increment financing money on keeping current residents from being pushed out. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 359, a bill letting towns spend some tax increment financing money on keeping current residents from being pushed out. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 359 PN 1582, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1583926,
+      "measure_id": "HB 1140",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted for House Bill 1140, a bill making insurers, Medicaid and the children's health plan cover birth control and sterilization at no cost. The Pennsylvania House passed it 116-87. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1140, a bill making insurers, Medicaid and the children's health plan cover birth control and sterilization at no cost. The Pennsylvania House passed it 116-87. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1140 PN 1449, FINAL PASSAGE",
+        "tally": "116-87",
+        "old_sentences": 3,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1583943,
+      "measure_id": "HB 858",
+      "vote_date": "2025-06-03",
+      "yea_description": "Voted for House Bill 858, which makes every county keep a contact list for absentee-owned property so code violations reach someone who can fix them. The Pennsylvania House passed it 132-71 and it became law.",
+      "nay_description": "Voted against House Bill 858, which makes every county keep a contact list for absentee-owned property so code violations reach someone who can fix them. The Pennsylvania House passed it 132-71 and it became law.",
+      "_current": {
+        "question": "House Floor: HB 858 PN 1806, FINAL PASSAGE",
+        "tally": "132-71",
+        "old_sentences": 2,
+        "old_chars": 222
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1584783,
+      "measure_id": "HB 1089",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted for House Bill 1089, a bill banning driveway and parking lot sealants high in PAH chemicals, with fines of up to $2,500 per violation. The Pennsylvania House passed it 102-100. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1089, a bill banning driveway and parking lot sealants high in PAH chemicals, with fines of up to $2,500 per violation. The Pennsylvania House passed it 102-100. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1089 PN 1206, FINAL PASSAGE",
+        "tally": "102-100",
+        "old_sentences": 3,
+        "old_chars": 231
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1586753,
+      "measure_id": "HB 462",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for House Bill 462, a bill opening a two-year window for adults abused as children to sue even though the normal deadline has passed. The Pennsylvania House passed it 122-80. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 462, a bill opening a two-year window for adults abused as children to sue even though the normal deadline has passed. The Pennsylvania House passed it 122-80. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 462 PN 445, FINAL PASSAGE",
+        "tally": "122-80",
+        "old_sentences": 3,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1586755,
+      "measure_id": "HB 846",
+      "vote_date": "2025-06-09",
+      "yea_description": "Voted for House Bill 846, a bill extending the prevailing wage law to HVAC duct cleaning and off-site custom work and banning split pay rates. The Pennsylvania House passed it 126-76. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 846, a bill extending the prevailing wage law to HVAC duct cleaning and off-site custom work and banning split pay rates. The Pennsylvania House passed it 126-76. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 846 PN 876, FINAL PASSAGE",
+        "tally": "126-76",
+        "old_sentences": 3,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1587567,
+      "measure_id": "HB 1189",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for House Bill 1189, a bill letting the treasurer return unclaimed property under $10,000 to its owner without a claim. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not taken a final vote.",
+      "nay_description": "Voted against House Bill 1189, a bill letting the treasurer return unclaimed property under $10,000 to its owner without a claim. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not taken a final vote.",
+      "_current": {
+        "question": "House Floor: HB 1189 PN 1870, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 263
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1587693,
+      "measure_id": "HB 1250",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for House Bill 1250, a bill capping yearly lot rent increases in manufactured home communities at the inflation rate, between 2% and 4%. The Pennsylvania House passed it 144-59. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1250, a bill capping yearly lot rent increases in manufactured home communities at the inflation rate, between 2% and 4%. The Pennsylvania House passed it 144-59. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1250 PN 1379, FINAL PASSAGE",
+        "tally": "144-59",
+        "old_sentences": 3,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1587838,
+      "measure_id": "HB 1088",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for House Bill 1088, a bill making health insurers cover a blood pressure monitor for pregnant and postpartum patients when a doctor orders one. The Pennsylvania House passed it 143-60. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1088, a bill making health insurers cover a blood pressure monitor for pregnant and postpartum patients when a doctor orders one. The Pennsylvania House passed it 143-60. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1088 PN 1205, FINAL PASSAGE",
+        "tally": "143-60",
+        "old_sentences": 3,
+        "old_chars": 242
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1588746,
+      "measure_id": "HB 276",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for House Bill 276, a bill letting the revenue department share tax data with labor offices investigating employers who misclassify workers as contractors. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 276, a bill letting the revenue department share tax data with labor offices investigating employers who misclassify workers as contractors. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 276 PN 220, FINAL PASSAGE",
+        "tally": "108-95",
+        "old_sentences": 3,
+        "old_chars": 257
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1588926,
+      "measure_id": "HB 1549",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for House Bill 1549, a bill raising the minimum wage from $7.25 to $12 to $15 an hour by 2028, depending on the county. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1549, a bill raising the minimum wage from $7.25 to $12 to $15 an hour by 2028, depending on the county. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1549 PN 1881, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 218
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1591460,
+      "measure_id": "HB 1364",
+      "vote_date": "2025-06-17",
+      "yea_description": "Voted for House Bill 1364, a bill raising the transit share of state sales tax from 4.4% to 7.9%, plus $500 million for roads. The Pennsylvania House passed it 107-96. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1364, a bill raising the transit share of state sales tax from 4.4% to 7.9%, plus $500 million for roads. The Pennsylvania House passed it 107-96. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1364 PN 1912, FINAL PASSAGE",
+        "tally": "107-96",
+        "old_sentences": 3,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1593902,
+      "measure_id": "HB 350",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 350, a bill setting one rule for who counts as a child's legal parent, whatever the parents' marital status or gender. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 350, a bill setting one rule for who counts as a child's legal parent, whatever the parents' marital status or gender. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 350 PN 1937, FINAL PASSAGE",
+        "tally": "112-91",
+        "old_sentences": 3,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1593910,
+      "measure_id": "HB 1095",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 1095, a bill hiding old eviction filings from public court records after seven years, or right away if the tenant won. The Pennsylvania House passed it 105-98. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1095, a bill hiding old eviction filings from public court records after seven years, or right away if the tenant won. The Pennsylvania House passed it 105-98. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1095 PN 1948, FINAL PASSAGE",
+        "tally": "105-98",
+        "old_sentences": 3,
+        "old_chars": 231
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1593914,
+      "measure_id": "HB 1216",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 1216, a bill making event tickets, hotel rooms and food delivery show the full price with all mandatory fees up front. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1216, a bill making event tickets, hotel rooms and food delivery show the full price with all mandatory fees up front. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1216 PN 1949, FINAL PASSAGE",
+        "tally": "108-95",
+        "old_sentences": 3,
+        "old_chars": 232
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1593967,
+      "measure_id": "HB 1048",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 1048, a bill letting towns use public money and crews to fix private water and sewer lines to protect public health. The Pennsylvania House passed it 113-90. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1048, a bill letting towns use public money and crews to fix private water and sewer lines to protect public health. The Pennsylvania House passed it 113-90. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1048 PN 1651, FINAL PASSAGE",
+        "tally": "113-90",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1593979,
+      "measure_id": "HB 205",
+      "vote_date": "2025-06-23",
+      "yea_description": "Voted for House Bill 205, a bill freeing drivers from lease early-termination penalties when the state pulls their license for medical reasons. The Pennsylvania House passed it 132-71. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 205, a bill freeing drivers from lease early-termination penalties when the state pulls their license for medical reasons. The Pennsylvania House passed it 132-71. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 205 PN 1868, FINAL PASSAGE",
+        "tally": "132-71",
+        "old_sentences": 3,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1594981,
+      "measure_id": "HB 1534",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for House Bill 1534, a bill expanding the child and dependent care tax credit, including for taxpayers using a dependent care program at work. The Pennsylvania House passed it 128-75. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1534, a bill expanding the child and dependent care tax credit, including for taxpayers using a dependent care program at work. The Pennsylvania House passed it 128-75. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1534 PN 1879, FINAL PASSAGE",
+        "tally": "128-75",
+        "old_sentences": 3,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1594990,
+      "measure_id": "HB 1445",
+      "vote_date": "2025-06-25",
+      "yea_description": "Voted for House Bill 1445, a bill stopping insurers refusing mental health care or speech therapy coverage just because a student got it at school. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1445, a bill stopping insurers refusing mental health care or speech therapy coverage just because a student got it at school. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1445 PN 1897, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1595333,
+      "measure_id": "HB 1100",
+      "vote_date": "2025-06-26",
+      "yea_description": "Voted for House Bill 1100, a bill seeking federal permission for food stamp and WIC recipients to buy diapers and period products with their benefits. The Pennsylvania House passed it 138-64. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1100, a bill seeking federal permission for food stamp and WIC recipients to buy diapers and period products with their benefits. The Pennsylvania House passed it 138-64. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1100 PN 1176, FINAL PASSAGE",
+        "tally": "138-64",
+        "old_sentences": 3,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1596503,
+      "measure_id": "HB 1553",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for House Bill 1553, a bill capping bank overdraft and insufficient funds fees at $15 and limiting them to three a day. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1553, a bill capping bank overdraft and insufficient funds fees at $15 and limiting them to three a day. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1553 PN 1835, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1596825,
+      "measure_id": "SB 95",
+      "vote_date": "2025-06-30",
+      "yea_description": "Voted for Senate Bill 95, which makes pharmacists tell customers a drug's price on request and lets ambulance crews hand naloxone to family or friends. The Pennsylvania House passed it 126-77 and it became law.",
+      "nay_description": "Voted against Senate Bill 95, which makes pharmacists tell customers a drug's price on request and lets ambulance crews hand naloxone to family or friends. The Pennsylvania House passed it 126-77 and it became law.",
+      "_current": {
+        "question": "House Floor: SB 95 PN 1019, FINAL PASSAGE",
+        "tally": "126-77",
+        "old_sentences": 2,
+        "old_chars": 218
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1597017,
+      "measure_id": "HB 1234",
+      "vote_date": "2025-07-01",
+      "yea_description": "Voted for House Bill 1234, a bill making Medicaid and the children's health plan cover a home blood pressure monitor for pregnant and postpartum patients. The Pennsylvania House passed it 147-55. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1234, a bill making Medicaid and the children's health plan cover a home blood pressure monitor for pregnant and postpartum patients. The Pennsylvania House passed it 147-55. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1234 PN 2054, FINAL PASSAGE",
+        "tally": "147-55",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1597638,
+      "measure_id": "HB 1358",
+      "vote_date": "2025-07-07",
+      "yea_description": "Voted for House Bill 1358, a bill making hotels of 100 or more rooms give employees working alone in guest rooms a free safety device. The Pennsylvania House passed it 109-94. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1358, a bill making hotels of 100 or more rooms give employees working alone in guest rooms a free safety device. The Pennsylvania House passed it 109-94. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1358 PN 2067, FINAL PASSAGE",
+        "tally": "109-94",
+        "old_sentences": 3,
+        "old_chars": 243
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1598006,
+      "measure_id": "HB 1697",
+      "vote_date": "2025-07-09",
+      "yea_description": "Voted for House Bill 1697, a bill creating a false claims law making anyone who defrauds the state pay triple the loss plus a penalty. The Pennsylvania House passed it 136-67. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1697, a bill creating a false claims law making anyone who defrauds the state pay triple the loss plus a penalty. The Pennsylvania House passed it 136-67. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1697 PN 2081, FINAL PASSAGE",
+        "tally": "136-67",
+        "old_sentences": 3,
+        "old_chars": 237
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1599279,
+      "measure_id": "HB 1788",
+      "vote_date": "2025-08-11",
+      "yea_description": "Voted for House Bill 1788, a bill raising the transit share of state sales tax from 4.4% to 6.15%, plus a road and bridge fund. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1788, a bill raising the transit share of state sales tax from 4.4% to 6.15%, plus a road and bridge fund. The Pennsylvania House passed it 108-95. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: HB 1788 PN 2206, FINAL PASSAGE",
+        "tally": "108-95",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1603195,
+      "measure_id": "HB 1099",
+      "vote_date": "2025-09-30",
+      "yea_description": "Voted for House Bill 1099, a bill making it a felony to make, sell or own a gun that metal detectors cannot find. The measure failed in the Pennsylvania House 101-102.",
+      "nay_description": "Voted against House Bill 1099, a bill making it a felony to make, sell or own a gun that metal detectors cannot find. The measure failed in the Pennsylvania House 101-102.",
+      "_current": {
+        "question": "House Floor: PN1213, FINAL PASSAGE",
+        "tally": "101-102",
+        "old_sentences": 2,
+        "old_chars": 205
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1603200,
+      "measure_id": "HB 1859",
+      "vote_date": "2025-09-30",
+      "yea_description": "Voted for House Bill 1859, a bill creating red flag orders letting a judge take guns from someone found to be a serious risk. The measure failed in the Pennsylvania House 101-102.",
+      "nay_description": "Voted against House Bill 1859, a bill creating red flag orders letting a judge take guns from someone found to be a serious risk. The measure failed in the Pennsylvania House 101-102.",
+      "_current": {
+        "question": "House Floor: PN2302, FINAL PASSAGE",
+        "tally": "101-102",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1603202,
+      "measure_id": "HB 1866",
+      "vote_date": "2025-10-01",
+      "yea_description": "Voted for House Bill 1866, a bill banning machine gun conversion devices, with up to five years in prison for making, selling or owning one. The measure failed in the Pennsylvania House 101-102.",
+      "nay_description": "Voted against House Bill 1866, a bill banning machine gun conversion devices, with up to five years in prison for making, selling or owning one. The measure failed in the Pennsylvania House 101-102.",
+      "_current": {
+        "question": "House Floor: PN2315, FINAL PASSAGE",
+        "tally": "101-102",
+        "old_sentences": 2,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1603388,
+      "measure_id": "HB 78",
+      "vote_date": "2025-10-01",
+      "yea_description": "Voted for House Bill 78, a bill letting people see, correct and delete personal data companies hold and opt out of targeted ads. The Pennsylvania House passed it 127-76. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 78, a bill letting people see, correct and delete personal data companies hold and opt out of targeted ads. The Pennsylvania House passed it 127-76. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN1476, FINAL PASSAGE",
+        "tally": "127-76",
+        "old_sentences": 3,
+        "old_chars": 238
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1603461,
+      "measure_id": "HB 997",
+      "vote_date": "2025-10-01",
+      "yea_description": "Voted for House Bill 997, a bill making companies report a data breach as soon as they discover it, including readable encrypted data. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 997, a bill making companies report a data breach as soon as they discover it, including readable encrypted data. The Pennsylvania House passed it 112-91. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2381, FINAL PASSAGE",
+        "tally": "112-91",
+        "old_sentences": 3,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1604236,
+      "measure_id": "HB 1512",
+      "vote_date": "2025-10-27",
+      "yea_description": "Voted for House Bill 1512, a right-to-repair bill making manufacturers sell repair shops and owners the manuals, parts and tools to fix their equipment. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1512, a right-to-repair bill making manufacturers sell repair shops and owners the manuals, parts and tools to fix their equipment. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN1768, FINAL PASSAGE",
+        "tally": "110-93",
+        "old_sentences": 3,
+        "old_chars": 257
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1610608,
+      "measure_id": "HB 1425",
+      "vote_date": "2025-12-16",
+      "yea_description": "Voted for House Bill 1425, which sets up a state list of nicotine vapes that may be sold, with yearly certification and a $50,000 bond. The Pennsylvania House agreed to the Senate's version 147-56 and it became law.",
+      "nay_description": "Voted against House Bill 1425, which sets up a state list of nicotine vapes that may be sold, with yearly certification and a $50,000 bond. The Pennsylvania House agreed to the Senate's version 147-56 and it became law.",
+      "_current": {
+        "question": "House Floor: PN2675, CONCURRENCE",
+        "tally": "147-56",
+        "old_sentences": 2,
+        "old_chars": 238
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1610617,
+      "measure_id": "HB 1881",
+      "vote_date": "2025-12-16",
+      "yea_description": "Voted for House Bill 1881, a bill letting experienced pharmacy technicians register without a diploma and letting the CDC set pharmacists' vaccination rules. The Pennsylvania House passed it 106-97. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1881, a bill letting experienced pharmacy technicians register without a diploma and letting the CDC set pharmacists' vaccination rules. The Pennsylvania House passed it 106-97. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2637, FINAL PASSAGE",
+        "tally": "106-97",
+        "old_sentences": 3,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1610620,
+      "measure_id": "HB 1825",
+      "vote_date": "2025-12-16",
+      "yea_description": "Voted for House Bill 1825, a bill making employers write down their harassment, discrimination and retaliation policies, with fines of $500 to $5,000. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1825, a bill making employers write down their harassment, discrimination and retaliation policies, with fines of $500 to $5,000. The Pennsylvania House passed it 110-93. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2639, FINAL PASSAGE",
+        "tally": "110-93",
+        "old_sentences": 3,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1610719,
+      "measure_id": "HB 505",
+      "vote_date": "2025-12-17",
+      "yea_description": "Voted for House Bill 505, a bill expanding the state energy efficiency program and raising the share of its money allowed for pilots to 5%. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 505, a bill expanding the state energy efficiency program and raising the share of its money allowed for pilots to 5%. The Pennsylvania House passed it 102-101. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2362, FINAL PASSAGE",
+        "tally": "102-101",
+        "old_sentences": 3,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1610728,
+      "measure_id": "HB 150",
+      "vote_date": "2025-12-17",
+      "yea_description": "Voted for House Bill 150, a bill letting a court shorten the prison term of someone terminally ill or too ill or frail for self-care. The Pennsylvania House passed it 111-92. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 150, a bill letting a court shorten the prison term of someone terminally ill or too ill or frail for self-care. The Pennsylvania House passed it 111-92. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2066, FINAL PASSAGE",
+        "tally": "111-92",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1620705,
+      "measure_id": "HB 1909",
+      "vote_date": "2026-02-02",
+      "yea_description": "Voted for House Bill 1909, a bill making assault, stalking, harassment and similar crimes one level more serious when the offender broke a protective order. The Pennsylvania House passed it 104-94. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1909, a bill making assault, stalking, harassment and similar crimes one level more serious when the offender broke a protective order. The Pennsylvania House passed it 104-94. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2595, FINAL PASSAGE",
+        "tally": "104-94",
+        "old_sentences": 3,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1620740,
+      "measure_id": "HB 660",
+      "vote_date": "2026-02-02",
+      "yea_description": "Voted for House Bill 660, a bill setting minimum energy and water efficiency standards for appliances, faucets, showerheads, toilets and similar products. The Pennsylvania House passed it 101-97. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 660, a bill setting minimum energy and water efficiency standards for appliances, faucets, showerheads, toilets and similar products. The Pennsylvania House passed it 101-97. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN0995, FINAL PASSAGE",
+        "tally": "101-97",
+        "old_sentences": 3,
+        "old_chars": 263
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1621918,
+      "measure_id": "HB 1935",
+      "vote_date": "2026-02-03",
+      "yea_description": "Voted for House Bill 1935, a bill setting tougher sentences for threatening a school or college and making offenders repay the emergency response cost. The Pennsylvania House passed it 152-45. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1935, a bill setting tougher sentences for threatening a school or college and making offenders repay the emergency response cost. The Pennsylvania House passed it 152-45. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2434, FINAL PASSAGE",
+        "tally": "152-45",
+        "old_sentences": 3,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1623089,
+      "measure_id": "HB 1923",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted for House Bill 1923, a bill making meat packing and food processing plants of 100 or more workers run joint safety committees. The Pennsylvania House passed it 122-76. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1923, a bill making meat packing and food processing plants of 100 or more workers run joint safety committees. The Pennsylvania House passed it 122-76. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2819, FINAL PASSAGE",
+        "tally": "122-76",
+        "old_sentences": 3,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1668594,
+      "measure_id": "HB 2189",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for House Bill 2189, a bill raising the minimum wage from $7.25 to $15 an hour by 2029, then tying it to living costs. The Pennsylvania House passed it 104-95. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2189, a bill raising the minimum wage from $7.25 to $15 an hour by 2029, then tying it to living costs. The Pennsylvania House passed it 104-95. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3059, FINAL PASSAGE",
+        "tally": "104-95",
+        "old_sentences": 3,
+        "old_chars": 220
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1669744,
+      "measure_id": "HB 200",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted for House Bill 200, a bill creating state paid family and medical leave funded by payroll contributions of up to 1% of wages. The Pennsylvania House passed it 107-92. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 200, a bill creating state paid family and medical leave funded by payroll contributions of up to 1% of wages. The Pennsylvania House passed it 107-92. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3076, FINAL PASSAGE",
+        "tally": "107-92",
+        "old_sentences": 3,
+        "old_chars": 233
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1669857,
+      "measure_id": "HB 1191",
+      "vote_date": "2026-03-25",
+      "yea_description": "Voted for House Bill 1191, a rail safety bill: two-person crews, a train length limit and $10,000 fines for blocking crossings against emergency vehicles. The Pennsylvania House passed it 120-79. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1191, a rail safety bill: two-person crews, a train length limit and $10,000 fines for blocking crossings against emergency vehicles. The Pennsylvania House passed it 120-79. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3068, FINAL PASSAGE",
+        "tally": "120-79",
+        "old_sentences": 3,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1681903,
+      "measure_id": "HB 2151",
+      "vote_date": "2026-04-13",
+      "yea_description": "Voted for House Bill 2151, a bill having the state write a model zoning ordinance for data centers covering size, noise, water use and emergencies. The Pennsylvania House passed it 124-77. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2151, a bill having the state write a model zoning ordinance for data centers covering size, noise, water use and emergencies. The Pennsylvania House passed it 124-77. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3174, FINAL PASSAGE",
+        "tally": "124-77",
+        "old_sentences": 3,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1683158,
+      "measure_id": "HB 1706",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for House Bill 1706, a bill making schools publish mental health warning-sign guidance and tell families twice a year what services are available. The Pennsylvania House passed it 107-94. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1706, a bill making schools publish mental health warning-sign guidance and tell families twice a year what services are available. The Pennsylvania House passed it 107-94. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2877, FINAL PASSAGE",
+        "tally": "107-94",
+        "old_sentences": 3,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1683274,
+      "measure_id": "HB 1522",
+      "vote_date": "2026-04-15",
+      "yea_description": "Voted for House Bill 1522, a bill requiring a fuel gas detector in rooms with a gas-burning appliance when a home is sold or re-rented. The Pennsylvania House passed it 107-94. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1522, a bill requiring a fuel gas detector in rooms with a gas-burning appliance when a home is sold or re-rented. The Pennsylvania House passed it 107-94. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3194, FINAL PASSAGE",
+        "tally": "107-94",
+        "old_sentences": 3,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1689869,
+      "measure_id": "HB 1104",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for House Bill 1104, a bill capping at $200 what a patient can be charged for an electronic copy of their own medical records. The Pennsylvania House passed it 133-67. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 1104, a bill capping at $200 what a patient can be charged for an electronic copy of their own medical records. The Pennsylvania House passed it 133-67. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN1225, FINAL PASSAGE",
+        "tally": "133-67",
+        "old_sentences": 3,
+        "old_chars": 222
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1689887,
+      "measure_id": "HB 2246",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for House Bill 2246, a bill letting the state regulate and permit water use by data centers drawing more than 100,000 gallons a day. The Pennsylvania House passed it 116-84. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2246, a bill letting the state regulate and permit water use by data centers drawing more than 100,000 gallons a day. The Pennsylvania House passed it 116-84. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN2937, FINAL PASSAGE",
+        "tally": "116-84",
+        "old_sentences": 3,
+        "old_chars": 242
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1689892,
+      "measure_id": "SB 375",
+      "vote_date": "2026-04-27",
+      "yea_description": "Voted for Senate Bill 375, which makes schools with sports teams keep a defibrillator at games and practices and plan for cardiac emergencies. The Pennsylvania House passed it 141-59 and it became law.",
+      "nay_description": "Voted against Senate Bill 375, which makes schools with sports teams keep a defibrillator at games and practices and plan for cardiac emergencies. The Pennsylvania House passed it 141-59 and it became law.",
+      "_current": {
+        "question": "House Floor: PN1539, FINAL PASSAGE",
+        "tally": "141-59",
+        "old_sentences": 2,
+        "old_chars": 219
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1691559,
+      "measure_id": "HB 72",
+      "vote_date": "2026-04-29",
+      "yea_description": "Voted for House Bill 72, a bill letting a violence victim break a lease early, change the locks and be shielded from landlord retaliation. The Pennsylvania House passed it 118-83. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 72, a bill letting a violence victim break a lease early, change the locks and be shielded from landlord retaliation. The Pennsylvania House passed it 118-83. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3296, FINAL PASSAGE",
+        "tally": "118-83",
+        "old_sentences": 3,
+        "old_chars": 249
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1704041,
+      "measure_id": "HB 2186",
+      "vote_date": "2026-06-01",
+      "yea_description": "Voted for House Bill 2186, a bill allowing one accessory dwelling unit, such as a basement apartment or backyard cottage, wherever a home is allowed. The Pennsylvania House passed it 139-62. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2186, a bill allowing one accessory dwelling unit, such as a basement apartment or backyard cottage, wherever a home is allowed. The Pennsylvania House passed it 139-62. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3373, FINAL PASSAGE",
+        "tally": "139-62",
+        "old_sentences": 3,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1706755,
+      "measure_id": "HB 2300",
+      "vote_date": "2026-06-08",
+      "yea_description": "Voted for House Bill 2300, a bill routing the tax filings of businesses owing over $5,000 in overdue sales tax through a third party. The Pennsylvania House passed it 153-48. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2300, a bill routing the tax filings of businesses owing over $5,000 in overdue sales tax through a third party. The Pennsylvania House passed it 153-48. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3518, FINAL PASSAGE",
+        "tally": "153-48",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1706793,
+      "measure_id": "HB 2109",
+      "vote_date": "2026-06-08",
+      "yea_description": "Voted for House Bill 2109, a bill stopping towns from capping how many people can share a home based on family relationship. The Pennsylvania House passed it 123-78. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2109, a bill stopping towns from capping how many people can share a home based on family relationship. The Pennsylvania House passed it 123-78. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3488, FINAL PASSAGE",
+        "tally": "123-78",
+        "old_sentences": 3,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1708692,
+      "measure_id": "HB 2429",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for House Bill 2429, a bill making electric utilities publish maps every two months of where the grid can take new solar and batteries. The Pennsylvania House passed it 110-92. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2429, a bill making electric utilities publish maps every two months of where the grid can take new solar and batteries. The Pennsylvania House passed it 110-92. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3575, FINAL PASSAGE",
+        "tally": "110-92",
+        "old_sentences": 3,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1709647,
+      "measure_id": "HB 2264",
+      "vote_date": "2026-06-16",
+      "yea_description": "Voted for House Bill 2264, a bill making electric utilities run virtual power plant programs linking home batteries and solar panels to support the grid. The Pennsylvania House passed it 107-95. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 2264, a bill making electric utilities run virtual power plant programs linking home batteries and solar panels to support the grid. The Pennsylvania House passed it 107-95. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3369, FINAL PASSAGE",
+        "tally": "107-95",
+        "old_sentences": 3,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1709926,
+      "measure_id": "HB 95",
+      "vote_date": "2026-06-17",
+      "yea_description": "Voted for House Bill 95, a bill requiring a clear label on ads using artificial intelligence to create or heavily alter images, video or audio. The Pennsylvania House passed it 124-78. As of August 2026 the Senate had not voted on it.",
+      "nay_description": "Voted against House Bill 95, a bill requiring a clear label on ads using artificial intelligence to create or heavily alter images, video or audio. The Pennsylvania House passed it 124-78. As of August 2026 the Senate had not voted on it.",
+      "_current": {
+        "question": "House Floor: PN3348, FINAL PASSAGE",
+        "tally": "124-78",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "house",
+      "session": "2192",
+      "roll": 1715952,
+      "measure_id": "HB 1042",
+      "vote_date": "2026-07-23",
+      "yea_description": "Voted for House Bill 1042, a bill ending automatic life for second-degree murder, setting a minimum of at least 35 years and opening parole. The Pennsylvania House passed the final version 102-100. As of August 2026 the bill had not become law.",
+      "nay_description": "Voted against House Bill 1042, a bill ending automatic life for second-degree murder, setting a minimum of at least 35 years and opening parole. The Pennsylvania House passed the final version 102-100. As of August 2026 the bill had not become law.",
+      "_current": {
+        "question": "House Floor: PN3793, CONCURRENCE",
+        "tally": "102-100",
+        "old_sentences": 3,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1476134,
+      "measure_id": "SB 153",
+      "vote_date": "2025-01-29",
+      "yea_description": "Voted for Senate Bill 153, a bill denying unemployment benefits to a claimant who discourages their own hiring, such as by skipping an interview. The Pennsylvania Senate passed it 29-20. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 153, a bill denying unemployment benefits to a claimant who discourages their own hiring, such as by skipping an interview. The Pennsylvania Senate passed it 29-20. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 153 PN 103, Final Passage",
+        "tally": "29-20",
+        "old_sentences": 3,
+        "old_chars": 252
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1531153,
+      "measure_id": "SB 471",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 471, a bill making prosecutors report a defendant to federal immigration officers whenever they suspect the person is not a citizen. The Pennsylvania Senate passed it 31-18. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 471, a bill making prosecutors report a defendant to federal immigration officers whenever they suspect the person is not a citizen. The Pennsylvania Senate passed it 31-18. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 471 PN 425, Final Passage",
+        "tally": "31-18",
+        "old_sentences": 3,
+        "old_chars": 245
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1531337,
+      "measure_id": "SB 490",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted for Senate Bill 490, a bill barring release without cash bail once a judge finds a defendant is a threat to public safety. The Pennsylvania Senate passed it 32-17. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 490, a bill barring release without cash bail once a judge finds a defendant is a threat to public safety. The Pennsylvania Senate passed it 32-17. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 490 PN 444, Final Passage",
+        "tally": "32-17",
+        "old_sentences": 3,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1532471,
+      "measure_id": "SB 96",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for Senate Bill 96, a bill making threatening a school or college a felony and making offenders pay the emergency response cost. The Pennsylvania Senate passed it 37-12. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 96, a bill making threatening a school or college a felony and making offenders pay the emergency response cost. The Pennsylvania Senate passed it 37-12. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 96 PN 51, Final Passage",
+        "tally": "37-12",
+        "old_sentences": 3,
+        "old_chars": 230
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1533130,
+      "measure_id": "SB 92",
+      "vote_date": "2025-04-01",
+      "yea_description": "Voted for Senate Bill 92, a bill setting a 10-year mandatory minimum for deadly drug sales by sellers with two or more prior drug convictions. The Pennsylvania Senate passed it 33-16. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 92, a bill setting a 10-year mandatory minimum for deadly drug sales by sellers with two or more prior drug convictions. The Pennsylvania Senate passed it 33-16. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 92 PN 472, Final Passage",
+        "tally": "33-16",
+        "old_sentences": 3,
+        "old_chars": 255
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1566021,
+      "measure_id": "SB 9",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted for Senate Bill 9, a bill barring transgender girls and women from women's sports teams at public schools and colleges. The Pennsylvania Senate passed it 32-18. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 9, a bill barring transgender girls and women from women's sports teams at public schools and colleges. The Pennsylvania Senate passed it 32-18. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 9 PN 177, Final Passage",
+        "tally": "32-18",
+        "old_sentences": 3,
+        "old_chars": 251
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1584619,
+      "measure_id": "SB 686",
+      "vote_date": "2025-06-04",
+      "yea_description": "Voted for Senate Bill 686, a bill making it a felony to destroy, hide or alter a public record someone has requested. The Pennsylvania Senate passed it 31-18. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 686, a bill making it a felony to destroy, hide or alter a public record someone has requested. The Pennsylvania Senate passed it 31-18. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 686 PN 755, Final Passage",
+        "tally": "31-18",
+        "old_sentences": 3,
+        "old_chars": 236
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1587527,
+      "measure_id": "SB 444",
+      "vote_date": "2025-06-10",
+      "yea_description": "Voted for Senate Bill 444, a bill requiring a fresh review of any regulation costing over $1 million a year after three years. The Pennsylvania Senate passed it 27-23. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 444, a bill requiring a fresh review of any regulation costing over $1 million a year after three years. The Pennsylvania Senate passed it 27-23. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 444 PN 391, Final Passage",
+        "tally": "27-23",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1588640,
+      "measure_id": "SB 311",
+      "vote_date": "2025-06-11",
+      "yea_description": "Voted for Senate Bill 311, a bill stopping towns blocking utility hookups by energy type, ending local bans on new natural gas connections. The Pennsylvania Senate passed it 34-15. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 311, a bill stopping towns blocking utility hookups by energy type, ending local bans on new natural gas connections. The Pennsylvania Senate passed it 34-15. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: SB 311 PN 436, Final Passage",
+        "tally": "34-15",
+        "old_sentences": 3,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1623046,
+      "measure_id": "SB 712",
+      "vote_date": "2026-02-04",
+      "yea_description": "Voted for Senate Bill 712, a bill tightening abandoned oil and gas well sealing, requiring a confirmed cement plug at least 50 feet long. The Pennsylvania Senate passed it 32-16. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 712, a bill tightening abandoned oil and gas well sealing, requiring a confirmed cement plug at least 50 feet long. The Pennsylvania Senate passed it 32-16. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN0726, Final Passage",
+        "tally": "32-16",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1668597,
+      "measure_id": "SB 614",
+      "vote_date": "2026-03-24",
+      "yea_description": "Voted for Senate Bill 614, a bill placing medical, nursing and dental students in rotations at rural and community health clinics, with federal stipends. The Pennsylvania Senate passed it 26-23. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 614, a bill placing medical, nursing and dental students in rotations at rural and community health clinics, with federal stipends. The Pennsylvania Senate passed it 26-23. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN1530, Final Passage",
+        "tally": "26-23",
+        "old_sentences": 3,
+        "old_chars": 254
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1687409,
+      "measure_id": "SB 1293",
+      "vote_date": "2026-04-22",
+      "yea_description": "Voted for Senate Bill 1293, a bill barring transgender girls and women from women's school and college sports teams, with a right to sue. The Pennsylvania Senate passed it 30-17. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 1293, a bill barring transgender girls and women from women's school and college sports teams, with a right to sue. The Pennsylvania Senate passed it 30-17. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN1598, Final Passage",
+        "tally": "30-17",
+        "old_sentences": 3,
+        "old_chars": 242
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1694587,
+      "measure_id": "SB 822",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted for Senate Bill 822, a bill voiding all local gun and ammunition rules and letting anyone harmed by one sue the town. The Pennsylvania Senate passed it 30-20. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 822, a bill voiding all local gun and ammunition rules and letting anyone harmed by one sue the town. The Pennsylvania Senate passed it 30-20. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN0881, Final Passage",
+        "tally": "30-20",
+        "old_sentences": 3,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1707980,
+      "measure_id": "SB 908",
+      "vote_date": "2026-06-10",
+      "yea_description": "Voted for Senate Bill 908, a bill extending the prevailing wage law to off-site custom fabrication while dropping small residential rehabs and duct cleaning. The Pennsylvania Senate passed it 37-13. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 908, a bill extending the prevailing wage law to off-site custom fabrication while dropping small residential rehabs and duct cleaning. The Pennsylvania Senate passed it 37-13. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN1804, Final Passage",
+        "tally": "37-13",
+        "old_sentences": 3,
+        "old_chars": 261
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1711502,
+      "measure_id": "SB 482",
+      "vote_date": "2026-06-24",
+      "yea_description": "Voted for Senate Bill 482, a bill making the state tell eligible older adults about the LIFE program that helps frail seniors stay home. The Pennsylvania Senate passed it 27-23. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 482, a bill making the state tell eligible older adults about the LIFE program that helps frail seniors stay home. The Pennsylvania Senate passed it 27-23. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN1801, Final Passage",
+        "tally": "27-23",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1711970,
+      "measure_id": "SB 1400",
+      "vote_date": "2026-06-25",
+      "yea_description": "Voted for Senate Bill 1400, a bill replacing the automatic life sentence for second-degree murder with a court-set minimum of at least 35 years. The Pennsylvania Senate passed it 30-20. As of August 2026 the House had not voted on it.",
+      "nay_description": "Voted against Senate Bill 1400, a bill replacing the automatic life sentence for second-degree murder with a court-set minimum of at least 35 years. The Pennsylvania Senate passed it 30-20. As of August 2026 the House had not voted on it.",
+      "_current": {
+        "question": "Senate Floor: PN1836, Final Passage-Reconsidered",
+        "tally": "30-20",
+        "old_sentences": 3,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "PA",
+      "chamber": "senate",
+      "session": "2192",
+      "roll": 1715680,
+      "measure_id": "HB 1042",
+      "vote_date": "2026-07-12",
+      "yea_description": "Voted for House Bill 1042, a bill ending automatic life for second-degree murder, setting a minimum of at least 35 years and opening parole. The Pennsylvania Senate passed it 30-20 and the House later approved a changed version 102-100. As of August 2026 the bill had not become law.",
+      "nay_description": "Voted against House Bill 1042, a bill ending automatic life for second-degree murder, setting a minimum of at least 35 years and opening parole. The Pennsylvania Senate passed it 30-20 and the House later approved a changed version 102-100. As of August 2026 the bill had not become law.",
+      "_current": {
+        "question": "Senate Floor: PN3766, Final Passage-Reconsidered",
+        "tally": "30-20",
+        "old_sentences": 3,
+        "old_chars": 314
+      }
+    }
+  ]
+}

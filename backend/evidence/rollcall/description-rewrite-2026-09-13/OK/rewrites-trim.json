@@ -1,0 +1,52 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1605860,
+      "measure_id": "SB 631",
+      "vote_date": "2025-05-29",
+      "yea_description": "Voted to override the Governor's veto of Senate Bill 631, which adds shooting into a building to the crimes requiring 85 percent of the sentence. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "nay_description": "Voted against overriding the Governor's veto of Senate Bill 631, which adds shooting into a building to the crimes requiring 85 percent of the sentence. The Oklahoma House voted 68-17 to override the veto. The Senate had already done the same, so the bill became law.",
+      "_current": {
+        "question": "House: VETO OVERRIDE WITHOUT EMERGENCY",
+        "tally": "68-17",
+        "old_sentences": 3,
+        "old_chars": 279
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "house",
+      "session": "2219",
+      "roll": 1606363,
+      "measure_id": "HB 2764",
+      "vote_date": "2025-05-20",
+      "yea_description": "Voted for House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026, with a path for more cuts. The Oklahoma House passed it 74-19. The Governor signed it.",
+      "nay_description": "Voted against House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026, with a path for more cuts. The Oklahoma House passed it 74-19. The Governor signed it.",
+      "_current": {
+        "question": "House: THIRD READING",
+        "tally": "74-19",
+        "old_sentences": 3,
+        "old_chars": 187
+      }
+    },
+    {
+      "jurisdiction": "OK",
+      "chamber": "senate",
+      "session": "2219",
+      "roll": 1606364,
+      "measure_id": "HB 2764",
+      "vote_date": "2025-05-22",
+      "yea_description": "Voted for House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026, with a path for more cuts. The Oklahoma Senate passed it 34-11. The Governor signed it.",
+      "nay_description": "Voted against House Bill 2764, which cuts the top income tax rate from 4.75 to 4.5 percent from 2026, with a path for more cuts. The Oklahoma Senate passed it 34-11. The Governor signed it.",
+      "_current": {
+        "question": "Senate: THIRD READING",
+        "tally": "34-11",
+        "old_sentences": 3,
+        "old_chars": 188
+      }
+    }
+  ]
+}

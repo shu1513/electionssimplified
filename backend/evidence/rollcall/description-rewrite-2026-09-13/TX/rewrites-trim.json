@@ -1,0 +1,68 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1570347,
+      "measure_id": "HB 3053",
+      "vote_date": "2025-05-13",
+      "yea_description": "Voted to pass House Bill 3053, which blocks cities and counties from running or joining gun buyback programs meant to cut civilian gun ownership. The bill became law after the Texas House passed it 85-56.",
+      "nay_description": "Voted against House Bill 3053, which blocks cities and counties from running or joining gun buyback programs meant to cut civilian gun ownership. The bill became law after the Texas House passed it 85-56.",
+      "_current": {
+        "question": "Read 3rd time RV#2266",
+        "tally": "85-56",
+        "old_sentences": 3,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "house",
+      "session": "2160",
+      "roll": 1582092,
+      "measure_id": "HB 121",
+      "vote_date": "2025-05-30",
+      "yea_description": "Voted to accept the Senate's version of House Bill 121, a school safety bill making districts renew any exception to the armed officer rule yearly. The House agreed 97-38, and it took effect September 1, 2025.",
+      "nay_description": "Voted against accepting the Senate's version of House Bill 121, a school safety bill making districts renew any exception to the armed officer rule yearly. The House agreed 97-38, and it took effect September 1, 2025.",
+      "_current": {
+        "question": "House concurs in Senate amendment(s) RV#4079",
+        "tally": "97-38",
+        "old_sentences": 2,
+        "old_chars": 213
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1581646,
+      "measure_id": "HB 3053",
+      "vote_date": "2025-05-28",
+      "yea_description": "Voted to pass House Bill 3053, which blocks cities and counties from running or joining gun buyback programs meant to cut civilian gun ownership. The bill became law after the Texas Senate passed it 20-11.",
+      "nay_description": "Voted against House Bill 3053, which blocks cities and counties from running or joining gun buyback programs meant to cut civilian gun ownership. The bill became law after the Texas Senate passed it 20-11.",
+      "_current": {
+        "question": "Read 3rd time",
+        "tally": "20-11",
+        "old_sentences": 3,
+        "old_chars": 257
+      }
+    },
+    {
+      "jurisdiction": "TX",
+      "chamber": "senate",
+      "session": "2160",
+      "roll": 1585629,
+      "measure_id": "SB 8",
+      "vote_date": "2025-05-31",
+      "yea_description": "Voted to accept the final House-Senate deal on Senate Bill 8, which makes every jail-running sheriff seek a deal to help enforce immigration law. The bill became law after the Texas Senate approved it 20-11.",
+      "nay_description": "Voted against the final House-Senate deal on Senate Bill 8, which makes every jail-running sheriff seek a deal to help enforce immigration law. The bill became law after the Texas Senate approved it 20-11.",
+      "_current": {
+        "question": "Senate adopts conference committee report",
+        "tally": "20-11",
+        "old_sentences": 2,
+        "old_chars": 236
+      }
+    }
+  ]
+}

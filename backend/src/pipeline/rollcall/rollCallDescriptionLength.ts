@@ -11,7 +11,7 @@
 
 export const ROLL_CALL_DESCRIPTION_MAX_SENTENCES = 3;
 export const ROLL_CALL_DESCRIPTION_MAX_CHARS = 320;
-export const ROLL_CALL_DESCRIPTION_MAX_SENTENCE_WORDS = 30;
+export const ROLL_CALL_DESCRIPTION_MAX_SENTENCE_WORDS = 25;
 
 // Dots that do not end a sentence: bill-type prefixes ("H.R. 1", "S. 5",
 // "S.J.Res. 3"), initials ("A.J.", "John R. Lewis"), and common title/time

@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1472543,
+      "measure_id": "SF 4",
+      "vote_date": "2025-01-21",
+      "yea_description": "Voted for Senate File 4, which makes state park rangers and managers peace officers and lets them act outside a park. The Senate passed the bill 21-8 and it became law as chapter 54 of the 2025 session laws.",
+      "nay_description": "Voted against Senate File 4, which makes state park rangers and managers peace officers and lets them act outside a park. The Senate passed the bill 21-8 and it became law as chapter 54 of the 2025 session laws.",
+      "_current": {
+        "question": "3rd Reading:Passed 21-8-2-0-0",
+        "tally": "21-8",
+        "old_sentences": 2,
+        "old_chars": 214
+      }
+    }
+  ]
+}

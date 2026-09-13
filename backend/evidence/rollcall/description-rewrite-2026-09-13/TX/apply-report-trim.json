@@ -1,0 +1,39 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/TX/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 4,
+  "updatedRolls": 4,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 251,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "TX:house:2160:1570347",
+      "outcome": "updated",
+      "rewritten": 114,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:house:2160:1582092",
+      "outcome": "updated",
+      "rewritten": 111,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1581646",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TX:senate:2160:1585629",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "SD",
+      "chamber": "house",
+      "session": "2231",
+      "roll": 1619429,
+      "measure_id": "HB 1130",
+      "vote_date": "2026-01-29",
+      "yea_description": "Voted for House Bill 1130, which let a school district pay its property insurance premiums from its capital outlay fund. The South Dakota House vote was 41-25. The Governor signed it on March 04, 2026.",
+      "nay_description": "Voted against House Bill 1130, which let a school district pay its property insurance premiums from its capital outlay fund. The South Dakota House vote was 41-25. The Governor signed it on March 04, 2026.",
+      "_current": {
+        "question": "Do Pass",
+        "tally": "41-25",
+        "old_sentences": 3,
+        "old_chars": 188
+      }
+    },
+    {
+      "jurisdiction": "SD",
+      "chamber": "house",
+      "session": "2231",
+      "roll": 1626389,
+      "measure_id": "HB 1066",
+      "vote_date": "2026-02-09",
+      "yea_description": "Voted for House Bill 1066, which broadened when a contractor who misuses a customer's money commits theft. The South Dakota House vote was 46-19. The Governor signed it on March 30, 2026.",
+      "nay_description": "Voted against House Bill 1066, which broadened when a contractor who misuses a customer's money commits theft. The South Dakota House vote was 46-19. The Governor signed it on March 30, 2026.",
+      "_current": {
+        "question": "Do Pass",
+        "tally": "46-19",
+        "old_sentences": 3,
+        "old_chars": 185
+      }
+    },
+    {
+      "jurisdiction": "SD",
+      "chamber": "house",
+      "session": "2231",
+      "roll": 1643306,
+      "measure_id": "HB 1062",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for House Bill 1062, which extended aggravated assault to threats made with a realistic fake weapon. The South Dakota House vote was 44-22. The Governor signed it on March 09, 2026.",
+      "nay_description": "Voted against House Bill 1062, which extended aggravated assault to threats made with a realistic fake weapon. The South Dakota House vote was 44-22. The Governor signed it on March 09, 2026.",
+      "_current": {
+        "question": "Concurred in amendments",
+        "tally": "44-22",
+        "old_sentences": 3,
+        "old_chars": 210
+      }
+    },
+    {
+      "jurisdiction": "SD",
+      "chamber": "senate",
+      "session": "2170",
+      "roll": 1497802,
+      "measure_id": "SB 198",
+      "vote_date": "2025-02-24",
+      "yea_description": "Voted for Senate Bill 198, a bill to make a company try mediation before condemning private land. The South Dakota Senate passed it, 18-17. A South Dakota House committee killed it, so the full House never voted on it and the bill did not become law.",
+      "nay_description": "Voted against Senate Bill 198, a bill to make a company try mediation before condemning private land. The South Dakota Senate passed it, 18-17. A South Dakota House committee killed it, so the full House never voted on it and the bill did not become law.",
+      "_current": {
+        "question": "Do Pass Amended",
+        "tally": "18-17",
+        "old_sentences": 3,
+        "old_chars": 239
+      }
+    },
+    {
+      "jurisdiction": "SD",
+      "chamber": "senate",
+      "session": "2231",
+      "roll": 1643623,
+      "measure_id": "SB 196",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted for Senate Bill 196, a bill to widen the property tax assessment freeze for lower-income homeowners. The South Dakota Senate rejected it, 15-18. The bill did not become law.",
+      "nay_description": "Voted against Senate Bill 196, a bill to widen the property tax assessment freeze for lower-income homeowners. The South Dakota Senate rejected it, 15-18. The bill did not become law.",
+      "_current": {
+        "question": "Do Pass",
+        "tally": "15-18",
+        "old_sentences": 3,
+        "old_chars": 177
+      }
+    },
+    {
+      "jurisdiction": "SD",
+      "chamber": "senate",
+      "session": "2231",
+      "roll": 1645388,
+      "measure_id": "HB 1130",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted for House Bill 1130, which let a school district pay its property insurance premiums from its capital outlay fund. The South Dakota Senate vote was 24-9. The Governor signed it on March 04, 2026.",
+      "nay_description": "Voted against House Bill 1130, which let a school district pay its property insurance premiums from its capital outlay fund. The South Dakota Senate vote was 24-9. The Governor signed it on March 04, 2026.",
+      "_current": {
+        "question": "Do Pass",
+        "tally": "24-9",
+        "old_sentences": 3,
+        "old_chars": 188
+      }
+    }
+  ]
+}

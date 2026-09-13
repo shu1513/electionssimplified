@@ -1,0 +1,137 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/GA/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 18,
+  "updatedRolls": 18,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 1481,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "GA:house:2008:1377795",
+      "outcome": "updated",
+      "rewritten": 132,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2008:1413871",
+      "outcome": "updated",
+      "rewritten": 129,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2167:1531583",
+      "outcome": "updated",
+      "rewritten": 146,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2167:1531612",
+      "outcome": "updated",
+      "rewritten": 144,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2167:1676408",
+      "outcome": "updated",
+      "rewritten": 155,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2167:1676416",
+      "outcome": "updated",
+      "rewritten": 160,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:house:2268:1711338",
+      "outcome": "updated",
+      "rewritten": 160,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2008:1288670",
+      "outcome": "updated",
+      "rewritten": 36,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2008:1288706",
+      "outcome": "updated",
+      "rewritten": 37,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2008:1374259",
+      "outcome": "updated",
+      "rewritten": 36,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2008:1413872",
+      "outcome": "updated",
+      "rewritten": 36,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1531585",
+      "outcome": "updated",
+      "rewritten": 42,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1537730",
+      "outcome": "updated",
+      "rewritten": 42,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1665920",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1672157",
+      "outcome": "updated",
+      "rewritten": 41,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1676409",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2167:1676417",
+      "outcome": "updated",
+      "rewritten": 47,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "GA:senate:2268:1711341",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

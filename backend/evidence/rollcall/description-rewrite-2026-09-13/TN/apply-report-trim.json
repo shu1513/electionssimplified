@@ -1,0 +1,81 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/TN/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 10,
+  "updatedRolls": 10,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 562,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "TN:house:2161:1535750",
+      "outcome": "updated",
+      "rewritten": 69,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1666206",
+      "outcome": "updated",
+      "rewritten": 76,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1678971",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1687780",
+      "outcome": "updated",
+      "rewritten": 78,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1687816",
+      "outcome": "updated",
+      "rewritten": 77,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1687884",
+      "outcome": "updated",
+      "rewritten": 75,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:house:2161:1688370",
+      "outcome": "updated",
+      "rewritten": 74,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:senate:2161:1685052",
+      "outcome": "updated",
+      "rewritten": 13,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:senate:2161:1688578",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "TN:senate:2161:1690444",
+      "outcome": "updated",
+      "rewritten": 12,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

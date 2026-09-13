@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WY",
+      "chamber": "senate",
+      "session": "2157",
+      "roll": 1507367,
+      "measure_id": "SF 34",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted for Senate File 34, which counts more school building space when the state pays districts for maintenance. The Senate first refused the House changes, then voted 20-7 to accept them, and the bill became law as 2025 chapter 145.",
+      "nay_description": "Voted against Senate File 34, which counts more school building space when the state pays districts for maintenance. The Senate first refused the House changes, then voted 20-7 to accept them, and the bill became law as 2025 chapter 145.",
+      "_current": {
+        "question": "Recede from Non-Concurrence Passed: 20-7-4-0-0",
+        "tally": "20-7",
+        "old_sentences": 2,
+        "old_chars": 251
+      }
+    }
+  ]
+}

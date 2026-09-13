@@ -1,0 +1,25 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/AZ/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 2,
+  "updatedRolls": 2,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 53,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "AZ:house:2155:1503490",
+      "outcome": "updated",
+      "rewritten": 31,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "AZ:senate:2155:1549814",
+      "outcome": "updated",
+      "rewritten": 22,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WV/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 1,
+  "updatedRolls": 1,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 68,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WV:house:2254:1628052",
+      "outcome": "updated",
+      "rewritten": 68,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

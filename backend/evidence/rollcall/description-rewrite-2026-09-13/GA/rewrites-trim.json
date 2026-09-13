@@ -1,0 +1,292 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2008",
+      "roll": 1377795,
+      "measure_id": "SB 63",
+      "vote_date": "2024-02-06",
+      "yea_description": "Voted to adopt the compromise version of SB 63, which requires money bail for more offenses and caps the cash bonds one person may post. The Georgia House adopted it 97-69, and it became law.",
+      "nay_description": "Voted against the compromise version of SB 63, which requires money bail for more offenses and caps the cash bonds one person may post. The Georgia House adopted it 97-69, and it became law.",
+      "_current": {
+        "question": "Adopt Ccr: House Vote #429",
+        "tally": "97-69",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2008",
+      "roll": 1413871,
+      "measure_id": "HB 1339",
+      "vote_date": "2024-03-21",
+      "yea_description": "Voted to accept the final version of HB 1339, which loosens certificate of need rules for new hospitals and raises the rural hospital tax credit. The Georgia House agreed it 95-68, and it became law.",
+      "nay_description": "Voted against the final version of HB 1339, which loosens certificate of need rules for new hospitals and raises the rural hospital tax credit. The Georgia House agreed it 95-68, and it became law.",
+      "_current": {
+        "question": "Agree To Senate Sub As Am: House Vote #742",
+        "tally": "95-68",
+        "old_sentences": 2,
+        "old_chars": 203
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2167",
+      "roll": 1531583,
+      "measure_id": "SB 1",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to pass Senate Bill 1, the Riley Gaines Act of 2025, barring males from female school sports teams. The Georgia House passed it 100-64, and it became law.",
+      "nay_description": "Voted against Senate Bill 1, the Riley Gaines Act of 2025, barring males from female school sports teams. The Georgia House passed it 100-64, and it became law.",
+      "_current": {
+        "question": "Passage: House Vote #350",
+        "tally": "100-64",
+        "old_sentences": 2,
+        "old_chars": 196
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2167",
+      "roll": 1531612,
+      "measure_id": "SB 69",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to accept the Senate's change to Senate Bill 69, which makes companies that fund other people's lawsuits register with the state. The House agreed 120-42, and it became law as Act 10.",
+      "nay_description": "Voted against accepting the Senate's change to Senate Bill 69, which makes companies that fund other people's lawsuits register with the state. The House agreed 120-42, and it became law as Act 10.",
+      "_current": {
+        "question": "Agree To Sam To Hsub: House Vote #360",
+        "tally": "120-42",
+        "old_sentences": 2,
+        "old_chars": 217
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2167",
+      "roll": 1676408,
+      "measure_id": "HB 1247",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to accept the final version of House Bill 1247, which bars courts from deferring to an agency's reading of the law. The Georgia House agreed 98-70, and it became law as Act 718.",
+      "nay_description": "Voted against the final version of House Bill 1247, which bars courts from deferring to an agency's reading of the law. The Georgia House agreed 98-70, and it became law as Act 718.",
+      "_current": {
+        "question": "Agree To Senate Sub As Am: House Vote #854",
+        "tally": "98-70",
+        "old_sentences": 2,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2167",
+      "roll": 1676416,
+      "measure_id": "HB 463",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted for the Senate's rewrite of House Bill 463, which cuts the income tax rate to 4.99 percent in 2026, then toward 3.99. The Georgia House agreed 104-71, and it became law as Act 465.",
+      "nay_description": "Voted against the Senate's rewrite of House Bill 463, which cuts the income tax rate to 4.99 percent in 2026, then toward 3.99. The Georgia House agreed 104-71, and it became law as Act 465.",
+      "_current": {
+        "question": "Agree To Senate Sub As Am: House Vote #849",
+        "tally": "104-71",
+        "old_sentences": 2,
+        "old_chars": 221
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "house",
+      "session": "2268",
+      "roll": 1711338,
+      "measure_id": "SB 3",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted to pass the House rewrite of Senate Bill 3EX, which plans a hand-marked paper ballot voting system and orders hand recounts in close races. The Georgia House passed it 94-79, and it became law.",
+      "nay_description": "Voted against the House rewrite of Senate Bill 3EX, which plans a hand-marked paper ballot voting system and orders hand recounts in close races. The Georgia House passed it 94-79, and it became law.",
+      "_current": {
+        "question": "Passage: House Vote #18",
+        "tally": "94-79",
+        "old_sentences": 2,
+        "old_chars": 223
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2008",
+      "roll": 1288670,
+      "measure_id": "SB 44",
+      "vote_date": "2023-03-29",
+      "yea_description": "Voted to accept the final version of SB 44, which sets at least five years in prison for recruiting someone into a criminal street gang. The Georgia Senate agreed it 30-20, and it became law.",
+      "nay_description": "Voted against the final version of SB 44, which sets at least five years in prison for recruiting someone into a criminal street gang. The Georgia Senate agreed it 30-20, and it became law.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #368",
+        "tally": "30-20",
+        "old_sentences": 2,
+        "old_chars": 198
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2008",
+      "roll": 1288706,
+      "measure_id": "SB 222",
+      "vote_date": "2023-03-29",
+      "yea_description": "Voted to accept the final version of SB 222, which bars election officials taking private donations and makes the State Election Board its own agency. The Georgia Senate agreed it 32-21, and it became law.",
+      "nay_description": "Voted against the final version of SB 222, which bars election officials taking private donations and makes the State Election Board its own agency. The Georgia Senate agreed it 32-21, and it became law.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #354",
+        "tally": "32-21",
+        "old_sentences": 2,
+        "old_chars": 210
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2008",
+      "roll": 1374259,
+      "measure_id": "SB 63",
+      "vote_date": "2024-02-01",
+      "yea_description": "Voted to adopt the compromise version of SB 63, which requires money bail for more offenses and caps the cash bonds one person may post. The Georgia Senate adopted it 30-17, and it became law.",
+      "nay_description": "Voted against the compromise version of SB 63, which requires money bail for more offenses and caps the cash bonds one person may post. The Georgia Senate adopted it 30-17, and it became law.",
+      "_current": {
+        "question": "Adopt Conference Committee Report: Senate Vote #464",
+        "tally": "30-17",
+        "old_sentences": 2,
+        "old_chars": 207
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2008",
+      "roll": 1413872,
+      "measure_id": "HB 1339",
+      "vote_date": "2024-03-21",
+      "yea_description": "Voted to accept the final version of HB 1339, which loosens certificate of need rules for new hospitals and raises the rural hospital tax credit. The Georgia Senate agreed it 34-17, and it became law.",
+      "nay_description": "Voted against the final version of HB 1339, which loosens certificate of need rules for new hospitals and raises the rural hospital tax credit. The Georgia Senate agreed it 34-17, and it became law.",
+      "_current": {
+        "question": "Agree To House Amendment To Senate Substitute: Senate Vote #741",
+        "tally": "34-17",
+        "old_sentences": 2,
+        "old_chars": 204
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1531585,
+      "measure_id": "SB 1",
+      "vote_date": "2025-03-31",
+      "yea_description": "Voted to accept the House's version of Senate Bill 1, the Riley Gaines Act of 2025, barring males from female school sports teams. The Georgia Senate agreed 34-20, and it became law as Act 11.",
+      "nay_description": "Voted against the House's version of Senate Bill 1, the Riley Gaines Act of 2025, barring males from female school sports teams. The Georgia Senate agreed 34-20, and it became law as Act 11.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #373",
+        "tally": "34-20",
+        "old_sentences": 2,
+        "old_chars": 228
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1537730,
+      "measure_id": "SB 244",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to accept the House rewrite of Senate Bill 244, which pays wrongly imprisoned people $75,000 for each year served. The Georgia Senate agreed 35-18, and it became law as Act 361.",
+      "nay_description": "Voted against the House rewrite of Senate Bill 244, which pays wrongly imprisoned people $75,000 for each year served. The Georgia Senate agreed 35-18, and it became law as Act 361.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #471",
+        "tally": "35-18",
+        "old_sentences": 2,
+        "old_chars": 238
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1665920,
+      "measure_id": "SB 220",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to accept the House rewrite of Senate Bill 220, which lets medical cannabis patients get the plant, oils and extracts. The Georgia Senate agreed 38-14, and it became law as Act 712.",
+      "nay_description": "Voted against the House rewrite of Senate Bill 220, which lets medical cannabis patients get the plant, oils and extracts. The Georgia Senate agreed 38-14, and it became law as Act 712.",
+      "_current": {
+        "question": "Agree To House Substitute As Amended: Senate Vote #742",
+        "tally": "38-14",
+        "old_sentences": 2,
+        "old_chars": 229
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1672157,
+      "measure_id": "SB 472",
+      "vote_date": "2026-03-27",
+      "yea_description": "Voted to accept the House rewrite of Senate Bill 472, which lets the state ask the governor to suspend school board members over money mismanagement. The Georgia Senate agreed 29-17, and it became law as Act 722.",
+      "nay_description": "Voted against the House rewrite of Senate Bill 472, which lets the state ask the governor to suspend school board members over money mismanagement. The Georgia Senate agreed 29-17, and it became law as Act 722.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #841",
+        "tally": "29-17",
+        "old_sentences": 2,
+        "old_chars": 231
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1676409,
+      "measure_id": "HB 1247",
+      "vote_date": "2026-04-03",
+      "yea_description": "Voted to accept the final version of House Bill 1247, which bars courts from deferring to an agency's reading of the law. The Georgia Senate agreed 34-18, and it became law as Act 718.",
+      "nay_description": "Voted against the final version of House Bill 1247, which bars courts from deferring to an agency's reading of the law. The Georgia Senate agreed 34-18, and it became law as Act 718.",
+      "_current": {
+        "question": "Agree To House Amendment To Senate Substitute: Senate Vote #983",
+        "tally": "34-18",
+        "old_sentences": 2,
+        "old_chars": 236
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2167",
+      "roll": 1676417,
+      "measure_id": "HB 463",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted yes on the final version of House Bill 463, which cuts the income tax rate to 4.99 percent in 2026, then toward 3.99. The Georgia Senate agreed 33-20, and it became law as Act 465.",
+      "nay_description": "Voted no on the final version of House Bill 463, which cuts the income tax rate to 4.99 percent in 2026, then toward 3.99. The Georgia Senate agreed 33-20, and it became law as Act 465.",
+      "_current": {
+        "question": "Agree To House Amendment To Senate Substitute: Senate Vote #971",
+        "tally": "33-20",
+        "old_sentences": 2,
+        "old_chars": 221
+      }
+    },
+    {
+      "jurisdiction": "GA",
+      "chamber": "senate",
+      "session": "2268",
+      "roll": 1711341,
+      "measure_id": "SB 3",
+      "vote_date": "2026-06-23",
+      "yea_description": "Voted to accept the House rewrite of Senate Bill 3EX, which plans a hand-marked paper ballot voting system and orders hand recounts in close races. The Georgia Senate agreed 36-16, and it became law.",
+      "nay_description": "Voted against the House rewrite of Senate Bill 3EX, which plans a hand-marked paper ballot voting system and orders hand recounts in close races. The Georgia Senate agreed 36-16, and it became law.",
+      "_current": {
+        "question": "Agree To House Substitute: Senate Vote #28",
+        "tally": "36-16",
+        "old_sentences": 2,
+        "old_chars": 223
+      }
+    }
+  ]
+}

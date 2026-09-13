@@ -1,0 +1,84 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522508,
+      "measure_id": "AB 102",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 102, a bill making college sports teams men's, women's or coed by sex at birth and barring men from women's teams. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 102, a bill making college sports teams men's, women's or coed by sex at birth and barring men from women's teams. The Assembly passed it 50-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "50-43",
+        "old_sentences": 2,
+        "old_chars": 269
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "house",
+      "session": "2197",
+      "roll": 1522672,
+      "measure_id": "AB 100",
+      "vote_date": "2025-03-20",
+      "yea_description": "Voted for Assembly Bill 100, a bill making school sports teams boys, girls or coed by sex at birth and barring boys from girls' teams. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 100, a bill making school sports teams boys, girls or coed by sex at birth and barring boys from girls' teams. The Assembly passed it 51-43, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Assembly: Read a third time and passed",
+        "tally": "51-43",
+        "old_sentences": 2,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630296,
+      "measure_id": "AB 100",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 100, a bill making school sports teams boys, girls or coed by sex at birth and barring boys from girls' teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 100, a bill making school sports teams boys, girls or coed by sex at birth and barring boys from girls' teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 2,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1630339,
+      "measure_id": "AB 102",
+      "vote_date": "2026-02-11",
+      "yea_description": "Voted for Assembly Bill 102, a bill making college sports teams men's, women's or coed by sex at birth and barring men from women's teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "nay_description": "Voted against Assembly Bill 102, a bill making college sports teams men's, women's or coed by sex at birth and barring men from women's teams. The Senate agreed to it 18-15, but the governor vetoed the bill and the Legislature did not override the veto, so it never became law.",
+      "_current": {
+        "question": "Senate: Read a third time and concurred in",
+        "tally": "18-15",
+        "old_sentences": 2,
+        "old_chars": 270
+      }
+    },
+    {
+      "jurisdiction": "WI",
+      "chamber": "senate",
+      "session": "2197",
+      "roll": 1664622,
+      "measure_id": "SB 176",
+      "vote_date": "2026-03-17",
+      "yea_description": "Voted for Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Senate accepted the Assembly's rewrite 20-13, but the governor vetoed the bill and no override followed, so it never became law.",
+      "nay_description": "Voted against Senate Bill 176, a bill to give companies a 6.32 percent tax credit on broadband expansion money from 2026 through 2030. The Senate accepted the Assembly's rewrite 20-13, but the governor vetoed the bill and no override followed, so it never became law.",
+      "_current": {
+        "question": "Senate: Assembly Substitute Amendment 1 concurred in",
+        "tally": "20-13",
+        "old_sentences": 2,
+        "old_chars": 296
+      }
+    }
+  ]
+}

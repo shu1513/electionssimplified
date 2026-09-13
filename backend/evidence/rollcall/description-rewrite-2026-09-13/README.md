@@ -10,7 +10,7 @@ Fix, in order:
 
 1. Hard gate (`rollCallDescriptionLength.ts`): `rollcall:judge` and
    `rollcall:rewrite` refuse a description over 3 sentences, 320
-   characters, or 30 words in one sentence.
+   characters, or 25 words in one sentence (30 during the first pass).
 2. Per jurisdiction: `rollcall:export-rewrites` → rewrite the effect
    clause from the existing text only (no new research, no AI) →
    `rollcall:rewrite --dry-run` → apply. Each `<JUR>/` folder holds the
@@ -82,3 +82,72 @@ keeps the recipe for any future import that needs the same pass.
 | FL | 15 | 505 | 0 |
 | HI | 11 | 183 | 0 |
 | MN | 3 | 269 | 0 |
+
+## Correction pass (2026-09-13, evening)
+
+The first pass keyed effect clauses by bill number (`tools/<JUR>_effects.py`).
+Bill numbers recur across sessions, so 123 rolls in AL, CO, IN, KY, NM, NV,
+SD, WV and WY carried the clause of a same-numbered bill from another session
+(plus one index-leak case in WY and two chamber-version mismatches in NV and
+WV). Every rewritten roll was re-screened against its own original digest
+(word overlap, every multi-session bill number, every leak candidate, and
+every roll under 0.60 overlap read by hand). `tools/fixrolls.py` rebuilds a
+roll from `tools/fix/<JUR>.py`, keyed by roll id only; the applied files are
+`<JUR>/rewrites-fix.json` + `apply-report-fix.json`.
+
+| Jurisdiction | Rolls fixed | Records rewritten |
+|---|---|---|
+| AL | 31 | 1,714 |
+| CO | 66 | 1,973 |
+| IN | 1 | 89 |
+| KY | 6 | 240 |
+| NM | 10 | 544 |
+| NV | 1 | 11 |
+| SD | 6 | 194 |
+| WV | 1 | 14 |
+| WY | 1 | 8 |
+
+## 25-word pass (2026-09-13, evening)
+
+The gate was tightened from 30 to 25 words per sentence. 707 rolls
+(53,540 records) still had a 26-30 word sentence; each was trimmed by
+hand from its own current clause (words dropped, nothing added), with the
+closing sentence shortened where that was the long one. `tools/trim/<JUR>.py`
+holds the trims: `TRIMP` keys are the start of the current clause (must
+match exactly one distinct clause in the export), `ROLL` entries are per
+roll (`"chamber:session:roll"` for US, where roll numbers repeat). Built
+with `tools/fixrolls.py <export> tools/trim/<JUR>.py <out> --require-all`
+from `rollcall:export-rewrites --only-over-limit`; applied files are
+`<JUR>/rewrites-trim.json` + `apply-report-trim.json`. After this pass
+`--only-over-limit` exports zero rolls for every jurisdiction.
+
+| Jurisdiction | Rolls trimmed | Records rewritten |
+|---|---|---|
+| AL | 8 | 533 |
+| AZ | 2 | 53 |
+| CA | 48 | 1,807 |
+| CO | 64 | 1,975 |
+| DE | 27 | 393 |
+| GA | 18 | 1,481 |
+| IL | 59 | 4,164 |
+| KS | 5 | 370 |
+| KY | 2 | 106 |
+| MD | 24 | 1,961 |
+| ME | 3 | 225 |
+| MI | 3 | 125 |
+| MT | 5 | 181 |
+| NC | 5 | 371 |
+| NM | 1 | 24 |
+| NV | 2 | 41 |
+| OH | 4 | 101 |
+| OK | 3 | 88 |
+| PA | 90 | 13,121 |
+| SC | 4 | 418 |
+| TN | 10 | 562 |
+| TX | 4 | 251 |
+| US | 233 | 21,213 |
+| UT | 3 | 75 |
+| WA | 73 | 3,625 |
+| WI | 5 | 200 |
+| WV | 1 | 68 |
+| WY | 1 | 8 |

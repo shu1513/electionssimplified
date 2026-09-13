@@ -1,0 +1,25 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/KY/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 2,
+  "updatedRolls": 2,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 106,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "KY:house:2179:1529818",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1516615",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/KY/rewrites-fix.json",
+  "dryRun": false,
+  "rolls": 6,
+  "updatedRolls": 6,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 240,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "KY:house:2247:1674562",
+      "outcome": "updated",
+      "rewritten": 80,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:house:2247:1682939",
+      "outcome": "updated",
+      "rewritten": 87,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2179:1517666",
+      "outcome": "updated",
+      "rewritten": 19,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1671561",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1674561",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "KY:senate:2247:1682938",
+      "outcome": "updated",
+      "rewritten": 18,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

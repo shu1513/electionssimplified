@@ -1,0 +1,18 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/US/rewrites.json",
+  "dryRun": false,
+  "rolls": 1,
+  "updatedRolls": 1,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 82,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "US:house:117-1:260",
+      "outcome": "updated",
+      "rewritten": 82,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

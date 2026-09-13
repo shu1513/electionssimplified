@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NV",
+      "chamber": "senate",
+      "session": "2144",
+      "roll": 1578740,
+      "measure_id": "SB 63",
+      "vote_date": "2025-05-27",
+      "yea_description": "Voted for Senate Bill 63, the Youth Online Safety Act, a bill to bar online platforms using minors' data to pick their content and ads. The Nevada Senate passed it 13-8, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "nay_description": "Voted against Senate Bill 63, the Youth Online Safety Act, a bill to bar online platforms using minors' data to pick their content and ads. The Nevada Senate passed it 13-8, but the Senate never voted on the Assembly's changed version, so it never became law.",
+      "_current": {
+        "question": "Senate Final Passage",
+        "tally": "13-8",
+        "old_sentences": 2,
+        "old_chars": 237
+      }
+    }
+  ]
+}

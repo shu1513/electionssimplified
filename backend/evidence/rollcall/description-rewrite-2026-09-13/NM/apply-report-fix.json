@@ -1,0 +1,81 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/NM/rewrites-fix.json",
+  "dryRun": false,
+  "rolls": 10,
+  "updatedRolls": 10,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 544,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "NM:house:1961:1145480",
+      "outcome": "updated",
+      "rewritten": 33,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2030:1257723",
+      "outcome": "updated",
+      "rewritten": 46,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2126:1384038",
+      "outcome": "updated",
+      "rewritten": 48,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2187:1496721",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2187:1516594",
+      "outcome": "updated",
+      "rewritten": 61,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2227:1603193",
+      "outcome": "updated",
+      "rewritten": 58,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2251:1620250",
+      "outcome": "updated",
+      "rewritten": 62,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2251:1632642",
+      "outcome": "updated",
+      "rewritten": 60,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2251:1636446",
+      "outcome": "updated",
+      "rewritten": 59,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NM:house:2251:1636452",
+      "outcome": "updated",
+      "rewritten": 59,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

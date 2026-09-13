@@ -1,0 +1,84 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1526411,
+      "measure_id": "SB 4",
+      "vote_date": "2025-03-25",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 4, which makes mailed early ballots arrive by 7 p.m. on election day from 2026. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 4, which makes mailed early ballots arrive by 7 p.m. on election day from 2026. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 41",
+        "tally": "84-41",
+        "old_sentences": 2,
+        "old_chars": 274
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543277,
+      "measure_id": "HB 2033",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2033, which lets more reading help be paid from a school district's at-risk fund. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2033, which lets more reading help be paid from a school district's at-risk fund. The Kansas House voted 87-38 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 38",
+        "tally": "87-38",
+        "old_sentences": 2,
+        "old_chars": 272
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1543322,
+      "measure_id": "HB 2382",
+      "vote_date": "2025-04-10",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2382, which makes schools show a video of fetal growth in human development classes. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2382, which makes schools show a video of fetal growth in human development classes. The Kansas House voted 84-41 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 41",
+        "tally": "84-41",
+        "old_sentences": 2,
+        "old_chars": 274
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1637133,
+      "measure_id": "SB 244",
+      "vote_date": "2026-02-18",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of Senate Bill 244, which makes every shared restroom and locker room in public buildings single-sex. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of Senate Bill 244, which makes every shared restroom and locker room in public buildings single-sex. The Kansas House voted 87-37 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 87 Nay: 37",
+        "tally": "87-37",
+        "old_sentences": 2,
+        "old_chars": 283
+      }
+    },
+    {
+      "jurisdiction": "KS",
+      "chamber": "house",
+      "session": "2178",
+      "roll": 1679846,
+      "measure_id": "HB 2437",
+      "vote_date": "2026-04-09",
+      "yea_description": "Voted to override Governor Laura Kelly's veto of House Bill 2437, the SAVE Kansas Act, which checks voter lists against federal citizenship data twice yearly. The Kansas House voted 84-39 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "nay_description": "Voted against overriding Governor Laura Kelly's veto of House Bill 2437, the SAVE Kansas Act, which checks voter lists against federal citizenship data twice yearly. The Kansas House voted 84-39 to override, the Senate did the same, and the bill became law over Governor Laura Kelly's veto.",
+      "_current": {
+        "question": "House Motion to override veto prevailed - Yea: 84 Nay: 39",
+        "tally": "84-39",
+        "old_sentences": 2,
+        "old_chars": 284
+      }
+    }
+  ]
+}

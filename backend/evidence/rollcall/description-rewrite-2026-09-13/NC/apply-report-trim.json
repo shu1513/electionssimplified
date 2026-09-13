@@ -1,0 +1,46 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/NC/rewrites-trim.json",
+  "dryRun": false,
+  "rolls": 5,
+  "updatedRolls": 5,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 371,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "NC:house:2189:1566371",
+      "outcome": "updated",
+      "rewritten": 91,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NC:house:2189:1588661",
+      "outcome": "updated",
+      "rewritten": 90,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NC:house:2189:1599122",
+      "outcome": "updated",
+      "rewritten": 100,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NC:senate:2189:1599136",
+      "outcome": "updated",
+      "rewritten": 45,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "NC:senate:2189:1599171",
+      "outcome": "updated",
+      "rewritten": 45,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

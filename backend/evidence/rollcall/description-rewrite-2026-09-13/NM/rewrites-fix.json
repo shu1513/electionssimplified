@@ -1,0 +1,164 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "1961",
+      "roll": 1145480,
+      "measure_id": "SB 4",
+      "vote_date": "2022-02-15",
+      "yea_description": "Voted for Senate Bill 4, which makes the state set prevailing wage rates each year by October 1 for public works. The New Mexico House passed it 44-25, and it became law.",
+      "nay_description": "Voted against Senate Bill 4, which makes the state set prevailing wage rates each year by October 1 for public works. The New Mexico House passed it 44-25, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "44-25",
+        "old_sentences": 2,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2030",
+      "roll": 1257723,
+      "measure_id": "HB 4",
+      "vote_date": "2023-02-21",
+      "yea_description": "Voted for House Bill 4, the voting rights package, with automatic voter registration, a permanent mail ballot list and voting rights for people leaving prison. The New Mexico House passed it 41-26. The Senate changed it, the House agreed, and it became law.",
+      "nay_description": "Voted against House Bill 4, the voting rights package, with automatic voter registration, a permanent mail ballot list and voting rights for people leaving prison. The New Mexico House passed it 41-26. The Senate changed it, the House agreed, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "41-26",
+        "old_sentences": 3,
+        "old_chars": 232
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2126",
+      "roll": 1384038,
+      "measure_id": "SB 5",
+      "vote_date": "2024-02-13",
+      "yea_description": "Voted for Senate Bill 5, which bars guns within 100 feet of a polling place door or 50 feet of a ballot drop box. The New Mexico House passed it 35-34, and it became law.",
+      "nay_description": "Voted against Senate Bill 5, which bars guns within 100 feet of a polling place door or 50 feet of a ballot drop box. The New Mexico House passed it 35-34, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "35-34",
+        "old_sentences": 2,
+        "old_chars": 200
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2187",
+      "roll": 1496721,
+      "measure_id": "SB 1",
+      "vote_date": "2025-02-21",
+      "yea_description": "Voted for Senate Bill 1, which sets up two state funds for mental health and addiction care. The New Mexico House passed it 46-19, and it became law.",
+      "nay_description": "Voted against Senate Bill 1, which sets up two state funds for mental health and addiction care. The New Mexico House passed it 46-19, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "46-19",
+        "old_sentences": 2,
+        "old_chars": 185
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2187",
+      "roll": 1516594,
+      "measure_id": "SB 5",
+      "vote_date": "2025-03-12",
+      "yea_description": "Voted for Senate Bill 5, which renames the State Game Commission the State Wildlife Commission and changes how its members are picked. The New Mexico House passed it 42-26, and it became law.",
+      "nay_description": "Voted against Senate Bill 5, which renames the State Game Commission the State Wildlife Commission and changes how its members are picked. The New Mexico House passed it 42-26, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "42-26",
+        "old_sentences": 2,
+        "old_chars": 200
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2227",
+      "roll": 1603193,
+      "measure_id": "HB 2",
+      "vote_date": "2025-10-01",
+      "yea_description": "Voted for House Bill 2 from the October 2025 special session, which widens what the health care affordability fund may be used for. The New Mexico House passed it 49-13, and it became law.",
+      "nay_description": "Voted against House Bill 2 from the October 2025 special session, which widens what the health care affordability fund may be used for. The New Mexico House passed it 49-13, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "49-13",
+        "old_sentences": 2,
+        "old_chars": 197
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2251",
+      "roll": 1620250,
+      "measure_id": "HB 9",
+      "vote_date": "2026-01-30",
+      "yea_description": "Voted for House Bill 9, the Immigrant Safety Act, which bars public bodies from agreements to hold people for federal civil immigration violations. The New Mexico House passed it 40-29, and it became law.",
+      "nay_description": "Voted against House Bill 9, the Immigrant Safety Act, which bars public bodies from agreements to hold people for federal civil immigration violations. The New Mexico House passed it 40-29, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "40-29",
+        "old_sentences": 2,
+        "old_chars": 167
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2251",
+      "roll": 1632642,
+      "measure_id": "HB 4",
+      "vote_date": "2026-02-12",
+      "yea_description": "Voted for House Bill 4, which sends more of the health insurance premium tax to the fund that holds down costs on the state exchange. The New Mexico House passed it 48-19. The Senate later moved 5 percent of the 2028 share to a behavioral health program fund, the House agreed, and it became law.",
+      "nay_description": "Voted against House Bill 4, which sends more of the health insurance premium tax to the fund that holds down costs on the state exchange. The New Mexico House passed it 48-19. The Senate later moved 5 percent of the 2028 share to a behavioral health program fund, the House agreed, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "48-19",
+        "old_sentences": 3,
+        "old_chars": 297
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2251",
+      "roll": 1636446,
+      "measure_id": "SB 96",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Senate Bill 96, which treats a child care home as a residence for local zoning, barring extra rules, permits or fees. The New Mexico House passed it 41-23, and it became law.",
+      "nay_description": "Voted against Senate Bill 96, which treats a child care home as a residence for local zoning, barring extra rules, permits or fees. The New Mexico House passed it 41-23, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "41-23",
+        "old_sentences": 2,
+        "old_chars": 149
+      }
+    },
+    {
+      "jurisdiction": "NM",
+      "chamber": "house",
+      "session": "2251",
+      "roll": 1636452,
+      "measure_id": "SB 21",
+      "vote_date": "2026-02-17",
+      "yea_description": "Voted for Senate Bill 21, which gives people on Medicare a yearly 60-day window to switch Medigap plans. The New Mexico House passed it 41-22, and it became law.",
+      "nay_description": "Voted against Senate Bill 21, which gives people on Medicare a yearly 60-day window to switch Medigap plans. The New Mexico House passed it 41-22, and it became law.",
+      "_current": {
+        "question": "House Final Passage",
+        "tally": "41-22",
+        "old_sentences": 2,
+        "old_chars": 182
+      }
+    }
+  ]
+}
