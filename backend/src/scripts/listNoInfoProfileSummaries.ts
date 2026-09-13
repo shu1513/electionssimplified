@@ -26,7 +26,8 @@ import { assertKnownCliFlags } from "./manualCliFlags.js";
 // (blocker_key profile-<first 8 chars of the candidate id>). The same
 // coverage rule drives the demand ledger's candidate_profile gap, so a row
 // this command calls due is a row manual:demand:status and the city-coverage
-// report also show.
+// report also show — and a candidate is waiting while any covering deferral
+// is still in the future, even if its own candidate-keyed one has expired.
 
 type Queryable = Pick<Pool, "query">;
 
@@ -81,7 +82,13 @@ export const NO_INFO_PROFILE_SUMMARIES_SQL = `
         OR m.blocker_key NOT LIKE 'profile-%'
         OR m.blocker_key = 'profile-' || left(c.id::text, 8)
       )
-    ORDER BY (m.blocker_key = 'profile-' || left(c.id::text, 8)) DESC NULLS LAST, m.blocked_until ASC
+    -- A live deferral wins over an expired one, however specific: the
+    -- demand ledger hides the candidate while ANY covering deferral is in
+    -- the future, and the status here must agree. Among equally live (or
+    -- equally expired) rows, the candidate-keyed one is the row to resolve.
+    ORDER BY (m.blocked_until > $1::date) DESC,
+      (m.blocker_key = 'profile-' || left(c.id::text, 8)) DESC NULLS LAST,
+      m.blocked_until ASC
     LIMIT 1
   ) AS m ON TRUE
   WHERE c.deleted_at IS NULL

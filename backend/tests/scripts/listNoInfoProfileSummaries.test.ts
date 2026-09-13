@@ -52,6 +52,12 @@ describe("listNoInfoProfileSummaries", () => {
     expect(sql).toContain("m.stage = 'candidate_profile'");
     expect(sql).toContain("OR m.blocker_key = 'profile-' || left(c.id::text, 8)");
     expect(sql).toContain("($2::uuid IS NULL OR e.district_id = $2::uuid)");
+    // The covering deferral is chosen live-first so an expired candidate
+    // deferral beside a live district- or election-wide one still reads
+    // "waiting", exactly as the demand ledger hides that candidate.
+    expect(sql).toContain(
+      "ORDER BY (m.blocked_until > $1::date) DESC,\n      (m.blocker_key = 'profile-' || left(c.id::text, 8)) DESC NULLS LAST,\n      m.blocked_until ASC\n    LIMIT 1"
+    );
   });
 
   it("classifies every row and, with dueOnly, keeps the actionable ones", async () => {
