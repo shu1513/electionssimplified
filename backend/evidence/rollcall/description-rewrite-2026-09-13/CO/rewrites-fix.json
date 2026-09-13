@@ -1,0 +1,1060 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2224",
+      "roll": 1599910,
+      "measure_id": "HB 1001",
+      "vote_date": "2025-08-23",
+      "yea_description": "Voted to pass House Bill 25B-1001, which makes permanent the rule that high earners add back a federal business income deduction on their state taxes. The Colorado House passed it 43-19 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 25B-1001, which makes permanent the rule that high earners add back a federal business income deduction on their state taxes. The Colorado House passed it 43-19 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "43-19",
+        "old_sentences": 2,
+        "old_chars": 241
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2224",
+      "roll": 1599932,
+      "measure_id": "SB 3",
+      "vote_date": "2025-08-24",
+      "yea_description": "Voted to pass Senate Bill 25B-003, which rewrites the November 2025 ballot question so high-earner tax money can also fund SNAP food aid. The Colorado House passed it 44-17 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 25B-003, which rewrites the November 2025 ballot question so high-earner tax money can also fund SNAP food aid. The Colorado House passed it 44-17 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "44-17",
+        "old_sentences": 2,
+        "old_chars": 266
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2224",
+      "roll": 1599933,
+      "measure_id": "SB 2",
+      "vote_date": "2025-08-24",
+      "yea_description": "Voted to pass Senate Bill 25B-002, which pays clinics that also provide abortions, mainly Planned Parenthood, with state money after a federal Medicaid cutoff. The Colorado House passed it 43-19 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 25B-002, which pays clinics that also provide abortions, mainly Planned Parenthood, with state money after a federal Medicaid cutoff. The Colorado House passed it 43-19 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "43-19",
+        "old_sentences": 2,
+        "old_chars": 246
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2224",
+      "roll": 1600086,
+      "measure_id": "SB 4",
+      "vote_date": "2025-08-26",
+      "yea_description": "Voted to pass Senate Bill 25B-004, which moves the start of the 2024 artificial intelligence bias law's duties from February 1 to June 30, 2026. The Colorado House passed it 48-14 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 25B-004, which moves the start of the 2024 artificial intelligence bias law's duties from February 1 to June 30, 2026. The Colorado House passed it 48-14 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "48-14",
+        "old_sentences": 2,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1627955,
+      "measure_id": "HB 1003",
+      "vote_date": "2026-02-10",
+      "yea_description": "Voted to pass House Bill 1003, which keeps the pandemic-era small business loan fund running for later problems and loosens its private match rule. The Colorado House passed it 50-15 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1003, which keeps the pandemic-era small business loan fund running for later problems and loosens its private match rule. The Colorado House passed it 50-15 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "50-15",
+        "old_sentences": 2,
+        "old_chars": 195
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1641012,
+      "measure_id": "SB 52",
+      "vote_date": "2026-02-23",
+      "yea_description": "Voted to pass Senate Bill 52, which makes railroads, utilities and new factories in coal towns give former coal workers first shot at jobs. The Colorado House passed it 45-17 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 52, which makes railroads, utilities and new factories in coal towns give former coal workers first shot at jobs. The Colorado House passed it 45-17 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "45-17",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1644217,
+      "measure_id": "HB 1114",
+      "vote_date": "2026-02-25",
+      "yea_description": "Voted to pass House Bill 1114, a bill to bar larger jurisdictions from requiring more than 2,000 square feet for a single family home lot. The Colorado House voted 38-26 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing House Bill 1114, a bill to bar larger jurisdictions from requiring more than 2,000 square feet for a single family home lot. The Colorado House voted 38-26 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "38-26",
+        "old_sentences": 2,
+        "old_chars": 223
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1654489,
+      "measure_id": "HB 1002",
+      "vote_date": "2026-03-05",
+      "yea_description": "Voted to pass House Bill 1002, which makes insurers check each year from 2027 that listed mental health providers are still in the network. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1002, which makes insurers check each year from 2027 that listed mental health providers are still in the network. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "51-13",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1661323,
+      "measure_id": "HB 1013",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1013, which lets landlords split one utility bill among tenants by formula, with no markup. The Colorado House voted 41-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1013, which lets landlords split one utility bill among tenants by formula, with no markup. The Colorado House voted 41-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "41-22",
+        "old_sentences": 2,
+        "old_chars": 256
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1662258,
+      "measure_id": "HB 1001",
+      "vote_date": "2026-03-13",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1001, which makes towns over 2,000 people allow homes on school, college and transit district land. The Colorado House voted 40-24 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1001, which makes towns over 2,000 people allow homes on school, college and transit district land. The Colorado House voted 40-24 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "40-24",
+        "old_sentences": 2,
+        "old_chars": 264
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1667110,
+      "measure_id": "SB 4",
+      "vote_date": "2026-03-20",
+      "yea_description": "Voted to pass Senate Bill 4, which lets crisis workers and more school staff ask a court for an extreme risk protection order. The Colorado House passed it 39-24 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 4, which lets crisis workers and more school staff ask a court for an extreme risk protection order. The Colorado House passed it 39-24 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "39-24",
+        "old_sentences": 2,
+        "old_chars": 206
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1675609,
+      "measure_id": "SB 14",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass Senate Bill 14, which makes a person found not guilty by insanity prove they qualify for release. The Colorado House passed it 44-19 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 14, which makes a person found not guilty by insanity prove they qualify for release. The Colorado House passed it 44-19 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "44-19",
+        "old_sentences": 2,
+        "old_chars": 190
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1675632,
+      "measure_id": "HB 1011",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1011, which bars pet stores from selling, leasing or auctioning dogs and cats from January 2028. The Colorado House voted 43-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1011, which bars pet stores from selling, leasing or auctioning dogs and cats from January 2028. The Colorado House voted 43-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "43-20",
+        "old_sentences": 2,
+        "old_chars": 259
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1675686,
+      "measure_id": "HB 1259",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1259, which makes preschool providers and the state keep child records private. The Colorado House voted 44-19 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1259, which makes preschool providers and the state keep child records private. The Colorado House voted 44-19 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "44-19",
+        "old_sentences": 2,
+        "old_chars": 250
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1675727,
+      "measure_id": "HB 1300",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass House Bill 1300, a bill to let a health service district add or drop affordable housing services without a major plan change. The Colorado House voted 43-20 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing House Bill 1300, a bill to let a health service district add or drop affordable housing services without a major plan change. The Colorado House voted 43-20 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "43-20",
+        "old_sentences": 2,
+        "old_chars": 203
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1675896,
+      "measure_id": "SB 53",
+      "vote_date": "2026-04-02",
+      "yea_description": "Voted to pass Senate Bill 53, which raises the income limit for first responder families' state-backed home loans to 110 percent of the usual cap. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 53, which raises the income limit for first responder families' state-backed home loans to 110 percent of the usual cap. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "51-13",
+        "old_sentences": 2,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1684217,
+      "measure_id": "HB 1235",
+      "vote_date": "2026-04-16",
+      "yea_description": "Voted to pass House Bill 1235, which tells the state to write Colorado's Medicaid work rules with the least paperwork and post monthly approval figures. The Colorado House passed it 44-18 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1235, which tells the state to write Colorado's Medicaid work rules with the least paperwork and post monthly approval figures. The Colorado House passed it 44-18 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "44-18",
+        "old_sentences": 2,
+        "old_chars": 182
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1692028,
+      "measure_id": "SB 158",
+      "vote_date": "2026-04-30",
+      "yea_description": "Voted to pass Senate Bill 158, which lets the parole board, not the governor alone, grant early parole to young offenders in a special program. The Colorado House passed it 45-18 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 158, which lets the parole board, not the governor alone, grant early parole to young offenders in a special program. The Colorado House passed it 45-18 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "45-18",
+        "old_sentences": 2,
+        "old_chars": 208
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1693062,
+      "measure_id": "HB 1004",
+      "vote_date": "2026-05-04",
+      "yea_description": "Voted to pass House Bill 1004, which extends the tax credit for donations to child care centers through 2037. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1004, which extends the tax credit for donations to child care centers through 2037. The Colorado House passed it 51-13 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "51-13",
+        "old_sentences": 2,
+        "old_chars": 182
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1693108,
+      "measure_id": "HB 1006",
+      "vote_date": "2026-05-04",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1006, which lets the state name colleges thriving institutions for serving rural, low-income or first-generation students. The Colorado House voted 43-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1006, which lets the state name colleges thriving institutions for serving rural, low-income or first-generation students. The Colorado House voted 43-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "43-22",
+        "old_sentences": 2,
+        "old_chars": 265
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1693615,
+      "measure_id": "HB 1312",
+      "vote_date": "2026-05-04",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1312, which makes the attorney general draft a plan to update police academy training. The Colorado House voted 47-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1312, which makes the attorney general draft a plan to update police academy training. The Colorado House voted 47-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "47-18",
+        "old_sentences": 2,
+        "old_chars": 255
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1693760,
+      "measure_id": "HB 1327",
+      "vote_date": "2026-05-05",
+      "yea_description": "Voted to pass House Bill 1327, a bill to charge large employers a fee for workers kept under 30 hours who are on state Medicaid. The Colorado House voted 35-30 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing House Bill 1327, a bill to charge large employers a fee for workers kept under 30 hours who are on state Medicaid. The Colorado House voted 35-30 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "35-30",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1694758,
+      "measure_id": "HB 1043",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass House Bill 1043, which makes ride-hailing companies train every driver to carry a rider's service animal within six months of joining. The Colorado House passed it 46-18 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1043, which makes ride-hailing companies train every driver to carry a rider's service animal within six months of joining. The Colorado House passed it 46-18 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "46-18",
+        "old_sentences": 2,
+        "old_chars": 214
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1694959,
+      "measure_id": "HB 1117",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass House Bill 1117, a bill to let marijuana hospitality businesses hold time-limited consumption events away from their own premises. The Colorado House voted 33-31 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing House Bill 1117, a bill to let marijuana hospitality businesses hold time-limited consumption events away from their own premises. The Colorado House voted 33-31 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "33-31",
+        "old_sentences": 2,
+        "old_chars": 197
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1694961,
+      "measure_id": "SB 6",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass Senate Bill 6, which bars insurers from making non-opioid pain drugs harder or costlier to get than opioids. The Colorado House passed it 48-16 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 6, which bars insurers from making non-opioid pain drugs harder or costlier to get than opioids. The Colorado House passed it 48-16 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "48-16",
+        "old_sentences": 2,
+        "old_chars": 205
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1694967,
+      "measure_id": "SB 48",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass Senate Bill 48, a bill to bar 16 and 17 year olds marrying someone over ten years older. The Colorado House voted 41-23 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing Senate Bill 48, a bill to bar 16 and 17 year olds marrying someone over ten years older. The Colorado House voted 41-23 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "41-23",
+        "old_sentences": 2,
+        "old_chars": 187
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1695567,
+      "measure_id": "HB 1322",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1322, which lets someone harmed by conversion therapy sue the therapist with no time limit. The Colorado House voted 41-23 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1322, which lets someone harmed by conversion therapy sue the therapist with no time limit. The Colorado House voted 41-23 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "41-23",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1695572,
+      "measure_id": "HB 1010",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1010, which adds an older-worker representative to the state workforce council. The Colorado House voted 46-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1010, which adds an older-worker representative to the state workforce council. The Colorado House voted 46-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "46-18",
+        "old_sentences": 2,
+        "old_chars": 282
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1695619,
+      "measure_id": "SB 5",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass Senate Bill 5, a bill to let a person sue in state court over rights broken during civil immigration enforcement. The Colorado House voted 41-22 to pass it, but the governor vetoed the bill.",
+      "nay_description": "Voted against passing Senate Bill 5, a bill to let a person sue in state court over rights broken during civil immigration enforcement. The Colorado House voted 41-22 to pass it, but the governor vetoed the bill.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "41-22",
+        "old_sentences": 2,
+        "old_chars": 193
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1695625,
+      "measure_id": "HB 1132",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1132, which tells four state agencies to favor native plants on state land projects where workable. The Colorado House voted 44-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1132, which tells four state agencies to favor native plants on state land projects where workable. The Colorado House voted 44-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "44-20",
+        "old_sentences": 2,
+        "old_chars": 277
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1695653,
+      "measure_id": "SB 20",
+      "vote_date": "2026-05-07",
+      "yea_description": "Voted to pass Senate Bill 20, which phases out contractor-run child care licensing checks in favor of state specialists. The Colorado House passed it 48-16 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 20, which phases out contractor-run child care licensing checks in favor of state specialists. The Colorado House passed it 48-16 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "48-16",
+        "old_sentences": 2,
+        "old_chars": 176
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1696058,
+      "measure_id": "SB 167",
+      "vote_date": "2026-05-09",
+      "yea_description": "Voted to pass Senate Bill 167, which makes insurers count what a patient paid a pharmacy directly toward the patient's yearly cost cap from 2028. The Colorado House passed it 48-15 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 167, which makes insurers count what a patient paid a pharmacy directly toward the patient's yearly cost cap from 2028. The Colorado House passed it 48-15 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "48-15",
+        "old_sentences": 2,
+        "old_chars": 187
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1696345,
+      "measure_id": "HB 1273",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted to pass House Bill 1273, a bill to cap the share of each fare ride-hailing companies keep at 20 percent. The Colorado House voted 38-26 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing House Bill 1273, a bill to cap the share of each fare ride-hailing companies keep at 20 percent. The Colorado House voted 38-26 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "38-26",
+        "old_sentences": 2,
+        "old_chars": 207
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1696905,
+      "measure_id": "SB 3",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted to pass Senate Bill 3, which makes electric car battery suppliers take back used batteries and bans putting them in landfills. The Colorado House passed it 49-16 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 3, which makes electric car battery suppliers take back used batteries and bans putting them in landfills. The Colorado House passed it 49-16 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "49-16",
+        "old_sentences": 2,
+        "old_chars": 224
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1696980,
+      "measure_id": "SB 2",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted to pass Senate Bill 2, which caps low-income households' gas and electric bills at two to six percent of income. The Colorado House passed it 40-23 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 2, which caps low-income households' gas and electric bills at two to six percent of income. The Colorado House passed it 40-23 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "40-23",
+        "old_sentences": 2,
+        "old_chars": 204
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1697220,
+      "measure_id": "HB 1225",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1225, which lets community solar gardens hold bill credits steady for low-income members. The Colorado House voted 45-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1225, which lets community solar gardens hold bill credits steady for low-income members. The Colorado House voted 45-18 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "45-18",
+        "old_sentences": 2,
+        "old_chars": 275
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1697247,
+      "measure_id": "HB 1147",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1147, which makes the state list host homes for adults with developmental disabilities. The Colorado House voted 44-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1147, which makes the state list host homes for adults with developmental disabilities. The Colorado House voted 44-20 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "44-20",
+        "old_sentences": 2,
+        "old_chars": 248
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1697290,
+      "measure_id": "HB 1269",
+      "vote_date": "2026-05-12",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1269, which makes large transit agencies post clear maps, fares and discount rules from mid-2027. The Colorado House voted 42-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1269, which makes large transit agencies post clear maps, fares and discount rules from mid-2027. The Colorado House voted 42-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "42-22",
+        "old_sentences": 2,
+        "old_chars": 258
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1697449,
+      "measure_id": "SB 190",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass Senate Bill 190, which sets a separate track for releasing body camera footage when police use of force kills someone. The Colorado House passed it 45-20 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 190, which sets a separate track for releasing body camera footage when police use of force kills someone. The Colorado House passed it 45-20 and the governor signed it into law.",
+      "_current": {
+        "question": "House: Third Reading Bill",
+        "tally": "45-20",
+        "old_sentences": 2,
+        "old_chars": 190
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "house",
+      "session": "2243",
+      "roll": 1697843,
+      "measure_id": "HB 1309",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass the Senate's version of House Bill 1309, which defines coercive control, such as money control and tracking, for child custody cases. The Colorado House voted 43-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the Senate's version of House Bill 1309, which defines coercive control, such as money control and tracking, for child custody cases. The Colorado House voted 43-22 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "House: Senate Amendments Repass",
+        "tally": "43-22",
+        "old_sentences": 2,
+        "old_chars": 235
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2173",
+      "roll": 1507054,
+      "measure_id": "SB 141",
+      "vote_date": "2025-03-06",
+      "yea_description": "Voted to pass Senate Bill 141, a bill to excuse towns with fewer than 2,500 residents from adopting a home energy code. The Colorado Senate passed it 19-13, but a House committee killed it.",
+      "nay_description": "Voted against passing Senate Bill 141, a bill to excuse towns with fewer than 2,500 residents from adopting a home energy code. The Colorado Senate passed it 19-13, but a House committee killed it.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "19-13",
+        "old_sentences": 2,
+        "old_chars": 182
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2173",
+      "roll": 1537383,
+      "measure_id": "SB 87",
+      "vote_date": "2025-04-04",
+      "yea_description": "Voted to pass the House's version of Senate Bill 87, which makes colleges set a clear process for disability reports and academic adjustments. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 87, which makes colleges set a clear process for disability reports and academic adjustments. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: House Amendments Repass",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 253
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2173",
+      "roll": 1566530,
+      "measure_id": "HB 1192",
+      "vote_date": "2025-05-06",
+      "yea_description": "Voted to pass House Bill 1192, which makes student career and academic plans include practice filling in a student aid application. The Colorado Senate passed it 26-9 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1192, which makes student career and academic plans include practice filling in a student aid application. The Colorado Senate passed it 26-9 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "26-9",
+        "old_sentences": 2,
+        "old_chars": 195
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2224",
+      "roll": 1599881,
+      "measure_id": "SB 2",
+      "vote_date": "2025-08-22",
+      "yea_description": "Voted to pass Senate Bill 25B-002, which pays clinics that also provide abortions, mainly Planned Parenthood, with state money after a federal Medicaid cutoff. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 25B-002, which pays clinics that also provide abortions, mainly Planned Parenthood, with state money after a federal Medicaid cutoff. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 247
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2224",
+      "roll": 1599888,
+      "measure_id": "SB 3",
+      "vote_date": "2025-08-22",
+      "yea_description": "Voted to pass Senate Bill 25B-003, which rewrites the November 2025 ballot question so high-earner tax money can also fund SNAP food aid. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 25B-003, which rewrites the November 2025 ballot question so high-earner tax money can also fund SNAP food aid. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2224",
+      "roll": 1599967,
+      "measure_id": "HB 1001",
+      "vote_date": "2025-08-25",
+      "yea_description": "Voted to pass House Bill 25B-1001, which makes permanent the rule that high earners add back a federal business income deduction on their state taxes. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 25B-1001, which makes permanent the rule that high earners add back a federal business income deduction on their state taxes. The Colorado Senate passed it 23-12 in the August 2025 special session, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 242
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1621587,
+      "measure_id": "SB 4",
+      "vote_date": "2026-02-03",
+      "yea_description": "Voted to pass Senate Bill 4, which lets crisis workers and more school staff ask a court for an extreme risk protection order. The Colorado Senate passed it 20-13 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 4, which lets crisis workers and more school staff ask a court for an extreme risk protection order. The Colorado Senate passed it 20-13 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "20-13",
+        "old_sentences": 2,
+        "old_chars": 207
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1642411,
+      "measure_id": "SB 5",
+      "vote_date": "2026-02-24",
+      "yea_description": "Voted to pass Senate Bill 5, a bill to let a person sue in state court over rights broken during civil immigration enforcement. The Colorado Senate voted 20-11 to pass it, but the governor vetoed the bill.",
+      "nay_description": "Voted against passing Senate Bill 5, a bill to let a person sue in state court over rights broken during civil immigration enforcement. The Colorado Senate voted 20-11 to pass it, but the governor vetoed the bill.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "20-11",
+        "old_sentences": 2,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1658153,
+      "measure_id": "HB 1013",
+      "vote_date": "2026-03-10",
+      "yea_description": "Voted to pass House Bill 1013, which lets landlords split one utility bill among tenants by formula, with no markup. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1013, which lets landlords split one utility bill among tenants by formula, with no markup. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 194
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1661326,
+      "measure_id": "HB 1001",
+      "vote_date": "2026-03-12",
+      "yea_description": "Voted to pass House Bill 1001, which makes towns over 2,000 people allow homes on school, college and transit district land. The Colorado Senate passed it 22-13 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1001, which makes towns over 2,000 people allow homes on school, college and transit district land. The Colorado Senate passed it 22-13 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "22-13",
+        "old_sentences": 2,
+        "old_chars": 202
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1665272,
+      "measure_id": "SB 62",
+      "vote_date": "2026-03-18",
+      "yea_description": "Voted to pass Senate Bill 62, a bill to make four second-generation rat poisons restricted-use pesticides from July 2027. The Colorado Senate voted 22-12 to pass it, but the bill did not become law.",
+      "nay_description": "Voted against passing Senate Bill 62, a bill to make four second-generation rat poisons restricted-use pesticides from July 2027. The Colorado Senate voted 22-12 to pass it, but the bill did not become law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "22-12",
+        "old_sentences": 2,
+        "old_chars": 181
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1672756,
+      "measure_id": "HB 1011",
+      "vote_date": "2026-03-30",
+      "yea_description": "Voted to pass House Bill 1011, which bars pet stores from selling, leasing or auctioning dogs and cats from January 2028. The Colorado Senate passed it 19-16 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1011, which bars pet stores from selling, leasing or auctioning dogs and cats from January 2028. The Colorado Senate passed it 19-16 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "19-16",
+        "old_sentences": 2,
+        "old_chars": 197
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1676686,
+      "measure_id": "SB 14",
+      "vote_date": "2026-04-06",
+      "yea_description": "Voted to pass the House's version of Senate Bill 14, which makes a person found not guilty by insanity prove they qualify for release. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 14, which makes a person found not guilty by insanity prove they qualify for release. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: House Amendments Repass",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 253
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1685552,
+      "measure_id": "SB 158",
+      "vote_date": "2026-04-20",
+      "yea_description": "Voted to pass Senate Bill 158, which lets the parole board, not the governor alone, grant early parole to young offenders in a special program. The Colorado Senate passed it 23-11 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 158, which lets the parole board, not the governor alone, grant early parole to young offenders in a special program. The Colorado Senate passed it 23-11 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-11",
+        "old_sentences": 2,
+        "old_chars": 209
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1688707,
+      "measure_id": "HB 1003",
+      "vote_date": "2026-04-23",
+      "yea_description": "Voted to pass House Bill 1003, which keeps the pandemic-era small business loan fund running for later problems and loosens its private match rule. The Colorado Senate passed it 28-7 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1003, which keeps the pandemic-era small business loan fund running for later problems and loosens its private match rule. The Colorado Senate passed it 28-7 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "28-7",
+        "old_sentences": 2,
+        "old_chars": 195
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1692370,
+      "measure_id": "HB 1006",
+      "vote_date": "2026-05-01",
+      "yea_description": "Voted to pass House Bill 1006, which lets the state name colleges thriving institutions for serving rural, low-income or first-generation students. The Colorado Senate passed it 26-9 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1006, which lets the state name colleges thriving institutions for serving rural, low-income or first-generation students. The Colorado Senate passed it 26-9 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "26-9",
+        "old_sentences": 2,
+        "old_chars": 202
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1692805,
+      "measure_id": "HB 1010",
+      "vote_date": "2026-05-04",
+      "yea_description": "Voted to pass House Bill 1010, which adds an older-worker representative to the state workforce council. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1010, which adds an older-worker representative to the state workforce council. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 220
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1693775,
+      "measure_id": "HB 1322",
+      "vote_date": "2026-05-05",
+      "yea_description": "Voted to pass House Bill 1322, which lets someone harmed by conversion therapy sue the therapist with no time limit. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1322, which lets someone harmed by conversion therapy sue the therapist with no time limit. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 205
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1694687,
+      "measure_id": "HB 1132",
+      "vote_date": "2026-05-06",
+      "yea_description": "Voted to pass House Bill 1132, which tells four state agencies to favor native plants on state land projects where workable. The Colorado Senate passed it 24-11 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1132, which tells four state agencies to favor native plants on state land projects where workable. The Colorado Senate passed it 24-11 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "24-11",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1695916,
+      "measure_id": "HB 1269",
+      "vote_date": "2026-05-08",
+      "yea_description": "Voted to pass House Bill 1269, which makes large transit agencies post clear maps, fares and discount rules from mid-2027. The Colorado Senate passed it 23-11 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1269, which makes large transit agencies post clear maps, fares and discount rules from mid-2027. The Colorado Senate passed it 23-11 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-11",
+        "old_sentences": 2,
+        "old_chars": 196
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1696212,
+      "measure_id": "SB 190",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted to pass Senate Bill 190, which sets a separate track for releasing body camera footage when police use of force kills someone. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "nay_description": "Voted against passing Senate Bill 190, which sets a separate track for releasing body camera footage when police use of force kills someone. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 191
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1696240,
+      "measure_id": "HB 1147",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted to pass House Bill 1147, which makes the state list host homes for adults with developmental disabilities. The Colorado Senate passed it 28-7 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1147, which makes the state list host homes for adults with developmental disabilities. The Colorado Senate passed it 28-7 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "28-7",
+        "old_sentences": 2,
+        "old_chars": 185
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1696255,
+      "measure_id": "HB 1043",
+      "vote_date": "2026-05-11",
+      "yea_description": "Voted to pass House Bill 1043, which makes ride-hailing companies train every driver to carry a rider's service animal within six months of joining. The Colorado Senate passed it 24-11 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1043, which makes ride-hailing companies train every driver to carry a rider's service animal within six months of joining. The Colorado Senate passed it 24-11 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "24-11",
+        "old_sentences": 2,
+        "old_chars": 215
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1697549,
+      "measure_id": "SB 48",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass the House's version of Senate Bill 48, a bill to bar 16 and 17 year olds marrying someone over ten years older. The Colorado Senate agreed to those changes 18-17 but then rejected the bill 11-24, so it did not become law.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 48, a bill to bar 16 and 17 year olds marrying someone over ten years older. The Colorado Senate agreed to those changes 18-17 but then rejected the bill 11-24, so it did not become law.",
+      "_current": {
+        "question": "Senate: House Amendments Repass",
+        "tally": "11-24",
+        "old_sentences": 2,
+        "old_chars": 279
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1697559,
+      "measure_id": "SB 2",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass the House's version of Senate Bill 2, which caps low-income households' gas and electric bills at two to six percent of income. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "nay_description": "Voted against passing the House's version of Senate Bill 2, which caps low-income households' gas and electric bills at two to six percent of income. The Colorado Senate voted 23-12 to accept those changes and pass the bill, and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: House Amendments Repass",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 267
+      }
+    },
+    {
+      "jurisdiction": "CO",
+      "chamber": "senate",
+      "session": "2243",
+      "roll": 1697569,
+      "measure_id": "HB 1309",
+      "vote_date": "2026-05-13",
+      "yea_description": "Voted to pass House Bill 1309, which defines coercive control, such as money control and tracking, for child custody cases. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "nay_description": "Voted against passing House Bill 1309, which defines coercive control, such as money control and tracking, for child custody cases. The Colorado Senate passed it 23-12 and the governor signed it into law.",
+      "_current": {
+        "question": "Senate: Third Reading Bill",
+        "tally": "23-12",
+        "old_sentences": 2,
+        "old_chars": 173
+      }
+    }
+  ]
+}

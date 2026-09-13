@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "WV",
+      "chamber": "senate",
+      "session": "2196",
+      "roll": 1545631,
+      "measure_id": "HB 3412",
+      "vote_date": "2025-04-11",
+      "yea_description": "Voted for House Bill 3412, as rewritten by the Senate to narrow the state's Freedom of Information Act for every public body. The Senate passed it 25-9, but the House never agreed to the rewrite, so it did not become law.",
+      "nay_description": "Voted against House Bill 3412, as rewritten by the Senate to narrow the state's Freedom of Information Act for every public body. The Senate passed it 25-9, but the House never agreed to the rewrite, so it did not become law.",
+      "_current": {
+        "question": "Passed Senate (Roll No. 503)",
+        "tally": "25-9",
+        "old_sentences": 2,
+        "old_chars": 200
+      }
+    }
+  ]
+}

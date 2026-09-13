@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "jurisdiction": "IN",
+      "chamber": "house",
+      "session": "2234",
+      "roll": 1648339,
+      "measure_id": "HB 1003",
+      "vote_date": "2026-02-27",
+      "yea_description": "Voted for House Bill 1003, which closes or merges about 39 state boards and panels. The Indiana House adopted the final version 69-28, and it became law.",
+      "nay_description": "Voted against House Bill 1003, which closes or merges about 39 state boards and panels. The Indiana House adopted the final version 69-28, and it became law.",
+      "_current": {
+        "question": "House - Rules Suspended. Conference Committee Report 1",
+        "tally": "69-28",
+        "old_sentences": 2,
+        "old_chars": 199
+      }
+    }
+  ]
+}

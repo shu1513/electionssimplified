@@ -1,0 +1,18 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WY/rewrites-fix.json",
+  "dryRun": false,
+  "rolls": 1,
+  "updatedRolls": 1,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 8,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WY:senate:2157:1472543",
+      "outcome": "updated",
+      "rewritten": 8,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/WV/rewrites-fix.json",
+  "dryRun": false,
+  "rolls": 1,
+  "updatedRolls": 1,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 14,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "WV:senate:2196:1545631",
+      "outcome": "updated",
+      "rewritten": 14,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}

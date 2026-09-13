@@ -82,3 +82,27 @@ keeps the recipe for any future import that needs the same pass.
 | FL | 15 | 505 | 0 |
 | HI | 11 | 183 | 0 |
 | MN | 3 | 269 | 0 |
+
+## Correction pass (2026-09-13, evening)
+
+The first pass keyed effect clauses by bill number (`tools/<JUR>_effects.py`).
+Bill numbers recur across sessions, so 123 rolls in AL, CO, IN, KY, NM, NV,
+SD, WV and WY carried the clause of a same-numbered bill from another session
+(plus one index-leak case in WY and two chamber-version mismatches in NV and
+WV). Every rewritten roll was re-screened against its own original digest
+(word overlap, every multi-session bill number, every leak candidate, and
+every roll under 0.60 overlap read by hand). `tools/fixrolls.py` rebuilds a
+roll from `tools/fix/<JUR>.py`, keyed by roll id only; the applied files are
+`<JUR>/rewrites-fix.json` + `apply-report-fix.json`.
+
+| Jurisdiction | Rolls fixed | Records rewritten |
+|---|---|---|
+| AL | 31 | 1,714 |
+| CO | 66 | 1,973 |
+| IN | 1 | 89 |
+| KY | 6 | 240 |
+| NM | 10 | 544 |
+| NV | 1 | 11 |
+| SD | 6 | 194 |
+| WV | 1 | 14 |
+| WY | 1 | 8 |

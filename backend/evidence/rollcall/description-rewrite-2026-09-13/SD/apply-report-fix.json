@@ -1,0 +1,53 @@
+{
+  "rewritesFile": "evidence/rollcall/description-rewrite-2026-09-13/SD/rewrites-fix.json",
+  "dryRun": false,
+  "rolls": 6,
+  "updatedRolls": 6,
+  "unchangedRolls": 0,
+  "rewrittenRecords": 194,
+  "leftAloneRecords": 0,
+  "rows": [
+    {
+      "roll": "SD:house:2231:1619429",
+      "outcome": "updated",
+      "rewritten": 38,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SD:house:2231:1626389",
+      "outcome": "updated",
+      "rewritten": 37,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SD:house:2231:1643306",
+      "outcome": "updated",
+      "rewritten": 39,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SD:senate:2170:1497802",
+      "outcome": "updated",
+      "rewritten": 26,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SD:senate:2231:1643623",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    },
+    {
+      "roll": "SD:senate:2231:1645388",
+      "outcome": "updated",
+      "rewritten": 27,
+      "leftAlone": 0,
+      "leftAloneIds": []
+    }
+  ]
+}
