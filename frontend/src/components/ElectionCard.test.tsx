@@ -1020,6 +1020,29 @@ describe("vote-power sections", () => {
     expect(screen.getByText(/Shall Judge r-lone/)).toBeInTheDocument();
   });
 
+  it.each([6, 9, 10])("counts only the %i cards remaining in the date section, excluding waiting races", (count) => {
+    const elections = [
+      ...Array.from({ length: count }, (_, i) => race(`e-${i}`, "high")),
+      ...Array.from({ length: 4 }, (_, i) => race(`waiting-${i}`, "high", { candidate_count: 0 })),
+    ];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    if (count === 10) expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
+    else expect(screen.queryByRole("button", { name: /My vote power:/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    for (let i = 0; i < 4; i++) expect(screen.getByText(`Race waiting-${i}`)).toBeInTheDocument();
+  });
+
+  it("counts candidate-free measures and offices with results as displayed cards", () => {
+    const elections = [
+      ...Array.from({ length: 8 }, (_, i) => race(`e-${i}`, "high")),
+      race("measure", "high", { race_type: "ballot_measure", candidate_count: 0 }),
+      race("results", "high", { candidate_count: 0, has_results: true }),
+    ];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Elections awaiting candidate information" })).not.toBeInTheDocument();
+  });
+
   it("orders populated bands highest first, combines the bottom two, and preserves card navigation order", async () => {
     const labels = ["low", "high", "very_low", "medium", "above_average", "very_high", "unknown", "high", "medium", "low"] as const;
     const elections = labels.map((label, i) => race(`e-${i}`, label));

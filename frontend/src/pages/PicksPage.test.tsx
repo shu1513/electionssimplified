@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ElectionChoice } from "@voteapp/api-client";
 import { PicksPage } from "./PicksPage";
+import { ElectionPage } from "./ElectionPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, retentionElection, ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
+import { ballotSummary, electionDetail, electionSummary, retentionElection, ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
 
 function renderPicks() {
   return renderRoutes(
@@ -1034,4 +1035,34 @@ it("keeps Share available for retention-only picks and omits an empty contested 
   expect(screen.getAllByRole("progressbar")).toHaveLength(1);
   expect(screen.getByRole("progressbar", { name: "1 of 2 retention races decided" })).toHaveAttribute("aria-valuenow", "1");
   expect(screen.getByRole("button", { name: /Share/ })).toBeInTheDocument();
+});
+
+// Real detail navigation must preserve each date's disclosure state.
+it.each(["back link", "browser Back"])("restores signed-in retention expansion via %s", async (returnVia) => {
+  const elections = [electionSummary(), retentionElection("r-1"), retentionElection("r-2"),
+    retentionElection("r-3", { election_date: "2027-11-02" }),
+    retentionElection("r-4", { election_date: "2027-11-02" })];
+  stubApiRoutes(verifiedRoutes({ "/api/me/ballot": { body: ballotSummary(elections) } }));
+  const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  const { router } = renderRoutes([
+    { path: "/me/picks", element: <PicksPage /> },
+    { path: "/elections/:electionId", element: <ElectionPage />, hydrateFallbackElement: <p />,
+      loader: () => electionDetail({ id: "r-1", official_ballot_title: elections[1].official_ballot_title }) },
+  ], "/me/picks");
+  const groups = () => screen.getAllByRole("button", { name: "Retention Races" });
+  await screen.findAllByRole("button", { name: "Retention Races" });
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+  await user.click(groups()[0]);
+  await user.click(screen.getByRole("link", { name: new RegExp(elections[1].official_ballot_title) }));
+  const back = await screen.findByRole("link", { name: "Back to My Election Draft" });
+  if (returnVia === "back link") await user.click(back);
+  else await act(async () => { await router.navigate(-1); });
+  await waitFor(() => expect(groups()[0]).toHaveAttribute("aria-expanded", "true"));
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByRole("link", { name: new RegExp(elections[1].official_ballot_title) })).toBeInTheDocument();
+  await user.click(groups()[0]);
+  expect(router.state.location.state.expandedRetentionDates).toEqual([]);
+  await user.click(groups()[0]);
+  await act(async () => { await router.navigate("/me/picks", { state: null }); });
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
 });

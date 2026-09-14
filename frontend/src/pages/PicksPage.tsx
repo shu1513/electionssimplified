@@ -24,6 +24,7 @@ import type { CandidateNavState, ElectionNavState } from "../lib/detailNavContex
 import { ShareButton } from "../components/ShareButton";
 import { VerifyPrompt } from "../components/VerifyPrompt";
 import { SITE_ORIGIN } from "../lib/pageMeta";
+import { useElectionListState } from "../lib/useElectionListState";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { countBucket, track } from "../lib/usage";
@@ -630,6 +631,8 @@ function PicksLoginWall() {
 
 export function PicksPage() {
   useDocumentTitle("My Election Draft");
+  const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
+  const navState: ElectionNavState = { ...PICKS_NAV_STATE, ...(listState ? { listState } : {}) };
   const { me, isLoading } = useMe();
   const verified = me?.email_verified === true;
   const [view, setView] = useState<"list" | "ballot">("list");
@@ -838,6 +841,9 @@ export function PicksPage() {
                     date={date}
                     elections={byDate.get(date) ?? []}
                     choiceByElectionId={choiceByElectionId}
+                    navState={navState}
+                    retentionOpen={expandedRetentionDates.includes(date)}
+                    onRetentionOpenChange={(open) => setRetentionOpen(date, open)}
                     autoPickChoices={choices ?? []}
                     autoResults={autoResultsByDate.get(date) ?? null}
                     onAutoResults={handleAutoResults(date)}

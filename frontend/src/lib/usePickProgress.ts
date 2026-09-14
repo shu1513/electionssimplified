@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest, isDecidedChoice, splitRetentionRaces, myDraftLabel, nearestDayPickProgress, useElectionChoices, useMe } from "@voteapp/api-client";
-import type { BallotSummary, PickProgress } from "@voteapp/api-client";
+import { apiRequest, isDecidedChoice, myDraftLabel, nearestDayDraftProgress, useElectionChoices, useMe } from "@voteapp/api-client";
+import type { BallotSummary, DraftProgress, PickProgress } from "@voteapp/api-client";
 import { draftPickCount, draftProgress, useBallotDraft } from "./ballotDraft";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
@@ -10,7 +10,7 @@ import { usLatestLocalDate } from "./usLatestLocalDate";
 export { myDraftLabel };
 export type { PickProgress };
 
-type WebPickProgress = PickProgress & { hasOpenRetention: boolean };
+type WebPickProgress = DraftProgress;
 
 /**
  * The signed-in header's pick counter ("My Draft 4/13" → "My Draft ✓"):
@@ -41,16 +41,7 @@ export function useMyPicksProgress(): WebPickProgress | null {
   if (!verified) {
     return null;
   }
-  const { retention } = splitRetentionRaces(ballot.data?.elections ?? []);
-  const progress = nearestDayPickProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate(), {
-    exclude: new Set(retention.map((election) => election.id)),
-  });
-  return progress ? {
-    ...progress,
-    hasOpenRetention: retention.some((election) =>
-      election.election_date === progress.election_date && !isDecidedChoice(choiceByElectionId?.get(election.id))
-    ),
-  } : null;
+  return nearestDayDraftProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate());
 }
 
 /**

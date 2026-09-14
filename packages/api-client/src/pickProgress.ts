@@ -1,4 +1,5 @@
-import type { ElectionChoice } from "./types";
+import type { ElectionChoice, ElectionSummary } from "./types";
+import { splitRetentionRaces } from "./retention";
 import { isDecidedChoice } from "./useElectionChoices";
 
 /** Progress over one election day. `election_date` and `election_ids`
@@ -37,8 +38,7 @@ export function myDraftLabel(progress: PickProgress | null): string {
  * no counter (ballot or choices not loaded, or no upcoming races). Pure —
  * each platform's hook supplies its own ballot fetch and today string; only
  * id + election_date are read so any election payload shape qualifies.
- * Optional exclusions leave the nearest day's counts and ids together;
- * omitted by mobile to preserve its full-ballot progress.
+ * Optional exclusions leave the nearest day's counts and ids together.
  */
 export function nearestDayPickProgress(
   elections: { id: string; election_date: string }[] | undefined,
@@ -71,4 +71,25 @@ export function nearestDayPickProgress(
     total: group.length,
     complete: picked === group.length,
   };
+}
+
+/** The shared web/mobile completion rule: grouped retention has its own
+ * progress and never moves the nearest-day draft completion target. */
+export type DraftProgress = PickProgress & { hasOpenRetention: boolean };
+
+export function nearestDayDraftProgress(
+  elections: Pick<ElectionSummary, "id" | "election_date" | "race_type" | "official_ballot_title">[] | undefined,
+  choiceByElectionId: Map<string, ElectionChoice> | undefined,
+  today: string
+): DraftProgress | null {
+  const { retention } = splitRetentionRaces(elections ?? []);
+  const progress = nearestDayPickProgress(elections, choiceByElectionId, today, {
+    exclude: new Set(retention.map((election) => election.id)),
+  });
+  return progress ? {
+    ...progress,
+    hasOpenRetention: retention.some((election) =>
+      election.election_date === progress.election_date && !isDecidedChoice(choiceByElectionId?.get(election.id))
+    ),
+  } : null;
 }

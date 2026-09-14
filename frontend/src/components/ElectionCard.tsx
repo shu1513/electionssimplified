@@ -363,7 +363,7 @@ export function ElectionList({
   const nonRetentionCounts = new Map<string, number>();
   if (sort === "vote_power") {
     for (const election of elections) {
-      if (isRetentionRace(election)) continue;
+      if (isRetentionRace(election) || isAwaitingCandidates(election)) continue;
       const date = election.election_date;
       nonRetentionCounts.set(date, (nonRetentionCounts.get(date) ?? 0) + 1);
     }

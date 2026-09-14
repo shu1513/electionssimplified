@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { BallotSummary, PickProgress } from "@voteapp/api-client";
-import { apiRequest, nearestDayPickProgress, useElectionChoices, useMe } from "@voteapp/api-client";
+import type { BallotSummary, DraftProgress } from "@voteapp/api-client";
+import { apiRequest, nearestDayDraftProgress, useElectionChoices, useMe } from "@voteapp/api-client";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
 /**
@@ -19,7 +19,7 @@ import { usLatestLocalDate } from "./usLatestLocalDate";
  * refresh both. No include=preview: that include exists for the web's
  * ballot-sheet view; mobile has no such view yet.
  */
-export function useMyPicksProgress(): PickProgress | null {
+export function useMyPicksProgress(): DraftProgress | null {
   const { me } = useMe();
   const verified = me?.email_verified === true;
   const ballot = useQuery({
@@ -33,5 +33,5 @@ export function useMyPicksProgress(): PickProgress | null {
   if (!verified) {
     return null;
   }
-  return nearestDayPickProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate());
+  return nearestDayDraftProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate());
 }
