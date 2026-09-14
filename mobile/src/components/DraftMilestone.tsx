@@ -1,4 +1,4 @@
-import { formatElectionDate, isDecidedChoice, type ElectionChoice } from "@voteapp/api-client";
+import { formatElectionDate, nearestDayDraftProgress, type ElectionChoice, type ElectionSummary } from "@voteapp/api-client";
 import { useIsFocused } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
@@ -6,8 +6,8 @@ import { hasDraftCompleteBeenSeen, markDraftCompleteSeen } from "../lib/draftCom
 
 // Mobile port of the web's DraftMilestone (docs/plans/
 // draft-completion-moment.md, section 2): the My Draft screen's finish
-// line, above the date cards, once every race on the nearest upcoming
-// election day has a pick — and shown ONCE per day per device (owner's
+// line, above the date cards, once every counted race on the nearest
+// upcoming election day has a pick (grouped retentions have separate progress) — and shown ONCE per day per device (owner's
 // rule: persistent = nag). Same counting rule as the card's "N / M"
 // progress bar (isDecidedChoice) and the same one-line wording as the
 // notice. The seen state is read on each focus (AsyncStorage, async) and
@@ -25,12 +25,11 @@ export function DraftMilestone({
   /** The nearest upcoming election day — the first carded date on or after
    * today, not the first card (just-finished days stay carded for a while). */
   date: string;
-  elections: { id: string }[];
+  elections: ElectionSummary[];
   choiceByElectionId: Map<string, ElectionChoice> | undefined;
 }) {
-  const total = elections.length;
-  const picked = elections.filter((election) => isDecidedChoice(choiceByElectionId?.get(election.id))).length;
-  const complete = total > 0 && picked === total;
+  const progress = nearestDayDraftProgress(elections, choiceByElectionId, date);
+  const complete = progress?.complete ?? false;
 
   // My Draft stays mounted under the screens it pushes (a native stack), so
   // "once per visit" is per FOCUS, not per mount: the marker is re-read
@@ -74,6 +73,7 @@ export function DraftMilestone({
     >
       <Text className="text-sm font-semibold text-green-900">
         ✓ You have completed your {formatElectionDate(date)} election draft.
+        {progress?.hasOpenRetention ? " Retention races are still open on your draft." : null}
       </Text>
     </View>
   );

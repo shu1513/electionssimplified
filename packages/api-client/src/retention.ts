@@ -23,3 +23,25 @@ export function isJudicialRetentionTitle(title: string): boolean {
 export function isRetentionRace(election: { race_type: string; official_ballot_title: string }): boolean {
   return election.race_type === "office" && isJudicialRetentionTitle(election.official_ballot_title);
 }
+
+/** Split out retention races only on dates with at least two of them.
+ * Both partitions preserve input order; a lone retention stays counted. */
+export function splitRetentionRaces<Election extends {
+  election_date: string;
+  race_type: string;
+  official_ballot_title: string;
+}>(elections: readonly Election[]): { contested: Election[]; retention: Election[] } {
+  const counts = new Map<string, number>();
+  for (const election of elections) {
+    if (isRetentionRace(election)) {
+      counts.set(election.election_date, (counts.get(election.election_date) ?? 0) + 1);
+    }
+  }
+  const contested: Election[] = [];
+  const retention: Election[] = [];
+  for (const election of elections) {
+    const grouped = isRetentionRace(election) && (counts.get(election.election_date) ?? 0) >= 2;
+    (grouped ? retention : contested).push(election);
+  }
+  return { contested, retention };
+}

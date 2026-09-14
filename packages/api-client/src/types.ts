@@ -439,8 +439,8 @@ export type ElectionResult = {
 export const BALLOT_SORTS = [
   { value: "my_areas", label: "My issues" },
   { value: "vote_power", label: "My vote power" },
-  { value: "district_size", label: "Biggest districts" },
   { value: "district_size_smallest", label: "Smallest districts" },
+  { value: "district_size", label: "Biggest districts" },
 ] as const;
 
 export type BallotSort = (typeof BALLOT_SORTS)[number]["value"];

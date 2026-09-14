@@ -11,6 +11,7 @@ import type {
   ResultChipTone,
 } from "@voteapp/api-client";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
+import { useElectionListState } from "../lib/useElectionListState";
 import {
   ballotLevel,
   ballotLevelLabel,
@@ -22,6 +23,9 @@ import {
   formatRosterStatus,
   formatVotePowerLabel,
   resultChipTone,
+  isDecidedChoice,
+  isRetentionRace,
+  splitRetentionRaces,
   splitResearchAreasBySaved,
 } from "@voteapp/api-client";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -53,15 +57,13 @@ const MAX_AREA_CHIPS = 3;
 export const AREA_TEXT_CLASS = "font-medium text-green-900";
 export const SAVED_AREA_TEXT_CLASS = "font-semibold text-purple-800";
 
-// An office race with no published candidate list renders a placeholder card
-// ("Candidate list not final") with nothing to read. Ballot measures are
-// exempt: zero candidates is their normal state, and the measure text is the
-// content. A recorded result also exempts — winners can be recorded without
-// candidate links, and a decided race is readable regardless of its roster.
-// Mirrors hasNothingToRead in the backend's ballotElectionOrdering, which
-// sinks these races to the end of the payload.
+// An ordinary office race without candidates or results has nothing to read.
+// Measures and judicial retentions remain readable Yes/No races without a
+// candidate profile, including a lone retention outside a collapsed group.
+// Keep this rule shared by date grouping, detail navigation, and usage events.
 function isAwaitingCandidates(election: ElectionSummary): boolean {
-  return election.race_type !== "ballot_measure" && election.candidate_count === 0 && !election.has_results;
+  return election.race_type !== "ballot_measure" && !isRetentionRace(election) &&
+    election.candidate_count === 0 && !election.has_results;
 }
 
 /**
@@ -111,7 +113,7 @@ function SeatRun({ district, count, children }: { district: string | null; count
  * Under the district-size sorts the backend orders each date's races by
  * government level before population, so the level sections are consecutive
  * runs of the payload — presentational, like the date groups, never a
- * reorder. Every other sort interleaves levels and gets no sections.
+ * reorder. Other sorts do not use government-level sections.
  */
 function splitLevelRuns(elections: ElectionSummary[]): { level: BallotLevel; elections: ElectionSummary[] }[] {
   const runs: { level: BallotLevel; elections: ElectionSummary[] }[] = [];
@@ -131,33 +133,60 @@ function splitLevelRuns(elections: ElectionSummary[]): { level: BallotLevel; ele
   return runs;
 }
 
+// Visible bands, highest first. The two lowest ratings share one label.
+const VOTE_POWER_GROUPS = ["very_high", "high", "above_average", "medium", "low", "unknown"] as const;
+
+function splitVotePowerGroups(elections: ElectionSummary[]) {
+  return VOTE_POWER_GROUPS.map((rating) => ({
+    rating,
+    label: formatVotePowerLabel(rating),
+    elections: elections.filter((election) => {
+      if (isRetentionRace(election)) return false;
+      const label = election.vote_power.label === "very_low" ? "low" : election.vote_power.label;
+      return (label === "retention" ? "unknown" : label) === rating;
+    }),
+  })).filter((group) => group.elections.length > 0);
+}
+
 /**
- * One collapsible level section ("Federal", "County", …), open by default.
- * The open state is component-local on purpose: it resets on every visit and
- * whenever the list re-keys (a sort change remounts the sections), so a
- * collapsed level never persists into a list where it would hide races.
+ * One collapsible district or vote-power section, open by default.
+ * District groups use local state. Vote-power groups opt into navigation
+ * state so returning from a detail page restores their disclosures.
  */
-function LevelSection({ level, count, children }: { level: BallotLevel; count: number; children: ReactNode }) {
-  const [open, setOpen] = useState(true);
+function ElectionSection({ label, count, children, colorClass = "text-ink hover:text-rausch-deep",
+  open: controlledOpen, onOpenChange,
+}: {
+  label: string;
+  count: number;
+  children: ReactNode;
+  colorClass?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [localOpen, setOpen] = useState(true);
+  const open = controlledOpen ?? localOpen;
   return (
     <section>
       <button
         type="button"
         aria-expanded={open}
-        onClick={() => setOpen((previous) => !previous)}
+        onClick={() => {
+          setOpen(!open);
+          onOpenChange?.(!open);
+        }}
         // 17.5px: a hair above the card titles (subheading, 16-17px) and
         // under the date heading (19-22px) — user tuned this by eye on
         // 2026-09-12 (text-lg read a touch too big).
-        className="flex w-full items-center gap-1.5 text-left text-[1.09375rem] font-semibold text-ink hover:text-rausch-deep"
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left text-[1.09375rem] font-semibold ${colorClass}`}
       >
-        {ballotLevelLabel(level)}
+        {label}
         <span className="text-sm font-normal text-ink-soft">({count})</span>
         {/* Chevron trails the label (user choice 2026-09-12: right, not
             left); points right when collapsed, down when open. */}
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
-          className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
+          className={`h-[22px] w-[22px] shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
           fill="currentColor"
         >
           <path d="M7 5l6 5-6 5V5z" />
@@ -168,13 +197,111 @@ function LevelSection({ level, count, children }: { level: BallotLevel; count: n
   );
 }
 
+/** Lists show the group size; draft cards opt into answered progress. */
+export function RetentionGroup({
+  elections,
+  choicesByElectionId,
+  children,
+  showProgress = false,
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  elections: ElectionSummary[];
+  choicesByElectionId?: Map<string, ElectionChoice>;
+  children: ReactNode;
+  showProgress?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [localOpen, setOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const answered = elections.filter((election) => isDecidedChoice(choicesByElectionId?.get(election.id))).length;
+  return (
+    <section>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => {
+          track("list_control", { control: "retention_group", value: open ? "close" : "open" });
+          setOpen(!open);
+          onOpenChange?.(!open);
+        }}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left font-semibold text-ink ${showProgress ? "text-heading" : "text-[1.09375rem]"}`}
+      >
+        Retention Races{" "}
+        {!showProgress ? (
+          <span className="text-sm font-normal text-ink-soft">({elections.length})</span>
+        ) : null}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className={`h-[22px] w-[22px] shrink-0 transition-transform ${open ? "rotate-90" : ""}`}
+          fill="currentColor"
+        >
+          <path d="M7 5l6 5-6 5V5z" />
+        </svg>
+      </button>
+      {showProgress ? (
+        <div className="mt-2 flex items-center gap-3">
+          <div
+            role="progressbar"
+            aria-label={`${answered} of ${elections.length} retention races decided`}
+            aria-valuemin={0}
+            aria-valuemax={elections.length}
+            aria-valuenow={answered}
+            className="h-2 flex-1 overflow-hidden rounded-full bg-line/70"
+          >
+            <div
+              className="h-full rounded-full bg-green-700"
+              style={{ width: `${elections.length > 0 ? (answered / elections.length) * 100 : 0}%` }}
+            />
+          </div>
+          <span className="text-sm font-semibold tabular-nums text-ink">
+            {answered} / {elections.length}
+          </span>
+        </div>
+      ) : null}
+      {open ? <div className="mt-2 space-y-3">{children}</div> : null}
+    </section>
+  );
+}
+
+// Partition before the awaiting tail: even a retention with no candidate
+// profile belongs to its date's group, matching the progress exclusion.
+function groupListElections(elections: ElectionSummary[], votePowerDates?: ReadonlySet<string>) {
+  const { contested, retention } = splitRetentionRaces(elections);
+  const retentionIds = new Set(retention.map((election) => election.id));
+  const byDate = new Map<string, { date: string; contested: ElectionSummary[]; retention: ElectionSummary[] }>();
+  for (const election of elections) {
+    const grouped = retentionIds.has(election.id);
+    if (!grouped && isAwaitingCandidates(election)) continue;
+    let group = byDate.get(election.election_date);
+    if (!group) {
+      group = { date: election.election_date, contested: [], retention: [] };
+      byDate.set(election.election_date, group);
+    }
+    (grouped ? group.retention : group.contested).push(election);
+  }
+  // A retention-only date may have arrived in the backend's awaiting tail.
+  const groups = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
+  for (const group of groups) {
+    if (!votePowerDates?.has(group.date)) continue;
+    // Keep detail navigation and usage positions in the same order as
+    // the displayed bands; a singleton retention stays a plain card.
+    group.contested = [
+      ...splitVotePowerGroups(group.contested).flatMap((band) => band.elections),
+      ...group.contested.filter(isRetentionRace),
+    ];
+  }
+  return { groups, awaiting: contested.filter(isAwaitingCandidates), retentionIds };
+}
+
 /**
  * Date-grouped card list shared by both ballot pages. Elections cluster on
  * election days (a typical ballot is one or two dates), so the date renders
- * once as a group heading instead of being stamped on every card. Grouping
- * is by consecutive run — purely presentational — so it cannot reorder
- * whatever sort the page requested; a sort that interleaves dates just
- * produces more headings.
+ * once as a group heading instead of being stamped on every card. Dates
+ * stay chronological; within a date, payload order is preserved in each
+ * partition (contested first, grouped retention last).
  *
  * Races still waiting on a candidate list render apart, under one closing
  * section instead of inside the date groups: the backend sinks them to the
@@ -193,9 +320,8 @@ export function ElectionList({
   sort,
 }: {
   elections: ElectionSummary[];
-  /** The list's engaged sort. The two district-size sorts section each date
-   * by government level (see splitLevelRuns); every other sort renders the
-   * date groups flat. */
+  /** District-size sorts group by level. Vote-power groups appear only
+   * when that date has at least ten displayed non-retention races. */
   sort?: BallotSort;
   /**
    * The session holder's saved research areas (useMyResearchAreas().weights):
@@ -231,29 +357,27 @@ export function ElectionList({
    * always-engaged sort control starts where the list was. */
   railSort?: RailSortKey;
 }) {
-  const awaitingCandidates = elections.filter(isAwaitingCandidates);
-  const readable = elections.filter((election) => !isAwaitingCandidates(election));
-  const groups: { date: string; elections: ElectionSummary[] }[] = [];
-  for (const election of readable) {
-    const lastGroup = groups[groups.length - 1];
-    if (lastGroup && lastGroup.date === election.election_date) {
-      lastGroup.elections.push(election);
-    } else {
-      groups.push({ date: election.election_date, elections: [election] });
+  const { listState, expandedRetentionDates, setRetentionOpen, collapsedVotePowerGroups, setVotePowerOpen } = useElectionListState();
+  const nonRetentionCounts = new Map<string, number>();
+  if (sort === "vote_power") {
+    for (const election of elections) {
+      if (isRetentionRace(election) || isAwaitingCandidates(election)) continue;
+      const date = election.election_date;
+      nonRetentionCounts.set(date, (nonRetentionCounts.get(date) ?? 0) + 1);
     }
   }
-  // Contest order = what this list renders — readable races (their grouping
-  // is presentational and keeps this order), then the awaiting tail — but
-  // over the POOL, which restores any tab-sliced races in payload order so
-  // the rail can offer them. Built here, not by the pages, so it can never
-  // drift from the DOM.
-  const pool = contestsPool ?? elections;
+  const votePowerDates = new Set([...nonRetentionCounts].filter(([, count]) => count >= 10).map(([date]) => date));
+  const { groups, awaiting: awaitingCandidates } = groupListElections(elections, votePowerDates);
+  // Navigation uses the same qualifying dates as the displayed list,
+  // even when its pool includes races hidden by the active tab.
+  const pool = groupListElections(contestsPool ?? elections, votePowerDates);
   const navState: ElectionNavState | undefined = backTo
     ? {
         backTo,
+        ...(listState ? { listState } : {}),
         contests: [
-          ...pool.filter((election) => !isAwaitingCandidates(election)),
-          ...pool.filter(isAwaitingCandidates),
+          ...pool.groups.flatMap((group) => [...group.contested, ...group.retention]),
+          ...pool.awaiting,
         ].map((election) => ({
           id: election.id,
           title: election.official_ballot_title,
@@ -264,7 +388,9 @@ export function ElectionList({
           vote_power_score: election.vote_power.score,
           election_date: election.election_date,
           research_area_ids: election.research_areas.map((area) => area.id),
-          ...(isAwaitingCandidates(election) ? { awaiting_candidates: true } : {}),
+          ...(pool.retentionIds.has(election.id)
+            ? { retention: true }
+            : isAwaitingCandidates(election) ? { awaiting_candidates: true } : {}),
         })),
         ...(raceType ? { raceType } : {}),
         ...(railSort ? { railSort } : {}),
@@ -273,11 +399,11 @@ export function ElectionList({
   // Displayed position (1-based, readable cards then the awaiting tail) for
   // the election_open usage event — "which slot in THIS rendered list".
   const positionById = new Map<string, number>();
-  for (const election of [...readable, ...awaitingCandidates]) {
+  for (const election of [...groups.flatMap((group) => [...group.contested, ...group.retention]), ...awaitingCandidates]) {
     positionById.set(election.id, positionById.size + 1);
   }
   const levelSections = sort === "district_size" || sort === "district_size_smallest";
-  const renderCards = (cards: ElectionSummary[]) =>
+  const renderCards = (cards: ElectionSummary[], showVotePower = true) =>
     splitSeatRuns(cards).map((run) => (
       <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
         {run.elections.map((election) => (
@@ -286,6 +412,7 @@ export function ElectionList({
             election={election}
             savedAreaWeights={savedAreaWeights}
             myChoice={choicesByElectionId?.get(election.id)}
+            showVotePower={showVotePower}
             navState={navState}
             position={positionById.get(election.id) ?? 1}
           />
@@ -295,10 +422,8 @@ export function ElectionList({
   return (
     <div className="mt-4 space-y-6">
       {groups.map((group) => (
-        // Every list sort keeps date as its outer order, so each date heads
-        // exactly one run; the first election id keeps the key unique
-        // should an input ever interleave dates anyway.
-        <section key={`${group.date}-${group.elections[0].id}`}>
+        // One date section, with grouped retention after its contested races.
+        <section key={group.date}>
           {/* The ballot pages carry no h1 banner; these date headings are the
               page's identity, so they read as full sentences and lead the
               visual hierarchy. */}
@@ -307,15 +432,43 @@ export function ElectionList({
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
             <div className="mt-3 space-y-5">
-              {splitLevelRuns(group.elections).map((run) => (
-                <LevelSection key={`${sort}-${run.level}-${run.elections[0].id}`} level={run.level} count={run.elections.length}>
+              {splitLevelRuns(group.contested).map((run) => (
+                <ElectionSection key={`${sort}-${run.level}-${run.elections[0].id}`} label={ballotLevelLabel(run.level)} count={run.elections.length}>
                   {renderCards(run.elections)}
-                </LevelSection>
+                </ElectionSection>
               ))}
             </div>
+          ) : votePowerDates.has(group.date) ? (
+            <div className="mt-3 space-y-5">
+              {splitVotePowerGroups(group.contested).map((band) => (
+                <ElectionSection
+                  key={`vote_power-${band.rating}`}
+                  label={`My vote power: ${band.label}`}
+                  count={band.elections.length}
+                  colorClass={votePowerBadgeClass(band.rating)}
+                  open={!collapsedVotePowerGroups.includes(`${group.date}:${band.rating}`)}
+                  onOpenChange={(open) => setVotePowerOpen(`${group.date}:${band.rating}`, open)}
+                >
+                  {renderCards(band.elections, false)}
+                </ElectionSection>
+              ))}
+              {renderCards(group.contested.filter(isRetentionRace))}
+            </div>
           ) : (
-            <div className="mt-2 space-y-3">{renderCards(group.elections)}</div>
+            <div className="mt-2 space-y-3">{renderCards(group.contested)}</div>
           )}
+          {group.retention.length > 0 ? (
+            <div className="mt-3">
+              <RetentionGroup
+                elections={group.retention}
+                choicesByElectionId={choicesByElectionId}
+                open={expandedRetentionDates.includes(group.date)}
+                onOpenChange={(open) => setRetentionOpen(group.date, open)}
+              >
+                {renderCards(group.retention)}
+              </RetentionGroup>
+            </div>
+          ) : null}
         </section>
       ))}
       {awaitingCandidates.length > 0 ? (
@@ -367,6 +520,7 @@ function ElectionCard({
   navState,
   position,
   showDate = false,
+  showVotePower = true,
 }: {
   election: ElectionSummary;
   savedAreaWeights?: Map<string, ResearchAreaWeight>;
@@ -383,6 +537,8 @@ function ElectionCard({
    * group heading carries it.
    */
   showDate?: boolean;
+  /** The vote-power section heading supplies this label for grouped cards. */
+  showVotePower?: boolean;
 }) {
   // Saved matches lead (in the user's rank order), unsaved follow in public-
   // salience order — see splitResearchAreasBySaved. The chips that survive
@@ -437,45 +593,28 @@ function ElectionCard({
       // one step grayer — was under 2% lightness and read as nothing.
       className="group block rounded-xl border border-line bg-surface p-4 shadow-sm transition hover:border-rausch hover:shadow-md"
     >
-      {/* No per-card date: ElectionList's group heading carries it. The title
-          row keeps vote power and the candidate count flush right, so every
-          card answers "how much does my vote matter, and who's running?" on
-          its first line. */}
+      {/* No per-card date: ElectionList's group heading carries it. Vote
+          power and roster status sit to the right of the title. */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         {/* rausch-deep, not -dark: 16-17px semibold needs 4.5:1 on the card's
             tinted bg, and rausch-dark is 4.41:1 there. */}
         <h3 className="text-subheading font-semibold text-ink transition group-hover:text-rausch-deep">
           {election.official_ballot_title}
         </h3>
-        {/* The group wraps between chip and count on very narrow screens;
-            nowrap sits on each label so neither breaks mid-phrase. */}
+        {/* Labels wrap separately on narrow screens, never mid-phrase. */}
         <span className="flex flex-wrap items-baseline justify-end gap-x-2 gap-y-1">
-          {election.vote_power.label !== "unknown" && election.vote_power.label !== "retention" ? (
+          {showVotePower && election.vote_power.label !== "unknown" && election.vote_power.label !== "retention" ? (
             // Colored text, not a pill: the tinted badge read as a button.
             <span
               className={`whitespace-nowrap text-sm font-medium ${votePowerBadgeClass(election.vote_power.label)}`}
             >
-              My vote power: {formatVotePowerLabel(election.vote_power.label)}
+              My vote power: {formatVotePowerLabel(election.vote_power.label === "very_low" ? "low" : election.vote_power.label)}
             </span>
           ) : null}
-          {election.race_type === "ballot_measure" ? (
-            // No "Ballot Measure" label (user decision 2026-09-12): it sat
-            // right after the vote-power text and the two ran together. The
-            // Offices / Ballot Measures tabs and the title itself already say
-            // what the row is; measures just show no candidate count.
-            null
-          ) : election.candidate_count === 0 && election.candidate_roster_status ? (
+          {election.race_type !== "ballot_measure" && election.candidate_count === 0 && election.candidate_roster_status ? (
             <span className="whitespace-nowrap text-sm text-ink-soft">
               {formatRosterStatus(election.candidate_roster_status).short}
             </span>
-          ) : election.candidate_count === 1 ? (
-            // The one count worth showing: a lone name usually means the race
-            // is decided. Stated as a count, not "Uncontested" — the roster
-            // status only exists for empty rosters, so nothing here proves
-            // the list is complete (a mid-import roster shows its first name
-            // alone for a while). Any other count changed nothing about
-            // whether to open the race, so it no longer renders.
-            <span className="whitespace-nowrap text-sm text-ink-soft">1 candidate</span>
           ) : null}
         </span>
       </div>
@@ -567,7 +706,7 @@ function ElectionCard({
         // them, in the user's rank order) in semibold, unsaved follow under
         // the cap. Weight is a sighted-only cue, so saved areas carry a
         // screen-reader-only "(saved)" to keep the distinction audible.
-        <p className="mt-3 text-sm">
+        <p className="mt-1.5 text-sm">
           {/* A verb, not a noun phrase: the election is the subject, so the
               row reads "this election affects these things". A noun label
               ("Key issues") left it ambiguous whether the topics were the

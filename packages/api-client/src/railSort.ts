@@ -25,6 +25,7 @@ export type RailSortEntry = {
   election_date?: string;
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
+  retention?: boolean;
 };
 
 /** Rail order, matching the list pages' labels where the sort is the same
@@ -159,6 +160,11 @@ export function sortRailEntries<Entry extends RailSortEntry>(
     const bDate = b.election_date ?? "";
     if (aDate !== bDate) {
       return aDate < bDate ? -1 : 1;
+    }
+    const aRetention = a.retention ? 1 : 0;
+    const bRetention = b.retention ? 1 : 0;
+    if (aRetention !== bRetention) {
+      return aRetention - bRetention;
     }
     if (sort === "alphabetical") {
       const byTitle = TITLE_COLLATOR.compare(a.title, b.title);

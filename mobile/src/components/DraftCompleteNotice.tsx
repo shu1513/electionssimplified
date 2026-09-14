@@ -7,7 +7,7 @@ import { useMyPicksProgress } from "../lib/useMyPicksProgress";
 
 // Mobile port of the web's DraftCompleteNotice (docs/plans/
 // draft-completion-moment.md): one notice, once per election day per
-// device, when every race on the nearest upcoming day has a pick. Driven by
+// device, when every counted race on the nearest upcoming day has a pick. Driven by
 // the same progress value the saved-ballot header counter reads — a known
 // incomplete → known complete for the SAME tracked ballot (identity + day +
 // race list); null is "unknown", never "incomplete", so a returning user
@@ -25,7 +25,7 @@ import { useMyPicksProgress } from "../lib/useMyPicksProgress";
 // milestone (DraftMilestone) is the persistent one.
 //
 // Wording (owner's call, same as the web): "You have completed your {day}
-// election draft." plus the link, nothing else. Status message, not a modal: polite live
+// election draft." plus the link and any open-retention reminder. Status message: polite live
 // region on Android, an explicit VoiceOver announcement on iOS, focus and
 // scroll position untouched.
 
@@ -89,7 +89,7 @@ export function DraftCompleteNotice() {
 
   // accessibilityLiveRegion below is Android-only; VoiceOver needs an
   // explicit announcement (same pattern as TermsRenewalGate's error line).
-  const message = shown ? `You have completed your ${formatElectionDate(shown.date)} election draft.` : null;
+  const message = shown ? `You have completed your ${formatElectionDate(shown.date)} election draft.${progress?.hasOpenRetention ? " Retention races are still open on your draft." : ""}` : null;
   useEffect(() => {
     if (message !== null) {
       AccessibilityInfo.announceForAccessibility(message);

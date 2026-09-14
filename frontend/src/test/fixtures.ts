@@ -328,3 +328,14 @@ export function candidateFollow(overrides: Partial<CandidateFollow> = {}): Candi
     ...overrides,
   };
 }
+
+/** Judicial retention fixture shared by grouping and progress regressions. */
+export function retentionElection(id: string, overrides: Partial<ElectionSummary> = {}): ElectionSummary {
+  return electionSummary({
+    id,
+    official_ballot_title: `Shall Judge ${id} be retained in office?`,
+    candidate_count: 1,
+    vote_power: { ...VOTE_POWER, label: "retention", score: null },
+    ...overrides,
+  });
+}

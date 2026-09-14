@@ -4,16 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
   formatElectionDate,
+  splitRetentionRaces,
   useElectionChoices,
   useMe,
   useMintPickCardShare,
   useMyPickCardShares,
-  useRevokePickCardShare,
 } from "@voteapp/api-client";
 import type { AutoPickElectionResult, BallotSummary, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
 import { AutoPickFillControl, reasonLabel } from "../components/AutoPickFillControl";
 import { RemoveStrandedPickButton } from "../components/ElectionChoiceControls";
 import { BallotPreviewSheets, BallotViewToggle } from "../components/BallotPreview";
+import { RetentionGroup } from "../components/ElectionCard";
 import { DraftMembershipCta } from "../components/DraftMembershipCta";
 import { DraftMilestone } from "../components/DraftMilestone";
 import { allRacesDecided } from "../lib/ballotDraft";
@@ -23,6 +24,7 @@ import type { CandidateNavState, ElectionNavState } from "../lib/detailNavContex
 import { ShareButton } from "../components/ShareButton";
 import { VerifyPrompt } from "../components/VerifyPrompt";
 import { SITE_ORIGIN } from "../lib/pageMeta";
+import { useElectionListState } from "../lib/useElectionListState";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { countBucket, track } from "../lib/usage";
@@ -226,22 +228,17 @@ function hasRenderablePick(choice: ElectionChoice | undefined): choice is Electi
   return choice !== undefined && (choice.picks.length > 0 || choice.measure_position !== null);
 }
 
-// canMint: the card has picks to share. A live link renders (with its Stop
-// control) regardless — a card whose picks were since cleared, or a date
-// listed under Shared links below the cards, still owns a public URL that
-// only this control can revoke.
+// canMint controls creation; an existing link remains visible even without picks.
 function ShareCardControl({ electionDate, canMint }: { electionDate: string; canMint: boolean }) {
   // Every date card renders its own "Share"; sighted users read the card
   // heading for context, but a screen reader's button list needs the date
   // in the name itself. Same label on both control shapes (mint button,
   // then ShareButton) so the control keeps one identity across the swap.
   const shareLabel = `Share my ${formatElectionDate(electionDate)} picks`;
-  const stopLabel = `Stop sharing my ${formatElectionDate(electionDate)} picks`;
   const { shares } = useMyPickCardShares();
   const mint = useMintPickCardShare();
-  const revoke = useRevokePickCardShare();
   // The server's list is the only truth: a link minted on another device or
-  // before a reload shows here with its Stop control, and a revoke from
+  // before a reload shows here, and a revoke from
   // another tab takes effect on the next refetch. The mint hook writes its
   // result into that same list, so no mutation state is consulted here — a
   // stale mint result would otherwise resurrect a dead link.
@@ -252,9 +249,7 @@ function ShareCardControl({ electionDate, canMint }: { electionDate: string; can
     return (
       <span className="flex flex-wrap items-center gap-2">
         {/* The minted URL is the deliverable — it renders here, visibly,
-            the moment it exists. A bare "Share" button next to "anyone with
-            the link…" reads as broken when no link is anywhere in sight.
-            The anchor opens the public card so the sharer can see exactly
+            the moment it exists. The anchor opens the public card so the sharer can see exactly
             what recipients will.
 
             href is deliberately the RELATIVE path while the text shows the
@@ -278,29 +273,6 @@ function ShareCardControl({ electionDate, canMint }: { electionDate: string; can
           affirmative
           ariaLabel={shareLabel}
         />
-        {/* Names the name: the public page shows the owner's first name, and
-            the sharer must learn that HERE, before posting the link — not
-            from a recipient. */}
-        <span className="text-xs text-ink-soft">
-          Anyone with the link can see this card and your first name.
-        </span>
-        {/* The way back: revoking kills the URL for everyone who has it.
-            Sits with the link and the name disclosure so the sharer sees
-            the exit in the same glance as the exposure. */}
-        <button
-          type="button"
-          disabled={revoke.isPending}
-          onClick={() => revoke.mutate(electionDate)}
-          aria-label={stopLabel}
-          className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink transition hover:border-ink disabled:opacity-50"
-        >
-          {revoke.isPending ? "…" : "Stop sharing"}
-        </button>
-        {revoke.isError ? (
-          <span role="alert" className="text-xs font-medium text-red-800">
-            Couldn't stop sharing — try again.
-          </span>
-        ) : null}
       </span>
     );
   }
@@ -365,6 +337,8 @@ export function PickDateCard({
   choiceByElectionId,
   share = true,
   navState = PICKS_NAV_STATE,
+  retentionOpen,
+  onRetentionOpenChange,
   autoPickChoices,
   autoResults,
   onAutoResults,
@@ -374,6 +348,8 @@ export function PickDateCard({
   choiceByElectionId: Map<string, ElectionChoice> | undefined;
   share?: boolean;
   navState?: ElectionNavState;
+  retentionOpen?: boolean;
+  onRetentionOpenChange?: (open: boolean) => void;
   /** All stored choices; presence turns on this card's auto-pick controls
    * (My Picks only — the guest draft page reuses the card without them). */
   autoPickChoices?: ElectionChoice[];
@@ -384,17 +360,56 @@ export function PickDateCard({
   autoResults?: Map<string, AutoPickElectionResult> | null;
   onAutoResults?: (byElectionId: Map<string, AutoPickElectionResult> | null) => void;
 }) {
-  const pickedCount = elections.filter((election) =>
+  const { contested, retention } = splitRetentionRaces(elections);
+  const pickedCount = contested.filter((election) =>
     hasRenderablePick(choiceByElectionId?.get(election.id))
   ).length;
   // Cards outlive their election day (the ballot keeps finished races for a
   // few days so results can land on them); once the date passes, "no pick
   // yet" would invite an action that's no longer possible.
   const isPast = date < usLatestLocalDate();
-  const raceNoun = `race${elections.length === 1 ? "" : "s"}`;
-  const progressLabel = `${pickedCount} of ${elections.length} ${raceNoun} decided`;
-  const progressPercent = elections.length === 0 ? 0 : Math.round((pickedCount / elections.length) * 100);
+  const raceNoun = `race${contested.length === 1 ? "" : "s"}`;
+  const progressLabel = `${pickedCount} of ${contested.length} ${raceNoun} decided`;
+  const progressPercent = contested.length === 0 ? 0 : Math.round((pickedCount / contested.length) * 100);
   const summary = autoResults ? autoFillSummary(autoResults) : null;
+  const renderRows = (races: ElectionSummary[]) => races.map((election) => {
+    const choice = choiceByElectionId?.get(election.id);
+    const autoResult = autoResults?.get(election.id);
+    const decided = hasRenderablePick(choice);
+    return (
+      <li key={election.id} className="grid gap-x-6 border-b border-line/60 py-2 text-sm sm:grid-cols-2">
+        <div className="min-w-0 font-[430]">
+          {/* Undecided rows carry "no pick yet" for screen readers
+              only: sighted users read the empty pick column. */}
+          <Link
+            to={`/elections/${election.id}`}
+            state={navState}
+            aria-label={
+              decided ? undefined : `${election.official_ballot_title} — ${isPast ? "no pick" : "no pick yet"}`
+            }
+            className="text-ink hover:text-rausch"
+          >
+            {election.official_ballot_title}
+          </Link>
+        </div>
+        <div className="min-w-0">
+          {decided ? (
+            <>
+              <PickedLine choice={choice} election={election} navState={navState} />
+              {autoResult?.outcome === "picked" &&
+              autoResult.reason === "tie" &&
+              (choice?.picks.length ?? 0) < (choice?.seats_to_fill ?? 1) ? (
+                // Partial fill: some seats landed, the rest tied. Gated
+                // on a live vacancy so the note retires the moment the
+                // user fills the remaining seats by hand.
+                <span className="text-xs text-ink-soft"> · remaining seats tied — your call</span>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </li>
+    );
+  });
   return (
     <section className="rounded-xl border border-line bg-surface p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -403,28 +418,35 @@ export function PickDateCard({
         {/* Mint-on-demand: no share row (and no live public URL) exists until
             the user asks for one. The mint button hides while the card has
             zero picks (the backend refuses to mint for an empty card), but a
-            link minted earlier still shows, with Stop sharing. */}
-        {share ? <ShareCardControl electionDate={date} canMint={pickedCount > 0} /> : null}
+            link minted earlier still shows. */}
+        {share ? (
+          <ShareCardControl
+            electionDate={date}
+            canMint={elections.some((election) => hasRenderablePick(choiceByElectionId?.get(election.id)))}
+          />
+        ) : null}
       </div>
       {/* Progress bar + "N / M" instead of a grey sentence: the count is a
           status, and a bar is the shape people already read as one. The
           full sentence stays as the bar's accessible name. Green = the
           "decided" color the pick names and Won chips already use. */}
-      <div className="mt-2 flex items-center gap-3">
-        <div
-          role="progressbar"
-          aria-label={progressLabel}
-          aria-valuemin={0}
-          aria-valuemax={elections.length}
-          aria-valuenow={pickedCount}
-          className="h-2 flex-1 overflow-hidden rounded-full bg-surface"
-        >
-          <div className="h-full rounded-full bg-green-700" style={{ width: `${progressPercent}%` }} />
+      {contested.length > 0 ? (
+        <div className="mt-2 flex items-center gap-3">
+          <div
+            role="progressbar"
+            aria-label={progressLabel}
+            aria-valuemin={0}
+            aria-valuemax={contested.length}
+            aria-valuenow={pickedCount}
+            className="h-2 flex-1 overflow-hidden rounded-full bg-line/70"
+          >
+            <div className="h-full rounded-full bg-green-700" style={{ width: `${progressPercent}%` }} />
+          </div>
+          <span className="text-sm font-semibold tabular-nums text-ink">
+            {pickedCount} / {contested.length}
+          </span>
         </div>
-        <span className="text-sm font-semibold tabular-nums text-ink">
-          {pickedCount} / {elections.length}
-        </span>
-      </div>
+      ) : null}
       {autoPickChoices !== undefined && !isPast ? (
         <AutoPickFillControl
           date={date}
@@ -451,45 +473,21 @@ export function PickDateCard({
         <span>My pick</span>
       </div>
       <ul className="mt-3 border-t border-line sm:mt-0 sm:border-t-0">
-        {elections.map((election) => {
-          const choice = choiceByElectionId?.get(election.id);
-          const autoResult = autoResults?.get(election.id);
-          const decided = hasRenderablePick(choice);
-          return (
-            <li key={election.id} className="grid gap-x-6 border-b border-line/60 py-2 text-sm sm:grid-cols-2">
-              <div className="min-w-0 font-[430]">
-                {/* Undecided rows carry "no pick yet" for screen readers
-                    only: sighted users read the empty pick column. */}
-                <Link
-                  to={`/elections/${election.id}`}
-                  state={navState}
-                  aria-label={
-                    decided ? undefined : `${election.official_ballot_title} — ${isPast ? "no pick" : "no pick yet"}`
-                  }
-                  className="text-ink hover:text-rausch"
-                >
-                  {election.official_ballot_title}
-                </Link>
-              </div>
-              <div className="min-w-0">
-                {decided ? (
-                  <>
-                    <PickedLine choice={choice} election={election} navState={navState} />
-                    {autoResult?.outcome === "picked" &&
-                    autoResult.reason === "tie" &&
-                    (choice?.picks.length ?? 0) < (choice?.seats_to_fill ?? 1) ? (
-                      // Partial fill: some seats landed, the rest tied. Gated
-                      // on a live vacancy so the note retires the moment the
-                      // user fills the remaining seats by hand.
-                      <span className="text-xs text-ink-soft"> · remaining seats tied — your call</span>
-                    ) : null}
-                  </>
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
+        {renderRows(contested)}
       </ul>
+      {retention.length > 0 ? (
+        <div className="mt-3">
+          <RetentionGroup
+            elections={retention}
+            choicesByElectionId={choiceByElectionId}
+            showProgress
+            open={retentionOpen}
+            onOpenChange={onRetentionOpenChange}
+          >
+            <ul>{renderRows(retention)}</ul>
+          </RetentionGroup>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -633,6 +631,8 @@ function PicksLoginWall() {
 
 export function PicksPage() {
   useDocumentTitle("My Election Draft");
+  const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
+  const navState: ElectionNavState = { ...PICKS_NAV_STATE, ...(listState ? { listState } : {}) };
   const { me, isLoading } = useMe();
   const verified = me?.email_verified === true;
   const [view, setView] = useState<"list" | "ballot">("list");
@@ -714,9 +714,9 @@ export function PicksPage() {
   // The finish-line box and the honorary-member ask share ONE moment: the
   // first visit after every race on the nearest day is decided, once per
   // day per browser (owner's rule: persistent = nag).
+  const nearestRaces = splitRetentionRaces(byDate.get(nearestUpcomingDate ?? "") ?? []);
   const nearestComplete =
-    nearestUpcomingDate !== undefined &&
-    allRacesDecided(byDate.get(nearestUpcomingDate) ?? [], choiceByElectionId);
+    nearestUpcomingDate !== undefined && allRacesDecided(nearestRaces.contested, choiceByElectionId);
   const milestoneShown = useShowDraftMilestone(nearestUpcomingDate, nearestComplete);
 
   if (isLoading || me === undefined) {
@@ -746,7 +746,7 @@ export function PicksPage() {
           />
           <PastPicks choices={choices ?? []} today={unverifiedToday} cardedElectionIds={nothingCarded} />
           {/* No cards here, so every live link lists — the share API is not
-              verification-gated and neither is revoking. */}
+              verification-gated. */}
           <SharedLinks cardedDates={new Set()} />
         </div>
       </>
@@ -803,7 +803,12 @@ export function PicksPage() {
           <>
             {/* Above the toggle so both views carry it. */}
             {nearestUpcomingDate !== undefined ? (
-              <DraftMilestone show={milestoneShown} date={nearestUpcomingDate} signup={false} />
+              <DraftMilestone
+                show={milestoneShown}
+                date={nearestUpcomingDate}
+                signup={false}
+                hasOpenRetention={nearestRaces.retention.some((election) => !hasRenderablePick(choiceByElectionId?.get(election.id)))}
+              />
             ) : null}
             {dates.length > 0 ? (
               <div className="mt-4">
@@ -836,6 +841,9 @@ export function PicksPage() {
                     date={date}
                     elections={byDate.get(date) ?? []}
                     choiceByElectionId={choiceByElectionId}
+                    navState={navState}
+                    retentionOpen={expandedRetentionDates.includes(date)}
+                    onRetentionOpenChange={(open) => setRetentionOpen(date, open)}
                     autoPickChoices={choices ?? []}
                     autoResults={autoResultsByDate.get(date) ?? null}
                     onAutoResults={handleAutoResults(date)}

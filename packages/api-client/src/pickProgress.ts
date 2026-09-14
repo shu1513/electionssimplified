@@ -1,4 +1,5 @@
-import type { ElectionChoice } from "./types";
+import type { ElectionChoice, ElectionSummary } from "./types";
+import { splitRetentionRaces } from "./retention";
 import { isDecidedChoice } from "./useElectionChoices";
 
 /** Progress over one election day. `election_date` and `election_ids`
@@ -37,11 +38,13 @@ export function myDraftLabel(progress: PickProgress | null): string {
  * no counter (ballot or choices not loaded, or no upcoming races). Pure —
  * each platform's hook supplies its own ballot fetch and today string; only
  * id + election_date are read so any election payload shape qualifies.
+ * Optional exclusions leave the nearest day's counts and ids together.
  */
 export function nearestDayPickProgress(
   elections: { id: string; election_date: string }[] | undefined,
   choiceByElectionId: Map<string, ElectionChoice> | undefined,
-  today: string
+  today: string,
+  { exclude }: { exclude?: Set<string> } = {}
 ): PickProgress | null {
   if (elections === undefined || choiceByElectionId === undefined) {
     return null;
@@ -54,7 +57,12 @@ export function nearestDayPickProgress(
     (min, election) => (election.election_date < min ? election.election_date : min),
     upcoming[0].election_date
   );
-  const group = upcoming.filter((election) => election.election_date === date);
+  const group = upcoming.filter((election) => election.election_date === date && !exclude?.has(election.id));
+  // Keep the nearest date even if all its races are excluded; do not jump
+  // ahead to a different ballot or announce an empty ballot as complete.
+  if (group.length === 0) {
+    return null;
+  }
   const picked = group.filter((election) => isDecidedChoice(choiceByElectionId.get(election.id))).length;
   return {
     election_date: date,
@@ -63,4 +71,25 @@ export function nearestDayPickProgress(
     total: group.length,
     complete: picked === group.length,
   };
+}
+
+/** The shared web/mobile completion rule: grouped retention has its own
+ * progress and never moves the nearest-day draft completion target. */
+export type DraftProgress = PickProgress & { hasOpenRetention: boolean };
+
+export function nearestDayDraftProgress(
+  elections: Pick<ElectionSummary, "id" | "election_date" | "race_type" | "official_ballot_title">[] | undefined,
+  choiceByElectionId: Map<string, ElectionChoice> | undefined,
+  today: string
+): DraftProgress | null {
+  const { retention } = splitRetentionRaces(elections ?? []);
+  const progress = nearestDayPickProgress(elections, choiceByElectionId, today, {
+    exclude: new Set(retention.map((election) => election.id)),
+  });
+  return progress ? {
+    ...progress,
+    hasOpenRetention: retention.some((election) =>
+      election.election_date === progress.election_date && !isDecidedChoice(choiceByElectionId?.get(election.id))
+    ),
+  } : null;
 }

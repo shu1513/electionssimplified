@@ -3,6 +3,7 @@ import {
   apiRequest,
   formatElectionDate,
   reasonLabel,
+  splitRetentionRaces,
   useElectionChoices,
   useMintPickCardShare,
   useMyPickCardShares,
@@ -319,40 +320,60 @@ function PickDateCard({
   onAutoResults: (byElectionId: Map<string, AutoPickElectionResult> | null) => void;
 }) {
   const router = useRouter();
-  const pickedCount = elections.filter((election) => hasRenderablePick(choiceByElectionId?.get(election.id))).length;
+  const [retentionOpen, setRetentionOpen] = useState(false);
+  const { contested, retention } = splitRetentionRaces(elections);
+  const countPicks = (races: ElectionSummary[]) =>
+    races.filter((election) => hasRenderablePick(choiceByElectionId?.get(election.id))).length;
   // Cards outlive their election day (the ballot keeps finished races for a
   // few days so results can land on them); once the date passes, "no pick
   // yet" would invite an action that's no longer possible.
   const isPast = date < today;
-  const progressLabel = `${pickedCount} of ${elections.length} race${elections.length === 1 ? "" : "s"} decided`;
-  const progressPercent = elections.length === 0 ? 0 : Math.round((pickedCount / elections.length) * 100);
   const summary = autoResults ? autoFillSummary(autoResults) : null;
+  const renderRows = (races: ElectionSummary[]) => races.map((election) => {
+    const choice = choiceByElectionId?.get(election.id);
+    const autoResult = autoResults?.get(election.id);
+    const decided = hasRenderablePick(choice);
+    return (
+      <View key={election.id} className="border-b border-line/60 py-2">
+        <Text
+          className="text-sm text-ink underline"
+          accessibilityRole="link"
+          accessibilityLabel={
+            decided ? undefined : `${election.official_ballot_title} — ${isPast ? "no pick" : "no pick yet"}`
+          }
+          onPress={() => router.push(`/elections/${election.id}`)}
+        >
+          {election.official_ballot_title}
+        </Text>
+        {decided ? (
+          <>
+            <Text className="text-sm">
+              <PickedLine choice={choice} election={election} />
+              {autoResult?.outcome === "picked" &&
+              autoResult.reason === "tie" &&
+              (choice?.picks.length ?? 0) < (choice?.seats_to_fill ?? 1) ? (
+                // Partial fill: some seats landed, the rest tied.
+                // Gated on a live vacancy so the note retires the
+                // moment the user fills the remaining seats by hand.
+                <Text className="text-xs text-ink-soft"> · remaining seats tied — your call</Text>
+              ) : null}
+            </Text>
+            <StrandedRemoveButtons choice={choice} today={today} />
+          </>
+        ) : null}
+      </View>
+    );
+  });
   return (
     <View className="rounded-xl border border-line bg-white p-4">
       {/* Date only: the screen heading already says "My Election Draft". */}
       <Text className="text-lg font-semibold text-ink">{formatElectionDate(date)}</Text>
-      {/* Progress bar + "N / M" instead of a grey sentence: the count is a
-          status, and a bar is the shape people already read as one. The
-          full sentence stays as the bar's accessible name. Green = the
-          "decided" color the pick names and Won flags already use. */}
-      <View className="mt-2 flex-row items-center gap-3">
-        <View
-          accessibilityRole="progressbar"
-          accessibilityLabel={progressLabel}
-          accessibilityValue={{ min: 0, max: elections.length, now: pickedCount }}
-          className="h-2 flex-1 overflow-hidden rounded-full bg-surface"
-        >
-          <View className="h-full rounded-full bg-green-700" style={{ width: `${progressPercent}%` }} />
-        </View>
-        <Text className="text-sm font-semibold text-ink">
-          {pickedCount} / {elections.length}
-        </Text>
-      </View>
+      {contested.length > 0 ? <DraftProgressBar picked={countPicks(contested)} total={contested.length} /> : null}
       {/* Mint-on-demand: no share row (and no live public URL) exists until
           the user asks for one. The mint button hides while the card has
           zero picks (the backend refuses to mint for an empty card), but a
           link minted earlier still shows, with Stop sharing. */}
-      <ShareCardControl electionDate={date} canMint={pickedCount > 0} />
+      <ShareCardControl electionDate={date} canMint={countPicks(elections) > 0} />
       {/* Past cards drop the fill control (the backend rejects writes to
           past elections), matching the rows' "no pick" retirement. */}
       {!isPast ? (
@@ -373,43 +394,39 @@ function PickDateCard({
           show an empty pick slot; "no pick yet" survives only in the link's
           accessibility label, so sighted users read the empty slot and a
           screen reader still hears the state. */}
-      <View className="mt-3 border-t border-line">
-        {elections.map((election) => {
-          const choice = choiceByElectionId?.get(election.id);
-          const autoResult = autoResults?.get(election.id);
-          const decided = hasRenderablePick(choice);
-          return (
-            <View key={election.id} className="border-b border-line/60 py-2">
-              <Text
-                className="text-sm text-ink underline"
-                accessibilityRole="link"
-                accessibilityLabel={
-                  decided ? undefined : `${election.official_ballot_title} — ${isPast ? "no pick" : "no pick yet"}`
-                }
-                onPress={() => router.push(`/elections/${election.id}`)}
-              >
-                {election.official_ballot_title}
-              </Text>
-              {decided ? (
-                <>
-                  <Text className="text-sm">
-                    <PickedLine choice={choice} election={election} />
-                    {autoResult?.outcome === "picked" &&
-                    autoResult.reason === "tie" &&
-                    (choice?.picks.length ?? 0) < (choice?.seats_to_fill ?? 1) ? (
-                      // Partial fill: some seats landed, the rest tied.
-                      // Gated on a live vacancy so the note retires the
-                      // moment the user fills the remaining seats by hand.
-                      <Text className="text-xs text-ink-soft"> · remaining seats tied — your call</Text>
-                    ) : null}
-                  </Text>
-                  <StrandedRemoveButtons choice={choice} today={today} />
-                </>
-              ) : null}
-            </View>
-          );
-        })}
+      {contested.length > 0 ? <View className="mt-3 border-t border-line">{renderRows(contested)}</View> : null}
+      {retention.length > 0 ? (
+        <View className="mt-4">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: retentionOpen }}
+            accessibilityLabel="Retention Races"
+            onPress={() => setRetentionOpen((open) => !open)}
+            className="min-h-11 flex-row items-center gap-2"
+          >
+            <Text aria-hidden style={{ fontSize: 22 }} className="text-ink-soft">{retentionOpen ? "▾" : "▸"}</Text>
+            <Text className="text-lg font-semibold text-ink">Retention Races</Text>
+          </Pressable>
+          <DraftProgressBar picked={countPicks(retention)} total={retention.length} retention />
+          {retentionOpen ? <View className="mt-3 border-t border-line">{renderRows(retention)}</View> : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function DraftProgressBar({ picked, total, retention = false }: { picked: number; total: number; retention?: boolean }) {
+  return (
+    <View className="mt-2 flex-row items-center gap-3">
+      <View
+        accessibilityRole="progressbar"
+        accessibilityLabel={`${picked} of ${total} ${retention ? "retention " : ""}race${total === 1 ? "" : "s"} decided`}
+        accessibilityValue={{ min: 0, max: total, now: picked }}
+        className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200"
+      >
+        <View className="h-full rounded-full bg-green-700" style={{ width: `${Math.round((picked / total) * 100)}%` }} />
       </View>
+      <Text className="text-sm font-semibold text-ink">{picked} / {total}</Text>
     </View>
   );
 }
