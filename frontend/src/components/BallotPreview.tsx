@@ -1,6 +1,6 @@
 import type {
   AutoPickElectionResult, ElectionChoice, ElectionPreviewCandidate, ElectionSummary } from "@voteapp/api-client";
-import { formatElectionDate, isJudicialRetentionTitle } from "@voteapp/api-client";
+import { formatElectionDate, isJudicialRetentionTitle, splitRetentionRaces } from "@voteapp/api-client";
 import { reasonLabel } from "./AutoPickFillControl";
 
 // Ballot preview of My Picks / My Ballot Draft: a paper-ballot-shaped render of
@@ -188,6 +188,15 @@ function BallotSheet({
   choiceByElectionId: Map<string, ElectionChoice> | undefined;
   autoResultFor?: (date: string, electionId: string) => AutoPickElectionResult | undefined;
 }) {
+  const { contested, retention } = splitRetentionRaces(elections);
+  const renderContests = (races: ElectionSummary[]) => races.map((election) => (
+    <ContestBox
+      key={election.id}
+      election={election}
+      choice={choiceByElectionId?.get(election.id)}
+      autoResult={autoResultFor?.(date, election.id)}
+    />
+  ));
   return (
     <section className="rounded-sm border border-line bg-white p-4 shadow-sm">
       <header className="border-b-2 border-ink pb-2 text-center">
@@ -199,14 +208,13 @@ function BallotSheet({
         <p className="text-xs text-ink-soft">Not an official ballot</p>
       </header>
       <div className="mt-3 space-y-3">
-        {elections.map((election) => (
-          <ContestBox
-            key={election.id}
-            election={election}
-            choice={choiceByElectionId?.get(election.id)}
-            autoResult={autoResultFor?.(date, election.id)}
-          />
-        ))}
+        {renderContests(contested)}
+        {retention.length > 0 ? (
+          <div className="space-y-3">
+            <h4 className="break-after-avoid text-sm font-bold text-ink">Retention Races</h4>
+            {renderContests(retention)}
+          </div>
+        ) : null}
       </div>
       <footer className="mt-3 border-t border-line pt-2 text-xs text-ink-soft">
         <p>Races and order may differ from your official ballot — check your sample ballot.</p>

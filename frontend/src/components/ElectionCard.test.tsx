@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ElectionList } from "./ElectionCard";
 import { renderRoutes } from "../test/render";
-import { DISTRICT, electionSummary, VOTE_POWER } from "../test/fixtures";
+import { DISTRICT, electionSummary, retentionElection, VOTE_POWER } from "../test/fixtures";
 import { buildResearchAreaWeights } from "@voteapp/api-client";
 import type { ElectionChoice, ElectionSummary } from "@voteapp/api-client";
 
@@ -95,9 +95,9 @@ describe("ElectionCard", () => {
     expect(screen.getByText("Alaska")).toBeInTheDocument();
   });
 
-  it("shows the count only for a lone candidate — never 'Uncontested', which the payload can't prove", () => {
+  it("omits candidate counts even for a lone candidate", () => {
     renderCard(electionSummary({ candidate_count: 1 }));
-    expect(screen.getByText("1 candidate")).toBeInTheDocument();
+    expect(screen.queryByText("1 candidate")).not.toBeInTheDocument();
     expect(screen.queryByText(/Uncontested/)).not.toBeInTheDocument();
   });
 
@@ -111,16 +111,16 @@ describe("ElectionCard", () => {
   it("color-codes the vote-power badge by level", () => {
     // Fixture default is "high" → orange; hotter and cooler levels shift hue.
     renderCard(electionSummary());
-    expect(screen.getByText("My vote power: High").className).toContain("text-orange-700");
+    expect(screen.getByText("My vote power: High").className).toContain("text-red-700");
 
     renderCard(electionSummary({ vote_power: { ...VOTE_POWER, label: "very_high" } }));
-    expect(screen.getByText("My vote power: Very high").className).toContain("text-red-700");
+    expect(screen.getByText("My vote power: Very high").className).toContain("text-red-900");
 
     renderCard(electionSummary({ vote_power: { ...VOTE_POWER, label: "medium" } }));
     expect(screen.getByText("My vote power: Average").className).toContain("text-sky-700");
 
     renderCard(electionSummary({ vote_power: { ...VOTE_POWER, label: "above_average" } }));
-    expect(screen.getByText("My vote power: Above average").className).toContain("text-amber-700");
+    expect(screen.getByText("My vote power: Above average").className).toContain("text-orange-700");
 
     // "low" displays as "Below average" — the label map and color map key on
     // the same wire value, so both must hold at once.
@@ -128,7 +128,7 @@ describe("ElectionCard", () => {
     expect(screen.getByText("My vote power: Below average").className).toContain("text-gray-600");
 
     renderCard(electionSummary({ vote_power: { ...VOTE_POWER, label: "very_low" } }));
-    expect(screen.getByText("My vote power: Very low").className).toContain("text-gray-500");
+    expect(screen.getAllByText("My vote power: Below average")[1].className).toContain("text-gray-500");
   });
 
   it("omits the vote-power text when the score is unknown", () => {
@@ -946,5 +946,168 @@ describe("ElectionCard result chip", () => {
       })
     );
     expect(screen.queryByText(/not competitive/)).not.toBeInTheDocument();
+  });
+});
+
+describe("retention grouping", () => {
+  it.each(["vote_power", "my_areas", "district_size", "district_size_smallest"] as const)(
+    "collapses retention between contested races and awaiting under %s, including nav order", async (sort) => {
+      const elections = [retentionElection("r-1"), electionSummary(), retentionElection("r-2", { candidate_count: 0 }),
+        electionSummary({ id: "awaiting", official_ballot_title: "Awaiting mayor", candidate_count: 0 })];
+      const { router } = renderRoutes([
+        { path: "/", element: <ElectionList elections={elections} sort={sort} backTo={{ path: "/", label: "Ballot" }} /> },
+        { path: "/elections/:id", element: <p>Detail</p> },
+      ], "/");
+      const group = screen.getByRole("button", { name: "Retention Races (2)" });
+      expect(group).toHaveAttribute("aria-expanded", "false");
+      expect(screen.queryByText(elections[0].official_ballot_title)).not.toBeInTheDocument();
+      expect(screen.getByText("Governor").compareDocumentPosition(group) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(group.compareDocumentPosition(screen.getByText("Elections awaiting candidate information")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      await userEvent.click(group);
+      expect(group).toHaveAttribute("aria-expanded", "true");
+      expect(screen.getByText(elections[0].official_ballot_title)).toBeInTheDocument();
+      expect(screen.getByText(elections[2].official_ballot_title)).toBeInTheDocument();
+      expect(screen.queryByText(/^[0-9]+ candidates?$/)).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole("link", { name: /Governor/ }));
+      expect(router.state.location.state.contests.map((entry: { id: string }) => entry.id)).toEqual(["e-1", "r-1", "r-2", "awaiting"]);
+      expect(router.state.location.state.contests[2]).toMatchObject({ retention: true });
+      expect(router.state.location.state.contests[2].awaiting_candidates).toBeUndefined();
+    }
+  );
+
+  it.each([0, 1, 2])("keeps the list group size for %i answers", (count) => {
+    const elections = [retentionElection("r-1"), retentionElection("r-2")];
+    const choices = new Map(elections.slice(0, count).map((election, index) => [election.id,
+      electionChoice({ election_id: election.id, picks: [], measure_position: index === 0 ? "yes" : "no" })]));
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} choicesByElectionId={choices} /> }], "/");
+    const group = screen.getByRole("button", { name: "Retention Races (2)" });
+    expect(group.querySelector("span")).toHaveClass("text-sm", "font-normal", "text-ink-soft");
+  });
+
+  it("leaves one retention on each date as ordinary cards", () => {
+    const elections = [retentionElection("r-1"), retentionElection("r-2", { election_date: "2026-09-15" })];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} /> }], "/");
+    expect(screen.queryByRole("button", { name: /Retention Races/ })).not.toBeInTheDocument();
+    for (const election of elections) expect(screen.getByText(election.official_ballot_title)).toBeInTheDocument();
+  });
+});
+
+it("restores an earlier retention-only date from the awaiting tail to chronological order", () => {
+  renderRoutes([{ path: "/", element: <ElectionList elections={[
+    electionSummary(),
+    retentionElection("r-1", { election_date: "2026-09-15", candidate_count: 0 }),
+    retentionElection("r-2", { election_date: "2026-09-15", candidate_count: 0 }),
+  ]} /> }], "/");
+  expect(screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent)).toEqual([
+    "Elections on September 15, 2026", "Elections on November 3, 2026",
+  ]);
+  expect(screen.getByRole("button", { name: "Retention Races (2)" })).toBeInTheDocument();
+});
+
+
+describe("vote-power sections", () => {
+  const race = (id: string, label: ElectionSummary["vote_power"]["label"] = "medium", overrides: Partial<ElectionSummary> = {}) =>
+    electionSummary({ id, official_ballot_title: `Race ${id}`, vote_power: { ...VOTE_POWER, label }, ...overrides });
+
+  it.each([9, 10])("uses the 10 non-retention threshold with %i ordinary races", (count) => {
+    const elections = [...Array.from({ length: count }, (_, i) => race(`e-${i}`)),
+      retentionElection("r-1"), retentionElection("r-2"),
+      retentionElection("r-lone", { election_date: "2027-11-02" })];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    if (count === 10) expect(screen.getByRole("button", { name: "My vote power: Average(10)" })).toHaveAttribute("aria-expanded", "true");
+    else expect(screen.queryByRole("button", { name: /Average/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Retention Races (2)" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByText(/Shall Judge r-lone/)).toBeInTheDocument();
+  });
+
+  it("orders populated bands highest first, combines the bottom two, and preserves card navigation order", async () => {
+    const labels = ["low", "high", "very_low", "medium", "above_average", "very_high", "unknown", "high", "medium", "low"] as const;
+    const elections = labels.map((label, i) => race(`e-${i}`, label));
+    const { router } = renderRoutes([
+      { path: "/", element: <ElectionList elections={elections} sort="vote_power" backTo={{ path: "/", label: "All elections" }} /> },
+      { path: "/elections/:id", element: <p>Detail</p> },
+    ], "/");
+    expect(screen.getAllByRole("button").map((button) => button.textContent)).toEqual([
+      "My vote power: Very high(1)", "My vote power: High(2)", "My vote power: Above average(1)", "My vote power: Average(2)", "My vote power: Below average(3)", "My vote power: Unknown(1)",
+    ]);
+    const colors = ["text-red-900", "text-red-700", "text-orange-700", "text-sky-700", "text-gray-600", "text-ink-soft"];
+    screen.getAllByRole("button").forEach((button, index) => {
+      expect(button).toHaveClass(colors[index]);
+      expect(button).not.toHaveClass("hover:text-rausch-deep");
+    });
+    for (const card of screen.getAllByRole("link")) {
+      expect(within(card).queryByText(/My vote power:/)).not.toBeInTheDocument();
+    }
+    const low = screen.getByRole("button", { name: "My vote power: Below average(3)" });
+    expect(within(low.parentElement!).getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+      "/elections/e-0", "/elections/e-2", "/elections/e-9",
+    ]);
+    expect(screen.queryByText("My vote power: Very low")).not.toBeInTheDocument();
+    await userEvent.click(low);
+    expect(screen.queryByText("Race e-2")).not.toBeInTheDocument();
+    expect(screen.getByText("Race e-5")).toBeInTheDocument();
+    await userEvent.click(low);
+    const visibleOrder = screen.getAllByRole("link").map((link) => link.getAttribute("href")!.split("/").pop());
+    await userEvent.click(screen.getByRole("link", { name: /Race e-5/ }));
+    expect(router.state.location.state.contests.map((entry: { id: string }) => entry.id)).toEqual(visibleOrder);
+  });
+
+  it("omits absent bands", () => {
+    const elections = Array.from({ length: 10 }, (_, i) => race(`e-${i}`, "high"));
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    expect(screen.getAllByRole("button")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
+  });
+
+  it("does not count hidden races in the navigation pool toward the threshold", () => {
+    const pool = Array.from({ length: 12 }, (_, i) => race(`e-${i}`));
+    renderRoutes([{ path: "/", element: <ElectionList elections={pool.slice(0, 9)} contestsPool={pool} sort="vote_power" /> }], "/");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it.each([[7, 7], [7, 10], [10, 7], [10, 10]])(
+    "checks the threshold per date with %i August and %i November races", (augustCount, novemberCount) => {
+      const dates = ["2026-08-04", "2026-11-03"];
+      const counts = [augustCount, novemberCount];
+      const elections = dates.flatMap((date, index) => [
+        ...Array.from({ length: counts[index] }, (_, i) => race(`${date}-${i}`, "high", { election_date: date })),
+        retentionElection(`${date}-r-1`, { election_date: date }),
+        retentionElection(`${date}-r-2`, { election_date: date }),
+        retentionElection(`${date}-r-3`, { election_date: date }),
+      ]);
+      renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+      const headings = screen.getAllByRole("heading", { level: 2 });
+      for (let index = 0; index < dates.length; index++) {
+        const dateSection = within(headings[index].parentElement!);
+        if (counts[index] >= 10) expect(dateSection.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
+        else expect(dateSection.queryByRole("button", { name: /^My vote power: High/ })).not.toBeInTheDocument();
+        for (const card of dateSection.getAllByRole("link")) {
+          if (counts[index] >= 10) expect(within(card).queryByText("My vote power: High")).not.toBeInTheDocument();
+          else expect(within(card).getByText("My vote power: High")).toBeInTheDocument();
+        }
+        expect(dateSection.getByRole("button", { name: "Retention Races (3)" })).toHaveAttribute("aria-expanded", "false");
+      }
+    }
+  );
+
+  it("keeps date boundaries and the awaiting-candidates section", () => {
+    const elections = Array.from({ length: 10 }, (_, i) => race(`e-${i}`, "high", {
+      election_date: i < 5 ? "2026-11-03" : "2027-11-02", candidate_count: i === 9 ? 0 : 2,
+    }));
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    expect(screen.getByText("Race e-9")).toBeInTheDocument();
+  });
+
+  it.each(["district_size", "district_size_smallest", "my_areas"] as const)("keeps %s behavior and omits empty district levels", (sort) => {
+    const elections = Array.from({ length: 10 }, (_, i) => race(`e-${i}`, "medium", {
+      district: { ...DISTRICT, district_type: "statewide" },
+    }));
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort={sort} /> }], "/");
+    expect(screen.queryByRole("button", { name: /Average/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /County/ })).not.toBeInTheDocument();
+    expect(screen.getAllByText("My vote power: Average")).toHaveLength(10);
+    if (sort !== "my_areas") expect(screen.getByRole("button", { name: "State(10)" })).toBeInTheDocument();
   });
 });

@@ -480,7 +480,7 @@ export function ElectionPage() {
           : null
       }
       backTo={railNav.backTo}
-      backToState={railNav.forwarded.backState}
+      backToState={railNav.forwarded.backState ?? railNav.forwarded.listState}
       siblingState={railNav.forwarded}
     />
   ) : null;
@@ -507,7 +507,7 @@ export function ElectionPage() {
           }))}
           currentId={data.id}
           backTo={railNav.backTo}
-          backToState={railNav.forwarded.backState}
+          backToState={railNav.forwarded.backState ?? railNav.forwarded.listState}
           siblingState={railNav.forwarded}
           headerSlot={
             // The list label renders even when no control is offerable (an

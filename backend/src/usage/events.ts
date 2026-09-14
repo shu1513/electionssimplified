@@ -138,7 +138,8 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
         "how_to_vote",
         "how_to_vote_link",
         "followed_first",
-        "view_toggle"
+        "view_toggle",
+        "retention_group"
       ),
       value: oneOf(
         // sort values (BALLOT_SORTS) and rail-equivalent words

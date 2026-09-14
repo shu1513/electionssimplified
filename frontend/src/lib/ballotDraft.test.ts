@@ -223,7 +223,7 @@ describe("ballotDraft store", () => {
       { id: "nov-a", election_date: "2026-11-03" },
       { id: "sep", election_date: "2026-09-15" },
       { id: "nov-b", election_date: "2026-11-03" },
-    ];
+    ].map((election) => ({ ...election, race_type: "office", official_ballot_title: election.id }));
     expect(nearestUpcomingTarget(elections, "2026-08-01")).toEqual({
       election_date: "2026-09-15",
       election_ids: ["sep"],
@@ -295,4 +295,19 @@ describe("flushBallotDraftToAccount", () => {
       expect(hasDraftPicks(readBallotDraft())).toBe(true);
     }
   });
+});
+
+it("keeps retention target metadata through storage without counting it", () => {
+  const elections = [
+    { id: "a", election_date: "2026-11-03", race_type: "office", official_ballot_title: "Shall Judge A be retained?" },
+    { id: "mayor", election_date: "2026-11-03", race_type: "office", official_ballot_title: "Mayor" },
+    { id: "b", election_date: "2026-11-03", race_type: "office", official_ballot_title: "Shall Judge B be retained?" },
+  ];
+  const target = nearestUpcomingTarget(elections, "2026-08-01");
+  expect(target).toEqual({ election_date: "2026-11-03", election_ids: ["mayor"], retention_ids: ["a", "b"] });
+  setDraftBallotContext([], target);
+  window.dispatchEvent(new StorageEvent("storage", { key: "voteapp_ballot_draft" }));
+  expect(readBallotDraft().target).toEqual(target);
+  expect(draftProgress(readBallotDraft(), "2026-08-01")).toMatchObject({ picked: 0, total: 1, election_ids: ["mayor"] });
+  expect(nearestUpcomingTarget(elections.slice(0, 2), "2026-08-01")?.election_ids).toEqual(["a", "mayor"]);
 });

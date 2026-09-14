@@ -286,3 +286,8 @@ describe("insertUsageEvents", () => {
     expect(queries).toBe(0);
   });
 });
+
+it.each(["open", "close"])("accepts retention group %s usage", (value) => {
+  expect(parseUsageEvent(event({ name: "list_control", route: "ballot", props: { control: "retention_group", value } }))?.props)
+    .toEqual({ control: "retention_group", value });
+});

@@ -2,12 +2,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ElectionPage, ErrorBoundary } from "./ElectionPage";
+import { ElectionList } from "../components/ElectionCard";
 import { clearBallotDraft, readBallotDraft, setDraftBallotContext, setDraftCandidateChoice } from "../lib/ballotDraft";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import {
   DISTRICT,
   electionDetail,
+  electionSummary,
+  retentionElection,
   financeSummary,
   ME_VERIFIED,
   MY_DISTRICTS,
@@ -1849,6 +1852,72 @@ describe("ElectionPage back link and nav context", () => {
     const back = await screen.findByRole("link", { name: "Back to All elections" });
     // The full query string survives the round trip.
     expect(back).toHaveAttribute("href", "/ballot?d=d-1&sort=district_size");
+  });
+
+  it.each(["back link", "browser Back"])("restores expanded retention via %s without changing fresh visits", async (returnVia) => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const elections = [retentionElection("r-1"), retentionElection("r-2"),
+      retentionElection("r-3", { election_date: "2027-11-02" }),
+      retentionElection("r-4", { election_date: "2027-11-02" })];
+    const { router } = renderRoutes([
+      { path: "/ballot", element: <ElectionList elections={elections} backTo={{ path: "/ballot", label: "All elections" }} /> },
+      { path: "/elections/:electionId", element: <ElectionPage />, hydrateFallbackElement: <p />,
+        loader: () => electionDetail({ id: "r-1", official_ballot_title: elections[0].official_ballot_title }) },
+    ], "/ballot");
+    const groups = () => screen.getAllByRole("button", { name: "Retention Races (2)" });
+    expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(groups()[0]);
+    await userEvent.click(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) }));
+    const back = (await screen.findAllByRole("link", { name: "Back to All elections" }))[0];
+    if (returnVia === "back link") await userEvent.click(back);
+    else await act(async () => { await router.navigate(-1); });
+    await waitFor(() => expect(groups()[0]).toHaveAttribute("aria-expanded", "true"));
+    expect(groups()[1]).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) })).toBeInTheDocument();
+    // Collapsing again replaces the remembered value, and a fresh list
+    // navigation without state still starts with everything collapsed.
+    await userEvent.click(groups()[0]);
+    expect(router.state.location.state.expandedRetentionDates).toEqual([]);
+    await userEvent.click(groups()[0]);
+    await act(async () => { await router.navigate("/ballot", { state: null }); });
+    expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it.each(["back link", "browser Back"])("remembers collapsed vote-power groups via %s", async (returnVia) => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const elections = ["2026-11-03", "2027-11-02"].flatMap((date) =>
+      Array.from({ length: 10 }, (_, i) => electionSummary({
+        id: `${date}-${i}`, official_ballot_title: `Race ${date}-${i}`, election_date: date,
+        vote_power: { ...VOTE_POWER_WITH_EXPLANATION, label: i === 0 ? "high" : "medium" },
+      })));
+    elections.push(retentionElection("r-1"), retentionElection("r-2"));
+    const { router } = renderRoutes([
+      { path: "/ballot", element: <ElectionList elections={elections} sort="vote_power" backTo={{ path: "/ballot", label: "All elections" }} /> },
+      { path: "/elections/:electionId", element: <ElectionPage />, hydrateFallbackElement: <p />,
+        loader: () => electionDetail({ id: "2026-11-03-1" }) },
+    ], "/ballot");
+    const highGroups = () => screen.getAllByRole("button", { name: "My vote power: High(1)" });
+    const retention = () => screen.getByRole("button", { name: "Retention Races (2)" });
+    expect(highGroups()[0]).toHaveAttribute("aria-expanded", "true");
+    await userEvent.click(highGroups()[0]);
+    await userEvent.click(retention());
+    expect(screen.queryByText("Race 2026-11-03-0")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("link", { name: /Race 2026-11-03-1/ }));
+    const back = (await screen.findAllByRole("link", { name: "Back to All elections" }))[0];
+    if (returnVia === "back link") await userEvent.click(back);
+    else await act(async () => { await router.navigate(-1); });
+    await waitFor(() => expect(highGroups()[0]).toHaveAttribute("aria-expanded", "false"));
+    expect(highGroups()[1]).toHaveAttribute("aria-expanded", "true");
+    expect(retention()).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByText("Race 2026-11-03-0")).not.toBeInTheDocument();
+    expect(screen.getByText("Race 2027-11-02-0")).toBeInTheDocument();
+    await userEvent.click(highGroups()[0]);
+    expect(router.state.location.state.collapsedVotePowerGroups).toEqual([]);
+    expect(retention()).toHaveAttribute("aria-expanded", "true");
+    await userEvent.click(highGroups()[0]);
+    await act(async () => { await router.navigate("/ballot", { state: null }); });
+    expect(highGroups()[0]).toHaveAttribute("aria-expanded", "true");
+    expect(retention()).toHaveAttribute("aria-expanded", "false");
   });
 
   it("shows no nav bar on a deep link with no state", async () => {

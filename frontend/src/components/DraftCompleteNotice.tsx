@@ -126,6 +126,7 @@ export function DraftCompleteNotice() {
           <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-sm text-green-900">
             <p className="min-w-0 flex-1 font-semibold">
               You have completed your {formatElectionDate(shown.date)} election draft.
+              {progress?.hasOpenRetention ? " Retention races are still open on your draft." : null}
             </p>
             <Link
               to={reviewPath}

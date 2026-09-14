@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
-import { ApiError, apiRequest, isDecidedChoice } from "@voteapp/api-client";
-import type { ElectionChoice, PickProgress } from "@voteapp/api-client";
+import { ApiError, apiRequest, isDecidedChoice, splitRetentionRaces } from "@voteapp/api-client";
+import type { ElectionChoice, ElectionSummary, PickProgress } from "@voteapp/api-client";
 
 // Moved to @voteapp/api-client so mobile shares the one "decided" rule;
 // re-exported here so this module stays the web's import site for it.
@@ -38,7 +38,12 @@ export type BallotDraft = {
   /** Progress denominator: the nearest upcoming election day's race ids,
    * snapshotted on the last /ballot visit. Null until the guest sees a
    * ballot with an upcoming date. */
-  target: { election_date: string; election_ids: string[] } | null;
+  target: {
+    election_date: string;
+    election_ids: string[];
+    /** Optional metadata for the completion notice, never part of progress. */
+    retention_ids?: string[];
+  } | null;
   choices: Record<string, ElectionChoice>;
 };
 
@@ -131,6 +136,9 @@ function parseDraft(raw: string | null): BallotDraft {
       target = {
         election_date: rawTarget.election_date,
         election_ids: rawTarget.election_ids.filter((id): id is string => typeof id === "string"),
+        ...(Array.isArray(rawTarget.retention_ids) ? {
+          retention_ids: rawTarget.retention_ids.filter((id): id is string => typeof id === "string"),
+        } : {}),
       };
     }
   }
@@ -240,14 +248,14 @@ export function draftProgress(draft: BallotDraft, today: string): PickProgress |
 }
 
 /** The draft's progress denominator from a ballot payload: the nearest
- * upcoming election day's races (all of them — computed from the FULL
- * payload, never a filtered view, so hiding races cannot shrink the goal).
+ * upcoming election day's contested races, computed from the FULL payload
+ * so race-type tabs cannot shrink the goal. Grouped retention is metadata.
  * Null when nothing is upcoming. Shared by every guest page that loads a
  * full election list (/ballot and /draft) so each refreshes the target. */
 export function nearestUpcomingTarget(
-  elections: { id: string; election_date: string }[],
+  elections: Pick<ElectionSummary, "id" | "election_date" | "race_type" | "official_ballot_title">[],
   today: string
-): { election_date: string; election_ids: string[] } | null {
+): BallotDraft["target"] {
   const upcoming = elections.filter((election) => election.election_date >= today);
   if (upcoming.length === 0) {
     return null;
@@ -256,9 +264,11 @@ export function nearestUpcomingTarget(
     (min, election) => (election.election_date < min ? election.election_date : min),
     upcoming[0].election_date
   );
+  const { contested, retention } = splitRetentionRaces(upcoming.filter((election) => election.election_date === date));
   return {
     election_date: date,
-    election_ids: upcoming.filter((election) => election.election_date === date).map((election) => election.id),
+    election_ids: contested.map((election) => election.id),
+    ...(retention.length > 0 ? { retention_ids: retention.map((election) => election.id) } : {}),
   };
 }
 
@@ -289,7 +299,7 @@ export function hasDraftPicks(draft: BallotDraft): boolean {
  * link and denominator track the ballot the guest actually looked at last. */
 export function setDraftBallotContext(
   districtIds: string[],
-  target: { election_date: string; election_ids: string[] } | null
+  target: BallotDraft["target"]
 ): void {
   const draft = currentDraft();
   writeDraft({ ...draft, district_ids: districtIds, target });

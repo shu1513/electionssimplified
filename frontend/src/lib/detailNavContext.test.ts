@@ -9,6 +9,27 @@ describe("readElectionNavState", () => {
     expect(readElectionNavState(state)).toEqual(state);
   });
 
+  it("preserves list expansion through nested navigation and discards malformed dates", () => {
+    const listState = { expandedRetentionDates: ["2026-11-03"], collapsedVotePowerGroups: ["2026-11-03:high"] };
+    const election = { backTo: BACK_TO, listState };
+    expect(readElectionNavState(election)).toEqual(election);
+    expect(readCandidateNavState({ backTo: { path: "/elections/e-1", label: "Election" }, backState: election })?.backState).toEqual(election);
+    for (const expandedRetentionDates of [null, "2026-11-03", [3], ["bad"]]) {
+      expect(readElectionNavState({ backTo: BACK_TO, listState: { expandedRetentionDates } })).toEqual({ backTo: BACK_TO });
+    }
+  });
+
+  it("validates vote-power disclosure state independently from retention state", () => {
+    const read = (listState: unknown) => readElectionNavState({ backTo: BACK_TO, listState })?.listState;
+    expect(read({ collapsedVotePowerGroups: ["2026-11-03:high"] })).toEqual({
+      expandedRetentionDates: [], collapsedVotePowerGroups: ["2026-11-03:high"],
+    });
+    for (const groups of [null, "high", [3], ["2026-11-03:bad"], ["high"]]) {
+      expect(read({ expandedRetentionDates: ["2026-11-03"], collapsedVotePowerGroups: groups })).toEqual({ expandedRetentionDates: ["2026-11-03"] });
+      expect(read({ collapsedVotePowerGroups: groups })).toBeUndefined();
+    }
+  });
+
   it("returns null for junk, null, and missing backTo", () => {
     expect(readElectionNavState(null)).toBeNull();
     expect(readElectionNavState("nonsense")).toBeNull();
@@ -224,4 +245,11 @@ describe("pagerNeighbors", () => {
     // A stale snapshot that no longer contains the page must not page.
     expect(pagerNeighbors(LIST, "e-999")).toBeNull();
   });
+});
+
+it("preserves a valid retention flag and discards malformed flags", () => {
+  expect(readElectionNavState({ backTo: BACK_TO, contests: [
+    { id: "a", title: "Judge A", retention: true },
+    { id: "b", title: "Judge B", retention: "true" },
+  ] })?.contests).toEqual([{ id: "a", title: "Judge A", retention: true }, { id: "b", title: "Judge B" }]);
 });

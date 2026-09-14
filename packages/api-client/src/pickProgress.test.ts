@@ -73,6 +73,17 @@ describe("nearestDayPickProgress", () => {
     });
   });
 
+  it("excludes races from both counts and ids, without changing the default", () => {
+    const choices = new Map([["nov-1", decided("nov-1")]]);
+    expect(nearestDayPickProgress(elections, choices, "2026-10-01", { exclude: new Set(["nov-1"]) }))
+      .toEqual({ election_date: "2026-11-03", election_ids: ["nov-2"], picked: 0, total: 1, complete: false });
+    expect(nearestDayPickProgress(elections, choices, "2026-10-01", { exclude: new Set(["nov-2"]) }))
+      .toEqual({ election_date: "2026-11-03", election_ids: ["nov-1"], picked: 1, total: 1, complete: true });
+    expect(nearestDayPickProgress(elections, choices, "2026-10-01", {}))
+      .toEqual(nearestDayPickProgress(elections, choices, "2026-10-01"));
+    expect(nearestDayPickProgress(elections, choices, "2026-08-28", { exclude: new Set(["sep-1"]) })).toBeNull();
+  });
+
   it("treats an election day itself as upcoming and an emptied choice as undecided", () => {
     const choices = new Map<string, ElectionChoice>([["sep-1", choice({ election_id: "sep-1" })]]);
     expect(nearestDayPickProgress(elections, choices, "2026-09-15")).toEqual({

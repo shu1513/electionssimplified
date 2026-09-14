@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import type { ElectionChoice, ElectionPreviewCandidate } from "@voteapp/api-client";
 import { BallotPreviewSheets } from "./BallotPreview";
-import { electionSummary } from "../test/fixtures";
+import { electionSummary, retentionElection } from "../test/fixtures";
 
 function previewCandidate(overrides: Partial<ElectionPreviewCandidate> = {}): ElectionPreviewCandidate {
   return {
@@ -100,4 +100,21 @@ describe("BallotPreviewSheets retention races", () => {
     expect(screen.getByText("Vote Yes or No")).toBeInTheDocument();
     expect(screen.queryByText("My pick")).not.toBeInTheDocument();
   });
+});
+
+it("prints a contiguous retention block after contested races, without collapse or count", () => {
+  render(<BallotPreviewSheets elections={[retentionElection("r-1"), electionSummary(), retentionElection("r-2")]}
+    choiceByElectionId={undefined} today="2026-08-01" />);
+  expect(screen.getAllByRole("heading", { level: 4 }).map((heading) => heading.textContent)).toEqual([
+    "Governor", "Retention Races", "Shall Judge r-1 be retained in office?", "Shall Judge r-2 be retained in office?",
+  ]);
+  expect(screen.queryByRole("button", { name: /Retention/ })).not.toBeInTheDocument();
+  expect(screen.getAllByText("Vote Yes or No")).toHaveLength(2);
+});
+
+it("prints a lone retention in place without a group heading", () => {
+  render(<BallotPreviewSheets elections={[retentionElection("r-1"), electionSummary()]}
+    choiceByElectionId={undefined} today="2026-08-01" />);
+  expect(screen.queryByRole("heading", { name: "Retention Races" })).not.toBeInTheDocument();
+  expect(screen.getAllByRole("heading", { level: 4 })[0]).toHaveTextContent("Shall Judge r-1");
 });

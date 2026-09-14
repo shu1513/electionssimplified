@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest, myDraftLabel, nearestDayPickProgress, useElectionChoices, useMe } from "@voteapp/api-client";
+import { apiRequest, isDecidedChoice, splitRetentionRaces, myDraftLabel, nearestDayPickProgress, useElectionChoices, useMe } from "@voteapp/api-client";
 import type { BallotSummary, PickProgress } from "@voteapp/api-client";
 import { draftPickCount, draftProgress, useBallotDraft } from "./ballotDraft";
 import { usLatestLocalDate } from "./usLatestLocalDate";
@@ -10,6 +10,8 @@ import { usLatestLocalDate } from "./usLatestLocalDate";
 export { myDraftLabel };
 export type { PickProgress };
 
+type WebPickProgress = PickProgress & { hasOpenRetention: boolean };
+
 /**
  * The signed-in header's pick counter ("My Draft 4/13" → "My Draft ✓"):
  * progress over the nearest upcoming election day on the user's saved
@@ -17,7 +19,7 @@ export type { PickProgress };
  * counter (logged out, unverified, ballot not loaded, no upcoming races, or
  * choices still loading) and the nav shows plain "My Picks".
  */
-export function useMyPicksProgress(): PickProgress | null {
+export function useMyPicksProgress(): WebPickProgress | null {
   const { me } = useMe();
   const verified = me?.email_verified === true;
   // Same key AND url as PicksPage's query, so a cold load of /me/picks is
@@ -39,7 +41,16 @@ export function useMyPicksProgress(): PickProgress | null {
   if (!verified) {
     return null;
   }
-  return nearestDayPickProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate());
+  const { retention } = splitRetentionRaces(ballot.data?.elections ?? []);
+  const progress = nearestDayPickProgress(ballot.data?.elections, choiceByElectionId, usLatestLocalDate(), {
+    exclude: new Set(retention.map((election) => election.id)),
+  });
+  return progress ? {
+    ...progress,
+    hasOpenRetention: retention.some((election) =>
+      election.election_date === progress.election_date && !isDecidedChoice(choiceByElectionId?.get(election.id))
+    ),
+  } : null;
 }
 
 /**
@@ -48,9 +59,13 @@ export function useMyPicksProgress(): PickProgress | null {
  * upcoming date, and again once that day has passed (draftProgress). Same
  * shape as the signed-in value so the completion notice reads either one.
  */
-export function useGuestPickProgress(): PickProgress | null {
+export function useGuestPickProgress(): WebPickProgress | null {
   const draft = useBallotDraft();
-  return draftProgress(draft, usLatestLocalDate());
+  const progress = draftProgress(draft, usLatestLocalDate());
+  return progress ? {
+    ...progress,
+    hasOpenRetention: (draft.target?.retention_ids ?? []).some((id) => !isDecidedChoice(draft.choices[id])),
+  } : null;
 }
 
 /**
@@ -69,11 +84,13 @@ export function useGuestPickProgress(): PickProgress | null {
 export function useGuestDraftNav(): { to: string; label: string; complete: boolean } | null {
   const draft = useBallotDraft();
   const progress = useGuestPickProgress();
-  if (progress && progress.picked > 0) {
+  // A loaded target owns the counter even at zero contested picks. Falling
+  // through would count retention answers again in the generic pick badge.
+  if (progress || (draft.target && draft.target.election_date >= usLatestLocalDate())) {
     return {
       to: "/draft",
-      label: progress.complete ? "My Draft ✓" : `My Draft ${progress.picked}/${progress.total}`,
-      complete: progress.complete,
+      label: myDraftLabel(progress),
+      complete: progress?.complete ?? false,
     };
   }
   // Deep-link entry: picks made on an election or candidate page without

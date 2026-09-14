@@ -5,7 +5,7 @@ import type { ElectionChoice } from "@voteapp/api-client";
 import { App } from "../App";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, ME_VERIFIED } from "../test/fixtures";
+import { ballotSummary, electionSummary, retentionElection, ME_VERIFIED } from "../test/fixtures";
 import { clearBallotDraft, setDraftBallotContext, setDraftCandidateChoice } from "../lib/ballotDraft";
 
 // The notice rides the app shell's header, so every test renders <App />
@@ -35,7 +35,7 @@ const GUEST = { "/api/me": apiError(401, "unauthorized", "Not logged in") };
 const NOTICE_TEXT = /You have completed your November 3, 2026 election draft/;
 
 function seedDraft(draft: {
-  target: { election_date: string; election_ids: string[] } | null;
+  target: { election_date: string; election_ids: string[]; retention_ids?: string[] } | null;
   choices: Record<string, ElectionChoice>;
 }) {
   window.localStorage.setItem(
@@ -88,6 +88,45 @@ afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
+});
+
+
+it.each([false, true])("guest completion describes open retention only when needed (answered=%s)", async (answered) => {
+  const retentionChoice = (id: string): ElectionChoice => ({ ...choice(id, `Shall Judge ${id} be retained?`), picks: [], measure_position: "no" });
+  seedDraft({
+    target: { ...TWO_RACE_TARGET, retention_ids: ["r-1", "r-2"] },
+    choices: { "e-1": choice("e-1", "Governor"), ...(answered ? { "r-1": retentionChoice("r-1"), "r-2": retentionChoice("r-2") } : {}) },
+  });
+  stubApiRoutes(GUEST);
+  renderShell();
+  expect(await screen.findByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
+  pickMayor(true);
+  await screen.findByText(NOTICE_TEXT);
+  expect(screen.getByRole("link", { name: "My Draft ✓" })).toBeInTheDocument();
+  expect(screen.getByRole("status").textContent?.includes("Retention races are still open on your draft.")).toBe(!answered);
+  pickMayor(false);
+  pickMayor(true);
+  await waitFor(() => expect(screen.queryByText(NOTICE_TEXT)).not.toBeInTheDocument());
+});
+
+it.each([false, true])("account completion excludes grouped retention (answered=%s)", async (answered) => {
+  let choices: ElectionChoice[] = answered ? ["r-1", "r-2"].map((id) => ({
+    ...choice(id, `Shall Judge ${id} be retained?`), picks: [], measure_position: "yes",
+  })) : [];
+  stubApiRoutes({
+    "/api/me": { body: ME_VERIFIED },
+    "/api/me/ballot": { body: ballotSummary([electionSummary(), retentionElection("r-1"), retentionElection("r-2")]) },
+    "/api/me/election-choices": () => ({ body: { choices } }),
+  });
+  const { queryClient } = renderShell();
+  await waitFor(() => expect(queryClient.getQueryState(["me", "election-choices"])?.status).toBe("success"));
+  await waitFor(() => expect(queryClient.getQueryState(["me", "ballot", "preview"])?.status).toBe("success"));
+  expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  choices = [...choices, choice("e-1", "Governor")];
+  await act(async () => { await queryClient.invalidateQueries({ queryKey: ["me", "election-choices"] }); });
+  await screen.findByText(NOTICE_TEXT);
+  expect(screen.getByRole("link", { name: "My Draft ✓" })).toBeInTheDocument();
+  expect(screen.getByRole("status").textContent?.includes("Retention races are still open on your draft.")).toBe(!answered);
 });
 
 describe("DraftCompleteNotice", () => {

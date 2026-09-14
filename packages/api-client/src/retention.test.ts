@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isJudicialRetentionTitle, isRetentionRace } from "./retention";
+import { isJudicialRetentionTitle, isRetentionRace, splitRetentionRaces } from "./retention";
 
 describe("isJudicialRetentionTitle", () => {
   it("matches the retention phrasings states print", () => {
@@ -41,5 +41,29 @@ describe("isRetentionRace", () => {
       false
     );
     expect(isRetentionRace({ race_type: "office", official_ballot_title: "Mayor" })).toBe(false);
+  });
+});
+
+describe("splitRetentionRaces", () => {
+  const race = (id: string, retention = false, date = "2026-11-03") => ({
+    id, election_date: date, race_type: "office",
+    official_ballot_title: retention ? `Shall Judge ${id} be retained?` : id,
+  });
+
+  it("keeps zero or one retention race among contested races", () => {
+    expect(splitRetentionRaces([])).toEqual({ contested: [], retention: [] });
+    for (const elections of [[race("Mayor")], [race("a", true), race("Mayor")]]) {
+      expect(splitRetentionRaces(elections)).toEqual({ contested: elections, retention: [] });
+    }
+  });
+
+  it("groups two or more per date, preserving both partitions and the input", () => {
+    const a = race("a", true);
+    const b = race("b", true);
+    const lone = race("lone", true, "2026-09-15");
+    const mayor = race("Mayor");
+    const elections = Object.freeze([a, lone, mayor, b]);
+    expect(splitRetentionRaces(elections)).toEqual({ contested: [lone, mayor], retention: [a, b] });
+    expect(elections).toEqual([a, lone, mayor, b]);
   });
 });

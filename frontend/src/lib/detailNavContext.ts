@@ -17,6 +17,27 @@ import { safeInternalPath } from "./safeInternalPath";
  * this type non-recursive. */
 export type BackTo = { path: string; label: string };
 
+/** List disclosure state travels only with this navigation round trip. */
+export type ElectionListState = {
+  expandedRetentionDates: string[];
+  /** Date + rating; collapsing High on one date must not affect another. */
+  collapsedVotePowerGroups?: string[];
+};
+
+export function readElectionListState(state: unknown): ElectionListState | undefined {
+  if (typeof state !== "object" || state === null) return undefined;
+  const { expandedRetentionDates: dates, collapsedVotePowerGroups: groups } = state as Record<string, unknown>;
+  let result: ElectionListState | undefined;
+  if (Array.isArray(dates) && dates.every((date) => typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date))) {
+    result = { expandedRetentionDates: dates };
+  }
+  if (Array.isArray(groups) && groups.every((key) => typeof key === "string" &&
+    /^\d{4}-\d{2}-\d{2}:(very_high|high|above_average|medium|low|unknown)$/.test(key))) {
+    result = { ...result, expandedRetentionDates: result?.expandedRetentionDates ?? [], collapsedVotePowerGroups: groups };
+  }
+  return result;
+}
+
 /** race_type powers the rail's race-type tabs; the sort keys power its
  * sort control (vote_power_score and election_date mirror the backend's
  * sort inputs; research_area_ids feed the client-mirrored My-issues
@@ -32,6 +53,7 @@ export type NavContest = {
   election_date?: string;
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
+  retention?: boolean;
 };
 /** research_area_records powers the candidate rail's My-issues sort: each
  * candidate's stance-bearing records condensed to per-area counts at
@@ -53,6 +75,7 @@ export type NavCandidate = {
  * back round trip keeps the candidate's original back link. */
 export type ElectionNavState = {
   backTo: BackTo;
+  listState?: ElectionListState;
   backState?: CandidateNavState;
   contests?: NavContest[];
   raceType?: BallotRaceType;
@@ -142,6 +165,8 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
     return null;
   }
   const result: ElectionNavState = { backTo };
+  const listState = readElectionListState(record.listState);
+  if (listState) result.listState = listState;
   const backState = readCandidateNavState(record.backState);
   if (backState !== null) {
     result.backState = backState;
@@ -169,6 +194,9 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
         raw.research_area_ids.every((areaId) => typeof areaId === "string" && areaId.trim() !== "")
       ) {
         entry.research_area_ids = raw.research_area_ids;
+      }
+      if (raw.retention === true) {
+        entry.retention = true;
       }
       if (raw.awaiting_candidates === true) {
         entry.awaiting_candidates = true;

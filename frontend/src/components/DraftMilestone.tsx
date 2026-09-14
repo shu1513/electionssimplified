@@ -15,6 +15,7 @@ export function DraftMilestone({
   show,
   date,
   signup,
+  hasOpenRetention = false,
 }: {
   /** From useShowDraftMilestone: complete AND first visit for this day. */
   show: boolean;
@@ -24,6 +25,7 @@ export function DraftMilestone({
    * finished draft. The page hides its own bottom CTA while this renders —
    * one button per page, never two identical ones. */
   signup: boolean;
+  hasOpenRetention?: boolean;
 }) {
   // Usage: the sign-up prompt counts as shown once per appearance.
   useEffect(() => {
@@ -43,6 +45,7 @@ export function DraftMilestone({
       <p className="font-semibold">
         <span aria-hidden="true">✓ </span>
         You have completed your {formatElectionDate(date)} election draft.
+        {hasOpenRetention ? " Retention races are still open on your draft." : null}
       </p>
       {signup ? (
         <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">

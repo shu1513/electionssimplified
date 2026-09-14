@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
+import { App } from "../App";
+import { clearBallotDraft, readBallotDraft, setDraftCandidateChoice } from "../lib/ballotDraft";
 import { BallotPage } from "./BallotPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, ME_VERIFIED, VOTE_POWER } from "../test/fixtures";
+import { ballotSummary, electionSummary, retentionElection, ME_VERIFIED, VOTE_POWER } from "../test/fixtures";
 
 const ANONYMOUS = { "/api/me": apiError(401, "unauthorized", "Not logged in") };
 
@@ -646,4 +648,36 @@ describe("BallotPage nav context", () => {
       railSort: "vote_power",
     });
   });
+});
+
+it("excludes grouped retention from the guest header and target while keeping office tabs", async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+  window.localStorage.clear();
+  clearBallotDraft();
+  try {
+    setDraftCandidateChoice({ electionId: "e-1", raceTitle: "Governor", electionDate: "2026-11-03",
+      seatsToFill: null, candidateId: "c-1", candidateName: "Jane", chosen: true });
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([
+      retentionElection("r-1"), electionSummary(), retentionElection("r-2"),
+      electionSummary({ id: "m-1", official_ballot_title: "Measure One", race_type: "ballot_measure" }),
+    ]) } });
+    renderRoutes([{ path: "/", element: <App />, children: [{ path: "ballot", element: <BallotPage /> }] }],
+      "/ballot?d=dddddddd-1111-4111-8111-111111111111");
+    expect(await screen.findByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
+    await waitFor(() => expect(readBallotDraft().target).toEqual({
+      election_date: "2026-11-03", election_ids: ["e-1", "m-1"], retention_ids: ["r-1", "r-2"],
+    }));
+    expect(screen.getByRole("button", { name: "Retention Races (2)" })).toBeInTheDocument();
+    const offices = screen.getByRole("button", { name: /Offices/ });
+    await userEvent.click(offices);
+    expect(screen.getByRole("button", { name: "Retention Races (2)" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /Measures/ }));
+    expect(screen.queryByRole("button", { name: /Retention Races/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
+  } finally {
+    clearBallotDraft();
+    vi.useRealTimers();
+  }
 });

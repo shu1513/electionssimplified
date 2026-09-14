@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { APP_NAME, apiRequest, formatElectionDate, useMe } from "@voteapp/api-client";
+import { APP_NAME, apiRequest, formatElectionDate, isDecidedChoice, splitRetentionRaces, useMe } from "@voteapp/api-client";
 import type { BallotSummary, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
 import { BallotPreviewSheets, BallotViewToggle } from "../components/BallotPreview";
 import { DetailPager } from "../components/DetailPager";
@@ -18,6 +18,7 @@ import {
   useBallotDraft,
 } from "../lib/ballotDraft";
 import { PickDateCard } from "./PicksPage";
+import { useElectionListState } from "../lib/useElectionListState";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { pageMeta } from "../lib/pageMeta";
 
@@ -57,13 +58,13 @@ function DraftSignupCta() {
 // the register CTA: the draft on display is itself the pitch for saving it.
 
 const DRAFT_NAV_STATE: ElectionNavState = {
-  backTo: { path: "/draft", label: "My Ballot Draft" },
+  backTo: { path: "/draft", label: "My Draft" },
 };
 
 // Bare pick lines rendered straight from draft rows (date · race — choice),
 // for the picks no ballot card can carry: the no-ballot-context fallback,
 // and picks made off the stored ballot via a shared or searched link.
-function DraftChoiceRows({ rows }: { rows: ElectionChoice[] }) {
+function DraftChoiceRows({ rows, navState = DRAFT_NAV_STATE }: { rows: ElectionChoice[]; navState?: ElectionNavState }) {
   const sorted = [...rows].sort((a, b) =>
     a.election_date < b.election_date ? -1 : a.election_date > b.election_date ? 1 : 0
   );
@@ -74,7 +75,7 @@ function DraftChoiceRows({ rows }: { rows: ElectionChoice[] }) {
           <span className="text-ink-soft">{formatElectionDate(choice.election_date)} · </span>
           <Link
             to={`/elections/${choice.election_id}`}
-            state={DRAFT_NAV_STATE}
+            state={navState}
             className="text-ink hover:text-rausch"
           >
             {choice.official_ballot_title}
@@ -98,7 +99,7 @@ function DraftChoiceRows({ rows }: { rows: ElectionChoice[] }) {
                       to={`/candidates/${pick.candidate_id}`}
                       state={
                         {
-                          backTo: DRAFT_NAV_STATE.backTo,
+                          backTo: navState.backTo,
                           electionId: choice.election_id,
                         } satisfies CandidateNavState
                       }
@@ -119,6 +120,8 @@ export function DraftPage() {
   useDocumentTitle("My Ballot Draft");
   const { me } = useMe();
   const draft = useBallotDraft();
+  const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
+  const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
   const [view, setView] = useState<"list" | "ballot">("list");
   // ONE payload for both views, in paper-ballot contest order (same contract
@@ -188,8 +191,9 @@ export function DraftPage() {
   const extraRows = [...choices.values()].filter((choice) => !cardedIds.has(choice.election_id));
   // The finish-line box shows once per day per browser (owner's rule), and
   // while it does the bottom sign-up CTA steps aside — one button per page.
+  const nearestRaces = splitRetentionRaces(byDate.get(dates[0]) ?? []);
   const nearestComplete =
-    ballot.isSuccess && dates.length > 0 && allRacesDecided(byDate.get(dates[0]) ?? [], choices);
+    ballot.isSuccess && dates.length > 0 && allRacesDecided(nearestRaces.contested, choices);
   const milestoneShown = useShowDraftMilestone(dates[0], nearestComplete);
   // The guest's ballot, by the draft's own district ids — the same URL
   // /ballot hands the header counter.
@@ -242,7 +246,7 @@ export function DraftPage() {
           // point at the address search, the only page that can build the
           // real ballot around them.
           <>
-            <DraftChoiceRows rows={[...choices.values()]} />
+            <DraftChoiceRows rows={[...choices.values()]} navState={navState} />
             <p className="mt-3 text-sm text-ink-soft">
               <Link to="/" className="underline hover:text-ink">
                 Search your address
@@ -266,7 +270,12 @@ export function DraftPage() {
               <>
                 {/* Above the toggle so both views carry it; dates holds
                     upcoming days only, so the first is the nearest. */}
-                <DraftMilestone show={milestoneShown} date={dates[0]} signup />
+                <DraftMilestone
+                  show={milestoneShown}
+                  date={dates[0]}
+                  signup
+                  hasOpenRetention={nearestRaces.retention.some((election) => !isDecidedChoice(choices.get(election.id)))}
+                />
                 <div className="mt-4">
                   <BallotViewToggle
                     view={view}
@@ -293,7 +302,9 @@ export function DraftPage() {
                         elections={byDate.get(date) ?? []}
                         choiceByElectionId={choices}
                         share={false}
-                        navState={DRAFT_NAV_STATE}
+                        navState={navState}
+                        retentionOpen={expandedRetentionDates.includes(date)}
+                        onRetentionOpenChange={(open) => setRetentionOpen(date, open)}
                       />
                     ))}
                   </div>
@@ -314,7 +325,7 @@ export function DraftPage() {
               <p className="mt-0.5 text-xs text-ink-soft">
                 Races you picked from a direct link — not part of the ballot above.
               </p>
-              <DraftChoiceRows rows={extraRows} />
+              <DraftChoiceRows rows={extraRows} navState={navState} />
             </section>
           ) : null}
         </>

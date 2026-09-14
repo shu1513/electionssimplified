@@ -37,11 +37,14 @@ export function myDraftLabel(progress: PickProgress | null): string {
  * no counter (ballot or choices not loaded, or no upcoming races). Pure —
  * each platform's hook supplies its own ballot fetch and today string; only
  * id + election_date are read so any election payload shape qualifies.
+ * Optional exclusions leave the nearest day's counts and ids together;
+ * omitted by mobile to preserve its full-ballot progress.
  */
 export function nearestDayPickProgress(
   elections: { id: string; election_date: string }[] | undefined,
   choiceByElectionId: Map<string, ElectionChoice> | undefined,
-  today: string
+  today: string,
+  { exclude }: { exclude?: Set<string> } = {}
 ): PickProgress | null {
   if (elections === undefined || choiceByElectionId === undefined) {
     return null;
@@ -54,7 +57,12 @@ export function nearestDayPickProgress(
     (min, election) => (election.election_date < min ? election.election_date : min),
     upcoming[0].election_date
   );
-  const group = upcoming.filter((election) => election.election_date === date);
+  const group = upcoming.filter((election) => election.election_date === date && !exclude?.has(election.id));
+  // Keep the nearest date even if all its races are excluded; do not jump
+  // ahead to a different ballot or announce an empty ballot as complete.
+  if (group.length === 0) {
+    return null;
+  }
   const picked = group.filter((election) => isDecidedChoice(choiceByElectionId.get(election.id))).length;
   return {
     election_date: date,

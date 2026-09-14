@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { act, screen, waitFor } from "@testing-library/react";
 import type { ElectionChoice } from "@voteapp/api-client";
 import { DraftPage } from "./DraftPage";
+import { ElectionPage } from "./ElectionPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, ME_VERIFIED } from "../test/fixtures";
+import { ballotSummary, electionDetail, electionSummary, retentionElection, ME_VERIFIED } from "../test/fixtures";
 import { readBallotDraft } from "../lib/ballotDraft";
 
 function renderDraft() {
@@ -320,7 +322,7 @@ describe("DraftPage", () => {
 
     expect(router.state.location.pathname).toBe("/candidates/c-9");
     expect(router.state.location.state).toEqual({
-      backTo: { path: "/draft", label: "My Ballot Draft" },
+      backTo: { path: "/draft", label: "My Draft" },
       electionId: "e-9",
     });
   });
@@ -340,4 +342,57 @@ describe("DraftPage", () => {
     expect(screen.getByRole("link", { name: "Sign up free to save your picks" })).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Draft navigation" })).not.toBeInTheDocument();
   });
+});
+
+it("refreshes the guest target and splits retention from date progress and rows", async () => {
+  seedDraft({ district_ids: ["dddddddd-1111-4111-8111-111111111111"], target: null,
+    choices: { "e-1": draftChoice(), "r-1": draftChoice({ election_id: "r-1", picks: [], measure_position: "yes" }) } });
+  stubApiRoutes({ ...GUEST, "/api/ballot": { body: ballotSummary([retentionElection("r-1"), electionSummary(), retentionElection("r-2")]) } });
+  renderDraft();
+  expect(await screen.findByRole("progressbar", { name: "1 of 1 race decided" })).toBeInTheDocument();
+  expect(readBallotDraft().target).toEqual({ election_date: "2026-11-03", election_ids: ["e-1"], retention_ids: ["r-1", "r-2"] });
+  expect(screen.getByRole("region", { name: /election draft milestone/ })).toHaveTextContent("Retention races are still open on your draft.");
+  const progress = screen.getByRole("progressbar", { name: "1 of 2 retention races decided" });
+  expect(progress).toHaveAttribute("aria-valuenow", "1");
+  expect(progress).toHaveAttribute("aria-valuemax", "2");
+  expect(progress.firstElementChild).toHaveStyle({ width: "50%" });
+  expect(screen.queryByText("1/2")).not.toBeInTheDocument();
+  const group = screen.getByRole("button", { name: "Retention Races" });
+  expect(group).toHaveAttribute("aria-expanded", "false");
+  expect(screen.queryByRole("link", { name: /Shall Judge/ })).not.toBeInTheDocument();
+  await userEvent.click(group);
+  expect(screen.getAllByRole("link", { name: /Shall Judge/ })).toHaveLength(2);
+  expect(screen.getByText("Yes")).toBeInTheDocument();
+});
+
+// Exercise the actual detail back link, not a placeholder returning state.
+it.each(["back link", "browser Back"])("restores My Draft retention expansion via %s", async (returnVia) => {
+  const elections = [retentionElection("r-1"), retentionElection("r-2"),
+    retentionElection("r-3", { election_date: "2027-11-02" }),
+    retentionElection("r-4", { election_date: "2027-11-02" })];
+  seedDraft({ district_ids: ["dddddddd-1111-4111-8111-111111111111"], target: null, choices: {} });
+  stubApiRoutes({ ...GUEST, "/api/ballot": { body: ballotSummary(elections) } });
+  const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+  const { router } = renderRoutes([
+    { path: "/draft", element: <DraftPage /> },
+    { path: "/elections/:electionId", element: <ElectionPage />, hydrateFallbackElement: <p />,
+      loader: () => electionDetail({ id: "r-1", official_ballot_title: elections[0].official_ballot_title }) },
+  ], "/draft");
+  const groups = () => screen.getAllByRole("button", { name: "Retention Races" });
+  await screen.findAllByRole("button", { name: "Retention Races" });
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+  await user.click(groups()[0]);
+  await user.click(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) }));
+  const back = await screen.findByRole("link", { name: "Back to My Draft" });
+  expect(screen.queryByRole("link", { name: "Back to My Ballot Draft" })).not.toBeInTheDocument();
+  if (returnVia === "back link") await user.click(back);
+  else await act(async () => { await router.navigate(-1); });
+  await waitFor(() => expect(groups()[0]).toHaveAttribute("aria-expanded", "true"));
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "false");
+  expect(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) })).toBeInTheDocument();
+  await user.click(groups()[0]);
+  expect(router.state.location.state.expandedRetentionDates).toEqual([]);
+  await user.click(groups()[0]);
+  await act(async () => { await router.navigate("/draft", { state: null }); });
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
 });
