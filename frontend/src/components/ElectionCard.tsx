@@ -57,15 +57,13 @@ const MAX_AREA_CHIPS = 3;
 export const AREA_TEXT_CLASS = "font-medium text-green-900";
 export const SAVED_AREA_TEXT_CLASS = "font-semibold text-purple-800";
 
-// An office race with no published candidate list renders a placeholder card
-// ("Candidate list not final") with nothing to read. Ballot measures are
-// exempt: zero candidates is their normal state, and the measure text is the
-// content. A recorded result also exempts — winners can be recorded without
-// candidate links, and a decided race is readable regardless of its roster.
-// Mirrors hasNothingToRead in the backend's ballotElectionOrdering, which
-// sinks these races to the end of the payload.
+// An ordinary office race without candidates or results has nothing to read.
+// Measures and judicial retentions remain readable Yes/No races without a
+// candidate profile, including a lone retention outside a collapsed group.
+// Keep this rule shared by date grouping, detail navigation, and usage events.
 function isAwaitingCandidates(election: ElectionSummary): boolean {
-  return election.race_type !== "ballot_measure" && election.candidate_count === 0 && !election.has_results;
+  return election.race_type !== "ballot_measure" && !isRetentionRace(election) &&
+    election.candidate_count === 0 && !election.has_results;
 }
 
 /**

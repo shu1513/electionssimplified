@@ -1345,7 +1345,7 @@ export function ElectionPage() {
                 back={
                   railNav !== null &&
                   (railNav.backTo.path.startsWith("/ballot") || railNav.backTo.path.startsWith("/me/ballot"))
-                    ? { path: railNav.backTo.path, state: railNav.forwarded.backState, label: "elections" }
+                    ? { path: railNav.backTo.path, state: railNav.forwarded.backState ?? railNav.forwarded.listState, label: "elections" }
                     : null
                 }
               />

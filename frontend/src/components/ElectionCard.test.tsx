@@ -984,6 +984,34 @@ describe("retention grouping", () => {
     expect(group.querySelector("span")).toHaveClass("text-sm", "font-normal", "text-ink-soft");
   });
 
+  it.each(["vote_power", "my_areas", "district_size", "district_size_smallest"] as const)(
+    "keeps candidate-free singleton retentions in their dates under %s", async (sort) => {
+      const earlier = retentionElection("early", { candidate_count: 0, has_results: false, election_date: "2026-09-15" });
+      const singleton = retentionElection("lone", { candidate_count: 0, has_results: false });
+      const races = Array.from({ length: 10 }, (_, i) => electionSummary({ id: `race-${i}` }));
+      const elections = [...races, singleton, earlier,
+        electionSummary({ id: "waiting", official_ballot_title: "Awaiting mayor", candidate_count: 0 })];
+      const { router } = renderRoutes([
+        { path: "/", element: <ElectionList elections={elections} sort={sort} backTo={{ path: "/", label: "Ballot" }} /> },
+        { path: "/elections/:id", element: <p>Detail</p> },
+      ], "/");
+      expect(screen.queryByRole("button", { name: /Retention Races/ })).not.toBeInTheDocument();
+      for (const [date, election] of [["September 15, 2026", earlier], ["November 3, 2026", singleton]] as const) {
+        const section = screen.getByRole("heading", { name: `Elections on ${date}` }).parentElement!;
+        expect(within(section).getByText(election.official_ballot_title)).toBeInTheDocument();
+      }
+      const waiting = screen.getByRole("heading", { name: "Elections awaiting candidate information" }).parentElement!;
+      expect(within(waiting).getByText("Awaiting mayor")).toBeInTheDocument();
+      expect(within(waiting).queryByText(/Shall Judge/)).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole("link", { name: new RegExp(singleton.official_ballot_title) }));
+      const contests = router.state.location.state.contests as { id: string; retention?: boolean; awaiting_candidates?: boolean }[];
+      expect(contests.map((race) => race.id)).toEqual(["early", ...races.map((race) => race.id), "lone", "waiting"]);
+      expect(contests.find((race) => race.id === "lone")).not.toHaveProperty("awaiting_candidates");
+      expect(contests.find((race) => race.id === "lone")).not.toHaveProperty("retention");
+      expect(contests.at(-1)).toMatchObject({ id: "waiting", awaiting_candidates: true });
+    }
+  );
+
   it("leaves one retention on each date as ordinary cards", () => {
     const elections = [retentionElection("r-1"), retentionElection("r-2", { election_date: "2026-09-15" })];
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} /> }], "/");

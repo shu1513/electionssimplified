@@ -1920,6 +1920,54 @@ describe("ElectionPage back link and nav context", () => {
     expect(retention()).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("preserves both disclosures through the post-pick Back to elections link", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const elections = Array.from({ length: 10 }, (_, i) => electionSummary({
+      id: `ordinary-${i}`, official_ballot_title: `Ordinary race ${i}`,
+      vote_power: { ...VOTE_POWER_WITH_EXPLANATION, label: i === 0 ? "high" : "medium" },
+    }));
+    const retention = retentionElection("r-1");
+    elections.push(retention, retentionElection("r-2"));
+    const { router } = renderRoutes([
+      { path: "/ballot", element: <ElectionList elections={elections} sort="vote_power"
+        backTo={{ path: "/ballot?sort=vote_power", label: "All elections" }} /> },
+      { path: "/elections/:electionId", element: <ElectionPage />, hydrateFallbackElement: <p />,
+        loader: () => electionDetail({ id: retention.id, official_ballot_title: retention.official_ballot_title }) },
+    ], "/ballot?sort=vote_power");
+    const high = () => screen.getByRole("button", { name: "My vote power: High(1)" });
+    const group = () => screen.getByRole("button", { name: "Retention Races (2)" });
+    await userEvent.click(high());
+    await userEvent.click(group());
+    const listState = router.state.location.state;
+    await userEvent.click(screen.getByRole("link", { name: new RegExp(retention.official_ballot_title) }));
+    expect(screen.queryByRole("link", { name: "Back to elections" })).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Yes" }));
+    await userEvent.click(await screen.findByRole("link", { name: "Back to elections" }));
+    await waitFor(() => expect(group()).toHaveAttribute("aria-expanded", "true"));
+    expect(high()).toHaveAttribute("aria-expanded", "false");
+    expect(router.state.location.search).toBe("?sort=vote_power");
+    expect(router.state.location.state).toEqual(listState);
+    clearBallotDraft();
+  });
+
+  it("keeps explicit backState precedence on the post-pick link", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const backState = { backTo: { path: "/me/picks", label: "My Draft" } };
+    const { router } = renderElection(() => electionDetail({ official_ballot_title: "Shall Judge A be retained?" }), "e-1", {
+      backTo: BALLOT_BACK,
+      backState,
+      listState: { expandedRetentionDates: ["2026-11-03"], collapsedVotePowerGroups: ["2026-11-03:high"] },
+    });
+    await userEvent.click(await screen.findByRole("button", { name: "No" }));
+    await userEvent.click(await screen.findByRole("link", { name: "Back to elections" }));
+    expect(router.state.location.state).toEqual(backState);
+    clearBallotDraft();
+  });
+
   it("shows no nav bar on a deep link with no state", async () => {
     // Deep links (shares, search engines) have no arrival context — no bar
     // at all, by product choice.
