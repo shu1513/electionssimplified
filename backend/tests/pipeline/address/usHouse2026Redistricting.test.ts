@@ -5,6 +5,7 @@ import { CensusAddressGeocoderError } from "../../../src/pipeline/address/census
 import {
   applyUsHouse2026Redistricting,
   lookupUsHouse120thDistrict,
+  relabelUsHouseDistrictNameFor2026,
   US_HOUSE_2026_REDRAWN_STATE_FIPS,
   US_HOUSE_120TH_LAYER_NAME,
   usHouseKeyNeedsRedistrictingOverride,
@@ -24,6 +25,20 @@ describe("US_HOUSE_2026_REDRAWN_STATE_FIPS", () => {
   it("lists the nine states voting on new lines and excludes Missouri's blocked map", () => {
     expect([...US_HOUSE_2026_REDRAWN_STATE_FIPS].sort()).toEqual(["01", "06", "12", "22", "37", "39", "47", "48", "49"]);
     expect(US_HOUSE_2026_REDRAWN_STATE_FIPS.has("29")).toBe(false);
+  });
+});
+
+describe("relabelUsHouseDistrictNameFor2026", () => {
+  it("relabels the ACS 119th name only in the redrawn states", () => {
+    expect(relabelUsHouseDistrictNameFor2026("47", "Congressional District 5 (119th Congress), Tennessee")).toBe(
+      "Congressional District 5 (120th Congress), Tennessee"
+    );
+    expect(relabelUsHouseDistrictNameFor2026("51", "Congressional District 4 (119th Congress), Virginia")).toBe(
+      "Congressional District 4 (119th Congress), Virginia"
+    );
+    expect(relabelUsHouseDistrictNameFor2026("29", "Congressional District 5 (119th Congress), Missouri")).toBe(
+      "Congressional District 5 (119th Congress), Missouri"
+    );
   });
 });
 
