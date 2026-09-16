@@ -366,7 +366,7 @@ export function formatRosterStatus(status: CandidateRosterStatus): { short: stri
       return {
         short: "Candidate list not final",
         long:
-          "Election officials haven't published a final candidate list for this race." +
+          "We haven't found a final candidate list from election officials for this race yet." +
           (status.check_after ? ` We'll check again after ${formatElectionDate(status.check_after)}.` : ""),
       };
     case "roster_processing":
