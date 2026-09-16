@@ -9,9 +9,10 @@
 //
 // Guard rails, all of which must pass before a single row changes:
 // - the link (candidate, election) exists and is row-locked;
-// - the election has no persisted election_results rows: their winners JSON
-//   references candidate_elections ids, which a delete would dangle (same
-//   rule as manual:candidate-elections:move);
+// - no persisted election_results row names this candidate as a winner:
+//   winners JSON references candidate_elections ids, which a delete would
+//   dangle (manual:candidate-elections:move keeps the broader election-wide
+//   check because it rewrites the link's election);
 // - no candidate-scoped election FK rows exist for the pair (state finance
 //   links etc., discovered dynamically from the catalog): those rows assert
 //   the pairing was real, so a "research error" delete under them is
@@ -157,15 +158,33 @@ export async function runUnlinkCandidateElection(
 
     // Persisted-results guard: election_results.winners stores
     // candidate_election_id inside JSON, which the FK scan below cannot see
-    // into; deleting the link would leave a winner entry dangling.
+    // into; deleting the link would leave a winner entry dangling. Only a
+    // winner entry that names THIS link (or this candidate) is a dangle risk.
+    // A result row that names other winners proves nothing about this pair —
+    // live 2026-09-16: Brown County WI's August primary results name the
+    // Republican sheriff nominee only, while the wrongly linked Democrat
+    // (whose only contest that day was Assembly District 88) was un-removable
+    // under the old election-wide check.
     const persistedResults = await client.query<{ id: string }>(
-      `SELECT id FROM public.election_results WHERE election_id = $1::uuid LIMIT 1`,
-      [electionId]
+      `
+        SELECT r.id
+        FROM public.election_results r
+        WHERE r.election_id = $1::uuid
+          AND jsonb_typeof(r.winners) = 'array'
+          AND EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(r.winners) AS w
+            WHERE w->>'candidate_election_id' = $2::text
+               OR w->>'candidate_id' = $3::text
+          )
+        LIMIT 1
+      `,
+      [electionId, link.id, candidateId]
     );
     if (persistedResults.rows[0]) {
       throw new Error(
         `Election ${electionId} has persisted election_results rows whose winners reference ` +
-          "candidate_elections ids; refusing unlink — resolve the result rows first (user decision), then re-run."
+          "this candidate; refusing unlink — resolve the result rows first (user decision), then re-run."
       );
     }
 

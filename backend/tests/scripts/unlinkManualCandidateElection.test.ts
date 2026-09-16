@@ -99,7 +99,7 @@ describe("runUnlinkCandidateElection", () => {
     ).rejects.toThrow(/No candidate_elections link found/);
   });
 
-  it("refuses when the election has persisted results", async () => {
+  it("refuses when a persisted result names this candidate as a winner", async () => {
     const { query, calls } = buildClient(
       happyResponses({
         "FROM public.election_results": [{ rows: [{ id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }] }],
@@ -108,8 +108,30 @@ describe("runUnlinkCandidateElection", () => {
 
     await expect(
       runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
-    ).rejects.toThrow(/persisted election_results rows/);
+    ).rejects.toThrow(/persisted election_results rows whose winners reference this candidate/);
+    // The guard is scoped to THIS link and candidate, not the whole election.
+    const guard = calls.find((call) => call.text.includes("FROM public.election_results"));
+    expect(guard?.text).toContain("jsonb_array_elements(r.winners)");
+    expect(guard?.values).toEqual([ELECTION_ID, LINK_ID, CANDIDATE_ID]);
     expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+  });
+
+  it("unlinks when the election's persisted results name only other winners", async () => {
+    // The scoped guard query returns no row for a results entry that names a
+    // different candidate; the wrongly linked candidate is then removable.
+    const { query, calls } = buildClient(
+      happyResponses({
+        "FROM public.election_results": [{ rows: [] }],
+      })
+    );
+
+    const result = await runUnlinkCandidateElection(
+      { query },
+      { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false }
+    );
+
+    expect(result.action).toBe("unlinked");
+    expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(true);
   });
 
   it("refuses when election-scoped candidate rows contradict a research-error unlink", async () => {
