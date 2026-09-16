@@ -61,4 +61,18 @@ describe("buildBroadcastMailerFromEnv", () => {
     expect(() => buildBroadcastMailerFromEnv(false)).toThrow("--allow-console");
     expect(buildBroadcastMailerFromEnv(true)).toHaveProperty("sendBroadcastEmail");
   });
+
+  it("refuses the SES mailer without a postal address for the CAN-SPAM footer", () => {
+    vi.stubEnv("NOTIFICATIONS_MAILER", "ses");
+    vi.stubEnv("AUTH_FROM_EMAIL", "noreply@example.com");
+    vi.stubEnv("AUTH_SES_REGION", "us-east-2");
+    vi.stubEnv("NOTIFICATIONS_UNSUBSCRIBE_URL", "https://api.example.com/api/email/unsubscribe");
+    vi.stubEnv("NOTIFICATIONS_UNSUBSCRIBE_SECRET", "0123456789abcdef0123456789abcdef");
+    vi.stubEnv("EMAIL_POSTAL_ADDRESS", "");
+
+    expect(() => buildBroadcastMailerFromEnv(false)).toThrow("EMAIL_POSTAL_ADDRESS");
+
+    vi.stubEnv("EMAIL_POSTAL_ADDRESS", "Elections Simplified Inc., PMB 100, Sacramento, CA 95814");
+    expect(buildBroadcastMailerFromEnv(false)).toHaveProperty("sendBroadcastEmail");
+  });
 });

@@ -95,9 +95,16 @@ Both stores:
 
 Apple only:
 
-- App Privacy questionnaire. Data collected: email (account), user content
-  (ballot picks, follows), device token (push), crash data (Sentry, no PII —
-  `errorMonitoring.ts` scrubs it).
+- App Privacy questionnaire. Data collected: email (account), name (first
+  name), user content (ballot picks, follows, research-area interests, Ask
+  questions, content reports), device token (push), coarse location-derived
+  data (the district list saved from an address search — the address itself
+  is not stored), crash data (Sentry, no PII — `errorMonitoring.ts` scrubs
+  it), and optional payment history (amounts/dates only; cards stay with
+  Stripe). Picks, follows, and research-area interests are political
+  opinions, which Apple lists under **Sensitive Info** — declare them there,
+  not only as User Content. All of it is "linked to the user" (account) and
+  none is used for tracking.
 - Review notes with a demo login. Create a dedicated test account in prod.
 - Sign in with Apple is **not** required today because the app offers only
   email/password. It becomes mandatory the day Google Sign-In is added to
@@ -105,7 +112,13 @@ Apple only:
 
 Google only:
 
-- Data safety form (same data as the Apple questionnaire).
+- Data safety form (same data as the Apple questionnaire; Google's
+  categories differ, so map them rather than copying — political opinions
+  fall under "Personal info → Political or religious beliefs").
+- Account deletion: Play requires a deletion path outside the app as well
+  as in-app. Point the Data safety "delete account" URL at
+  `https://electionssimplified.com/me/settings` (Delete account section,
+  sign-in required) — no separate page is needed.
 - Content rating questionnaire.
 - New personal developer accounts must run a closed test with at least 12
   testers for 14 days before production access is granted. Start that early.

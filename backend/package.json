@@ -35,6 +35,7 @@
     "notifications:broadcast": "tsx src/scripts/sendIssueBroadcast.ts",
     "members:newsletter": "tsx src/scripts/sendMemberNewsletter.ts",
     "notifications:reminders": "tsx src/scripts/sendElectionReminders.ts",
+    "membership:annual-reminders": "tsx src/scripts/sendMembershipAnnualReminders.ts",
     "notifications:reminders:scheduler:upsert": "tsx src/scripts/upsertElectionReminderDailyScheduler.ts",
     "notifications:reminders:scheduler:worker": "tsx src/scripts/runElectionReminderSchedulerWorker.ts",
     "notifications:new-elections:scheduler:worker": "tsx src/scripts/runNewElectionAlertSchedulerWorker.ts",

@@ -71,3 +71,14 @@ The license covers the code only. It does not grant any right to use the Electio
 If you fork or redistribute this code, publish it under your own name and logo. That includes any app store listing, website, domain, or social account. You may say your project is based on Elections Simplified and link here.
 
 Only sites and apps published by Elections Simplified Inc. are official. If you find one that uses the name and is not ours, email contact@electionssimplified.com.
+
+### Expectations for forks
+
+The AGPL cannot restrict what a fork does with its own users' data — section 7 lets any recipient strip such a term — so what follows is a request, not a license condition. Elections Simplified exists so voters can get plain information without being profiled or sold. If you run this code as a service, we ask that you keep that deal with your users:
+
+- Do not sell, rent, or share your users' data — addresses, districts, picks, follows, interests, or questions — with advertisers, data brokers, campaigns, or political organizations.
+- Do not add advertising, cross-site tracking, or third-party analytics.
+- Keep your modified source public, as the AGPL requires, so your users can check what the code does with their data.
+- Say plainly in your own privacy policy what you collect and why.
+
+Our own commitments to our users are in the [Privacy Policy](docs/legal/privacy-policy.md); they bind Elections Simplified Inc., not forks. A fork never receives our database, so nothing a fork does can touch data our users gave us.

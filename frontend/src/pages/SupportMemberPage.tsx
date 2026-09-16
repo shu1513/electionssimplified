@@ -36,8 +36,11 @@ export default function SupportMemberPage() {
           member and help us keep bringing you higher-quality content.
         </p>
         <p>
-          As an honorary member, you will get our private analysis reports on issues that could
-          affect you.
+          As an honorary member, you may receive occasional member-only analysis emails on issues
+          that could affect you. We choose what to write and when; no schedule or minimum number of
+          reports is promised, and you can unsubscribe from those emails without canceling your
+          membership. Membership is a supporter label: it gives no ownership, voting rights, or say
+          over what we publish.
         </p>
       </section>
 

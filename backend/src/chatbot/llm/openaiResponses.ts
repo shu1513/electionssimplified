@@ -2,7 +2,11 @@
 // (docs/plans/chatbot-rag.md component 6). Provider quirks live HERE only:
 // request shape, reasoning params, output array walking, usage field names.
 //
-// store:false — no provider-side retention of questions or chunks.
+// store:false — the response is not stored as retrievable API state, and
+// under the API terms it is not used for training. It does NOT mean zero
+// retention: OpenAI keeps abuse-monitoring logs for up to 30 days by
+// default (https://platform.openai.com/docs/guides/your-data). The Privacy
+// Policy says exactly that; do not restate it as "no retention".
 // Strict structured output — the model must return the ANSWER_JSON_SCHEMA
 // object; anything else is an LlmError and the caller falls back to cards.
 

@@ -25,6 +25,15 @@ export type SesIssueBroadcastMailerOptions = {
   appName?: string;
   fromEmailAddress: string;
   replyToEmailAddress?: string;
+  /**
+   * Physical postal address of the sender, rendered in both footers. These
+   * bulk sends can carry promotional content (the Privacy Policy allows
+   * clearly labeled civic-organization promotions in issue emails), which
+   * makes them commercial messages under CAN-SPAM (16 CFR 316) — a valid
+   * physical postal address is mandatory there, on top of the unsubscribe
+   * link. The SES builders in the send scripts require it from env.
+   */
+  postalAddress?: string;
   sesClient: Pick<SESv2Client, "send">;
 };
 
@@ -78,8 +87,13 @@ function describeMatchedAreas(matchedAreaNames: readonly string[]): string {
   return matchedAreaNames.length > 0 ? matchedAreaNames.join(", ") : "your saved issues";
 }
 
-export function buildBroadcastTextBody(appName: string | undefined, input: IssueBroadcastEmailInput): string {
+export function buildBroadcastTextBody(
+  appName: string | undefined,
+  input: IssueBroadcastEmailInput,
+  postalAddress?: string
+): string {
   const brand = resolveBrandName(appName);
+  const postalLine = postalAddress?.trim() ? `\n${postalAddress.trim()}` : "";
   const unsubscribeLine = input.unsubscribeUrl
     ? `\nUnsubscribe from these updates: ${input.unsubscribeUrl}`
     : "";
@@ -89,12 +103,18 @@ export function buildBroadcastTextBody(appName: string | undefined, input: Issue
     `You are receiving this because you saved ${describeMatchedAreas(input.matchedAreaNames)} ` +
     `as issues you care about on ${brand}. You can change this in your account settings.` +
     unsubscribeLine +
-    `\n\n${COPYRIGHT_LINE}`
+    `\n\n${COPYRIGHT_LINE}` +
+    postalLine
   );
 }
 
-export function buildBroadcastHtmlBody(appName: string | undefined, input: IssueBroadcastEmailInput): string {
+export function buildBroadcastHtmlBody(
+  appName: string | undefined,
+  input: IssueBroadcastEmailInput,
+  postalAddress?: string
+): string {
   const brand = escapeHtml(resolveBrandName(appName));
+  const postalHtml = postalAddress?.trim() ? `<br>${escapeHtml(postalAddress.trim())}` : "";
   // Operator body is plain text: escape it, then blank lines become
   // paragraphs and single newlines become line breaks.
   const paragraphs = input.body
@@ -115,7 +135,7 @@ ${
     input.unsubscribeUrl
       ? `    <p><a href="${escapeHtml(input.unsubscribeUrl)}">Unsubscribe from these updates</a></p>\n`
       : ""
-  }    <p>${escapeHtml(COPYRIGHT_LINE)}</p>
+  }    <p>${escapeHtml(COPYRIGHT_LINE)}${postalHtml}</p>
   </body>
 </html>`;
 }
@@ -149,11 +169,11 @@ export function createSesIssueBroadcastMailer(options: SesIssueBroadcastMailerOp
               },
               Body: {
                 Text: {
-                  Data: buildBroadcastTextBody(options.appName, input),
+                  Data: buildBroadcastTextBody(options.appName, input, options.postalAddress),
                   Charset: "UTF-8",
                 },
                 Html: {
-                  Data: buildBroadcastHtmlBody(options.appName, input),
+                  Data: buildBroadcastHtmlBody(options.appName, input, options.postalAddress),
                   Charset: "UTF-8",
                 },
               },

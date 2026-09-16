@@ -5,9 +5,10 @@ import {
   useAcceptTerms,
   useMe,
 } from "@voteapp/api-client";
-import { usePathname } from "expo-router";
+import { Link, usePathname } from "expo-router";
 import { useEffect, useState } from "react";
 import { AccessibilityInfo, AppState, Modal, Pressable, Text, View } from "react-native";
+import { useLogout } from "../lib/auth";
 import { LegalGate } from "./LegalGate";
 
 /**
@@ -53,6 +54,7 @@ export function TermsRenewalGate() {
   const { me, refetch } = useMe();
   const pathname = usePathname();
   const acceptTerms = useAcceptTerms();
+  const logout = useLogout();
   const [checked, setChecked] = useState(false);
 
   const gateActive = me != null && acceptedVersionIsBefore(me.accepted_terms_version, TERMS_VERSION);
@@ -109,7 +111,18 @@ export function TermsRenewalGate() {
   if (!gateActive) {
     return null;
   }
-  if (pathname.startsWith("/legal/")) {
+  // The legal documents must be readable before agreeing, and the two
+  // settings screens that hold the exits — Security (sign out, delete
+  // account) and Email preferences — must stay reachable without agreeing:
+  // a user who rejects the new terms has to be able to leave, and BPC
+  // §17602(d) forbids extra steps in front of cancellation. Membership
+  // management lives on the website (/me/membership), which the web gate
+  // leaves open for the same reason.
+  if (
+    pathname.startsWith("/legal/") ||
+    pathname === "/settings/security" ||
+    pathname === "/settings/email-preferences"
+  ) {
     return null;
   }
 
@@ -167,6 +180,31 @@ export function TermsRenewalGate() {
               {acceptTerms.isPending ? "Saving…" : "Agree and continue"}
             </Text>
           </Pressable>
+          {/* The exit for someone who declines: sign out here, or reach the
+              ungated Security screen (delete account) and the website's
+              membership page. Without this the only way out of a
+              stale-terms account is accepting, which a clickwrap must not
+              force. */}
+          <Text className="mt-3 text-center text-sm text-ink-soft">
+            Don&apos;t agree? You can still{" "}
+            <Link href="/settings/security" className="font-medium text-ink underline">
+              delete your account
+            </Link>
+            , cancel a membership at electionssimplified.com/me/membership, or{" "}
+            <Text
+              accessibilityRole="button"
+              accessibilityState={{ disabled: logout.isPending }}
+              onPress={() => {
+                if (!logout.isPending) {
+                  logout.mutate();
+                }
+              }}
+              className="font-medium text-ink underline"
+            >
+              {logout.isPending ? "signing out…" : "sign out"}
+            </Text>
+            .
+          </Text>
         </View>
       </View>
     </Modal>

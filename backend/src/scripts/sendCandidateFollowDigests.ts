@@ -450,6 +450,22 @@ export function assertUnsubscribeLinksConfigured(mailerLabel: string): void {
   }
 }
 
+/**
+ * Bulk senders that can carry promotional content (issue broadcasts, member
+ * newsletters) are commercial email under CAN-SPAM and must show a valid
+ * physical postal address (16 CFR 316.5 allows a registered P.O. box or
+ * private mailbox). Fail the run rather than send without one.
+ */
+export function requirePostalAddress(mailerLabel: string): string {
+  const postalAddress = readOptionalEnv("EMAIL_POSTAL_ADDRESS");
+  if (!postalAddress) {
+    throw new Error(
+      `${mailerLabel} requires EMAIL_POSTAL_ADDRESS (the sender's physical postal address, CAN-SPAM 16 CFR 316.5) in every footer (or set NOTIFICATIONS_MAILER=console)`
+    );
+  }
+  return postalAddress;
+}
+
 /** App-unique advisory lock key for the live digest run. */
 export const DIGEST_RUN_LOCK_KEY = 74_310_146;
 

@@ -227,3 +227,105 @@ export function createConsoleMembershipChangedSender(
     log(`[membership-mailer:console] ${input.kind} email for ${input.email}: ${changedSubject(input)}`);
   };
 }
+
+// ---------------------------------------------------------------------------
+// Annual reminder (Cal. Bus. & Prof. Code §17602(b)(2), AB 2863): once a year,
+// every continuing member is told what renews, for how much, how often, and
+// how to cancel. Sent by backend/src/scripts/sendMembershipAnnualReminders.ts
+// ahead of each anniversary of started_at; the send is recorded in
+// billing_subscription_annual_reminders. A legal notice about an existing
+// paid relationship, so no unsubscribe link: it is transactional, and a
+// member who does not want it cancels the membership instead.
+// ---------------------------------------------------------------------------
+
+export type MembershipAnnualReminderEmailInput = {
+  email: string;
+  monthlyAmountCents: number;
+  /** When the membership started; shown as a calendar date. */
+  startedAt: Date;
+};
+
+export type SendMembershipAnnualReminderEmail = (input: MembershipAnnualReminderEmailInput) => Promise<void>;
+
+export function buildAnnualReminderTextBody(
+  input: MembershipAnnualReminderEmailInput,
+  manageMembershipUrl: string,
+  termsUrl: string
+): string {
+  const amount = formatUsd(input.monthlyAmountCents);
+  return (
+    `A yearly reminder about your ${APP_NAME} membership.\n\n` +
+    `You have supported ${APP_NAME} with a monthly membership since ${formatDate(input.startedAt)}. ` +
+    `It renews automatically: ${amount} is charged to your payment method each month until you cancel. ` +
+    `Your support funds the operation of the service; it is not a contribution to any candidate, campaign, committee, party, or charity, and it is not tax-deductible.\n\n` +
+    `To change the amount or cancel at any time, open Manage membership:\n${manageMembershipUrl}\n` +
+    `Cancellation takes effect at the end of the current billing period.\n\n` +
+    `Terms of Use: ${termsUrl}\n\n` +
+    `Thank you for keeping the service running. Questions? Just reply to this email.\n\n${COPYRIGHT_LINE}`
+  );
+}
+
+export function buildAnnualReminderHtmlBody(
+  input: MembershipAnnualReminderEmailInput,
+  manageMembershipUrl: string,
+  termsUrl: string
+): string {
+  const amount = escapeHtml(formatUsd(input.monthlyAmountCents));
+  const manageUrl = escapeHtml(manageMembershipUrl);
+  const terms = escapeHtml(termsUrl);
+  return `<!doctype html>
+<html lang="en">
+  <body>
+    <p>A yearly reminder about your ${escapeHtml(APP_NAME)} membership.</p>
+    <p>You have supported ${escapeHtml(APP_NAME)} with a monthly membership since ${escapeHtml(formatDate(input.startedAt))}. It renews automatically: <strong>${amount}</strong> is charged to your payment method each month until you cancel. Your support funds the operation of the service; it is not a contribution to any candidate, campaign, committee, party, or charity, and it is not tax-deductible.</p>
+    <p>To change the amount or cancel at any time, open <a href="${manageUrl}">Manage membership</a>. Cancellation takes effect at the end of the current billing period.</p>
+    <p><a href="${terms}">Terms of Use</a></p>
+    <p>Thank you for keeping the service running. Questions? Just reply to this email.</p>
+    <p>${escapeHtml(COPYRIGHT_LINE)}</p>
+  </body>
+</html>`;
+}
+
+export function createSesMembershipAnnualReminderSender(
+  options: SesMembershipMailerOptions
+): SendMembershipAnnualReminderEmail {
+  return async (input) => {
+    await options.sesClient.send(
+      new SendEmailCommand({
+        FromEmailAddress: options.fromEmailAddress,
+        Destination: { ToAddresses: [input.email] },
+        ReplyToAddresses: options.replyToEmailAddress ? [options.replyToEmailAddress] : undefined,
+        Content: {
+          Simple: {
+            Subject: {
+              Data: `[${APP_NAME}] Yearly reminder: your monthly membership`,
+              Charset: "UTF-8",
+            },
+            Body: {
+              Text: {
+                Data: buildAnnualReminderTextBody(input, options.manageMembershipUrl, options.termsUrl),
+                Charset: "UTF-8",
+              },
+              Html: {
+                Data: buildAnnualReminderHtmlBody(input, options.manageMembershipUrl, options.termsUrl),
+                Charset: "UTF-8",
+              },
+            },
+          },
+        },
+      })
+    );
+  };
+}
+
+export function createConsoleMembershipAnnualReminderSender(
+  options: ConsoleMembershipMailerOptions
+): SendMembershipAnnualReminderEmail {
+  const log = options.log ?? ((message: string) => console.log(message));
+  return async (input) => {
+    log(
+      `[membership-mailer:console] annual reminder for ${input.email}: ` +
+        `${formatUsd(input.monthlyAmountCents)}/month since ${formatDate(input.startedAt)}, manage at ${options.manageMembershipUrl}`
+    );
+  };
+}

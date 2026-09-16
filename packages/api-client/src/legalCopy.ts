@@ -3,7 +3,7 @@
 // must track docs/legal/disclaimer.md and the backend's
 // CURRENT_TERMS_VERSION in lockstep.
 
-export const TERMS_VERSION = "1.4";
+export const TERMS_VERSION = "1.5";
 
 // The pre-search clickwrap is split in two: a one-sentence label naming every
 // document, plus a dialog holding the two sentences a first-time visitor has

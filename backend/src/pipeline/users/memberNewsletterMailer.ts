@@ -28,6 +28,15 @@ export type SesMemberNewsletterMailerOptions = {
   appName?: string;
   fromEmailAddress: string;
   replyToEmailAddress?: string;
+  /**
+   * Physical postal address of the sender, rendered in both footers. These
+   * bulk sends can carry promotional content (the Privacy Policy allows
+   * clearly labeled civic-organization promotions in issue emails), which
+   * makes them commercial messages under CAN-SPAM (16 CFR 316) — a valid
+   * physical postal address is mandatory there, on top of the unsubscribe
+   * link. The SES builders in the send scripts require it from env.
+   */
+  postalAddress?: string;
   sesClient: Pick<SESv2Client, "send">;
 };
 
@@ -77,8 +86,13 @@ function assertNewsletterInput(input: MemberNewsletterEmailInput): void {
   }
 }
 
-export function buildNewsletterTextBody(appName: string | undefined, input: MemberNewsletterEmailInput): string {
+export function buildNewsletterTextBody(
+  appName: string | undefined,
+  input: MemberNewsletterEmailInput,
+  postalAddress?: string
+): string {
   const brand = resolveBrandName(appName);
+  const postalLine = postalAddress?.trim() ? `\n${postalAddress.trim()}` : "";
   const unsubscribeLine = input.unsubscribeUrl
     ? `\nUnsubscribe from the member newsletter: ${input.unsubscribeUrl}`
     : "";
@@ -88,12 +102,18 @@ export function buildNewsletterTextBody(appName: string | undefined, input: Memb
     `You are receiving this because you are a supporting member of ${brand}. ` +
     `Thank you for your support. You can change this in your account settings.` +
     unsubscribeLine +
-    `\n\n${COPYRIGHT_LINE}`
+    `\n\n${COPYRIGHT_LINE}` +
+    postalLine
   );
 }
 
-export function buildNewsletterHtmlBody(appName: string | undefined, input: MemberNewsletterEmailInput): string {
+export function buildNewsletterHtmlBody(
+  appName: string | undefined,
+  input: MemberNewsletterEmailInput,
+  postalAddress?: string
+): string {
   const brand = escapeHtml(resolveBrandName(appName));
+  const postalHtml = postalAddress?.trim() ? `<br>${escapeHtml(postalAddress.trim())}` : "";
   // Operator body is plain text: escape it, then blank lines become
   // paragraphs and single newlines become line breaks.
   const paragraphs = input.body
@@ -114,7 +134,7 @@ ${
     input.unsubscribeUrl
       ? `    <p><a href="${escapeHtml(input.unsubscribeUrl)}">Unsubscribe from the member newsletter</a></p>\n`
       : ""
-  }    <p>${escapeHtml(COPYRIGHT_LINE)}</p>
+  }    <p>${escapeHtml(COPYRIGHT_LINE)}${postalHtml}</p>
   </body>
 </html>`;
 }
@@ -148,11 +168,11 @@ export function createSesMemberNewsletterMailer(options: SesMemberNewsletterMail
               },
               Body: {
                 Text: {
-                  Data: buildNewsletterTextBody(options.appName, input),
+                  Data: buildNewsletterTextBody(options.appName, input, options.postalAddress),
                   Charset: "UTF-8",
                 },
                 Html: {
-                  Data: buildNewsletterHtmlBody(options.appName, input),
+                  Data: buildNewsletterHtmlBody(options.appName, input, options.postalAddress),
                   Charset: "UTF-8",
                 },
               },
