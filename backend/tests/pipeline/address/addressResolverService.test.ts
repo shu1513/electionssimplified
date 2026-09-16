@@ -199,7 +199,7 @@ describe("resolveAddressToDistricts", () => {
     });
 
     expect(geocodeAddress).toHaveBeenCalledOnce();
-    expect(cache.set).toHaveBeenCalledWith(expect.stringMatching(/^address_lookup:v2:[a-f0-9]{64}$/), expect.any(String), {
+    expect(cache.set).toHaveBeenCalledWith(expect.stringMatching(/^address_lookup:v3:[a-f0-9]{64}$/), expect.any(String), {
       EX: 123,
     });
     const cachedPayload = JSON.parse(String(cache.set.mock.calls[0]?.[1]));
@@ -729,5 +729,99 @@ describe("resolveAddressToDistricts region partial path", () => {
     // First query is the ZCTA crosswalk, not the place-name lookup.
     expect(query.mock.calls[0]?.[1]).toEqual(["91706"]);
     expect(result.scope).toBe("zip");
+  });
+});
+
+describe("resolveAddressToDistricts 2026 House redistricting override", () => {
+  const MEMPHIS = { lat: 35.148558377868, lng: -90.051553690438 };
+  const TENNESSEE_GEOGRAPHIES = {
+    Counties: [{ GEOID: "47157", NAME: "Shelby County", MTFCC: "G4020" }],
+    "119th Congressional Districts": [{ GEOID: "4709", NAME: "Congressional District 9", MTFCC: "G5200" }],
+  };
+  const geocodeMemphis = () =>
+    vi.fn().mockResolvedValue({
+      matched_address: "125 N MAIN ST, MEMPHIS, TN, 38103",
+      coordinates: MEMPHIS,
+      address_match_count: 1,
+      geographies: TENNESSEE_GEOGRAPHIES,
+    });
+
+  it("replaces the 119th House key with the 120th answer and caches the corrected keys", async () => {
+    const geocodeAddress = geocodeMemphis();
+    const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "4705", name: "Congressional District 5", mtfcc: "G5200" }));
+    const cache = { get: vi.fn(async () => null), set: vi.fn(async () => "OK") };
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+
+    const result = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
+      geocodeAddress,
+      lookupUsHouse120thDistrict,
+      cache,
+    });
+
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith(MEMPHIS);
+    expect(query.mock.calls[0]?.[1]).toEqual([
+      ["us_house", "county"],
+      ["4705", "47157"],
+    ]);
+    expect(result.district_keys).toEqual([
+      expect.objectContaining({ district_type: "us_house", geoid_compact: "4705", layer_name: "120th Congressional Districts" }),
+      expect.objectContaining({ district_type: "county", geoid_compact: "47157" }),
+    ]);
+    expect(result.warnings).toEqual([]);
+    expect(cache.set).toHaveBeenCalledOnce();
+    expect(JSON.parse(String(cache.set.mock.calls[0]?.[1]))).toMatchObject({
+      district_keys: [{ geoid_compact: "4705" }, { geoid_compact: "47157" }],
+    });
+  });
+
+  it("drops the House key, warns, and skips the cache when the 120th lookup fails", async () => {
+    const { CensusAddressGeocoderError } = await import("../../../src/pipeline/address/censusAddressGeocoder.js");
+    const geocodeAddress = geocodeMemphis();
+    const lookupUsHouse120thDistrict = vi.fn(async () => {
+      throw new CensusAddressGeocoderError("http_error", "HTTP 503");
+    });
+    const cache = { get: vi.fn(async () => null), set: vi.fn(async () => "OK") };
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+
+    const result = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
+      geocodeAddress,
+      lookupUsHouse120thDistrict,
+      cache,
+    });
+
+    expect(query.mock.calls[0]?.[1]).toEqual([["county"], ["47157"]]);
+    expect(result.district_keys).toEqual([expect.objectContaining({ district_type: "county", geoid_compact: "47157" })]);
+    expect(result.warnings).toEqual([
+      expect.objectContaining({ layer_name: "120th Congressional Districts", geoid: "4709", reason: expect.stringContaining("HTTP 503") }),
+    ]);
+    expect(cache.set).not.toHaveBeenCalled();
+  });
+
+  it("applies the override on the coordinate path and leaves other states alone", async () => {
+    const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "4705", name: null, mtfcc: "G5200" }));
+    const geocodeCoordinates = vi.fn().mockResolvedValue({ geographies: TENNESSEE_GEOGRAPHIES });
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+
+    const memphis = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
+      geocodeAddress: vi.fn(),
+      geocodeCoordinates,
+      lookupUsHouse120thDistrict,
+      coordinates: MEMPHIS,
+    });
+    expect(memphis.district_keys[0]).toMatchObject({ district_type: "us_house", geoid_compact: "4705" });
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledOnce();
+
+    const virginiaGeocode = vi.fn().mockResolvedValue({
+      matched_address: "1000 BANK ST, RICHMOND, VA, 23219",
+      coordinates: { lat: 37.5385, lng: -77.4336 },
+      address_match_count: 1,
+      geographies: { "119th Congressional Districts": [{ GEOID: "5104", MTFCC: "G5200" }] },
+    });
+    const richmond = await resolveAddressToDistricts({ query }, "1000 Bank St, Richmond, VA 23219", {
+      geocodeAddress: virginiaGeocode,
+      lookupUsHouse120thDistrict,
+    });
+    expect(richmond.district_keys[0]).toMatchObject({ district_type: "us_house", geoid_compact: "5104" });
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledOnce();
   });
 });

@@ -11,6 +11,7 @@ import {
   type ManualResearchDemandStage,
   type ResearchGap,
 } from "../pipeline/address/manualResearchDemand.js";
+import { US_HOUSE_2026_REDRAWN_STATE_FIPS } from "../pipeline/address/usHouse2026Redistricting.js";
 import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { usLatestLocalDateIso } from "../utils/usLocalDate.js";
 import { assertKnownCliFlags, type CliFlagSpec } from "./manualCliFlags.js";
@@ -58,6 +59,10 @@ type DistrictType =
 
 // Layer ids are the "BAS 2026" group on each TIGERweb service: 119th
 // Congress + 2024 state legislative districts, matching districts.geoid_compact.
+// The states redrawn for November 2026 read us_house from the "Current" group's
+// 120th Congressional Districts layer instead (usHouse2026Redistricting.ts);
+// district numbers survive there, so the GEOIDs still match districts rows.
+const US_HOUSE_120TH_LAYER = 0;
 const DISTRICT_LAYERS: ReadonlyArray<{ district_type: DistrictType; service: string; layer: number }> = [
   { district_type: "us_house", service: "Legislative", layer: 4 },
   { district_type: "state_upper", service: "Legislative", layer: 5 },
@@ -310,7 +315,9 @@ async function buildCity(city: CityRow, stateFips: string): Promise<CityDistrict
   });
   let sliversDropped = 0;
   const geometry = JSON.stringify({ rings: polygon.rings, spatialReference: { wkid: 4326 } });
-  for (const { district_type, service, layer } of DISTRICT_LAYERS) {
+  for (const { district_type, service, layer: defaultLayer } of DISTRICT_LAYERS) {
+    const layer =
+      district_type === "us_house" && US_HOUSE_2026_REDRAWN_STATE_FIPS.has(stateFips) ? US_HOUSE_120TH_LAYER : defaultLayer;
     const response = await queryLayer<GeoAttributes>(service, layer, {
       geometry,
       geometryType: "esriGeometryPolygon",

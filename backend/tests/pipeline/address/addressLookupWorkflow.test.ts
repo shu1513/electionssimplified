@@ -18,7 +18,7 @@ const BALDWIN_PARK_GEOGRAPHIES = {
 
 const EXPECTED_BALDWIN_PARK_KEYS = [
   { district_type: "statewide", geoid_compact: "06" },
-  { district_type: "us_house", geoid_compact: "0631" },
+  { district_type: "us_house", geoid_compact: "0638" },
   { district_type: "state_upper", geoid_compact: "06022" },
   { district_type: "state_lower", geoid_compact: "06048" },
   { district_type: "county", geoid_compact: "06037" },
@@ -49,16 +49,16 @@ describe("address lookup workflow", () => {
           requested_geoid_compact: "06",
         },
         {
-          id: "district-house-31",
+          id: "district-house-38",
           district_type: "us_house",
-          geoid_compact: "0631",
-          name: "Congressional District 31",
+          geoid_compact: "0638",
+          name: "Congressional District 38",
           state: "CA",
           state_fips: "06",
           population: 760000,
           representation_power_score: "72.10",
           requested_district_type: "us_house",
-          requested_geoid_compact: "0631",
+          requested_geoid_compact: "0638",
         },
         {
           id: "district-senate-22",
@@ -111,13 +111,19 @@ describe("address lookup workflow", () => {
       ],
     });
 
-    const result = await resolveAddressToDistricts({ query }, BALDWIN_PARK_ADDRESS, { geocodeAddress });
+    // California is one of the states redrawn for November 2026: the geocoder
+    // still answers CA-31 (119th layer) for Baldwin Park, and the injected
+    // 120th-layer lookup returns CA-38, which is what the live layer says.
+    const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "0638", name: "Congressional District 38", mtfcc: "G5200" }));
+    const result = await resolveAddressToDistricts({ query }, BALDWIN_PARK_ADDRESS, { geocodeAddress, lookupUsHouse120thDistrict });
+
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith({ lat: 34.082500135664, lng: -117.981072355887 });
 
     expect(geocodeAddress).toHaveBeenCalledWith(BALDWIN_PARK_ADDRESS);
     expect(query).toHaveBeenCalledTimes(1);
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["statewide", "us_house", "state_upper", "state_lower", "county", "place", "school_unified"],
-      ["06", "0631", "06022", "06048", "06037", "0603666", "0603690"],
+      ["06", "0638", "06022", "06048", "06037", "0603666", "0603690"],
     ]);
     expect(result.matched_address).toBe(BALDWIN_PARK_MATCHED_ADDRESS);
     expect(result.district_keys.map(({ district_type, geoid_compact }) => ({ district_type, geoid_compact }))).toEqual(

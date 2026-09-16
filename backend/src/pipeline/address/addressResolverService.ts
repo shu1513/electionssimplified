@@ -29,6 +29,11 @@ import {
   type AddressResolvedDistrict,
   lookupAddressDistricts,
 } from "./addressDistrictLookup.js";
+import {
+  applyUsHouse2026Redistricting,
+  lookupUsHouse120thDistrict,
+  type UsHouse120thLookup,
+} from "./usHouse2026Redistricting.js";
 
 import { STATE_FIPS_BY_ABBREVIATION, STATE_NAME_BY_FIPS } from "../../constants/usStates.js";
 
@@ -79,6 +84,13 @@ export type AddressResolverServiceOptions = {
   geocodeAddress?: (address: string) => Promise<CensusAddressGeocodeResult>;
   geocodeCoordinates?: (coordinates: CensusAddressCoordinates) => Promise<CensusCoordinatesGeocodeResult>;
   geocoderOptions?: CensusAddressGeocoderOptions;
+  /**
+   * Point lookup against TIGERweb's 120th Congressional Districts layer, used
+   * only for addresses in the states that vote on redrawn House lines in
+   * November 2026 (usHouse2026Redistricting.ts). Injectable for tests; the
+   * default shares the geocoder's fetch and timeout settings.
+   */
+  lookupUsHouse120thDistrict?: UsHouse120thLookup;
   cache?: AddressLookupCacheClient;
   cacheTtlSeconds?: number;
   /**
@@ -332,6 +344,13 @@ export async function resolveAddressToDistricts(
 
   const geocodeAddress =
     options.geocodeAddress ?? ((input: string) => geocodeAddressWithCensusFallbacks(input, options.geocoderOptions));
+  const lookupUsHouse120th =
+    options.lookupUsHouse120thDistrict ??
+    ((point: CensusAddressCoordinates) =>
+      lookupUsHouse120thDistrict(point, {
+        fetchImpl: options.geocoderOptions?.fetchImpl,
+        timeoutMs: options.geocoderOptions?.timeoutMs,
+      }));
 
   // Coordinate-first path. Never cached: the coordinates come from a Google
   // Places response, and Google's ToS forbids persisting Places data — the
@@ -344,7 +363,11 @@ export async function resolveAddressToDistricts(
       ((input: CensusAddressCoordinates) => geocodeCoordinatesWithCensus(input, options.geocoderOptions));
     try {
       const located = await geocodeCoordinates(options.coordinates);
-      const keyResolution = resolveAddressDistrictKeysFromGeographies(located.geographies);
+      const keyResolution = await applyUsHouse2026Redistricting(
+        resolveAddressDistrictKeysFromGeographies(located.geographies),
+        options.coordinates,
+        lookupUsHouse120th
+      );
       // Zero keys means the point matched no supported geography (bad
       // coordinates, or a Census data gap) — let the address-string path
       // below try, and fail with its clearer not_found if it also misses.
@@ -393,7 +416,11 @@ export async function resolveAddressToDistricts(
           }
           throw error;
         });
-        const keyResolution = resolveAddressDistrictKeysFromGeographies(geocoded.geographies);
+        const keyResolution = await applyUsHouse2026Redistricting(
+          resolveAddressDistrictKeysFromGeographies(geocoded.geographies),
+          geocoded.coordinates,
+          lookupUsHouse120th
+        );
         const value = {
           matched_address: geocoded.matched_address,
           coordinates: geocoded.coordinates,
@@ -401,7 +428,10 @@ export async function resolveAddressToDistricts(
           district_keys: keyResolution.district_keys,
           warnings: keyResolution.warnings,
         };
-        if (options.cache) {
+        // A failed 120th lookup dropped the House key; caching that would
+        // pin a House-less ballot for 14 days over a transient TIGERweb
+        // hiccup. Serve it once, uncached, so the next request retries.
+        if (options.cache && !keyResolution.override_failed) {
           await writeAddressLookupCache(
             options.cache,
             cacheKey,

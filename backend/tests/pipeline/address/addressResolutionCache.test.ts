@@ -53,7 +53,7 @@ describe("addressResolutionCache", () => {
 
     await writeAddressLookupCache(
       cache,
-      "address_lookup:v2:test",
+      "address_lookup:v3:test",
       {
         matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",
         coordinates: { lat: 34.08, lng: -117.98 },
@@ -73,8 +73,8 @@ describe("addressResolutionCache", () => {
       60
     );
 
-    expect(cache.set).toHaveBeenCalledWith("address_lookup:v2:test", expect.any(String), { EX: 60 });
-    await expect(readAddressLookupCache(cache, "address_lookup:v2:test")).resolves.toMatchObject({
+    expect(cache.set).toHaveBeenCalledWith("address_lookup:v3:test", expect.any(String), { EX: 60 });
+    await expect(readAddressLookupCache(cache, "address_lookup:v3:test")).resolves.toMatchObject({
       matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",
       coordinates: { lat: 34.08, lng: -117.98 },
       address_match_count: 1,
@@ -86,13 +86,13 @@ describe("addressResolutionCache", () => {
   it("returns null for malformed cached payloads", async () => {
     const cache = { get: vi.fn(async () => "not-json") };
 
-    await expect(readAddressLookupCache(cache, "address_lookup:v2:test")).resolves.toBeNull();
+    await expect(readAddressLookupCache(cache, "address_lookup:v3:test")).resolves.toBeNull();
   });
 
   it("uses the default TTL when none is provided", async () => {
     const cache = { set: vi.fn(async () => "OK") };
 
-    await writeAddressLookupCache(cache, "address_lookup:v2:test", {
+    await writeAddressLookupCache(cache, "address_lookup:v3:test", {
       matched_address: "matched",
       coordinates: { lat: 1, lng: 2 },
       address_match_count: 1,
@@ -100,7 +100,7 @@ describe("addressResolutionCache", () => {
       warnings: [],
     });
 
-    expect(cache.set).toHaveBeenCalledWith("address_lookup:v2:test", expect.any(String), {
+    expect(cache.set).toHaveBeenCalledWith("address_lookup:v3:test", expect.any(String), {
       EX: DEFAULT_ADDRESS_LOOKUP_CACHE_TTL_SECONDS,
     });
   });
