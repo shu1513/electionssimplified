@@ -30,7 +30,12 @@
 // response carries no warnings, the client shows no partial banner, and a
 // guest signup would save the incomplete district set.
 import type { AddressDistrictKey, AddressDistrictResolution } from "./addressDistrictResolver.js";
-import { type CensusAddressCoordinates, CensusAddressGeocoderError } from "./censusAddressGeocoder.js";
+import {
+  type CensusAddressCoordinates,
+  type CensusAddressGeocoderOptions,
+  CensusAddressGeocoderError,
+  geocodeAddressWithCensusFallbacks,
+} from "./censusAddressGeocoder.js";
 
 export const TIGERWEB_US_HOUSE_120TH_QUERY_URL =
   "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/0/query";
@@ -187,10 +192,23 @@ export async function lookupUsHouse120thDistrict(
   if (!Array.isArray(features)) {
     throw new CensusAddressGeocoderError("bad_response", "TIGERweb 120th district lookup response has no features array");
   }
-  const attributes = features.map((feature) => (isRecord(feature) ? feature.attributes : null)).find(isRecord);
-  if (!attributes) {
+  const matches = features.map((feature) => (isRecord(feature) ? feature.attributes : null)).filter(isRecord);
+  if (matches.length === 0) {
     return null;
   }
+  // A point ON a shared edge intersects both polygons and ArcGIS returns
+  // them in no guaranteed order (verified live: 25/25 boundary vertices of
+  // TN-5 answered two districts). Callers pass an interior point for that
+  // reason (see locateCensusBlockInteriorPoint); if two districts still come
+  // back, refuse rather than pick one at random.
+  const geoids = new Set(matches.map((attributes) => readString(attributes, "GEOID")));
+  if (geoids.size > 1) {
+    throw new CensusAddressGeocoderError(
+      "bad_response",
+      `TIGERweb 120th district lookup point lies on a district boundary: ${[...geoids].join(", ")}`
+    );
+  }
+  const attributes = matches[0];
   const geoid = readString(attributes, "GEOID");
   if (!geoid || !/^\d{4}$/.test(geoid)) {
     throw new CensusAddressGeocoderError("bad_response", `TIGERweb 120th district feature has no 4-digit GEOID: ${geoid}`);
@@ -200,6 +218,60 @@ export async function lookupUsHouse120thDistrict(
     name: readString(attributes, "NAME"),
     mtfcc: readString(attributes, "MTFCC"),
   };
+}
+
+// The one-line geocoder places an address ON the street centerline and
+// records which side it is on (`tigerLine.side`); district boundaries follow
+// those same centerlines, so a centerline point on a boundary street sits on
+// the shared edge and matches both districts. The geocoder's own geography
+// answer already accounts for the side, and the ACS vintages carry no block
+// layer, so this asks the Census2020 vintage for the address's census block
+// and uses the block's interior point — a block never straddles a district.
+// Null when the geocoder cannot place the address in a block (the caller then
+// falls back to the address point); upstream failures propagate like the
+// main geocode's.
+export const CENSUS_BLOCK_GEOCODER_VINTAGE = "Census2020_Current";
+export const CENSUS_BLOCK_GEOCODER_LAYERS = "Census Blocks";
+
+function parseSignedDegrees(value: unknown): number | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const parsed = Number(value.trim());
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+export function readCensusBlockInteriorPoint(geographies: unknown): CensusAddressCoordinates | null {
+  if (!isRecord(geographies)) {
+    return null;
+  }
+  const blocks = geographies[CENSUS_BLOCK_GEOCODER_LAYERS];
+  const block = Array.isArray(blocks) ? blocks.find(isRecord) : null;
+  if (!block) {
+    return null;
+  }
+  const lat = parseSignedDegrees(block.INTPTLAT);
+  const lng = parseSignedDegrees(block.INTPTLON);
+  return lat === null || lng === null ? null : { lat, lng };
+}
+
+export async function locateCensusBlockInteriorPoint(
+  address: string,
+  options: CensusAddressGeocoderOptions = {}
+): Promise<CensusAddressCoordinates | null> {
+  try {
+    const located = await geocodeAddressWithCensusFallbacks(address, {
+      ...options,
+      vintage: CENSUS_BLOCK_GEOCODER_VINTAGE,
+      layers: CENSUS_BLOCK_GEOCODER_LAYERS,
+    });
+    return readCensusBlockInteriorPoint(located.geographies);
+  } catch (error) {
+    if (error instanceof CensusAddressGeocoderError && error.code === "not_found") {
+      return null;
+    }
+    throw error;
+  }
 }
 
 /**

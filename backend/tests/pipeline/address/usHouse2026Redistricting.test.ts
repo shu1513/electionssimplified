@@ -4,7 +4,9 @@ import type { AddressDistrictKey } from "../../../src/pipeline/address/addressDi
 import { CensusAddressGeocoderError } from "../../../src/pipeline/address/censusAddressGeocoder.js";
 import {
   applyUsHouse2026Redistricting,
+  locateCensusBlockInteriorPoint,
   lookupUsHouse120thDistrict,
+  readCensusBlockInteriorPoint,
   relabelUsHouseDistrictNameFor2026,
   US_HOUSE_2026_REDRAWN_STATE_FIPS,
   US_HOUSE_120TH_LAYER_NAME,
@@ -74,6 +76,26 @@ describe("lookupUsHouse120thDistrict", () => {
     expect(url.searchParams.get("returnGeometry")).toBe("false");
   });
 
+  it("refuses a point that matches two districts instead of picking one", async () => {
+    const fetchImpl = vi.fn(async () =>
+      jsonResponse({
+        features: [
+          { attributes: { GEOID: "4705", NAME: "Congressional District 5", MTFCC: "G5200" } },
+          { attributes: { GEOID: "4709", NAME: "Congressional District 9", MTFCC: "G5200" } },
+        ],
+      })
+    );
+    await expect(lookupUsHouse120thDistrict(MEMPHIS, { fetchImpl })).rejects.toMatchObject({
+      code: "bad_response",
+      message: expect.stringContaining("district boundary: 4705, 4709"),
+    });
+    // The same district twice is not ambiguous.
+    const duplicate = vi.fn(async () =>
+      jsonResponse({ features: [{ attributes: { GEOID: "4705" } }, { attributes: { GEOID: "4705" } }] })
+    );
+    await expect(lookupUsHouse120thDistrict(MEMPHIS, { fetchImpl: duplicate })).resolves.toMatchObject({ geoid: "4705" });
+  });
+
   it("returns null when the point matches no district", async () => {
     const fetchImpl = vi.fn(async () => jsonResponse({ features: [] }));
     await expect(lookupUsHouse120thDistrict(MEMPHIS, { fetchImpl })).resolves.toBeNull();
@@ -134,6 +156,51 @@ describe("lookupUsHouse120thDistrict", () => {
       CensusAddressGeocoderError
     );
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe("census block interior point", () => {
+  it("reads the block's INTPTLAT/INTPTLON in the geocoder's signed-degree format", () => {
+    expect(
+      readCensusBlockInteriorPoint({
+        "Census Blocks": [{ GEOID: "471570042001012", INTPTLAT: "+35.1493568", INTPTLON: "-090.0518881" }],
+      })
+    ).toEqual({ lat: 35.1493568, lng: -90.0518881 });
+    expect(readCensusBlockInteriorPoint({ Counties: [{ GEOID: "47157" }] })).toBeNull();
+    expect(readCensusBlockInteriorPoint({ "Census Blocks": [{ GEOID: "x", INTPTLAT: "n/a" }] })).toBeNull();
+    expect(readCensusBlockInteriorPoint(null)).toBeNull();
+  });
+
+  it("asks the Census2020 vintage for the block layer and returns null on not_found", async () => {
+    const fetchImpl = vi.fn(async () =>
+      jsonResponse({
+        result: {
+          input: {},
+          addressMatches: [
+            {
+              matchedAddress: "125 N MAIN ST, MEMPHIS, TN, 38103",
+              coordinates: { x: -90.051553690438, y: 35.148558377868 },
+              geographies: { "Census Blocks": [{ GEOID: "471570042001012", INTPTLAT: "+35.1493568", INTPTLON: "-090.0518881" }] },
+            },
+          ],
+        },
+      })
+    );
+    await expect(locateCensusBlockInteriorPoint("125 N Main St, Memphis, TN 38103", { fetchImpl })).resolves.toEqual({
+      lat: 35.1493568,
+      lng: -90.0518881,
+    });
+    const url = new URL(String(fetchImpl.mock.calls[0]?.[0]));
+    expect(url.searchParams.get("vintage")).toBe("Census2020_Current");
+    expect(url.searchParams.get("layers")).toBe("Census Blocks");
+
+    const notFound = vi.fn(async () => jsonResponse({ result: { input: {}, addressMatches: [] } }));
+    await expect(locateCensusBlockInteriorPoint("125 N Main St, Memphis, TN 38103", { fetchImpl: notFound })).resolves.toBeNull();
+
+    const down = vi.fn(async () => jsonResponse({}, 503));
+    await expect(locateCensusBlockInteriorPoint("125 N Main St, Memphis, TN 38103", { fetchImpl: down })).rejects.toMatchObject({
+      code: "http_error",
+    });
   });
 });
 

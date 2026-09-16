@@ -738,6 +738,10 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     Counties: [{ GEOID: "47157", NAME: "Shelby County", MTFCC: "G4020" }],
     "119th Congressional Districts": [{ GEOID: "4709", NAME: "Congressional District 9", MTFCC: "G5200" }],
   };
+  // Interior point of Memphis City Hall's census block (side-aware, never on
+  // a district edge); the address point itself sits on the N Main St centerline.
+  const MEMPHIS_BLOCK = { lat: 35.1493568, lng: -90.0518881 };
+  const noBlockPoint = () => vi.fn(async () => null);
   const geocodeMemphis = () =>
     vi.fn().mockResolvedValue({
       matched_address: "125 N MAIN ST, MEMPHIS, TN, 38103",
@@ -746,19 +750,22 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
       geographies: TENNESSEE_GEOGRAPHIES,
     });
 
-  it("replaces the 119th House key with the 120th answer and caches the corrected keys", async () => {
+  it("replaces the 119th House key with the 120th answer, looked up at the block interior point, and caches it", async () => {
     const geocodeAddress = geocodeMemphis();
     const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "4705", name: "Congressional District 5", mtfcc: "G5200" }));
+    const locateCensusBlockInteriorPoint = vi.fn(async () => MEMPHIS_BLOCK);
     const cache = { get: vi.fn(async () => null), set: vi.fn(async () => "OK") };
     const query = vi.fn().mockResolvedValue({ rows: [] });
 
     const result = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
       geocodeAddress,
       lookupUsHouse120thDistrict,
+      locateCensusBlockInteriorPoint,
       cache,
     });
 
-    expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith(MEMPHIS);
+    expect(locateCensusBlockInteriorPoint).toHaveBeenCalledWith("125 N Main St, Memphis, TN 38103");
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith(MEMPHIS_BLOCK);
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["us_house", "county"],
       ["4705", "47157"],
@@ -787,6 +794,7 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
       resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
         geocodeAddress,
         lookupUsHouse120thDistrict,
+        locateCensusBlockInteriorPoint: noBlockPoint(),
         cache,
       })
     ).rejects.toMatchObject({ name: "CensusAddressGeocoderError", code: "http_error" });
@@ -809,6 +817,7 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
         geocodeAddress,
         geocodeCoordinates,
         lookupUsHouse120thDistrict,
+        locateCensusBlockInteriorPoint: noBlockPoint(),
         coordinates: MEMPHIS,
       })
     ).rejects.toMatchObject({ code: "timeout" });
@@ -820,16 +829,20 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
   it("applies the override on the coordinate path and leaves other states alone", async () => {
     const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "4705", name: null, mtfcc: "G5200" }));
     const geocodeCoordinates = vi.fn().mockResolvedValue({ geographies: TENNESSEE_GEOGRAPHIES });
+    const locateCensusBlockInteriorPoint = noBlockPoint();
     const query = vi.fn().mockResolvedValue({ rows: [] });
 
     const memphis = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
       geocodeAddress: vi.fn(),
       geocodeCoordinates,
       lookupUsHouse120thDistrict,
+      locateCensusBlockInteriorPoint,
       coordinates: MEMPHIS,
     });
     expect(memphis.district_keys[0]).toMatchObject({ district_type: "us_house", geoid_compact: "4705" });
-    expect(lookupUsHouse120thDistrict).toHaveBeenCalledOnce();
+    // Google points are rooftop, not centerline: the point path uses them as is.
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith(MEMPHIS);
+    expect(locateCensusBlockInteriorPoint).not.toHaveBeenCalled();
 
     const virginiaGeocode = vi.fn().mockResolvedValue({
       matched_address: "1000 BANK ST, RICHMOND, VA, 23219",
@@ -840,8 +853,10 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     const richmond = await resolveAddressToDistricts({ query }, "1000 Bank St, Richmond, VA 23219", {
       geocodeAddress: virginiaGeocode,
       lookupUsHouse120thDistrict,
+      locateCensusBlockInteriorPoint,
     });
     expect(richmond.district_keys[0]).toMatchObject({ district_type: "us_house", geoid_compact: "5104" });
     expect(lookupUsHouse120thDistrict).toHaveBeenCalledOnce();
+    expect(locateCensusBlockInteriorPoint).not.toHaveBeenCalled();
   });
 });

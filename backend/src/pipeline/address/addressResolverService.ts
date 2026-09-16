@@ -31,8 +31,10 @@ import {
 } from "./addressDistrictLookup.js";
 import {
   applyUsHouse2026Redistricting,
+  locateCensusBlockInteriorPoint,
   lookupUsHouse120thDistrict,
   type UsHouse120thLookup,
+  usHouseKeyNeedsRedistrictingOverride,
 } from "./usHouse2026Redistricting.js";
 
 import { STATE_FIPS_BY_ABBREVIATION, STATE_NAME_BY_FIPS } from "../../constants/usStates.js";
@@ -91,6 +93,14 @@ export type AddressResolverServiceOptions = {
    * default shares the geocoder's fetch and timeout settings.
    */
   lookupUsHouse120thDistrict?: UsHouse120thLookup;
+  /**
+   * Interior point of the address's census block, used as the 120th-layer
+   * lookup point on the address-string path: the one-line geocoder places
+   * the address on the street centerline, and a centerline point on a
+   * boundary street matches both districts. Null falls back to the address
+   * point. Injectable for tests; the default is one extra geocoder call.
+   */
+  locateCensusBlockInteriorPoint?: (address: string) => Promise<CensusAddressCoordinates | null>;
   cache?: AddressLookupCacheClient;
   cacheTtlSeconds?: number;
   /**
@@ -351,6 +361,9 @@ export async function resolveAddressToDistricts(
         fetchImpl: options.geocoderOptions?.fetchImpl,
         timeoutMs: options.geocoderOptions?.timeoutMs,
       }));
+  const locateBlockInteriorPoint =
+    options.locateCensusBlockInteriorPoint ??
+    ((input: string) => locateCensusBlockInteriorPoint(input, options.geocoderOptions));
 
   // Coordinate-first path. Never cached: the coordinates come from a Google
   // Places response, and Google's ToS forbids persisting Places data — the
@@ -416,11 +429,14 @@ export async function resolveAddressToDistricts(
           }
           throw error;
         });
-        const keyResolution = await applyUsHouse2026Redistricting(
-          resolveAddressDistrictKeysFromGeographies(geocoded.geographies),
-          geocoded.coordinates,
-          lookupUsHouse120th
-        );
+        const geocodedKeys = resolveAddressDistrictKeysFromGeographies(geocoded.geographies);
+        // The block lookup is one more geocoder round trip, so it runs only
+        // for addresses the override applies to. (The coordinate path above
+        // needs none: Google points are rooftop, not centerline.)
+        const lookupPoint = usHouseKeyNeedsRedistrictingOverride(geocodedKeys.district_keys)
+          ? ((await locateBlockInteriorPoint(address)) ?? geocoded.coordinates)
+          : geocoded.coordinates;
+        const keyResolution = await applyUsHouse2026Redistricting(geocodedKeys, lookupPoint, lookupUsHouse120th);
         const value = {
           matched_address: geocoded.matched_address,
           coordinates: geocoded.coordinates,

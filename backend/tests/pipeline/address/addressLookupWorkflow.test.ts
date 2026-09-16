@@ -115,7 +115,12 @@ describe("address lookup workflow", () => {
     // still answers CA-31 (119th layer) for Baldwin Park, and the injected
     // 120th-layer lookup returns CA-38, which is what the live layer says.
     const lookupUsHouse120thDistrict = vi.fn(async () => ({ geoid: "0638", name: "Congressional District 38", mtfcc: "G5200" }));
-    const result = await resolveAddressToDistricts({ query }, BALDWIN_PARK_ADDRESS, { geocodeAddress, lookupUsHouse120thDistrict });
+    const locateCensusBlockInteriorPoint = vi.fn(async () => null);
+    const result = await resolveAddressToDistricts({ query }, BALDWIN_PARK_ADDRESS, {
+      geocodeAddress,
+      lookupUsHouse120thDistrict,
+      locateCensusBlockInteriorPoint,
+    });
 
     expect(lookupUsHouse120thDistrict).toHaveBeenCalledWith({ lat: 34.082500135664, lng: -117.981072355887 });
 
