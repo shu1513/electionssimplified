@@ -428,10 +428,7 @@ export async function resolveAddressToDistricts(
           district_keys: keyResolution.district_keys,
           warnings: keyResolution.warnings,
         };
-        // A failed 120th lookup dropped the House key; caching that would
-        // pin a House-less ballot for 14 days over a transient TIGERweb
-        // hiccup. Serve it once, uncached, so the next request retries.
-        if (options.cache && !keyResolution.override_failed) {
+        if (options.cache) {
           await writeAddressLookupCache(
             options.cache,
             cacheKey,

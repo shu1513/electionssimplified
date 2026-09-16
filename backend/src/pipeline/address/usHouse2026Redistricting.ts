@@ -22,11 +22,14 @@
 // 2026-09-10), so Missouri votes on its 2022 lines in November and the 119th
 // answer is the correct one there. Add a state here only once its new map is
 // in force for the next House election.
-import type {
-  AddressDistrictKey,
-  AddressDistrictResolution,
-  AddressDistrictResolverWarning,
-} from "./addressDistrictResolver.js";
+//
+// A failed lookup FAILS the address resolution, with the geocoder's own error
+// class, so the API answers "upstream trouble, retry" (502/503) exactly as it
+// does when the geocoder itself is down. The alternative — dropping the House
+// key and serving the rest — is a silently incomplete ballot: the public
+// response carries no warnings, the client shows no partial banner, and a
+// guest signup would save the incomplete district set.
+import type { AddressDistrictKey, AddressDistrictResolution } from "./addressDistrictResolver.js";
 import { type CensusAddressCoordinates, CensusAddressGeocoderError } from "./censusAddressGeocoder.js";
 
 export const TIGERWEB_US_HOUSE_120TH_QUERY_URL =
@@ -98,6 +101,10 @@ function readString(record: Record<string, unknown>, key: string): string | null
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
 function isUsHouseKeyInRedrawnState(key: AddressDistrictKey): boolean {
   return key.district_type === "us_house" && US_HOUSE_2026_REDRAWN_STATE_FIPS.has(key.geoid_compact.slice(0, 2));
 }
@@ -134,13 +141,19 @@ export async function lookupUsHouse120thDistrict(
   url.searchParams.set("returnGeometry", "false");
   url.searchParams.set("f", "json");
 
+  // The timer covers the whole exchange, body included: a response whose
+  // headers arrive but whose body stalls must abort too (same shape as
+  // fetchCensusGeocoderPayload).
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  let response: Response;
+  let status: number;
+  let bodyText: string;
   try {
-    response = await fetchImpl(url, { signal: controller.signal, headers: { accept: "application/json" } });
+    const response = await fetchImpl(url, { signal: controller.signal, headers: { accept: "application/json" } });
+    status = response.status;
+    bodyText = await response.text();
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
+    if (isAbortError(error)) {
       throw new CensusAddressGeocoderError("timeout", `TIGERweb 120th district lookup timed out after ${timeoutMs}ms`);
     }
     throw new CensusAddressGeocoderError(
@@ -151,12 +164,12 @@ export async function lookupUsHouse120thDistrict(
     clearTimeout(timeout);
   }
 
-  if (!response.ok) {
-    throw new CensusAddressGeocoderError("http_error", `TIGERweb 120th district lookup returned HTTP ${response.status}`);
+  if (status < 200 || status >= 300) {
+    throw new CensusAddressGeocoderError("http_error", `TIGERweb 120th district lookup returned HTTP ${status}`);
   }
   let body: unknown;
   try {
-    body = await response.json();
+    body = JSON.parse(bodyText);
   } catch {
     throw new CensusAddressGeocoderError("bad_response", "TIGERweb 120th district lookup returned non-JSON");
   }
@@ -189,55 +202,36 @@ export async function lookupUsHouse120thDistrict(
   };
 }
 
-export type UsHouseRedistrictingApplyResult = AddressDistrictResolution & {
-  /**
-   * True when the address sits in a redrawn state but the 120th lookup could
-   * not answer. The us_house key is then DROPPED (never left on the stale
-   * 119th value) and a warning on the 120th layer is added, which
-   * warningAffectsSupportedDistrict treats as blocking for saved districts.
-   * Callers must not cache such a result.
-   */
-  override_failed: boolean;
-};
-
 /**
  * Replace the geocoder's 119th-layer House key with the 120th-layer answer for
  * addresses in the redrawn states. Addresses elsewhere pass through untouched
- * and never trigger a lookup.
+ * and never trigger a lookup. Throws (CensusAddressGeocoderError) when the
+ * lookup fails or answers nothing usable — see the module comment for why a
+ * partial result is not served.
  */
 export async function applyUsHouse2026Redistricting(
   resolution: AddressDistrictResolution,
   coordinates: CensusAddressCoordinates,
   lookup: UsHouse120thLookup
-): Promise<UsHouseRedistrictingApplyResult> {
+): Promise<AddressDistrictResolution> {
   const staleKey = usHouseKeyNeedsRedistrictingOverride(resolution.district_keys);
   if (!staleKey) {
-    return { ...resolution, override_failed: false };
+    return resolution;
   }
-  const otherKeys = resolution.district_keys.filter((key) => key !== staleKey);
   const stateFips = staleKey.geoid_compact.slice(0, 2);
 
-  const fail = (reason: string): UsHouseRedistrictingApplyResult => {
-    const warning: AddressDistrictResolverWarning = {
-      layer_name: US_HOUSE_120TH_LAYER_NAME,
-      geoid: staleKey.geoid_compact,
-      mtfcc: staleKey.mtfcc,
-      reason,
-    };
-    return { district_keys: otherKeys, warnings: [...resolution.warnings, warning], override_failed: true };
-  };
-
-  let located: UsHouse120thDistrict | null;
-  try {
-    located = await lookup(coordinates);
-  } catch (error) {
-    return fail(`120th district lookup failed: ${error instanceof Error ? error.message : String(error)}`);
-  }
+  const located = await lookup(coordinates);
   if (!located) {
-    return fail("point matched no 120th Congressional District");
+    throw new CensusAddressGeocoderError(
+      "bad_response",
+      `TIGERweb 120th district lookup matched no district for a point the geocoder placed in ${staleKey.geoid_compact}`
+    );
   }
   if (located.geoid.slice(0, 2) !== stateFips) {
-    return fail(`120th district ${located.geoid} is outside the geocoded state ${stateFips}`);
+    throw new CensusAddressGeocoderError(
+      "bad_response",
+      `TIGERweb 120th district ${located.geoid} is outside the geocoded state ${stateFips}`
+    );
   }
 
   const replacement: AddressDistrictKey = {
@@ -250,6 +244,8 @@ export async function applyUsHouse2026Redistricting(
   };
   // Keep the resolver's ordering (statewide, us_house, state_upper, ...):
   // the stale key is swapped in place rather than appended.
-  const districtKeys = resolution.district_keys.map((key) => (key === staleKey ? replacement : key));
-  return { district_keys: districtKeys, warnings: resolution.warnings, override_failed: false };
+  return {
+    district_keys: resolution.district_keys.map((key) => (key === staleKey ? replacement : key)),
+    warnings: resolution.warnings,
+  };
 }

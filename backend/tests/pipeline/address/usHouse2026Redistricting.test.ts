@@ -106,6 +106,28 @@ describe("lookupUsHouse120thDistrict", () => {
     ).rejects.toMatchObject({ code: "timeout" });
   });
 
+  it("keeps the timeout armed while the body is still streaming", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = vi.fn(async (_url: URL, init?: RequestInit) => {
+        const signal = init?.signal as AbortSignal;
+        return {
+          status: 200,
+          text: () =>
+            new Promise<string>((_resolve, reject) => {
+              signal.addEventListener("abort", () => reject(Object.assign(new Error("aborted"), { name: "AbortError" })));
+            }),
+        } as unknown as Response;
+      });
+      const pending = lookupUsHouse120thDistrict(MEMPHIS, { fetchImpl: fetchImpl as unknown as typeof fetch, timeoutMs: 10 });
+      const settled = expect(pending).rejects.toMatchObject({ code: "timeout" });
+      await vi.advanceTimersByTimeAsync(20);
+      await settled;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("rejects non-finite coordinates before fetching", async () => {
     const fetchImpl = vi.fn();
     await expect(lookupUsHouse120thDistrict({ lat: Number.NaN, lng: 0 }, { fetchImpl })).rejects.toBeInstanceOf(
@@ -125,7 +147,6 @@ describe("applyUsHouse2026Redistricting", () => {
     const result = await applyUsHouse2026Redistricting({ district_keys: [stale, county, senate], warnings: [] }, MEMPHIS, lookup);
 
     expect(lookup).toHaveBeenCalledWith(MEMPHIS);
-    expect(result.override_failed).toBe(false);
     expect(result.warnings).toEqual([]);
     expect(result.district_keys).toEqual([
       {
@@ -145,46 +166,32 @@ describe("applyUsHouse2026Redistricting", () => {
     const lookup = vi.fn();
     const virginia = key({ district_type: "us_house", geoid_compact: "5107" });
     const resolution = { district_keys: [virginia], warnings: [] };
-    await expect(applyUsHouse2026Redistricting(resolution, MEMPHIS, lookup)).resolves.toEqual({
-      ...resolution,
-      override_failed: false,
-    });
+    await expect(applyUsHouse2026Redistricting(resolution, MEMPHIS, lookup)).resolves.toBe(resolution);
     expect(lookup).not.toHaveBeenCalled();
   });
 
-  it("drops the stale House key and warns on the 120th layer when the lookup fails", async () => {
+  it("fails the resolution with the geocoder error class when the lookup fails", async () => {
+    // Never a partial ballot: the API maps this to the same retryable
+    // upstream error a geocoder outage produces.
     const lookup = vi.fn(async () => {
       throw new CensusAddressGeocoderError("timeout", "TIGERweb timed out");
     });
-    const result = await applyUsHouse2026Redistricting({ district_keys: [stale, county], warnings: [] }, MEMPHIS, lookup);
-
-    expect(result.override_failed).toBe(true);
-    expect(result.district_keys).toEqual([county]);
-    expect(result.warnings).toEqual([
-      {
-        layer_name: US_HOUSE_120TH_LAYER_NAME,
-        geoid: "4709",
-        mtfcc: "G5200",
-        reason: "120th district lookup failed: TIGERweb timed out",
-      },
-    ]);
+    await expect(
+      applyUsHouse2026Redistricting({ district_keys: [stale, county], warnings: [] }, MEMPHIS, lookup)
+    ).rejects.toMatchObject({ name: "CensusAddressGeocoderError", code: "timeout" });
   });
 
   it("treats no match and a cross-state answer as failures too", async () => {
-    const none = await applyUsHouse2026Redistricting(
-      { district_keys: [stale], warnings: [] },
-      MEMPHIS,
-      vi.fn(async () => null)
-    );
-    expect(none).toMatchObject({ override_failed: true, district_keys: [] });
-    expect(none.warnings[0]?.reason).toContain("no 120th Congressional District");
+    await expect(
+      applyUsHouse2026Redistricting({ district_keys: [stale], warnings: [] }, MEMPHIS, vi.fn(async () => null))
+    ).rejects.toMatchObject({ code: "bad_response", message: expect.stringContaining("matched no district") });
 
-    const wrongState = await applyUsHouse2026Redistricting(
-      { district_keys: [stale], warnings: [] },
-      MEMPHIS,
-      vi.fn(async () => ({ geoid: "0501", name: null, mtfcc: null }))
-    );
-    expect(wrongState).toMatchObject({ override_failed: true, district_keys: [] });
-    expect(wrongState.warnings[0]?.reason).toContain("outside the geocoded state 47");
+    await expect(
+      applyUsHouse2026Redistricting(
+        { district_keys: [stale], warnings: [] },
+        MEMPHIS,
+        vi.fn(async () => ({ geoid: "0501", name: null, mtfcc: null }))
+      )
+    ).rejects.toMatchObject({ code: "bad_response", message: expect.stringContaining("outside the geocoded state 47") });
   });
 });

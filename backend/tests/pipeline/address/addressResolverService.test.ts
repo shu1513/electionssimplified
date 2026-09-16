@@ -774,7 +774,7 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     });
   });
 
-  it("drops the House key, warns, and skips the cache when the 120th lookup fails", async () => {
+  it("fails the whole lookup, uncached, when the 120th lookup fails (never a partial ballot)", async () => {
     const { CensusAddressGeocoderError } = await import("../../../src/pipeline/address/censusAddressGeocoder.js");
     const geocodeAddress = geocodeMemphis();
     const lookupUsHouse120thDistrict = vi.fn(async () => {
@@ -783,18 +783,38 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     const cache = { get: vi.fn(async () => null), set: vi.fn(async () => "OK") };
     const query = vi.fn().mockResolvedValue({ rows: [] });
 
-    const result = await resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
-      geocodeAddress,
-      lookupUsHouse120thDistrict,
-      cache,
-    });
+    await expect(
+      resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
+        geocodeAddress,
+        lookupUsHouse120thDistrict,
+        cache,
+      })
+    ).rejects.toMatchObject({ name: "CensusAddressGeocoderError", code: "http_error" });
 
-    expect(query.mock.calls[0]?.[1]).toEqual([["county"], ["47157"]]);
-    expect(result.district_keys).toEqual([expect.objectContaining({ district_type: "county", geoid_compact: "47157" })]);
-    expect(result.warnings).toEqual([
-      expect.objectContaining({ layer_name: "120th Congressional Districts", geoid: "4709", reason: expect.stringContaining("HTTP 503") }),
-    ]);
+    expect(query).not.toHaveBeenCalled();
     expect(cache.set).not.toHaveBeenCalled();
+  });
+
+  it("falls back from the point path to the address path when the 120th lookup fails there, then fails", async () => {
+    const { CensusAddressGeocoderError } = await import("../../../src/pipeline/address/censusAddressGeocoder.js");
+    const lookupUsHouse120thDistrict = vi.fn(async () => {
+      throw new CensusAddressGeocoderError("timeout", "slow");
+    });
+    const geocodeCoordinates = vi.fn().mockResolvedValue({ geographies: TENNESSEE_GEOGRAPHIES });
+    const geocodeAddress = geocodeMemphis();
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+
+    await expect(
+      resolveAddressToDistricts({ query }, "125 N Main St, Memphis, TN 38103", {
+        geocodeAddress,
+        geocodeCoordinates,
+        lookupUsHouse120thDistrict,
+        coordinates: MEMPHIS,
+      })
+    ).rejects.toMatchObject({ code: "timeout" });
+    expect(geocodeAddress).toHaveBeenCalledOnce();
+    expect(lookupUsHouse120thDistrict).toHaveBeenCalledTimes(2);
+    expect(query).not.toHaveBeenCalled();
   });
 
   it("applies the override on the coordinate path and leaves other states alone", async () => {
