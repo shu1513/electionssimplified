@@ -105,8 +105,8 @@ export default function MissionPage() {
             <p className="mt-1">
               For a small monthly contribution, less than a cup of coffee, you can become an
               honorary member and help us keep bringing you higher-quality content. As an honorary
-              member, you will get our private analysis reports on the important issues that could
-              affect you.
+              member, you may receive occasional member-only analysis emails on the important
+              issues that could affect you (no schedule or minimum number is promised).
             </p>
             <p className="mt-2">
               <Link to="/support/member" className={memberCtaClass}>

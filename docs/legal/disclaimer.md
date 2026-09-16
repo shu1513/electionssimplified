@@ -12,12 +12,20 @@ CURRENT_TERMS_VERSION.
 terms-of-use.md 1.3 added Section 14.5 (member communications).
 1.3 → 1.4 (2026-08-29): operator named as Elections Simplified Inc., a
 Delaware corporation (previously impactperdollar); tracks the Terms 1.4 bump.
+1.4 → 1.5 (2026-09-16, legal audit): Section 8 names automated draft picks
+as user-requested drafts, not recommendations; Section 17 cap restated as
+one aggregate cap measured from the event, with Terms Section 8 controlling
+on any difference and a non-excludable-liability carve-out; Section 18
+"Release" paragraph (prospective release of unknown claims, Civil Code
+§1542 waiver) DELETED — it added no protection beyond Sections 16–17 for a
+free service and invited an unconscionability challenge to the whole
+document. Tracks the Terms 1.5 bump.
 -->
 
 # Elections Simplified AI Research and Election Information Disclaimer
 
-**Last updated:** August 29, 2026
-**Version:** 1.4
+**Last updated:** September 16, 2026
+**Version:** 1.5
 
 ## 1. Informational purposes only
 
@@ -91,6 +99,8 @@ These metrics are estimates based on selected data and methodology. They may be 
 
 No score, metric, ranking, label, ordering, or comparison on Elections Simplified is an endorsement, opposition statement, voting recommendation, legal conclusion, or instruction to vote or not vote.
 
+If you ask Elections Simplified to fill in draft picks automatically, the result is a draft produced from the issue priorities you chose and the information in our database, which may be incomplete or wrong for you. It is not our recommendation. Review every draft pick. Recording, saving, printing, or sharing a pick does not cast a vote or submit an official ballot.
+
 ## 9. Nonpartisanship; no endorsement
 
 Elections Simplified is intended to operate as an independent, nonpartisan civic-information service.
@@ -159,9 +169,9 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW, ELECTIONS SIMPLIFIED, ITS OPERATOR, AND 
 
 THIS LIMITATION APPLIES TO CLAIMS ARISING FROM OR RELATING TO ANY ELECTION-RELATED DECISION, VOTING-RELATED DECISION, REGISTRATION-RELATED DECISION, CAMPAIGN-RELATED DECISION, POLITICAL DECISION, OR OTHER ACTION TAKEN OR NOT TAKEN IN RELIANCE ON ELECTIONS SIMPLIFIED.
 
-TO THE MAXIMUM EXTENT PERMITTED BY LAW, ELECTIONS SIMPLIFIED'S TOTAL LIABILITY FOR ANY CLAIM ARISING FROM OR RELATING TO ELECTIONS SIMPLIFIED OR ITS CONTENT WILL NOT EXCEED THE GREATER OF: (A) THE AMOUNT YOU PAID TO ELECTIONS SIMPLIFIED FOR THE SERVICE DURING THE TWELVE MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM; OR (B) ONE HUNDRED U.S. DOLLARS ($100).
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, ELECTIONS SIMPLIFIED'S TOTAL AGGREGATE LIABILITY FOR ALL CLAIMS ARISING FROM OR RELATING TO ELECTIONS SIMPLIFIED OR ITS CONTENT WILL NOT EXCEED THE GREATER OF: (A) THE AMOUNT YOU PAID TO ELECTIONS SIMPLIFIED FOR THE SERVICE DURING THE TWELVE MONTHS BEFORE THE EVENT GIVING RISE TO THE FIRST SUCH CLAIM; OR (B) ONE HUNDRED U.S. DOLLARS ($100). If this Section and Section 8 of the Terms of Use differ, Section 8 of the Terms controls.
 
-Some jurisdictions do not allow certain warranty disclaimers or liability limitations. In those jurisdictions, the disclaimers and limitations apply only to the maximum extent permitted by law.
+Nothing in this Disclaimer excludes or limits liability that cannot be excluded or limited under applicable law, including liability for fraud or willful misconduct. Some jurisdictions do not allow certain warranty disclaimers or liability limitations. In those jurisdictions, the disclaimers and limitations apply only to the maximum extent permitted by law.
 
 ## 18. User acknowledgment and assumption of risk
 
@@ -176,8 +186,6 @@ By accessing or using Elections Simplified, submitting an address or search quer
 (g) you voluntarily and knowingly assume all risk arising from your use of, or reliance on, Elections Simplified and its content;
 (h) you will not use Elections Simplified for unlawful, misleading, voter-suppressive, harassing, discriminatory, or prohibited purposes; and
 (i) this acknowledgment is a material condition of your permission to use Elections Simplified.
-
-**Release.** To the maximum extent permitted by law, you release Elections Simplified, its operator, and its officers, directors, employees, contractors, service providers, licensors, and affiliates from all claims, demands, and damages of every kind, known or unknown, arising out of or relating to your use of, or reliance on, Elections Simplified or its content. You waive any statute or legal principle that would otherwise limit this release to claims you knew about when you agreed to it, including, if you are a California resident, the protections of California Civil Code Section 1542 as applied to this release.
 
 ## 19. Severability and changes
 

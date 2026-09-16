@@ -59,12 +59,28 @@ processors (Expo push service, APNs, FCM) that receive the token and
 notification text only. This version must be LIVE before the app is
 submitted to either store. Disclosure of an opt-in feature —
 CURRENT_TERMS_VERSION stays 1.4.
+1.7 → 1.8 on 2026-09-16 (legal audit): (1) the Ask log sentence no longer
+calls the logs "anonymous" — backend/src/chatbot/redact.ts is four regexes
+(email, phone, street address, 5+ digits) and cannot remove names or
+identifying narrative, so the text now says what it does and warns that
+free text can still identify someone; (2) the picks/follows sentence no
+longer says "never disclose them to third parties" — the digest and
+newsletter bodies (first name, followed candidates) pass through the SES
+processor, so it now says no sale and no disclosure to advertisers,
+campaigns, or political organizations, with processors handled in
+Section 3; (3) the OpenAI entry says store:false disables response storage
+but OpenAI may keep abuse-monitoring logs for up to 30 days (its
+documented default); (4) content reports: free text is kept as written and
+can contain identifying details; (5) Google Places entry links the Google
+Privacy Policy as the Places policies require. Corrections of overclaims,
+nothing new collected — ships with the Terms 1.5 bump, which re-accepts
+the bundle anyway.
 -->
 
 # Elections Simplified Privacy Policy
 
-**Last updated:** September 12, 2026
-**Version:** 1.7
+**Last updated:** September 16, 2026
+**Version:** 1.8
 
 This Privacy Policy describes how Elections Simplified Inc., a Delaware corporation and the operator of the Elections Simplified service ("Elections Simplified," "we," "us"), collects, uses, and shares information when you use the Elections Simplified website and services (the "Service").
 
@@ -82,13 +98,13 @@ This Privacy Policy describes how Elections Simplified Inc., a Delaware corporat
 
 **Mobile app and push notifications.** If you use the Elections Simplified app for iPhone or Android and allow notifications, we store a push notification token for that device (an identifier issued by Apple, Google, or the Expo push service that lets us send notifications to that device, not to you by name), the device platform (iOS or Android), and when the token was last registered or refreshed. The token is linked to your account so notifications about candidates you follow reach your devices. Signing out on a device marks that device's token as revoked, and we stop sending to it; deleting your account removes the stored tokens. The app stores your sign-in session on the device in the operating system's secure storage.
 
-**Your picks.** If you record a pick for a race or a position on a ballot measure, we store it on your account so your ballot draft is there when you return. Because the Service is about elections, your picks, follows, and interests may reveal your civic or political views. We treat them as your private account data and never sell them or disclose them to third parties; the one exception is a pick card you choose to share, described below. We use them to provide the features you chose and to select relevant civic updates for the notification emails you control in settings. If those emails ever include clearly labeled promotional content from a civic organization, it is chosen only from the research-area interests you selected (for example, an environmental group for someone who chose the environment as an interest), never from your picks or the candidates you follow. Every such email includes a working unsubscribe link, and the data used to choose them never leaves us.
+**Your picks.** If you record a pick for a race or a position on a ballot measure, we store it on your account so your ballot draft is there when you return. Because the Service is about elections, your picks, follows, and interests may reveal your civic or political views. We treat them as your private account data: we never sell them, and we never disclose them to advertisers, campaigns, or political organizations for their own purposes. They are visible outside our systems only through a pick card you choose to share (described below), through the service providers in Section 3 that process data on our behalf (for example, the email provider that delivers a notification email whose contents name a candidate you follow), and in the legal-disclosure situations described in Section 3. We use them to provide the features you chose and to select relevant civic updates for the notification emails you control in settings. If those emails ever include clearly labeled promotional content from a civic organization, it is chosen only from the research-area interests you selected (for example, an environmental group for someone who chose the environment as an interest), never from your picks or the candidates you follow. Every such email includes a working unsubscribe link, and the data used to choose them never leaves us.
 
 **Shared pick cards (optional).** If you click Share on a date's pick card, we create a link that shows anyone who has it the picks on that card for that date, together with your first name. The card is live: it shows your picks as they stand when the link is opened. Nothing is shared until you click Share, and you can stop sharing at any time from your picks page, which makes the link stop working. Deleting your account removes every shared link.
 
-**Ask (chat) questions.** If you use the Ask feature, the questions you type are processed to find an answer in our own election database. Questions are logged **anonymously**: before a question is stored, email addresses, phone numbers, street addresses, and long digit sequences are removed, and the stored question is never linked to your account. Stored question text is deleted after 90 days; only aggregate statistics about commonly asked questions (never rare or unique ones) are kept longer. Please don't include personal information in your questions.
+**Ask (chat) questions.** If you use the Ask feature, the questions you type are processed to find an answer in our own election database. We do not attach your account identifier to stored question logs. Before a question is stored, automated filters attempt to remove common email-address, phone-number, street-address, and long-number patterns; these filters may not remove all personal information, and free text you type can still identify you or another person. Please don't include personal information in your questions. Stored question text is deleted after 90 days; only aggregate statistics about commonly asked questions (never rare or unique ones) are kept longer.
 
-**Content reports.** If you report inaccurate or outdated content, we store the report message, the content item you identified, any optional source URL, any optional contact email you provide, and if you are signed in, your account identifier, so we can investigate and improve accuracy. Do not include sensitive personal information in content reports.
+**Content reports.** If you report inaccurate or outdated content, we store the report message, the content item you identified, any optional source URL, any optional contact email you provide, and if you are signed in, your account identifier, so we can investigate and improve accuracy. The report message is kept as you wrote it, so it can contain identifying details if you include them. Do not include sensitive personal information in content reports.
 
 **Technical information.** IP address, browser user agent, and request logs collected automatically for security, rate limiting, and abuse prevention. A session cookie (httpOnly) keeps you signed in. We do not use advertising or cross-site tracking cookies.
 
@@ -103,12 +119,12 @@ To provide the Service (find your districts, show your ballot, send notification
 We share information only with the processors needed to run the Service:
 
 - **U.S. Census Bureau geocoder** — receives the address text you enter, to locate your districts.
-- **Google Places (autocomplete)** — receives the address text you type when address suggestions are enabled; requests are proxied through our servers so Google does not receive your IP address from your browser.
+- **Google Places (autocomplete)** — receives the address text you type when address suggestions are enabled; requests are proxied through our servers so Google does not receive your IP address from your browser. Google's handling of that text is described in the [Google Privacy Policy](https://www.google.com/policies/privacy/).
 - **Google (Sign in with Google)** — when you choose to sign in with Google, your browser interacts with Google directly to complete the sign-in (Google's own privacy policy applies to that interaction), and we receive the identity token described in Section 1. We send Google nothing about your activity in the Service.
 - **Amazon Web Services (SES)** — receives your email address to deliver account and notification emails.
 - **Expo push service, Apple Push Notification service, and Google Firebase Cloud Messaging (mobile push notifications)** — when you allow notifications in the mobile app, receive the device push token and the notification text in order to deliver it to your device. They receive no account information.
 - **Usage analytics** — the usage information described in Section 1 is collected and stored by us on the infrastructure providers listed below; no separate analytics company receives it.
-- **OpenAI (AI answers in Ask)** — when AI-generated answers are enabled for the Ask feature, receives the text of your chat question and the snippets of our own election data used to answer it, together with a pseudonymous account identifier (a cryptographic hash used only for abuse prevention — never your email address, name, or address). We send requests with storage disabled, and under OpenAI's API terms this content is not used to train OpenAI's models. AI answers are labeled as AI-generated in the Service.
+- **OpenAI (AI answers in Ask)** — when AI-generated answers are enabled for the Ask feature, receives the text of your chat question and the snippets of our own election data used to answer it, together with a pseudonymous account identifier (a cryptographic hash used only for abuse prevention — never your email address, name, or address). We send requests with response storage disabled, and under OpenAI's API terms this content is not used to train OpenAI's models; OpenAI may retain API request logs for up to 30 days for abuse and misuse monitoring under its data-retention policy. Personal information you type into a question is sent to OpenAI as part of that question, so please leave it out. AI answers are labeled as AI-generated in the Service.
 - **Stripe (support payments)** — if you choose to make a support payment, Stripe collects your card and billing details directly on its own payment pages (we never receive your card number) and processes the payment, any recurring membership billing, and any refund on our behalf. We receive the payment amount, status, and reference identifiers. Stripe also retains payment records under its own legal obligations; see Stripe's privacy policy at stripe.com/privacy.
 - **Sentry (error monitoring)** — when error monitoring is enabled, receives reports about application errors (error type, stack trace, browser and device type, and the page path with its query string removed) so we can find and fix failures. We configure these reports to exclude your IP address, email address, address text, and the contents of your requests.
 - **Infrastructure providers** — hosting, database, and cache providers that store Service data on our behalf.

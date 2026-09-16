@@ -142,8 +142,19 @@ const PINNED_DOCUMENTS = [
     // 14.3 cancellation path "(via the Stripe billing portal)" → "under
     // Manage membership" — navigation wording only, no change in rights, so
     // the hash is re-pinned WITHOUT a version bump or re-acceptance.
-    version: "1.4",
-    sha256: "5a2132a0be1fc34abf442d8ac714cb29179a35b147275518e06520f2168a93f7",
+    // 1.4 → 1.5 (2026-09-16, legal audit): user-favorable narrowing —
+    // notices "to the extent permitted by law"; AGPL/public-domain
+    // carve-out in §6; Google Maps Platform terms linked in §7; one
+    // aggregate cap measured from the event + non-excludable-liability
+    // carve-out in §8; §9 indemnity limited to third-party claims from
+    // breach/unlawful use/infringing submissions (reliance prong dropped);
+    // §12.4 preserves regulator complaints and public injunctive relief;
+    // §12.6 uses the AAA Mass Arbitration Supplementary Rules instead of a
+    // bespoke bellwether hold; §13 feedback license excludes personal data.
+    // Bundle bumps to 1.5, GRACE_TERMS_VERSIONS ships ["1.4"], signed-in
+    // users re-accept once so the record points at the text in force.
+    version: "1.5",
+    sha256: "39a4ab0e2a339af72882eeb25a244a152a68ef4814938df4e9fe59e3497840e2",
   },
   {
     filename: "privacy-policy.md",
@@ -174,8 +185,15 @@ const PINNED_DOCUMENTS = [
     // 1.7 (2026-09-12): mobile push notification tokens and the push
     // processors (Expo push service, APNs, FCM) named ahead of the store
     // release. Opt-in feature disclosure — TERMS_VERSION stays 1.4.
-    version: "1.7",
-    sha256: "160fac196a7f30003fbca980abda9795a7fb8b2c8081712f8983f54cdd81a0b4",
+    // 1.7 → 1.8 (2026-09-16, legal audit): overclaims corrected — Ask logs
+    // no longer called "anonymous" (regex redaction only); picks/follows
+    // "never disclosed to third parties" narrowed to no sale / no
+    // advertisers-campaigns-political orgs, processors named; OpenAI
+    // 30-day abuse-monitoring retention stated; content-report free text
+    // kept as written; Google Privacy Policy linked for Places. Ships with
+    // the Terms 1.5 bump.
+    version: "1.8",
+    sha256: "f3e0782569084d4bc7ce0087f3049aeea48ac3e0f2cf350ecc234a23292ef363",
   },
   {
     filename: "disclaimer.md",
@@ -185,8 +203,12 @@ const PINNED_DOCUMENTS = [
     // (Section 14.5 member communications).
     // 1.3 → 1.4 (2026-08-29): operator named as Elections Simplified Inc., a
     // Delaware corporation; tracks the Terms 1.4 bump.
-    version: "1.4",
-    sha256: "0af5f6adf2e3192d2a94fc3bb2de2e26e4418bae066c60c4d533e34253a9324c",
+    // 1.4 → 1.5 (2026-09-16, legal audit): §8 names automated draft picks
+    // as drafts, not recommendations; §17 cap aligned with Terms §8 plus a
+    // non-excludable-liability carve-out; §18 prospective "Release" (Civil
+    // Code §1542 waiver) deleted. Tracks the Terms 1.5 bump.
+    version: "1.5",
+    sha256: "cdd9a7b7c30db87b1c3827ae5147a7431d9b0a8d881dc015c1756a3015519cdd",
   },
 ] as const;
 

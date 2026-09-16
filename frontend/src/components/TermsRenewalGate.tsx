@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { RENEWAL_CHECKBOX_LABEL, TERMS_VERSION, useAcceptTerms, useLogout, useMe } from "@voteapp/api-client";
 import { LegalGate } from "./LegalGate";
 
-// Routes the modal must not cover: the checkbox links to these documents,
-// and a user has to be able to read what they are agreeing to.
-const LEGAL_ROUTES = new Set(["/terms", "/privacy", "/disclaimer"]);
+// Routes the modal must not cover: the checkbox links to the three legal
+// documents, and a user has to be able to read what they are agreeing to.
+// Settings and membership stay reachable too: someone who rejects the new
+// terms must still be able to cancel a membership, change email/privacy
+// preferences, delete the account, or sign out WITHOUT first agreeing
+// (Cal. Bus. & Prof. Code §17602(d) forbids putting steps in front of
+// online cancellation; a clickwrap that gates the exit is not consent).
+// Everything else — ballot, picks, candidates — remains gated.
+const UNGATED_ROUTES = new Set(["/terms", "/privacy", "/disclaimer", "/me/settings", "/me/membership"]);
 
 /**
  * Blocking interstitial for signed-in users whose recorded terms acceptance
@@ -24,7 +30,7 @@ export function TermsRenewalGate() {
   if (!me || me.accepted_terms_version === TERMS_VERSION) {
     return null;
   }
-  if (LEGAL_ROUTES.has(location.pathname)) {
+  if (UNGATED_ROUTES.has(location.pathname)) {
     return null;
   }
 
@@ -69,7 +75,15 @@ export function TermsRenewalGate() {
             page), so without this the only way out of a stale-terms account
             is accepting — which a clickwrap must not force. */}
         <p className="mt-3 text-center text-sm text-ink-soft">
-          Don&apos;t agree?{" "}
+          Don&apos;t agree? You can still{" "}
+          <Link to="/me/membership" className="font-medium text-ink underline hover:text-rausch-dark">
+            manage or cancel a membership
+          </Link>
+          ,{" "}
+          <Link to="/me/settings" className="font-medium text-ink underline hover:text-rausch-dark">
+            change settings or delete your account
+          </Link>
+          , or{" "}
           <button
             type="button"
             disabled={logout.isPending}
@@ -82,8 +96,9 @@ export function TermsRenewalGate() {
             }
             className="font-medium text-ink underline hover:text-rausch-dark"
           >
-            {logout.isPending ? "Logging out…" : "Log out"}
+            {logout.isPending ? "logging out…" : "log out"}
           </button>
+          .
         </p>
       </div>
     </div>

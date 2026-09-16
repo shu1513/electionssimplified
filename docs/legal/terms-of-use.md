@@ -38,18 +38,35 @@ Section 12.1/12.8 assumptions are unchanged. A change of contracting party
 is material — the bundle bumps to 1.4 (disclaimer.md, privacy-policy.md,
 CURRENT_TERMS_VERSION, TERMS_VERSION), GRACE_TERMS_VERSIONS ships listing
 "1.3", and signed-in users re-accept once.
+Legal audit 2026-09-16 (1.4 -> 1.5): user-favorable narrowing after the
+September 16 legal/product-risk review. Section 1 notices are effective
+"to the extent permitted by law"; Section 6 carves out AGPL-licensed
+source, public-domain material, and third-party licenses; Section 7 links
+the Google Maps Platform terms and privacy policy required by the Places
+policies; Section 8 cap is restated as one aggregate cap measured from the
+event (matching Disclaimer 17); Section 9 indemnity drops the
+"reliance the Disclaimer warns against" prong and is limited to third-party
+claims with notice/defense safeguards; Section 12.4 preserves regulator
+complaints and public injunctive relief; Section 12.6 replaces the bespoke
+bellwether staging with the AAA Mass Arbitration Supplementary Rules;
+Section 13 feedback license is limited to non-personal suggestions.
+Disclaimer 1.5 deletes the Section 18 prospective release. Every change
+reduces what the user gives up, but the bundle is re-accepted once so the
+acceptance record points at the text in force: CURRENT_TERMS_VERSION and
+TERMS_VERSION move to 1.5, GRACE_TERMS_VERSIONS ships listing "1.4" only
+(no mobile build has been distributed yet, so 1.2/1.3 have no live client).
 -->
 
 # Elections Simplified Terms of Use
 
-**Last updated:** August 29, 2026
-**Version:** 1.4
+**Last updated:** September 16, 2026
+**Version:** 1.5
 
 ## 1. Acceptance of these Terms
 
 These Terms of Use ("Terms") are an agreement between you and Elections Simplified Inc., a Delaware corporation and the operator of the Elections Simplified service ("Elections Simplified," "we," "us," or "our") governing your use of the Elections Simplified website and services (the "Service"). By checking an agreement box, creating an account, submitting an address or search, or otherwise using the Service, you accept these Terms, the [Privacy Policy](/privacy), and the [AI Research and Election Information Disclaimer](/disclaimer) (the "Disclaimer"), which is incorporated into these Terms by reference. You consent to entering this agreement electronically.
 
-**Electronic communications and notices.** You consent to receive communications from us electronically — by email to your account address or by posting in the Service — and you agree that all agreements, notices, disclosures, and other communications we provide electronically satisfy any legal requirement that they be in writing. Notices to you are effective when posted in the Service or sent to your account email; notices to us must be sent to contact@electionssimplified.com.
+**Electronic communications and notices.** You consent to receive communications from us electronically — by email to your account address or by posting in the Service — and to the extent permitted by applicable law, you agree that all agreements, notices, disclosures, and other communications we provide electronically satisfy any legal requirement that they be in writing. Notices to you are effective when posted in the Service or sent to your account email, except where applicable law requires a different form or timing of notice; notices to us must be sent to contact@electionssimplified.com.
 
 If you do not agree, do not use the Service.
 
@@ -81,17 +98,23 @@ You agree not to:
 
 The Service, including its software, design, compiled content, and derived metrics, is owned by Elections Simplified's operator or its licensors and is protected by law. We grant you a limited, revocable, non-exclusive, non-transferable license to use the Service for personal, non-commercial civic purposes. Public records and third-party sources referenced by the Service remain subject to their own terms.
 
+Software we make available under an open-source license (the Elections Simplified source code is published under the GNU Affero General Public License v3.0) is governed by that license, and these Terms do not limit any right it grants. These Terms also do not restrict your rights in public-domain material, including government records, or in third-party material licensed under its own terms. No right to use the Elections Simplified name, logo, or domain is granted except as expressly permitted in writing.
+
 ## 7. Third-party services and links
 
 The Service relies on and links to third-party sources and services described in the Disclaimer and the Privacy Policy. We are not responsible for third-party content or services, and a link does not imply endorsement.
 
+Address suggestions are provided by Google Maps Platform (Places). By using that feature you also agree to the [Google Maps/Google Earth Additional Terms of Service](https://www.google.com/help/terms_maps/) and acknowledge the [Google Privacy Policy](https://www.google.com/policies/privacy/).
+
 ## 8. Disclaimers and limitation of liability
 
-The warranty disclaimers, limitation of liability, and acknowledgment and assumption-of-risk provisions in Sections 16, 17, and 18 of the Disclaimer apply to these Terms as if set out in full here. THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE," AND, TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID US IN THE TWELVE MONTHS BEFORE THE CLAIM OR ONE HUNDRED U.S. DOLLARS ($100).
+The warranty disclaimers, limitation of liability, and acknowledgment and assumption-of-risk provisions in Sections 16, 17, and 18 of the Disclaimer apply to these Terms as if set out in full here. THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE," AND, TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL AGGREGATE LIABILITY FOR ALL CLAIMS RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF THE AMOUNT YOU PAID US FOR THE SERVICE IN THE TWELVE MONTHS BEFORE THE EVENT GIVING RISE TO THE FIRST SUCH CLAIM OR ONE HUNDRED U.S. DOLLARS ($100). If the wording of this Section and Section 17 of the Disclaimer differ, this Section controls.
+
+Nothing in these Terms or the Disclaimer excludes or limits liability that cannot be excluded or limited under applicable law, including liability for fraud, willful misconduct, or violations of law that applicable law does not permit a contract to exempt.
 
 ## 9. Indemnification
 
-To the maximum extent permitted by law, you agree to indemnify and hold harmless Elections Simplified's operator and its officers, employees, and contractors from losses, liabilities, and reasonable expenses (including attorneys' fees) arising from your violation of these Terms, your unlawful use of the Service, or your use of or reliance on the Service or its content in a manner the Disclaimer warns against.
+To the maximum extent permitted by law, you agree to indemnify and hold harmless Elections Simplified's operator and its officers, employees, and contractors from losses, liabilities, and reasonable expenses (including attorneys' fees) arising from a claim by a third party that is caused by your material violation of these Terms, your unlawful use of the Service, or content you submit that infringes or violates another person's rights. We will notify you promptly of any such claim, and you may not settle a claim in a way that imposes an obligation on us or admits fault on our behalf without our written consent. This Section does not apply to losses caused by our own breach, negligence, or misconduct.
 
 ## 10. Termination
 
@@ -111,11 +134,11 @@ We may modify or discontinue the Service at any time. We may update these Terms;
 
 **12.3 Binding individual arbitration.** Any dispute arising from or relating to these Terms or the Service that is not resolved informally will be resolved by final and binding arbitration before a single arbitrator, administered by the American Arbitration Association under its Consumer Arbitration Rules, rather than in court. The arbitration will be conducted by videoconference unless the arbitrator determines an in-person hearing is necessary, in which case it will take place in the county where you reside. Fees are allocated as provided in the AAA Consumer Arbitration Rules. The arbitrator decides all issues except those reserved to courts in this Section.
 
-**12.4 Exceptions.** Either party may (a) bring an individual claim in small claims court, or (b) seek injunctive or other equitable relief in court for infringement of intellectual property or for unauthorized access to, scraping of, or abuse of the Service.
+**12.4 Exceptions.** Either party may (a) bring an individual claim in small claims court, or (b) seek injunctive or other equitable relief in court for infringement of intellectual property or for unauthorized access to, scraping of, or abuse of the Service. Nothing in this Section prevents you from reporting a concern to, or seeking relief from, a federal, state, or local government agency or regulator, and nothing in this Section waives any right to seek public injunctive relief that cannot be waived under applicable law; a claim for such relief that cannot be arbitrated will be decided by a court under Section 12.8 after the arbitrator has decided all arbitrable individual claims.
 
 **12.5 Class action and jury waiver.** Both parties waive the right to a jury trial and the right to litigate or arbitrate any claim as a class, collective, consolidated, private-attorney-general, or representative action. Claims may be brought only in an individual capacity. If this class waiver is held unenforceable as to a particular claim, that claim — and only that claim — must proceed in court under Section 12.8, not in arbitration.
 
-**12.6 Coordinated filings.** If 25 or more arbitration demands raising substantially similar claims are filed within a 180-day period by the same counsel or coordinated counsel, the demands will proceed in stages: each side may select up to 10 demands to proceed first as bellwethers; the remaining demands may not be filed, and no arbitration fees are due on them, until the bellwether arbitrations conclude; the parties must then mediate the remaining demands in good faith before they proceed. Limitations periods are tolled for demands held in abeyance under this subsection.
+**12.6 Coordinated filings.** If 25 or more arbitration demands raising substantially similar claims are filed by the same counsel or coordinated counsel, the AAA's Mass Arbitration Supplementary Rules apply in addition to its Consumer Arbitration Rules, and the demands will be administered under them. Limitations periods are tolled for any demand while it is pending under those rules. If the AAA is unavailable or declines to administer the arbitration, the parties will agree on a substitute administrator, or a court under Section 12.8 will appoint one.
 
 **12.7 Arbitration opt-out.** You may reject the arbitration provisions (Sections 12.3, 12.6, and the arbitration portion of 12.5) by emailing contact@electionssimplified.com with the subject "ARBITRATION OPT-OUT" and your name within 30 days of first accepting these Terms. If you have an Elections Simplified account, include your account email; if you do not, send the opt-out from the email address you want the opt-out associated with, and your opt-out applies to your use of the Service from then on. Opting out does not affect any other provision of these Terms.
 
@@ -125,7 +148,7 @@ We may modify or discontinue the Service at any time. We may update these Terms;
 
 ## 13. Miscellaneous
 
-If any provision of these Terms is held unenforceable, the remainder stays in effect. Our failure to enforce a provision is not a waiver. These Terms, the Privacy Policy, and the Disclaimer are the entire agreement between you and us about the Service. You may not assign these Terms; we may assign them in connection with a reorganization or transfer of the Service. If you send us feedback, suggestions, or ideas about the Service, we may use them without restriction or obligation to you.
+If any provision of these Terms is held unenforceable, the remainder stays in effect. Our failure to enforce a provision is not a waiver. These Terms, the Privacy Policy, and the Disclaimer are the entire agreement between you and us about the Service. You may not assign these Terms; we may assign them in connection with a reorganization or transfer of the Service. If you send us feedback, suggestions, or ideas about how to improve the Service, we may use those suggestions without restriction or obligation to you; this does not apply to personal information, content reports, Ask questions, or account data, which are governed by the Privacy Policy.
 
 **Force majeure.** We are not responsible or liable for any delay or failure in performance resulting from causes beyond our reasonable control, including natural disasters, power or internet failures, acts of government, labor disputes, war, terrorism, civil unrest, epidemics, or failures of third-party services or data sources.
 

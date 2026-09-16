@@ -1,6 +1,9 @@
 <!--
 The frontend must copy these strings verbatim. Version bumps to
 disclaimer.md require re-review of this file too.
+1.4 → 1.5 (2026-09-16, legal audit): reviewed for the Terms 1.5 / Disclaimer
+1.5 / Privacy 1.8 bump — every published checkbox string is unchanged; the
+only addition is the re-acceptance interstitial's exit rules (below).
 1.1 → 1.2 (2026-08-21): reviewed for the Terms 1.2 support-payments bump —
 every published string below is unchanged. One-time payments ride the
 three-document acceptance. Monthly memberships additionally carry their own
@@ -112,7 +115,7 @@ Freedom Financial Network):
   restatement cannot creep back one screen at a time.
 -->
 
-# Checkbox and notice copy — Version 1.4
+# Checkbox and notice copy — Version 1.5
 
 ## Pre-search terms dialog (anonymous address search)
 
@@ -178,6 +181,17 @@ binds at all.
 
 > [ ] I have read and agree to the updated [Terms of Use], [Privacy Policy],
 > and [AI Research and Election Information Disclaimer].
+
+Rules for the interstitial (1.5, 2026-09-16): declining must not trap the
+account. The modal carries a **log out** control, and it does not cover the
+three legal pages, `/me/settings` (email/privacy preferences, delete account)
+or `/me/membership` (cancel) on the web, nor `/legal/*`,
+`/settings/security` (sign out, delete account) or
+`/settings/email-preferences` in the app. A member who rejects the new terms
+can therefore cancel, delete, or leave without first agreeing — Cal. Bus. &
+Prof. Code §17602(d) forbids extra steps in front of online cancellation, and
+consent extracted by blocking the exit is not consent. Everything else stays
+gated until the box is ticked.
 
 ## Short privacy note (beside every address input, and in the pre-search dialog)
 

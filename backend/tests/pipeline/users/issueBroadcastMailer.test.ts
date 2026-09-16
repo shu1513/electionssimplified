@@ -41,6 +41,15 @@ describe("broadcast message builders", () => {
     expect(buildBroadcastTextBody(undefined, baseInput)).not.toContain("Unsubscribe");
   });
 
+  it("prints the postal address after the copyright line in both parts when provided", () => {
+    const postal = "Elections Simplified Inc., PMB 100, 1 Main St, Sacramento, CA 95814";
+    const text = buildBroadcastTextBody(undefined, baseInput, postal);
+    expect(text.endsWith(`\n${postal}`)).toBe(true);
+    const html = buildBroadcastHtmlBody(undefined, baseInput, "<PMB> & Co");
+    expect(html).toContain("&lt;PMB&gt; &amp; Co</p>");
+    expect(buildBroadcastTextBody(undefined, baseInput)).not.toContain("PMB");
+  });
+
   it("escapes the operator body in HTML and turns blank lines into paragraphs", () => {
     const html = buildBroadcastHtmlBody(undefined, {
       ...baseInput,

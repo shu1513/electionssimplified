@@ -290,6 +290,12 @@ function ShareCardControl({ electionDate, canMint }: { electionDate: string; can
       >
         {mint.isPending ? "…" : "Share"}
       </button>
+      {/* Privacy Policy §1 "Shared pick cards": the consequences are stated
+          BEFORE the link exists, not after — the first click publishes. */}
+      <span className="text-xs text-ink-soft">
+        Creates a public link. Anyone with it sees your first name and these picks, including later
+        edits, until you stop sharing.
+      </span>
       {mint.isError ? (
         <span role="alert" className="text-xs font-medium text-red-800">
           Couldn't create the share link — try again.

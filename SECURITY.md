@@ -4,7 +4,9 @@
 
 Email **contact@electionssimplified.com** with a description, steps to reproduce, and the impact you see. Do not open a public issue for security problems.
 
-You will get an acknowledgement within 3 days and a fix or a timeline within 14 days for confirmed issues. We will credit you in the fix unless you ask us not to.
+We aim to acknowledge reports within 3 days and to ship a fix or share a timeline within 14 days for confirmed issues; these are targets for a small team, not guarantees. We will credit you in the fix unless you ask us not to.
+
+Good-faith research that stays within scope, does not access or alter other people's data, does not degrade the service, and is reported privately to the address above is welcome; the Terms of Use rule against probing the service is not meant to stop that.
 
 ## Scope
 
