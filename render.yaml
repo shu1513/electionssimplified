@@ -99,6 +99,10 @@ services:
         value: us-east-2
       - key: NOTIFICATIONS_UNSUBSCRIBE_URL
         value: https://electionssimplified.com/api/email/unsubscribe
+      # Physical postal address printed in the footer of issue broadcasts and
+      # member newsletters (CAN-SPAM 16 CFR 316.5). Public, not a secret.
+      - key: EMAIL_POSTAL_ADDRESS
+        value: "Elections Simplified Inc., 1401 21st St #12323, Sacramento, CA 95811, US"
       - key: DEPLOY_ENV
         value: production
       # Google Places key for /api/address/autocomplete (+retrieve). Without
@@ -400,6 +404,10 @@ services:
         value: https://electionssimplified.com
       - key: NOTIFICATIONS_UNSUBSCRIBE_URL
         value: https://electionssimplified.com/api/email/unsubscribe
+      # Physical postal address printed in the footer of issue broadcasts and
+      # member newsletters (CAN-SPAM 16 CFR 316.5). Public, not a secret.
+      - key: EMAIL_POSTAL_ADDRESS
+        value: "Elections Simplified Inc., 1401 21st St #12323, Sacramento, CA 95811, US"
       - key: DEPLOY_ENV
         value: production
       # Candidate-follow digest goes out monthly: 10:00 ET on the 1st, after
