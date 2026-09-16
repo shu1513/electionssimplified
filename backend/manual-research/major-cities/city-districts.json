@@ -705,7 +705,7 @@
       "population_2025": 3869089,
       "lat": 34.0167,
       "lon": -118.4167,
-      "built_at": "2026-09-12T04:59:21.278Z",
+      "built_at": "2026-09-16T18:19:09.668Z",
       "place_geoid": "0644000",
       "place_layer": "place",
       "place_name": "Los Angeles city",
@@ -728,7 +728,25 @@
           "district_type": "us_house",
           "geoid_compact": "0629",
           "name": "Congressional District 29",
-          "city_share": 0.1377
+          "city_share": 0.166
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0630",
+          "name": "Congressional District 30",
+          "city_share": 0.1087
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0632",
+          "name": "Congressional District 32",
+          "city_share": 0.2974
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0634",
+          "name": "Congressional District 34",
+          "city_share": 0.0838
         },
         {
           "district_type": "us_house",
@@ -738,21 +756,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0643",
-          "name": "Congressional District 43",
-          "city_share": 0.0337
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0637",
           "name": "Congressional District 37",
           "city_share": 0.0866
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0632",
-          "name": "Congressional District 32",
-          "city_share": 0.3314
+          "geoid_compact": "0643",
+          "name": "Congressional District 43",
+          "city_share": 0.0337
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0626",
+          "name": "Congressional District 26",
+          "city_share": 0.0243
         },
         {
           "district_type": "us_house",
@@ -764,19 +782,7 @@
           "district_type": "us_house",
           "geoid_compact": "0627",
           "name": "Congressional District 27",
-          "city_share": 0.0384
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0630",
-          "name": "Congressional District 30",
-          "city_share": 0.1364
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0634",
-          "name": "Congressional District 34",
-          "city_share": 0.0838
+          "city_share": 0.0476
         },
         {
           "district_type": "state_upper",
@@ -1437,7 +1443,7 @@
       "population_2025": 2397315,
       "lat": 29.7833,
       "lon": -95.3833,
-      "built_at": "2026-09-12T04:59:23.868Z",
+      "built_at": "2026-09-16T18:16:04.256Z",
       "place_geoid": "4835000",
       "place_layer": "place",
       "place_name": "Houston city",
@@ -1458,63 +1464,57 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4808",
-          "name": "Congressional District 8",
-          "city_share": 0.0239
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4836",
-          "name": "Congressional District 36",
-          "city_share": 0.0721
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4809",
-          "name": "Congressional District 9",
-          "city_share": 0.1773
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4818",
-          "name": "Congressional District 18",
-          "city_share": 0.2203
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4838",
-          "name": "Congressional District 38",
-          "city_share": 0.1347
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4829",
-          "name": "Congressional District 29",
-          "city_share": 0.1551
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4810",
-          "name": "Congressional District 10",
-          "city_share": 0.0004
+          "geoid_compact": "4822",
+          "name": "Congressional District 22",
+          "city_share": 0.0456
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4802",
           "name": "Congressional District 2",
-          "city_share": 0.1095
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4822",
-          "name": "Congressional District 22",
-          "city_share": 0.0174
+          "city_share": 0.1047
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4807",
           "name": "Congressional District 7",
-          "city_share": 0.0891
+          "city_share": 0.103
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4829",
+          "name": "Congressional District 29",
+          "city_share": 0.1647
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4808",
+          "name": "Congressional District 8",
+          "city_share": 0.0526
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4809",
+          "name": "Congressional District 9",
+          "city_share": 0.1173
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4836",
+          "name": "Congressional District 36",
+          "city_share": 0.0908
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4838",
+          "name": "Congressional District 38",
+          "city_share": 0.0973
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4818",
+          "name": "Congressional District 18",
+          "city_share": 0.2238
         },
         {
           "district_type": "state_upper",
@@ -2556,7 +2556,7 @@
       "population_2025": 1548422,
       "lat": 29.4667,
       "lon": -98.5167,
-      "built_at": "2026-09-12T04:59:55.095Z",
+      "built_at": "2026-09-16T18:15:59.909Z",
       "place_geoid": "4865000",
       "place_layer": "place",
       "place_name": "San Antonio city",
@@ -2577,33 +2577,27 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4820",
-          "name": "Congressional District 20",
-          "city_share": 0.2887
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4828",
-          "name": "Congressional District 28",
-          "city_share": 0.1812
+          "geoid_compact": "4823",
+          "name": "Congressional District 23",
+          "city_share": 0.1658
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4835",
           "name": "Congressional District 35",
-          "city_share": 0.1004
+          "city_share": 0.3746
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4820",
+          "name": "Congressional District 20",
+          "city_share": 0.279
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4821",
           "name": "Congressional District 21",
-          "city_share": 0.1893
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4823",
-          "name": "Congressional District 23",
-          "city_share": 0.2404
+          "city_share": 0.1806
         },
         {
           "district_type": "state_upper",
@@ -2835,12 +2829,12 @@
       "population_2025": 1406106,
       "lat": 32.8167,
       "lon": -117.1333,
-      "built_at": "2026-09-12T05:00:00.550Z",
+      "built_at": "2026-09-16T18:19:11.198Z",
       "place_geoid": "0666000",
       "place_layer": "place",
       "place_name": "San Diego city",
       "sample_points": 3392,
-      "slivers_dropped": 5,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -2856,21 +2850,27 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0652",
-          "name": "Congressional District 52",
-          "city_share": 0.1778
+          "geoid_compact": "0649",
+          "name": "Congressional District 49",
+          "city_share": 0.1604
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0650",
           "name": "Congressional District 50",
-          "city_share": 0.385
+          "city_share": 0.5209
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0651",
           "name": "Congressional District 51",
-          "city_share": 0.4372
+          "city_share": 0.1613
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0652",
+          "name": "Congressional District 52",
+          "city_share": 0.1574
         },
         {
           "district_type": "state_upper",
@@ -3054,12 +3054,12 @@
       "population_2025": 1329491,
       "lat": 32.7833,
       "lon": -96.7667,
-      "built_at": "2026-09-12T05:00:08.071Z",
+      "built_at": "2026-09-16T18:16:01.067Z",
       "place_geoid": "4819000",
       "place_layer": "place",
       "place_name": "Dallas city",
       "sample_points": 3524,
-      "slivers_dropped": 4,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -3075,51 +3075,57 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "4824",
+          "name": "Congressional District 24",
+          "city_share": 0.0789
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "4803",
           "name": "Congressional District 3",
           "city_share": 0.0108
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4806",
-          "name": "Congressional District 6",
-          "city_share": 0.0165
+          "geoid_compact": "4804",
+          "name": "Congressional District 4",
+          "city_share": 0.021
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.0051
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4805",
           "name": "Congressional District 5",
-          "city_share": 0.0383
+          "city_share": 0.0863
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4804",
-          "name": "Congressional District 4",
-          "city_share": 0.0743
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4832",
-          "name": "Congressional District 32",
-          "city_share": 0.1927
+          "geoid_compact": "4806",
+          "name": "Congressional District 6",
+          "city_share": 0.0006
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4830",
           "name": "Congressional District 30",
-          "city_share": 0.4152
+          "city_share": 0.2781
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4824",
-          "name": "Congressional District 24",
-          "city_share": 0.0934
+          "geoid_compact": "4832",
+          "name": "Congressional District 32",
+          "city_share": 0.1141
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4833",
           "name": "Congressional District 33",
-          "city_share": 0.1589
+          "city_share": 0.4052
         },
         {
           "district_type": "state_upper",
@@ -3405,12 +3411,12 @@
       "population_2025": 1028117,
       "lat": 32.7833,
       "lon": -97.35,
-      "built_at": "2026-09-12T05:00:27.845Z",
+      "built_at": "2026-09-16T18:15:58.855Z",
       "place_geoid": "4827000",
       "place_layer": "place",
       "place_name": "Fort Worth city",
       "sample_points": 2606,
-      "slivers_dropped": 11,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -3426,33 +3432,33 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4826",
-          "name": "Congressional District 26",
-          "city_share": 0.0599
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4812",
-          "name": "Congressional District 12",
-          "city_share": 0.5146
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4824",
           "name": "Congressional District 24",
-          "city_share": 0.0798
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4833",
-          "name": "Congressional District 33",
-          "city_share": 0.2671
+          "city_share": 0.0787
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4825",
           "name": "Congressional District 25",
-          "city_share": 0.0787
+          "city_share": 0.3269
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.0564
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4806",
+          "name": "Congressional District 6",
+          "city_share": 0.0027
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4812",
+          "name": "Congressional District 12",
+          "city_share": 0.5353
         },
         {
           "district_type": "state_upper",
@@ -3696,7 +3702,7 @@
       "population_2025": 1017689,
       "lat": 30.3333,
       "lon": -81.6667,
-      "built_at": "2026-09-12T05:00:27.575Z",
+      "built_at": "2026-09-16T18:23:47.604Z",
       "place_geoid": "1235000",
       "place_layer": "place",
       "place_name": "Jacksonville city",
@@ -3795,12 +3801,12 @@
       "population_2025": 1002632,
       "lat": 30.3,
       "lon": -97.75,
-      "built_at": "2026-09-12T05:00:39.588Z",
+      "built_at": "2026-09-16T18:16:34.289Z",
       "place_geoid": "4805000",
       "place_layer": "place",
       "place_name": "Austin city",
       "sample_points": 3586,
-      "slivers_dropped": 5,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -3816,33 +3822,33 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4837",
-          "name": "Congressional District 37",
-          "city_share": 0.5457
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4835",
-          "name": "Congressional District 35",
-          "city_share": 0.3101
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4817",
-          "name": "Congressional District 17",
-          "city_share": 0.0003
+          "geoid_compact": "4827",
+          "name": "Congressional District 27",
+          "city_share": 0.0895
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4810",
           "name": "Congressional District 10",
-          "city_share": 0.0887
+          "city_share": 0.2231
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4821",
-          "name": "Congressional District 21",
-          "city_share": 0.0552
+          "geoid_compact": "4811",
+          "name": "Congressional District 11",
+          "city_share": 0.0494
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4837",
+          "name": "Congressional District 37",
+          "city_share": 0.5951
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4817",
+          "name": "Congressional District 17",
+          "city_share": 0.0429
         },
         {
           "district_type": "state_upper",
@@ -4020,7 +4026,7 @@
       "population_2025": 989814,
       "lat": 37.3,
       "lon": -121.8167,
-      "built_at": "2026-09-12T05:00:41.333Z",
+      "built_at": "2026-09-16T18:19:10.358Z",
       "place_geoid": "0668000",
       "place_layer": "place",
       "place_name": "San Jose city",
@@ -4043,25 +4049,25 @@
           "district_type": "us_house",
           "geoid_compact": "0616",
           "name": "Congressional District 16",
-          "city_share": 0.1908
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0619",
-          "name": "Congressional District 19",
-          "city_share": 0.418
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0618",
-          "name": "Congressional District 18",
-          "city_share": 0.1026
+          "city_share": 0.19
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0617",
           "name": "Congressional District 17",
-          "city_share": 0.2885
+          "city_share": 0.3034
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0618",
+          "name": "Congressional District 18",
+          "city_share": 0.0877
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0619",
+          "name": "Congressional District 19",
+          "city_share": 0.4189
         },
         {
           "district_type": "state_upper",
@@ -4245,7 +4251,7 @@
       "population_2025": 964784,
       "lat": 35.2167,
       "lon": -80.8333,
-      "built_at": "2026-09-12T05:00:53.731Z",
+      "built_at": "2026-09-16T18:21:54.993Z",
       "place_geoid": "3712000",
       "place_layer": "place",
       "place_name": "Charlotte city",
@@ -4266,12 +4272,6 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3708",
-          "name": "Congressional District 8",
-          "city_share": 0.0783
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "3712",
           "name": "Congressional District 12",
           "city_share": 0.7803
@@ -4281,6 +4281,12 @@
           "geoid_compact": "3714",
           "name": "Congressional District 14",
           "city_share": 0.1414
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3708",
+          "name": "Congressional District 8",
+          "city_share": 0.0783
         },
         {
           "district_type": "state_upper",
@@ -4404,7 +4410,7 @@
       "population_2025": 938396,
       "lat": 39.9833,
       "lon": -82.9833,
-      "built_at": "2026-09-12T05:01:00.898Z",
+      "built_at": "2026-09-16T18:23:16.489Z",
       "place_geoid": "3918000",
       "place_layer": "place",
       "place_name": "Columbus city",
@@ -4425,27 +4431,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "3912",
+          "name": "Congressional District 12",
+          "city_share": 0.0216
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "3903",
           "name": "Congressional District 3",
           "city_share": 0.5244
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3912",
-          "name": "Congressional District 12",
-          "city_share": 0.0072
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "3915",
           "name": "Congressional District 15",
           "city_share": 0.454
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "3904",
-          "name": "Congressional District 4",
-          "city_share": 0.0144
         },
         {
           "district_type": "state_upper",
@@ -4944,7 +4944,7 @@
       "population_2025": 826079,
       "lat": 37.7333,
       "lon": -123.0333,
-      "built_at": "2026-09-12T05:01:12.709Z",
+      "built_at": "2026-09-16T18:19:09.325Z",
       "place_geoid": "0667000",
       "place_layer": "place",
       "place_name": "San Francisco city",
@@ -4965,15 +4965,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0615",
-          "name": "Congressional District 15",
-          "city_share": 0.0214
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0611",
           "name": "Congressional District 11",
           "city_share": 0.9786
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0615",
+          "name": "Congressional District 15",
+          "city_share": 0.0214
         },
         {
           "district_type": "state_upper",
@@ -5271,12 +5271,12 @@
       "population_2025": 721074,
       "lat": 36.1667,
       "lon": -86.7833,
-      "built_at": "2026-09-12T05:01:21.313Z",
+      "built_at": "2026-09-16T18:15:25.733Z",
       "place_geoid": "4752006",
       "place_layer": "place",
       "place_name": "Nashville-Davidson metropolitan government (balance)",
       "sample_points": 4438,
-      "slivers_dropped": 26,
+      "slivers_dropped": 27,
       "districts": [
         {
           "district_type": "statewide",
@@ -5294,19 +5294,19 @@
           "district_type": "us_house",
           "geoid_compact": "4706",
           "name": "Congressional District 6",
-          "city_share": 0.221
+          "city_share": 0.224
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4704",
+          "name": "Congressional District 4",
+          "city_share": 0.2352
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4707",
           "name": "Congressional District 7",
-          "city_share": 0.4191
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4705",
-          "name": "Congressional District 5",
-          "city_share": 0.3598
+          "city_share": 0.5408
         },
         {
           "district_type": "state_upper",
@@ -5982,7 +5982,7 @@
       "population_2025": 683012,
       "lat": 31.85,
       "lon": -106.4333,
-      "built_at": "2026-09-12T05:01:29.383Z",
+      "built_at": "2026-09-16T18:16:34.017Z",
       "place_geoid": "4824000",
       "place_layer": "place",
       "place_name": "El Paso city",
@@ -6003,15 +6003,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4816",
-          "name": "Congressional District 16",
-          "city_share": 0.8038
+          "geoid_compact": "4823",
+          "name": "Congressional District 23",
+          "city_share": 0.0714
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4823",
-          "name": "Congressional District 23",
-          "city_share": 0.1962
+          "geoid_compact": "4816",
+          "name": "Congressional District 16",
+          "city_share": 0.9286
         },
         {
           "district_type": "state_upper",
@@ -7146,7 +7146,7 @@
       "population_2025": 609647,
       "lat": 35.1167,
       "lon": -89.9667,
-      "built_at": "2026-09-12T05:01:51.210Z",
+      "built_at": "2026-09-16T18:15:25.584Z",
       "place_geoid": "4748000",
       "place_layer": "place",
       "place_name": "Memphis city",
@@ -7169,13 +7169,19 @@
           "district_type": "us_house",
           "geoid_compact": "4709",
           "name": "Congressional District 9",
-          "city_share": 0.9502
+          "city_share": 0.2775
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4708",
           "name": "Congressional District 8",
-          "city_share": 0.0498
+          "city_share": 0.2651
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4705",
+          "name": "Congressional District 5",
+          "city_share": 0.4574
         },
         {
           "district_type": "state_upper",
@@ -7896,12 +7902,12 @@
       "population_2025": 555549,
       "lat": 36.7833,
       "lon": -119.7833,
-      "built_at": "2026-09-12T05:02:04.314Z",
+      "built_at": "2026-09-16T18:19:25.590Z",
       "place_geoid": "0627000",
       "place_layer": "place",
       "place_name": "Fresno city",
       "sample_points": 3532,
-      "slivers_dropped": 5,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -7917,21 +7923,27 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0621",
-          "name": "Congressional District 21",
-          "city_share": 0.6948
+          "geoid_compact": "0620",
+          "name": "Congressional District 20",
+          "city_share": 0.0258
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0620",
-          "name": "Congressional District 20",
-          "city_share": 0.0801
+          "geoid_compact": "0621",
+          "name": "Congressional District 21",
+          "city_share": 0.7041
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0622",
+          "name": "Congressional District 22",
+          "city_share": 0.0866
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0605",
           "name": "Congressional District 5",
-          "city_share": 0.2251
+          "city_share": 0.1835
         },
         {
           "district_type": "state_upper",
@@ -8190,12 +8202,12 @@
       "population_2025": 536449,
       "lat": 38.5667,
       "lon": -121.4667,
-      "built_at": "2026-09-12T05:02:22.730Z",
+      "built_at": "2026-09-16T18:19:35.427Z",
       "place_geoid": "0664000",
       "place_layer": "place",
       "place_name": "Sacramento city",
       "sample_points": 4467,
-      "slivers_dropped": 7,
+      "slivers_dropped": 9,
       "districts": [
         {
           "district_type": "statewide",
@@ -8211,15 +8223,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0603",
+          "name": "Congressional District 3",
+          "city_share": 0.1433
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0606",
           "name": "Congressional District 6",
-          "city_share": 0.3911
+          "city_share": 0.4323
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0607",
           "name": "Congressional District 7",
-          "city_share": 0.6089
+          "city_share": 0.4244
         },
         {
           "district_type": "state_upper",
@@ -8964,7 +8982,7 @@
       "population_2025": 506306,
       "lat": 35.8333,
       "lon": -78.6333,
-      "built_at": "2026-09-12T05:02:46.179Z",
+      "built_at": "2026-09-16T18:21:58.791Z",
       "place_geoid": "3755000",
       "place_layer": "place",
       "place_name": "Raleigh city",
@@ -8985,9 +9003,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3704",
-          "name": "Congressional District 4",
-          "city_share": 0.0037
+          "geoid_compact": "3713",
+          "name": "Congressional District 13",
+          "city_share": 0.008
         },
         {
           "district_type": "us_house",
@@ -8997,9 +9015,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3713",
-          "name": "Congressional District 13",
-          "city_share": 0.008
+          "geoid_compact": "3704",
+          "name": "Congressional District 4",
+          "city_share": 0.0037
         },
         {
           "district_type": "state_upper",
@@ -9324,12 +9342,12 @@
       "population_2025": 489812,
       "lat": 25.7833,
       "lon": -80.2167,
-      "built_at": "2026-09-12T05:02:49.090Z",
+      "built_at": "2026-09-16T18:23:47.486Z",
       "place_geoid": "1245000",
       "place_layer": "place",
       "place_name": "Miami city",
       "sample_points": 3872,
-      "slivers_dropped": 2,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -9351,15 +9369,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1226",
-          "name": "Congressional District 26",
-          "city_share": 0.1005
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "1224",
           "name": "Congressional District 24",
-          "city_share": 0.2505
+          "city_share": 0.351
         },
         {
           "district_type": "state_upper",
@@ -9693,12 +9705,12 @@
       "population_2025": 450469,
       "lat": 33.7833,
       "lon": -118.1667,
-      "built_at": "2026-09-12T05:02:58.010Z",
+      "built_at": "2026-09-16T18:19:35.576Z",
       "place_geoid": "0643000",
       "place_layer": "place",
       "place_name": "Long Beach city",
       "sample_points": 4374,
-      "slivers_dropped": 13,
+      "slivers_dropped": 12,
       "districts": [
         {
           "district_type": "statewide",
@@ -9714,15 +9726,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0641",
+          "name": "Congressional District 41",
+          "city_share": 0.062
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0642",
           "name": "Congressional District 42",
-          "city_share": 0.7515
+          "city_share": 0.8153
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0644",
           "name": "Congressional District 44",
-          "city_share": 0.2485
+          "city_share": 0.1228
         },
         {
           "district_type": "state_upper",
@@ -9792,7 +9810,7 @@
       "population_2025": 440838,
       "lat": 37.7667,
       "lon": -122.2333,
-      "built_at": "2026-09-12T05:03:00.646Z",
+      "built_at": "2026-09-16T18:19:41.142Z",
       "place_geoid": "0653000",
       "place_layer": "place",
       "place_name": "Oakland city",
@@ -10032,7 +10050,7 @@
       "population_2025": 422165,
       "lat": 35.35,
       "lon": -119.0333,
-      "built_at": "2026-09-12T05:16:03.978Z",
+      "built_at": "2026-09-16T18:19:45.064Z",
       "place_geoid": "0603526",
       "place_layer": "place",
       "place_name": "Bakersfield city",
@@ -10053,15 +10071,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0622",
-          "name": "Congressional District 22",
-          "city_share": 0.3987
+          "geoid_compact": "0620",
+          "name": "Congressional District 20",
+          "city_share": 0.6378
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0620",
-          "name": "Congressional District 20",
-          "city_share": 0.6013
+          "geoid_compact": "0622",
+          "name": "Congressional District 22",
+          "city_share": 0.3622
         },
         {
           "district_type": "state_upper",
@@ -10440,7 +10458,7 @@
       "population_2025": 413554,
       "lat": 27.9667,
       "lon": -82.4667,
-      "built_at": "2026-09-12T05:03:08.744Z",
+      "built_at": "2026-09-16T18:23:47.666Z",
       "place_geoid": "1271000",
       "place_layer": "place",
       "place_name": "Tampa city",
@@ -10461,15 +10479,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1215",
-          "name": "Congressional District 15",
-          "city_share": 0.2213
+          "geoid_compact": "1212",
+          "name": "Congressional District 12",
+          "city_share": 0.1323
         },
         {
           "district_type": "us_house",
           "geoid_compact": "1214",
           "name": "Congressional District 14",
-          "city_share": 0.7787
+          "city_share": 0.5918
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1215",
+          "name": "Congressional District 15",
+          "city_share": 0.2758
         },
         {
           "district_type": "state_upper",
@@ -10698,12 +10722,12 @@
       "population_2025": 402134,
       "lat": 32.7,
       "lon": -97.1167,
-      "built_at": "2026-09-12T05:03:15.583Z",
+      "built_at": "2026-09-16T18:16:42.041Z",
       "place_geoid": "4804000",
       "place_layer": "place",
       "place_name": "Arlington city",
       "sample_points": 4405,
-      "slivers_dropped": 1,
+      "slivers_dropped": 0,
       "districts": [
         {
           "district_type": "statewide",
@@ -10719,27 +10743,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "4825",
+          "name": "Congressional District 25",
+          "city_share": 0.2758
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "4806",
           "name": "Congressional District 6",
-          "city_share": 0.1877
+          "city_share": 0.3852
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4830",
           "name": "Congressional District 30",
-          "city_share": 0.0154
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4833",
-          "name": "Congressional District 33",
-          "city_share": 0.0951
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4825",
-          "name": "Congressional District 25",
-          "city_share": 0.7017
+          "city_share": 0.3389
         },
         {
           "district_type": "state_upper",
@@ -11118,7 +11136,7 @@
       "population_2025": 363608,
       "lat": 41.4833,
       "lon": -81.6833,
-      "built_at": "2026-09-12T05:03:20.450Z",
+      "built_at": "2026-09-16T18:23:15.430Z",
       "place_geoid": "3916000",
       "place_layer": "place",
       "place_name": "Cleveland city",
@@ -11271,7 +11289,7 @@
       "population_2025": 362154,
       "lat": 30.05,
       "lon": -89.9333,
-      "built_at": "2026-09-12T05:03:26.015Z",
+      "built_at": "2026-09-16T18:24:18.933Z",
       "place_geoid": "2255000",
       "place_layer": "place",
       "place_name": "New Orleans city",
@@ -11294,13 +11312,13 @@
           "district_type": "us_house",
           "geoid_compact": "2201",
           "name": "Congressional District 1",
-          "city_share": 0.7484
+          "city_share": 0.5882
         },
         {
           "district_type": "us_house",
           "geoid_compact": "2202",
           "name": "Congressional District 2",
-          "city_share": 0.2516
+          "city_share": 0.4118
         },
         {
           "district_type": "state_upper",
@@ -11748,7 +11766,7 @@
       "population_2025": 341008,
       "lat": 33.8667,
       "lon": -117.7667,
-      "built_at": "2026-09-12T05:03:26.789Z",
+      "built_at": "2026-09-16T18:19:43.913Z",
       "place_geoid": "0602000",
       "place_layer": "place",
       "place_name": "Anaheim city",
@@ -11771,13 +11789,19 @@
           "district_type": "us_house",
           "geoid_compact": "0640",
           "name": "Congressional District 40",
-          "city_share": 0.4539
+          "city_share": 0.2536
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0638",
+          "name": "Congressional District 38",
+          "city_share": 0.1705
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0646",
           "name": "Congressional District 46",
-          "city_share": 0.5461
+          "city_share": 0.576
         },
         {
           "district_type": "state_upper",
@@ -11889,7 +11913,7 @@
       "population_2025": 333888,
       "lat": 28.4167,
       "lon": -81.25,
-      "built_at": "2026-09-12T05:03:34.955Z",
+      "built_at": "2026-09-16T18:23:48.105Z",
       "place_geoid": "1253000",
       "place_layer": "place",
       "place_name": "Orlando city",
@@ -11910,21 +11934,27 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1211",
-          "name": "Congressional District 11",
-          "city_share": 0.0004
+          "geoid_compact": "1208",
+          "name": "Congressional District 8",
+          "city_share": 0.0569
         },
         {
           "district_type": "us_house",
           "geoid_compact": "1209",
           "name": "Congressional District 9",
-          "city_share": 0.5495
+          "city_share": 0.4778
         },
         {
           "district_type": "us_house",
           "geoid_compact": "1210",
           "name": "Congressional District 10",
-          "city_share": 0.4501
+          "city_share": 0.4619
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1211",
+          "name": "Congressional District 11",
+          "city_share": 0.0034
         },
         {
           "district_type": "state_upper",
@@ -12147,12 +12177,12 @@
       "population_2025": 324597,
       "lat": 37.9833,
       "lon": -121.3167,
-      "built_at": "2026-09-12T05:03:38.879Z",
+      "built_at": "2026-09-16T18:19:48.760Z",
       "place_geoid": "0675000",
       "place_layer": "place",
       "place_name": "Stockton city",
       "sample_points": 3168,
-      "slivers_dropped": 1,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -12168,9 +12198,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0613",
+          "name": "Congressional District 13",
+          "city_share": 0.2753
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0609",
           "name": "Congressional District 9",
-          "city_share": 1
+          "city_share": 0.7247
         },
         {
           "district_type": "state_upper",
@@ -12309,12 +12345,12 @@
       "population_2025": 323057,
       "lat": 33.9333,
       "lon": -117.3833,
-      "built_at": "2026-09-12T05:03:46.987Z",
+      "built_at": "2026-09-16T18:19:51.939Z",
       "place_geoid": "0662000",
       "place_layer": "place",
       "place_name": "Riverside city",
       "sample_points": 2063,
-      "slivers_dropped": 8,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -12332,13 +12368,7 @@
           "district_type": "us_house",
           "geoid_compact": "0639",
           "name": "Congressional District 39",
-          "city_share": 0.9632
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0641",
-          "name": "Congressional District 41",
-          "city_share": 0.0368
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -12402,12 +12432,12 @@
       "population_2025": 318764,
       "lat": 33.6833,
       "lon": -117.7667,
-      "built_at": "2026-09-12T05:03:47.052Z",
+      "built_at": "2026-09-16T18:19:55.178Z",
       "place_geoid": "0636770",
       "place_layer": "place",
       "place_name": "Irvine city",
       "sample_points": 4053,
-      "slivers_dropped": 9,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -12489,7 +12519,7 @@
       "population_2025": 317247,
       "lat": 27.75,
       "lon": -97.1667,
-      "built_at": "2026-09-12T05:03:50.169Z",
+      "built_at": "2026-09-16T18:16:50.154Z",
       "place_geoid": "4817000",
       "place_layer": "place",
       "place_name": "Corpus Christi city",
@@ -12512,13 +12542,19 @@
           "district_type": "us_house",
           "geoid_compact": "4827",
           "name": "Congressional District 27",
-          "city_share": 0.9371
+          "city_share": 0.6092
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4834",
           "name": "Congressional District 34",
-          "city_share": 0.0629
+          "city_share": 0.3852
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4815",
+          "name": "Congressional District 15",
+          "city_share": 0.0056
         },
         {
           "district_type": "state_upper",
@@ -12654,12 +12690,12 @@
       "population_2025": 315586,
       "lat": 33.7333,
       "lon": -117.8833,
-      "built_at": "2026-09-12T05:03:51.817Z",
+      "built_at": "2026-09-16T18:19:55.810Z",
       "place_geoid": "0669000",
       "place_layer": "place",
       "place_name": "Santa Ana city",
       "sample_points": 2375,
-      "slivers_dropped": 4,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -12675,15 +12711,27 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0640",
-          "name": "Congressional District 40",
-          "city_share": 0.0013
+          "geoid_compact": "0642",
+          "name": "Congressional District 42",
+          "city_share": 0.1183
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0645",
+          "name": "Congressional District 45",
+          "city_share": 0.0691
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0646",
           "name": "Congressional District 46",
-          "city_share": 0.9987
+          "city_share": 0.8114
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0647",
+          "name": "Congressional District 47",
+          "city_share": 0.0013
         },
         {
           "district_type": "state_upper",
@@ -12753,12 +12801,12 @@
       "population_2025": 314367,
       "lat": 39.1333,
       "lon": -84.5167,
-      "built_at": "2026-09-12T05:03:53.975Z",
+      "built_at": "2026-09-16T18:23:15.811Z",
       "place_geoid": "3915000",
       "place_layer": "place",
       "place_name": "Cincinnati city",
       "sample_points": 2991,
-      "slivers_dropped": 16,
+      "slivers_dropped": 15,
       "districts": [
         {
           "district_type": "statewide",
@@ -12776,7 +12824,13 @@
           "district_type": "us_house",
           "geoid_compact": "3901",
           "name": "Congressional District 1",
-          "city_share": 1
+          "city_share": 0.9997
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3908",
+          "name": "Congressional District 8",
+          "city_share": 0.0003
         },
         {
           "district_type": "state_upper",
@@ -12840,7 +12894,7 @@
       "population_2025": 308667,
       "lat": 36.1,
       "lon": -79.8333,
-      "built_at": "2026-09-12T05:03:55.971Z",
+      "built_at": "2026-09-16T18:21:57.596Z",
       "place_geoid": "3728000",
       "place_layer": "place",
       "place_name": "Greensboro city",
@@ -13191,7 +13245,7 @@
       "population_2025": 305561,
       "lat": 35.9833,
       "lon": -78.9,
-      "built_at": "2026-09-12T05:04:07.751Z",
+      "built_at": "2026-09-16T18:21:56.111Z",
       "place_geoid": "3719000",
       "place_layer": "place",
       "place_name": "Durham city",
@@ -13212,15 +13266,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3704",
-          "name": "Congressional District 4",
-          "city_share": 0.9978
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "3702",
           "name": "Congressional District 2",
           "city_share": 0.0022
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3704",
+          "name": "Congressional District 4",
+          "city_share": 0.9978
         },
         {
           "district_type": "state_upper",
@@ -13653,12 +13707,12 @@
       "population_2025": 293028,
       "lat": 33.05,
       "lon": -96.75,
-      "built_at": "2026-09-12T05:04:14.333Z",
+      "built_at": "2026-09-16T18:16:55.352Z",
       "place_geoid": "4858016",
       "place_layer": "place",
       "place_name": "Plano city",
       "sample_points": 2053,
-      "slivers_dropped": 3,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -13676,25 +13730,19 @@
           "district_type": "us_house",
           "geoid_compact": "4803",
           "name": "Congressional District 3",
-          "city_share": 0.3346
+          "city_share": 0.2947
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4804",
+          "name": "Congressional District 4",
+          "city_share": 0.6727
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4826",
           "name": "Congressional District 26",
           "city_share": 0.0326
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4804",
-          "name": "Congressional District 4",
-          "city_share": 0.5066
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4832",
-          "name": "Congressional District 32",
-          "city_share": 0.1262
         },
         {
           "district_type": "state_upper",
@@ -14574,12 +14622,12 @@
       "population_2025": 275533,
       "lat": 32.6333,
       "lon": -117.0167,
-      "built_at": "2026-09-12T05:04:32.984Z",
+      "built_at": "2026-09-16T18:19:56.679Z",
       "place_geoid": "0613392",
       "place_layer": "place",
       "place_name": "Chula Vista city",
       "sample_points": 2201,
-      "slivers_dropped": 7,
+      "slivers_dropped": 6,
       "districts": [
         {
           "district_type": "statewide",
@@ -14853,7 +14901,7 @@
       "population_2025": 273071,
       "lat": 33.5667,
       "lon": -101.8833,
-      "built_at": "2026-09-12T05:04:39.926Z",
+      "built_at": "2026-09-16T18:17:35.229Z",
       "place_geoid": "4845000",
       "place_layer": "place",
       "place_name": "Lubbock city",
@@ -14952,7 +15000,7 @@
       "population_2025": 269515,
       "lat": 27.5667,
       "lon": -99.4833,
-      "built_at": "2026-09-12T05:04:40.422Z",
+      "built_at": "2026-09-16T18:17:37.643Z",
       "place_geoid": "4841464",
       "place_layer": "place",
       "place_name": "Laredo city",
@@ -15021,7 +15069,7 @@
       "population_2025": 268062,
       "lat": 27.2833,
       "lon": -80.3833,
-      "built_at": "2026-09-12T05:04:40.353Z",
+      "built_at": "2026-09-16T18:23:52.648Z",
       "place_geoid": "1258715",
       "place_layer": "place",
       "place_name": "Port St. Lucie city",
@@ -15090,12 +15138,12 @@
       "population_2025": 264033,
       "lat": 27.7667,
       "lon": -82.6333,
-      "built_at": "2026-09-12T05:04:42.160Z",
+      "built_at": "2026-09-16T18:23:55.342Z",
       "place_geoid": "1263000",
       "place_layer": "place",
       "place_name": "St. Petersburg city",
       "sample_points": 4302,
-      "slivers_dropped": 4,
+      "slivers_dropped": 5,
       "districts": [
         {
           "district_type": "statewide",
@@ -15113,13 +15161,13 @@
           "district_type": "us_house",
           "geoid_compact": "1213",
           "name": "Congressional District 13",
-          "city_share": 0.2562
+          "city_share": 0.2843
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1214",
-          "name": "Congressional District 14",
-          "city_share": 0.7438
+          "geoid_compact": "1216",
+          "name": "Congressional District 16",
+          "city_share": 0.7157
         },
         {
           "district_type": "state_upper",
@@ -15171,7 +15219,7 @@
       "population_2025": 263423,
       "lat": 41.6667,
       "lon": -83.5833,
-      "built_at": "2026-09-12T05:04:45.191Z",
+      "built_at": "2026-09-16T18:23:15.681Z",
       "place_geoid": "3977000",
       "place_layer": "place",
       "place_name": "Toledo city",
@@ -15465,7 +15513,7 @@
       "population_2025": 257271,
       "lat": 36.1,
       "lon": -80.2667,
-      "built_at": "2026-09-12T05:04:45.997Z",
+      "built_at": "2026-09-16T18:22:43.935Z",
       "place_geoid": "3775000",
       "place_layer": "place",
       "place_name": "Winston-Salem city",
@@ -15486,15 +15534,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3706",
-          "name": "Congressional District 6",
-          "city_share": 0.1783
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "3710",
           "name": "Congressional District 10",
           "city_share": 0.8217
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3706",
+          "name": "Congressional District 6",
+          "city_share": 0.1783
         },
         {
           "district_type": "state_upper",
@@ -15558,12 +15606,12 @@
       "population_2025": 257076,
       "lat": 32.8667,
       "lon": -96.9667,
-      "built_at": "2026-09-12T05:04:46.851Z",
+      "built_at": "2026-09-16T18:17:40.616Z",
       "place_geoid": "4837000",
       "place_layer": "place",
       "place_name": "Irving city",
       "sample_points": 2322,
-      "slivers_dropped": 6,
+      "slivers_dropped": 7,
       "districts": [
         {
           "district_type": "statewide",
@@ -15579,21 +15627,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4806",
-          "name": "Congressional District 6",
-          "city_share": 0.4634
+          "geoid_compact": "4824",
+          "name": "Congressional District 24",
+          "city_share": 0.214
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4824",
-          "name": "Congressional District 24",
-          "city_share": 0.1994
+          "geoid_compact": "4806",
+          "name": "Congressional District 6",
+          "city_share": 0.6658
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4833",
           "name": "Congressional District 33",
-          "city_share": 0.3372
+          "city_share": 0.1202
         },
         {
           "district_type": "state_upper",
@@ -15756,12 +15804,12 @@
       "population_2025": 249625,
       "lat": 32.9167,
       "lon": -96.6333,
-      "built_at": "2026-09-12T05:04:52.943Z",
+      "built_at": "2026-09-16T18:17:42.516Z",
       "place_geoid": "4829000",
       "place_layer": "place",
       "place_name": "Garland city",
       "sample_points": 4226,
-      "slivers_dropped": 1,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -15779,13 +15827,13 @@
           "district_type": "us_house",
           "geoid_compact": "4805",
           "name": "Congressional District 5",
-          "city_share": 0.7567
+          "city_share": 0.4872
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4832",
           "name": "Congressional District 32",
-          "city_share": 0.2433
+          "city_share": 0.5128
         },
         {
           "district_type": "state_upper",
@@ -16248,12 +16296,12 @@
       "population_2025": 236955,
       "lat": 33.1667,
       "lon": -96.8167,
-      "built_at": "2026-09-12T05:05:04.857Z",
+      "built_at": "2026-09-16T18:17:46.129Z",
       "place_geoid": "4827684",
       "place_layer": "place",
       "place_name": "Frisco city",
       "sample_points": 2375,
-      "slivers_dropped": 6,
+      "slivers_dropped": 7,
       "districts": [
         {
           "district_type": "statewide",
@@ -16269,21 +16317,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4803",
-          "name": "Congressional District 3",
-          "city_share": 0.1697
+          "geoid_compact": "4804",
+          "name": "Congressional District 4",
+          "city_share": 0.9996
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4826",
           "name": "Congressional District 26",
-          "city_share": 0.1381
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4804",
-          "name": "Congressional District 4",
-          "city_share": 0.6922
+          "city_share": 0.0004
         },
         {
           "district_type": "state_upper",
@@ -16359,7 +16401,7 @@
       "population_2025": 236264,
       "lat": 26.65,
       "lon": -81.9833,
-      "built_at": "2026-09-12T05:05:05.815Z",
+      "built_at": "2026-09-16T18:23:56.318Z",
       "place_geoid": "1210275",
       "place_layer": "place",
       "place_name": "Cape Coral city",
@@ -16422,12 +16464,12 @@
       "population_2025": 236001,
       "lat": 33.2,
       "lon": -96.6667,
-      "built_at": "2026-09-12T05:05:11.332Z",
+      "built_at": "2026-09-16T18:17:51.768Z",
       "place_geoid": "4845744",
       "place_layer": "place",
       "place_name": "McKinney city",
       "sample_points": 3384,
-      "slivers_dropped": 1,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -16445,13 +16487,7 @@
           "district_type": "us_house",
           "geoid_compact": "4803",
           "name": "Congressional District 3",
-          "city_share": 0.9397
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4804",
-          "name": "Congressional District 4",
-          "city_share": 0.0603
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -16545,7 +16581,7 @@
       "population_2025": 233627,
       "lat": 34.7833,
       "lon": -86.5333,
-      "built_at": "2026-09-12T05:05:14.012Z",
+      "built_at": "2026-09-16T18:24:42.887Z",
       "place_geoid": "0137000",
       "place_layer": "place",
       "place_name": "Huntsville city",
@@ -16566,15 +16602,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0104",
-          "name": "Congressional District 4",
-          "city_share": 0.0055
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0105",
           "name": "Congressional District 5",
           "city_share": 0.9945
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0104",
+          "name": "Congressional District 4",
+          "city_share": 0.0055
         },
         {
           "district_type": "state_upper",
@@ -16827,7 +16863,7 @@
       "population_2025": 230968,
       "lat": 25.8667,
       "lon": -80.3,
-      "built_at": "2026-09-12T05:05:23.558Z",
+      "built_at": "2026-09-16T18:23:56.365Z",
       "place_geoid": "1230000",
       "place_layer": "place",
       "place_name": "Hialeah city",
@@ -17094,12 +17130,12 @@
       "population_2025": 228430,
       "lat": 34.4167,
       "lon": -118.4833,
-      "built_at": "2026-09-12T05:05:27.021Z",
+      "built_at": "2026-09-16T18:19:59.244Z",
       "place_geoid": "0669088",
       "place_layer": "place",
       "place_name": "Santa Clarita city",
       "sample_points": 4082,
-      "slivers_dropped": 3,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -17115,9 +17151,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0630",
+          "name": "Congressional District 30",
+          "city_share": 0.1644
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0626",
+          "name": "Congressional District 26",
+          "city_share": 0.0002
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0627",
           "name": "Congressional District 27",
-          "city_share": 1
+          "city_share": 0.8354
         },
         {
           "district_type": "state_upper",
@@ -17181,7 +17229,7 @@
       "population_2025": 226442,
       "lat": 37.4833,
       "lon": -121.9333,
-      "built_at": "2026-09-12T05:05:33.973Z",
+      "built_at": "2026-09-16T18:20:01.176Z",
       "place_geoid": "0626000",
       "place_layer": "place",
       "place_name": "Fremont city",
@@ -17202,15 +17250,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0617",
-          "name": "Congressional District 17",
-          "city_share": 0.5151
+          "geoid_compact": "0614",
+          "name": "Congressional District 14",
+          "city_share": 0.5162
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0614",
-          "name": "Congressional District 14",
-          "city_share": 0.4849
+          "geoid_compact": "0617",
+          "name": "Congressional District 17",
+          "city_share": 0.4838
         },
         {
           "district_type": "state_upper",
@@ -17256,7 +17304,7 @@
       "population_2025": 222795,
       "lat": 30.4333,
       "lon": -91.1333,
-      "built_at": "2026-09-12T05:05:34.569Z",
+      "built_at": "2026-09-16T18:24:19.172Z",
       "place_geoid": "2205000",
       "place_layer": "place",
       "place_name": "Baton Rouge city",
@@ -17277,15 +17325,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "2205",
-          "name": "Congressional District 5",
-          "city_share": 0.2138
+          "geoid_compact": "2202",
+          "name": "Congressional District 2",
+          "city_share": 0.3363
         },
         {
           "district_type": "us_house",
           "geoid_compact": "2206",
           "name": "Congressional District 6",
-          "city_share": 0.7862
+          "city_share": 0.6637
         },
         {
           "district_type": "state_upper",
@@ -17397,7 +17445,7 @@
       "population_2025": 222044,
       "lat": 34.1333,
       "lon": -117.2833,
-      "built_at": "2026-09-12T05:05:34.936Z",
+      "built_at": "2026-09-16T18:20:01.433Z",
       "place_geoid": "0665000",
       "place_layer": "place",
       "place_name": "San Bernardino city",
@@ -17418,21 +17466,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0628",
-          "name": "Congressional District 28",
-          "city_share": 0.0008
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0633",
           "name": "Congressional District 33",
-          "city_share": 0.8206
+          "city_share": 0.8023
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0623",
           "name": "Congressional District 23",
-          "city_share": 0.1785
+          "city_share": 0.1968
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0628",
+          "name": "Congressional District 28",
+          "city_share": 0.0008
         },
         {
           "district_type": "state_upper",
@@ -17502,7 +17550,7 @@
       "population_2025": 221223,
       "lat": 34.1167,
       "lon": -117.4667,
-      "built_at": "2026-09-12T05:05:37.614Z",
+      "built_at": "2026-09-16T18:20:01.732Z",
       "place_geoid": "0624680",
       "place_layer": "place",
       "place_name": "Fontana city",
@@ -17523,21 +17571,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0628",
-          "name": "Congressional District 28",
-          "city_share": 0.0061
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0633",
           "name": "Congressional District 33",
-          "city_share": 0.4419
+          "city_share": 0.4457
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0635",
           "name": "Congressional District 35",
-          "city_share": 0.552
+          "city_share": 0.5482
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0628",
+          "name": "Congressional District 28",
+          "city_share": 0.0061
         },
         {
           "district_type": "state_upper",
@@ -17625,7 +17673,7 @@
       "population_2025": 219652,
       "lat": 37.6333,
       "lon": -121,
-      "built_at": "2026-09-12T05:05:45.491Z",
+      "built_at": "2026-09-16T18:20:07.781Z",
       "place_geoid": "0648354",
       "place_layer": "place",
       "place_name": "Modesto city",
@@ -17648,13 +17696,13 @@
           "district_type": "us_house",
           "geoid_compact": "0613",
           "name": "Congressional District 13",
-          "city_share": 0.3603
+          "city_share": 0.4757
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0605",
           "name": "Congressional District 5",
-          "city_share": 0.6397
+          "city_share": 0.5243
         },
         {
           "district_type": "state_upper",
@@ -17748,12 +17796,12 @@
       "population_2025": 218428,
       "lat": 40.7833,
       "lon": -111.9333,
-      "built_at": "2026-09-12T05:05:46.309Z",
+      "built_at": "2026-09-16T18:23:35.708Z",
       "place_geoid": "4967000",
       "place_layer": "place",
       "place_name": "Salt Lake City city",
       "sample_points": 2003,
-      "slivers_dropped": 4,
+      "slivers_dropped": 5,
       "districts": [
         {
           "district_type": "statewide",
@@ -17769,15 +17817,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4902",
-          "name": "Congressional District 2",
-          "city_share": 0.6605
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4901",
           "name": "Congressional District 1",
-          "city_share": 0.3395
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -17883,12 +17925,12 @@
       "population_2025": 214263,
       "lat": 33.9167,
       "lon": -117.2167,
-      "built_at": "2026-09-12T05:05:46.769Z",
+      "built_at": "2026-09-16T18:20:10.871Z",
       "place_geoid": "0649270",
       "place_layer": "place",
       "place_name": "Moreno Valley city",
       "sample_points": 3904,
-      "slivers_dropped": 3,
+      "slivers_dropped": 5,
       "districts": [
         {
           "district_type": "statewide",
@@ -17906,13 +17948,7 @@
           "district_type": "us_house",
           "geoid_compact": "0639",
           "name": "Congressional District 39",
-          "city_share": 0.9967
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0641",
-          "name": "Congressional District 41",
-          "city_share": 0.0033
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -18534,7 +18570,7 @@
       "population_2025": 209434,
       "lat": 32.6833,
       "lon": -97.0167,
-      "built_at": "2026-09-12T05:05:56.940Z",
+      "built_at": "2026-09-16T18:17:57.827Z",
       "place_geoid": "4830464",
       "place_layer": "place",
       "place_name": "Grand Prairie city",
@@ -18555,27 +18591,27 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "4825",
+          "name": "Congressional District 25",
+          "city_share": 0.0379
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "4806",
           "name": "Congressional District 6",
-          "city_share": 0.3151
+          "city_share": 0.3087
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4830",
           "name": "Congressional District 30",
-          "city_share": 0.4365
+          "city_share": 0.4046
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4833",
           "name": "Congressional District 33",
-          "city_share": 0.2256
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4825",
-          "name": "Congressional District 25",
-          "city_share": 0.0228
+          "city_share": 0.2488
         },
         {
           "district_type": "state_upper",
@@ -18723,7 +18759,7 @@
       "population_2025": 209120,
       "lat": 35.0833,
       "lon": -78.9667,
-      "built_at": "2026-09-12T05:05:59.701Z",
+      "built_at": "2026-09-16T18:22:52.944Z",
       "place_geoid": "3722920",
       "place_layer": "place",
       "place_name": "Fayetteville city",
@@ -19026,7 +19062,7 @@
       "population_2025": 205130,
       "lat": 35.2,
       "lon": -101.8333,
-      "built_at": "2026-09-12T05:06:14.310Z",
+      "built_at": "2026-09-16T18:17:57.690Z",
       "place_geoid": "4803000",
       "place_layer": "place",
       "place_name": "Amarillo city",
@@ -19119,7 +19155,7 @@
       "population_2025": 204902,
       "lat": 30.4667,
       "lon": -84.25,
-      "built_at": "2026-09-12T05:06:14.701Z",
+      "built_at": "2026-09-16T18:23:58.336Z",
       "place_geoid": "1270600",
       "place_layer": "place",
       "place_name": "Tallahassee city",
@@ -19476,7 +19512,7 @@
       "population_2025": 202021,
       "lat": 35.9667,
       "lon": -83.95,
-      "built_at": "2026-09-12T05:06:20.544Z",
+      "built_at": "2026-09-16T18:15:27.554Z",
       "place_geoid": "4740000",
       "place_layer": "place",
       "place_name": "Knoxville city",
@@ -19920,7 +19956,7 @@
       "population_2025": 200824,
       "lat": 30.6667,
       "lon": -88.1,
-      "built_at": "2026-09-12T05:06:29.430Z",
+      "built_at": "2026-09-16T18:24:39.860Z",
       "place_geoid": "0150000",
       "place_layer": "place",
       "place_name": "Mobile city",
@@ -19943,13 +19979,7 @@
           "district_type": "us_house",
           "geoid_compact": "0101",
           "name": "Congressional District 1",
-          "city_share": 0.465
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0102",
-          "name": "Congressional District 2",
-          "city_share": 0.535
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -20142,7 +20172,7 @@
       "population_2025": 199651,
       "lat": 34.2,
       "lon": -119.2167,
-      "built_at": "2026-09-12T05:06:40.819Z",
+      "built_at": "2026-09-16T18:20:11.100Z",
       "place_geoid": "0654652",
       "place_layer": "place",
       "place_name": "Oxnard city",
@@ -20229,7 +20259,7 @@
       "population_2025": 195893,
       "lat": 33.5333,
       "lon": -86.8,
-      "built_at": "2026-09-12T05:06:42.388Z",
+      "built_at": "2026-09-16T18:24:40.296Z",
       "place_geoid": "0107000",
       "place_layer": "place",
       "place_name": "Birmingham city",
@@ -20252,13 +20282,13 @@
           "district_type": "us_house",
           "geoid_compact": "0106",
           "name": "Congressional District 6",
-          "city_share": 0.1853
+          "city_share": 0.2983
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0107",
           "name": "Congressional District 7",
-          "city_share": 0.8147
+          "city_share": 0.7017
         },
         {
           "district_type": "state_upper",
@@ -20595,7 +20625,7 @@
       "population_2025": 195300,
       "lat": 32.35,
       "lon": -86.2667,
-      "built_at": "2026-09-12T05:06:47.613Z",
+      "built_at": "2026-09-16T18:24:39.773Z",
       "place_geoid": "0151000",
       "place_layer": "place",
       "place_name": "Montgomery city",
@@ -20694,7 +20724,7 @@
       "population_2025": 194144,
       "lat": 35.0667,
       "lon": -85.25,
-      "built_at": "2026-09-12T05:06:48.694Z",
+      "built_at": "2026-09-16T18:15:26.233Z",
       "place_geoid": "4714000",
       "place_layer": "place",
       "place_name": "Chattanooga city",
@@ -20781,7 +20811,7 @@
       "population_2025": 192957,
       "lat": 26,
       "lon": -97.45,
-      "built_at": "2026-09-12T05:06:52.034Z",
+      "built_at": "2026-09-16T18:17:58.953Z",
       "place_geoid": "4810768",
       "place_layer": "place",
       "place_name": "Brownsville city",
@@ -20868,7 +20898,7 @@
       "population_2025": 191451,
       "lat": 33.7,
       "lon": -118,
-      "built_at": "2026-09-12T05:06:59.859Z",
+      "built_at": "2026-09-16T18:20:11.228Z",
       "place_geoid": "0636000",
       "place_layer": "place",
       "place_name": "Huntington Beach city",
@@ -20889,8 +20919,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0647",
-          "name": "Congressional District 47",
+          "geoid_compact": "0642",
+          "name": "Congressional District 42",
           "city_share": 1
         },
         {
@@ -21066,7 +21096,7 @@
       "population_2025": 189691,
       "lat": 41.0833,
       "lon": -81.5167,
-      "built_at": "2026-09-12T05:07:06.055Z",
+      "built_at": "2026-09-16T18:23:24.638Z",
       "place_geoid": "3901000",
       "place_layer": "place",
       "place_name": "Akron city",
@@ -21171,7 +21201,7 @@
       "population_2025": 188829,
       "lat": 36.5667,
       "lon": -87.35,
-      "built_at": "2026-09-12T05:07:06.003Z",
+      "built_at": "2026-09-16T18:15:41.934Z",
       "place_geoid": "4715160",
       "place_layer": "place",
       "place_name": "Clarksville city",
@@ -21192,9 +21222,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "4705",
+          "name": "Congressional District 5",
+          "city_share": 0.2437
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "4707",
           "name": "Congressional District 7",
-          "city_share": 1
+          "city_share": 0.7563
         },
         {
           "district_type": "state_upper",
@@ -21246,7 +21282,7 @@
       "population_2025": 188677,
       "lat": 26.1333,
       "lon": -80.15,
-      "built_at": "2026-09-12T05:07:05.756Z",
+      "built_at": "2026-09-16T18:23:59.164Z",
       "place_geoid": "1224000",
       "place_layer": "place",
       "place_name": "Fort Lauderdale city",
@@ -21267,21 +21303,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1225",
-          "name": "Congressional District 25",
-          "city_share": 0.146
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "1223",
-          "name": "Congressional District 23",
-          "city_share": 0.5139
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "1220",
           "name": "Congressional District 20",
-          "city_share": 0.3401
+          "city_share": 0.5188
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1225",
+          "name": "Congressional District 25",
+          "city_share": 0.4812
         },
         {
           "district_type": "state_upper",
@@ -21345,7 +21375,7 @@
       "population_2025": 187160,
       "lat": 34.1833,
       "lon": -118.25,
-      "built_at": "2026-09-12T05:07:06.543Z",
+      "built_at": "2026-09-16T18:20:16.356Z",
       "place_geoid": "0630000",
       "place_layer": "place",
       "place_name": "Glendale city",
@@ -21414,12 +21444,12 @@
       "population_2025": 187013,
       "lat": 34.0333,
       "lon": -117.6,
-      "built_at": "2026-09-12T05:07:10.308Z",
+      "built_at": "2026-09-16T18:20:17.388Z",
       "place_geoid": "0653896",
       "place_layer": "place",
       "place_name": "Ontario city",
       "sample_points": 2420,
-      "slivers_dropped": 10,
+      "slivers_dropped": 12,
       "districts": [
         {
           "district_type": "statewide",
@@ -21501,7 +21531,7 @@
       "population_2025": 185007,
       "lat": 38.4167,
       "lon": -121.3833,
-      "built_at": "2026-09-12T05:07:10.952Z",
+      "built_at": "2026-09-16T18:20:18.283Z",
       "place_geoid": "0622020",
       "place_layer": "place",
       "place_name": "Elk Grove city",
@@ -21576,7 +21606,7 @@
       "population_2025": 183582,
       "lat": 35.7833,
       "lon": -78.8167,
-      "built_at": "2026-09-12T05:07:12.216Z",
+      "built_at": "2026-09-16T18:22:53.898Z",
       "place_geoid": "3710740",
       "place_layer": "place",
       "place_name": "Cary town",
@@ -21597,15 +21627,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3704",
-          "name": "Congressional District 4",
-          "city_share": 0.4537
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "3709",
-          "name": "Congressional District 9",
-          "city_share": 0.0323
+          "geoid_compact": "3713",
+          "name": "Congressional District 13",
+          "city_share": 0.0319
         },
         {
           "district_type": "us_house",
@@ -21615,9 +21639,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "3713",
-          "name": "Congressional District 13",
-          "city_share": 0.0319
+          "geoid_compact": "3704",
+          "name": "Congressional District 4",
+          "city_share": 0.4537
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3709",
+          "name": "Congressional District 9",
+          "city_share": 0.0323
         },
         {
           "district_type": "state_upper",
@@ -22098,7 +22128,7 @@
       "population_2025": 179437,
       "lat": 38.45,
       "lon": -122.7167,
-      "built_at": "2026-09-12T05:07:27.230Z",
+      "built_at": "2026-09-16T18:20:19.397Z",
       "place_geoid": "0670098",
       "place_layer": "place",
       "place_name": "Santa Rosa city",
@@ -22119,15 +22149,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0604",
-          "name": "Congressional District 4",
-          "city_share": 0.8094
+          "geoid_compact": "0601",
+          "name": "Congressional District 1",
+          "city_share": 0.9996
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0602",
-          "name": "Congressional District 2",
-          "city_share": 0.1906
+          "geoid_compact": "0604",
+          "name": "Congressional District 4",
+          "city_share": 0.0004
         },
         {
           "district_type": "state_upper",
@@ -22350,7 +22380,7 @@
       "population_2025": 177856,
       "lat": 34.1167,
       "lon": -117.5667,
-      "built_at": "2026-09-12T05:07:28.045Z",
+      "built_at": "2026-09-16T18:20:23.003Z",
       "place_geoid": "0659451",
       "place_layer": "place",
       "place_name": "Rancho Cucamonga city",
@@ -22371,21 +22401,21 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0628",
-          "name": "Congressional District 28",
-          "city_share": 0.3776
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0633",
           "name": "Congressional District 33",
-          "city_share": 0.3841
+          "city_share": 0.4906
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0635",
           "name": "Congressional District 35",
-          "city_share": 0.2383
+          "city_share": 0.0193
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0628",
+          "name": "Congressional District 28",
+          "city_share": 0.4902
         },
         {
           "district_type": "state_upper",
@@ -22467,12 +22497,12 @@
       "population_2025": 176714,
       "lat": 26.0167,
       "lon": -80.3333,
-      "built_at": "2026-09-12T05:07:33.601Z",
+      "built_at": "2026-09-16T18:23:59.419Z",
       "place_geoid": "1255775",
       "place_layer": "place",
       "place_name": "Pembroke Pines city",
       "sample_points": 4217,
-      "slivers_dropped": 5,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -22488,9 +22518,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1225",
-          "name": "Congressional District 25",
-          "city_share": 1
+          "geoid_compact": "1224",
+          "name": "Congressional District 24",
+          "city_share": 0.148
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1226",
+          "name": "Congressional District 26",
+          "city_share": 0.852
         },
         {
           "district_type": "state_upper",
@@ -22542,7 +22578,7 @@
       "population_2025": 175902,
       "lat": 32.4667,
       "lon": -93.7833,
-      "built_at": "2026-09-12T05:07:36.666Z",
+      "built_at": "2026-09-16T18:24:19.807Z",
       "place_geoid": "2270000",
       "place_layer": "place",
       "place_name": "Shreveport city",
@@ -22565,13 +22601,7 @@
           "district_type": "us_house",
           "geoid_compact": "2204",
           "name": "Congressional District 4",
-          "city_share": 0.4001
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "2206",
-          "name": "Congressional District 6",
-          "city_share": 0.5999
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -22857,7 +22887,7 @@
       "population_2025": 171178,
       "lat": 35.85,
       "lon": -86.4167,
-      "built_at": "2026-09-12T05:07:38.995Z",
+      "built_at": "2026-09-16T18:15:47.299Z",
       "place_geoid": "4751560",
       "place_layer": "place",
       "place_name": "Murfreesboro city",
@@ -22956,12 +22986,12 @@
       "population_2025": 170483,
       "lat": 33.2167,
       "lon": -117.3167,
-      "built_at": "2026-09-12T05:07:46.819Z",
+      "built_at": "2026-09-16T18:20:23.216Z",
       "place_geoid": "0653322",
       "place_layer": "place",
       "place_name": "Oceanside city",
       "sample_points": 2534,
-      "slivers_dropped": 8,
+      "slivers_dropped": 6,
       "districts": [
         {
           "district_type": "statewide",
@@ -22977,9 +23007,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0648",
+          "name": "Congressional District 48",
+          "city_share": 0.1046
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0649",
           "name": "Congressional District 49",
-          "city_share": 1
+          "city_share": 0.8954
         },
         {
           "district_type": "state_upper",
@@ -23031,7 +23067,7 @@
       "population_2025": 170455,
       "lat": 33.7833,
       "lon": -117.9667,
-      "built_at": "2026-09-12T05:07:47.089Z",
+      "built_at": "2026-09-16T18:20:23.347Z",
       "place_geoid": "0629000",
       "place_layer": "place",
       "place_name": "Garden Grove city",
@@ -23054,13 +23090,7 @@
           "district_type": "us_house",
           "geoid_compact": "0645",
           "name": "Congressional District 45",
-          "city_share": 0.9991
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0646",
-          "name": "Congressional District 46",
-          "city_share": 0.0009
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -23136,7 +23166,7 @@
       "population_2025": 170084,
       "lat": 34.6833,
       "lon": -118.1833,
-      "built_at": "2026-09-12T05:07:53.162Z",
+      "built_at": "2026-09-16T18:20:28.347Z",
       "place_geoid": "0640130",
       "place_layer": "place",
       "place_name": "Lancaster city",
@@ -23157,9 +23187,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0626",
+          "name": "Congressional District 26",
+          "city_share": 0.2728
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0627",
           "name": "Congressional District 27",
-          "city_share": 1
+          "city_share": 0.7272
         },
         {
           "district_type": "state_upper",
@@ -23370,7 +23406,7 @@
       "population_2025": 169431,
       "lat": 33.2167,
       "lon": -97.1333,
-      "built_at": "2026-09-12T05:07:55.216Z",
+      "built_at": "2026-09-16T18:18:04.384Z",
       "place_geoid": "4819972",
       "place_layer": "place",
       "place_name": "Denton city",
@@ -23391,15 +23427,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4813",
-          "name": "Congressional District 13",
-          "city_share": 0.5966
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.2841
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4826",
-          "name": "Congressional District 26",
-          "city_share": 0.4034
+          "geoid_compact": "4813",
+          "name": "Congressional District 13",
+          "city_share": 0.7159
         },
         {
           "district_type": "state_upper",
@@ -23487,12 +23523,12 @@
       "population_2025": 167302,
       "lat": 38.7667,
       "lon": -121.3167,
-      "built_at": "2026-09-12T05:07:58.951Z",
+      "built_at": "2026-09-16T18:20:28.967Z",
       "place_geoid": "0662938",
       "place_layer": "place",
       "place_name": "Roseville city",
       "sample_points": 3841,
-      "slivers_dropped": 9,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -23508,8 +23544,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0603",
-          "name": "Congressional District 3",
+          "geoid_compact": "0606",
+          "name": "Congressional District 6",
           "city_share": 1
         },
         {
@@ -23574,7 +23610,7 @@
       "population_2025": 161883,
       "lat": 31.0833,
       "lon": -97.7333,
-      "built_at": "2026-09-12T05:08:01.791Z",
+      "built_at": "2026-09-16T18:18:06.090Z",
       "place_geoid": "4839148",
       "place_layer": "place",
       "place_name": "Killeen city",
@@ -23597,13 +23633,7 @@
           "district_type": "us_house",
           "geoid_compact": "4831",
           "name": "Congressional District 31",
-          "city_share": 0.0448
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4811",
-          "name": "Congressional District 11",
-          "city_share": 0.9552
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -23655,12 +23685,12 @@
       "population_2025": 161845,
       "lat": 34.5833,
       "lon": -118.1167,
-      "built_at": "2026-09-12T05:08:04.112Z",
+      "built_at": "2026-09-16T18:20:29.699Z",
       "place_geoid": "0655156",
       "place_layer": "place",
       "place_name": "Palmdale city",
       "sample_points": 3933,
-      "slivers_dropped": 0,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -23811,7 +23841,7 @@
       "population_2025": 161734,
       "lat": 33.8667,
       "lon": -117.5667,
-      "built_at": "2026-09-12T05:08:08.599Z",
+      "built_at": "2026-09-16T18:20:30.004Z",
       "place_geoid": "0616350",
       "place_layer": "place",
       "place_name": "Corona city",
@@ -23832,15 +23862,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0640",
-          "name": "Congressional District 40",
-          "city_share": 0.0763
+          "geoid_compact": "0635",
+          "name": "Congressional District 35",
+          "city_share": 0.3456
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0641",
-          "name": "Congressional District 41",
-          "city_share": 0.9237
+          "geoid_compact": "0640",
+          "name": "Congressional District 40",
+          "city_share": 0.6544
         },
         {
           "district_type": "state_upper",
@@ -24114,7 +24144,7 @@
       "population_2025": 159134,
       "lat": 36.6833,
       "lon": -121.6333,
-      "built_at": "2026-09-12T05:08:17.875Z",
+      "built_at": "2026-09-16T18:20:36.831Z",
       "place_geoid": "0664224",
       "place_layer": "place",
       "place_name": "Salinas city",
@@ -24429,7 +24459,7 @@
       "population_2025": 157113,
       "lat": 37.6333,
       "lon": -122.1,
-      "built_at": "2026-09-12T05:08:24.662Z",
+      "built_at": "2026-09-16T18:20:39.079Z",
       "place_geoid": "0633000",
       "place_layer": "place",
       "place_name": "Hayward city",
@@ -24510,12 +24540,12 @@
       "population_2025": 157019,
       "lat": 26.0333,
       "lon": -80.1667,
-      "built_at": "2026-09-12T05:08:26.965Z",
+      "built_at": "2026-09-16T18:24:00.601Z",
       "place_geoid": "1232000",
       "place_layer": "place",
       "place_name": "Hollywood city",
       "sample_points": 3742,
-      "slivers_dropped": 4,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -24531,9 +24561,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "1224",
+          "name": "Congressional District 24",
+          "city_share": 0.4743
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "1225",
           "name": "Congressional District 25",
-          "city_share": 1
+          "city_share": 0.4824
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1226",
+          "name": "Congressional District 26",
+          "city_share": 0.0433
         },
         {
           "district_type": "state_upper",
@@ -24654,7 +24696,7 @@
       "population_2025": 156577,
       "lat": 37.3833,
       "lon": -122.0333,
-      "built_at": "2026-09-12T05:08:31.674Z",
+      "built_at": "2026-09-16T18:20:39.242Z",
       "place_geoid": "0677000",
       "place_layer": "place",
       "place_name": "Sunnyvale city",
@@ -25410,7 +25452,7 @@
       "population_2025": 150693,
       "lat": 32.7667,
       "lon": -96.5833,
-      "built_at": "2026-09-12T05:08:46.322Z",
+      "built_at": "2026-09-16T18:18:08.956Z",
       "place_geoid": "4847892",
       "place_layer": "place",
       "place_name": "Mesquite city",
@@ -25433,13 +25475,7 @@
           "district_type": "us_house",
           "geoid_compact": "4805",
           "name": "Congressional District 5",
-          "city_share": 0.8344
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4832",
-          "name": "Congressional District 32",
-          "city_share": 0.1656
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -25539,7 +25575,7 @@
       "population_2025": 150640,
       "lat": 26.2167,
       "lon": -98.25,
-      "built_at": "2026-09-12T05:08:47.519Z",
+      "built_at": "2026-09-16T18:18:10.472Z",
       "place_geoid": "4845384",
       "place_layer": "place",
       "place_name": "McAllen city",
@@ -25560,15 +25596,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4834",
-          "name": "Congressional District 34",
-          "city_share": 0.0149
+          "geoid_compact": "4828",
+          "name": "Congressional District 28",
+          "city_share": 0.5659
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4815",
           "name": "Congressional District 15",
-          "city_share": 0.9851
+          "city_share": 0.4341
         },
         {
           "district_type": "state_upper",
@@ -25926,7 +25962,7 @@
       "population_2025": 148671,
       "lat": 29.6833,
       "lon": -82.35,
-      "built_at": "2026-09-12T05:08:57.657Z",
+      "built_at": "2026-09-16T18:24:02.151Z",
       "place_geoid": "1225175",
       "place_layer": "place",
       "place_name": "Gainesville city",
@@ -25995,7 +26031,7 @@
       "population_2025": 148539,
       "lat": 29.65,
       "lon": -95.15,
-      "built_at": "2026-09-12T05:08:59.291Z",
+      "built_at": "2026-09-16T18:18:12.065Z",
       "place_geoid": "4856000",
       "place_layer": "place",
       "place_name": "Pasadena city",
@@ -26016,15 +26052,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4836",
-          "name": "Congressional District 36",
-          "city_share": 0.7114
+          "geoid_compact": "4809",
+          "name": "Congressional District 9",
+          "city_share": 0.7379
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4829",
-          "name": "Congressional District 29",
-          "city_share": 0.2886
+          "geoid_compact": "4836",
+          "name": "Congressional District 36",
+          "city_share": 0.2621
         },
         {
           "district_type": "state_upper",
@@ -26094,7 +26130,7 @@
       "population_2025": 148092,
       "lat": 27.9667,
       "lon": -80.6667,
-      "built_at": "2026-09-12T05:09:00.370Z",
+      "built_at": "2026-09-16T18:24:04.057Z",
       "place_geoid": "1254000",
       "place_layer": "place",
       "place_name": "Palm Bay city",
@@ -26157,12 +26193,12 @@
       "population_2025": 147807,
       "lat": 34.0667,
       "lon": -117.7667,
-      "built_at": "2026-09-12T05:09:03.889Z",
+      "built_at": "2026-09-16T18:20:39.330Z",
       "place_geoid": "0658072",
       "place_layer": "place",
       "place_name": "Pomona city",
       "sample_points": 4246,
-      "slivers_dropped": 14,
+      "slivers_dropped": 12,
       "districts": [
         {
           "district_type": "statewide",
@@ -26178,15 +26214,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0635",
-          "name": "Congressional District 35",
-          "city_share": 0.9343
+          "geoid_compact": "0631",
+          "name": "Congressional District 31",
+          "city_share": 0.5556
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0638",
-          "name": "Congressional District 38",
-          "city_share": 0.0657
+          "geoid_compact": "0635",
+          "name": "Congressional District 35",
+          "city_share": 0.4444
         },
         {
           "district_type": "state_upper",
@@ -26232,7 +26268,7 @@
       "population_2025": 147788,
       "lat": 31.5667,
       "lon": -97.1833,
-      "built_at": "2026-09-12T05:09:05.173Z",
+      "built_at": "2026-09-16T18:18:16.149Z",
       "place_geoid": "4876000",
       "place_layer": "place",
       "place_name": "Waco city",
@@ -26442,7 +26478,7 @@
       "population_2025": 147615,
       "lat": 32.0167,
       "lon": -102.1167,
-      "built_at": "2026-09-12T05:09:11.964Z",
+      "built_at": "2026-09-16T18:18:20.106Z",
       "place_geoid": "4848072",
       "place_layer": "place",
       "place_name": "Midland city",
@@ -26463,15 +26499,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4819",
-          "name": "Congressional District 19",
-          "city_share": 0.1089
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4811",
           "name": "Congressional District 11",
           "city_share": 0.8911
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4819",
+          "name": "Congressional District 19",
+          "city_share": 0.1089
         },
         {
           "district_type": "state_upper",
@@ -26847,12 +26883,12 @@
       "population_2025": 146541,
       "lat": 36.3333,
       "lon": -119.3333,
-      "built_at": "2026-09-12T05:09:17.881Z",
+      "built_at": "2026-09-16T18:20:44.028Z",
       "place_geoid": "0682954",
       "place_layer": "place",
       "place_name": "Visalia city",
       "sample_points": 3493,
-      "slivers_dropped": 2,
+      "slivers_dropped": 1,
       "districts": [
         {
           "district_type": "statewide",
@@ -26868,15 +26904,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0621",
-          "name": "Congressional District 21",
-          "city_share": 0.4578
+          "geoid_compact": "0620",
+          "name": "Congressional District 20",
+          "city_share": 0.7558
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0620",
-          "name": "Congressional District 20",
-          "city_share": 0.5422
+          "geoid_compact": "0621",
+          "name": "Congressional District 21",
+          "city_share": 0.2442
         },
         {
           "district_type": "state_upper",
@@ -26946,7 +26982,7 @@
       "population_2025": 146030,
       "lat": 33.1333,
       "lon": -117.0667,
-      "built_at": "2026-09-12T05:09:19.089Z",
+      "built_at": "2026-09-16T18:20:46.495Z",
       "place_geoid": "0622804",
       "place_layer": "place",
       "place_name": "Escondido city",
@@ -26969,13 +27005,13 @@
           "district_type": "us_house",
           "geoid_compact": "0648",
           "name": "Congressional District 48",
-          "city_share": 0.5505
+          "city_share": 0.3757
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0650",
           "name": "Congressional District 50",
-          "city_share": 0.4495
+          "city_share": 0.6243
         },
         {
           "district_type": "state_upper",
@@ -27270,12 +27306,12 @@
       "population_2025": 142570,
       "lat": 25.9667,
       "lon": -80.3333,
-      "built_at": "2026-09-12T05:09:32.357Z",
+      "built_at": "2026-09-16T18:24:04.721Z",
       "place_geoid": "1245975",
       "place_layer": "place",
       "place_name": "Miramar city",
       "sample_points": 2915,
-      "slivers_dropped": 12,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -27293,13 +27329,13 @@
           "district_type": "us_house",
           "geoid_compact": "1224",
           "name": "Congressional District 24",
-          "city_share": 0.2271
+          "city_share": 0.2319
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1225",
-          "name": "Congressional District 25",
-          "city_share": 0.7729
+          "geoid_compact": "1226",
+          "name": "Congressional District 26",
+          "city_share": 0.7681
         },
         {
           "district_type": "state_upper",
@@ -27408,7 +27444,7 @@
       "population_2025": 141395,
       "lat": 34.5333,
       "lon": -117.35,
-      "built_at": "2026-09-12T05:09:39.909Z",
+      "built_at": "2026-09-16T18:20:46.836Z",
       "place_geoid": "0682590",
       "place_layer": "place",
       "place_name": "Victorville city",
@@ -27501,7 +27537,7 @@
       "population_2025": 141282,
       "lat": 30.5333,
       "lon": -97.6667,
-      "built_at": "2026-09-12T05:09:41.533Z",
+      "built_at": "2026-09-16T18:18:21.655Z",
       "place_geoid": "4863500",
       "place_layer": "place",
       "place_name": "Round Rock city",
@@ -27524,19 +27560,19 @@
           "district_type": "us_house",
           "geoid_compact": "4831",
           "name": "Congressional District 31",
-          "city_share": 0.5148
+          "city_share": 0.519
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4811",
+          "name": "Congressional District 11",
+          "city_share": 0.1498
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4817",
           "name": "Congressional District 17",
-          "city_share": 0.4099
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4810",
-          "name": "Congressional District 10",
-          "city_share": 0.0752
+          "city_share": 0.3313
         },
         {
           "district_type": "state_upper",
@@ -27942,7 +27978,7 @@
       "population_2025": 139006,
       "lat": 33.05,
       "lon": -96.9833,
-      "built_at": "2026-09-12T05:09:50.222Z",
+      "built_at": "2026-09-16T18:18:23.266Z",
       "place_geoid": "4842508",
       "place_layer": "place",
       "place_name": "Lewisville city",
@@ -27963,15 +27999,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4826",
-          "name": "Congressional District 26",
-          "city_share": 0.9956
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4824",
           "name": "Congressional District 24",
           "city_share": 0.0044
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.9956
         },
         {
           "district_type": "state_upper",
@@ -28059,12 +28095,12 @@
       "population_2025": 138783,
       "lat": 26.2667,
       "lon": -80.2667,
-      "built_at": "2026-09-12T05:09:50.582Z",
+      "built_at": "2026-09-16T18:24:06.143Z",
       "place_geoid": "1214400",
       "place_layer": "place",
       "place_name": "Coral Springs city",
       "sample_points": 2612,
-      "slivers_dropped": 4,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -28080,9 +28116,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1223",
-          "name": "Congressional District 23",
-          "city_share": 1
+          "geoid_compact": "1220",
+          "name": "Congressional District 20",
+          "city_share": 0.4483
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1222",
+          "name": "Congressional District 22",
+          "city_share": 0.5517
         },
         {
           "district_type": "state_upper",
@@ -28215,7 +28257,7 @@
       "population_2025": 138675,
       "lat": 33.8833,
       "lon": -117.9333,
-      "built_at": "2026-09-12T05:09:54.631Z",
+      "built_at": "2026-09-16T18:20:47.394Z",
       "place_geoid": "0628000",
       "place_layer": "place",
       "place_name": "Fullerton city",
@@ -28236,15 +28278,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0641",
+          "name": "Congressional District 41",
+          "city_share": 0.1487
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0645",
           "name": "Congressional District 45",
-          "city_share": 0.6689
+          "city_share": 0.5097
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0646",
           "name": "Congressional District 46",
-          "city_share": 0.3311
+          "city_share": 0.3416
         },
         {
           "district_type": "state_upper",
@@ -28332,7 +28380,7 @@
       "population_2025": 138391,
       "lat": 33.8333,
       "lon": -118.3667,
-      "built_at": "2026-09-12T05:09:54.820Z",
+      "built_at": "2026-09-16T18:20:53.706Z",
       "place_geoid": "0680000",
       "place_layer": "place",
       "place_name": "Torrance city",
@@ -28407,12 +28455,12 @@
       "population_2025": 138365,
       "lat": 33.7833,
       "lon": -117.8667,
-      "built_at": "2026-09-12T05:09:55.693Z",
+      "built_at": "2026-09-16T18:20:54.981Z",
       "place_geoid": "0653980",
       "place_layer": "place",
       "place_name": "Orange city",
       "sample_points": 3795,
-      "slivers_dropped": 6,
+      "slivers_dropped": 7,
       "districts": [
         {
           "district_type": "statewide",
@@ -28430,13 +28478,13 @@
           "district_type": "us_house",
           "geoid_compact": "0640",
           "name": "Congressional District 40",
-          "city_share": 0.6906
+          "city_share": 0.5067
         },
         {
           "district_type": "us_house",
           "geoid_compact": "0646",
           "name": "Congressional District 46",
-          "city_share": 0.3094
+          "city_share": 0.4933
         },
         {
           "district_type": "state_upper",
@@ -28647,7 +28695,7 @@
       "population_2025": 137491,
       "lat": 40.6833,
       "lon": -112.0167,
-      "built_at": "2026-09-12T05:10:00.201Z",
+      "built_at": "2026-09-16T18:23:35.860Z",
       "place_geoid": "4983470",
       "place_layer": "place",
       "place_name": "West Valley City city",
@@ -28668,15 +28716,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4904",
-          "name": "Congressional District 4",
-          "city_share": 0.1053
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4902",
-          "name": "Congressional District 2",
-          "city_share": 0.8947
+          "geoid_compact": "4901",
+          "name": "Congressional District 1",
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -28926,7 +28968,7 @@
       "population_2025": 136688,
       "lat": 39.7833,
       "lon": -84.2,
-      "built_at": "2026-09-12T05:10:05.640Z",
+      "built_at": "2026-09-16T18:23:25.687Z",
       "place_geoid": "3921000",
       "place_layer": "place",
       "place_name": "Dayton city",
@@ -29226,7 +29268,7 @@
       "population_2025": 135804,
       "lat": 34.1667,
       "lon": -118.1333,
-      "built_at": "2026-09-12T05:10:06.660Z",
+      "built_at": "2026-09-16T18:20:55.322Z",
       "place_geoid": "0656000",
       "place_layer": "place",
       "place_name": "Pasadena city",
@@ -29247,15 +29289,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0628",
-          "name": "Congressional District 28",
-          "city_share": 0.8181
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0630",
           "name": "Congressional District 30",
           "city_share": 0.1819
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0628",
+          "name": "Congressional District 28",
+          "city_share": 0.8181
         },
         {
           "district_type": "state_upper",
@@ -29418,12 +29460,12 @@
       "population_2025": 134562,
       "lat": 32.9833,
       "lon": -96.9,
-      "built_at": "2026-09-12T05:10:12.046Z",
+      "built_at": "2026-09-16T18:18:24.306Z",
       "place_geoid": "4813024",
       "place_layer": "place",
       "place_name": "Carrollton city",
       "sample_points": 4505,
-      "slivers_dropped": 2,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -29439,9 +29481,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4826",
-          "name": "Congressional District 26",
-          "city_share": 0.436
+          "geoid_compact": "4824",
+          "name": "Congressional District 24",
+          "city_share": 0.1842
         },
         {
           "district_type": "us_house",
@@ -29451,21 +29493,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.481
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "4832",
           "name": "Congressional District 32",
-          "city_share": 0.1802
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4824",
-          "name": "Congressional District 24",
-          "city_share": 0.3265
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4833",
-          "name": "Congressional District 33",
-          "city_share": 0.0524
+          "city_share": 0.3299
         },
         {
           "district_type": "state_upper",
@@ -29658,7 +29694,7 @@
       "population_2025": 133446,
       "lat": 37.3667,
       "lon": -121.9667,
-      "built_at": "2026-09-12T05:10:13.770Z",
+      "built_at": "2026-09-16T18:20:55.548Z",
       "place_geoid": "0669084",
       "place_layer": "place",
       "place_name": "Santa Clara city",
@@ -29745,7 +29781,7 @@
       "population_2025": 131588,
       "lat": 32.45,
       "lon": -99.7333,
-      "built_at": "2026-09-12T05:10:13.807Z",
+      "built_at": "2026-09-16T18:18:25.475Z",
       "place_geoid": "4801000",
       "place_layer": "place",
       "place_name": "Abilene city",
@@ -30078,12 +30114,12 @@
       "population_2025": 129930,
       "lat": 29.5667,
       "lon": -95.3167,
-      "built_at": "2026-09-12T05:10:23.140Z",
+      "built_at": "2026-09-16T18:18:30.310Z",
       "place_geoid": "4856348",
       "place_layer": "place",
       "place_name": "Pearland city",
       "sample_points": 4025,
-      "slivers_dropped": 6,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -30101,19 +30137,19 @@
           "district_type": "us_house",
           "geoid_compact": "4836",
           "name": "Congressional District 36",
-          "city_share": 0.0576
+          "city_share": 0.5945
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4809",
-          "name": "Congressional District 9",
-          "city_share": 0.3317
+          "geoid_compact": "4814",
+          "name": "Congressional District 14",
+          "city_share": 0.3352
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4822",
-          "name": "Congressional District 22",
-          "city_share": 0.6107
+          "geoid_compact": "4818",
+          "name": "Congressional District 18",
+          "city_share": 0.0703
         },
         {
           "district_type": "state_upper",
@@ -30219,12 +30255,12 @@
       "population_2025": 129347,
       "lat": 36.8333,
       "lon": -119.6833,
-      "built_at": "2026-09-12T05:10:24.441Z",
+      "built_at": "2026-09-16T18:20:58.496Z",
       "place_geoid": "0614218",
       "place_layer": "place",
       "place_name": "Clovis city",
       "sample_points": 2979,
-      "slivers_dropped": 3,
+      "slivers_dropped": 1,
       "districts": [
         {
           "district_type": "statewide",
@@ -30242,7 +30278,19 @@
           "district_type": "us_house",
           "geoid_compact": "0620",
           "name": "Congressional District 20",
-          "city_share": 1
+          "city_share": 0.1675
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0621",
+          "name": "Congressional District 21",
+          "city_share": 0.138
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "0605",
+          "name": "Congressional District 5",
+          "city_share": 0.6945
         },
         {
           "district_type": "state_upper",
@@ -30516,7 +30564,7 @@
       "population_2025": 127472,
       "lat": 30.5833,
       "lon": -96.3,
-      "built_at": "2026-09-12T05:10:38.943Z",
+      "built_at": "2026-09-16T18:18:32.254Z",
       "place_geoid": "4815976",
       "place_layer": "place",
       "place_name": "College Station city",
@@ -30585,7 +30633,7 @@
       "population_2025": 127189,
       "lat": 26.75,
       "lon": -80.1333,
-      "built_at": "2026-09-12T05:10:39.331Z",
+      "built_at": "2026-09-16T18:24:07.268Z",
       "place_geoid": "1276600",
       "place_layer": "place",
       "place_name": "West Palm Beach city",
@@ -30606,21 +30654,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1222",
-          "name": "Congressional District 22",
-          "city_share": 0.1388
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "1220",
-          "name": "Congressional District 20",
-          "city_share": 0.2631
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "1221",
           "name": "Congressional District 21",
-          "city_share": 0.5981
+          "city_share": 0.5783
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1223",
+          "name": "Congressional District 23",
+          "city_share": 0.4217
         },
         {
           "district_type": "state_upper",
@@ -30678,7 +30720,7 @@
       "population_2025": 126809,
       "lat": 34.2167,
       "lon": -77.8833,
-      "built_at": "2026-09-12T05:10:45.529Z",
+      "built_at": "2026-09-16T18:22:56.145Z",
       "place_geoid": "3774440",
       "place_layer": "place",
       "place_name": "Wilmington city",
@@ -30969,7 +31011,7 @@
       "population_2025": 125520,
       "lat": 28.0667,
       "lon": -81.95,
-      "built_at": "2026-09-12T05:10:53.233Z",
+      "built_at": "2026-09-16T18:24:07.487Z",
       "place_geoid": "1238250",
       "place_layer": "place",
       "place_name": "Lakeland city",
@@ -30992,13 +31034,7 @@
           "district_type": "us_house",
           "geoid_compact": "1218",
           "name": "Congressional District 18",
-          "city_share": 0.5547
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "1215",
-          "name": "Congressional District 15",
-          "city_share": 0.4453
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -31437,12 +31473,12 @@
       "population_2025": 124861,
       "lat": 34.2667,
       "lon": -118.75,
-      "built_at": "2026-09-12T05:10:59.989Z",
+      "built_at": "2026-09-16T18:21:00.450Z",
       "place_geoid": "0672016",
       "place_layer": "place",
       "place_name": "Simi Valley city",
       "sample_points": 3834,
-      "slivers_dropped": 9,
+      "slivers_dropped": 8,
       "districts": [
         {
           "district_type": "statewide",
@@ -31458,8 +31494,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0626",
-          "name": "Congressional District 26",
+          "geoid_compact": "0632",
+          "name": "Congressional District 32",
           "city_share": 1
         },
         {
@@ -31605,7 +31641,7 @@
       "population_2025": 123311,
       "lat": 30.2167,
       "lon": -92.0333,
-      "built_at": "2026-09-12T05:11:06.887Z",
+      "built_at": "2026-09-16T18:24:19.532Z",
       "place_geoid": "2240735",
       "place_layer": "place",
       "place_name": "Lafayette city",
@@ -31628,13 +31664,7 @@
           "district_type": "us_house",
           "geoid_compact": "2203",
           "name": "Congressional District 3",
-          "city_share": 0.6569
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "2206",
-          "name": "Congressional District 6",
-          "city_share": 0.3431
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -31710,7 +31740,7 @@
       "population_2025": 123287,
       "lat": 38.1167,
       "lon": -122.2667,
-      "built_at": "2026-09-12T05:11:07.583Z",
+      "built_at": "2026-09-16T18:21:01.836Z",
       "place_geoid": "0681666",
       "place_layer": "place",
       "place_name": "Vallejo city",
@@ -31773,7 +31803,7 @@
       "population_2025": 123261,
       "lat": 37.9667,
       "lon": -122,
-      "built_at": "2026-09-12T05:11:07.711Z",
+      "built_at": "2026-09-16T18:21:02.504Z",
       "place_geoid": "0616000",
       "place_layer": "place",
       "place_name": "Concord city",
@@ -31917,7 +31947,7 @@
       "population_2025": 122707,
       "lat": 31.8833,
       "lon": -102.35,
-      "built_at": "2026-09-12T05:11:12.919Z",
+      "built_at": "2026-09-16T18:18:32.663Z",
       "place_geoid": "4853388",
       "place_layer": "place",
       "place_name": "Odessa city",
@@ -32097,7 +32127,7 @@
       "population_2025": 122492,
       "lat": 29.7,
       "lon": -98.1167,
-      "built_at": "2026-09-12T05:11:19.140Z",
+      "built_at": "2026-09-16T18:18:38.192Z",
       "place_geoid": "4850820",
       "place_layer": "place",
       "place_name": "New Braunfels city",
@@ -32118,27 +32148,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4828",
-          "name": "Congressional District 28",
-          "city_share": 0.1265
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4835",
           "name": "Congressional District 35",
-          "city_share": 0.2295
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4815",
-          "name": "Congressional District 15",
-          "city_share": 0.1131
+          "city_share": 0.2397
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4821",
           "name": "Congressional District 21",
-          "city_share": 0.5308
+          "city_share": 0.7603
         },
         {
           "district_type": "state_upper",
@@ -32202,12 +32220,12 @@
       "population_2025": 122489,
       "lat": 38.2667,
       "lon": -122.0333,
-      "built_at": "2026-09-12T05:11:20.023Z",
+      "built_at": "2026-09-16T18:21:08.801Z",
       "place_geoid": "0623182",
       "place_layer": "place",
       "place_name": "Fairfield city",
       "sample_points": 2116,
-      "slivers_dropped": 1,
+      "slivers_dropped": 0,
       "districts": [
         {
           "district_type": "statewide",
@@ -32346,12 +32364,12 @@
       "population_2025": 122230,
       "lat": 34.1833,
       "lon": -118.8667,
-      "built_at": "2026-09-12T05:11:23.751Z",
+      "built_at": "2026-09-16T18:21:09.076Z",
       "place_geoid": "0678582",
       "place_layer": "place",
       "place_name": "Thousand Oaks city",
       "sample_points": 3999,
-      "slivers_dropped": 8,
+      "slivers_dropped": 9,
       "districts": [
         {
           "district_type": "statewide",
@@ -32496,7 +32514,7 @@
       "population_2025": 121911,
       "lat": 37.8667,
       "lon": -122.3,
-      "built_at": "2026-09-12T05:11:25.248Z",
+      "built_at": "2026-09-16T18:21:08.975Z",
       "place_geoid": "0606000",
       "place_layer": "place",
       "place_name": "Berkeley city",
@@ -32943,7 +32961,7 @@
       "population_2025": 120571,
       "lat": 35.9833,
       "lon": -79.9833,
-      "built_at": "2026-09-12T05:11:29.217Z",
+      "built_at": "2026-09-16T18:22:58.786Z",
       "place_geoid": "3731400",
       "place_layer": "place",
       "place_name": "High Point city",
@@ -33288,12 +33306,12 @@
       "population_2025": 119905,
       "lat": 29.4833,
       "lon": -95.1167,
-      "built_at": "2026-09-12T05:11:37.598Z",
+      "built_at": "2026-09-16T18:18:41.054Z",
       "place_geoid": "4841980",
       "place_layer": "place",
       "place_name": "League City city",
       "sample_points": 3490,
-      "slivers_dropped": 5,
+      "slivers_dropped": 4,
       "districts": [
         {
           "district_type": "statewide",
@@ -33311,13 +33329,13 @@
           "district_type": "us_house",
           "geoid_compact": "4836",
           "name": "Congressional District 36",
-          "city_share": 0.0378
+          "city_share": 0.0384
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4814",
           "name": "Congressional District 14",
-          "city_share": 0.9622
+          "city_share": 0.9616
         },
         {
           "district_type": "state_upper",
@@ -33381,7 +33399,7 @@
       "population_2025": 119564,
       "lat": 30.3167,
       "lon": -95.4833,
-      "built_at": "2026-09-12T05:11:41.029Z",
+      "built_at": "2026-09-16T18:18:43.992Z",
       "place_geoid": "4816432",
       "place_layer": "place",
       "place_name": "Conroe city",
@@ -33402,15 +33420,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4808",
-          "name": "Congressional District 8",
-          "city_share": 0.885
+          "geoid_compact": "4802",
+          "name": "Congressional District 2",
+          "city_share": 0.0752
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4802",
-          "name": "Congressional District 2",
-          "city_share": 0.115
+          "geoid_compact": "4808",
+          "name": "Congressional District 8",
+          "city_share": 0.9248
         },
         {
           "district_type": "state_upper",
@@ -33474,12 +33492,12 @@
       "population_2025": 118958,
       "lat": 37.9833,
       "lon": -121.8,
-      "built_at": "2026-09-12T05:11:42.892Z",
+      "built_at": "2026-09-16T18:21:14.206Z",
       "place_geoid": "0602252",
       "place_layer": "place",
       "place_name": "Antioch city",
       "sample_points": 2049,
-      "slivers_dropped": 7,
+      "slivers_dropped": 8,
       "districts": [
         {
           "district_type": "statewide",
@@ -33495,15 +33513,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0610",
-          "name": "Congressional District 10",
-          "city_share": 0.5778
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0608",
-          "name": "Congressional District 8",
-          "city_share": 0.4222
+          "geoid_compact": "0609",
+          "name": "Congressional District 9",
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -33549,7 +33561,7 @@
       "population_2025": 118592,
       "lat": 33.6833,
       "lon": -117.1833,
-      "built_at": "2026-09-12T05:11:44.479Z",
+      "built_at": "2026-09-16T18:21:14.462Z",
       "place_geoid": "0646842",
       "place_layer": "place",
       "place_name": "Menifee city",
@@ -33570,8 +33582,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0641",
-          "name": "Congressional District 41",
+          "geoid_compact": "0640",
+          "name": "Congressional District 40",
           "city_share": 1
         },
         {
@@ -33624,12 +33636,12 @@
       "population_2025": 118542,
       "lat": 32.9667,
       "lon": -96.7167,
-      "built_at": "2026-09-12T05:11:46.069Z",
+      "built_at": "2026-09-16T18:18:44.311Z",
       "place_geoid": "4861796",
       "place_layer": "place",
       "place_name": "Richardson city",
       "sample_points": 2010,
-      "slivers_dropped": 7,
+      "slivers_dropped": 6,
       "districts": [
         {
           "district_type": "statewide",
@@ -33647,13 +33659,7 @@
           "district_type": "us_house",
           "geoid_compact": "4832",
           "name": "Congressional District 32",
-          "city_share": 0.8706
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "4824",
-          "name": "Congressional District 24",
-          "city_share": 0.1294
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -33729,7 +33735,7 @@
       "population_2025": 117211,
       "lat": 26.2333,
       "lon": -80.1333,
-      "built_at": "2026-09-12T05:11:48.490Z",
+      "built_at": "2026-09-16T18:24:08.152Z",
       "place_geoid": "1258050",
       "place_layer": "place",
       "place_name": "Pompano Beach city",
@@ -33750,15 +33756,15 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1223",
-          "name": "Congressional District 23",
-          "city_share": 0.5587
+          "geoid_compact": "1220",
+          "name": "Congressional District 20",
+          "city_share": 0.5645
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1220",
-          "name": "Congressional District 20",
-          "city_share": 0.4413
+          "geoid_compact": "1225",
+          "name": "Congressional District 25",
+          "city_share": 0.4355
         },
         {
           "district_type": "state_upper",
@@ -34056,7 +34062,7 @@
       "population_2025": 116812,
       "lat": 40.6,
       "lon": -112,
-      "built_at": "2026-09-12T05:11:52.412Z",
+      "built_at": "2026-09-16T18:23:35.677Z",
       "place_geoid": "4982950",
       "place_layer": "place",
       "place_name": "West Jordan city",
@@ -34077,8 +34083,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4904",
-          "name": "Congressional District 4",
+          "geoid_compact": "4901",
+          "name": "Congressional District 1",
           "city_share": 1
         },
         {
@@ -34698,12 +34704,12 @@
       "population_2025": 114865,
       "lat": 33.4833,
       "lon": -117.1333,
-      "built_at": "2026-09-12T05:12:01.590Z",
+      "built_at": "2026-09-16T18:21:14.675Z",
       "place_geoid": "0678120",
       "place_layer": "place",
       "place_name": "Temecula city",
       "sample_points": 4089,
-      "slivers_dropped": 6,
+      "slivers_dropped": 7,
       "districts": [
         {
           "district_type": "statewide",
@@ -34761,12 +34767,12 @@
       "population_2025": 114861,
       "lat": 37.95,
       "lon": -122.3667,
-      "built_at": "2026-09-12T05:12:03.354Z",
+      "built_at": "2026-09-16T18:21:15.258Z",
       "place_geoid": "0660620",
       "place_layer": "place",
       "place_name": "Richmond city",
       "sample_points": 3943,
-      "slivers_dropped": 18,
+      "slivers_dropped": 19,
       "districts": [
         {
           "district_type": "statewide",
@@ -34830,7 +34836,7 @@
       "population_2025": 114598,
       "lat": 35.3833,
       "lon": -80.6333,
-      "built_at": "2026-09-12T05:12:04.498Z",
+      "built_at": "2026-09-16T18:23:06.540Z",
       "place_geoid": "3714100",
       "place_layer": "place",
       "place_name": "Concord city",
@@ -34911,7 +34917,7 @@
       "population_2025": 114527,
       "lat": 40.25,
       "lon": -111.65,
-      "built_at": "2026-09-12T05:12:09.754Z",
+      "built_at": "2026-09-16T18:23:35.756Z",
       "place_geoid": "4962470",
       "place_layer": "place",
       "place_name": "Provo city",
@@ -35163,12 +35169,12 @@
       "population_2025": 114364,
       "lat": 27.9833,
       "lon": -82.7667,
-      "built_at": "2026-09-12T05:12:14.695Z",
+      "built_at": "2026-09-16T18:24:08.589Z",
       "place_geoid": "1212875",
       "place_layer": "place",
       "place_name": "Clearwater city",
       "sample_points": 3889,
-      "slivers_dropped": 4,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -35226,7 +35232,7 @@
       "population_2025": 114316,
       "lat": 33.2333,
       "lon": -87.5333,
-      "built_at": "2026-09-12T05:12:17.640Z",
+      "built_at": "2026-09-16T18:24:57.574Z",
       "place_geoid": "0177256",
       "place_layer": "place",
       "place_name": "Tuscaloosa city",
@@ -35337,12 +35343,12 @@
       "population_2025": 114124,
       "lat": 33.5667,
       "lon": -117.1833,
-      "built_at": "2026-09-12T05:12:27.124Z",
+      "built_at": "2026-09-16T18:21:22.987Z",
       "place_geoid": "0650076",
       "place_layer": "place",
       "place_name": "Murrieta city",
       "sample_points": 3485,
-      "slivers_dropped": 4,
+      "slivers_dropped": 5,
       "districts": [
         {
           "district_type": "statewide",
@@ -35358,15 +35364,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0641",
-          "name": "Congressional District 41",
-          "city_share": 0.0534
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0648",
-          "name": "Congressional District 48",
-          "city_share": 0.9466
+          "geoid_compact": "0640",
+          "name": "Congressional District 40",
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -35553,7 +35553,7 @@
       "population_2025": 113723,
       "lat": 32.3167,
       "lon": -95.3167,
-      "built_at": "2026-09-12T05:12:29.256Z",
+      "built_at": "2026-09-16T18:18:44.983Z",
       "place_geoid": "4874144",
       "place_layer": "place",
       "place_name": "Tyler city",
@@ -35640,12 +35640,12 @@
       "population_2025": 113579,
       "lat": 25.95,
       "lon": -80.2333,
-      "built_at": "2026-09-12T05:12:30.928Z",
+      "built_at": "2026-09-16T18:24:10.620Z",
       "place_geoid": "1245060",
       "place_layer": "place",
       "place_name": "Miami Gardens city",
       "sample_points": 2526,
-      "slivers_dropped": 10,
+      "slivers_dropped": 9,
       "districts": [
         {
           "district_type": "statewide",
@@ -35826,7 +35826,7 @@
       "population_2025": 113447,
       "lat": 33.1167,
       "lon": -96.6667,
-      "built_at": "2026-09-12T05:12:33.910Z",
+      "built_at": "2026-09-16T18:18:51.375Z",
       "place_geoid": "4801924",
       "place_layer": "place",
       "place_name": "Allen city",
@@ -36030,7 +36030,7 @@
       "population_2025": 112967,
       "lat": 30.0833,
       "lon": -94.15,
-      "built_at": "2026-09-12T05:12:40.121Z",
+      "built_at": "2026-09-16T18:18:52.471Z",
       "place_geoid": "4807000",
       "place_layer": "place",
       "place_name": "Beaumont city",
@@ -36053,13 +36053,13 @@
           "district_type": "us_house",
           "geoid_compact": "4836",
           "name": "Congressional District 36",
-          "city_share": 0.5184
+          "city_share": 0.7558
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4814",
           "name": "Congressional District 14",
-          "city_share": 0.4816
+          "city_share": 0.2442
         },
         {
           "district_type": "state_upper",
@@ -36228,12 +36228,12 @@
       "population_2025": 112260,
       "lat": 33.1333,
       "lon": -117.2833,
-      "built_at": "2026-09-12T05:12:50.691Z",
+      "built_at": "2026-09-16T18:21:24.186Z",
       "place_geoid": "0611194",
       "place_layer": "place",
       "place_name": "Carlsbad city",
       "sample_points": 2016,
-      "slivers_dropped": 4,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -36249,9 +36249,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "0648",
+          "name": "Congressional District 48",
+          "city_share": 0.0025
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "0649",
           "name": "Congressional District 49",
-          "city_share": 1
+          "city_share": 0.9975
         },
         {
           "district_type": "state_upper",
@@ -36507,7 +36513,7 @@
       "population_2025": 111390,
       "lat": 34.9333,
       "lon": -120.4333,
-      "built_at": "2026-09-12T05:13:01.281Z",
+      "built_at": "2026-09-16T18:21:24.217Z",
       "place_geoid": "0669196",
       "place_layer": "place",
       "place_name": "Santa Maria city",
@@ -36798,12 +36804,12 @@
       "population_2025": 110851,
       "lat": 26.0833,
       "lon": -80.2833,
-      "built_at": "2026-09-12T05:13:02.955Z",
+      "built_at": "2026-09-16T18:24:11.599Z",
       "place_geoid": "1216475",
       "place_layer": "place",
       "place_name": "Davie town",
       "sample_points": 3924,
-      "slivers_dropped": 4,
+      "slivers_dropped": 3,
       "districts": [
         {
           "district_type": "statewide",
@@ -36819,9 +36825,21 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "1222",
+          "name": "Congressional District 22",
+          "city_share": 0.7469
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "1225",
           "name": "Congressional District 25",
-          "city_share": 1
+          "city_share": 0.0561
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "1226",
+          "name": "Congressional District 26",
+          "city_share": 0.197
         },
         {
           "district_type": "state_upper",
@@ -36879,7 +36897,7 @@
       "population_2025": 110700,
       "lat": 26.3167,
       "lon": -98.1667,
-      "built_at": "2026-09-12T05:13:07.466Z",
+      "built_at": "2026-09-16T18:18:53.400Z",
       "place_geoid": "4822660",
       "place_layer": "place",
       "place_name": "Edinburg city",
@@ -36900,15 +36918,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4834",
-          "name": "Congressional District 34",
-          "city_share": 0.1069
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "4815",
           "name": "Congressional District 15",
-          "city_share": 0.8931
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -37029,12 +37041,12 @@
       "population_2025": 109914,
       "lat": 34.2667,
       "lon": -119.25,
-      "built_at": "2026-09-12T05:13:07.767Z",
+      "built_at": "2026-09-16T18:21:27.580Z",
       "place_geoid": "0665042",
       "place_layer": "place",
       "place_name": "San Buenaventura (Ventura) city",
       "sample_points": 2380,
-      "slivers_dropped": 0,
+      "slivers_dropped": 1,
       "districts": [
         {
           "district_type": "statewide",
@@ -37052,13 +37064,7 @@
           "district_type": "us_house",
           "geoid_compact": "0624",
           "name": "Congressional District 24",
-          "city_share": 0.9908
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0626",
-          "name": "Congressional District 26",
-          "city_share": 0.0092
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -37116,7 +37122,7 @@
       "population_2025": 109886,
       "lat": 29.5333,
       "lon": -81.2333,
-      "built_at": "2026-09-12T05:13:12.405Z",
+      "built_at": "2026-09-16T18:24:13.028Z",
       "place_geoid": "1254200",
       "place_layer": "place",
       "place_name": "Palm Coast city",
@@ -37230,12 +37236,12 @@
       "population_2025": 108881,
       "lat": 33.6667,
       "lon": -117.9167,
-      "built_at": "2026-09-12T05:13:13.273Z",
+      "built_at": "2026-09-16T18:21:30.828Z",
       "place_geoid": "0616532",
       "place_layer": "place",
       "place_name": "Costa Mesa city",
       "sample_points": 2052,
-      "slivers_dropped": 8,
+      "slivers_dropped": 9,
       "districts": [
         {
           "district_type": "statewide",
@@ -37251,8 +37257,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0647",
-          "name": "Congressional District 47",
+          "geoid_compact": "0642",
+          "name": "Congressional District 42",
           "city_share": 1
         },
         {
@@ -37293,7 +37299,7 @@
       "population_2025": 108713,
       "lat": 37.0833,
       "lon": -113.5667,
-      "built_at": "2026-09-12T05:13:13.415Z",
+      "built_at": "2026-09-16T18:23:41.937Z",
       "place_geoid": "4965330",
       "place_layer": "place",
       "place_name": "St. George city",
@@ -37314,8 +37320,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "4902",
-          "name": "Congressional District 2",
+          "geoid_compact": "4903",
+          "name": "Congressional District 3",
           "city_share": 1
         },
         {
@@ -37461,12 +37467,12 @@
       "population_2025": 108468,
       "lat": 33.9333,
       "lon": -118.1333,
-      "built_at": "2026-09-12T05:13:18.936Z",
+      "built_at": "2026-09-16T18:21:31.262Z",
       "place_geoid": "0619766",
       "place_layer": "place",
       "place_name": "Downey city",
       "sample_points": 2028,
-      "slivers_dropped": 9,
+      "slivers_dropped": 10,
       "districts": [
         {
           "district_type": "statewide",
@@ -37482,15 +37488,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0642",
-          "name": "Congressional District 42",
-          "city_share": 0.8545
-        },
-        {
-          "district_type": "us_house",
-          "geoid_compact": "0638",
-          "name": "Congressional District 38",
-          "city_share": 0.1455
+          "geoid_compact": "0641",
+          "name": "Congressional District 41",
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -37623,12 +37623,12 @@
       "population_2025": 107726,
       "lat": 29.5833,
       "lon": -95.6333,
-      "built_at": "2026-09-12T05:13:20.913Z",
+      "built_at": "2026-09-16T18:18:53.973Z",
       "place_geoid": "4870808",
       "place_layer": "place",
       "place_name": "Sugar Land city",
       "sample_points": 2116,
-      "slivers_dropped": 4,
+      "slivers_dropped": 5,
       "districts": [
         {
           "district_type": "statewide",
@@ -37646,13 +37646,13 @@
           "district_type": "us_house",
           "geoid_compact": "4822",
           "name": "Congressional District 22",
-          "city_share": 0.5742
+          "city_share": 0.6895
         },
         {
           "district_type": "us_house",
           "geoid_compact": "4807",
           "name": "Congressional District 7",
-          "city_share": 0.4258
+          "city_share": 0.3105
         },
         {
           "district_type": "state_upper",
@@ -37920,12 +37920,12 @@
       "population_2025": 107311,
       "lat": 34,
       "lon": -117.4667,
-      "built_at": "2026-09-12T05:13:26.872Z",
+      "built_at": "2026-09-16T18:21:31.650Z",
       "place_geoid": "0637692",
       "place_layer": "place",
       "place_name": "Jurupa Valley city",
       "sample_points": 2521,
-      "slivers_dropped": 14,
+      "slivers_dropped": 13,
       "districts": [
         {
           "district_type": "statewide",
@@ -37995,7 +37995,7 @@
       "population_2025": 106907,
       "lat": 30.6667,
       "lon": -97.7,
-      "built_at": "2026-09-12T05:13:29.680Z",
+      "built_at": "2026-09-16T18:18:57.606Z",
       "place_geoid": "4829336",
       "place_layer": "place",
       "place_name": "Georgetown city",
@@ -38328,7 +38328,7 @@
       "population_2025": 106554,
       "lat": 34.1167,
       "lon": -117.3833,
-      "built_at": "2026-09-12T05:13:34.827Z",
+      "built_at": "2026-09-16T18:21:32.625Z",
       "place_geoid": "0660466",
       "place_layer": "place",
       "place_name": "Rialto city",
@@ -38721,7 +38721,7 @@
       "population_2025": 105301,
       "lat": 34.0667,
       "lon": -117.9167,
-      "built_at": "2026-09-12T05:13:49.049Z",
+      "built_at": "2026-09-16T18:21:35.013Z",
       "place_geoid": "0684200",
       "place_layer": "place",
       "place_name": "West Covina city",
@@ -38913,7 +38913,7 @@
       "population_2025": 105081,
       "lat": 39.7667,
       "lon": -121.8167,
-      "built_at": "2026-09-12T05:13:50.077Z",
+      "built_at": "2026-09-16T18:21:35.700Z",
       "place_geoid": "0613014",
       "place_layer": "place",
       "place_name": "Chico city",
@@ -38970,7 +38970,7 @@
       "population_2025": 105075,
       "lat": 34.0667,
       "lon": -118.0333,
-      "built_at": "2026-09-12T05:13:59.280Z",
+      "built_at": "2026-09-16T18:21:36.780Z",
       "place_geoid": "0622230",
       "place_layer": "place",
       "place_name": "El Monte city",
@@ -38991,8 +38991,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0631",
-          "name": "Congressional District 31",
+          "geoid_compact": "0638",
+          "name": "Congressional District 38",
           "city_share": 1
         },
         {
@@ -39513,7 +39513,7 @@
       "population_2025": 103850,
       "lat": 38.3667,
       "lon": -121.9667,
-      "built_at": "2026-09-12T05:14:12.692Z",
+      "built_at": "2026-09-16T18:21:37.183Z",
       "place_geoid": "0681554",
       "place_layer": "place",
       "place_name": "Vacaville city",
@@ -39534,15 +39534,9 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "0604",
-          "name": "Congressional District 4",
-          "city_share": 0.931
-        },
-        {
-          "district_type": "us_house",
           "geoid_compact": "0608",
           "name": "Congressional District 8",
-          "city_share": 0.069
+          "city_share": 1
         },
         {
           "district_type": "state_upper",
@@ -39594,7 +39588,7 @@
       "population_2025": 103337,
       "lat": 37.5667,
       "lon": -122.3167,
-      "built_at": "2026-09-12T05:14:16.052Z",
+      "built_at": "2026-09-16T18:21:42.070Z",
       "place_geoid": "0668252",
       "place_layer": "place",
       "place_name": "San Mateo city",
@@ -39831,7 +39825,7 @@
       "population_2025": 102988,
       "lat": 34.1833,
       "lon": -118.3333,
-      "built_at": "2026-09-12T05:14:19.807Z",
+      "built_at": "2026-09-16T18:21:42.816Z",
       "place_geoid": "0608954",
       "place_layer": "place",
       "place_name": "Burbank city",
@@ -39888,7 +39882,7 @@
       "population_2025": 102605,
       "lat": 34.4,
       "lon": -117.3167,
-      "built_at": "2026-09-12T05:14:19.995Z",
+      "built_at": "2026-09-16T18:21:43.144Z",
       "place_geoid": "0633434",
       "place_layer": "place",
       "place_name": "Hesperia city",
@@ -39969,7 +39963,7 @@
       "population_2025": 101951,
       "lat": 33.9167,
       "lon": -98.5333,
-      "built_at": "2026-09-12T05:14:22.191Z",
+      "built_at": "2026-09-16T18:19:00.686Z",
       "place_geoid": "4879000",
       "place_layer": "place",
       "place_name": "Wichita Falls city",
@@ -40062,7 +40056,7 @@
       "population_2025": 101901,
       "lat": 37.7333,
       "lon": -121.45,
-      "built_at": "2026-09-12T05:14:24.658Z",
+      "built_at": "2026-09-16T18:21:43.467Z",
       "place_geoid": "0680238",
       "place_layer": "place",
       "place_name": "Tracy city",
@@ -40224,7 +40218,7 @@
       "population_2025": 101755,
       "lat": 32.8,
       "lon": -116.9667,
-      "built_at": "2026-09-12T05:14:28.891Z",
+      "built_at": "2026-09-16T18:21:45.606Z",
       "place_geoid": "0621712",
       "place_layer": "place",
       "place_name": "El Cajon city",
@@ -40362,7 +40356,7 @@
       "population_2025": 101662,
       "lat": 33.9667,
       "lon": -118.3333,
-      "built_at": "2026-09-12T05:14:31.409Z",
+      "built_at": "2026-09-16T18:21:48.235Z",
       "place_geoid": "0636546",
       "place_layer": "place",
       "place_name": "Inglewood city",
@@ -40443,12 +40437,12 @@
       "population_2025": 101582,
       "lat": 26.3667,
       "lon": -80.1,
-      "built_at": "2026-09-12T05:14:31.706Z",
+      "built_at": "2026-09-16T18:24:13.007Z",
       "place_geoid": "1207300",
       "place_layer": "place",
       "place_name": "Boca Raton city",
       "sample_points": 2349,
-      "slivers_dropped": 9,
+      "slivers_dropped": 8,
       "districts": [
         {
           "district_type": "statewide",
@@ -40464,8 +40458,8 @@
         },
         {
           "district_type": "us_house",
-          "geoid_compact": "1223",
-          "name": "Congressional District 23",
+          "geoid_compact": "1225",
+          "name": "Congressional District 25",
           "city_share": 1
         },
         {
@@ -40506,12 +40500,12 @@
       "population_2025": 101581,
       "lat": 26.6167,
       "lon": -81.8333,
-      "built_at": "2026-09-12T05:14:33.462Z",
+      "built_at": "2026-09-16T18:24:13.924Z",
       "place_geoid": "1224125",
       "place_layer": "place",
       "place_name": "Fort Myers city",
       "sample_points": 4099,
-      "slivers_dropped": 3,
+      "slivers_dropped": 2,
       "districts": [
         {
           "district_type": "statewide",
@@ -40527,9 +40521,15 @@
         },
         {
           "district_type": "us_house",
+          "geoid_compact": "1217",
+          "name": "Congressional District 17",
+          "city_share": 0.9976
+        },
+        {
+          "district_type": "us_house",
           "geoid_compact": "1219",
           "name": "Congressional District 19",
-          "city_share": 1
+          "city_share": 0.0024
         },
         {
           "district_type": "state_upper",
@@ -40680,7 +40680,7 @@
       "population_2025": 101261,
       "lat": 37.6833,
       "lon": -122.4667,
-      "built_at": "2026-09-12T05:14:35.684Z",
+      "built_at": "2026-09-16T18:21:50.542Z",
       "place_geoid": "0617918",
       "place_layer": "place",
       "place_name": "Daly City city",
@@ -40935,7 +40935,7 @@
       "population_2025": 100640,
       "lat": 31.4333,
       "lon": -100.45,
-      "built_at": "2026-09-12T05:14:38.504Z",
+      "built_at": "2026-09-16T18:19:04.462Z",
       "place_geoid": "4864472",
       "place_layer": "place",
       "place_name": "San Angelo city",
@@ -41226,7 +41226,7 @@
       "population_2025": 100267,
       "lat": 28.9167,
       "lon": -81.2167,
-      "built_at": "2026-09-12T05:14:43.634Z",
+      "built_at": "2026-09-16T18:24:14.509Z",
       "place_geoid": "1217200",
       "place_layer": "place",
       "place_name": "Deltona city",
