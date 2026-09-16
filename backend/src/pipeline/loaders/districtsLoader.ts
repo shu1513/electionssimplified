@@ -34,6 +34,8 @@ import { loadProjectEnv } from "../../config/env.js";
 import { STATE_ABBR_BY_FIPS, getStateAbbreviationByFips, normalizeFips } from "../../constants/usStates.js";
 import { REPRESENTATION_RULER_K } from "../address/votePower.js";
 
+import { relabelUsHouseDistrictNameFor2026 } from "../address/usHouse2026Redistricting.js";
+
 export const DISTRICTS_ACS_YEAR = 2024;
 export const CENSUS_STATES_DISTRICTS_URL = `https://api.census.gov/data/${DISTRICTS_ACS_YEAR}/acs/acs5?get=NAME,B01001_001E&for=state:*`;
 export const CENSUS_US_HOUSE_DISTRICTS_URL = `https://api.census.gov/data/${DISTRICTS_ACS_YEAR}/acs/acs5?get=NAME,B01001_001E&for=congressional+district:*`;
@@ -402,7 +404,10 @@ export function parseUsHouseDistrictRows(data: unknown): DistrictRow[] {
     const stateAbbreviation = getStateAbbreviationByFips(stateFips);
     result.push({
       geoid_compact: `${stateFips}${districtCode}`,
-      name: nameRaw.trim(),
+      // ACS 2024 labels every seat "(119th Congress)"; the states redrawn for
+      // November 2026 are relabeled to the 120th so the loader does not undo
+      // migration 284 on its next run.
+      name: relabelUsHouseDistrictNameFor2026(stateFips, nameRaw.trim()),
       state: stateAbbreviation,
       state_fips: stateFips,
       district_type: "us_house",
