@@ -84,7 +84,7 @@ describe("HomePage pre-search clickwrap", () => {
     // outline.
     expect(screen.getByText("Elections Simplified")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /^See who the candidates really are by their track records$/
+      /^See who the candidates in your elections really are by their track records$/
     );
   });
 

@@ -71,7 +71,7 @@ describe("every route that sets meta ships a share card", () => {
     expect(byProperty(descriptors, "og:description")).toBeTruthy();
     expect(byProperty(descriptors, "og:type")).toBe("website");
     // Absolute: scrapers do not resolve relative URLs.
-    expect(byProperty(descriptors, "og:image")).toBe(`${SITE_ORIGIN}/og-card.png?v=2`);
+    expect(byProperty(descriptors, "og:image")).toBe(`${SITE_ORIGIN}/og-card.png?v=3`);
     // og:url is only declared by routes that know their own path. Root omits
     // it on purpose — it is the fallback for the ballot and candidate pages,
     // and claiming their canonical URL is "/" would be a lie.
@@ -83,7 +83,7 @@ describe("every route that sets meta ships a share card", () => {
 
   it.each(ROUTE_METAS)("%s asks X for the large card rather than the thumbnail", (_name, descriptors) => {
     expect(byProperty(descriptors, "twitter:card")).toBe("summary_large_image");
-    expect(byProperty(descriptors, "twitter:image")).toBe(`${SITE_ORIGIN}/og-card.png?v=2`);
+    expect(byProperty(descriptors, "twitter:image")).toBe(`${SITE_ORIGIN}/og-card.png?v=3`);
   });
 });
 
