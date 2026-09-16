@@ -228,6 +228,52 @@ describe("electionPartisanshipPolicy", () => {
     expect(resolved).toBe(true);
   });
 
+  it("keeps Maryland Orphans' Court judges partisan and every other Maryland bench nonpartisan", () => {
+    const draft = {
+      district_id: "d-md",
+      district_name: "Frederick County, Maryland",
+      district_type: "county",
+      state: "MD",
+    };
+    for (const title of [
+      "Judge of the Orphans' Court",
+      "Judge of the Orphans’ Court, Carroll County",
+      "Allegany County Judge of the Orphans Court",
+    ]) {
+      expect(
+        resolveElectionIsPartisan({ draft, contestFamily: "judicial_office", raceType: "office", officialBallotTitle: title, aiValue: false })
+      ).toBe(true);
+    }
+    expect(
+      resolveElectionIsPartisan({
+        draft,
+        contestFamily: "judicial_office",
+        raceType: "office",
+        officialBallotTitle: "Judge of the Circuit Court, Circuit 6",
+        aiValue: true,
+      })
+    ).toBe(false);
+    expect(
+      resolveElectionIsPartisan({
+        draft,
+        contestFamily: "judicial_office",
+        raceType: "office",
+        officialBallotTitle: "Judge, Appellate Court of Maryland, At Large - Retention",
+        aiValue: true,
+      })
+    ).toBe(false);
+    // The clerk of the same court is a county office, not a judgeship.
+    expect(
+      resolveElectionIsPartisan({
+        draft,
+        contestFamily: "all",
+        raceType: "office",
+        officialBallotTitle: "Clerk of the Circuit Court",
+        aiValue: true,
+      })
+    ).toBe(true);
+  });
+
   it("candidate policy helper excludes party for retention judicial contests", () => {
     const includeParty = shouldIncludeCandidatePartyByPolicy({
       districtType: "statewide",
