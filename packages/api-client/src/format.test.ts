@@ -83,10 +83,10 @@ describe("formatRosterStatus", () => {
   it("includes the re-check date only when present", () => {
     expect(formatRosterStatus({ reason: "awaiting_official_roster", check_after: "2026-08-27" })).toEqual({
       short: "Candidate list not final",
-      long: "Election officials haven't published a final candidate list for this race. We'll check again after August 27, 2026.",
+      long: "We haven't found a final candidate list from election officials for this race yet. We'll check again after August 27, 2026.",
     });
     expect(formatRosterStatus({ reason: "awaiting_official_roster", check_after: null }).long).toBe(
-      "Election officials haven't published a final candidate list for this race."
+      "We haven't found a final candidate list from election officials for this race yet."
     );
   });
 

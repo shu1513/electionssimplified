@@ -484,7 +484,7 @@ describe("ElectionPage", () => {
     expect(await screen.findByRole("heading", { name: "Candidates" })).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Election officials haven't published a final candidate list for this race. We'll check again after August 27, 2026."
+        "We haven't found a final candidate list from election officials for this race yet. We'll check again after August 27, 2026."
       )
     ).toBeInTheDocument();
   });
