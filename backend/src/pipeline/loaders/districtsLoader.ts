@@ -406,7 +406,7 @@ export function parseUsHouseDistrictRows(data: unknown): DistrictRow[] {
       geoid_compact: `${stateFips}${districtCode}`,
       // ACS 2024 labels every seat "(119th Congress)"; the states redrawn for
       // November 2026 are relabeled to the 120th so the loader does not undo
-      // migration 282 on its next run.
+      // migration 284 on its next run.
       name: relabelUsHouseDistrictNameFor2026(stateFips, nameRaw.trim()),
       state: stateAbbreviation,
       state_fips: stateFips,

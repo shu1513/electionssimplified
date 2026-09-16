@@ -70,7 +70,7 @@ export const US_HOUSE_2026_REDRAWN_STATE_FIPS: ReadonlySet<string> = new Set([
  * The ACS district loader names House rows "(119th Congress)"; the label is
  * user-visible ("Elections in Congressional District 5 (119th Congress),
  * Tennessee"). For the redrawn states the row now stands for the 120th-map
- * seat, so the loader and migration 282 relabel it. Other states keep the
+ * seat, so the loader and migration 284 relabel it. Other states keep the
  * ACS name.
  */
 export function relabelUsHouseDistrictNameFor2026(stateFips: string, name: string): string {
