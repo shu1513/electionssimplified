@@ -22,11 +22,11 @@ export const SITE_ORIGIN = "https://electionssimplified.com";
 // Bump the version query whenever og-card.png changes: scrapers (iMessage,
 // Facebook, Slack) cache the image by URL, so a same-URL replacement keeps
 // showing the old picture for weeks.
-const SHARE_IMAGE = `${SITE_ORIGIN}/og-card.png?v=2`;
-const SHARE_IMAGE_ALT = `${APP_NAME} — see who the candidates really are by their track records`;
+const SHARE_IMAGE = `${SITE_ORIGIN}/og-card.png?v=3`;
+const SHARE_IMAGE_ALT = `${APP_NAME} — see who the candidates in your elections really are by their track records`;
 
 export const DEFAULT_DESCRIPTION =
-  "See who the candidates really are by their track records.";
+  "See who the candidates in your elections really are by their track records.";
 
 type PageMetaInput = {
   title: string;
