@@ -120,6 +120,21 @@ const STATE_JUDICIAL_BALLOT_POLICY = new Map<string, StateJudicialBallotPolicy>(
   // retention questions.
   ["KS", { fallback: "partisan" }],
   ["LA", { fallback: "partisan" }],
+  // Maryland prints a party for exactly one bench: the Orphans' Court, whose
+  // judges are nominated in party primaries and printed with the party on the
+  // general ballot (Md. Const. art. IV § 40; live 2026 general ballots for
+  // Baltimore City, Carroll, Charles and Frederick counties all print
+  // "Democratic"/"Republican" under each Orphans' Court name). Circuit court
+  // judges also run in the primaries, but the general ballot lists them
+  // without any party (same Frederick County ballot: "Judge of the Circuit
+  // Court, Circuit 6" with bare names), and the appellate bench stands for
+  // retention. Without this entry the unmapped-state default forced all 14
+  // upcoming Orphans' Court contests nonpartisan (live 2026-09-16) and the
+  // contract rejected the researched true.
+  ["MD", {
+    fallback: "nonpartisan",
+    titleRules: [{ pattern: /\borphans[’']?\s+court\b/i, mode: "partisan" }],
+  }],
   // Partisan election in most circuits; the supreme court, court of appeals,
   // and the six Nonpartisan Court Plan circuits appear as retention questions.
   ["MO", { fallback: "partisan" }],
