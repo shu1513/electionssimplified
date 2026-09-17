@@ -76,7 +76,7 @@ describe("MeasureFundingSection", () => {
     render(<MeasureFundingSection funding={funding()} homeState="CA" />);
 
     const opposing = screen.getByRole("heading", { name: "Largest donors opposing" }).parentElement as HTMLElement;
-    expect(within(opposing).getByText("No donors reported.")).toBeInTheDocument();
+    expect(within(opposing).getByText("No large donors reported.")).toBeInTheDocument();
     expect(within(opposing).queryByRole("listitem")).not.toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe("MeasureFundingSection", () => {
     const empty = funding();
     render(<MeasureFundingSection funding={{ ...empty, support: empty.oppose }} homeState="CA" />);
 
-    expect(screen.getByText("No donors reported for or against this measure.")).toBeInTheDocument();
+    expect(screen.getByText("No large donors reported for or against this measure.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Largest donors supporting" })).not.toBeInTheDocument();
   });
 

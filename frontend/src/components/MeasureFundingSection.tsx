@@ -51,7 +51,7 @@ function FundingSide({
           {sharedNote ? <p className="mt-2 text-xs text-ink-soft">{sharedNote}</p> : null}
         </>
       ) : (
-        <p className="mt-1 text-sm text-ink-soft">No donors reported.</p>
+        <p className="mt-1 text-sm text-ink-soft">No large donors reported.</p>
       )}
     </div>
   );
@@ -69,7 +69,7 @@ export function MeasureFundingSection({
     <div className="mt-3">
       <h3 className="text-subheading font-semibold">Who is paying for the campaigns</h3>
       {measureFundingIsEmpty(funding) ? (
-        <p className="mt-1 text-sm text-ink-soft">No donors reported for or against this measure.</p>
+        <p className="mt-1 text-sm text-ink-soft">No large donors reported for or against this measure.</p>
       ) : (
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
           <FundingSide
