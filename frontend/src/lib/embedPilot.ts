@@ -20,6 +20,13 @@ export function getEmbedPilotCity(slug: string | undefined): EmbedPilotCity | nu
   return city && city.enabled ? city : null;
 }
 
+/** Codes that render today: enabled manifest entries, cities before states.
+ * Public pages list these so nobody copies a code that returns a 404. */
+export function listEnabledEmbedCodes(): string[] {
+  const enabled = Object.values(EMBED_PILOT_CITIES).filter((city) => city.enabled);
+  return [...enabled.filter((c) => c.kind === "city"), ...enabled.filter((c) => c.kind === "state")].map((c) => c.slug);
+}
+
 /** A publisher code is honoured only when it is on the allowlist we set —
  * never free text from the URL. */
 export function isEmbedPublisherCode(value: string | null | undefined): value is string {
