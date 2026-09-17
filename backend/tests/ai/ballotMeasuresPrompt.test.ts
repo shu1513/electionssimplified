@@ -94,6 +94,10 @@ describe("buildBallotMeasuresPrompt", () => {
 
     expect(prompt).toContain("an average voter can tell what the measure does and whether it costs them anything");
     expect(prompt).toContain("binding arbitration -> a neutral third party decides");
+    // "Levy" is not always a property tax (it can be a sales or income tax).
+    expect(prompt).toContain("millage -> property tax");
+    expect(prompt).not.toContain("levy or millage -> property tax");
+    expect(prompt).toContain("Name the tax the source describes: property tax, sales tax, or income tax.");
     expect(prompt).toContain("Say who pays.");
     expect(prompt).toContain("Describe the real effect, not the title.");
     expect(prompt).toContain("Do not tag from the measure title or the sponsor's framing.");
