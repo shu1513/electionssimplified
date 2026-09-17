@@ -159,9 +159,14 @@ function useElectionFinance(electionId: string, candidateId: string, enabled: bo
 function OngoingElectionFinance({
   election,
   candidateId,
+  showElection,
 }: {
   election: CandidateElection;
   candidateId: string;
+  // True when the candidate is in more than one ongoing race: the section
+  // then names its race, or two of them are indistinguishable. With one race
+  // the screen header already says it. Mirrors the web CandidatePage.
+  showElection: boolean;
 }) {
   const { summary } = useElectionFinance(election.election_id, candidateId, true);
   if (!hasFinanceContent(summary)) {
@@ -175,9 +180,11 @@ function OngoingElectionFinance({
       >
         Campaign finance
       </Text>
-      <Text className="mt-1 text-sm text-ink-soft">
-        {election.official_ballot_title} · {formatElectionDate(election.election_date)}
-      </Text>
+      {showElection ? (
+        <Text className="mt-1 text-sm text-ink-soft">
+          {election.official_ballot_title} · {formatElectionDate(election.election_date)}
+        </Text>
+      ) : null}
       <View className="mt-2 rounded-xl border border-line bg-white p-4">
         <FinanceSummaryCard summary={summary} />
       </View>
@@ -537,6 +544,7 @@ export default function CandidateScreen() {
           key={election.candidate_election_id}
           election={election}
           candidateId={candidate.candidate_id}
+          showElection={ongoingElections.length > 1}
         />
       ))}
 

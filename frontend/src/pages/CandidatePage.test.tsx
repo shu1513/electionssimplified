@@ -1120,6 +1120,30 @@ describe("CandidatePage", () => {
     expect(await screen.findByRole("heading", { name: "Campaign Finance Information — Governor" })).toBeInTheDocument();
     expect(screen.getByText("$120,000")).toBeInTheDocument();
     expect(screen.getByText("Top disclosed occupations of direct donors")).toBeInTheDocument();
+    // One race: the page header already names it, so the visible row does not.
+    expect(screen.getByText("Campaign Finance Information").closest("summary")).not.toHaveTextContent("Governor");
+  });
+
+  it("names the race on each finance row when the candidate is in two ongoing races", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(() => ({
+      ...candidateDetail({
+        elections: [
+          candidateElection(),
+          candidateElection({
+            candidate_election_id: "ce-2",
+            election_id: "e-2",
+            official_ballot_title: "State Senator",
+          }),
+        ],
+      }),
+      ongoing_finance: { "ce-1": financeSummary(), "ce-2": financeSummary() },
+    }));
+
+    await screen.findByRole("heading", { name: "Campaign Finance Information — State Senator" });
+    const rows = screen.getAllByText("Campaign Finance Information").map((node) => node.closest("summary"));
+    expect(rows[0]).toHaveTextContent("· Governor ·");
+    expect(rows[1]).toHaveTextContent("· State Senator ·");
   });
 
   it("renders no finance section when the ongoing election has no finance for the candidate", async () => {
