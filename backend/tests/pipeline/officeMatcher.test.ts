@@ -284,6 +284,52 @@ describe("OfficeMatcher", () => {
     expect(result.method).toBe("deterministic_fallback");
   });
 
+  // Texas elects a District Clerk (the district courts' record keeper)
+  // separately from the County Clerk. The two seeded aliases from migration
+  // 285 carry both title forms; a small county's combined office keeps its own
+  // learned alias on County Clerk.
+  const TEXAS_DISTRICT_CLERK_CASES = [
+    { title: "District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court" },
+    { title: "DISTRICT CLERK", district: "Hamilton County, Texas", expected: "office-clerk-of-court" },
+    { title: "Anderson County District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court" },
+    { title: "Dallam County and District Clerk", district: "Dallam County, Texas", expected: "office-county-clerk" },
+    { title: "Anderson County Clerk", district: "Anderson County, Texas", expected: "office-county-clerk" },
+  ];
+
+  it.each(TEXAS_DISTRICT_CLERK_CASES)(
+    "resolves the Texas clerk title $title through its seeded alias",
+    async ({ title, district, expected }) => {
+      const client = createMatcherDataClient({
+        aliasesByScope: {
+          county: [
+            { office_id: "office-clerk-of-court", normalized_alias: "district clerk" },
+            { office_id: "office-clerk-of-court", normalized_alias: "county district clerk" },
+            { office_id: "office-county-clerk", normalized_alias: "county and district clerk" },
+            { office_id: "office-county-clerk", normalized_alias: "county clerk" },
+          ],
+        },
+        officesByScope: {
+          county: [
+            { id: "office-clerk-of-court", canonical_name: "Clerk of Court" },
+            { id: "office-county-clerk", canonical_name: "County Clerk" },
+          ],
+        },
+      });
+      const matcher = new OfficeMatcher(client as never);
+
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: district,
+        state: "TX",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+
+      expect(result.officeId).toBe(expected);
+      expect(result.method).toBe("alias_exact");
+    }
+  );
+
   it("leaves Nebraska's Clerk Register of Deeds with the County Clerk", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: { county: [] },
