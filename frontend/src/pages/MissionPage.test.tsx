@@ -1,9 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import MissionPage from "./MissionPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
+
+vi.mock("../data/embedPilotCities", () => {
+  const pilot = { election_date: "2026-11-03", review_date: "2026-09-16", official_source_url: "https://example.org/", enabled: true, district_ids: [] };
+  return {
+    EMBED_PILOT_PUBLISHERS: [],
+    EMBED_PILOT_CITIES: {
+      tx: { ...pilot, slug: "tx", name: "Texas", state: "TX", kind: "state" },
+      "los-angeles-ca": { ...pilot, slug: "los-angeles-ca", name: "Los Angeles", state: "CA", kind: "city" },
+      "boise-id": { ...pilot, slug: "boise-id", name: "Boise", state: "ID", kind: "city", enabled: false },
+    },
+  };
+});
 
 const NOT_MEMBER = { enabled: true, membership: null, total_net_cents: 0, payments: [] };
 const ACTIVE_MEMBER = {
@@ -66,7 +78,7 @@ describe("MissionPage", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  it("shows the embed section with the snippet, the contact address, and the guide link", async () => {
+  it("shows the embed snippet for an enabled code and lists only the codes that render", async () => {
     stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
     renderMission();
 
@@ -76,6 +88,11 @@ describe("MissionPage", () => {
     expect(
       screen.getByText('<script src="https://electionssimplified.com/embed.js" data-city="los-angeles-ca"></script>')
     ).toBeInTheDocument();
+    // Enabled cities first, then states; the disabled entry is not advertised.
+    expect(screen.getByText(/Codes available now/).closest("li")).toHaveTextContent(
+      "Codes available now: los-angeles-ca, tx."
+    );
+    expect(screen.queryByText("boise-id")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "contact@electionssimplified.com" })).toHaveAttribute(
       "href",
       "mailto:contact@electionssimplified.com"
