@@ -115,10 +115,12 @@ function parseMoney(value: unknown, label: string): number | { reason: string } 
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return { reason: `${label} must be a number (dollars, no quotes or symbols): ${String(value)}` };
   }
-  if (value <= 0) {
+  // Check the rounded value: 0.001 is positive but stores as 0 cents.
+  const cents = toCents(value);
+  if (cents <= 0) {
     return { reason: `${label} must be greater than zero: ${value}` };
   }
-  return toCents(value) / 100;
+  return cents / 100;
 }
 
 function normalizeName(value: string): string {

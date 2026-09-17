@@ -186,6 +186,8 @@ describe("parseBallotMeasureFundingPayload", () => {
     const withDonor = (overrides: Record<string, unknown>) =>
       payload({ oppose: { committees: [committee()], top_donors: [donor(overrides)] } });
     expect(reasonOf(withDonor({ amount: 0 }))).toContain("amount must be greater than zero");
+    // Positive, but rounds to zero cents.
+    expect(reasonOf(withDonor({ amount: 0.001 }))).toContain("amount must be greater than zero");
     expect(reasonOf(withDonor({ amount: "3014260.91" }))).toContain("amount must be a number");
     expect(reasonOf(withDonor({ type: "union" }))).toContain("type must be organization or individual");
     expect(reasonOf(withDonor({ state: "Wa" }))).toContain("state must be a two-letter uppercase code");
