@@ -16,7 +16,8 @@
 // the article they were on and can come back to it, which a same-tab
 // navigation out of an iframe cannot offer.
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type React from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -77,10 +78,15 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
   }
   // Same default order as the site's ballot list (vote power first), so a
   // race sits in the same place here as it does after the reader clicks through.
-  const query = new URLSearchParams({ district_ids: city.district_ids.join(","), sort: "vote_power", include: "preview" });
+  // election_date pins the lookup to the reviewed day, so the list stays up
+  // after the election instead of falling out of the API's recent-past window.
+  const query = new URLSearchParams({
+    district_ids: city.district_ids.join(","),
+    election_date: city.election_date,
+    sort: "vote_power",
+    include: "preview",
+  });
   const ballot = await loadFromApi<BallotSummary>(`/api/ballot?${query.toString()}`, request);
-  // The ballot lookup also returns recent past and other future dates; the
-  // page is reviewed for exactly one election date.
   const races = ballot.elections
     .filter((election) => election.election_date === city.election_date)
     .map((election) => ({
@@ -371,22 +377,26 @@ function RaceBox({ race, source, embedded }: { race: CityRace; source: string | 
   );
 }
 
-/** Tells the framing page how tall the document is so the iframe can grow
- * instead of scrolling. The host (embed.js) checks the message origin and
- * source window before acting on it. */
-function useReportHeight(enabled: boolean): void {
+/** Tells the framing page how tall the content is so the iframe can grow and
+ * shrink with it. It measures the content wrapper, not the document: inside
+ * an iframe the document's scrollHeight is never smaller than the iframe
+ * itself, so collapsing a section would leave the frame at its expanded
+ * height. The host (embed.js) checks the message origin and source window
+ * before acting on it. */
+function useReportHeight(enabled: boolean, content: React.RefObject<HTMLDivElement | null>): void {
   useEffect(() => {
-    if (!enabled || typeof window === "undefined" || window.parent === window) {
+    const element = content.current;
+    if (!enabled || !element || typeof window === "undefined" || window.parent === window) {
       return;
     }
     const post = () => {
-      window.parent.postMessage({ type: "es-embed-height", height: document.documentElement.scrollHeight }, "*");
+      window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
     };
     post();
     const observer = new ResizeObserver(post);
-    observer.observe(document.documentElement);
+    observer.observe(element);
     return () => observer.disconnect();
-  }, [enabled]);
+  }, [enabled, content]);
 }
 
 export function EmbedCityPage() {
@@ -415,7 +425,8 @@ export function EmbedCityPage() {
       return next;
     });
   };
-  useReportHeight(embedded);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  useReportHeight(embedded, contentRef);
   const groups = useMemo(() => groupRaces(races), [races]);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";
@@ -424,7 +435,7 @@ export function EmbedCityPage() {
   const homeHref = withSource("/", source);
 
   return (
-    <div className={embedded ? "bg-page px-3 py-3 text-ink" : "mx-auto max-w-3xl px-4 py-6 text-ink"}>
+    <div ref={contentRef} className={embedded ? "bg-page px-3 py-3 text-ink" : "mx-auto max-w-3xl px-4 py-6 text-ink"}>
       {embedded ? (
         <header>
           <a href={homeHref} target="_blank" rel="nofollow noopener" className="text-base font-extrabold tracking-tight text-rausch">

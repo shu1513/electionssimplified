@@ -1213,8 +1213,17 @@ export function parsePushTokenDeleteBodyValue(parsed: unknown): { expoPushToken:
 // place.
 export function parseBallotSummaryOptions(
   url: URL
-): Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview"> {
-  const options: Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview"> = {};
+): Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview" | "electionDate"> {
+  const options: Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview" | "electionDate"> = {};
+
+  const rawElectionDate = url.searchParams.get("election_date");
+  if (rawElectionDate !== null) {
+    const value = rawElectionDate.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
+      throw new RequestValidationError("Query parameter election_date must be a valid YYYY-MM-DD date");
+    }
+    options.electionDate = value;
+  }
 
   const rawSort = url.searchParams.get("sort");
   if (rawSort !== null) {

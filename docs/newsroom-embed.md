@@ -56,8 +56,9 @@ The content may be reused freely with attribution.
   reads it in the browser and appends `?src=<code>` to its outbound links.
 - `/embed/city/:slug` and `/cities/:slug` share one module,
   `frontend/src/pages/EmbedCityPage.tsx`. The loader is server-side: it calls
-  `/api/ballot?district_ids=…&sort=vote_power&include=preview`, keeps only
-  the reviewed election date, and returns a trimmed race list, so the HTML is
+  `/api/ballot?district_ids=…&election_date=…&sort=vote_power&include=preview`,
+  pinned to the reviewed election date (so the list outlives the API's
+  recent-past window), and returns a trimmed race list, so the HTML is
   complete without a client fetch.
 - The Cloudflare router worker drops `X-Frame-Options` and sets
   `frame-ancestors *` for `/embed/city/*` only, and edge-caches both routes
@@ -112,8 +113,9 @@ To withdraw a city, set `enabled` to `false`, regenerate, deploy, and purge
 `/embed/city/<slug>` and `/cities/<slug>` in the Cloudflare cache. The page
 then returns 404 and the box shows "City not available."
 
-After the election date passes, the box keeps the list and shows "This
-election has passed." It never rolls to a different election on its own.
+After the election date passes, the box keeps the list (the lookup is
+pinned to that date) and shows "This election has passed." It never rolls
+to a different election on its own.
 
 ## Measuring
 

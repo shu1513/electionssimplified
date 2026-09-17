@@ -1650,8 +1650,9 @@ export async function lookupBallotSummariesByDistrictIds(
   districtIds: readonly string[],
   // includePreview attaches the ballot-preview roster/measure payload to each
   // election. Issued as trailing queries so the ordered query mocks of every
-  // preview-less test keep their slots.
-  options: { includePreview?: boolean } = {}
+  // preview-less test keep their slots. electionDate (YYYY-MM-DD) pins the
+  // list to one election day instead of the rolling recent-past window.
+  options: { includePreview?: boolean; electionDate?: string } = {}
 ): Promise<BallotSummaryResult> {
   const ids = normalizeIds(districtIds);
   if (ids.length === 0) {
@@ -1706,10 +1707,14 @@ export async function lookupBallotSummariesByDistrictIds(
       LEFT JOIN public.offices AS office
         ON office.id = e.office_id
       WHERE e.district_id = ANY($1::uuid[])
-        AND e.election_date >= ${US_LATEST_LOCAL_DATE_SQL} - ${BALLOT_PAST_ELECTION_VISIBILITY_DAYS}
+        ${
+          options.electionDate
+            ? "AND e.election_date = $2::date"
+            : `AND e.election_date >= ${US_LATEST_LOCAL_DATE_SQL} - ${BALLOT_PAST_ELECTION_VISIBILITY_DAYS}`
+        }
       ORDER BY e.election_date ASC, e.race_type ASC, e.official_ballot_title ASC, e.id ASC
     `,
-    [ids]
+    options.electionDate ? [ids, options.electionDate] : [ids]
   );
 
   const electionIds = electionResult.rows.map((row) => row.election_id);

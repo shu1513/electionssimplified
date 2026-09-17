@@ -166,7 +166,7 @@ describe("loader", () => {
     );
     const result = await loader(args("austin-tx", "http://x/embed/city/austin-tx"));
     expect(loadFromApi).toHaveBeenCalledWith(
-      "/api/ballot?district_ids=11111111-1111-4111-8111-111111111111%2C22222222-2222-4222-8222-222222222222&sort=vote_power&include=preview",
+      "/api/ballot?district_ids=11111111-1111-4111-8111-111111111111%2C22222222-2222-4222-8222-222222222222&election_date=2026-11-03&sort=vote_power&include=preview",
       expect.any(Request)
     );
     expect(result.embedded).toBe(true);
@@ -179,7 +179,7 @@ describe("loader", () => {
     loadFromApi.mockResolvedValue(ballotSummary([]));
     const result = await loader(args("tx", "http://x/embed/city/tx"));
     expect(loadFromApi).toHaveBeenCalledWith(
-      "/api/ballot?district_ids=44444444-4444-4444-8444-444444444444&sort=vote_power&include=preview",
+      "/api/ballot?district_ids=44444444-4444-4444-8444-444444444444&election_date=2026-11-03&sort=vote_power&include=preview",
       expect.any(Request)
     );
     expect(result.city).toMatchObject({ kind: "state", name: "Texas" });

@@ -37,6 +37,16 @@ describe("lookupBallotSummariesByDistrictIds", () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it("pins the election list to one date when electionDate is set, bypassing the recent-past window", async () => {
+    const districtId = "11111111-1111-4111-8111-111111111111";
+    const query = vi.fn(async () => ({ rows: [] }));
+    await lookupBallotSummariesByDistrictIds({ query }, [districtId], { electionDate: "2026-11-03" });
+    expect(query).toHaveBeenCalledTimes(2);
+    expect(query.mock.calls[1]?.[0]).toContain("AND e.election_date = $2::date");
+    expect(query.mock.calls[1]?.[0]).not.toContain("Pacific/Honolulu");
+    expect(query.mock.calls[1]?.[1]).toEqual([[districtId], "2026-11-03"]);
+  });
+
   it("loads lightweight election summaries with office context, area links, counts, and result status", async () => {
     const query = vi
       .fn()

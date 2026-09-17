@@ -90,6 +90,10 @@ export function isSaveableBallotPreferenceSort(value: unknown): value is BallotS
 }
 
 export type BallotSummaryOptions = {
+  // When set (YYYY-MM-DD), only elections on that date are returned and the
+  // rolling "recent past" window does not apply. The newsroom embed uses it
+  // so a reviewed November list stays readable after election day.
+  electionDate?: string;
   // When set, followed candidates are resolved for this user and attached to
   // each election. Anonymous lookups omit it and every election gets [].
   userId?: string | null;

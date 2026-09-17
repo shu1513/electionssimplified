@@ -64,6 +64,17 @@ describe("parseBallotSummaryOptions", () => {
     expect(parseBallotSummaryOptions(new URL("http://localhost/api/ballot"))).toEqual({});
   });
 
+  it("parses election_date and rejects anything that is not a real YYYY-MM-DD date", () => {
+    expect(parseBallotSummaryOptions(new URL("http://localhost/api/ballot?election_date=2026-11-03"))).toEqual({
+      electionDate: "2026-11-03",
+    });
+    for (const bad of ["11/03/2026", "2026-13-01", "2026-11-3", "tomorrow"]) {
+      expect(() => parseBallotSummaryOptions(new URL(`http://localhost/api/ballot?election_date=${bad}`))).toThrow(
+        /election_date must be a valid YYYY-MM-DD date/
+      );
+    }
+  });
+
   it("parses include=preview into includePreview", () => {
     expect(parseBallotSummaryOptions(new URL("http://localhost/api/ballot?include=preview"))).toEqual({
       includePreview: true,
