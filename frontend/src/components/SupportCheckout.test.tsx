@@ -241,7 +241,8 @@ describe("SupportCheckout", () => {
     expect(events.filter((event) => event.name === "checkout_start").map((event) => event.props)).toEqual([
       { kind: "monthly", outcome: "error", error_category: "other" },
     ]);
-    expect(JSON.stringify(events)).not.toContain("1200");
+    // Props only: the envelope carries random UUIDs, which can contain "1200".
+    expect(JSON.stringify(events.map((event) => event.props))).not.toContain("1200");
     vi.unstubAllEnvs();
   });
 
