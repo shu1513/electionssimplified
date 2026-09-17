@@ -98,9 +98,16 @@ describe("buildBallotMeasuresPrompt", () => {
     expect(prompt).toContain("millage -> property tax");
     expect(prompt).not.toContain("levy or millage -> property tax");
     expect(prompt).toContain("Name the tax the source describes: property tax, sales tax, or income tax.");
-    expect(prompt).toContain("Say who pays.");
+    // Who pays follows the sources: fee- or grant-funded work is not "taxpayers pay".
+    expect(prompt).toContain("Say who pays, as your sources state it");
+    expect(prompt).toContain("Do not claim a new or higher tax unless your sources say so.");
+    expect(prompt).not.toContain("Public money is taxpayer money");
     expect(prompt).toContain("Describe the real effect, not the title.");
-    expect(prompt).toContain("Do not tag from the measure title or the sponsor's framing.");
+    // Tags rest on documented effects, not on what the campaigns agree about.
+    expect(prompt).toContain("Do not tag from the measure title or either campaign's framing.");
+    expect(prompt).toContain("Tag only a direct effect that the official text, fiscal note, or legislative analysis documents.");
+    expect(prompt).toContain("When a tag would rest only on a value judgment the two sides dispute, leave it out.");
+    expect(prompt).not.toContain("both sides would accept");
     expect(prompt).toContain("Never force a tag. An empty research_area_tags array is a valid answer");
     // The old wording pushed toward always tagging something.
     expect(prompt).not.toContain("Return an empty research_area_tags array only if");
