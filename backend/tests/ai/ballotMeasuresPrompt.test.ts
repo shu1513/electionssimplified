@@ -80,4 +80,25 @@ describe("buildBallotMeasuresPrompt", () => {
     expect(prompt).toContain('- "healthcare_affordability"');
     expect(prompt).toContain('- "cost_of_living_reduction"');
   });
+
+  it("asks for the real effect in plain words and never forces a tag", () => {
+    const prompt = buildBallotMeasuresPrompt({
+      districtName: "Maryland",
+      districtType: "statewide",
+      state: "MD",
+      electionDate: "2026-11-03",
+      officialBallotTitle: "Question 1 - Arbitration Reform for State Employees Act of 2026",
+      seedUrls: [],
+      allowedResearchAreaSlugs: ["labor_rights"],
+    });
+
+    expect(prompt).toContain("an average voter can tell what the measure does and whether it costs them anything");
+    expect(prompt).toContain("binding arbitration -> a neutral third party decides");
+    expect(prompt).toContain("Say who pays.");
+    expect(prompt).toContain("Describe the real effect, not the title.");
+    expect(prompt).toContain("Do not tag from the measure title or the sponsor's framing.");
+    expect(prompt).toContain("Never force a tag. An empty research_area_tags array is a valid answer");
+    // The old wording pushed toward always tagging something.
+    expect(prompt).not.toContain("Return an empty research_area_tags array only if");
+  });
 });
