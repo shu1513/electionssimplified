@@ -18,9 +18,9 @@
 -- remap an alias whose stored office disagrees with the seed source.
 --
 -- Combined offices are left alone. Small Texas counties elect one "County and
--- District Clerk" (also written "District and County Clerk" or "County
--- Clerk/District Clerk"). That person is the county clerk too, so County
--- Clerk stays a fair home for those titles and their aliases.
+-- District Clerk" (also written "County & District Clerk", "District and
+-- County Clerk", or "County Clerk/District Clerk"). That person is the county
+-- clerk too, so County Clerk stays a fair home for those titles.
 
 BEGIN;
 
@@ -83,8 +83,11 @@ ON CONFLICT (scope, normalized_alias) DO NOTHING;
 -- this: it only fills office_id IS NULL, so a wrong-but-present office is
 -- invisible to it. official_ballot_title_key is lowercase with single spaces,
 -- so the phrase tests are exact. The two NOT LIKE lines keep every combined
--- County-and-District-Clerk wording on County Clerk. The NULL branch picks up
--- the bare "District Clerk" shells that matched nothing.
+-- County-and-District-Clerk wording on County Clerk. The key drops "&" and
+-- "/", so "County & District Clerk" and "<X> County/District Clerk" look like
+-- a plain District Clerk there; the raw-title test keeps those combined
+-- offices on County Clerk too. The NULL branch picks up the bare "District
+-- Clerk" shells that matched nothing.
 UPDATE public.elections e
 SET office_id = clerk_of_court.id,
     updated_at = now()
@@ -101,6 +104,7 @@ WHERE d.id = e.district_id
   AND (e.office_id = county_clerk.id OR e.office_id IS NULL)
   AND e.official_ballot_title_key LIKE '%district clerk%'
   AND e.official_ballot_title_key NOT LIKE '%county clerk%'
-  AND e.official_ballot_title_key NOT LIKE '%and district clerk%';
+  AND e.official_ballot_title_key NOT LIKE '%and district clerk%'
+  AND e.official_ballot_title !~ '[&/]';
 
 COMMIT;

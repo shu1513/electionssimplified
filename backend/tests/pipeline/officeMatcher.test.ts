@@ -286,19 +286,25 @@ describe("OfficeMatcher", () => {
 
   // Texas elects a District Clerk (the district courts' record keeper)
   // separately from the County Clerk. The two seeded aliases from migration
-  // 285 carry both title forms; a small county's combined office keeps its own
-  // learned alias on County Clerk.
+  // 285 carry both title forms. A small county's combined office stays on
+  // County Clerk through the raw-title rule: "&" and "/" vanish in the
+  // normalized key, so those titles would otherwise hit the "county district
+  // clerk" alias.
   const TEXAS_DISTRICT_CLERK_CASES = [
-    { title: "District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court" },
-    { title: "DISTRICT CLERK", district: "Hamilton County, Texas", expected: "office-clerk-of-court" },
-    { title: "Anderson County District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court" },
-    { title: "Dallam County and District Clerk", district: "Dallam County, Texas", expected: "office-county-clerk" },
-    { title: "Anderson County Clerk", district: "Anderson County, Texas", expected: "office-county-clerk" },
+    { title: "District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "DISTRICT CLERK", district: "Hamilton County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "Anderson County District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "Anderson County Clerk", district: "Anderson County, Texas", expected: "office-county-clerk", method: "alias_exact" },
+    { title: "County & District Clerk", district: "Dickens County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "Hemphill County & District Clerk", district: "Hemphill County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "La Salle County/District Clerk", district: "La Salle County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "District/County Clerk", district: "Brooks County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "Dallam County and District Clerk", district: "Dallam County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
   ];
 
   it.each(TEXAS_DISTRICT_CLERK_CASES)(
-    "resolves the Texas clerk title $title through its seeded alias",
-    async ({ title, district, expected }) => {
+    "resolves the Texas clerk title $title to the right clerk office",
+    async ({ title, district, expected, method }) => {
       const client = createMatcherDataClient({
         aliasesByScope: {
           county: [
@@ -326,7 +332,7 @@ describe("OfficeMatcher", () => {
       });
 
       expect(result.officeId).toBe(expected);
-      expect(result.method).toBe("alias_exact");
+      expect(result.method).toBe(method);
     }
   );
 
