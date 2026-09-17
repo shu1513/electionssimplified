@@ -401,6 +401,35 @@ export type BallotMeasureResult = {
   retrieved_at: string;
 };
 
+export type BallotMeasureFundingDonor = {
+  name: string;
+  amount: number;
+  type: "organization" | "individual";
+  /** Two-letter state code from the filing, when the filing gives one. */
+  state?: string;
+};
+
+export type BallotMeasureFundingSide = {
+  total_raised: number;
+  /**
+   * Part of total_raised held by committees that also work on other measures,
+   * so it cannot be assigned to this measure alone.
+   */
+  shared_with_other_measures_raised: number;
+  /** Largest first, at most five. */
+  top_donors: BallotMeasureFundingDonor[];
+  /** Official filing pages the numbers were read from. */
+  source_urls: string[];
+};
+
+/** Who funds each side of a measure, from official campaign finance filings. */
+export type BallotMeasureFunding = {
+  /** YYYY-MM-DD the filings were read. */
+  as_of: string;
+  support: BallotMeasureFundingSide;
+  oppose: BallotMeasureFundingSide;
+};
+
 export type BallotMeasure = {
   id: string;
   official_ballot_title: string;
@@ -413,6 +442,8 @@ export type BallotMeasure = {
   official_measure_url: string | null;
   research_area_tags: { research_area_id: string; slug: string; name: string; stance: string | null }[];
   results: BallotMeasureResult[];
+  /** null = not researched. Absent on API builds older than this field. */
+  funding?: BallotMeasureFunding | null;
 };
 
 export type ElectionResultWinner = {

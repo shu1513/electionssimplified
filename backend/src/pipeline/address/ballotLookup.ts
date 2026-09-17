@@ -12,6 +12,10 @@ import type {
 import type { CandidateElectionStatus, ElectionResultPassType } from "../../types/electionResults.js";
 import { US_LATEST_LOCAL_DATE_SQL, usLatestLocalDateIso } from "../../utils/usLocalDate.js";
 import {
+  loadBallotMeasureFundingByMeasure,
+  type BallotMeasureFundingView,
+} from "../ballotMeasures/ballotMeasureFunding.js";
+import {
   calculateWeightedHistoricalContestMargin,
   lookupHistoricalContestMarginRows,
   type HistoricalContestWeightedMarginLookupRecord,
@@ -268,6 +272,8 @@ export type BallotLookupBallotMeasure = {
   official_measure_url: string | null;
   research_area_tags: BallotLookupResearchAreaTag[];
   results: BallotLookupBallotMeasureResult[];
+  // Who funds each side, from official filings; null = not researched.
+  funding: BallotMeasureFundingView | null;
 };
 
 export type BallotLookupElection = {
@@ -1448,6 +1454,18 @@ async function loadFullElectionDetails(
           `,
           [ballotMeasureIds]
         );
+  // Fault-isolated like the finance summaries: funding enriches the measure
+  // page, so a failed read degrades to "no funding shown" instead of failing
+  // the whole lookup (the live case is an API deployed ahead of migration 286).
+  let ballotMeasureFundingByMeasure = new Map<string, BallotMeasureFundingView>();
+  if (ballotMeasureIds.length > 0) {
+    try {
+      ballotMeasureFundingByMeasure = await loadBallotMeasureFundingByMeasure(db, ballotMeasureIds);
+    } catch (error) {
+      console.warn("ballot measure funding failed; continuing without it:", { reason: describeError(error) });
+      captureError(error, { ballot_measure_funding: "load" });
+    }
+  }
 
   // Candidate records and their area tags are candidate-wide: a tag can point
   // at a research area that is not allowed for THIS election's office (e.g. a
@@ -1596,6 +1614,7 @@ async function loadFullElectionDetails(
         source_type: result.source_type,
         retrieved_at: result.retrieved_at,
       })),
+      funding: ballotMeasureFundingByMeasure.get(row.ballot_measure_id) ?? null,
     });
   }
 

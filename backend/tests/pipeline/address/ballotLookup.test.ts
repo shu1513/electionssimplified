@@ -9161,6 +9161,35 @@ describe("lookupElectionDetailById", () => {
           },
         ],
       })
+      // Measure funding: only the support side was written with committees.
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ballot_measure_id: ballotMeasureId,
+            side: "oppose",
+            total_raised: "0.00",
+            committees: [],
+            top_donors: [],
+            as_of: "2026-05-01",
+          },
+          {
+            ballot_measure_id: ballotMeasureId,
+            side: "support",
+            total_raised: "1250000.50",
+            committees: [
+              {
+                name: "Yes on H",
+                total_raised: 1250000.5,
+                from_same_side_committees: 0,
+                also_covers_other_measures: true,
+                source_url: "https://ethics.example.test/committee/1",
+              },
+            ],
+            top_donors: [{ name: "County Hospital Association", amount: 900000, type: "organization", state: "CA" }],
+            as_of: "2026-05-01",
+          },
+        ],
+      })
       // Detail-payload research_areas: the measure's areas as summaries.
       .mockResolvedValueOnce({
         rows: [
@@ -9176,6 +9205,18 @@ describe("lookupElectionDetailById", () => {
 
     const result = await lookupElectionDetailById({ query }, measureElectionId);
 
+    // Committee names stay out of the API: the page shows donors, and the
+    // committees' filing pages come through as source_urls.
+    expect(result?.ballot_measure?.funding).toEqual({
+      as_of: "2026-05-01",
+      support: {
+        total_raised: 1250000.5,
+        shared_with_other_measures_raised: 1250000.5,
+        top_donors: [{ name: "County Hospital Association", amount: 900000, type: "organization", state: "CA" }],
+        source_urls: ["https://ethics.example.test/committee/1"],
+      },
+      oppose: { total_raised: 0, shared_with_other_measures_raised: 0, top_donors: [], source_urls: [] },
+    });
     expect(result).toMatchObject({
       id: measureElectionId,
       district_id: districtId,
@@ -9218,10 +9259,71 @@ describe("lookupElectionDetailById", () => {
         factors: ["high_representation", "direct_vote_on_policy"],
       },
     });
-    expect(query).toHaveBeenCalledTimes(7);
+    expect(query).toHaveBeenCalledTimes(8);
     expect(query.mock.calls[0]?.[1]).toEqual([measureElectionId]);
-    expect(query.mock.calls[6]?.[0]).toContain("public.ballot_measure_research_area_tags");
-    expect(query.mock.calls[6]?.[1]).toEqual([[measureElectionId]]);
+    expect(query.mock.calls[6]?.[0]).toContain("public.ballot_measure_funding");
+    expect(query.mock.calls[6]?.[1]).toEqual([[ballotMeasureId]]);
+    expect(query.mock.calls[7]?.[0]).toContain("public.ballot_measure_research_area_tags");
+    expect(query.mock.calls[7]?.[1]).toEqual([[measureElectionId]]);
+  });
+
+  it("still serves the measure when the funding read fails", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const query = vi
+      .fn()
+      .mockResolvedValue({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            election_id: measureElectionId,
+            district_id: districtId,
+            district_type: "county",
+            geoid_compact: "06037",
+            district_name: "Los Angeles County",
+            state: "CA",
+            state_fips: "06",
+            representation_power_score: "148.75",
+            race_type: "ballot_measure",
+            official_ballot_title: "Measure H",
+            election_date: "2026-06-02",
+            election_stage: null,
+            is_partisan: null,
+            discovery_contest_family: "ballot_measure",
+            sources: ["https://example.test/measure"],
+            office_canonical_name: null,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            election_id: measureElectionId,
+            ballot_measure_id: ballotMeasureId,
+            official_ballot_title: "Measure H",
+            summary: "Funds hospitals.",
+            what_yes_means: "Raises the tax.",
+            what_no_means: "Keeps current tax rates.",
+            result: null,
+            source_url: [],
+            official_measure_url: null,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      // e.g. the API was deployed before the funding table's migration ran.
+      .mockRejectedValueOnce(new Error('relation "public.ballot_measure_funding" does not exist'));
+
+    const result = await lookupElectionDetailById({ query }, measureElectionId);
+
+    expect(result?.ballot_measure).toMatchObject({ id: ballotMeasureId, summary: "Funds hospitals.", funding: null });
+    expect(warn).toHaveBeenCalledWith(
+      "ballot measure funding failed; continuing without it:",
+      expect.objectContaining({ reason: expect.stringContaining("ballot_measure_funding") })
+    );
+    warn.mockRestore();
   });
 
   it("does not load Virginia finance summaries for unsupported Virginia offices", async () => {
