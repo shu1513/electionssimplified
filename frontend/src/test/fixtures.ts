@@ -59,7 +59,7 @@ export const VOTE_POWER: VotePower = {
 export const VOTE_POWER_WITH_EXPLANATION: VotePower = {
   ...VOTE_POWER,
   explanation: {
-    how: "What goes into the rating:",
+    how: "What determines the vote power rating:",
     parts: [
       {
         title: "Representation",

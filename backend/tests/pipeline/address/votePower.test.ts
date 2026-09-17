@@ -441,7 +441,7 @@ describe("explainVotePower", () => {
     // The how copy explains the displayed label (grade combination), never
     // the internal 45/55 sorting-score formula.
     expect(explanation.how).toBe(
-      "What goes into the rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
+      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
     );
     expect(explanation.parts).toEqual([
       {
@@ -637,7 +637,7 @@ describe("explainVotePower", () => {
     // Measures get their own "how" copy: no decisiveness paragraph (the
     // panel shows no such row), the direct-vote step in its place.
     expect(explanation.how).toBe(
-      "What goes into the rating for ballot measures:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nYou have more power in ballot measures because you vote directly on the policy."
+      "What determines the vote power rating for ballot measures:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nYou have more power in ballot measures because you vote directly on the policy."
     );
     // The direct-vote step is named in the sum even when the bump was capped
     // (high → very high → back to high): it is still part of the rating.
@@ -827,7 +827,7 @@ describe("explainVotePower with a current race rating", () => {
     });
 
     expect(explanation.how).toBe(
-      "What goes into the rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
+      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
     );
     expect(explanation.parts[1]).toEqual({
       title: "Decisiveness",

@@ -48,15 +48,23 @@ export const USAGE_ROUTES = [
   "follows",
   "settings",
   "pick_card",
+  "city",
   "not_found",
   "other",
 ] as const;
+
+// Lower-case slug we issue ourselves (newsroom-embed publisher codes). The
+// client only sends codes from its allowlist; this keeps free text out even
+// if a client is wrong.
+const CODE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MAX_CODE_LENGTH = 48;
 
 type PropRule =
   | { kind: "bool" }
   | { kind: "int"; min: number; max: number }
   | { kind: "enum"; values: readonly string[] }
-  | { kind: "state_codes" };
+  | { kind: "state_codes" }
+  | { kind: "code" };
 
 const bool: PropRule = { kind: "bool" };
 const int = (min: number, max: number): PropRule => ({ kind: "int", min, max });
@@ -77,6 +85,13 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
       had_saved_draft: bool,
       auth: oneOf(...AUTH_STATES),
     },
+    // Where a session arrived from when a partner link tagged it: the
+    // newsroom-embed publisher code (docs/plans/usage-analytics.md §3 —
+    // an allowlist we set, never a UTM value). The allowlist itself lives in
+    // the frontend manifest, so the server checks shape only; anyone can
+    // post a well-formed unknown code here. Reporting must therefore join
+    // this value against the manifest's publisher list and ignore the rest.
+    optional: { source: { kind: "code" } },
   },
   auth_resolved: { required: { auth: oneOf("guest", "signed_in") } },
   // Detail pages (election, candidate) describe their content shape and how
@@ -397,6 +412,8 @@ function checkProp(rule: PropRule, value: unknown): boolean {
         value.length <= 3 &&
         value.every((entry) => typeof entry === "string" && STATE_CODE_RE.test(entry))
       );
+    case "code":
+      return typeof value === "string" && value.length <= MAX_CODE_LENGTH && CODE_RE.test(value);
   }
 }
 

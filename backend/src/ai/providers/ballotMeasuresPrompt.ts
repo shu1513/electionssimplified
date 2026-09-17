@@ -2,9 +2,10 @@ import { PLAIN_LANGUAGE_STYLE_RULES } from "./promptWritingStyle.js";
 
 // Length caps enforced by parseBallotMeasureAiPayload (enrichBallotMeasure.ts).
 // Defined here (not there) because that module imports this one. Voters skim
-// measure text on the contest page: summary gets 3-4 short sentences for the
-// main change plus amounts/costs; yes/no meanings get 1-2 sentences each.
-export const BALLOT_MEASURE_SUMMARY_MAX_LENGTH = 500;
+// measure text on the contest page: the summary is two short sentences (what
+// the measure does, then how it affects the reader) within the same 300
+// characters candidate summaries get; yes/no meanings get 1-2 sentences each.
+export const BALLOT_MEASURE_SUMMARY_MAX_LENGTH = 300;
 export const BALLOT_MEASURE_YES_NO_MAX_LENGTH = 250;
 
 export type BallotMeasurePromptInput = {
@@ -59,8 +60,8 @@ export function buildBallotMeasuresPrompt(input: BallotMeasurePromptInput): stri
     "Rules:",
     "- Actively search the public web for this measure.",
     "- official_measure_url must point to the source where a reader can view the full official measure text in its entirety (for example, the election authority's official measure page or official PDF text).",
-    "- summary must be a neutral, concise plain-language summary of the measure’s real-world policy impact if enacted — open with one short sentence stating the main change in everyday words, then give the specifics (amounts, rates, durations, who is affected), not just the topic.",
-    `- summary must be at most 3-4 short sentences and at most ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH} characters — voters skim it; cut anything beyond the main change, key amounts, and cost.`,
+    "- summary is exactly two short sentences at the reading level the style rules above set. Sentence one says what the measure does in everyday words. Sentence two says how it affects the reader: the cost, tax, service, or right that changes for them. Round dollar amounts (\"$390 million\", not \"$391.5 million\"), at most one number per sentence, no statute names, no legal terms such as \"enrolled\" or \"amend the code\".",
+    `- summary must be at most ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH} characters — voters skim it; cut everything that is not the main change or its effect on the reader.`,
     "- what_yes_means and what_no_means must be concrete and neutral: state what actually changes in the real world (who pays or gets what, which rule takes effect), never a restatement like 'adopts the measure' or 'the changes described'.",
     `- what_yes_means and what_no_means must each be at most 1-2 short sentences and at most ${BALLOT_MEASURE_YES_NO_MAX_LENGTH} characters.`,
     "- If the measure has a cost, include the money in the summary: what it costs the government to do (for example, total bond amount or project cost) and what it costs taxpayers (for example, tax rate change or estimated cost per household per year). Use the official fiscal estimate when one exists, and include only figures your sources state — never derive or estimate a missing figure yourself.",

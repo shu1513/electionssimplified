@@ -143,7 +143,7 @@ export function readCities(filePath: string = CITIES_PATH): CityRow[] {
   });
 }
 
-function readMap(): Map<string, CityDistrictMap> {
+export function readMap(): Map<string, CityDistrictMap> {
   if (!existsSync(MAP_PATH)) {
     return new Map();
   }
@@ -423,7 +423,7 @@ export const COVERAGE_STAGES: readonly CoverageStage[] = [
   ...MANUAL_RESEARCH_DEMAND_STAGES,
 ];
 
-type DbDistrict = {
+export type DbDistrict = {
   id: string;
   district_type: string;
   geoid_compact: string;
@@ -461,7 +461,7 @@ export type CoverageReport = {
   totals_by_state: Record<string, Partial<Record<CoverageStage, number>>>;
 };
 
-async function loadDbDistricts(db: Queryable, wanted: MappedDistrict[]): Promise<Map<string, DbDistrict>> {
+export async function loadDbDistricts(db: Queryable, wanted: MappedDistrict[]): Promise<Map<string, DbDistrict>> {
   const keys = [...new Map(wanted.map((d) => [`${d.district_type}:${d.geoid_compact}`, d])).values()];
   const result = await db.query<DbDistrict>(
     `

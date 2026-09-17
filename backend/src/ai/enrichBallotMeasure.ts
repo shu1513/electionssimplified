@@ -191,7 +191,7 @@ export function parseBallotMeasureAiPayload(payload: unknown, allowedResearchAre
   if (summary.length > BALLOT_MEASURE_SUMMARY_MAX_LENGTH) {
     return {
       ok: false,
-      reason: `summary is ${summary.length} characters (max ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH}) — voters skim it. Rewrite as at most 3-4 short plain sentences: the main change first, then key amounts and cost; cut everything else.`,
+      reason: `summary is ${summary.length} characters (max ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH}) — voters skim it. Rewrite as two short plain sentences: what the measure does, then how it affects the reader; cut everything else.`,
     };
   }
   if (whatYesMeans.length > BALLOT_MEASURE_YES_NO_MAX_LENGTH) {

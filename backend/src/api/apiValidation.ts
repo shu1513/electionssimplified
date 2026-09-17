@@ -1213,8 +1213,15 @@ export function parsePushTokenDeleteBodyValue(parsed: unknown): { expoPushToken:
 // place.
 export function parseBallotSummaryOptions(
   url: URL
-): Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview"> {
-  const options: Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview"> = {};
+): Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview" | "electionDate"> {
+  const options: Pick<BallotSummaryOptions, "sort" | "followedFirst" | "includePreview" | "electionDate"> = {};
+
+  const rawElectionDate = url.searchParams.get("election_date");
+  if (rawElectionDate !== null) {
+    // Same strict calendar check as the pick-card date: "2026-02-30" must
+    // 400 here, not 500 on Postgres's ::date cast.
+    options.electionDate = assertValidElectionDate(rawElectionDate.trim());
+  }
 
   const rawSort = url.searchParams.get("sort");
   if (rawSort !== null) {

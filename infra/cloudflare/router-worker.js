@@ -111,6 +111,17 @@ const SECURITY_HEADERS = {
 // CORS-mode, so their Origin header is unaffected by this policy.
 const NO_REFERRER_PATHS = new Set(["/verify-email", "/verify-email-change", "/reset-password"]);
 
+// The newsroom embed (frontend/public/embed.js) frames /embed/city/<slug> on
+// third-party pages, so that one route must be allowed in any frame. Only
+// that route: everything else keeps DENY + frame-ancestors 'none'. The page
+// is anonymous and read-only, so clickjacking has nothing to gain there.
+const EMBED_FRAMEABLE_PATH = /^\/embed\/city\/[^/]+\/?$/;
+const EMBED_CSP_POLICY = CSP_POLICY.replace("frame-ancestors 'none'", "frame-ancestors *");
+
+export function isFrameablePath(pathname) {
+  return EMBED_FRAMEABLE_PATH.test(pathname.toLowerCase());
+}
+
 export function referrerPolicyForPath(pathname) {
   // React Router matches routes case-insensitively and ignores trailing
   // slashes, so /VERIFY-email or /verify-email/ still renders the token
@@ -131,8 +142,18 @@ export function referrerPolicyForPath(pathname) {
  */
 export function withSecurityHeaders(response, pathname = "") {
   const wrapped = new Response(response.body, response);
+  const frameable = isFrameablePath(pathname);
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-    if (name === "Content-Security-Policy" && wrapped.headers.has(name)) {
+    if (name === "X-Frame-Options" && frameable) {
+      wrapped.headers.delete(name);
+      continue;
+    }
+    if (name === "Content-Security-Policy" && frameable) {
+      // Replace rather than append: browsers enforce every CSP header on a
+      // response, so an upstream frame-ancestors 'none' would still block
+      // the frame. Only our own SSR page is served on this path.
+      wrapped.headers.set(name, EMBED_CSP_POLICY);
+    } else if (name === "Content-Security-Policy" && wrapped.headers.has(name)) {
       wrapped.headers.append(name, value);
     } else {
       wrapped.headers.set(name, value);
@@ -178,6 +199,11 @@ const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/support", "
 // /candidates/:id (frontend/src/routes.ts). Nested paths like
 // /elections/x/junk render the 404 catch-all and must stay cache-ineligible.
 const CACHEABLE_DETAIL_PATH = /^\/(?:elections|candidates)\/[^/]+$/;
+// City race overview and its framed twin: anonymous, server-rendered with
+// their data, and publisher-neutral (the publisher code rides in the URL
+// fragment, which never reaches the edge), so one cached copy serves every
+// newsroom that embeds the same city.
+const CACHEABLE_CITY_PATH = /^\/(?:cities|embed\/city)\/[^/]+$/;
 
 export function isCacheablePublicPage(pathname) {
   // React Router matches case-insensitively and ignores trailing slashes
@@ -185,7 +211,9 @@ export function isCacheablePublicPage(pathname) {
   // to "/elections", which matches neither list — that's the 404 catch-all
   // and stays uncached.
   const normalized = pathname.toLowerCase().replace(/\/+$/, "") || "/";
-  return CACHEABLE_EXACT_PATHS.has(normalized) || CACHEABLE_DETAIL_PATH.test(normalized);
+  return (
+    CACHEABLE_EXACT_PATHS.has(normalized) || CACHEABLE_DETAIL_PATH.test(normalized) || CACHEABLE_CITY_PATH.test(normalized)
+  );
 }
 
 export function hasSessionCookie(cookieHeader) {

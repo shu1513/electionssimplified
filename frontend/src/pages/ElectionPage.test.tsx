@@ -132,7 +132,7 @@ describe("ElectionPage", () => {
     expect(screen.getByText("How do we calculate my vote power?")).toBeInTheDocument();
     // Native <details> keeps content in the DOM while collapsed; the backend
     // copy must arrive verbatim.
-    expect(screen.getByText("What goes into the rating:")).toBeInTheDocument();
+    expect(screen.getByText("What determines the vote power rating:")).toBeInTheDocument();
     // Each part renders formula-style: title, grade, stat, then the detail.
     expect(screen.getByText("Representation:")).toBeInTheDocument();
     expect(screen.getByText("· 50 out of 100")).toBeInTheDocument();

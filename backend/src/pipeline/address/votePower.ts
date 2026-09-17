@@ -430,9 +430,9 @@ function howCalculated(raceType: ElectionRaceType): string {
   const representation =
     "Representation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.";
   if (raceType === "ballot_measure") {
-    return `What goes into the rating for ballot measures:\n\n${representation}\n\nYou have more power in ballot measures because you vote directly on the policy.`;
+    return `What determines the vote power rating for ballot measures:\n\n${representation}\n\nYou have more power in ballot measures because you vote directly on the policy.`;
   }
-  return `What goes into the rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates.`;
+  return `What determines the vote power rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates.`;
 }
 
 function capitalize(text: string): string {

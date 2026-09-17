@@ -8,6 +8,7 @@ import worker, {
   hasSessionCookie,
   isApiPath,
   isCacheablePublicPage,
+  isFrameablePath,
   resolveUpstreamHost,
   withSecurityHeaders,
 } from "./router-worker.js";
@@ -246,6 +247,9 @@ describe("isCacheablePublicPage", () => {
     "/privacy",
     "/elections/abc123",
     "/candidates/abc123",
+    "/cities/austin-tx",
+    "/embed/city/austin-tx",
+    "/Embed/City/Austin-TX/",
     // React Router renders these variants too — same normalization rules
     // as the referrer policy.
     "/Elections/ABC",
@@ -474,6 +478,40 @@ describe("security headers", () => {
       const response = await worker.fetch(new Request(`https://electionssimplified.com${path}`), ENV);
       assert.equal(response.headers.get("referrer-policy"), "strict-origin-when-cross-origin", path);
     }
+  });
+
+  it("withSecurityHeaders lets only the embed city route be framed", () => {
+    const framed = withSecurityHeaders(new Response("ok"), "/embed/city/austin-tx");
+    assert.equal(framed.headers.get("X-Frame-Options"), null);
+    assert.match(framed.headers.get("Content-Security-Policy"), /frame-ancestors \*/);
+    assert.doesNotMatch(framed.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/);
+    // Everything else the site-wide policy says still applies there.
+    assert.match(framed.headers.get("Content-Security-Policy"), /default-src 'self'/);
+    assert.equal(framed.headers.get("X-Content-Type-Options"), "nosniff");
+
+    for (const path of ["/cities/austin-tx", "/embed", "/embed/", "/embed/city", "/embed/city/austin-tx/extra", "/", "/ballot"]) {
+      const plain = withSecurityHeaders(new Response("ok"), path);
+      assert.equal(plain.headers.get("X-Frame-Options"), "DENY", path);
+      assert.match(plain.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/, path);
+    }
+  });
+
+  it("withSecurityHeaders replaces an upstream CSP on the embed city route instead of appending", () => {
+    const upstream = new Response("ok", { headers: { "Content-Security-Policy": "frame-ancestors 'none'" } });
+    const framed = withSecurityHeaders(upstream, "/embed/city/austin-tx");
+    const policies = framed.headers.get("Content-Security-Policy");
+    assert.doesNotMatch(policies, /frame-ancestors 'none'/);
+    assert.match(policies, /frame-ancestors \*/);
+    assert.equal(policies.split(",").length, 1);
+  });
+
+  it("isFrameablePath matches the embed city route only", () => {
+    assert.equal(isFrameablePath("/embed/city/austin-tx"), true);
+    assert.equal(isFrameablePath("/embed/city/austin-tx/"), true);
+    assert.equal(isFrameablePath("/EMBED/CITY/Austin-TX"), true);
+    assert.equal(isFrameablePath("/embed/city/"), false);
+    assert.equal(isFrameablePath("/cities/austin-tx"), false);
+    assert.equal(isFrameablePath("/embed.js"), false);
   });
 
   it("withSecurityHeaders enforces the CSP rather than only reporting it", () => {

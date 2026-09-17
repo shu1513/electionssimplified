@@ -258,14 +258,14 @@ describe("enrichBallotMeasure shared provider wiring", () => {
     };
 
     const longSummary = await validateBallotMeasureAiPayload(
-      { ...base, summary: "x".repeat(501) },
+      { ...base, summary: "x".repeat(301) },
       1000,
       new Set(["healthcare_affordability"])
     );
     expect(longSummary.ok).toBe(false);
     if (!longSummary.ok) {
-      expect(longSummary.reason).toContain("summary is 501 characters (max 500)");
-      expect(longSummary.reason).toContain("3-4 short plain sentences");
+      expect(longSummary.reason).toContain("summary is 301 characters (max 300)");
+      expect(longSummary.reason).toContain("two short plain sentences");
     }
 
     const longYes = await validateBallotMeasureAiPayload(
@@ -338,7 +338,7 @@ describe("enrichBallotMeasure shared provider wiring", () => {
 
     expect(callResearchProviderMock).toHaveBeenCalledTimes(2);
     expect(callResearchProviderMock.mock.calls[1]?.[1]).toContain(
-      "Fix this validation issue: summary is 501 characters (max 500)"
+      "Fix this validation issue: summary is 501 characters (max 300)"
     );
     expect(result.ok).toBe(true);
   });

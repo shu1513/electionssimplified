@@ -784,6 +784,7 @@ async function main(): Promise<void> {
         pool,
         await lookupBallotSummariesByDistrictIds(pool, districtIds, {
           includePreview: summaryOptions?.includePreview,
+          electionDate: summaryOptions?.electionDate,
         }),
         summaryOptions
       ),
