@@ -4,7 +4,12 @@ import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
+import { CONTACT_EMAIL } from "../lib/embedPilot";
 import { pageMeta } from "../lib/pageMeta";
+
+// Shown verbatim as the paste-in snippet; kept as a string so JSX never
+// tries to interpret the tag.
+const EMBED_SNIPPET = `<script src="https://electionssimplified.com/embed.js" data-city="los-angeles-ca"></script>`;
 
 export const meta: MetaFunction = () =>
   pageMeta({
@@ -149,6 +154,43 @@ export default function MissionPage() {
           Payments support operating the service, not any candidate, campaign, committee, party, or
           charity.
         </p>
+
+        <h2 className="pt-2 text-heading font-semibold">For organizations and developers</h2>
+        <p>
+          We offer our civic tool at no cost to all organizations and developers that contribute to
+          fair elections and help people get informed. You can use our embed here:
+        </p>
+        <p>Paste this one line where the race list should appear on your page:</p>
+        <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm">
+          <code>{EMBED_SNIPPET}</code>
+        </pre>
+        <ul className="list-disc space-y-1 pl-6">
+          <li>
+            Change the city code. A city code like <code>los-angeles-ca</code> shows every upcoming race
+            that touches that city. A state code like <code>tx</code> shows only the statewide races.
+          </li>
+          <li>
+            The box sizes itself to fit your page, and every link opens our site in a new tab, so
+            your readers stay on your page.
+          </li>
+          <li>
+            We add cities as we finish reviewing them. Email{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
+              {CONTACT_EMAIL}
+            </a>{" "}
+            to request your city or ask for help. Full instructions, including an iframe option, are
+            in the{" "}
+            <a
+              href="https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline hover:text-ink"
+            >
+              embed guide
+            </a>
+            .
+          </li>
+        </ul>
       </section>
 
       {me?.email_verified ? (

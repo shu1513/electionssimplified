@@ -66,6 +66,26 @@ describe("MissionPage", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  it("shows the embed section with the snippet, the contact address, and the guide link", async () => {
+    stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
+    renderMission();
+
+    expect(
+      await screen.findByRole("heading", { name: "For organizations and developers" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('<script src="https://electionssimplified.com/embed.js" data-city="los-angeles-ca"></script>')
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "contact@electionssimplified.com" })).toHaveAttribute(
+      "href",
+      "mailto:contact@electionssimplified.com"
+    );
+    expect(screen.getByRole("link", { name: "embed guide" })).toHaveAttribute(
+      "href",
+      "https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
+    );
+  });
+
   it("asks unverified accounts to verify", async () => {
     stubApiRoutes({ "/api/me": { body: ME_UNVERIFIED } });
     renderMission();
