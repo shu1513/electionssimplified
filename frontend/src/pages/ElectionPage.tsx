@@ -20,6 +20,7 @@ import {
   type ElectionNavState,
 } from "../lib/detailNavContext";
 import { JsonLdScript } from "../components/JsonLdScript";
+import { MeasureFundingSection } from "../components/MeasureFundingSection";
 import { NotFoundNotice } from "../components/NotFoundNotice";
 import { RouteError } from "../components/RouteError";
 import { SourceFootnote } from "../components/SourceFootnote";
@@ -886,6 +887,9 @@ export function ElectionPage() {
                 the ONE pick control (same single-control rule as the
                 candidate page) — and being pinned, it stays on screen while
                 these explainer boxes are read. */}
+            {/* Right after what Yes and No mean: who is paying to push each
+                answer. A measure's title can flatter it; its donors cannot. */}
+            {measure.funding ? <MeasureFundingSection funding={measure.funding} homeState={data.district.state} /> : null}
             {measure.results.length > 0 ? (
               <div className="mt-3">
                 <h3 className="text-subheading font-semibold">Results</h3>

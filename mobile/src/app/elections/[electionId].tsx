@@ -47,6 +47,7 @@ import { NotFoundNotice } from "../../components/NotFoundNotice";
 import { ShareButton } from "../../components/ShareButton";
 import { SortChips } from "../../components/SortChips";
 import { SourceFootnote } from "../../components/SourceFootnote";
+import { MeasureFundingSection } from "../../components/MeasureFundingSection";
 import { SourceLine } from "../../components/SourceLine";
 import { ErrorNotice, LoadingNotice } from "../../components/Status";
 import { openExternalUrl } from "../../lib/openExternalUrl";
@@ -325,6 +326,8 @@ export default function ElectionScreen() {
               <AutoPickControl key={data.id} electionId={data.id} seatsToFill={null} compact />
             </View>
           ) : null}
+          {/* Right after what Yes and No mean: who is paying to push each answer. */}
+          {measure.funding ? <MeasureFundingSection funding={measure.funding} homeState={data.district.state} /> : null}
           {measure.result ? (
             <Text className="mt-3 text-sm font-medium text-ink">
               Result:{" "}

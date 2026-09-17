@@ -15,6 +15,7 @@ export * from "./client";
 export * from "./finance";
 export * from "./format";
 export * from "./legalCopy";
+export * from "./measureFunding";
 export * from "./partyBucket";
 export * from "./partyLabel";
 export * from "./pickProgress";
