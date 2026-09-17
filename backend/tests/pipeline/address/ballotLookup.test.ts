@@ -9161,13 +9161,12 @@ describe("lookupElectionDetailById", () => {
           },
         ],
       })
-      // Measure funding: only the support side was written with committees.
+      // Measure funding: only the support side has donors.
       .mockResolvedValueOnce({
         rows: [
           {
             ballot_measure_id: ballotMeasureId,
             side: "oppose",
-            total_raised: "0.00",
             committees: [],
             top_donors: [],
             as_of: "2026-05-01",
@@ -9175,12 +9174,9 @@ describe("lookupElectionDetailById", () => {
           {
             ballot_measure_id: ballotMeasureId,
             side: "support",
-            total_raised: "1250000.50",
             committees: [
               {
                 name: "Yes on H",
-                total_raised: 1250000.5,
-                from_same_side_committees: 0,
                 also_covers_other_measures: true,
                 source_url: "https://ethics.example.test/committee/1",
               },
@@ -9210,12 +9206,11 @@ describe("lookupElectionDetailById", () => {
     expect(result?.ballot_measure?.funding).toEqual({
       as_of: "2026-05-01",
       support: {
-        total_raised: 1250000.5,
-        shared_with_other_measures_raised: 1250000.5,
+        shared_with_other_measures: true,
         top_donors: [{ name: "County Hospital Association", amount: 900000, type: "organization", state: "CA" }],
         source_urls: ["https://ethics.example.test/committee/1"],
       },
-      oppose: { total_raised: 0, shared_with_other_measures_raised: 0, top_donors: [], source_urls: [] },
+      oppose: { shared_with_other_measures: false, top_donors: [], source_urls: [] },
     });
     expect(result).toMatchObject({
       id: measureElectionId,

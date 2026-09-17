@@ -14,11 +14,9 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // shows who paid, and a committee name can hide that. The committees' filing
 // pages come through as source_urls so a reader can still check the numbers.
 export type BallotMeasureFundingSideView = {
-  total_raised: number;
-  // The part of total_raised held by committees that also back or fight other
-  // measures. That money cannot be assigned to this measure alone, so the
-  // page says how much of the total it is.
-  shared_with_other_measures_raised: number;
+  // True when a committee these donors gave to also backs or fights other
+  // measures, so their money cannot be assigned to this measure alone.
+  shared_with_other_measures: boolean;
   top_donors: BallotMeasureFundingDonor[];
   source_urls: string[];
 };
@@ -32,32 +30,20 @@ export type BallotMeasureFundingView = {
 type BallotMeasureFundingRow = {
   ballot_measure_id: string;
   side: BallotMeasureFundingSide;
-  total_raised: string;
   committees: BallotMeasureFundingCommittee[];
   top_donors: BallotMeasureFundingDonor[];
   as_of: string;
 };
 
 const EMPTY_SIDE: BallotMeasureFundingSideView = {
-  total_raised: 0,
-  shared_with_other_measures_raised: 0,
+  shared_with_other_measures: false,
   top_donors: [],
   source_urls: [],
 };
 
 function toSideView(row: BallotMeasureFundingRow): BallotMeasureFundingSideView {
-  // Same netting as the side total: money a committee got from another listed
-  // committee on its side is not counted again. Summed in cents.
-  const sharedCents = row.committees
-    .filter((committee) => committee.also_covers_other_measures)
-    .reduce(
-      (sum, committee) =>
-        sum + Math.round(committee.total_raised * 100) - Math.round(committee.from_same_side_committees * 100),
-      0
-    );
   return {
-    total_raised: Number(row.total_raised),
-    shared_with_other_measures_raised: sharedCents / 100,
+    shared_with_other_measures: row.committees.some((committee) => committee.also_covers_other_measures),
     top_donors: row.top_donors,
     source_urls: [...new Set(row.committees.map((committee) => committee.source_url))],
   };
@@ -73,7 +59,6 @@ export async function loadBallotMeasureFundingByMeasure(
       SELECT
         f.ballot_measure_id,
         f.side,
-        f.total_raised::text AS total_raised,
         f.committees,
         f.top_donors,
         f.as_of::text AS as_of
@@ -99,8 +84,8 @@ export async function loadBallotMeasureFundingByMeasure(
 }
 
 // Writes both sides every time. An empty side is a finding ("researched, no
-// committee reported money"), and a refresh must be able to replace a side
-// that had committees with an empty one. Run inside the caller's transaction
+// donors reported"), and a refresh must be able to replace a side that had
+// donors with an empty one. Run inside the caller's transaction
 // so a measure never shows one fresh side next to one stale side.
 export async function upsertBallotMeasureFunding(
   client: Queryable,
@@ -114,15 +99,13 @@ export async function upsertBallotMeasureFunding(
         INSERT INTO public.ballot_measure_funding (
           ballot_measure_id,
           side,
-          total_raised,
           committees,
           top_donors,
           as_of
         )
-        VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::date)
+        VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::date)
         ON CONFLICT (ballot_measure_id, side)
         DO UPDATE SET
-          total_raised = EXCLUDED.total_raised,
           committees = EXCLUDED.committees,
           top_donors = EXCLUDED.top_donors,
           as_of = EXCLUDED.as_of
@@ -130,8 +113,6 @@ export async function upsertBallotMeasureFunding(
       [
         ballotMeasureId,
         side,
-        // numeric(14,2): pass as a fixed-point string so no float digits leak in.
-        record.total_raised.toFixed(2),
         JSON.stringify(record.committees),
         JSON.stringify(record.top_donors),
         payload.as_of,

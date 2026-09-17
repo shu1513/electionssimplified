@@ -11,19 +11,23 @@ const MEASURE_ID = "11111111-1111-4111-8111-111111111111";
 const PAYLOAD: BallotMeasureFundingPayload = {
   as_of: "2026-09-17",
   sides: {
-    support: { total_raised: 0, committees: [], top_donors: [] },
+    support: { committees: [], top_donors: [] },
     oppose: {
-      total_raised: 7805687.5,
       committees: [
         {
           name: "No on 645",
-          total_raised: 7805687.5,
-          from_same_side_committees: 0,
           also_covers_other_measures: false,
           source_url: "https://www.pdc.wa.gov/committees/co-2026-42211",
         },
       ],
-      top_donors: [{ name: "Washington Education Association", amount: 3014260.91, type: "organization" }],
+      top_donors: [
+        {
+          name: "Washington Education Association",
+          amount: 3014260.91,
+          type: "organization",
+          about: "Washington's teachers union",
+        },
+      ],
     },
   },
 };
@@ -44,13 +48,10 @@ describe("loadBallotMeasureFundingByMeasure", () => {
         {
           ballot_measure_id: MEASURE_ID,
           side: "oppose",
-          total_raised: "7805687.50",
           committees: [
             ...PAYLOAD.sides.oppose.committees,
             {
               name: "Permanent Defense PAC",
-              total_raised: 7573.61,
-              from_same_side_committees: 0,
               also_covers_other_measures: true,
               source_url: "https://www.pdc.wa.gov/committees/co-2026-42211",
             },
@@ -66,11 +67,9 @@ describe("loadBallotMeasureFundingByMeasure", () => {
     expect(result.get(MEASURE_ID)).toEqual({
       as_of: "2026-09-17",
       // A side with no row reads as empty rather than missing.
-      support: { total_raised: 0, shared_with_other_measures_raised: 0, top_donors: [], source_urls: [] },
+      support: { shared_with_other_measures: false, top_donors: [], source_urls: [] },
       oppose: {
-        total_raised: 7805687.5,
-        // Only the PAC that also works on other measures counts here.
-        shared_with_other_measures_raised: 7573.61,
+        shared_with_other_measures: true,
         top_donors: PAYLOAD.sides.oppose.top_donors,
         // Two committees filed on one page: the link is listed once.
         source_urls: ["https://www.pdc.wa.gov/committees/co-2026-42211"],
@@ -91,7 +90,6 @@ describe("upsertBallotMeasureFunding", () => {
     expect(query).toHaveBeenNthCalledWith(1, expect.stringContaining("ON CONFLICT (ballot_measure_id, side)"), [
       MEASURE_ID,
       "support",
-      "0.00",
       "[]",
       "[]",
       "2026-09-17",
@@ -99,10 +97,10 @@ describe("upsertBallotMeasureFunding", () => {
     expect(query).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO public.ballot_measure_funding"), [
       MEASURE_ID,
       "oppose",
-      "7805687.50",
       JSON.stringify(PAYLOAD.sides.oppose.committees),
       JSON.stringify(PAYLOAD.sides.oppose.top_donors),
       "2026-09-17",
     ]);
+    expect(String(query.mock.calls[0]?.[0])).not.toContain("total_raised");
   });
 });

@@ -16,14 +16,18 @@ const onSourceClick = (url: string) => () =>
 type SourceFootnoteProps = {
   urls: string[];
   className?: string;
+  /** Short text put before "Source:" on the same line ("Filings as of …"),
+   * so a date and its source do not stack as two separate lines. */
+  lead?: string;
 };
 
-export function SourceFootnote({ urls, className }: SourceFootnoteProps) {
+export function SourceFootnote({ urls, className, lead }: SourceFootnoteProps) {
   const groups = groupSourcesByHost(urls);
   if (groups.length === 0) return null;
   const single = groups.length === 1 && groups[0].urls.length === 1;
   return (
     <p className={`text-xs text-ink-soft${className ? ` ${className}` : ""}`}>
+      {lead ? `${lead} · ` : null}
       {single ? "Source:" : "Sources:"}{" "}
       {groups.map((group, index) => (
         <Fragment key={group.host}>

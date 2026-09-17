@@ -8,14 +8,20 @@ function committee(overrides: Record<string, unknown> = {}): Record<string, unkn
   return {
     name: "No on 645",
     committee_id: "645-N--960",
-    total_raised: 7805687.57,
-    source_url: "https://www.pdc.wa.gov/political-disclosure-reporting-data/browse-search-data/committees/645-N--960",
+    source_url: "https://www.pdc.wa.gov/political-disclosure-reporting-data/browse-search-data/committees/co-2026-42211",
     ...overrides,
   };
 }
 
 function donor(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return { name: "Washington Education Association", amount: 3014260.91, type: "organization", state: "WA", ...overrides };
+  return {
+    name: "Washington Education Association",
+    amount: 3014260.91,
+    type: "organization",
+    state: "WA",
+    about: "Washington's teachers union",
+    ...overrides,
+  };
 }
 
 function emptySide(): Record<string, unknown> {
@@ -44,49 +50,36 @@ function reasonOf(value: unknown): string {
 }
 
 describe("parseBallotMeasureFundingPayload", () => {
-  it("accepts a payload and computes each side's total from its committees", () => {
-    const result = parse(payload());
-    expect(result).toEqual({
+  it("accepts a payload and normalizes it", () => {
+    expect(parse(payload())).toEqual({
       ok: true,
       payload: {
         as_of: "2026-09-17",
         sides: {
-          support: { total_raised: 0, committees: [], top_donors: [] },
+          support: { committees: [], top_donors: [] },
           oppose: {
-            total_raised: 7805687.57,
             committees: [
               {
                 name: "No on 645",
                 committee_id: "645-N--960",
-                total_raised: 7805687.57,
-                from_same_side_committees: 0,
                 also_covers_other_measures: false,
                 source_url:
-                  "https://www.pdc.wa.gov/political-disclosure-reporting-data/browse-search-data/committees/645-N--960",
+                  "https://www.pdc.wa.gov/political-disclosure-reporting-data/browse-search-data/committees/co-2026-42211",
               },
             ],
             top_donors: [
-              { name: "Washington Education Association", amount: 3014260.91, type: "organization", state: "WA" },
+              {
+                name: "Washington Education Association",
+                amount: 3014260.91,
+                type: "organization",
+                state: "WA",
+                about: "Washington's teachers union",
+              },
             ],
           },
         },
       },
     });
-  });
-
-  it("subtracts same-side transfers so money is not counted twice", () => {
-    const result = parse(
-      payload({
-        support: {
-          committees: [
-            committee({ name: "Yes on 37", committee_id: "1481256", total_raised: 10_000_000.1, from_same_side_committees: 8_850_000 }),
-            committee({ name: "Homeownership for Families", committee_id: "1400190", total_raised: 9_000_000.2 }),
-          ],
-          top_donors: [donor({ name: "National Association of Realtors", amount: 2_000_000, state: "IL" })],
-        },
-      })
-    );
-    expect(result.ok && result.payload.sides.support.total_raised).toBe(10_150_000.3);
   });
 
   it("sorts donors largest first and keeps payload order on ties", () => {
@@ -122,6 +115,38 @@ describe("parseBallotMeasureFundingPayload", () => {
     expect(result.payload.sides.oppose.top_donors[0]).not.toHaveProperty("state");
   });
 
+  it("keeps who is behind a pass-through donor", () => {
+    const result = parse(
+      payload({
+        oppose: {
+          committees: [committee()],
+          top_donors: [
+            donor({ name: "Building a Better California", funded_by: [" Sergey Brin ", "L. John  Doerr, III"] }),
+          ],
+        },
+      })
+    );
+    expect(result.ok && result.payload.sides.oppose.top_donors[0]?.funded_by).toEqual([
+      "Sergey Brin",
+      "L. John Doerr, III",
+    ]);
+    const withFundedBy = (fundedBy: unknown) =>
+      payload({ oppose: { committees: [committee()], top_donors: [donor({ funded_by: fundedBy })] } });
+    expect(reasonOf(withFundedBy([]))).toContain("funded_by must list 1 to 3 names");
+    expect(reasonOf(withFundedBy(["A", "B", "C", "D"]))).toContain("funded_by must list 1 to 3 names");
+    expect(reasonOf(withFundedBy("Sergey Brin"))).toContain("funded_by must list 1 to 3 names");
+  });
+
+  it("keeps a short description of who a donor is", () => {
+    const withAbout = (about: unknown) =>
+      payload({ oppose: { committees: [committee()], top_donors: [donor({ about })] } });
+    const result = parse(withAbout(" Washington's  teachers union "));
+    expect(result.ok && result.payload.sides.oppose.top_donors[0]?.about).toBe("Washington's teachers union");
+    expect(reasonOf(withAbout(""))).toContain("about is required");
+    expect(reasonOf(withAbout(undefined))).toContain('say what "Washington Education Association" is');
+    expect(reasonOf(withAbout("x".repeat(61)))).toContain("at most 60 characters");
+  });
+
   it("rejects a payload that is not an object or has a bad as_of", () => {
     expect(reasonOf([])).toBe("payload must be an object");
     expect(reasonOf(payload({ as_of: "2026-02-30" }))).toContain("as_of must be a valid YYYY-MM-DD date");
@@ -133,19 +158,22 @@ describe("parseBallotMeasureFundingPayload", () => {
     expect(reasonOf(payload({ oppose: { committees: [] } }))).toContain("oppose top_donors must be an array");
   });
 
-  it("rejects totals supplied in the payload", () => {
+  it("rejects totals, which are no longer stored or shown", () => {
     expect(reasonOf(payload({ support: { ...emptySide(), total_raised: 5 } }))).toContain(
-      "support total_raised is computed from the committees"
+      "support total_raised is no longer part of this payload"
     );
+    expect(reasonOf(payload({ oppose: { committees: [committee({ total_raised: 7805687.57 })], top_donors: [] } }))).toContain(
+      "oppose committees[0] total_raised is no longer part of this payload"
+    );
+    expect(
+      reasonOf(payload({ oppose: { committees: [committee({ from_same_side_committees: 1 })], top_donors: [] } }))
+    ).toContain("from_same_side_committees is no longer part of this payload");
   });
 
   it("rejects bad committee fields", () => {
     const withCommittee = (overrides: Record<string, unknown>) =>
       payload({ oppose: { committees: [committee(overrides)], top_donors: [] } });
     expect(reasonOf(withCommittee({ name: " " }))).toContain("name must be non-empty string");
-    expect(reasonOf(withCommittee({ total_raised: "7805687.57" }))).toContain("total_raised must be a number");
-    expect(reasonOf(withCommittee({ total_raised: -1 }))).toContain("must be zero or more");
-    expect(reasonOf(withCommittee({ from_same_side_committees: 9_000_000 }))).toContain("cannot exceed its total_raised");
     expect(reasonOf(withCommittee({ also_covers_other_measures: "yes" }))).toContain("must be true or false");
     expect(reasonOf(withCommittee({ source_url: "pdc.wa.gov" }))).toContain("source_url must be valid http(s) URL");
     expect(reasonOf(withCommittee({ source_url: "https://ballotpedia.org/Washington_IL26-645" }))).toContain(
@@ -158,10 +186,12 @@ describe("parseBallotMeasureFundingPayload", () => {
     const withDonor = (overrides: Record<string, unknown>) =>
       payload({ oppose: { committees: [committee()], top_donors: [donor(overrides)] } });
     expect(reasonOf(withDonor({ amount: 0 }))).toContain("amount must be greater than zero");
+    // Positive, but rounds to zero cents.
+    expect(reasonOf(withDonor({ amount: 0.001 }))).toContain("amount must be greater than zero");
+    expect(reasonOf(withDonor({ amount: "3014260.91" }))).toContain("amount must be a number");
     expect(reasonOf(withDonor({ type: "union" }))).toContain("type must be organization or individual");
     expect(reasonOf(withDonor({ state: "Wa" }))).toContain("state must be a two-letter uppercase code");
     expect(reasonOf(withDonor({ name: "SMALL CONTRIBUTIONS" }))).toContain("roll-up line");
-    expect(reasonOf(withDonor({ amount: 8_000_000 }))).toContain("more than the side's total raised");
   });
 
   it("rejects duplicates and committees posing as donors", () => {
@@ -177,18 +207,6 @@ describe("parseBallotMeasureFundingPayload", () => {
     expect(reasonOf(payload({ support: { committees: [committee()], top_donors: [] } }))).toContain(
       "listed under both support and oppose"
     );
-  });
-
-  it("rejects donors who together gave more than the side raised", () => {
-    const result = reasonOf(
-      payload({
-        oppose: {
-          committees: [committee({ total_raised: 1000 })],
-          top_donors: [donor({ name: "A", amount: 800 }), donor({ name: "B", amount: 800 })],
-        },
-      })
-    );
-    expect(result).toContain("top_donors add up to 1600, more than the side's total raised (1000)");
   });
 
   it("rejects one committee id entered under two names, on one side or across sides", () => {
@@ -214,7 +232,7 @@ describe("parseBallotMeasureFundingPayload", () => {
         },
       })
     );
-    expect(result.ok && result.payload.sides.oppose.total_raised).toBe(15611375.14);
+    expect(result.ok && result.payload.sides.oppose.committees).toHaveLength(2);
   });
 
   it("rejects donors without a committee and more than five donors", () => {

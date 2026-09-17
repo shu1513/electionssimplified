@@ -126,7 +126,6 @@ async function main(): Promise<void> {
         BALLOT_MEASURE_FUNDING_SIDES.map((side) => [
           side,
           {
-            totalRaised: payload.sides[side].total_raised,
             committeeCount: payload.sides[side].committees.length,
             topDonors: payload.sides[side].top_donors.map((donor) => `${donor.name}: ${donor.amount}`),
           },
