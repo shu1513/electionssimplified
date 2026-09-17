@@ -148,11 +148,15 @@ export function withSecurityHeaders(response, pathname = "") {
       wrapped.headers.delete(name);
       continue;
     }
-    const effective = name === "Content-Security-Policy" && frameable ? EMBED_CSP_POLICY : value;
-    if (name === "Content-Security-Policy" && wrapped.headers.has(name)) {
-      wrapped.headers.append(name, effective);
+    if (name === "Content-Security-Policy" && frameable) {
+      // Replace rather than append: browsers enforce every CSP header on a
+      // response, so an upstream frame-ancestors 'none' would still block
+      // the frame. Only our own SSR page is served on this path.
+      wrapped.headers.set(name, EMBED_CSP_POLICY);
+    } else if (name === "Content-Security-Policy" && wrapped.headers.has(name)) {
+      wrapped.headers.append(name, value);
     } else {
-      wrapped.headers.set(name, effective);
+      wrapped.headers.set(name, value);
     }
   }
   wrapped.headers.set("Referrer-Policy", referrerPolicyForPath(pathname));

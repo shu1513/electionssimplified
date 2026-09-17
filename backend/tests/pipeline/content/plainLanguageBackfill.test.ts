@@ -45,9 +45,9 @@ describe("mechanicalCheckFailure", () => {
   it("rejects a rewrite over the absolute cap even when the relative bounds pass", () => {
     const longOriginal = `The measure ${"details ".repeat(75)}ends.`; // ~620 chars
     const stillLongRewrite = `Plainly, ${"words ".repeat(85)}done.`; // ~520 chars, ~84% of original
-    // measure_summary carries the generation-time cap (500)...
+    // measure_summary carries the generation-time cap (300)...
     expect(mechanicalCheckFailure("measure_summary", longOriginal, stillLongRewrite)).toContain(
-      "absolute max 500 for measure_summary"
+      "absolute max 300 for measure_summary"
     );
     // ...record_description has none, so the same lengths pass.
     expect(mechanicalCheckFailure("record_description", longOriginal, stillLongRewrite)).toBeNull();

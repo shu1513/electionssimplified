@@ -45,6 +45,9 @@ describe("readConfig", () => {
       readConfig(writeConfig({ publishers: [], cities: [{ ...VALID_CITY, election_date: "11/03/2026" }] }))
     ).toThrow(/YYYY-MM-DD/);
     expect(() =>
+      readConfig(writeConfig({ publishers: [], cities: [{ ...VALID_CITY, election_date: "2026-02-30" }] }))
+    ).toThrow(/calendar dates/);
+    expect(() =>
       readConfig(writeConfig({ publishers: [], cities: [{ ...VALID_CITY, official_source_url: "http://x" }] }))
     ).toThrow(/https/);
     expect(() => readConfig(writeConfig({ publishers: [], cities: [{ ...VALID_CITY, enabled: "yes" }] }))).toThrow(

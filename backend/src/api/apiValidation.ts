@@ -1218,11 +1218,9 @@ export function parseBallotSummaryOptions(
 
   const rawElectionDate = url.searchParams.get("election_date");
   if (rawElectionDate !== null) {
-    const value = rawElectionDate.trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(`${value}T00:00:00Z`))) {
-      throw new RequestValidationError("Query parameter election_date must be a valid YYYY-MM-DD date");
-    }
-    options.electionDate = value;
+    // Same strict calendar check as the pick-card date: "2026-02-30" must
+    // 400 here, not 500 on Postgres's ::date cast.
+    options.electionDate = assertValidElectionDate(rawElectionDate.trim());
   }
 
   const rawSort = url.searchParams.get("sort");

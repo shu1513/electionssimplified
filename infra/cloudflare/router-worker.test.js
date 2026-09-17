@@ -496,6 +496,15 @@ describe("security headers", () => {
     }
   });
 
+  it("withSecurityHeaders replaces an upstream CSP on the embed city route instead of appending", () => {
+    const upstream = new Response("ok", { headers: { "Content-Security-Policy": "frame-ancestors 'none'" } });
+    const framed = withSecurityHeaders(upstream, "/embed/city/austin-tx");
+    const policies = framed.headers.get("Content-Security-Policy");
+    assert.doesNotMatch(policies, /frame-ancestors 'none'/);
+    assert.match(policies, /frame-ancestors \*/);
+    assert.equal(policies.split(",").length, 1);
+  });
+
   it("isFrameablePath matches the embed city route only", () => {
     assert.equal(isFrameablePath("/embed/city/austin-tx"), true);
     assert.equal(isFrameablePath("/embed/city/austin-tx/"), true);

@@ -87,7 +87,10 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
     },
     // Where a session arrived from when a partner link tagged it: the
     // newsroom-embed publisher code (docs/plans/usage-analytics.md §3 —
-    // an allowlist we set, never a UTM value).
+    // an allowlist we set, never a UTM value). The allowlist itself lives in
+    // the frontend manifest, so the server checks shape only; anyone can
+    // post a well-formed unknown code here. Reporting must therefore join
+    // this value against the manifest's publisher list and ignore the rest.
     optional: { source: { kind: "code" } },
   },
   auth_resolved: { required: { auth: oneOf("guest", "signed_in") } },

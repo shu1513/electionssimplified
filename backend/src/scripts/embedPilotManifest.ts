@@ -33,6 +33,15 @@ const OUTPUT_PATH = path.resolve(HERE, "../../../frontend/src/data/embedPilotCit
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Shape AND calendar: "2026-02-30" passes the regex but Postgres rejects it. */
+function isRealDate(value: string): boolean {
+  if (!ISO_DATE.test(value) || value.startsWith("0000")) {
+    return false;
+  }
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
 const MAX_SLUG_LENGTH = 48;
 
 type PilotCityInput = {
@@ -117,8 +126,8 @@ export function readConfig(filePath: string): PilotConfig {
     seen.add(slug);
     const electionDate = str("election_date");
     const reviewDate = str("review_date");
-    if (!ISO_DATE.test(electionDate) || !ISO_DATE.test(reviewDate)) {
-      fail(`${filePath}: cities[${index}] dates must be YYYY-MM-DD`);
+    if (!isRealDate(electionDate) || !isRealDate(reviewDate)) {
+      fail(`${filePath}: cities[${index}] dates must be real YYYY-MM-DD calendar dates`);
     }
     const url = str("official_source_url");
     if (!url.startsWith("https://")) {
@@ -160,8 +169,8 @@ export function readConfig(filePath: string): PilotConfig {
     seen.add(slug);
     const electionDate = str("election_date");
     const reviewDate = str("review_date");
-    if (!ISO_DATE.test(electionDate) || !ISO_DATE.test(reviewDate)) {
-      fail(`${filePath}: states[${index}] dates must be YYYY-MM-DD`);
+    if (!isRealDate(electionDate) || !isRealDate(reviewDate)) {
+      fail(`${filePath}: states[${index}] dates must be real YYYY-MM-DD calendar dates`);
     }
     const url = str("official_source_url");
     if (!url.startsWith("https://")) {

@@ -60,7 +60,7 @@ export function buildBallotMeasuresPrompt(input: BallotMeasurePromptInput): stri
     "Rules:",
     "- Actively search the public web for this measure.",
     "- official_measure_url must point to the source where a reader can view the full official measure text in its entirety (for example, the election authority's official measure page or official PDF text).",
-    "- summary is exactly two short sentences at a 7th-grade reading level. Sentence one says what the measure does in everyday words. Sentence two says how it affects the reader: the cost, tax, service, or right that changes for them. Round dollar amounts (\"$390 million\", not \"$391.5 million\"), at most one number per sentence, no statute names, no legal terms such as \"enrolled\" or \"amend the code\".",
+    "- summary is exactly two short sentences at the reading level the style rules above set. Sentence one says what the measure does in everyday words. Sentence two says how it affects the reader: the cost, tax, service, or right that changes for them. Round dollar amounts (\"$390 million\", not \"$391.5 million\"), at most one number per sentence, no statute names, no legal terms such as \"enrolled\" or \"amend the code\".",
     `- summary must be at most ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH} characters — voters skim it; cut everything that is not the main change or its effect on the reader.`,
     "- what_yes_means and what_no_means must be concrete and neutral: state what actually changes in the real world (who pays or gets what, which rule takes effect), never a restatement like 'adopts the measure' or 'the changes described'.",
     `- what_yes_means and what_no_means must each be at most 1-2 short sentences and at most ${BALLOT_MEASURE_YES_NO_MAX_LENGTH} characters.`,
