@@ -25,34 +25,26 @@ function FundingSide({
   return (
     <View className={`rounded border p-3 ${boxClass}`}>
       <Text className={`text-sm font-semibold ${textClass}`}>{heading}</Text>
-      {side.total_raised > 0 ? (
+      {side.top_donors.length > 0 ? (
         <>
-          <Text className={`mt-1 text-sm ${textClass}`}>
-            Raised <Text className="font-semibold">{formatMoney(side.total_raised)}</Text>
-          </Text>
-          {side.top_donors.length > 0 ? (
-            <>
-              <Text className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">Largest donors</Text>
-              <View className="mt-1 gap-0.5">
-                {side.top_donors.map((donor) => (
-                  <View key={donor.name} className="flex-row justify-between gap-3">
-                    <Text className="flex-1 text-sm text-ink">
-                      {donor.name}
-                      {/* Only out-of-state money is marked. */}
-                      {donor.state && donor.state !== homeState ? (
-                        <Text className="text-ink-soft"> · {donor.state}</Text>
-                      ) : null}
-                    </Text>
-                    <Text className="text-sm text-ink-soft">{formatMoney(donor.amount)}</Text>
-                  </View>
-                ))}
+          <View className="mt-1 gap-0.5">
+            {side.top_donors.map((donor) => (
+              <View key={donor.name} className="flex-row justify-between gap-3">
+                <Text className="flex-1 text-sm text-ink">
+                  {donor.name}
+                  {/* Only out-of-state money is marked. */}
+                  {donor.state && donor.state !== homeState ? (
+                    <Text className="text-ink-soft"> · {donor.state}</Text>
+                  ) : null}
+                </Text>
+                <Text className="text-sm text-ink-soft">{formatMoney(donor.amount)}</Text>
               </View>
-            </>
-          ) : null}
+            ))}
+          </View>
           {sharedNote ? <Text className="mt-2 text-xs text-ink-soft">{sharedNote}</Text> : null}
         </>
       ) : (
-        <Text className="mt-1 text-sm text-ink-soft">No group has reported raising money.</Text>
+        <Text className="mt-1 text-sm text-ink-soft">No donors reported.</Text>
       )}
     </View>
   );
@@ -71,19 +63,19 @@ export function MeasureFundingSection({
       <Text className="text-sm font-semibold text-ink">Who is paying for the campaigns</Text>
       {measureFundingIsEmpty(funding) ? (
         <Text className="mt-1 text-sm text-ink-soft">
-          No group has reported raising money for or against this measure.
+          No donors reported for or against this measure.
         </Text>
       ) : (
         <View className="mt-2 gap-3">
           <FundingSide
-            heading="Supporting"
+            heading="Largest donors supporting"
             side={funding.support}
             homeState={homeState}
             boxClass="border-green-200 bg-green-50"
             textClass="text-green-900"
           />
           <FundingSide
-            heading="Opposing"
+            heading="Largest donors opposing"
             side={funding.oppose}
             homeState={homeState}
             boxClass="border-red-200 bg-red-50"

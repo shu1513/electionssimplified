@@ -24,35 +24,27 @@ function FundingSide({
   return (
     <div className={`rounded border p-3 ${boxClass}`}>
       <h4 className={`text-sm font-semibold ${textClass}`}>{heading}</h4>
-      {side.total_raised > 0 ? (
+      {side.top_donors.length > 0 ? (
         <>
-          <p className={`mt-1 text-sm ${textClass}`}>
-            Raised <span className="font-semibold">{formatMoney(side.total_raised)}</span>
-          </p>
-          {side.top_donors.length > 0 ? (
-            <>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">Largest donors</p>
-              <ul className="mt-1 space-y-0.5">
-                {side.top_donors.map((donor) => (
-                  <li key={donor.name} className="flex justify-between gap-3 text-sm">
-                    <span className="text-ink">
-                      {donor.name}
-                      {/* Only out-of-state money is marked: a state code on
-                          every local donor is noise, on one it is the news. */}
-                      {donor.state && donor.state !== homeState ? (
-                        <span className="text-ink-soft"> · {donor.state}</span>
-                      ) : null}
-                    </span>
-                    <span className="shrink-0 text-ink-soft">{formatMoney(donor.amount)}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : null}
+          <ul className="mt-1 space-y-0.5">
+            {side.top_donors.map((donor) => (
+              <li key={donor.name} className="flex justify-between gap-3 text-sm">
+                <span className="text-ink">
+                  {donor.name}
+                  {/* Only out-of-state money is marked: a state code on
+                      every local donor is noise, on one it is the news. */}
+                  {donor.state && donor.state !== homeState ? (
+                    <span className="text-ink-soft"> · {donor.state}</span>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-ink-soft">{formatMoney(donor.amount)}</span>
+              </li>
+            ))}
+          </ul>
           {sharedNote ? <p className="mt-2 text-xs text-ink-soft">{sharedNote}</p> : null}
         </>
       ) : (
-        <p className="mt-1 text-sm text-ink-soft">No group has reported raising money.</p>
+        <p className="mt-1 text-sm text-ink-soft">No donors reported.</p>
       )}
     </div>
   );
@@ -70,18 +62,18 @@ export function MeasureFundingSection({
     <div className="mt-3">
       <h3 className="text-subheading font-semibold">Who is paying for the campaigns</h3>
       {measureFundingIsEmpty(funding) ? (
-        <p className="mt-1 text-sm text-ink-soft">No group has reported raising money for or against this measure.</p>
+        <p className="mt-1 text-sm text-ink-soft">No donors reported for or against this measure.</p>
       ) : (
         <div className="mt-2 grid gap-3 sm:grid-cols-2">
           <FundingSide
-            heading="Supporting"
+            heading="Largest donors supporting"
             side={funding.support}
             homeState={homeState}
             boxClass="border-green-200 bg-green-50"
             textClass="text-green-900"
           />
           <FundingSide
-            heading="Opposing"
+            heading="Largest donors opposing"
             side={funding.oppose}
             homeState={homeState}
             boxClass="border-red-200 bg-red-50"

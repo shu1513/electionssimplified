@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import { measureFundingIsEmpty, measureFundingSharedNote } from "./measureFunding";
 import type { BallotMeasureFunding, BallotMeasureFundingSide } from "./types";
 
+const DONOR = { name: "Brian Heywood", amount: 606_869, type: "individual" as const };
+
 function side(overrides: Partial<BallotMeasureFundingSide> = {}): BallotMeasureFundingSide {
-  return { total_raised: 0, shared_with_other_measures_raised: 0, top_donors: [], source_urls: [], ...overrides };
+  return { shared_with_other_measures: false, top_donors: [], source_urls: [], ...overrides };
 }
 
 function funding(overrides: Partial<BallotMeasureFunding> = {}): BallotMeasureFunding {
@@ -12,27 +14,21 @@ function funding(overrides: Partial<BallotMeasureFunding> = {}): BallotMeasureFu
 }
 
 describe("measureFundingSharedNote", () => {
-  it("says how much came from groups that also work on other measures", () => {
-    expect(measureFundingSharedNote(side({ total_raised: 5_006_868.25, shared_with_other_measures_raised: 3_727_713.25 }))).toBe(
-      "$3,727,713 of this was raised by groups that also work on other measures."
+  it("warns when the donors' money went to groups that also work on other measures", () => {
+    expect(measureFundingSharedNote(side({ shared_with_other_measures: true, top_donors: [DONOR] }))).toBe(
+      "Some of this money went to groups that also work on other measures."
     );
   });
 
-  it("stays quiet when the shared part is small or the side is empty", () => {
-    expect(measureFundingSharedNote(side({ total_raised: 8_057_060.18, shared_with_other_measures_raised: 7_573.61 }))).toBeNull();
-    expect(measureFundingSharedNote(side())).toBeNull();
-  });
-
-  it("uses plain wording when all of the money is shared", () => {
-    expect(measureFundingSharedNote(side({ total_raised: 100, shared_with_other_measures_raised: 100 }))).toBe(
-      "The groups that raised this also work on other measures."
-    );
+  it("stays quiet when nothing is shared or there are no donors to qualify", () => {
+    expect(measureFundingSharedNote(side({ top_donors: [DONOR] }))).toBeNull();
+    expect(measureFundingSharedNote(side({ shared_with_other_measures: true }))).toBeNull();
   });
 });
 
 describe("measureFundingIsEmpty", () => {
-  it("is true only when neither side reported money", () => {
+  it("is true only when neither side has a donor", () => {
     expect(measureFundingIsEmpty(funding())).toBe(true);
-    expect(measureFundingIsEmpty(funding({ oppose: side({ total_raised: 1 }) }))).toBe(false);
+    expect(measureFundingIsEmpty(funding({ oppose: side({ top_donors: [DONOR] }) }))).toBe(false);
   });
 });

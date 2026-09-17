@@ -410,13 +410,12 @@ export type BallotMeasureFundingDonor = {
 };
 
 export type BallotMeasureFundingSide = {
-  total_raised: number;
   /**
-   * Part of total_raised held by committees that also work on other measures,
-   * so it cannot be assigned to this measure alone.
+   * True when a group these donors gave to also works on other measures, so
+   * their money cannot be assigned to this measure alone.
    */
-  shared_with_other_measures_raised: number;
-  /** Largest first, at most five. */
+  shared_with_other_measures: boolean;
+  /** Largest first, at most five. Empty = no donors reported on this side. */
   top_donors: BallotMeasureFundingDonor[];
   /** Official filing pages the numbers were read from. */
   source_urls: string[];

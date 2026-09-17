@@ -2,12 +2,17 @@ import { findBlockedSourceReason } from "../pipeline/candidates/candidateRecordS
 import { normalizeHttpUrl } from "../utils/normalizeHttpUrl.js";
 
 // Payload contract for manual:ballot-measure-funding:write. One payload
-// describes one measure: the committees registered for and against it in the
-// official campaign finance system, and the largest donors behind each side.
+// describes one measure: the largest donors behind each side, and the
+// committees those donors gave to, from the official campaign finance system.
 //
 // The page shows donors, not committee names — a committee name ("Consumers
 // for Smart Solar") can hide who is paying. Committees are still stored so a
 // later refresh reads the same filings and a reviewer can audit the numbers.
+//
+// There is deliberately no "total raised". Readers want to know which
+// interests are paying, and states do not publish a total on the same date
+// as their donor lists (California's totals run weeks behind its top-10
+// lists), so a total next to the donors would mix two dates.
 
 export const BALLOT_MEASURE_FUNDING_SIDES = ["support", "oppose"] as const;
 export type BallotMeasureFundingSide = (typeof BALLOT_MEASURE_FUNDING_SIDES)[number];
@@ -18,12 +23,8 @@ export const BALLOT_MEASURE_FUNDING_MAX_COMMITTEES = 20;
 export type BallotMeasureFundingCommittee = {
   name: string;
   committee_id?: string;
-  total_raised: number;
-  // Money this committee received from another listed committee on the same
-  // side. Subtracted from the side total so a transfer is not counted twice.
-  from_same_side_committees: number;
-  // True when the committee also backs or fights other measures, so its money
-  // cannot be assigned to this measure alone.
+  // True when the committee also backs or fights other measures, so a gift to
+  // it cannot be assigned to this measure alone.
   also_covers_other_measures: boolean;
   source_url: string;
 };
@@ -36,7 +37,6 @@ export type BallotMeasureFundingDonor = {
 };
 
 export type BallotMeasureFundingSideRecord = {
-  total_raised: number;
   committees: BallotMeasureFundingCommittee[];
   top_donors: BallotMeasureFundingDonor[];
 };
@@ -58,9 +58,14 @@ const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const STATE_PATTERN = /^[A-Z]{2}$/;
 const DONOR_TYPES = new Set(["organization", "individual"]);
 
-// Totals are computed here from the committee rows. A payload that carries
-// its own total was built by agent arithmetic, which is what we reject.
-const DERIVED_SIDE_FIELDS = ["total_raised", "total_from_top_donors"] as const;
+// Totals were part of this payload once. Rejecting them (rather than dropping
+// them silently) tells the researcher they are not stored or shown.
+const REMOVED_TOTAL_FIELDS = ["total_raised", "from_same_side_committees", "total_from_top_donors"] as const;
+
+function findRemovedTotalField(value: Record<string, unknown>, label: string): string | null {
+  const field = REMOVED_TOTAL_FIELDS.find((name) => name in value);
+  return field ? `${label} ${field} is no longer part of this payload; totals are not stored, list only committees and top_donors` : null;
+}
 
 // Money figures must be read from the official filing system. These sites
 // re-report filings, so their numbers can be stale or netted differently.
@@ -96,12 +101,12 @@ function toCents(value: number): number {
   return Math.round(value * 100);
 }
 
-function parseMoney(value: unknown, label: string, options: { allowZero: boolean }): number | { reason: string } {
+function parseMoney(value: unknown, label: string): number | { reason: string } {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return { reason: `${label} must be a number (dollars, no quotes or symbols): ${String(value)}` };
   }
-  if (value < 0 || (!options.allowZero && value === 0)) {
-    return { reason: `${label} must be ${options.allowZero ? "zero or more" : "greater than zero"}: ${value}` };
+  if (value <= 0) {
+    return { reason: `${label} must be greater than zero: ${value}` };
   }
   return toCents(value) / 100;
 }
@@ -128,22 +133,9 @@ function parseCommittee(
     return { ok: false, reason: `${label} committee_id must be non-empty string when present` };
   }
 
-  const totalRaised = parseMoney(value.total_raised, `${label} total_raised`, { allowZero: true });
-  if (typeof totalRaised !== "number") {
-    return { ok: false, reason: totalRaised.reason };
-  }
-  const fromSameSide =
-    value.from_same_side_committees === undefined
-      ? 0
-      : parseMoney(value.from_same_side_committees, `${label} from_same_side_committees`, { allowZero: true });
-  if (typeof fromSameSide !== "number") {
-    return { ok: false, reason: fromSameSide.reason };
-  }
-  if (toCents(fromSameSide) > toCents(totalRaised)) {
-    return {
-      ok: false,
-      reason: `${label} from_same_side_committees (${fromSameSide}) cannot exceed its total_raised (${totalRaised})`,
-    };
+  const removedField = findRemovedTotalField(value, label);
+  if (removedField) {
+    return { ok: false, reason: removedField };
   }
 
   if (value.also_covers_other_measures !== undefined && typeof value.also_covers_other_measures !== "boolean") {
@@ -173,8 +165,6 @@ function parseCommittee(
     committee: {
       name: normalizeName(value.name),
       ...(value.committee_id !== undefined ? { committee_id: value.committee_id.trim() } : {}),
-      total_raised: totalRaised,
-      from_same_side_committees: fromSameSide,
       also_covers_other_measures: value.also_covers_other_measures === true,
       source_url: sourceUrl,
     },
@@ -195,7 +185,7 @@ function parseDonor(
   if (AGGREGATE_DONOR_NAME_PATTERN.test(name)) {
     return { ok: false, reason: `${label} "${name}" is a roll-up line for many small gifts, not a donor; leave it out` };
   }
-  const amount = parseMoney(value.amount, `${label} amount`, { allowZero: false });
+  const amount = parseMoney(value.amount, `${label} amount`);
   if (typeof amount !== "number") {
     return { ok: false, reason: amount.reason };
   }
@@ -227,10 +217,9 @@ function parseSide(
       reason: `${side} must be an object with committees and top_donors (use empty arrays when no committee reported money)`,
     };
   }
-  for (const field of DERIVED_SIDE_FIELDS) {
-    if (field in value) {
-      return { ok: false, reason: `${side} ${field} is computed from the committees and must not appear in the payload` };
-    }
+  const removedField = findRemovedTotalField(value, side);
+  if (removedField) {
+    return { ok: false, reason: removedField };
   }
   if (!Array.isArray(value.committees)) {
     return { ok: false, reason: `${side} committees must be an array` };
@@ -294,7 +283,7 @@ function parseSide(
         ok: false,
         reason:
           `${side} top_donors "${parsed.donor.name}" is itself a ${side} committee in this payload; ` +
-          "record that transfer as from_same_side_committees on the receiving committee and list the original donors instead",
+          "money moved between committees on one side is not a donation, so list that committee's own donors instead",
       };
     }
     donorKeys.add(key);
@@ -305,22 +294,6 @@ function parseSide(
     return { ok: false, reason: `${side} top_donors needs at least one committee the donors gave to` };
   }
 
-  const totalCents = committees.reduce(
-    (sum, committee) => sum + toCents(committee.total_raised) - toCents(committee.from_same_side_committees),
-    0
-  );
-  // Every listed donor gave to one of these committees, so together they can
-  // never have given more than the side raised.
-  const donorCents = donors.reduce((sum, donor) => sum + toCents(donor.amount), 0);
-  if (donorCents > totalCents) {
-    return {
-      ok: false,
-      reason:
-        `${side} top_donors add up to ${donorCents / 100}, more than the side's total raised (${totalCents / 100}); ` +
-        "the committee totals and donor amounts must come from filings of the same date",
-    };
-  }
-
   // Largest first; ties keep payload order.
   const sortedDonors = donors
     .map((donor, index) => ({ donor, index }))
@@ -329,7 +302,7 @@ function parseSide(
 
   return {
     ok: true,
-    record: { total_raised: totalCents / 100, committees, top_donors: sortedDonors },
+    record: { committees, top_donors: sortedDonors },
   };
 }
 
