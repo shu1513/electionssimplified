@@ -284,6 +284,58 @@ describe("OfficeMatcher", () => {
     expect(result.method).toBe("deterministic_fallback");
   });
 
+  // Texas elects a District Clerk (the district courts' record keeper)
+  // separately from the County Clerk. The two seeded aliases from migration
+  // 285 carry both title forms. A small county's combined office stays on
+  // County Clerk through the raw-title rule: "&" and "/" vanish in the
+  // normalized key, so those titles would otherwise hit the "county district
+  // clerk" alias.
+  const TEXAS_DISTRICT_CLERK_CASES = [
+    { title: "District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "DISTRICT CLERK", district: "Hamilton County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "Anderson County District Clerk", district: "Anderson County, Texas", expected: "office-clerk-of-court", method: "alias_exact" },
+    { title: "Anderson County Clerk", district: "Anderson County, Texas", expected: "office-county-clerk", method: "alias_exact" },
+    { title: "County & District Clerk", district: "Dickens County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "Hemphill County & District Clerk", district: "Hemphill County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "La Salle County/District Clerk", district: "La Salle County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "District/County Clerk", district: "Brooks County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+    { title: "Dallam County and District Clerk", district: "Dallam County, Texas", expected: "office-county-clerk", method: "deterministic_fallback" },
+  ];
+
+  it.each(TEXAS_DISTRICT_CLERK_CASES)(
+    "resolves the Texas clerk title $title to the right clerk office",
+    async ({ title, district, expected, method }) => {
+      const client = createMatcherDataClient({
+        aliasesByScope: {
+          county: [
+            { office_id: "office-clerk-of-court", normalized_alias: "district clerk" },
+            { office_id: "office-clerk-of-court", normalized_alias: "county district clerk" },
+            { office_id: "office-county-clerk", normalized_alias: "county and district clerk" },
+            { office_id: "office-county-clerk", normalized_alias: "county clerk" },
+          ],
+        },
+        officesByScope: {
+          county: [
+            { id: "office-clerk-of-court", canonical_name: "Clerk of Court" },
+            { id: "office-county-clerk", canonical_name: "County Clerk" },
+          ],
+        },
+      });
+      const matcher = new OfficeMatcher(client as never);
+
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: district,
+        state: "TX",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+
+      expect(result.officeId).toBe(expected);
+      expect(result.method).toBe(method);
+    }
+  );
+
   it("leaves Nebraska's Clerk Register of Deeds with the County Clerk", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: { county: [] },

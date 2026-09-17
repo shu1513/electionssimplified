@@ -1418,6 +1418,20 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     aliasText: "County Court Clerk",
   },
   {
+    // Texas: the District Clerk keeps the district courts' records and is
+    // elected separately from the County Clerk (migration 285).
+    scope: "county",
+    officeCanonicalName: "Clerk of Court",
+    aliasText: "District Clerk",
+  },
+  {
+    // "<X> County District Clerk" after the jurisdiction strip. Without it the
+    // key fuzzy-scores onto County Clerk.
+    scope: "county",
+    officeCanonicalName: "Clerk of Court",
+    aliasText: "County District Clerk",
+  },
+  {
     scope: "county",
     officeCanonicalName: "County Level Judge",
     aliasText: "Superior Court Judge",

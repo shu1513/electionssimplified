@@ -53,6 +53,7 @@ const STATE_LEVEL_JUDGE_CANONICAL_NAME = "State Level Judge";
 const COUNTY_LEVEL_JUDGE_CANONICAL_NAME = "County Level Judge";
 const PLACE_LEVEL_JUDGE_CANONICAL_NAME = "Place Level Judge";
 const CLERK_OF_COURT_CANONICAL_NAME = "Clerk of Court";
+const COUNTY_CLERK_CANONICAL_NAME = "County Clerk";
 const JUSTICE_OF_THE_PEACE_CANONICAL_NAME = "Justice of the Peace";
 const COUNTY_COMMISSIONER_CANONICAL_NAME = "County Commissioner";
 const MAGISTRATE_CANONICAL_NAME = "Magistrate";
@@ -784,6 +785,22 @@ export function isArkansasQuorumCourtTitle(input: {
   return isJusticeOfThePeaceTitle(titleMatcherKey);
 }
 
+// Small Texas counties elect one "County & District Clerk" (also written with
+// "/" or "and", in either order). Title normalization drops "&" and "/", so
+// the key becomes "county district clerk" — the same key a separate District
+// Clerk produces, whose alias points at Clerk of Court. The combined officer
+// is the county clerk too, so the raw title is checked before any alias and
+// the office stays County Clerk.
+const COMBINED_COUNTY_DISTRICT_CLERK_PATTERN =
+  /\bcounty\s*(?:&|\/|and)\s*district\s+clerk\b|\bdistrict\s*(?:&|\/|and)\s*county\s+clerk\b/i;
+
+function isCombinedCountyDistrictClerkTitle(input: {
+  scope: ElectionDistrictType;
+  officialBallotTitle: string;
+}): boolean {
+  return input.scope === "county" && COMBINED_COUNTY_DISTRICT_CLERK_PATTERN.test(input.officialBallotTitle);
+}
+
 function isKentuckyState(state: string): boolean {
   const normalized = state.trim().toLowerCase();
   return normalized === "ky" || normalized === "kentucky";
@@ -1117,6 +1134,20 @@ export class OfficeMatcher {
         await this.loadOffices(input.scope),
         isArkansasQuorumCourtTitle(input) ? COUNTY_COMMISSIONER_CANONICAL_NAME : MAGISTRATE_CANONICAL_NAME
       );
+      if (office) {
+        return {
+          officeId: office.id,
+          method: "deterministic_fallback",
+          confidence: 1,
+          normalizedAlias,
+          aliasMemoryKey: titleMatcherKey,
+          shouldPersistAlias: false,
+        };
+      }
+    }
+
+    if (isCombinedCountyDistrictClerkTitle(input)) {
+      const office = findSingleScopeOffice(await this.loadOffices(input.scope), COUNTY_CLERK_CANONICAL_NAME);
       if (office) {
         return {
           officeId: office.id,
