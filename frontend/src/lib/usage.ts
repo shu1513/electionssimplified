@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useMatches } from "react-router";
 import { ApiError, hasFinanceContent, useMe } from "@voteapp/api-client";
 import { readCandidateNavState, readElectionNavState } from "./detailNavContext";
+import { isEmbedPublisherCode } from "./embedPilot";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
 // First-party usage analytics (docs/plans/usage-analytics.md). What leaves
@@ -41,6 +42,7 @@ export const USAGE_ROUTES = [
   "follows",
   "settings",
   "pick_card",
+  "city",
   "not_found",
   "other",
 ] as const;
@@ -74,6 +76,9 @@ const ROUTE_BY_MATCH_ID: Record<string, UsageRoute> = {
   "pages/FollowsPage": "follows",
   "pages/SettingsPage": "settings",
   "pages/PublicPickCardPage": "pick_card",
+  // routes.ts gives the city overview an explicit id (the module also serves
+  // the untracked /embed/city route outside the App layout).
+  city: "city",
   "pages/NotFoundPage": "not_found",
 };
 
@@ -398,13 +403,27 @@ function hadSavedDraft(): boolean {
   }
 }
 
+/** The newsroom-embed publisher code from the arrival URL (`?src=`), only
+ * when it is on the allowlist we ship. Nothing else from the query string is
+ * ever read (privacy rule 3). */
+function arrivalSource(): string | null {
+  try {
+    const value = new URLSearchParams(window.location.search).get("src");
+    return isEmbedPublisherCode(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 function sessionStartProps(): Props {
+  const source = arrivalSource();
   return {
     referrer_bucket: referrerBucket(),
     device: deviceBucket(),
     landing_route: currentRoute,
     had_saved_draft: hadSavedDraft(),
     auth: "unknown",
+    ...(source ? { source } : {}),
   };
 }
 

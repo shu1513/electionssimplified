@@ -42,9 +42,35 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+  window.history.replaceState({}, "", "/");
 });
 
+vi.mock("../data/embedPilotCities", () => ({ EMBED_PILOT_PUBLISHERS: ["alpha-news"], EMBED_PILOT_CITIES: {} }));
+
 describe("track", () => {
+  it("records an allowlisted publisher code from the arrival URL on session_start, and nothing else from the query", async () => {
+    vi.stubEnv("VITE_USAGE_ANALYTICS_ENABLED", "true");
+    window.history.replaceState({}, "", "/?src=alpha-news&utm_source=leak");
+    const fetchMock = stubFetch();
+    track("address_input");
+    flushUsageEventsForTests();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    const start = sentBodies(fetchMock)[0]!.events[0]!;
+    expect(start.name).toBe("session_start");
+    expect(start.props).toMatchObject({ source: "alpha-news" });
+    expect(JSON.stringify(start)).not.toContain("leak");
+  });
+
+  it("ignores a source code that is not on the allowlist", async () => {
+    vi.stubEnv("VITE_USAGE_ANALYTICS_ENABLED", "true");
+    window.history.replaceState({}, "", "/?src=stranger");
+    const fetchMock = stubFetch();
+    track("address_input");
+    flushUsageEventsForTests();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    expect(sentBodies(fetchMock)[0]!.events[0]!.props).not.toHaveProperty("source");
+  });
+
   it("is inert unless the build flag is on", () => {
     const fetchMock = stubFetch();
     track("address_input");

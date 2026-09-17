@@ -35,9 +35,8 @@ describe("buildBallotMeasuresPrompt", () => {
       seedUrls: [],
       allowedResearchAreaSlugs: ["healthcare_affordability"],
     });
-
-    expect(prompt).toContain("open with one short sentence stating the main change in everyday words");
-    expect(prompt).toContain("give the specifics (amounts, rates, durations, who is affected), not just the topic");
+    expect(prompt).toContain("Sentence one says what the measure does in everyday words. Sentence two says how it affects the reader");
+    expect(prompt).toContain("Round dollar amounts");
     expect(prompt).toContain(
       "never a restatement like 'adopts the measure' or 'the changes described'"
     );
@@ -54,9 +53,8 @@ describe("buildBallotMeasuresPrompt", () => {
       allowedResearchAreaSlugs: ["healthcare_affordability"],
     });
 
-    expect(prompt).toContain(
-      `summary must be at most 3-4 short sentences and at most ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH} characters`
-    );
+    expect(prompt).toContain("summary is exactly two short sentences at a 7th-grade reading level");
+    expect(prompt).toContain(`summary must be at most ${BALLOT_MEASURE_SUMMARY_MAX_LENGTH} characters`);
     expect(prompt).toContain(
       `what_yes_means and what_no_means must each be at most 1-2 short sentences and at most ${BALLOT_MEASURE_YES_NO_MAX_LENGTH} characters`
     );

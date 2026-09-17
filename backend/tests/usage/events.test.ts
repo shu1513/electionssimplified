@@ -27,6 +27,24 @@ function event(overrides: Record<string, unknown> = {}) {
 }
 
 describe("parseUsageEvent", () => {
+  const sessionStart = (props: Record<string, unknown>) =>
+    event({
+      name: "session_start",
+      props: { referrer_bucket: "direct", device: "phone", landing_route: "home", had_saved_draft: false, auth: "unknown", ...props },
+    });
+
+  it("keeps an allowlisted-shaped source code on session_start and drops the event on free text", () => {
+    expect(parseUsageEvent(sessionStart({ source: "alpha-news" }))?.props).toMatchObject({ source: "alpha-news" });
+    expect(parseUsageEvent(sessionStart({}))?.props).not.toHaveProperty("source");
+    expect(parseUsageEvent(sessionStart({ source: "Alpha News" }))).toBeNull();
+    expect(parseUsageEvent(sessionStart({ source: "utm=1" }))).toBeNull();
+    expect(parseUsageEvent(sessionStart({ source: "a".repeat(49) }))).toBeNull();
+  });
+
+  it("accepts the city route", () => {
+    expect(parseUsageEvent(event({ route: "city" }))?.route).toBe("city");
+  });
+
   it("accepts a catalog event and lower-cases its ids", () => {
     expect(parseUsageEvent(event({ event_id: EVENT_ID.toUpperCase() }))).toEqual({
       eventId: EVENT_ID,
