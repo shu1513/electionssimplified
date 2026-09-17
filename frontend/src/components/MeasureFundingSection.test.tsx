@@ -23,7 +23,7 @@ describe("MeasureFundingSection", () => {
   it("lists each side's largest donors and the shared-money note, with no total", () => {
     render(<MeasureFundingSection funding={funding()} homeState="CA" />);
 
-    expect(screen.getByRole("heading", { name: "Who is paying for the campaigns" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Campaign Finance Information" })).toBeInTheDocument();
     const supporting = screen.getByRole("heading", { name: "Largest donors supporting" }).parentElement as HTMLElement;
     const donors = within(supporting).getAllByRole("listitem");
     expect(donors.map((item) => item.textContent)).toEqual([
@@ -34,6 +34,17 @@ describe("MeasureFundingSection", () => {
       within(supporting).getByText("Some of this money went to groups that also work on other measures.")
     ).toBeInTheDocument();
     expect(screen.queryByText(/Raised/)).not.toBeInTheDocument();
+  });
+
+  it("is a collapsed disclosure titled like the candidate page's finance section", () => {
+    const { container } = render(<MeasureFundingSection funding={funding()} homeState="CA" />);
+
+    const details = container.querySelector("details");
+    expect(details).not.toBeNull();
+    // Collapsed by default; the donor lists still ship in the HTML.
+    expect(details?.open).toBe(false);
+    expect(details?.querySelector("summary")?.textContent).toBe("$ Campaign Finance Information");
+    expect(details?.textContent).toContain("Brian Heywood");
   });
 
   it("names who is behind a pass-through donor", () => {
@@ -104,7 +115,8 @@ describe("MeasureFundingSection", () => {
       />
     );
 
-    expect(screen.getByText(/From campaign finance filings as of September 17, 2026/)).toBeInTheDocument();
+    // Date and sources share one line.
+    expect(screen.getByText(/Filings as of September 17, 2026 · Sources:/)).toBeInTheDocument();
     // One site name plus numbered links for its other pages; the opposing
     // side's filing page is still reachable.
     expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([

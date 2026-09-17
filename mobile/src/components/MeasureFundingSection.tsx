@@ -1,6 +1,7 @@
 import type { BallotMeasureFunding, BallotMeasureFundingSide } from "@voteapp/api-client";
 import { formatElectionDate, formatMoney, measureFundingIsEmpty, measureFundingSharedNote } from "@voteapp/api-client";
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import { SourceFootnote } from "./SourceFootnote";
 
 // Who pays for the campaigns for and against a measure, from official
@@ -71,37 +72,56 @@ export function MeasureFundingSection({
   /** The measure's own state (two-letter code); donors from elsewhere get their state shown. */
   homeState: string;
 }) {
+  // Collapsed by default, like the web section: finance is reference material
+  // and the donor lists are long. Same title as the candidate screen's
+  // finance section, so finance reads the same everywhere.
+  const [expanded, setExpanded] = useState(false);
+  const sourceUrls = [...funding.support.source_urls, ...funding.oppose.source_urls];
+  const filingsAsOf = `Filings as of ${formatElectionDate(funding.as_of)}`;
   return (
     <View className="mt-3">
-      <Text className="text-sm font-semibold text-ink">Who is paying for the campaigns</Text>
-      {measureFundingIsEmpty(funding) ? (
-        <Text className="mt-1 text-sm text-ink-soft">
-          No large donors reported for or against this measure.
+      <Pressable
+        onPress={() => setExpanded((current) => !current)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        accessibilityLabel="Campaign finance"
+      >
+        <Text className="text-sm font-semibold text-ink">
+          {expanded ? "▾" : "▸"} <Text className="text-green-600">$</Text> Campaign finance
         </Text>
-      ) : (
-        <View className="mt-2 gap-3">
-          <FundingSide
-            heading="Largest donors supporting"
-            side={funding.support}
-            homeState={homeState}
-            boxClass="border-green-200 bg-green-50"
-            textClass="text-green-900"
-          />
-          <FundingSide
-            heading="Largest donors opposing"
-            side={funding.oppose}
-            homeState={homeState}
-            boxClass="border-red-200 bg-red-50"
-            textClass="text-red-900"
-          />
-        </View>
-      )}
-      <Text className="mt-1 text-xs text-ink-soft">
-        From campaign finance filings as of {formatElectionDate(funding.as_of)}
-      </Text>
-      {/* Every filing page from both sides; the footnote names each site once
-          and numbers its other pages, so no side's evidence is dropped. */}
-      <SourceFootnote urls={[...funding.support.source_urls, ...funding.oppose.source_urls]} />
+      </Pressable>
+      {expanded ? (
+        <>
+          {measureFundingIsEmpty(funding) ? (
+            <Text className="mt-1 text-sm text-ink-soft">No large donors reported for or against this measure.</Text>
+          ) : (
+            <View className="mt-2 gap-3">
+              <FundingSide
+                heading="Largest donors supporting"
+                side={funding.support}
+                homeState={homeState}
+                boxClass="border-green-200 bg-green-50"
+                textClass="text-green-900"
+              />
+              <FundingSide
+                heading="Largest donors opposing"
+                side={funding.oppose}
+                homeState={homeState}
+                boxClass="border-red-200 bg-red-50"
+                textClass="text-red-900"
+              />
+            </View>
+          )}
+          {/* One line for the date and the sources, so it does not stack with
+              the measure's own "Sources" line. Every filing page from both
+              sides is kept. With no sources the date stands alone. */}
+          {sourceUrls.length > 0 ? (
+            <SourceFootnote urls={sourceUrls} lead={filingsAsOf} className="mt-1" />
+          ) : (
+            <Text className="mt-1 text-xs text-ink-soft">{filingsAsOf}</Text>
+          )}
+        </>
+      ) : null}
     </View>
   );
 }
