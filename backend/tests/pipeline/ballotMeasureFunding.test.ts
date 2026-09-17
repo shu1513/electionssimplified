@@ -20,7 +20,14 @@ const PAYLOAD: BallotMeasureFundingPayload = {
           source_url: "https://www.pdc.wa.gov/committees/co-2026-42211",
         },
       ],
-      top_donors: [{ name: "Washington Education Association", amount: 3014260.91, type: "organization" }],
+      top_donors: [
+        {
+          name: "Washington Education Association",
+          amount: 3014260.91,
+          type: "organization",
+          about: "Washington's teachers union",
+        },
+      ],
     },
   },
 };

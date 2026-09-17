@@ -409,7 +409,7 @@ export type BallotMeasureFundingDonor = {
   state?: string;
   /** Who is behind a pass-through donor, as named by the filing agency. */
   funded_by?: string[];
-  /** Who the donor is, in a few plain words ("Google co-founder"). */
+  /** What the donor is, in a few plain words ("Google co-founder"). Absent only on rows written before it was required. */
   about?: string;
 };
 

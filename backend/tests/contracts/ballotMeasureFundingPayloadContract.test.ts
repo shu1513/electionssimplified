@@ -14,7 +14,14 @@ function committee(overrides: Record<string, unknown> = {}): Record<string, unkn
 }
 
 function donor(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return { name: "Washington Education Association", amount: 3014260.91, type: "organization", state: "WA", ...overrides };
+  return {
+    name: "Washington Education Association",
+    amount: 3014260.91,
+    type: "organization",
+    state: "WA",
+    about: "Washington's teachers union",
+    ...overrides,
+  };
 }
 
 function emptySide(): Record<string, unknown> {
@@ -61,7 +68,13 @@ describe("parseBallotMeasureFundingPayload", () => {
               },
             ],
             top_donors: [
-              { name: "Washington Education Association", amount: 3014260.91, type: "organization", state: "WA" },
+              {
+                name: "Washington Education Association",
+                amount: 3014260.91,
+                type: "organization",
+                state: "WA",
+                about: "Washington's teachers union",
+              },
             ],
           },
         },
@@ -129,7 +142,8 @@ describe("parseBallotMeasureFundingPayload", () => {
       payload({ oppose: { committees: [committee()], top_donors: [donor({ about })] } });
     const result = parse(withAbout(" Washington's  teachers union "));
     expect(result.ok && result.payload.sides.oppose.top_donors[0]?.about).toBe("Washington's teachers union");
-    expect(reasonOf(withAbout(""))).toContain("about must be a short plain description");
+    expect(reasonOf(withAbout(""))).toContain("about is required");
+    expect(reasonOf(withAbout(undefined))).toContain('say what "Washington Education Association" is');
     expect(reasonOf(withAbout("x".repeat(61)))).toContain("at most 60 characters");
   });
 

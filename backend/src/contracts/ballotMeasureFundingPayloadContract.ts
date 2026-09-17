@@ -38,9 +38,9 @@ export type BallotMeasureFundingDonor = {
   // (California prints "Top Donors to Contributor" under such a donor).
   // Without it "Building a Better California" hides the people paying.
   funded_by?: string[];
-  // Who the donor is, in a few plain words ("Google co-founder", "teachers
+  // What the donor is, in a few plain words ("Google co-founder", "teachers
   // union"). Most readers do not know the names. A role, never a judgment.
-  about?: string;
+  about: string;
 };
 
 export const BALLOT_MEASURE_FUNDING_MAX_FUNDED_BY = 3;
@@ -222,13 +222,15 @@ function parseDonor(
     fundedBy = value.funded_by.map(normalizeName);
   }
 
-  if (
-    value.about !== undefined &&
-    (!isNonEmptyString(value.about) || normalizeName(value.about).length > BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH)
-  ) {
+  // Required: a bare name ("1800 Capital, Inc.") tells a reader nothing. When
+  // research finds nothing, say that ("Austin, Texas LLC; owner not named in
+  // filings") — anonymous money is itself worth knowing.
+  if (!isNonEmptyString(value.about) || normalizeName(value.about).length > BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH) {
     return {
       ok: false,
-      reason: `${label} about must be a short plain description of at most ${BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH} characters when present`,
+      reason:
+        `${label} about is required: say what "${name}" is in at most ${BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH} characters ` +
+        '("Google co-founder", "teachers union"); if research finds nothing, say so ("Texas LLC; owner not named in filings")',
     };
   }
 
@@ -240,7 +242,7 @@ function parseDonor(
       type: value.type.trim() as BallotMeasureFundingDonor["type"],
       ...(value.state !== undefined ? { state: (value.state as string).trim() } : {}),
       ...(fundedBy !== undefined ? { funded_by: fundedBy } : {}),
-      ...(value.about !== undefined ? { about: normalizeName(value.about as string) } : {}),
+      about: normalizeName(value.about),
     },
   };
 }
