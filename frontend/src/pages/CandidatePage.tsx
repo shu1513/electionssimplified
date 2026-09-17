@@ -125,10 +125,11 @@ function OngoingElectionFinance({
           The heading lives OUTSIDE the summary, sr-only: browsers map
           <summary> to a button, and a heading inside it can drop out of
           screen-reader heading navigation (the HTML content model also
-          forbids mixing a heading with phrasing content there). The election
-          name is in both — heading and visible line — because a candidate
-          can be in two concurrent races, which would otherwise render two
-          indistinguishable "Campaign finance" rows. */}
+          forbids mixing a heading with phrasing content there). The heading
+          always names the election; the visible line names it only when the
+          candidate is in two concurrent races, which would otherwise render
+          two indistinguishable "Campaign finance" rows. With one race the
+          page header already says it. */}
       <h2 className="sr-only">{`Campaign Finance Information — ${election.official_ballot_title}`}</h2>
       <details
         ref={exposureRef as ((node: HTMLDetailsElement | null) => void) | undefined}
@@ -138,10 +139,15 @@ function OngoingElectionFinance({
       >
         <summary className="cursor-pointer select-none">
           <span className="text-lg font-semibold text-green-600" aria-hidden="true">$ </span>
-          <span className="text-lg font-semibold">Campaign Finance Information</span>{" "}
-          <span className="text-sm text-ink-soft">
-            · {election.official_ballot_title} · {formatElectionDate(election.election_date)}
-          </span>
+          <span className="text-lg font-semibold">Campaign Finance Information</span>
+          {showElection ? (
+            <>
+              {" "}
+              <span className="text-sm text-ink-soft">
+                · {election.official_ballot_title} · {formatElectionDate(election.election_date)}
+              </span>
+            </>
+          ) : null}
         </summary>
         <div className="mt-2 rounded-xl border border-line bg-surface p-4">
           <FinanceSummaryCard summary={summary} />
