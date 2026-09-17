@@ -60,12 +60,25 @@ describe("MeasureFundingSection", () => {
     expect(screen.queryByRole("heading", { name: "Supporting" })).not.toBeInTheDocument();
   });
 
-  it("dates the numbers and links each filing site once", () => {
-    render(<MeasureFundingSection funding={funding()} homeState="CA" />);
+  it("dates the numbers and links every filing page from both sides", () => {
+    const base = funding();
+    render(
+      <MeasureFundingSection
+        funding={{
+          ...base,
+          oppose: { ...base.oppose, total_raised: 10, source_urls: ["https://www.pdc.wa.gov/committees/co-2026-42211"] },
+        }}
+        homeState="CA"
+      />
+    );
 
     expect(screen.getByText(/From campaign finance filings as of September 17, 2026/)).toBeInTheDocument();
-    const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(1);
-    expect(links[0]).toHaveAttribute("href", "https://www.pdc.wa.gov/committees/co-2026-42237");
+    // One site name plus numbered links for its other pages; the opposing
+    // side's filing page is still reachable.
+    expect(screen.getAllByRole("link").map((link) => link.getAttribute("href"))).toEqual([
+      "https://www.pdc.wa.gov/committees/co-2026-42237",
+      "https://www.pdc.wa.gov/committees/co-2026-30644",
+      "https://www.pdc.wa.gov/committees/co-2026-42211",
+    ]);
   });
 });

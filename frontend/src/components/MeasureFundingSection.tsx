@@ -1,13 +1,6 @@
 import type { BallotMeasureFunding, BallotMeasureFundingSide } from "@voteapp/api-client";
-import {
-  formatElectionDate,
-  formatMoney,
-  formatSourceHost,
-  measureFundingIsEmpty,
-  measureFundingSharedNote,
-  measureFundingSourceLinks,
-} from "@voteapp/api-client";
-import { sourceLinkProps, track } from "../lib/usage";
+import { formatElectionDate, formatMoney, measureFundingIsEmpty, measureFundingSharedNote } from "@voteapp/api-client";
+import { SourceFootnote } from "./SourceFootnote";
 
 // Who pays for the campaigns for and against a measure, from official
 // campaign finance filings. Donors are shown, not committee names: a name
@@ -73,7 +66,6 @@ export function MeasureFundingSection({
   /** The measure's own state (two-letter code); donors from elsewhere get their state shown. */
   homeState: string;
 }) {
-  const sourceLinks = measureFundingSourceLinks(funding);
   return (
     <div className="mt-3">
       <h3 className="text-subheading font-semibold">Who is paying for the campaigns</h3>
@@ -99,26 +91,10 @@ export function MeasureFundingSection({
       )}
       <p className="mt-1 text-xs text-ink-soft">
         From campaign finance filings as of {formatElectionDate(funding.as_of)}
-        {sourceLinks.length > 0 ? (
-          <>
-            {" · Source: "}
-            {sourceLinks.map((url, index) => (
-              <span key={url}>
-                {index > 0 ? ", " : null}
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => track("official_source_click", { kind: "election_source", ...sourceLinkProps(url) })}
-                  className="underline hover:text-ink"
-                >
-                  {formatSourceHost(url)}
-                </a>
-              </span>
-            ))}
-          </>
-        ) : null}
       </p>
+      {/* Every filing page from both sides: the footnote names each site
+          once and numbers its other pages, so no side's evidence is dropped. */}
+      <SourceFootnote urls={[...funding.support.source_urls, ...funding.oppose.source_urls]} />
     </div>
   );
 }

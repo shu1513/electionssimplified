@@ -1,14 +1,7 @@
 import type { BallotMeasureFunding, BallotMeasureFundingSide } from "@voteapp/api-client";
-import {
-  formatElectionDate,
-  formatMoney,
-  formatSourceHost,
-  measureFundingIsEmpty,
-  measureFundingSharedNote,
-  measureFundingSourceLinks,
-} from "@voteapp/api-client";
+import { formatElectionDate, formatMoney, measureFundingIsEmpty, measureFundingSharedNote } from "@voteapp/api-client";
 import { Text, View } from "react-native";
-import { openExternalUrl } from "../lib/openExternalUrl";
+import { SourceFootnote } from "./SourceFootnote";
 
 // Who pays for the campaigns for and against a measure, from official
 // campaign finance filings. Mirrors the web section; the display rules are
@@ -73,7 +66,6 @@ export function MeasureFundingSection({
   /** The measure's own state (two-letter code); donors from elsewhere get their state shown. */
   homeState: string;
 }) {
-  const sourceLinks = measureFundingSourceLinks(funding);
   return (
     <View className="mt-3">
       <Text className="text-sm font-semibold text-ink">Who is paying for the campaigns</Text>
@@ -101,16 +93,10 @@ export function MeasureFundingSection({
       )}
       <Text className="mt-1 text-xs text-ink-soft">
         From campaign finance filings as of {formatElectionDate(funding.as_of)}
-        {sourceLinks.length > 0 ? " · Source: " : null}
-        {sourceLinks.map((url, index) => (
-          <Text key={url}>
-            {index > 0 ? ", " : null}
-            <Text className="underline" accessibilityRole="link" onPress={() => openExternalUrl(url)}>
-              {formatSourceHost(url)}
-            </Text>
-          </Text>
-        ))}
       </Text>
+      {/* Every filing page from both sides; the footnote names each site once
+          and numbers its other pages, so no side's evidence is dropped. */}
+      <SourceFootnote urls={[...funding.support.source_urls, ...funding.oppose.source_urls]} />
     </View>
   );
 }

@@ -250,6 +250,7 @@ function parseSide(
 
   const committees: BallotMeasureFundingCommittee[] = [];
   const committeeKeys = new Set<string>();
+  const committeeIdKeys = new Set<string>();
   for (const [index, entry] of value.committees.entries()) {
     const parsed = parseCommittee(entry, `${side} committees[${index}]`);
     if (!parsed.ok) {
@@ -260,6 +261,20 @@ function parseSide(
       return { ok: false, reason: `${side} committees lists "${parsed.committee.name}" more than once` };
     }
     committeeKeys.add(key);
+    // The filing id catches the same committee entered under two spellings,
+    // which would count its money twice. source_url is no such signal: one
+    // agency page (California's top-contributors list) can cover many
+    // committees.
+    const idKey = parsed.committee.committee_id?.toLowerCase();
+    if (idKey !== undefined) {
+      if (committeeIdKeys.has(idKey)) {
+        return {
+          ok: false,
+          reason: `${side} committees lists committee_id ${parsed.committee.committee_id} more than once ("${parsed.committee.name}")`,
+        };
+      }
+      committeeIdKeys.add(idKey);
+    }
     committees.push(parsed.committee);
   }
 
@@ -294,15 +309,16 @@ function parseSide(
     (sum, committee) => sum + toCents(committee.total_raised) - toCents(committee.from_same_side_committees),
     0
   );
-  for (const donor of donors) {
-    if (toCents(donor.amount) > totalCents) {
-      return {
-        ok: false,
-        reason:
-          `${side} top_donors "${donor.name}" gave ${donor.amount}, more than the side's total raised (${totalCents / 100}); ` +
-          "the committee totals and donor amounts must come from filings of the same date",
-      };
-    }
+  // Every listed donor gave to one of these committees, so together they can
+  // never have given more than the side raised.
+  const donorCents = donors.reduce((sum, donor) => sum + toCents(donor.amount), 0);
+  if (donorCents > totalCents) {
+    return {
+      ok: false,
+      reason:
+        `${side} top_donors add up to ${donorCents / 100}, more than the side's total raised (${totalCents / 100}); ` +
+        "the committee totals and donor amounts must come from filings of the same date",
+    };
   }
 
   // Largest first; ties keep payload order.
@@ -343,8 +359,14 @@ export function parseBallotMeasureFundingPayload(payload: unknown, options: Pars
 
   // The same committee cannot be on both sides of one measure.
   const supportKeys = new Set(support.record.committees.map((committee) => nameKey(committee.name)));
+  const supportIdKeys = new Set(
+    support.record.committees.flatMap((committee) => (committee.committee_id ? [committee.committee_id.toLowerCase()] : []))
+  );
   for (const committee of oppose.record.committees) {
-    if (supportKeys.has(nameKey(committee.name))) {
+    if (
+      supportKeys.has(nameKey(committee.name)) ||
+      (committee.committee_id !== undefined && supportIdKeys.has(committee.committee_id.toLowerCase()))
+    ) {
       return { ok: false, reason: `committee "${committee.name}" is listed under both support and oppose` };
     }
   }

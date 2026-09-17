@@ -23,29 +23,3 @@ export function measureFundingSharedNote(side: BallotMeasureFundingSide): string
 export function measureFundingIsEmpty(funding: BallotMeasureFunding): boolean {
   return funding.support.total_raised <= 0 && funding.oppose.total_raised <= 0;
 }
-
-function hostOf(url: string): string | null {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * One link per filing site. Every committee has its own filing page, and a
- * row of links that all read "pdc.wa.gov" helps no one.
- */
-export function measureFundingSourceLinks(funding: BallotMeasureFunding): string[] {
-  const seenHosts = new Set<string>();
-  const links: string[] = [];
-  for (const url of [...funding.support.source_urls, ...funding.oppose.source_urls]) {
-    const host = hostOf(url);
-    if (host === null || seenHosts.has(host)) {
-      continue;
-    }
-    seenHosts.add(host);
-    links.push(url);
-  }
-  return links;
-}

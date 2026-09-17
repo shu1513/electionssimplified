@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { measureFundingIsEmpty, measureFundingSharedNote, measureFundingSourceLinks } from "./measureFunding";
+import { measureFundingIsEmpty, measureFundingSharedNote } from "./measureFunding";
 import type { BallotMeasureFunding, BallotMeasureFundingSide } from "./types";
 
 function side(overrides: Partial<BallotMeasureFundingSide> = {}): BallotMeasureFundingSide {
@@ -34,18 +34,5 @@ describe("measureFundingIsEmpty", () => {
   it("is true only when neither side reported money", () => {
     expect(measureFundingIsEmpty(funding())).toBe(true);
     expect(measureFundingIsEmpty(funding({ oppose: side({ total_raised: 1 }) }))).toBe(false);
-  });
-});
-
-describe("measureFundingSourceLinks", () => {
-  it("keeps one link per filing site and skips unparseable urls", () => {
-    expect(
-      measureFundingSourceLinks(
-        funding({
-          support: side({ source_urls: ["https://www.pdc.wa.gov/committees/co-1", "https://www.pdc.wa.gov/committees/co-2"] }),
-          oppose: side({ source_urls: ["not a url", "https://fppc.ca.gov/top-10", "https://www.pdc.wa.gov/committees/co-3"] }),
-        })
-      )
-    ).toEqual(["https://www.pdc.wa.gov/committees/co-1", "https://fppc.ca.gov/top-10"]);
   });
 });

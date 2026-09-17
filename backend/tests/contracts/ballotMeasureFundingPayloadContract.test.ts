@@ -179,6 +179,44 @@ describe("parseBallotMeasureFundingPayload", () => {
     );
   });
 
+  it("rejects donors who together gave more than the side raised", () => {
+    const result = reasonOf(
+      payload({
+        oppose: {
+          committees: [committee({ total_raised: 1000 })],
+          top_donors: [donor({ name: "A", amount: 800 }), donor({ name: "B", amount: 800 })],
+        },
+      })
+    );
+    expect(result).toContain("top_donors add up to 1600, more than the side's total raised (1000)");
+  });
+
+  it("rejects one committee id entered under two names, on one side or across sides", () => {
+    const renamed = committee({ name: "Vote No 645 Committee", committee_id: "645-n--960" });
+    expect(reasonOf(payload({ oppose: { committees: [committee(), renamed], top_donors: [] } }))).toContain(
+      "lists committee_id 645-n--960 more than once"
+    );
+    expect(reasonOf(payload({ support: { committees: [renamed], top_donors: [] } }))).toContain(
+      "listed under both support and oppose"
+    );
+  });
+
+  it("lets two committees cite one agency page", () => {
+    const page = "https://fppc.ca.gov/search-filings/top-10-contributors-list/november-2026-general-election";
+    const result = parse(
+      payload({
+        oppose: {
+          committees: [
+            committee({ name: "No on 39", committee_id: "1493991", source_url: page }),
+            committee({ name: "Nurses Against 39", committee_id: "1493992", source_url: page }),
+          ],
+          top_donors: [],
+        },
+      })
+    );
+    expect(result.ok && result.payload.sides.oppose.total_raised).toBe(15611375.14);
+  });
+
   it("rejects donors without a committee and more than five donors", () => {
     expect(reasonOf(payload({ support: { committees: [], top_donors: [donor()] } }))).toContain(
       "needs at least one committee"
