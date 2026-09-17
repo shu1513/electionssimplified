@@ -34,7 +34,17 @@ export type BallotMeasureFundingDonor = {
   amount: number;
   type: "organization" | "individual";
   state?: string;
+  // Who is behind a pass-through donor, as the filing agency names them
+  // (California prints "Top Donors to Contributor" under such a donor).
+  // Without it "Building a Better California" hides the people paying.
+  funded_by?: string[];
+  // Who the donor is, in a few plain words ("Google co-founder", "teachers
+  // union"). Most readers do not know the names. A role, never a judgment.
+  about?: string;
 };
+
+export const BALLOT_MEASURE_FUNDING_MAX_FUNDED_BY = 3;
+export const BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH = 60;
 
 export type BallotMeasureFundingSideRecord = {
   committees: BallotMeasureFundingCommittee[];
@@ -196,6 +206,32 @@ function parseDonor(
     return { ok: false, reason: `${label} state must be a two-letter uppercase code when present: ${String(value.state)}` };
   }
 
+  let fundedBy: string[] | undefined;
+  if (value.funded_by !== undefined) {
+    if (
+      !Array.isArray(value.funded_by) ||
+      value.funded_by.length === 0 ||
+      value.funded_by.length > BALLOT_MEASURE_FUNDING_MAX_FUNDED_BY ||
+      !value.funded_by.every(isNonEmptyString)
+    ) {
+      return {
+        ok: false,
+        reason: `${label} funded_by must list 1 to ${BALLOT_MEASURE_FUNDING_MAX_FUNDED_BY} names when present; leave it out otherwise`,
+      };
+    }
+    fundedBy = value.funded_by.map(normalizeName);
+  }
+
+  if (
+    value.about !== undefined &&
+    (!isNonEmptyString(value.about) || normalizeName(value.about).length > BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH)
+  ) {
+    return {
+      ok: false,
+      reason: `${label} about must be a short plain description of at most ${BALLOT_MEASURE_FUNDING_MAX_ABOUT_LENGTH} characters when present`,
+    };
+  }
+
   return {
     ok: true,
     donor: {
@@ -203,6 +239,8 @@ function parseDonor(
       amount,
       type: value.type.trim() as BallotMeasureFundingDonor["type"],
       ...(value.state !== undefined ? { state: (value.state as string).trim() } : {}),
+      ...(fundedBy !== undefined ? { funded_by: fundedBy } : {}),
+      ...(value.about !== undefined ? { about: normalizeName(value.about as string) } : {}),
     },
   };
 }

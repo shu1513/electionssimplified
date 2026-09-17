@@ -102,6 +102,37 @@ describe("parseBallotMeasureFundingPayload", () => {
     expect(result.payload.sides.oppose.top_donors[0]).not.toHaveProperty("state");
   });
 
+  it("keeps who is behind a pass-through donor", () => {
+    const result = parse(
+      payload({
+        oppose: {
+          committees: [committee()],
+          top_donors: [
+            donor({ name: "Building a Better California", funded_by: [" Sergey Brin ", "L. John  Doerr, III"] }),
+          ],
+        },
+      })
+    );
+    expect(result.ok && result.payload.sides.oppose.top_donors[0]?.funded_by).toEqual([
+      "Sergey Brin",
+      "L. John Doerr, III",
+    ]);
+    const withFundedBy = (fundedBy: unknown) =>
+      payload({ oppose: { committees: [committee()], top_donors: [donor({ funded_by: fundedBy })] } });
+    expect(reasonOf(withFundedBy([]))).toContain("funded_by must list 1 to 3 names");
+    expect(reasonOf(withFundedBy(["A", "B", "C", "D"]))).toContain("funded_by must list 1 to 3 names");
+    expect(reasonOf(withFundedBy("Sergey Brin"))).toContain("funded_by must list 1 to 3 names");
+  });
+
+  it("keeps a short description of who a donor is", () => {
+    const withAbout = (about: unknown) =>
+      payload({ oppose: { committees: [committee()], top_donors: [donor({ about })] } });
+    const result = parse(withAbout(" Washington's  teachers union "));
+    expect(result.ok && result.payload.sides.oppose.top_donors[0]?.about).toBe("Washington's teachers union");
+    expect(reasonOf(withAbout(""))).toContain("about must be a short plain description");
+    expect(reasonOf(withAbout("x".repeat(61)))).toContain("at most 60 characters");
+  });
+
   it("rejects a payload that is not an object or has a bad as_of", () => {
     expect(reasonOf([])).toBe("payload must be an object");
     expect(reasonOf(payload({ as_of: "2026-02-30" }))).toContain("as_of must be a valid YYYY-MM-DD date");

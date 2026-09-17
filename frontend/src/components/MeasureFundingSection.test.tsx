@@ -36,6 +36,35 @@ describe("MeasureFundingSection", () => {
     expect(screen.queryByText(/Raised/)).not.toBeInTheDocument();
   });
 
+  it("names who is behind a pass-through donor", () => {
+    const base = funding();
+    render(
+      <MeasureFundingSection
+        funding={{
+          ...base,
+          oppose: {
+            ...base.oppose,
+            top_donors: [
+              {
+                name: "Building a Better California",
+                amount: 41_500_000,
+                type: "organization",
+                about: "Political spending group",
+                funded_by: ["Sergey Brin (Google co-founder)", "L. John Doerr, III (venture capitalist)"],
+              },
+            ],
+          },
+        }}
+        homeState="CA"
+      />
+    );
+
+    expect(screen.getByText("Political spending group")).toBeInTheDocument();
+    expect(
+      screen.getByText("Its top donors: Sergey Brin (Google co-founder); L. John Doerr, III (venture capitalist)")
+    ).toBeInTheDocument();
+  });
+
   it("marks only out-of-state donors with their state", () => {
     render(<MeasureFundingSection funding={funding()} homeState="WA" />);
 

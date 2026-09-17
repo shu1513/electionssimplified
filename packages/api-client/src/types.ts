@@ -407,6 +407,10 @@ export type BallotMeasureFundingDonor = {
   type: "organization" | "individual";
   /** Two-letter state code from the filing, when the filing gives one. */
   state?: string;
+  /** Who is behind a pass-through donor, as named by the filing agency. */
+  funded_by?: string[];
+  /** Who the donor is, in a few plain words ("Google co-founder"). */
+  about?: string;
 };
 
 export type BallotMeasureFundingSide = {

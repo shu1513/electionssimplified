@@ -36,6 +36,13 @@ function FundingSide({
                   {donor.state && donor.state !== homeState ? (
                     <span className="text-ink-soft"> · {donor.state}</span>
                   ) : null}
+                  {/* Most readers do not know the names; say who this is. */}
+                  {donor.about ? <span className="block text-xs text-ink-soft">{donor.about}</span> : null}
+                  {/* A pass-through group: name the people the filing
+                      agency says are behind it. */}
+                  {donor.funded_by && donor.funded_by.length > 0 ? (
+                    <span className="block text-xs text-ink-soft">Its top donors: {donor.funded_by.join("; ")}</span>
+                  ) : null}
                 </span>
                 <span className="shrink-0 text-ink-soft">{formatMoney(donor.amount)}</span>
               </li>
