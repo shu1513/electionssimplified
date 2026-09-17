@@ -1,11 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import MissionPage from "./MissionPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 
-// Uses the real generated manifest, which is empty until the first reviewed
-// city is added: the page must not advertise a snippet that would 404.
+// An empty manifest (nothing reviewed yet): the page must not advertise a
+// snippet that would 404.
+vi.mock("../data/embedPilotCities", () => ({ EMBED_PILOT_PUBLISHERS: [], EMBED_PILOT_CITIES: {} }));
+
 describe("MissionPage with an empty embed manifest", () => {
   it("offers the embed without a snippet and asks readers to request a city", async () => {
     stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
