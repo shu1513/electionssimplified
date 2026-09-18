@@ -721,7 +721,9 @@ function CandidateCard({
                 {candidate.party}
               </Text>
               {candidate.is_incumbent ? " · Incumbent" : ""}
-              {candidate.status !== "active" ? ` · ${candidate.status}` : ""}
+              {candidate.status !== "active" && candidate.status !== "declared"
+                ? ` · ${candidate.status}`
+                : ""}
             </Text>
           </View>
           <View className="shrink-0 items-end gap-2">
