@@ -14,7 +14,6 @@ import {
   draftChoicesByElectionId,
   draftPickCount,
   nearestUpcomingTarget,
-  draftHandoffFragment,
   setDraftBallotContext,
   useBallotDraft,
 } from "../lib/ballotDraft";
@@ -27,8 +26,9 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { isEmbedListedRace, withSource } from "../lib/embedPilot";
-import { getEmbedHome, rememberEmbedSource, useEmbedSession } from "../lib/embedSession";
+import { isEmbedListedRace } from "../lib/embedPilot";
+import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
 
@@ -132,6 +132,7 @@ export function DraftPage() {
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
   const [view, setView] = useState<"list" | "ballot">("list");
+  const [saveOpen, setSaveOpen] = useState(false);
   // ONE payload for both views, in paper-ballot contest order (same contract
   // as the signed-in picks page): the date cards take within-date order from
   // it and the ballot sheets render it as-is, so List and Ballot view can
@@ -248,21 +249,26 @@ export function DraftPage() {
       ) : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-title font-bold">My Ballot Draft</h1>
-        {/* The box's draft lives in the frame's own storage, so "Save" carries
-            the picks to the site's sign-up page in the URL fragment (new tab;
-            the article stays). Same yellow as "Make my pick". */}
+        {/* Inside the box only. Same yellow as "Make my pick"; opens the
+            same sign-up prompt the other account-only actions use, whose
+            links carry the box's picks to the site. */}
         {embedSession && pickCount > 0 ? (
-          <a
-            href={`${withSource(`/register?next=${encodeURIComponent("/draft")}`, rememberEmbedSource(null))}${draftHandoffFragment(draft)}`}
-            target="_blank"
-            rel="noopener"
-            onClick={() => track("signup_prompt", { source: "draft", action: "click" })}
+          <button
+            type="button"
+            onClick={() => setSaveOpen(true)}
             className="rounded-lg bg-pick px-4 py-1.5 text-sm font-semibold text-ink transition hover:bg-pick-hover"
           >
             Save
-          </a>
+          </button>
         ) : null}
       </div>
+      <RegisterPromptDialog
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        title="Save my draft"
+        description="Sign up for free to save your draft. Your picks come with you."
+        source="draft"
+      />
 
       {districtIds.length === 0 ? (
         pickCount === 0 ? (

@@ -44,9 +44,9 @@ The box works as a small copy of the site. A candidate or measure opens
 inside the box, with the site's own Back / Prev / Next bar. Readers can pick
 candidates; after the first pick a "My Draft" counter appears at the top
 right and opens their draft, also inside the box. The draft is kept in the
-reader's browser for your site only. A "Save" button on the draft opens our
-sign-up page in a new tab and carries the picks along, so they are saved to
-the new account. Follow and Share are not offered in the
+reader's browser for your site only. A "Save" button on the draft opens a
+small prompt; its sign-up link opens our site in a new tab and carries the
+picks along, so they are saved to the new account. Follow and Share are not offered in the
 box. Every other link (sources, candidate websites, the rest of our site)
 opens in a new tab, so your readers keep your page.
 
@@ -86,8 +86,10 @@ The content may be reused freely with attribution.
   is pinned in the frame's memory (`pinDraftBallotContext`), not stored:
   every box on one publisher's site shares the same storage, and a stored
   context would let one city's box replace another's. Picks stay shared.
-- Save: the frame's storage is separate from the site's, so the in-box
-  draft's "Save" link puts the picks in the sign-up URL's fragment
+- Save: the frame's storage is separate from the site's, so inside the box
+  the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"
+  button and by the other account-only actions) puts the picks in the
+  sign-up and log-in URLs' fragment
   (`draftHandoffFragment`; a fragment is never sent to a server or in a
   Referer). The app merges them into the site's draft for guests only
   (`importDraftHandoff`: sanitized, never replaces an existing pick), clears
