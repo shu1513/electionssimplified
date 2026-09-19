@@ -1,0 +1,39 @@
+{
+  "runId": "rollcall-fetch-senate-116-1-20260918T061810Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "senate",
+  "congress": 116,
+  "session": 1,
+  "dryRun": false,
+  "startedAt": "2026-09-18T06:18:10.727Z",
+  "finishedAt": "2026-09-18T06:18:11.217Z",
+  "evidenceDir": "evidence/rollcall/israel-votes-2026-09-17",
+  "requestedRolls": 1,
+  "floorVotes": 1,
+  "counts": {
+    "inserted": 1
+  },
+  "rows": [
+    {
+      "chamber": "senate",
+      "congress": 116,
+      "session": 1,
+      "roll": 16,
+      "machineUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1161/vote_116_1_00016.xml",
+      "outcome": "inserted",
+      "evidenceFile": "senate-116-1-roll00016.xml",
+      "voteDate": "2019-02-05",
+      "measureId": "S. 1",
+      "question": "On Passage of the Bill",
+      "result": "Bill Passed",
+      "yeas": 77,
+      "nays": 23,
+      "memberVoteCount": 100,
+      "isFloorVote": true,
+      "questionClass": "passage",
+      "classificationReason": "kept:passage",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}

@@ -68,6 +68,7 @@ BEGIN
     VALUES
       ('presidential', 'President of the United States', 'national_defense'),
       ('presidential', 'President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'President of the United States', 'us_israel_ties'),
       ('presidential', 'President of the United States', 'foreign_trade'),
       ('presidential', 'President of the United States', 'immigration'),
       ('presidential', 'President of the United States', 'government_spending_reduction'),
@@ -97,6 +98,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'civil_rights'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'Vice President of the United States', 'us_israel_ties'),
       ('presidential', 'Vice President of the United States', 'foreign_trade'),
       ('presidential', 'Vice President of the United States', 'immigration'),
       ('presidential', 'Vice President of the United States', 'public_safety_and_crime_control'),
@@ -123,6 +125,7 @@ BEGIN
     VALUES
       ('presidential', 'President of the United States', 'national_defense'),
       ('presidential', 'President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'President of the United States', 'us_israel_ties'),
       ('presidential', 'President of the United States', 'foreign_trade'),
       ('presidential', 'President of the United States', 'immigration'),
       ('presidential', 'President of the United States', 'government_spending_reduction'),
@@ -152,6 +155,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'civil_rights'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'Vice President of the United States', 'us_israel_ties'),
       ('presidential', 'Vice President of the United States', 'foreign_trade'),
       ('presidential', 'Vice President of the United States', 'immigration'),
       ('presidential', 'Vice President of the United States', 'public_safety_and_crime_control'),
@@ -190,6 +194,7 @@ BEGIN
     VALUES
       ('presidential', 'President of the United States', 'national_defense'),
       ('presidential', 'President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'President of the United States', 'us_israel_ties'),
       ('presidential', 'President of the United States', 'foreign_trade'),
       ('presidential', 'President of the United States', 'immigration'),
       ('presidential', 'President of the United States', 'government_spending_reduction'),
@@ -219,6 +224,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'civil_rights'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
+      ('presidential', 'Vice President of the United States', 'us_israel_ties'),
       ('presidential', 'Vice President of the United States', 'foreign_trade'),
       ('presidential', 'Vice President of the United States', 'immigration'),
       ('presidential', 'Vice President of the United States', 'public_safety_and_crime_control'),
@@ -2620,6 +2626,7 @@ DECLARE
     'labor_rights',
     'national_defense',
     'peaceful_foreign_policy',
+    'us_israel_ties',
     'foreign_trade',
     'government_spending_reduction',
     'personal_income_tax_reduction',
@@ -2926,7 +2933,8 @@ DECLARE
     'government_efficiency',
     'civil_rights',
     'womens_reproductive_rights',
-    'peaceful_foreign_policy'
+    'peaceful_foreign_policy',
+    'us_israel_ties'
   ]::text[];
   expected_area_count integer;
   office_count integer;

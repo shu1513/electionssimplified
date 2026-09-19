@@ -1,0 +1,4907 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GiftTravel>
+  <Travel>
+    <DocID>500019337</DocID>
+    <FilerName />
+    <MemberName>Takano, Mark</MemberName>
+    <State>CA</State>
+    <District>39</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500021859</DocID>
+    <FilerName />
+    <MemberName>Carter, John</MemberName>
+    <State>TX</State>
+    <District>31</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500021921</DocID>
+    <FilerName />
+    <MemberName>Neguse, Joseph</MemberName>
+    <State>CO</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500021922</DocID>
+    <FilerName />
+    <MemberName>Gomez, Jimmy</MemberName>
+    <State>CA</State>
+    <District>34</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500021935</DocID>
+    <FilerName />
+    <MemberName>Cisneros, Gilbert</MemberName>
+    <State>CA</State>
+    <District>31</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500021946</DocID>
+    <FilerName />
+    <MemberName>Mcadams, Ben</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022006</DocID>
+    <FilerName />
+    <MemberName>Lesko, Debbie</MemberName>
+    <State>AZ</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022071</DocID>
+    <FilerName />
+    <MemberName>Zeldin, Lee</MemberName>
+    <State>NY</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022075</DocID>
+    <FilerName />
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022076</DocID>
+    <FilerName />
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022077</DocID>
+    <FilerName />
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022078</DocID>
+    <FilerName />
+    <MemberName>Green, Mark</MemberName>
+    <State>TN</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022082</DocID>
+    <FilerName />
+    <MemberName>Timmons, William</MemberName>
+    <State>SC</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022112</DocID>
+    <FilerName />
+    <MemberName>Armstrong, Kelly</MemberName>
+    <State>ND</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination />
+    <FilingType>Original</FilingType>
+    <DepartureDate />
+    <ReturnDate />
+    <TravelSponsor />
+  </Travel>
+  <Travel>
+    <DocID>500022692</DocID>
+    <FilerName>Roberto Estrada Lobo</FilerName>
+    <MemberName>Davis, Rodney</MemberName>
+    <State>IL</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022693</DocID>
+    <FilerName>Wendi Lipsich</FilerName>
+    <MemberName>Deutch, Theodore</MemberName>
+    <State>FL</State>
+    <District>22</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/4/2019</DepartureDate>
+    <ReturnDate>12/6/2019</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022694</DocID>
+    <FilerName>Elise M. Stefanik</FilerName>
+    <MemberName>Stefanik, Elise</MemberName>
+    <State>NY</State>
+    <District>21</District>
+    <Year>2020</Year>
+    <Destination>London, United Kingdom, Oxford, United Kingdom</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/12/2019</DepartureDate>
+    <ReturnDate>12/16/2019</ReturnDate>
+    <TravelSponsor>Hudson Institute
+Association of Marshall Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022695</DocID>
+    <FilerName>Sheresh Khen</FilerName>
+    <MemberName>Correa, Jose</MemberName>
+    <State>CA</State>
+    <District>46</District>
+    <Year>2020</Year>
+    <Destination>Washington, DC</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/15/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022696</DocID>
+    <FilerName>Jennifer Kwon</FilerName>
+    <MemberName>Boyle, Brendan</MemberName>
+    <State>PA</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022697</DocID>
+    <FilerName>Chellie Pingree</FilerName>
+    <MemberName>Pingree, Chellie</MemberName>
+    <State>ME</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Princeton, NJ</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>10/18/2019</DepartureDate>
+    <ReturnDate>10/19/2019</ReturnDate>
+    <TravelSponsor>James Beard Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022698</DocID>
+    <FilerName>Kevin Dawson</FilerName>
+    <MemberName>Kelly, Mike</MemberName>
+    <State>PA</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/5/2019</DepartureDate>
+    <ReturnDate>11/8/2019</ReturnDate>
+    <TravelSponsor>Center Forward</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022699</DocID>
+    <FilerName>Devin Murphy</FilerName>
+    <MemberName>Gaetz, Matthew</MemberName>
+    <State>FL</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Nashville, TN</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/6/2019</DepartureDate>
+    <ReturnDate>11/7/2019</ReturnDate>
+    <TravelSponsor>SoundExchange</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022700</DocID>
+    <FilerName>Timothy D. Hysom</FilerName>
+    <MemberName>Lowenthal, Alan</MemberName>
+    <State>CA</State>
+    <District>47</District>
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/6/2019</DepartureDate>
+    <ReturnDate>12/8/2019</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022701</DocID>
+    <FilerName>Alma S. Adams</FilerName>
+    <MemberName>Adams, Alma</MemberName>
+    <State>NC</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022702</DocID>
+    <FilerName>Henry C. "Hank" Johnson</FilerName>
+    <MemberName>Johnson, Hank</MemberName>
+    <State>GA</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022703</DocID>
+    <FilerName>Michael Harris</FilerName>
+    <MemberName>Wasserman Schultz, Debbie</MemberName>
+    <State>FL</State>
+    <District>25</District>
+    <Year>2020</Year>
+    <Destination>Miami, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/10/2019</DepartureDate>
+    <ReturnDate>10/11/2019</ReturnDate>
+    <TravelSponsor>Everglades Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022704</DocID>
+    <FilerName>Pete Aguilar</FilerName>
+    <MemberName>Aguilar, Peter</MemberName>
+    <State>CA</State>
+    <District>33</District>
+    <Year>2020</Year>
+    <Destination>Richland, WA, Zillah, WA</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/12/2019</DepartureDate>
+    <ReturnDate>12/14/2019</ReturnDate>
+    <TravelSponsor>Bipartisan Policy Center</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022705</DocID>
+    <FilerName>Michael Waltz</FilerName>
+    <MemberName>Waltz, Michael</MemberName>
+    <State>FL</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/15/2019</DepartureDate>
+    <ReturnDate>11/16/2019</ReturnDate>
+    <TravelSponsor>With Honor Action</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022706</DocID>
+    <FilerName>Andrew Braun</FilerName>
+    <MemberName>Lamborn, Doug</MemberName>
+    <State>CO</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Lexington, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/10/2019</DepartureDate>
+    <ReturnDate>10/11/2019</ReturnDate>
+    <TravelSponsor>Heritage Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022707</DocID>
+    <FilerName>Joseph Pucciarelli</FilerName>
+    <MemberName>Woodall, Rob</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/9/2019</DepartureDate>
+    <ReturnDate>10/11/2019</ReturnDate>
+    <TravelSponsor>Heritage Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022708</DocID>
+    <FilerName>Jose Juan Villalvazo</FilerName>
+    <MemberName>Trahan, Lori</MemberName>
+    <State>MA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Warrenton, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/9/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>Partnership for a Secure America</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022709</DocID>
+    <FilerName>Barbara Lee</FilerName>
+    <MemberName>Lee, Barbara</MemberName>
+    <State>CA</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/30/2019</DepartureDate>
+    <ReturnDate>12/3/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022710</DocID>
+    <FilerName>Annmarie Goyzueta</FilerName>
+    <MemberName>Hayes, Jahana</MemberName>
+    <State>CT</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022711</DocID>
+    <FilerName>G. K. Butterfield</FilerName>
+    <MemberName>Butterfield, George</MemberName>
+    <State>NC</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022712</DocID>
+    <FilerName>Karen Bass</FilerName>
+    <MemberName>Bass, Karen</MemberName>
+    <State>CA</State>
+    <District>37</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022713</DocID>
+    <FilerName>Taylor Nkollo</FilerName>
+    <MemberName>Lewis, John</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022714</DocID>
+    <FilerName>William R. Archer</FilerName>
+    <MemberName>Fortenberry, Jeff</MemberName>
+    <State>NE</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>5/2/2019</DepartureDate>
+    <ReturnDate>5/3/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022715</DocID>
+    <FilerName>Lisa Blunt Rochester</FilerName>
+    <MemberName>Blunt Rochester, Lisa</MemberName>
+    <State>DE</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>Boston, MA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/16/2019</DepartureDate>
+    <ReturnDate>12/18/2019</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022716</DocID>
+    <FilerName>William F. Rockwood Jr.</FilerName>
+    <MemberName>Soto, Darren</MemberName>
+    <State>FL</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/4/2019</DepartureDate>
+    <ReturnDate>11/6/2019</ReturnDate>
+    <TravelSponsor>Internet Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022717</DocID>
+    <FilerName>Arwa Dubad</FilerName>
+    <MemberName>Lofgren, Zoe</MemberName>
+    <State>CA</State>
+    <District>18</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2019</DepartureDate>
+    <ReturnDate>12/15/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022718</DocID>
+    <FilerName>Samantha Sabol</FilerName>
+    <MemberName>Schweikert, David</MemberName>
+    <State>AZ</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Balitmore, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/9/2019</DepartureDate>
+    <ReturnDate>10/11/2019</ReturnDate>
+    <TravelSponsor>Heritage Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022719</DocID>
+    <FilerName>Jamie Simpson</FilerName>
+    <MemberName>Nadler, Jerrold</MemberName>
+    <State>NY</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/12/2019</DepartureDate>
+    <ReturnDate>11/13/2019</ReturnDate>
+    <TravelSponsor>Dealmakers Forum</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022721</DocID>
+    <FilerName>Jennifer H. White</FilerName>
+    <MemberName>Engel, Eliot</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/7/2019</DepartureDate>
+    <ReturnDate>10/8/2019</ReturnDate>
+    <TravelSponsor>Mercy Corps</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022722</DocID>
+    <FilerName>Barbara Lee</FilerName>
+    <MemberName>Lee, Barbara</MemberName>
+    <State>CA</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/30/2019</DepartureDate>
+    <ReturnDate>12/3/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022723</DocID>
+    <FilerName>Svetlana Matt</FilerName>
+    <MemberName>McNerney, Jerry</MemberName>
+    <State>CA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/21/2019</DepartureDate>
+    <ReturnDate>10/23/2019</ReturnDate>
+    <TravelSponsor>CTIA</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022724</DocID>
+    <FilerName>Earl Blumenauer</FilerName>
+    <MemberName>Blumenauer, Earl</MemberName>
+    <State>OR</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Vancouver, Canada</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/8/2019</DepartureDate>
+    <ReturnDate>9/9/2019</ReturnDate>
+    <TravelSponsor>Rail-Volution</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022725</DocID>
+    <FilerName>Svetlana Matt</FilerName>
+    <MemberName>McNerney, Jerry</MemberName>
+    <State>CA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/4/2019</DepartureDate>
+    <ReturnDate>11/5/2019</ReturnDate>
+    <TravelSponsor>Internet Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022726</DocID>
+    <FilerName>Svetlana Matt</FilerName>
+    <MemberName>McNerney, Jerry</MemberName>
+    <State>CA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/4/2019</DepartureDate>
+    <ReturnDate>10/5/2019</ReturnDate>
+    <TravelSponsor>NCTA - The Internet and Television Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022727</DocID>
+    <FilerName>Jon Bosworth</FilerName>
+    <MemberName>Blumenauer, Earl</MemberName>
+    <State>OR</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>San Diego, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/4/2020</DepartureDate>
+    <ReturnDate>1/6/2020</ReturnDate>
+    <TravelSponsor>National Railroad Construction and Maintenance Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022728</DocID>
+    <FilerName>Stacey E. Plaskett</FilerName>
+    <MemberName>Plaskett, Stacey</MemberName>
+    <State>VI</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022729</DocID>
+    <FilerName>Stacey E. Plaskett</FilerName>
+    <MemberName>Plaskett, Stacey</MemberName>
+    <State>VI</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>Tunica, MS</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/8/2019</DepartureDate>
+    <ReturnDate>8/11/2019</ReturnDate>
+    <TravelSponsor>Congressional Black Caucus Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022730</DocID>
+    <FilerName>Lakeisha Steele</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Warrenton, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/6/2019</DepartureDate>
+    <ReturnDate>8/8/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022731</DocID>
+    <FilerName>Svetlana Matt</FilerName>
+    <MemberName>McNerney, Jerry</MemberName>
+    <State>CA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Stanford, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/26/2019</DepartureDate>
+    <ReturnDate>8/29/2019</ReturnDate>
+    <TravelSponsor>Stanford University</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022732</DocID>
+    <FilerName>Mark Henson</FilerName>
+    <MemberName>Himes, James</MemberName>
+    <State>CT</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/8/2020</DepartureDate>
+    <ReturnDate>1/10/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022734</DocID>
+    <FilerName>Yuri Beckelman</FilerName>
+    <MemberName>Takano, Mark</MemberName>
+    <State>CA</State>
+    <District>39</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Assocation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022735</DocID>
+    <FilerName>Lewis Myers</FilerName>
+    <MemberName>Plaskett, Stacey</MemberName>
+    <State>VI</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/8/2020</DepartureDate>
+    <ReturnDate>1/10/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022736</DocID>
+    <FilerName>Jeremy Marcus</FilerName>
+    <MemberName>Cartwright, Matt</MemberName>
+    <State>PA</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022737</DocID>
+    <FilerName>Christopher Gorud</FilerName>
+    <MemberName>Lowenthal, Alan</MemberName>
+    <State>CA</State>
+    <District>47</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/5/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022738</DocID>
+    <FilerName>James Decker</FilerName>
+    <MemberName>Burgess, Michael</MemberName>
+    <State>TX</State>
+    <District>26</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022739</DocID>
+    <FilerName>Michael Kotsovos</FilerName>
+    <MemberName>Long, Billy</MemberName>
+    <State>MO</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022740</DocID>
+    <FilerName>Robert Peters</FilerName>
+    <MemberName>Ratcliffe, John</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022741</DocID>
+    <FilerName>Brian Looser</FilerName>
+    <MemberName>Shimkus, John</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022742</DocID>
+    <FilerName>Evan Viau</FilerName>
+    <MemberName>Walden, Greg</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022743</DocID>
+    <FilerName>Alexander Beckmann</FilerName>
+    <MemberName>Lipinski, Daniel</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>San Diego, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/3/2020</DepartureDate>
+    <ReturnDate>1/6/2020</ReturnDate>
+    <TravelSponsor>National Railroad Construction and Maintenance Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022744</DocID>
+    <FilerName>David Dorfman</FilerName>
+    <MemberName>Clarke, Yvette</MemberName>
+    <State>NY</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022745</DocID>
+    <FilerName>Christopher Gorud</FilerName>
+    <MemberName>Lowenthal, Alan</MemberName>
+    <State>CA</State>
+    <District>47</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/5/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022746</DocID>
+    <FilerName>Aaron Davis</FilerName>
+    <MemberName>Defazio, Peter</MemberName>
+    <State>OR</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022747</DocID>
+    <FilerName>Michael Pauls</FilerName>
+    <MemberName>Norcross, Donald</MemberName>
+    <State>NJ</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022748</DocID>
+    <FilerName>Sarah Moxley</FilerName>
+    <MemberName>Rogers, Mike</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022749</DocID>
+    <FilerName>Edgar Rivas</FilerName>
+    <MemberName>O'halleran, Thomas</MemberName>
+    <State>AZ</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022750</DocID>
+    <FilerName>Mark Henson</FilerName>
+    <MemberName>Himes, James</MemberName>
+    <State>CT</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/8/2020</DepartureDate>
+    <ReturnDate>1/10/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022751</DocID>
+    <FilerName>Jon Bosworth</FilerName>
+    <MemberName>Blumenauer, Earl</MemberName>
+    <State>OR</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>San Diego, CA</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/4/2020</DepartureDate>
+    <ReturnDate>1/6/2020</ReturnDate>
+    <TravelSponsor>National Railroad Construction and Maintenance Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022752</DocID>
+    <FilerName>Brian Duckworth</FilerName>
+    <MemberName>Allred, Colin</MemberName>
+    <State>TX</State>
+    <District>32</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022757</DocID>
+    <FilerName>Auburn Bell</FilerName>
+    <MemberName>Grijalva, Raul</MemberName>
+    <State>AZ</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022758</DocID>
+    <FilerName>David Thompson</FilerName>
+    <MemberName>Crist, Charlie</MemberName>
+    <State>FL</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022759</DocID>
+    <FilerName>Christopher Cox</FilerName>
+    <MemberName>Clarke, Yvette</MemberName>
+    <State>NY</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022760</DocID>
+    <FilerName>Chelsea Angelo</FilerName>
+    <MemberName>Cooper, James</MemberName>
+    <State>TN</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022761</DocID>
+    <FilerName>Taylor Smith</FilerName>
+    <MemberName>Neal, Richard</MemberName>
+    <State>MA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022762</DocID>
+    <FilerName>Katherine McClelland</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Denver, CO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/27/2019</DepartureDate>
+    <ReturnDate>8/29/2019</ReturnDate>
+    <TravelSponsor>Jobs for the Future</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022763</DocID>
+    <FilerName>Katherine Stewart</FilerName>
+    <MemberName>Adams, Alma</MemberName>
+    <State>NC</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>Louisville, KY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/19/2019</DepartureDate>
+    <ReturnDate>8/22/2019</ReturnDate>
+    <TravelSponsor>National Association of State Departments of Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022764</DocID>
+    <FilerName>Curtis Bliamptis</FilerName>
+    <MemberName>Mooney, Alex</MemberName>
+    <State>WV</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022765</DocID>
+    <FilerName>Timothy Butler</FilerName>
+    <MemberName>Kelly, Mike</MemberName>
+    <State>PA</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/4/2019</DepartureDate>
+    <ReturnDate>12/6/2019</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022766</DocID>
+    <FilerName>Evan Hollander</FilerName>
+    <MemberName>Lowey, Nita</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Monrovia, Liberia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/18/2020</DepartureDate>
+    <ReturnDate>1/24/2020</ReturnDate>
+    <TravelSponsor>National Democratic Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022767</DocID>
+    <FilerName>Clement Abonyi, Jr.</FilerName>
+    <MemberName>Waters, Maxine</MemberName>
+    <State>CA</State>
+    <District>43</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/16/2019</DepartureDate>
+    <ReturnDate>8/18/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022768</DocID>
+    <FilerName>Brittan Specht</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>5/2/2019</DepartureDate>
+    <ReturnDate>5/4/2019</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022769</DocID>
+    <FilerName>Auburn Bell</FilerName>
+    <MemberName>Grijalva, Raul</MemberName>
+    <State>AZ</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022770</DocID>
+    <FilerName>David Thompson</FilerName>
+    <MemberName>Crist, Charlie</MemberName>
+    <State>FL</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022771</DocID>
+    <FilerName>Brian Duckworth</FilerName>
+    <MemberName>Allred, Colin</MemberName>
+    <State>TX</State>
+    <District>32</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022772</DocID>
+    <FilerName>Christopher Del Beccaro</FilerName>
+    <MemberName>McCaul, Michael</MemberName>
+    <State>TX</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/6/2019</DepartureDate>
+    <ReturnDate>12/8/2019</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022773</DocID>
+    <FilerName>Derek Luyten</FilerName>
+    <MemberName>Engel, Eliot</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Tbilisi, Georgia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/19/2020</DepartureDate>
+    <ReturnDate>1/24/2020</ReturnDate>
+    <TravelSponsor>National Democratic Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022774</DocID>
+    <FilerName>Jean Roseme</FilerName>
+    <MemberName>Wilson, Frederica</MemberName>
+    <State>FL</State>
+    <District>24</District>
+    <Year>2020</Year>
+    <Destination>Miami, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/22/2019</DepartureDate>
+    <ReturnDate>8/23/2019</ReturnDate>
+    <TravelSponsor>Florida East Coast Industries, LLC</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022776</DocID>
+    <FilerName>Mikie Sherrill</FilerName>
+    <MemberName>Sherrill, Mikie</MemberName>
+    <State>NJ</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/2/2019</DepartureDate>
+    <ReturnDate>11/7/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Fund</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022777</DocID>
+    <FilerName>Brenda L. Lawrence</FilerName>
+    <MemberName>Lawrence, Brenda</MemberName>
+    <State>MI</State>
+    <District>14</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/4/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022778</DocID>
+    <FilerName>Debbie Wasserman Schultz</FilerName>
+    <MemberName>Wasserman Schultz, Debbie</MemberName>
+    <State>FL</State>
+    <District>25</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/2/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022779</DocID>
+    <FilerName>Natalie Goodwin</FilerName>
+    <MemberName>Brooks, Susan</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/7/2019</DepartureDate>
+    <ReturnDate>11/8/2019</ReturnDate>
+    <TravelSponsor>Women's High Tech Coalition</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022780</DocID>
+    <FilerName>Earl L. "Buddy" Carter</FilerName>
+    <MemberName>Carter, Buddy</MemberName>
+    <State>GA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Yulee, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/31/2020</DepartureDate>
+    <ReturnDate>2/2/2020</ReturnDate>
+    <TravelSponsor>International Conservation Caucus Foundation
+White Oak Conservation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022781</DocID>
+    <FilerName>David P. Joyce</FilerName>
+    <MemberName>Joyce, David</MemberName>
+    <State>OH</State>
+    <District>14</District>
+    <Year>2020</Year>
+    <Destination>Yulee, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/31/2020</DepartureDate>
+    <ReturnDate>2/2/2020</ReturnDate>
+    <TravelSponsor>International Conservation Caucus Foundation
+White Oak Conservation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022782</DocID>
+    <FilerName>Dan Newhouse</FilerName>
+    <MemberName>Newhouse, Daniel</MemberName>
+    <State>WA</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Yulee, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/31/2020</DepartureDate>
+    <ReturnDate>2/2/2020</ReturnDate>
+    <TravelSponsor>International Conservation Caucus Foundation
+White Oak Conservation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022783</DocID>
+    <FilerName>Devron Brown</FilerName>
+    <MemberName>Waters, Maxine</MemberName>
+    <State>CA</State>
+    <District>43</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/8/2020</DepartureDate>
+    <ReturnDate>1/10/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022784</DocID>
+    <FilerName>Paul Nicholas</FilerName>
+    <MemberName>Hoyer, Steny</MemberName>
+    <State>MD</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Queenstown, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/13/2020</DepartureDate>
+    <ReturnDate>12/15/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022785</DocID>
+    <FilerName>Sheila Jackson Lee</FilerName>
+    <MemberName>Jackson Lee, Sheila</MemberName>
+    <State>TX</State>
+    <District>18</District>
+    <Year>2020</Year>
+    <Destination>Tunica, MS</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/9/2019</DepartureDate>
+    <ReturnDate>8/10/2019</ReturnDate>
+    <TravelSponsor>Congressional Black Caucus Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022786</DocID>
+    <FilerName>Zachary Gates</FilerName>
+    <MemberName>Wagner, Ann</MemberName>
+    <State>MO</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/9/2019</DepartureDate>
+    <ReturnDate>10/14/2019</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022787</DocID>
+    <FilerName>Edgar Rivas</FilerName>
+    <MemberName>O'halleran, Thomas</MemberName>
+    <State>AZ</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022788</DocID>
+    <FilerName>Martha Roby</FilerName>
+    <MemberName>Roby, Martha</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/2/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022789</DocID>
+    <FilerName>Ian Gray</FilerName>
+    <MemberName>Malinowski, Tom</MemberName>
+    <State>NJ</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Cambridge, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/17/2020</DepartureDate>
+    <ReturnDate>1/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022790</DocID>
+    <FilerName>Angie Craig</FilerName>
+    <MemberName>Craig, Angela</MemberName>
+    <State>MN</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/2/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022791</DocID>
+    <FilerName>Matthew Russell</FilerName>
+    <MemberName>Conaway, K.</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Tunis, Tunisia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/6/2020</DepartureDate>
+    <ReturnDate>2/11/2020</ReturnDate>
+    <TravelSponsor>International Republican Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022792</DocID>
+    <FilerName>Nora Blalock</FilerName>
+    <MemberName>Price, David</MemberName>
+    <State>NC</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Tunis, Tunisia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/6/2020</DepartureDate>
+    <ReturnDate>2/11/2020</ReturnDate>
+    <TravelSponsor>International Republican Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022793</DocID>
+    <FilerName>Chelsea Bacher</FilerName>
+    <MemberName>Rice, Tom</MemberName>
+    <State>SC</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Tunis, Tunisia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/6/2020</DepartureDate>
+    <ReturnDate>2/11/2020</ReturnDate>
+    <TravelSponsor>International Republican Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022794</DocID>
+    <FilerName>Macey Matthews</FilerName>
+    <MemberName>Brindisi, Anthony</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/7/2019</DepartureDate>
+    <ReturnDate>11/8/2019</ReturnDate>
+    <TravelSponsor>Women's High Tech Coalition</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022795</DocID>
+    <FilerName>Charlyn Stanberry</FilerName>
+    <MemberName>Clarke, Yvette</MemberName>
+    <State>NY</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Austin, TX</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/7/2020</DepartureDate>
+    <ReturnDate>2/9/2020</ReturnDate>
+    <TravelSponsor>American Bar Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022797</DocID>
+    <FilerName>Philip Murphy</FilerName>
+    <MemberName>Doyle, Michael</MemberName>
+    <State>PA</State>
+    <District>18</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/7/2020</DepartureDate>
+    <ReturnDate>1/9/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022798</DocID>
+    <FilerName>Caren Street</FilerName>
+    <MemberName>Bass, Karen</MemberName>
+    <State>CA</State>
+    <District>37</District>
+    <Year>2020</Year>
+    <Destination>Philadelphia, PA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/27/2019</DepartureDate>
+    <ReturnDate>8/28/2019</ReturnDate>
+    <TravelSponsor>FHLBank of Pittsburgh
+FHLBank of New York
+FHLBank of San Francisco</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022799</DocID>
+    <FilerName>Brittany Hughes</FilerName>
+    <MemberName>Lewis, John</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Warrenton, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/9/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>Partnership for a Secure America</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022800</DocID>
+    <FilerName>Jessica Carter</FilerName>
+    <MemberName>Rooney, Francis</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022801</DocID>
+    <FilerName>Michael Chernin</FilerName>
+    <MemberName>Lieu, Ted</MemberName>
+    <State>CA</State>
+    <District>36</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, LA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022802</DocID>
+    <FilerName>Austin Weatherford</FilerName>
+    <MemberName>Kinzinger, Adam</MemberName>
+    <State>IL</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022803</DocID>
+    <FilerName>Bruce Miller</FilerName>
+    <MemberName>Amodei, Mark</MemberName>
+    <State>NV</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022804</DocID>
+    <FilerName>Mitchell Ryan Rivard</FilerName>
+    <MemberName>Kildee, Dan</MemberName>
+    <State>MI</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022805</DocID>
+    <FilerName>John Cameron Foster</FilerName>
+    <MemberName>Hern, Kevin</MemberName>
+    <State>OK</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022806</DocID>
+    <FilerName>Conor Walsh</FilerName>
+    <MemberName>Suozzi, Thomas</MemberName>
+    <State>NY</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022807</DocID>
+    <FilerName>Laura Engquist</FilerName>
+    <MemberName>Balderson, Troy</MemberName>
+    <State>OH</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022808</DocID>
+    <FilerName>Sarah Miller</FilerName>
+    <MemberName>Mast, Brian</MemberName>
+    <State>FL</State>
+    <District>21</District>
+    <Year>2020</Year>
+    <Destination>Cape Canaveral, FL, Jacksonville, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Florida Ports Council</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022809</DocID>
+    <FilerName>Mary Rosado</FilerName>
+    <MemberName>Barr, Garland</MemberName>
+    <State>KY</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022810</DocID>
+    <FilerName>Richard Laukitis</FilerName>
+    <MemberName>Walberg, Tim</MemberName>
+    <State>MI</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022811</DocID>
+    <FilerName>Jaryn Emhof</FilerName>
+    <MemberName>Webster, Daniel</MemberName>
+    <State>FL</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022812</DocID>
+    <FilerName>Jamie Robinette</FilerName>
+    <MemberName>Spano, Ross</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022813</DocID>
+    <FilerName>Kevin W. Fitzpatrick</FilerName>
+    <MemberName>Chabot, Steve</MemberName>
+    <State>OH</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022814</DocID>
+    <FilerName>Ryan Carney</FilerName>
+    <MemberName>Steil, Bryan</MemberName>
+    <State>WI</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022815</DocID>
+    <FilerName>Stephen Siao</FilerName>
+    <MemberName>Green, Mark</MemberName>
+    <State>TN</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022816</DocID>
+    <FilerName>Robert D. Schroeder</FilerName>
+    <MemberName>Carter, John</MemberName>
+    <State>TX</State>
+    <District>31</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022817</DocID>
+    <FilerName>Martin L. Hall</FilerName>
+    <MemberName>Graves, Garret</MemberName>
+    <State>LA</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022818</DocID>
+    <FilerName>William Stuart Burns</FilerName>
+    <MemberName>Posey, Bill</MemberName>
+    <State>FL</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022819</DocID>
+    <FilerName>John Ferland</FilerName>
+    <MemberName>Massie, Thomas</MemberName>
+    <State>KY</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022820</DocID>
+    <FilerName>Elizabeth Diohep</FilerName>
+    <MemberName>Estes, Ron</MemberName>
+    <State>KS</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022821</DocID>
+    <FilerName>Andrew Gradison</FilerName>
+    <MemberName>Brady, Kevin</MemberName>
+    <State>TX</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022822</DocID>
+    <FilerName>Stephen Cote</FilerName>
+    <MemberName>McHenry, Patrick</MemberName>
+    <State>NC</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022823</DocID>
+    <FilerName>Matthew Meyer</FilerName>
+    <MemberName>Roe, David</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022824</DocID>
+    <FilerName>Adam Hewitt</FilerName>
+    <MemberName>Davidson, Warren</MemberName>
+    <State>OH</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022825</DocID>
+    <FilerName>Anne Marie Chotvacs</FilerName>
+    <MemberName>Granger, Kay</MemberName>
+    <State>TX</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022826</DocID>
+    <FilerName>James Decker</FilerName>
+    <MemberName>Burgess, Michael</MemberName>
+    <State>TX</State>
+    <District>26</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022827</DocID>
+    <FilerName>Ryan Thomas O'Toole</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022828</DocID>
+    <FilerName>Michael D. Comer II</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022829</DocID>
+    <FilerName>Lauren Wolman</FilerName>
+    <MemberName>Wasserman Schultz, Debbie</MemberName>
+    <State>FL</State>
+    <District>25</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel, Tel Aviv, Israel, Tiberias, Israel</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>11/2/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>American Israel Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022830</DocID>
+    <FilerName>Kerry Knott</FilerName>
+    <MemberName>Aderholt, Robert</MemberName>
+    <State>AL</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022831</DocID>
+    <FilerName>Allen Klump</FilerName>
+    <MemberName>Duncan, Jeff</MemberName>
+    <State>SC</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022832</DocID>
+    <FilerName>Joseph Knowles</FilerName>
+    <MemberName>Fitzpatrick, Brian</MemberName>
+    <State>PA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022833</DocID>
+    <FilerName>Thomas Rice</FilerName>
+    <MemberName>McCaul, Michael</MemberName>
+    <State>TX</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Kigali, Rwanda</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022834</DocID>
+    <FilerName>Valentina J. Valenta</FilerName>
+    <MemberName>Posey, Bill</MemberName>
+    <State>FL</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Cape Canaveral, FL, Jacksonville, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Florida Ports Council</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022835</DocID>
+    <FilerName>Olivia Rose Hnat</FilerName>
+    <MemberName>McMorris Rodgers, Cathy</MemberName>
+    <State>WA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022836</DocID>
+    <FilerName>Jim Joice</FilerName>
+    <MemberName>Watkins, Steve</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022837</DocID>
+    <FilerName>Alex Payne</FilerName>
+    <MemberName>Schrier, Kim</MemberName>
+    <State>WA</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022838</DocID>
+    <FilerName>Annie Alburger</FilerName>
+    <MemberName>Joyce, David</MemberName>
+    <State>OH</State>
+    <District>14</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022839</DocID>
+    <FilerName>Patrick Carter</FilerName>
+    <MemberName>Hudson, Richard</MemberName>
+    <State>NC</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022840</DocID>
+    <FilerName>Matthew Russell</FilerName>
+    <MemberName>Conaway, K.</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022841</DocID>
+    <FilerName>Paula Daneri</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022842</DocID>
+    <FilerName>Jonah Shumate</FilerName>
+    <MemberName>Crawford, Rick</MemberName>
+    <State>AR</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022843</DocID>
+    <FilerName>Michael Zetts</FilerName>
+    <MemberName>Ryan, Timothy</MemberName>
+    <State>OH</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/14/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Rebuilding Alliance</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022844</DocID>
+    <FilerName>Joshua Grogis</FilerName>
+    <MemberName>Cole, Tom</MemberName>
+    <State>OK</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022845</DocID>
+    <FilerName>Dao Nguyen</FilerName>
+    <MemberName>Murphy, Stephanie</MemberName>
+    <State>FL</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022846</DocID>
+    <FilerName>Laurie Saroff</FilerName>
+    <MemberName>Correa, Jose</MemberName>
+    <State>CA</State>
+    <District>46</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022847</DocID>
+    <FilerName>Devin Ombres</FilerName>
+    <MemberName>Raskin, Jamie</MemberName>
+    <State>MD</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Nashville, TN</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/6/2019</DepartureDate>
+    <ReturnDate>11/7/2019</ReturnDate>
+    <TravelSponsor>SoundExchange</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022848</DocID>
+    <FilerName>Jim Jordan</FilerName>
+    <MemberName>Jordan, Jim</MemberName>
+    <State>OH</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/13/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>12Tribe Films Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022849</DocID>
+    <FilerName>Loredana Valtierra</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Denver, CO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022850</DocID>
+    <FilerName>Patrick Byrne</FilerName>
+    <MemberName>Fudge, Marcia</MemberName>
+    <State>OH</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022851</DocID>
+    <FilerName>Rachel Ver Velde</FilerName>
+    <MemberName>Grothman, Glenn</MemberName>
+    <State>WI</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022852</DocID>
+    <FilerName>Hillary Gross</FilerName>
+    <MemberName>Gibbs, Bob</MemberName>
+    <State>OH</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022853</DocID>
+    <FilerName>Megan Bel Miller</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022854</DocID>
+    <FilerName>Jack Minor</FilerName>
+    <MemberName>Walker, Bradley</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022855</DocID>
+    <FilerName>Kathleen Heffernan</FilerName>
+    <MemberName>Rutherford, John</MemberName>
+    <State>FL</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Cape Canaveral, FL, Jacksonville, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Florida Ports Council</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022856</DocID>
+    <FilerName>Catherine O'Connor</FilerName>
+    <MemberName>Walden, Greg</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022857</DocID>
+    <FilerName>Michael Grider</FilerName>
+    <MemberName>Burchett, Timothy</MemberName>
+    <State>TN</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022858</DocID>
+    <FilerName>Matthew Bisenius</FilerName>
+    <MemberName>Sensenbrenner, Frank</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022859</DocID>
+    <FilerName>Brendan Belair</FilerName>
+    <MemberName>Collins, Doug</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022860</DocID>
+    <FilerName>Yvette D. Clarke</FilerName>
+    <MemberName>Clarke, Yvette</MemberName>
+    <State>NY</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>New York, NY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/1/2019</DepartureDate>
+    <ReturnDate>12/2/2019</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022861</DocID>
+    <FilerName>Rebecca Shaw</FilerName>
+    <MemberName>Hollingsworth, Joseph</MemberName>
+    <State>IN</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022863</DocID>
+    <FilerName>Mike Johnson</FilerName>
+    <MemberName>Johnson, Mike</MemberName>
+    <State>LA</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/13/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>12Tribe Films Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022864</DocID>
+    <FilerName>Ruth Ward</FilerName>
+    <MemberName>Johnson, Mike</MemberName>
+    <State>LA</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022865</DocID>
+    <FilerName>Madeline Daly</FilerName>
+    <MemberName>Hayes, Jahana</MemberName>
+    <State>CT</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022866</DocID>
+    <FilerName>Chris Tudor</FilerName>
+    <MemberName>McClintock, Tom</MemberName>
+    <State>CA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022867</DocID>
+    <FilerName>Desiree Koetzle</FilerName>
+    <MemberName>Stauber, Peter</MemberName>
+    <State>MN</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022868</DocID>
+    <FilerName>Jenifer Nawrocki Bradley</FilerName>
+    <MemberName>Rutherford, John</MemberName>
+    <State>FL</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022869</DocID>
+    <FilerName>Mitchell Ryan Rivard</FilerName>
+    <MemberName>Kildee, Dan</MemberName>
+    <State>MI</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022870</DocID>
+    <FilerName>Jesse Von Stein</FilerName>
+    <MemberName>Young, Donald</MemberName>
+    <State>AK</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022871</DocID>
+    <FilerName>Peter Barnes</FilerName>
+    <MemberName>Bishop, Dan</MemberName>
+    <State>NC</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022872</DocID>
+    <FilerName>Matthew Stroia</FilerName>
+    <MemberName>Kelly, Mike</MemberName>
+    <State>PA</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022873</DocID>
+    <FilerName>Andrew Christianson</FilerName>
+    <MemberName>Johnson, Dustin</MemberName>
+    <State>SD</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022875</DocID>
+    <FilerName>Diane DeGette</FilerName>
+    <MemberName>DeGette, Diana</MemberName>
+    <State>CO</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/24/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022876</DocID>
+    <FilerName>Linda T. Sanchez</FilerName>
+    <MemberName>Sanchez, Linda</MemberName>
+    <State>CA</State>
+    <District>38</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022877</DocID>
+    <FilerName>Danielle Johnson</FilerName>
+    <MemberName>Nadler, Jerrold</MemberName>
+    <State>NY</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022878</DocID>
+    <FilerName>Melissa Kiedrowicz Ellison</FilerName>
+    <MemberName>Sanchez, Linda</MemberName>
+    <State>CA</State>
+    <District>38</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022879</DocID>
+    <FilerName>Kimberley Meinert</FilerName>
+    <MemberName>Neal, Richard</MemberName>
+    <State>MA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022880</DocID>
+    <FilerName>Kyle R. Kizzier</FilerName>
+    <MemberName>Mitchell, Paul</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022881</DocID>
+    <FilerName>Stephen Reynolds</FilerName>
+    <MemberName>Balderson, Troy</MemberName>
+    <State>OH</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022882</DocID>
+    <FilerName>Ellen Caroline Gosnell</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022883</DocID>
+    <FilerName>Rachel Rathore</FilerName>
+    <MemberName>Latta, Robert</MemberName>
+    <State>OH</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022884</DocID>
+    <FilerName>Twinkle Patel</FilerName>
+    <MemberName>Steube, W.</MemberName>
+    <State>FL</State>
+    <District>17</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Rebuilding Alliance</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022885</DocID>
+    <FilerName>John Barton Reising</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022886</DocID>
+    <FilerName>Drew Griffin</FilerName>
+    <MemberName>Latta, Robert</MemberName>
+    <State>OH</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022887</DocID>
+    <FilerName>Melissa Murphy</FilerName>
+    <MemberName>Rouzer, David</MemberName>
+    <State>NC</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022888</DocID>
+    <FilerName>Quincy Cunningham</FilerName>
+    <MemberName>Baird, James</MemberName>
+    <State>IN</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022889</DocID>
+    <FilerName>Eric Bergren</FilerName>
+    <MemberName>Guthrie, Brett</MemberName>
+    <State>KY</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022890</DocID>
+    <FilerName>Steven Giaier</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022891</DocID>
+    <FilerName>Brenda L. Lawrence</FilerName>
+    <MemberName>Lawrence, Brenda</MemberName>
+    <State>MI</State>
+    <District>14</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022892</DocID>
+    <FilerName>Parish Braden</FilerName>
+    <MemberName>Bishop, Robert</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022893</DocID>
+    <FilerName>Melissa Kelly</FilerName>
+    <MemberName>Olson, Pete</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022894</DocID>
+    <FilerName>Greg Walden</FilerName>
+    <MemberName>Walden, Greg</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/14/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022895</DocID>
+    <FilerName>Larry Bucshon</FilerName>
+    <MemberName>Bucshon, Larry</MemberName>
+    <State>IN</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022896</DocID>
+    <FilerName>Shiouyu Theresa Lou</FilerName>
+    <MemberName>Engel, Eliot</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022897</DocID>
+    <FilerName>Wendy D. Anderson</FilerName>
+    <MemberName>Demings, Valdez</MemberName>
+    <State>FL</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022898</DocID>
+    <FilerName>C.A. Dutch Ruppersberger</FilerName>
+    <MemberName>Ruppersberger, C. A.</MemberName>
+    <State>MD</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022899</DocID>
+    <FilerName>Robin L. Kelly</FilerName>
+    <MemberName>Kelly, Robin</MemberName>
+    <State>IL</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022900</DocID>
+    <FilerName>Bill Flores</FilerName>
+    <MemberName>Flores, Bill</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022901</DocID>
+    <FilerName>Katie Smith</FilerName>
+    <MemberName>Holding, George</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022902</DocID>
+    <FilerName>Timothy Monahan</FilerName>
+    <MemberName>Davis, Rodney</MemberName>
+    <State>IL</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022903</DocID>
+    <FilerName>Anthony Flynn, Jr. ("Roddy")</FilerName>
+    <MemberName>Scanlon, Mary</MemberName>
+    <State>PA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022904</DocID>
+    <FilerName>Anthony Flynn, Jr. ("Roddy")</FilerName>
+    <MemberName>Scanlon, Mary</MemberName>
+    <State>PA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022905</DocID>
+    <FilerName>Patrick Stewart-Hester</FilerName>
+    <MemberName>Stefanik, Elise</MemberName>
+    <State>NY</State>
+    <District>21</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022906</DocID>
+    <FilerName>Daniel Smith RuBoss</FilerName>
+    <MemberName>Doggett, Lloyd</MemberName>
+    <State>TX</State>
+    <District>37</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022907</DocID>
+    <FilerName>Chellie Pingree</FilerName>
+    <MemberName>Pingree, Chellie</MemberName>
+    <State>ME</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022908</DocID>
+    <FilerName>Andre Lindsay</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Denver, CO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022909</DocID>
+    <FilerName>Lakeisha Steele</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Denver, CO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022910</DocID>
+    <FilerName>David Russell</FilerName>
+    <MemberName>Moolenaar, John</MemberName>
+    <State>MI</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022911</DocID>
+    <FilerName>Mark E. Green</FilerName>
+    <MemberName>Green, Mark</MemberName>
+    <State>TN</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022912</DocID>
+    <FilerName>Sajit Gandhi</FilerName>
+    <MemberName>Engel, Eliot</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Albuquerque, NM</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>12/6/2019</DepartureDate>
+    <ReturnDate>12/8/2019</ReturnDate>
+    <TravelSponsor>National Security Action</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022913</DocID>
+    <FilerName>Craig Anderson</FilerName>
+    <MemberName>Scott, Austin</MemberName>
+    <State>GA</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022914</DocID>
+    <FilerName>Kelly Dixon Chambers</FilerName>
+    <MemberName>Cole, Tom</MemberName>
+    <State>OK</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022915</DocID>
+    <FilerName>Becky Relic</FilerName>
+    <MemberName>Womack, Steve</MemberName>
+    <State>AR</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022916</DocID>
+    <FilerName>Mike Smullen</FilerName>
+    <MemberName>Johnson, Bill</MemberName>
+    <State>OH</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022917</DocID>
+    <FilerName>Rricha Mathur deCant</FilerName>
+    <MemberName>Chu, Judy</MemberName>
+    <State>CA</State>
+    <District>28</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022918</DocID>
+    <FilerName>Emily Hadden</FilerName>
+    <MemberName>Dunn, Neal</MemberName>
+    <State>FL</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022919</DocID>
+    <FilerName>Ann Minkler</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022920</DocID>
+    <FilerName>William J. Hughes</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022921</DocID>
+    <FilerName>Michael R. Turner</FilerName>
+    <MemberName>Turner, Michael</MemberName>
+    <State>OH</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/16/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022922</DocID>
+    <FilerName>Jordan Downs</FilerName>
+    <MemberName>Guest, Michael</MemberName>
+    <State>MS</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022923</DocID>
+    <FilerName>Emily Weber</FilerName>
+    <MemberName>Allred, Colin</MemberName>
+    <State>TX</State>
+    <District>32</District>
+    <Year>2020</Year>
+    <Destination>Kigali, Rwanda</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022924</DocID>
+    <FilerName>Robert Adkerson</FilerName>
+    <MemberName>Loudermilk, Barry</MemberName>
+    <State>GA</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022925</DocID>
+    <FilerName>John Byers</FilerName>
+    <MemberName>Hurd, William</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022926</DocID>
+    <FilerName>Sofya Leonova</FilerName>
+    <MemberName>Lipinski, Daniel</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022927</DocID>
+    <FilerName>Christine Heggem</FilerName>
+    <MemberName>Gianforte, Greg</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022928</DocID>
+    <FilerName>James R. Baird</FilerName>
+    <MemberName>Baird, James</MemberName>
+    <State>IN</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022929</DocID>
+    <FilerName>Elizabeth Messer</FilerName>
+    <MemberName>Rutherford, John</MemberName>
+    <State>FL</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022930</DocID>
+    <FilerName>Jake Olson</FilerName>
+    <MemberName>Graves, Tom</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022931</DocID>
+    <FilerName>Ricki Schroeder</FilerName>
+    <MemberName>Conaway, K.</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022932</DocID>
+    <FilerName>Abbie Sorrendino</FilerName>
+    <MemberName>Morelle, Joseph</MemberName>
+    <State>NY</State>
+    <District>25</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022933</DocID>
+    <FilerName>Tiffany Guarscio</FilerName>
+    <MemberName>Pallone, Frank</MemberName>
+    <State>NJ</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022934</DocID>
+    <FilerName>Elizabeth Barczak</FilerName>
+    <MemberName>Gonzalez, Anthony</MemberName>
+    <State>OH</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022935</DocID>
+    <FilerName>Charles C. Keller</FilerName>
+    <MemberName>Wagner, Ann</MemberName>
+    <State>MO</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022936</DocID>
+    <FilerName>Emily Domenech</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022937</DocID>
+    <FilerName>Preston Hill</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022938</DocID>
+    <FilerName>Brittan Specht</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022939</DocID>
+    <FilerName>Michele P. Exner</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022940</DocID>
+    <FilerName>Emily Michael</FilerName>
+    <MemberName>Griffith, H.</MemberName>
+    <State>VA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022941</DocID>
+    <FilerName>Timothy J. Ranstrom</FilerName>
+    <MemberName>Neal, Richard</MemberName>
+    <State>MA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022942</DocID>
+    <FilerName>Anthony Lis</FilerName>
+    <MemberName>Bergman, John</MemberName>
+    <State>MI</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022943</DocID>
+    <FilerName>Mike Quigley</FilerName>
+    <MemberName>Quigley, Mike</MemberName>
+    <State>IL</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022944</DocID>
+    <FilerName>Adam Stewart</FilerName>
+    <MemberName>Bishop, Robert</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Beit Sahour, Palestine, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/14/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Rebuilding Alliance</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022945</DocID>
+    <FilerName>Elizabeth Amster</FilerName>
+    <MemberName>Rice, Kathleen</MemberName>
+    <State>NY</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022946</DocID>
+    <FilerName>Paul Sass</FilerName>
+    <MemberName>Graves, Samuel</MemberName>
+    <State>MO</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022947</DocID>
+    <FilerName>Jon Anzur</FilerName>
+    <MemberName>Keller, Fred</MemberName>
+    <State>PA</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022948</DocID>
+    <FilerName>Michele P. Exner</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022949</DocID>
+    <FilerName>Colin Carr</FilerName>
+    <MemberName>Loudermilk, Barry</MemberName>
+    <State>GA</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Conference of State Bank Supervisors</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022950</DocID>
+    <FilerName>Kathy Mahan</FilerName>
+    <MemberName>Costa, Jim</MemberName>
+    <State>CA</State>
+    <District>21</District>
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022951</DocID>
+    <FilerName>Jason Lawrence</FilerName>
+    <MemberName>Scott, Austin</MemberName>
+    <State>GA</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022952</DocID>
+    <FilerName>Liana Guerra</FilerName>
+    <MemberName>Soto, Darren</MemberName>
+    <State>FL</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/24/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022953</DocID>
+    <FilerName>Robbin Bass</FilerName>
+    <MemberName>Ratcliffe, John</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022954</DocID>
+    <FilerName>Lyndsey Barnes</FilerName>
+    <MemberName>Higgins, Brian</MemberName>
+    <State>NY</State>
+    <District>26</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022955</DocID>
+    <FilerName>Aruna Kalyanam</FilerName>
+    <MemberName>Neal, Richard</MemberName>
+    <State>MA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022956</DocID>
+    <FilerName>James Welsh</FilerName>
+    <MemberName>Walorski, Jackie</MemberName>
+    <State>IN</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>Banjul, The Gambia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/16/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>International Republican Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022957</DocID>
+    <FilerName>Courtney Whetstone</FilerName>
+    <MemberName>Stivers, Steve</MemberName>
+    <State>OH</State>
+    <District>15</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022958</DocID>
+    <FilerName>Elena J. Kochnowicz</FilerName>
+    <MemberName>Hastings, Alcee</MemberName>
+    <State>FL</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022959</DocID>
+    <FilerName>Zachary Howell</FilerName>
+    <MemberName>Katko, John</MemberName>
+    <State>NY</State>
+    <District>24</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022960</DocID>
+    <FilerName>Cortney Segman</FilerName>
+    <MemberName>Trone, David</MemberName>
+    <State>MD</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>New Orleans, LA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Casey Family Programs</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022961</DocID>
+    <FilerName>Emily German</FilerName>
+    <MemberName>Peterson, Collin</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022962</DocID>
+    <FilerName>Mark Edward Dreiling</FilerName>
+    <MemberName>Bacon, Donald</MemberName>
+    <State>NE</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022963</DocID>
+    <FilerName>Stacy Thompson</FilerName>
+    <MemberName>Houlahan, Christina</MemberName>
+    <State>PA</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Kigali, Rwanda</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022964</DocID>
+    <FilerName>Kathryn Drew</FilerName>
+    <MemberName>Hoyer, Steny</MemberName>
+    <State>MD</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022965</DocID>
+    <FilerName>Tom Reed</FilerName>
+    <MemberName>Reed, Thomas</MemberName>
+    <State>NY</State>
+    <District>23</District>
+    <Year>2020</Year>
+    <Destination>Kyoto, Japan, Tokyo, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022966</DocID>
+    <FilerName>Ben Napier</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022967</DocID>
+    <FilerName>Michelle Dorothy</FilerName>
+    <MemberName>Houlahan, Christina</MemberName>
+    <State>PA</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022968</DocID>
+    <FilerName>Christina Ingram</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>El Paso, TX, Mexico City, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022969</DocID>
+    <FilerName>Christopher Del Beccaro</FilerName>
+    <MemberName>McCaul, Michael</MemberName>
+    <State>TX</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022970</DocID>
+    <FilerName>Caroline Boothe</FilerName>
+    <MemberName>Cheney, Liz</MemberName>
+    <State>WY</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022971</DocID>
+    <FilerName>Megan Porter</FilerName>
+    <MemberName>Cheney, Liz</MemberName>
+    <State>WY</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022972</DocID>
+    <FilerName>Elena Clark</FilerName>
+    <MemberName>Steube, W.</MemberName>
+    <State>FL</State>
+    <District>17</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022973</DocID>
+    <FilerName>Mark Martin Bednar</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022974</DocID>
+    <FilerName>Pamela Day</FilerName>
+    <MemberName>Young, Donald</MemberName>
+    <State>AK</State>
+    <District>00</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022975</DocID>
+    <FilerName>Alison Slagell</FilerName>
+    <MemberName>Lucas, Frank</MemberName>
+    <State>OK</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022976</DocID>
+    <FilerName>Jen Daulby</FilerName>
+    <MemberName>Davis, Rodney</MemberName>
+    <State>IL</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022977</DocID>
+    <FilerName>Luke Murry</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022978</DocID>
+    <FilerName>Avyark Mallik</FilerName>
+    <MemberName>Waters, Maxine</MemberName>
+    <State>CA</State>
+    <District>43</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Conference of State Bank Supervisors</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022979</DocID>
+    <FilerName>Nicole Varner</FilerName>
+    <MemberName>Veasey, Marc</MemberName>
+    <State>TX</State>
+    <District>33</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022980</DocID>
+    <FilerName>Malikha Danies</FilerName>
+    <MemberName>Peterson, Collin</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agriculture Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022981</DocID>
+    <FilerName>Patrick Rooney</FilerName>
+    <MemberName>Meuser, Dan</MemberName>
+    <State>PA</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022982</DocID>
+    <FilerName>Rob Bishop</FilerName>
+    <MemberName>Bishop, Robert</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States
+Robert Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022983</DocID>
+    <FilerName>Elizabeth Hittos</FilerName>
+    <MemberName>Bilirakis, Gus</MemberName>
+    <State>FL</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022984</DocID>
+    <FilerName>Kevin George</FilerName>
+    <MemberName>Lynch, Stephen</MemberName>
+    <State>MA</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Conference of State Bank Supervisors</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022985</DocID>
+    <FilerName>Angela Brown</FilerName>
+    <MemberName>Soto, Darren</MemberName>
+    <State>FL</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022986</DocID>
+    <FilerName>Izmira Aitch</FilerName>
+    <MemberName>Moore, Gwendolynne</MemberName>
+    <State>WI</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Banjul, The Gambia</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/16/2020</DepartureDate>
+    <ReturnDate>2/25/2020</ReturnDate>
+    <TravelSponsor>International Republican Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022987</DocID>
+    <FilerName>Chris Tudor</FilerName>
+    <MemberName>McClintock, Tom</MemberName>
+    <State>CA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022988</DocID>
+    <FilerName>Raul Martinez</FilerName>
+    <MemberName>Shalala, Donna</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022989</DocID>
+    <FilerName>Scott Luginbill</FilerName>
+    <MemberName>Walker, Bradley</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022990</DocID>
+    <FilerName>Julie Emmons</FilerName>
+    <MemberName>Walker, Bradley</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/28/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022991</DocID>
+    <FilerName>Thomas Rice</FilerName>
+    <MemberName>McCaul, Michael</MemberName>
+    <State>TX</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Kigali, Rwanda</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>United Nations Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022992</DocID>
+    <FilerName>Adam Magary</FilerName>
+    <MemberName>Cloud, Michael</MemberName>
+    <State>TX</State>
+    <District>27</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022993</DocID>
+    <FilerName>Andy Biggs</FilerName>
+    <MemberName>Biggs, Andrew</MemberName>
+    <State>AZ</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022994</DocID>
+    <FilerName>Mark Meadows</FilerName>
+    <MemberName>Meadows, Mark</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022995</DocID>
+    <FilerName>Dan Bishop</FilerName>
+    <MemberName>Bishop, Dan</MemberName>
+    <State>NC</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022996</DocID>
+    <FilerName>Warren Davidson</FilerName>
+    <MemberName>Davidson, Warren</MemberName>
+    <State>OH</State>
+    <District>08</District>
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022997</DocID>
+    <FilerName>Henry Turner Bridgforth</FilerName>
+    <MemberName>Hagedorn, Jim</MemberName>
+    <State>MN</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Clewiston, FL, West Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022998</DocID>
+    <FilerName>Ted Budd</FilerName>
+    <MemberName>Budd, Theodore</MemberName>
+    <State>NC</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500022999</DocID>
+    <FilerName>W. Gregory Steube</FilerName>
+    <MemberName>Steube, W.</MemberName>
+    <State>FL</State>
+    <District>17</District>
+    <Year>2020</Year>
+    <Destination>Palm Beach, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Club for Growth</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023000</DocID>
+    <FilerName>Loredana Valtierra</FilerName>
+    <MemberName>Scott, Robert</MemberName>
+    <State>VA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Denver, CO</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/19/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023001</DocID>
+    <FilerName>Anne Hagen</FilerName>
+    <MemberName>Veasey, Marc</MemberName>
+    <State>TX</State>
+    <District>33</District>
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023002</DocID>
+    <FilerName>Dustin Krasny</FilerName>
+    <MemberName>Walberg, Tim</MemberName>
+    <State>MI</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023003</DocID>
+    <FilerName>Beau T. Walker</FilerName>
+    <MemberName>Womack, Steve</MemberName>
+    <State>AR</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023004</DocID>
+    <FilerName>Robin L. Kelly</FilerName>
+    <MemberName>Kelly, Robin</MemberName>
+    <State>IL</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023005</DocID>
+    <FilerName>Joseph M. Lillis</FilerName>
+    <MemberName>Long, Billy</MemberName>
+    <State>MO</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Los Angeles, CA, Universal City, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/18/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Motion Picture Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023006</DocID>
+    <FilerName>Sarah Keeler</FilerName>
+    <MemberName>Johnson, Bill</MemberName>
+    <State>OH</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023007</DocID>
+    <FilerName>Benjamin Couhig</FilerName>
+    <MemberName>Babin, Brian</MemberName>
+    <State>TX</State>
+    <District>36</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023008</DocID>
+    <FilerName>Caroline Cash</FilerName>
+    <MemberName>Comer, James</MemberName>
+    <State>KY</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023009</DocID>
+    <FilerName>Piero Tozzi</FilerName>
+    <MemberName>Smith, Christopher</MemberName>
+    <State>NJ</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Naples, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>3/5/2020</DepartureDate>
+    <ReturnDate>3/7/2020</ReturnDate>
+    <TravelSponsor>International Center on Law, LIfe, Faith and Family</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023010</DocID>
+    <FilerName>Chellie Pingree</FilerName>
+    <MemberName>Pingree, Chellie</MemberName>
+    <State>ME</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Fayetteville, AR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Harvard Law School Food Law and Policy Clinic</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023011</DocID>
+    <FilerName>Kelliann Blazek</FilerName>
+    <MemberName>Pingree, Chellie</MemberName>
+    <State>ME</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Fayetteville, AR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/28/2020</DepartureDate>
+    <ReturnDate>3/1/2020</ReturnDate>
+    <TravelSponsor>Harvard Law School Law and Policy Clinic</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023012</DocID>
+    <FilerName>James Edge</FilerName>
+    <MemberName>Flores, Bill</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023013</DocID>
+    <FilerName>Greg Brooks</FilerName>
+    <MemberName>Wenstrup, Brad</MemberName>
+    <State>OH</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023014</DocID>
+    <FilerName>Michael P. Hamilton</FilerName>
+    <MemberName>McKinley, David</MemberName>
+    <State>WV</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023015</DocID>
+    <FilerName>Nancy Louise Peele</FilerName>
+    <MemberName>Graves, Samuel</MemberName>
+    <State>MO</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023016</DocID>
+    <FilerName>Keenan Austin</FilerName>
+    <MemberName>McEACHIN, Aston</MemberName>
+    <State>VA</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023017</DocID>
+    <FilerName>Melanie Egorin</FilerName>
+    <MemberName>Neal, Richard</MemberName>
+    <State>MA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023018</DocID>
+    <FilerName>Jennifer H. White</FilerName>
+    <MemberName>Engel, Eliot</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Napa, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>3/5/2020</DepartureDate>
+    <ReturnDate>3/8/2020</ReturnDate>
+    <TravelSponsor>World Affairs Council of Northern California</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023019</DocID>
+    <FilerName>Wendy D. Anderson</FilerName>
+    <MemberName>Demings, Valdez</MemberName>
+    <State>FL</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023020</DocID>
+    <FilerName>Janice Schakowsky</FilerName>
+    <MemberName>Schakowsky, Janice</MemberName>
+    <State>IL</State>
+    <District>09</District>
+    <Year>2020</Year>
+    <Destination>Boston, MA</Destination>
+    <FilingType>Amendment</FilingType>
+    <DepartureDate>5/10/2019</DepartureDate>
+    <ReturnDate>5/12/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023021</DocID>
+    <FilerName>Sean Casten</FilerName>
+    <MemberName>Casten, Sean</MemberName>
+    <State>IL</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Aspen, CO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/23/2020</DepartureDate>
+    <ReturnDate>2/25/2020</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023022</DocID>
+    <FilerName>Dan Meyer</FilerName>
+    <MemberName>McCarthy, Kevin</MemberName>
+    <State>CA</State>
+    <District>20</District>
+    <Year>2020</Year>
+    <Destination>White Sulfur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023023</DocID>
+    <FilerName>Micah Ketchel</FilerName>
+    <MemberName>Waltz, Michael</MemberName>
+    <State>FL</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023024</DocID>
+    <FilerName>Henry Turner Bridgforth</FilerName>
+    <MemberName>Hagedorn, Jim</MemberName>
+    <State>MN</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Fargo, ND</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/1/2020</DepartureDate>
+    <ReturnDate>9/3/2020</ReturnDate>
+    <TravelSponsor>Red River Valley Sugarbeet Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023025</DocID>
+    <FilerName>Chad Ramey</FilerName>
+    <MemberName>Luetkemeyer, Blaine</MemberName>
+    <State>MO</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023026</DocID>
+    <FilerName>Stephen Reynolds</FilerName>
+    <MemberName>Balderson, Troy</MemberName>
+    <State>OH</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>Fargo, ND</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/1/2020</DepartureDate>
+    <ReturnDate>9/3/2020</ReturnDate>
+    <TravelSponsor>Red River Valley Sugarbeet Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023029</DocID>
+    <FilerName>Eric Swalwell</FilerName>
+    <MemberName>Swalwell, Eric</MemberName>
+    <State>CA</State>
+    <District>14</District>
+    <Year>2020</Year>
+    <Destination>Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund of the United States Robert
+Bosch Stiftung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023030</DocID>
+    <FilerName>Jacob Chisholm</FilerName>
+    <MemberName>Peterson, Collin</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Fargo, ND</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/1/2020</DepartureDate>
+    <ReturnDate>9/3/2020</ReturnDate>
+    <TravelSponsor>Red River Valley Sugarbeet Education Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023031</DocID>
+    <FilerName>Dennis Sills</FilerName>
+    <MemberName>Delbene, Suzan</MemberName>
+    <State>WA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Santa Clara, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/25/2020</DepartureDate>
+    <ReturnDate>2/29/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023032</DocID>
+    <FilerName>Zachary Gates</FilerName>
+    <MemberName>Wagner, Ann</MemberName>
+    <State>MO</State>
+    <District>02</District>
+    <Year>2020</Year>
+    <Destination>West Palm Beach, FL, Clewiston, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/9/2019</DepartureDate>
+    <ReturnDate>10/14/2019</ReturnDate>
+    <TravelSponsor>South Florida Agricultural Foundation Inc</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023033</DocID>
+    <FilerName>Christina McCauley</FilerName>
+    <MemberName>Matsui, Doris</MemberName>
+    <State>CA</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Berlin, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Global Women's Innovation Network</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023034</DocID>
+    <FilerName>Kathryn Facchiano</FilerName>
+    <MemberName>Higgins, Clay</MemberName>
+    <State>LA</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023035</DocID>
+    <FilerName>Corey Elder</FilerName>
+    <MemberName>Comer, James</MemberName>
+    <State>KY</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Charleston, SC</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/17/2020</DepartureDate>
+    <ReturnDate>9/19/2020</ReturnDate>
+    <TravelSponsor>Bipartisan Policy Center</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023036</DocID>
+    <FilerName>James Comer</FilerName>
+    <MemberName>Comer, James</MemberName>
+    <State>KY</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>Charleston, SC</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/17/2020</DepartureDate>
+    <ReturnDate>9/19/2020</ReturnDate>
+    <TravelSponsor>Bipartisan Policy Center</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023037</DocID>
+    <FilerName>Samuel Walton</FilerName>
+    <MemberName>Walberg, Tim</MemberName>
+    <State>MI</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation (ITIF)</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023038</DocID>
+    <FilerName>Cathy McMorris Rodgers</FilerName>
+    <MemberName>McMorris Rodgers, Cathy</MemberName>
+    <State>WA</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Cumberland, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/21/2020</DepartureDate>
+    <ReturnDate>9/21/2020</ReturnDate>
+    <TravelSponsor>Bipartisan Policy Center</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023039</DocID>
+    <FilerName>Richard K. Vaughn</FilerName>
+    <MemberName>Desjarlais, Scott</MemberName>
+    <State>TN</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023040</DocID>
+    <FilerName>Sasha Bernhard</FilerName>
+    <MemberName>Delbene, Suzan</MemberName>
+    <State>WA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/20/2020</DepartureDate>
+    <ReturnDate>2/23/2020</ReturnDate>
+    <TravelSponsor>Information Technology and Innovation Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023041</DocID>
+    <FilerName>Laura Fullerton</FilerName>
+    <MemberName>McCaul, Michael</MemberName>
+    <State>TX</State>
+    <District>10</District>
+    <Year>2020</Year>
+    <Destination>White Sulpher Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023042</DocID>
+    <FilerName>Martin Reiser</FilerName>
+    <MemberName>Scalise, Steve</MemberName>
+    <State>LA</State>
+    <District>01</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023043</DocID>
+    <FilerName>Jessica Mulligan</FilerName>
+    <MemberName>Jayapal, Pramila</MemberName>
+    <State>WA</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Jerusalem, Israel</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/14/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Rebuilding Alliance</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023044</DocID>
+    <FilerName>Walker Barrett</FilerName>
+    <MemberName>Waltz, Michael</MemberName>
+    <State>FL</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Cape Canaveral, FL, Jacksonville, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Florida Ports Council</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023045</DocID>
+    <FilerName>Vivian Moeglein</FilerName>
+    <MemberName>Westerman, Bruce</MemberName>
+    <State>AR</State>
+    <District>04</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023046</DocID>
+    <FilerName>Steven Pfrang</FilerName>
+    <MemberName>Lahood, Darin</MemberName>
+    <State>IL</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023047</DocID>
+    <FilerName>Robert Donachie</FilerName>
+    <MemberName>Roy, Charles</MemberName>
+    <State>TX</State>
+    <District>21</District>
+    <Year>2020</Year>
+    <Destination>Hot Springs, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>6/5/2019</DepartureDate>
+    <ReturnDate>6/7/2019</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023049</DocID>
+    <FilerName>Joe Cunningham</FilerName>
+    <MemberName>Cunningham, Joe</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Kuttawa, KY</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>6/18/2020</DepartureDate>
+    <ReturnDate>6/20/2020</ReturnDate>
+    <TravelSponsor>Bipartisan Policy Center</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023050</DocID>
+    <FilerName>Emily Carlin</FilerName>
+    <MemberName>Gonzalez, Anthony</MemberName>
+    <State>OH</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>Hot Springs, VA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>6/6/2019</DepartureDate>
+    <ReturnDate>6/7/2019</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023051</DocID>
+    <FilerName>Jay Kronzer</FilerName>
+    <MemberName>Green, Mark</MemberName>
+    <State>TN</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>Mexico, El Paso, Texas</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023052</DocID>
+    <FilerName>Christofer Horta</FilerName>
+    <MemberName>Shalala, Donna</MemberName>
+    <State />
+    <District />
+    <Year>2020</Year>
+    <Destination>Stevensville, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>5/29/2019</DepartureDate>
+    <ReturnDate>5/30/2019</ReturnDate>
+    <TravelSponsor>Postsecondary National Policy Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023053</DocID>
+    <FilerName>Andy Barr</FilerName>
+    <MemberName>Barr, Garland</MemberName>
+    <State>KY</State>
+    <District>06</District>
+    <Year>2020</Year>
+    <Destination>Tokyo, Japan, Kyoto, Japan</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>US Association of Former Memberss of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023054</DocID>
+    <FilerName>Karen Bass</FilerName>
+    <MemberName>Bass, Karen</MemberName>
+    <State>CA</State>
+    <District>37</District>
+    <Year>2020</Year>
+    <Destination>Seattle, WA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/8/2018</DepartureDate>
+    <ReturnDate>11/11/2018</ReturnDate>
+    <TravelSponsor>Congressional Black Caucus Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023055</DocID>
+    <FilerName>Alexander Ndikum</FilerName>
+    <MemberName>Cleaver, Emanuel</MemberName>
+    <State>MO</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Las Vegas, NV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>1/6/2020</DepartureDate>
+    <ReturnDate>1/8/2020</ReturnDate>
+    <TravelSponsor>Consumer Technology Association</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023056</DocID>
+    <FilerName>Antonia Hill</FilerName>
+    <MemberName>Hoyer, Steny</MemberName>
+    <State>MD</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>El Paso, Texas, Juarez, Mexico</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/17/2020</DepartureDate>
+    <ReturnDate>2/22/2020</ReturnDate>
+    <TravelSponsor>Woodrow Wilson International Center for Scholars</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023057</DocID>
+    <FilerName>Mitchel Wilkinson</FilerName>
+    <MemberName>Lucas, Frank</MemberName>
+    <State>OK</State>
+    <District>03</District>
+    <Year>2020</Year>
+    <Destination>Chicago, IL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/12/2019</DepartureDate>
+    <ReturnDate>9/13/2019</ReturnDate>
+    <TravelSponsor>Options Clearing Corporation
+CBOE Global Markets</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023058</DocID>
+    <FilerName>Emanuel Cleaver</FilerName>
+    <MemberName>Cleaver, Emanuel</MemberName>
+    <State>MO</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Kigali, Rwanda</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/12/2019</DepartureDate>
+    <ReturnDate>8/19/2019</ReturnDate>
+    <TravelSponsor>Aspen Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023059</DocID>
+    <FilerName>Barbara Lee</FilerName>
+    <MemberName>Lee, Barbara</MemberName>
+    <State>CA</State>
+    <District>12</District>
+    <Year>2020</Year>
+    <Destination>Elmau, Germany, Munich, Germany</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/15/2020</DepartureDate>
+    <ReturnDate>2/20/2020</ReturnDate>
+    <TravelSponsor>German Marshall Fund
+Robert Bosch Stifung</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023060</DocID>
+    <FilerName>Scott Mackenzie</FilerName>
+    <MemberName>Webster, Daniel</MemberName>
+    <State>FL</State>
+    <District>11</District>
+    <Year>2020</Year>
+    <Destination>Jacksonville, FL</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Florida Ports Council</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023061</DocID>
+    <FilerName>Seth Haymore</FilerName>
+    <MemberName>Budd, Theodore</MemberName>
+    <State>NC</State>
+    <District>13</District>
+    <Year>2020</Year>
+    <Destination>White Sulphur Springs, WV</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>2/19/2020</DepartureDate>
+    <ReturnDate>2/21/2020</ReturnDate>
+    <TravelSponsor>Congressional Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023062</DocID>
+    <FilerName>Emanuel Cleaver</FilerName>
+    <MemberName>Cleaver, Emanuel</MemberName>
+    <State>MO</State>
+    <District>05</District>
+    <Year>2020</Year>
+    <Destination>Tunica, MS</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>8/8/2019</DepartureDate>
+    <ReturnDate>8/11/2019</ReturnDate>
+    <TravelSponsor>Congressional Black Caucus Institute</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023063</DocID>
+    <FilerName>Rafael Elizalde</FilerName>
+    <MemberName>Takano, Mark</MemberName>
+    <State>CA</State>
+    <District>39</District>
+    <Year>2020</Year>
+    <Destination>St. Louis, MO</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>5/21/2018</DepartureDate>
+    <ReturnDate>5/22/2018</ReturnDate>
+    <TravelSponsor>U.S. Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023064</DocID>
+    <FilerName>Ben Jackson</FilerName>
+    <MemberName>Fletcher, Elizabeth</MemberName>
+    <State>TX</State>
+    <District>07</District>
+    <Year>2020</Year>
+    <Destination>San Francisco, CA</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>11/5/2019</DepartureDate>
+    <ReturnDate>11/10/2019</ReturnDate>
+    <TravelSponsor>Center Forward</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023065</DocID>
+    <FilerName>Parker Bennett</FilerName>
+    <MemberName>Kelly, Mike</MemberName>
+    <State>PA</State>
+    <District>16</District>
+    <Year>2020</Year>
+    <Destination>Baltimore, MD</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>10/9/2019</DepartureDate>
+    <ReturnDate>10/11/2019</ReturnDate>
+    <TravelSponsor>The Heritage Foundation</TravelSponsor>
+  </Travel>
+  <Travel>
+    <DocID>500023066</DocID>
+    <FilerName>Rafael Elizalde</FilerName>
+    <MemberName>Takano, Mark</MemberName>
+    <State>CA</State>
+    <District>39</District>
+    <Year>2020</Year>
+    <Destination>San Juan, PR</Destination>
+    <FilingType>Original</FilingType>
+    <DepartureDate>9/3/2018</DepartureDate>
+    <ReturnDate>9/9/2018</ReturnDate>
+    <TravelSponsor>US Association of Former Members of Congress</TravelSponsor>
+  </Travel>
+</GiftTravel>

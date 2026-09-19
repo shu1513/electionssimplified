@@ -1,0 +1,5310 @@
+{
+  "importerVersion": "travel-import-v1",
+  "dryRun": false,
+  "destination": "israel",
+  "startedAt": "2026-09-19T00:47:41.187Z",
+  "finishedAt": "2026-09-19T00:47:52.908Z",
+  "scopeFrom": "2026-11-01",
+  "legislatorsSha": "750c0608efb6ef1fc3257ba72c99af3771d35088",
+  "indexFiles": [
+    "2019Travel.xml",
+    "2020Travel.xml",
+    "2021Travel.xml",
+    "2022Travel.xml",
+    "2023Travel.xml",
+    "2024Travel.xml",
+    "2025Travel.xml",
+    "2026Travel.xml"
+  ],
+  "indexRows": 9712,
+  "trips": 263,
+  "undatedRows": 0,
+  "actions": {
+    "source_unreachable": 5,
+    "no_candidate": 104,
+    "out_of_scope": 4,
+    "unresolved_member": 1,
+    "unchanged": 127,
+    "insert": 18,
+    "unknown_sponsor": 4
+  },
+  "unknownSponsors": {
+    "National Society for Hebrew Day Schools (a/k/a Torah u'Mesorah)": 1,
+    "Atlantic Council of the United States, Inc., and Jeffrey M. Talpins Foundation": 3
+  },
+  "rows": [
+    {
+      "memberName": "Cisneros, Gilbert Ray",
+      "state": "CA",
+      "district": "31",
+      "departureDate": "2019-08-04",
+      "returnDate": "2019-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500021935",
+      "docIds": [
+        "500021935"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500021935.pdf",
+      "bioguide": "C001123",
+      "candidateId": "b2365dff-e6b1-4865-b07b-d2045f2ed1fa",
+      "candidateName": "Gil Cisneros",
+      "action": "source_unreachable",
+      "detail": "no filing PDF for this trip returned HTTP 200",
+      "recordId": null
+    },
+    {
+      "memberName": "Gomez, Jimmy",
+      "state": "CA",
+      "district": "34",
+      "departureDate": "2019-08-04",
+      "returnDate": "2019-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500021922",
+      "docIds": [
+        "500021922"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500021922.pdf",
+      "bioguide": "G000585",
+      "candidateId": "e9523ef6-c2ec-41ad-9f75-aca4857b5ea6",
+      "candidateName": "Jimmy Gomez",
+      "action": "source_unreachable",
+      "detail": "no filing PDF for this trip returned HTTP 200",
+      "recordId": null
+    },
+    {
+      "memberName": "McAdams, Ben",
+      "state": "UT",
+      "district": "4",
+      "departureDate": "2019-08-04",
+      "returnDate": "2019-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500021946",
+      "docIds": [
+        "500021946"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500021946.pdf",
+      "bioguide": "M001209",
+      "candidateId": "1fe2c3a4-3754-44c4-bba6-3df6aa1a7a72",
+      "candidateName": "Ben McAdams",
+      "action": "source_unreachable",
+      "detail": "no filing PDF for this trip returned HTTP 200",
+      "recordId": null
+    },
+    {
+      "memberName": "Neguse, Joe",
+      "state": "CO",
+      "district": "2",
+      "departureDate": "2019-08-04",
+      "returnDate": "2019-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500021921",
+      "docIds": [
+        "500021921"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500021921.pdf",
+      "bioguide": "N000191",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8CO02160",
+      "recordId": null
+    },
+    {
+      "memberName": "Green, Mark E.",
+      "state": "TN",
+      "district": "7",
+      "departureDate": "2019-08-08",
+      "returnDate": "2019-08-16",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022078",
+      "docIds": [
+        "500022078"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500022078.pdf",
+      "bioguide": "G000590",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8TN07076",
+      "recordId": null
+    },
+    {
+      "memberName": "Lesko, Debbie",
+      "state": "AZ",
+      "district": "8",
+      "departureDate": "2019-08-08",
+      "returnDate": "2019-08-16",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022006",
+      "docIds": [
+        "500022006"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500022006.pdf",
+      "bioguide": "L000589",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8AZ08158",
+      "recordId": null
+    },
+    {
+      "memberName": "Timmons, William R.",
+      "state": "SC",
+      "district": "4",
+      "departureDate": "2019-08-08",
+      "returnDate": "2019-08-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022082",
+      "docIds": [
+        "500022082"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2019/500022082.pdf",
+      "bioguide": "T000480",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8SC04250",
+      "recordId": null
+    },
+    {
+      "memberName": "Craig, Angie",
+      "state": "MN",
+      "district": "2",
+      "departureDate": "2019-11-02",
+      "returnDate": "2019-11-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022790",
+      "docIds": [
+        "500022790"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022790.pdf",
+      "bioguide": "C001119",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "out_of_scope",
+      "detail": "out_of_scope: Angie Craig is not on a Nov-2026-or-later election",
+      "recordId": null
+    },
+    {
+      "memberName": "Roby, Martha",
+      "state": "AL",
+      "district": "2",
+      "departureDate": "2019-11-02",
+      "returnDate": "2019-11-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022788",
+      "docIds": [
+        "500022788"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022788.pdf",
+      "bioguide": "R000591",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0AL02087",
+      "recordId": null
+    },
+    {
+      "memberName": "Roby, Martha",
+      "state": "",
+      "district": "",
+      "departureDate": "2019-11-02",
+      "returnDate": "2019-11-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022788",
+      "docIds": [
+        "500022788"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022788.pdf",
+      "bioguide": null,
+      "candidateId": null,
+      "candidateName": null,
+      "action": "unresolved_member",
+      "detail": "no_legislator: no House term in  covers 2019-11-02",
+      "recordId": null
+    },
+    {
+      "memberName": "Sherrill, Mikie",
+      "state": "NJ",
+      "district": "11",
+      "departureDate": "2019-11-02",
+      "returnDate": "2019-11-07",
+      "sponsorAsFiled": "American Israel Education Fund",
+      "sponsorKey": "aief",
+      "docId": "500022776",
+      "docIds": [
+        "500022776"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022776.pdf",
+      "bioguide": "S001207",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8NJ11142",
+      "recordId": null
+    },
+    {
+      "memberName": "Wasserman Schultz, Debbie",
+      "state": "FL",
+      "district": "25",
+      "departureDate": "2019-11-02",
+      "returnDate": "2019-11-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022778",
+      "docIds": [
+        "500022778"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022778.pdf",
+      "bioguide": "W000797",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4FL20023",
+      "recordId": null
+    },
+    {
+      "memberName": "Lawrence, Brenda L.",
+      "state": "MI",
+      "district": "14",
+      "departureDate": "2019-11-04",
+      "returnDate": "2019-11-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500022777",
+      "docIds": [
+        "500022777"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022777.pdf",
+      "bioguide": "L000581",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MI14111",
+      "recordId": null
+    },
+    {
+      "memberName": "Johnson, Mike",
+      "state": "LA",
+      "district": "04",
+      "departureDate": "2020-02-13",
+      "returnDate": "2020-02-20",
+      "sponsorAsFiled": "12Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500022863",
+      "docIds": [
+        "500022863"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022863.pdf",
+      "bioguide": "J000299",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6LA04138",
+      "recordId": null
+    },
+    {
+      "memberName": "Jordan, Jim",
+      "state": "OH",
+      "district": "04",
+      "departureDate": "2020-02-13",
+      "returnDate": "2020-02-20",
+      "sponsorAsFiled": "12Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500022848",
+      "docIds": [
+        "500022848"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2020/500022848.pdf",
+      "bioguide": "J000289",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6OH04082",
+      "recordId": null
+    },
+    {
+      "memberName": "Bowman, Jamaal",
+      "state": "NY",
+      "district": "16",
+      "departureDate": "2021-11-05",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund Leonard Hill Charitable Trust",
+      "sponsorKey": "jstreet",
+      "docId": "500023883",
+      "docIds": [
+        "500023883"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2021/500023883.pdf",
+      "bioguide": "B001223",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0NY16143",
+      "recordId": null
+    },
+    {
+      "memberName": "Delauro, Rosa",
+      "state": "CT",
+      "district": "03",
+      "departureDate": "2021-11-06",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500023856",
+      "docIds": [
+        "500023856"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2021/500023856.pdf",
+      "bioguide": "D000216",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0CT03072",
+      "recordId": null
+    },
+    {
+      "memberName": "Jones, Mondaire",
+      "state": "NY",
+      "district": "17",
+      "departureDate": "2021-11-06",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025014",
+      "docIds": [
+        "500025014"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500025014.pdf",
+      "bioguide": "J000306",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0NY17174",
+      "recordId": null
+    },
+    {
+      "memberName": "Lee, Barbara",
+      "state": "CA",
+      "district": "12",
+      "departureDate": "2021-11-06",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500023859",
+      "docIds": [
+        "500023859"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2021/500023859.pdf",
+      "bioguide": "L000551",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8CA09060",
+      "recordId": null
+    },
+    {
+      "memberName": "Pocan, Mark",
+      "state": "WI",
+      "district": "02",
+      "departureDate": "2021-11-06",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund Leonard Hill Charitable Trust",
+      "sponsorKey": "jstreet",
+      "docId": "500023893",
+      "docIds": [
+        "500023893"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2021/500023893.pdf",
+      "bioguide": "P000607",
+      "candidateId": "e6bc305b-2140-46aa-9368-6469746c6002",
+      "candidateName": "Mark Pocan",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "427d90ee-82ba-419b-a0fa-b74a57a45ce1"
+    },
+    {
+      "memberName": "Stansbury, Melanie",
+      "state": "NM",
+      "district": "01",
+      "departureDate": "2021-11-06",
+      "returnDate": "2021-11-12",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500023852",
+      "docIds": [
+        "500023852"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2021/500023852.pdf",
+      "bioguide": "S001218",
+      "candidateId": "5b72410d-4bd0-4017-9db8-c4c75ed8f58e",
+      "candidateName": "Melanie Ann Stansbury",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "99305725-1037-4bf1-8c32-dd6c2870cc3b"
+    },
+    {
+      "memberName": "Bonamici, Suzanne",
+      "state": "OR",
+      "district": "01",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024056",
+      "docIds": [
+        "500024056",
+        "500024123"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024056.pdf",
+      "bioguide": "B001278",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2OR01133",
+      "recordId": null
+    },
+    {
+      "memberName": "Cammack, Kat",
+      "state": "FL",
+      "district": "03",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024138",
+      "docIds": [
+        "500024138"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024138.pdf",
+      "bioguide": "C001039",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL03175",
+      "recordId": null
+    },
+    {
+      "memberName": "Carl, Jerry",
+      "state": "AL",
+      "district": "01",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024111",
+      "docIds": [
+        "500024111"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024111.pdf",
+      "bioguide": "C001054",
+      "candidateId": "602ca7e3-613a-4463-b9dd-807da1cfd9f9",
+      "candidateName": "Jerry Carl",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c3b7e806-228d-48c6-9823-06d4f9d18ef7"
+    },
+    {
+      "memberName": "Casten, Sean",
+      "state": "IL",
+      "district": "06",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024057",
+      "docIds": [
+        "500024057"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024057.pdf",
+      "bioguide": "C001117",
+      "candidateId": "cc7c1790-856d-4e68-9828-de5fc5e8bfe3",
+      "candidateName": "Sean Casten",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "ab0524a0-9240-4f54-9aed-b4b84c4d2410"
+    },
+    {
+      "memberName": "Castro, Joaquin",
+      "state": "TX",
+      "district": "20",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024065",
+      "docIds": [
+        "500024065"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024065.pdf",
+      "bioguide": "C001091",
+      "candidateId": "66cb4bfd-fed4-4e4d-8a04-91b5f3cb5b0c",
+      "candidateName": "Joaquin Castro",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d53ec950-1116-474c-8707-fbd73347587e"
+    },
+    {
+      "memberName": "Feenstra, Randy",
+      "state": "IA",
+      "district": "04",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024062",
+      "docIds": [
+        "500024062"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024062.pdf",
+      "bioguide": "F000446",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0IA04145",
+      "recordId": null
+    },
+    {
+      "memberName": "Franklin, Scott",
+      "state": "FL",
+      "district": "18",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024092",
+      "docIds": [
+        "500024092"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024092.pdf",
+      "bioguide": "F000472",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL15104",
+      "recordId": null
+    },
+    {
+      "memberName": "Garbarino, Andrew",
+      "state": "NY",
+      "district": "02",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024035",
+      "docIds": [
+        "500024035"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024035.pdf",
+      "bioguide": "G000597",
+      "candidateId": "3ac777eb-1905-4e5d-b096-86cf2f61388d",
+      "candidateName": "Andrew R. Garbarino",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "17a929ca-01cd-47eb-86fb-f39fc87b30ef"
+    },
+    {
+      "memberName": "Gimenez, Carlos",
+      "state": "FL",
+      "district": "28",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024058",
+      "docIds": [
+        "500024058"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024058.pdf",
+      "bioguide": "G000593",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL26036",
+      "recordId": null
+    },
+    {
+      "memberName": "Gonzales, Tony",
+      "state": "TX",
+      "district": "23",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024146",
+      "docIds": [
+        "500024146"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024146.pdf",
+      "bioguide": "G000594",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0TX35015",
+      "recordId": null
+    },
+    {
+      "memberName": "Guest, Michael",
+      "state": "MS",
+      "district": "03",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024097",
+      "docIds": [
+        "500024097"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024097.pdf",
+      "bioguide": "G000591",
+      "candidateId": "3db3ada2-b813-49bb-bced-78e99391f728",
+      "candidateName": "Michael Guest",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "78e03ff5-4075-4ee1-8223-6daeb52045e5"
+    },
+    {
+      "memberName": "Hinson, Ashley",
+      "state": "IA",
+      "district": "02",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024037",
+      "docIds": [
+        "500024037"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024037.pdf",
+      "bioguide": "H001091",
+      "candidateId": "f2f1ff0d-f3cd-4b56-9fca-7a3d8460856f",
+      "candidateName": "Ashley Hinson",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "34284a4f-8023-4f77-b36c-3f767f945877"
+    },
+    {
+      "memberName": "Huffman, Jared",
+      "state": "CA",
+      "district": "02",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024113",
+      "docIds": [
+        "500024113"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024113.pdf",
+      "bioguide": "H001068",
+      "candidateId": "b92d71cc-fce6-4d19-a709-4f5a2d7c101d",
+      "candidateName": "Jared Huffman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "64b6543a-b772-4323-a674-5ab25e0f53e3"
+    },
+    {
+      "memberName": "Kim, Young",
+      "state": "CA",
+      "district": "40",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024083",
+      "docIds": [
+        "500024083",
+        "500024164"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024083.pdf",
+      "bioguide": "K000397",
+      "candidateId": "e09eec63-d287-4b69-967e-5a01500b1721",
+      "candidateName": "Young Kim",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "35ca4e24-e131-4080-9da2-738d545fb5c2"
+    },
+    {
+      "memberName": "LaTurner, Jake",
+      "state": "KS",
+      "district": "02",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024115",
+      "docIds": [
+        "500024115"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024115.pdf",
+      "bioguide": "L000266",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0KS02188",
+      "recordId": null
+    },
+    {
+      "memberName": "Letlow, Julia",
+      "state": "LA",
+      "district": "05",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024109",
+      "docIds": [
+        "500024109"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024109.pdf",
+      "bioguide": "L000595",
+      "candidateId": "8db96e61-0972-4e78-ad81-dc9b1fcda435",
+      "candidateName": "Julia Letlow",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c7ba5195-f1b1-4b77-80da-9452460c2bfe"
+    },
+    {
+      "memberName": "Mann, Tracey",
+      "state": "KS",
+      "district": "01",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024088",
+      "docIds": [
+        "500024088"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024088.pdf",
+      "bioguide": "M000871",
+      "candidateId": "bc37eac0-1b58-459b-8f5c-ad80ce238301",
+      "candidateName": "Tracey Mann",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "2662fce4-1e38-46c2-9adf-44282023bdf8"
+    },
+    {
+      "memberName": "McCarthy, Kevin",
+      "state": "CA",
+      "district": "20",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024104",
+      "docIds": [
+        "500024104"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024104.pdf",
+      "bioguide": "M001165",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6CA22125",
+      "recordId": null
+    },
+    {
+      "memberName": "McCaul, Michael",
+      "state": "TX",
+      "district": "10",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-24",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024868",
+      "docIds": [
+        "500024868"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024868.pdf",
+      "bioguide": "M001157",
+      "candidateId": "c39afec4-f111-4400-a489-65784d6e7a57",
+      "candidateName": "Michael McCaul",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "dac5bec9-3eb7-4c2d-a43a-5b9d439f4132"
+    },
+    {
+      "memberName": "McClain, Lisa",
+      "state": "MI",
+      "district": "09",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-24",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024102",
+      "docIds": [
+        "500024102"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024102.pdf",
+      "bioguide": "M001136",
+      "candidateId": "74ecb3ef-fd03-4cb3-8cd4-1709da6afbba",
+      "candidateName": "Lisa McClain",
+      "action": "source_unreachable",
+      "detail": "no filing PDF for this trip returned HTTP 200",
+      "recordId": null
+    },
+    {
+      "memberName": "Meijer, Peter",
+      "state": "MI",
+      "district": "03",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024053",
+      "docIds": [
+        "500024053"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024053.pdf",
+      "bioguide": "M001186",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0MI03308",
+      "recordId": null
+    },
+    {
+      "memberName": "Miller-Meeks, Mariannette",
+      "state": "IA",
+      "district": "01",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024100",
+      "docIds": [
+        "500024100"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024100.pdf",
+      "bioguide": "M001215",
+      "candidateId": "3e3bed07-611a-4825-a616-ab8b16fba3d6",
+      "candidateName": "Mariannette Miller-Meeks",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "21159c5b-0510-4b15-8c2a-61c1ed85c745"
+    },
+    {
+      "memberName": "Moore, Blake",
+      "state": "UT",
+      "district": "01",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024038",
+      "docIds": [
+        "500024038"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024038.pdf",
+      "bioguide": "M001213",
+      "candidateId": "2164ee4d-a655-4da2-8591-8350a02f55d3",
+      "candidateName": "BLAKE D. MOORE",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "33dc5198-c8be-47c6-b62c-fb2f9d3d6fec"
+    },
+    {
+      "memberName": "Murphy, Gregory",
+      "state": "NC",
+      "district": "03",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024116",
+      "docIds": [
+        "500024116"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024116.pdf",
+      "bioguide": "M001210",
+      "candidateId": "7f3c1512-3cb4-4d1f-86c8-b91d2f064363",
+      "candidateName": "Greg Murphy",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "04784832-289f-45db-84e1-cd28562e9425"
+    },
+    {
+      "memberName": "Obernolte, Jay",
+      "state": "CA",
+      "district": "23",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024112",
+      "docIds": [
+        "500024112"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024112.pdf",
+      "bioguide": "O000019",
+      "candidateId": "7b33977e-2909-47cc-a254-47c934f75f1b",
+      "candidateName": "Jay Obernolte",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "8ccf0825-1ba3-4bf7-b638-25dc2b6436d8"
+    },
+    {
+      "memberName": "Owens, Burgess",
+      "state": "UT",
+      "district": "04",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024039",
+      "docIds": [
+        "500024039"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024039.pdf",
+      "bioguide": "O000086",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0UT04076",
+      "recordId": null
+    },
+    {
+      "memberName": "Price, David",
+      "state": "NC",
+      "district": "04",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024047",
+      "docIds": [
+        "500024047"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024047.pdf",
+      "bioguide": "P000523",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6NC04037",
+      "recordId": null
+    },
+    {
+      "memberName": "Spartz, Victoria",
+      "state": "IN",
+      "district": "05",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024086",
+      "docIds": [
+        "500024086"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024086.pdf",
+      "bioguide": "S000929",
+      "candidateId": "1a404586-802a-4a08-8fda-6061ea8f9ce8",
+      "candidateName": "Victoria Spartz",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "515aba20-11cf-4f5e-ac9f-a99c29576ab8"
+    },
+    {
+      "memberName": "Steel, Michelle",
+      "state": "CA",
+      "district": "45",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024095",
+      "docIds": [
+        "500024095"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024095.pdf",
+      "bioguide": "S001135",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0CA48198",
+      "recordId": null
+    },
+    {
+      "memberName": "Underwood, Lauren",
+      "state": "IL",
+      "district": "14",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024052",
+      "docIds": [
+        "500024052"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024052.pdf",
+      "bioguide": "U000040",
+      "candidateId": "56ebd235-1226-4e61-a64d-95c70d82f3e2",
+      "candidateName": "Lauren Underwood",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "2d682466-fa55-412c-8175-804b06c32f07"
+    },
+    {
+      "memberName": "Valadao, David",
+      "state": "CA",
+      "district": "22",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024048",
+      "docIds": [
+        "500024048"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024048.pdf",
+      "bioguide": "V000129",
+      "candidateId": "b8b1d378-84d5-4cb7-b298-5aef3968570e",
+      "candidateName": "David G. Valadao",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "8580ac8f-28c1-4924-9545-6bd7ee7f73b1"
+    },
+    {
+      "memberName": "Van Duyne, Beth",
+      "state": "TX",
+      "district": "24",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-26",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024075",
+      "docIds": [
+        "500024075"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024075.pdf",
+      "bioguide": "V000134",
+      "candidateId": "62d12a2a-2874-4d19-9de0-d39f6be0906d",
+      "candidateName": "Beth Van Duyne",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "21f735ab-ebbd-4571-93aa-a24a3484e3b1"
+    },
+    {
+      "memberName": "Wexton, Jennifer",
+      "state": "VA",
+      "district": "10",
+      "departureDate": "2022-02-18",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024050",
+      "docIds": [
+        "500024050"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024050.pdf",
+      "bioguide": "W000825",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8VA10106",
+      "recordId": null
+    },
+    {
+      "memberName": "Aguilar, Peter",
+      "state": "CA",
+      "district": "33",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024093",
+      "docIds": [
+        "500024093"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024093.pdf",
+      "bioguide": "A000371",
+      "candidateId": "1cd7da07-936e-4885-ac7e-e6672f22aace",
+      "candidateName": "Pete Aguilar",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "71a45c08-e176-4e4b-8add-b349a143eb63"
+    },
+    {
+      "memberName": "Cherfilus-McCormick, Sheila",
+      "state": "FL",
+      "district": "20",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024143",
+      "docIds": [
+        "500024143"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024143.pdf",
+      "bioguide": "C001127",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8FL20032",
+      "recordId": null
+    },
+    {
+      "memberName": "Dean, Madeleine",
+      "state": "PA",
+      "district": "04",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024117",
+      "docIds": [
+        "500024117",
+        "500024226"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024117.pdf",
+      "bioguide": "D000631",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA04116",
+      "recordId": null
+    },
+    {
+      "memberName": "Deutch, Theodore",
+      "state": "FL",
+      "district": "22",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation (AIEF)",
+      "sponsorKey": "aief",
+      "docId": "500024063",
+      "docIds": [
+        "500024063"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024063.pdf",
+      "bioguide": "D000610",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL19080",
+      "recordId": null
+    },
+    {
+      "memberName": "Escobar, Veronica",
+      "state": "TX",
+      "district": "16",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024087",
+      "docIds": [
+        "500024087"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024087.pdf",
+      "bioguide": "E000299",
+      "candidateId": "6f5cc7b0-499e-4b21-a5e0-d26416344bcc",
+      "candidateName": "Veronica Escobar",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "22112520-2c15-4520-940d-375e029802fb"
+    },
+    {
+      "memberName": "Hoyer, Steny",
+      "state": "MD",
+      "district": "05",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024090",
+      "docIds": [
+        "500024090"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024090.pdf",
+      "bioguide": "H000874",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MD05155",
+      "recordId": null
+    },
+    {
+      "memberName": "Jeffries, Hakeem",
+      "state": "NY",
+      "district": "08",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-23",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024060",
+      "docIds": [
+        "500024060"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024060.pdf",
+      "bioguide": "J000294",
+      "candidateId": "1f4a9430-2069-4869-bc83-00f9b9f2c405",
+      "candidateName": "Hakeem S. Jeffries",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d8909726-f39c-40b1-8648-d749198eda36"
+    },
+    {
+      "memberName": "Manning, Kathy",
+      "state": "NC",
+      "district": "06",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024107",
+      "docIds": [
+        "500024107"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024107.pdf",
+      "bioguide": "M001135",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8NC13067",
+      "recordId": null
+    },
+    {
+      "memberName": "Rice, Kathleen",
+      "state": "NY",
+      "district": "04",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024108",
+      "docIds": [
+        "500024108"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024108.pdf",
+      "bioguide": "R000602",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4NY04075",
+      "recordId": null
+    },
+    {
+      "memberName": "Schneider, Brad",
+      "state": "IL",
+      "district": "10",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024077",
+      "docIds": [
+        "500024077"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024077.pdf",
+      "bioguide": "S001190",
+      "candidateId": "1be2499a-f221-4330-9b52-fb8fdd6d3bb1",
+      "candidateName": "Brad Schneider",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "9942dd3f-98e9-4101-ac04-3d03b892d9c7"
+    },
+    {
+      "memberName": "Spanberger, Abigail",
+      "state": "VA",
+      "district": "07",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024067",
+      "docIds": [
+        "500024067"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024067.pdf",
+      "bioguide": "S001209",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8VA07094",
+      "recordId": null
+    },
+    {
+      "memberName": "Torres, Ritchie",
+      "state": "NY",
+      "district": "15",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024215",
+      "docIds": [
+        "500024215"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024215.pdf",
+      "bioguide": "T000486",
+      "candidateId": "e1a73ffb-ff51-4430-bb5a-4bf04cd793ce",
+      "candidateName": "Ritchie Torres",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "829fdb2f-3be5-4175-ba4c-18602c45fea1"
+    },
+    {
+      "memberName": "Wasserman Schultz, Debbie",
+      "state": "FL",
+      "district": "25",
+      "departureDate": "2022-02-19",
+      "returnDate": "2022-02-27",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024059",
+      "docIds": [
+        "500024059"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024059.pdf",
+      "bioguide": "W000797",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4FL20023",
+      "recordId": null
+    },
+    {
+      "memberName": "Moulton, Seth",
+      "state": "MA",
+      "district": "06",
+      "departureDate": "2022-02-20",
+      "returnDate": "2022-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024055",
+      "docIds": [
+        "500024055"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024055.pdf",
+      "bioguide": "M001196",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "out_of_scope",
+      "detail": "out_of_scope: Seth Moulton is not on a Nov-2026-or-later election",
+      "recordId": null
+    },
+    {
+      "memberName": "Crow, Jason",
+      "state": "CO",
+      "district": "06",
+      "departureDate": "2022-02-21",
+      "returnDate": "2022-02-25",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500024049",
+      "docIds": [
+        "500024049"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024049.pdf",
+      "bioguide": "C001121",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8CO06229",
+      "recordId": null
+    },
+    {
+      "memberName": "Vargas, Juan",
+      "state": "CA",
+      "district": "52",
+      "departureDate": "2022-03-18",
+      "returnDate": "2022-03-22",
+      "sponsorAsFiled": "Israel Allies Foundation Bridges for Peace All Nations Convocation Jerusalem Progressive Vision Intl. Combat Hate Foundation Intl. Christian Embassy Jerusalem",
+      "sponsorKey": "israel_allies",
+      "docId": "500024200",
+      "docIds": [
+        "500024200"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024200.pdf",
+      "bioguide": "V000130",
+      "candidateId": "9d0e2f02-28c1-47d9-8799-bd1acf131818",
+      "candidateName": "Juan Vargas",
+      "action": "insert",
+      "detail": "",
+      "recordId": "66d9564b-1b70-42e8-a9a0-1602bf267d3d"
+    },
+    {
+      "memberName": "Lamborn, Doug",
+      "state": "CO",
+      "district": "05",
+      "departureDate": "2022-03-19",
+      "returnDate": "2022-03-25",
+      "sponsorAsFiled": "Israel Allies Foundation Bridges for Peace All Nations Convocation Jerusalem Progressive Vision Combat Hate Foundation International Christian Embassy Jerusalem",
+      "sponsorKey": "israel_allies",
+      "docId": "500024208",
+      "docIds": [
+        "500024208"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024208.pdf",
+      "bioguide": "L000564",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6CO05159",
+      "recordId": null
+    },
+    {
+      "memberName": "Babin, Brian",
+      "state": "TX",
+      "district": "36",
+      "departureDate": "2022-04-29",
+      "returnDate": "2022-05-08",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500024397",
+      "docIds": [
+        "500024397"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024397.pdf",
+      "bioguide": "B001291",
+      "candidateId": "44e7554d-adf2-4ac3-92ed-1c5cd069a221",
+      "candidateName": "Brian Babin",
+      "action": "insert",
+      "detail": "",
+      "recordId": "83127262-0dfe-4658-89b8-375ad7aeddb9"
+    },
+    {
+      "memberName": "Bost, Mike",
+      "state": "IL",
+      "district": "12",
+      "departureDate": "2022-04-29",
+      "returnDate": "2022-05-08",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500024420",
+      "docIds": [
+        "500024420"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024420.pdf",
+      "bioguide": "B001295",
+      "candidateId": "088926d0-f84b-4a7f-9b13-075e17a55d6b",
+      "candidateName": "Mike Bost",
+      "action": "insert",
+      "detail": "",
+      "recordId": "315b8ea8-ccfe-4168-a273-dd18f219a11f"
+    },
+    {
+      "memberName": "Correa, Jose",
+      "state": "CA",
+      "district": "46",
+      "departureDate": "2022-04-29",
+      "returnDate": "2022-05-08",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500024554",
+      "docIds": [
+        "500024554"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024554.pdf",
+      "bioguide": "C001110",
+      "candidateId": "5274d4bf-e795-4183-967a-b63ae70db787",
+      "candidateName": "Lou Correa",
+      "action": "insert",
+      "detail": "",
+      "recordId": "79116e8a-940d-4643-9e03-19f91650e67b"
+    },
+    {
+      "memberName": "Dunn, Neal",
+      "state": "FL",
+      "district": "02",
+      "departureDate": "2022-04-29",
+      "returnDate": "2022-05-08",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500024448",
+      "docIds": [
+        "500024448"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024448.pdf",
+      "bioguide": "D000628",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6FL02208",
+      "recordId": null
+    },
+    {
+      "memberName": "Harris, Andy",
+      "state": "MD",
+      "district": "01",
+      "departureDate": "2022-04-29",
+      "returnDate": "2022-05-08",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500024490",
+      "docIds": [
+        "500024490"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024490.pdf",
+      "bioguide": "H001052",
+      "candidateId": "e870e930-9ca0-41c5-a26b-13fdcf824d37",
+      "candidateName": "Andy Harris",
+      "action": "insert",
+      "detail": "",
+      "recordId": "b9ba6d30-2486-4cfe-b8ee-f4c9bd2b2f97"
+    },
+    {
+      "memberName": "Armstrong, Kelly",
+      "state": "ND",
+      "district": "00",
+      "departureDate": "2022-05-03",
+      "returnDate": "2022-05-10",
+      "sponsorAsFiled": "National Society for Hebrew Day Schools (a/k/a Torah u'Mesorah)",
+      "sponsorKey": null,
+      "docId": "500024501",
+      "docIds": [
+        "500024501"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024501.pdf",
+      "bioguide": null,
+      "candidateId": null,
+      "candidateName": null,
+      "action": "unknown_sponsor",
+      "detail": "sponsor has no clause in SPONSORED_TRAVEL_DESTINATIONS",
+      "recordId": null
+    },
+    {
+      "memberName": "Upton, Frederick",
+      "state": "MI",
+      "district": "06",
+      "departureDate": "2022-06-25",
+      "returnDate": "2022-07-01",
+      "sponsorAsFiled": "American Israel Education Foundation (AIEF)",
+      "sponsorKey": "aief",
+      "docId": "500024919",
+      "docIds": [
+        "500024919"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024919.pdf",
+      "bioguide": "U000031",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6MI04113",
+      "recordId": null
+    },
+    {
+      "memberName": "Auchincloss, Jake",
+      "state": "MA",
+      "district": "04",
+      "departureDate": "2022-06-26",
+      "returnDate": "2022-07-02",
+      "sponsorAsFiled": "American Israel Education Foundation (AIEF)",
+      "sponsorKey": "aief",
+      "docId": "500024921",
+      "docIds": [
+        "500024921"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024921.pdf",
+      "bioguide": "A000148",
+      "candidateId": "232ac51a-1d9c-4c1a-9137-0ce3442b5064",
+      "candidateName": "Jake Auchincloss",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "ca85dbb8-3985-4a6a-aad1-2c06ee1d2d48"
+    },
+    {
+      "memberName": "Bacon, Donald",
+      "state": "NE",
+      "district": "02",
+      "departureDate": "2022-06-26",
+      "returnDate": "2022-07-02",
+      "sponsorAsFiled": "American Israel Education Foundation.",
+      "sponsorKey": "aief",
+      "docId": "500024943",
+      "docIds": [
+        "500024943"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024943.pdf",
+      "bioguide": "B001298",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6NE02125",
+      "recordId": null
+    },
+    {
+      "memberName": "Gottheimer, Josh",
+      "state": "NJ",
+      "district": "05",
+      "departureDate": "2022-06-26",
+      "returnDate": "2022-07-01",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500024962",
+      "docIds": [
+        "500024962"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024962.pdf",
+      "bioguide": "G000583",
+      "candidateId": "783a650d-2e43-412c-b560-c51ade2e2ffa",
+      "candidateName": "Josh Gottheimer",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "101615e0-8cdd-404e-9bf9-f10b32535f3c"
+    },
+    {
+      "memberName": "Kind, Ron",
+      "state": "WI",
+      "district": "03",
+      "departureDate": "2022-06-26",
+      "returnDate": "2022-07-02",
+      "sponsorAsFiled": "American Israel Education Foundation (AIEF)",
+      "sponsorKey": "aief",
+      "docId": "500024931",
+      "docIds": [
+        "500024931"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024931.pdf",
+      "bioguide": "K000188",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6WI03099",
+      "recordId": null
+    },
+    {
+      "memberName": "Norcross, Donald",
+      "state": "NJ",
+      "district": "01",
+      "departureDate": "2022-06-26",
+      "returnDate": "2022-07-02",
+      "sponsorAsFiled": "American Israel Education Foundation (AIEF)",
+      "sponsorKey": "aief",
+      "docId": "500024917",
+      "docIds": [
+        "500024917"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500024917.pdf",
+      "bioguide": "N000188",
+      "candidateId": "28178ce7-787d-465c-b2d0-cea89ed3407d",
+      "candidateName": "Donald Norcross",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "87e473c2-1d47-45d8-b851-f664ee79b957"
+    },
+    {
+      "memberName": "Carbajal, Salud",
+      "state": "CA",
+      "district": "24",
+      "departureDate": "2022-07-29",
+      "returnDate": "2022-08-05",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025031",
+      "docIds": [
+        "500025031"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500025031.pdf",
+      "bioguide": "C001112",
+      "candidateId": "cf422ed7-c01b-4728-af8a-d9e50e4dcd2c",
+      "candidateName": "Salud Carbajal",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "0d4f8159-5448-4e64-b767-e9dd49a6e8d8"
+    },
+    {
+      "memberName": "Clyburn, James",
+      "state": "SC",
+      "district": "06",
+      "departureDate": "2022-07-29",
+      "returnDate": "2022-08-04",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025032",
+      "docIds": [
+        "500025032"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500025032.pdf",
+      "bioguide": "C000537",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2SC02042",
+      "recordId": null
+    },
+    {
+      "memberName": "Scanlon, Mary",
+      "state": "PA",
+      "district": "05",
+      "departureDate": "2022-07-29",
+      "returnDate": "2022-08-05",
+      "sponsorAsFiled": "J Street Education Foundation",
+      "sponsorKey": "jstreet",
+      "docId": "500025035",
+      "docIds": [
+        "500025035"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2022/500025035.pdf",
+      "bioguide": "S001205",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA07200",
+      "recordId": null
+    },
+    {
+      "memberName": "Torres, Ritchie",
+      "state": "NY",
+      "district": "15",
+      "departureDate": "2022-10-30",
+      "returnDate": "2022-11-04",
+      "sponsorAsFiled": "Jewish Community Relations Council of New York",
+      "sponsorKey": "jcrc_ny",
+      "docId": "500028309",
+      "docIds": [
+        "500028309"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028309.pdf",
+      "bioguide": "T000486",
+      "candidateId": "e1a73ffb-ff51-4430-bb5a-4bf04cd793ce",
+      "candidateName": "Ritchie Torres",
+      "action": "insert",
+      "detail": "",
+      "recordId": "318110e5-cf4d-4c1f-81ae-c7f72630f143"
+    },
+    {
+      "memberName": "Adams, Alma",
+      "state": "NC",
+      "district": "12",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025865",
+      "docIds": [
+        "500025865"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025865.pdf",
+      "bioguide": "A000370",
+      "candidateId": "a8e7a3c2-dec1-4084-b9ed-e3ec7f971757",
+      "candidateName": "Alma S. Adams",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "6c509f2b-7f42-4791-a74d-152f15545392"
+    },
+    {
+      "memberName": "Allen, Rick",
+      "state": "GA",
+      "district": "12",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-26",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500025987",
+      "docIds": [
+        "500025987"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025987.pdf",
+      "bioguide": "A000372",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2GA12121",
+      "recordId": null
+    },
+    {
+      "memberName": "Allred, Colin",
+      "state": "TX",
+      "district": "32",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025871",
+      "docIds": [
+        "500025871"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025871.pdf",
+      "bioguide": "A000376",
+      "candidateId": "8fcd7212-e097-46f2-9891-6c5e11bb9e8c",
+      "candidateName": "Colin Allred",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d21d62bf-bb6f-446f-8de2-e86d947655ac"
+    },
+    {
+      "memberName": "Carter, Troy",
+      "state": "LA",
+      "district": "02",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500026551",
+      "docIds": [
+        "500026551"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026551.pdf",
+      "bioguide": "C001125",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2LA02149",
+      "recordId": null
+    },
+    {
+      "memberName": "Davids, Sharice",
+      "state": "KS",
+      "district": "03",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025927",
+      "docIds": [
+        "500025927"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025927.pdf",
+      "bioguide": "D000629",
+      "candidateId": "95472552-3094-4941-a586-5cad786551b7",
+      "candidateName": "Sharice L. Davids",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "b7615e4b-c411-47e4-b7e7-9a78808785a6"
+    },
+    {
+      "memberName": "Gomez, Jimmy",
+      "state": "CA",
+      "district": "34",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025877",
+      "docIds": [
+        "500025877"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025877.pdf",
+      "bioguide": "G000585",
+      "candidateId": "e9523ef6-c2ec-41ad-9f75-aca4857b5ea6",
+      "candidateName": "Jimmy Gomez",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "fa7cfb3b-21ff-4425-a673-689ee8d57f37"
+    },
+    {
+      "memberName": "Harshbarger, Diana",
+      "state": "TN",
+      "district": "01",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-26",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500025950",
+      "docIds": [
+        "500025950"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025950.pdf",
+      "bioguide": "H001086",
+      "candidateId": "5c593fb8-bd7a-41ff-b193-5c0c39d2096e",
+      "candidateName": "Diana Harshbarger",
+      "action": "insert",
+      "detail": "",
+      "recordId": "d10b8643-779a-47d6-af99-01615de5cc28"
+    },
+    {
+      "memberName": "Leger Fernandez, Teresa",
+      "state": "NM",
+      "district": "03",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025892",
+      "docIds": [
+        "500025892"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025892.pdf",
+      "bioguide": "L000273",
+      "candidateId": "82814b81-d651-41ec-b9ab-66ca33675419",
+      "candidateName": "Teresa Leger Fernandez",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d638a3ee-745e-46a7-994f-852009a18b2d"
+    },
+    {
+      "memberName": "Levin, Mike",
+      "state": "CA",
+      "district": "49",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500026523",
+      "docIds": [
+        "500026523"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026523.pdf",
+      "bioguide": "L000593",
+      "candidateId": "7c9997ff-146d-457c-9d3a-8c6dbc3a31b4",
+      "candidateName": "Mike Levin",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1eea7b73-dfd4-460e-8b34-343eeb4c9775"
+    },
+    {
+      "memberName": "McGovern, James",
+      "state": "MA",
+      "district": "02",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025876",
+      "docIds": [
+        "500025876"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025876.pdf",
+      "bioguide": "M000312",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4MA03022",
+      "recordId": null
+    },
+    {
+      "memberName": "Porter, Katie",
+      "state": "CA",
+      "district": "47",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025881",
+      "docIds": [
+        "500025881"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025881.pdf",
+      "bioguide": "P000618",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8CA45130",
+      "recordId": null
+    },
+    {
+      "memberName": "Schrier, Kim",
+      "state": "WA",
+      "district": "08",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025883",
+      "docIds": [
+        "500025883"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025883.pdf",
+      "bioguide": "S001216",
+      "candidateId": "9dde04f8-a7d7-4afb-9692-8aa80b259d5e",
+      "candidateName": "Kim Schrier",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "a5ee7a31-a70f-4a48-aaaf-4d49ced47af7"
+    },
+    {
+      "memberName": "Trahan, Lori",
+      "state": "MA",
+      "district": "03",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025981",
+      "docIds": [
+        "500025981"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025981.pdf",
+      "bioguide": "T000482",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8MA03106",
+      "recordId": null
+    },
+    {
+      "memberName": "Vargas, Juan",
+      "state": "CA",
+      "district": "52",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-26",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500025979",
+      "docIds": [
+        "500025979"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025979.pdf",
+      "bioguide": "V000130",
+      "candidateId": "9d0e2f02-28c1-47d9-8799-bd1acf131818",
+      "candidateName": "Juan Vargas",
+      "action": "source_unreachable",
+      "detail": "no filing PDF for this trip returned HTTP 200",
+      "recordId": null
+    },
+    {
+      "memberName": "Weber, Randy",
+      "state": "TX",
+      "district": "14",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-26",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500025888",
+      "docIds": [
+        "500025888",
+        "500026654"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025888.pdf",
+      "bioguide": "W000814",
+      "candidateId": "0fa0a0ff-0bb1-4610-8d5e-41e5111e0a9c",
+      "candidateName": "Randy Weber",
+      "action": "insert",
+      "detail": "",
+      "recordId": "9049a625-c86b-4fe5-8bfc-00fe2668bbf0"
+    },
+    {
+      "memberName": "Wild, Susan",
+      "state": "PA",
+      "district": "07",
+      "departureDate": "2023-02-17",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025990",
+      "docIds": [
+        "500025990"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025990.pdf",
+      "bioguide": "W000826",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA15229",
+      "recordId": null
+    },
+    {
+      "memberName": "Escobar, Veronica",
+      "state": "TX",
+      "district": "16",
+      "departureDate": "2023-02-18",
+      "returnDate": "2023-02-24",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025893",
+      "docIds": [
+        "500025893",
+        "500026682"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025893.pdf",
+      "bioguide": "E000299",
+      "candidateId": "6f5cc7b0-499e-4b21-a5e0-d26416344bcc",
+      "candidateName": "Veronica Escobar",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "19ea747a-004d-4c98-83bd-a13a2f76329d"
+    },
+    {
+      "memberName": "Swalwell, Eric",
+      "state": "CA",
+      "district": "14",
+      "departureDate": "2023-02-19",
+      "returnDate": "2023-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500025974",
+      "docIds": [
+        "500025974"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500025974.pdf",
+      "bioguide": "S001193",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2CA15094",
+      "recordId": null
+    },
+    {
+      "memberName": "Baird, James",
+      "state": "IN",
+      "district": "04",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-06-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026639",
+      "docIds": [
+        "500026639"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026639.pdf",
+      "bioguide": "B001307",
+      "candidateId": "d9090b4c-1393-46db-9c28-75aa5e8b28fe",
+      "candidateName": "Jim Baird",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "68a51324-0fe6-40fc-b688-a974afbc7abb"
+    },
+    {
+      "memberName": "Bera, Ami",
+      "state": "CA",
+      "district": "06",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-06-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026629",
+      "docIds": [
+        "500026629"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026629.pdf",
+      "bioguide": "B001287",
+      "candidateId": "9dbc3dd5-c06c-4933-b7f3-238abfa220e0",
+      "candidateName": "Ami Bera",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "0077a95f-b18e-4be3-8b09-4e7c1968faa7"
+    },
+    {
+      "memberName": "Ellzey, Jake",
+      "state": "TX",
+      "district": "06",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-06-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026614",
+      "docIds": [
+        "500026614"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026614.pdf",
+      "bioguide": "E000071",
+      "candidateId": "1c98a1e8-5e8f-4e51-b336-760025296c7e",
+      "candidateName": "Jake Ellzey",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f33ce919-e6ca-402d-b85a-9ae2a03c7578"
+    },
+    {
+      "memberName": "Golden, Jared",
+      "state": "ME",
+      "district": "02",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-06-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026640",
+      "docIds": [
+        "500026640"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026640.pdf",
+      "bioguide": "G000592",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8ME02185",
+      "recordId": null
+    },
+    {
+      "memberName": "Lamborn, Doug",
+      "state": "CO",
+      "district": "05",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-07-05",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026603",
+      "docIds": [
+        "500026603",
+        "500026662"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026603.pdf",
+      "bioguide": "L000564",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6CO05159",
+      "recordId": null
+    },
+    {
+      "memberName": "Moore, Barry",
+      "state": "AL",
+      "district": "01",
+      "departureDate": "2023-06-23",
+      "returnDate": "2023-06-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026592",
+      "docIds": [
+        "500026592",
+        "500026630"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026592.pdf",
+      "bioguide": "M001212",
+      "candidateId": "c00c4ef7-b509-48c6-afcb-4931103c9f9f",
+      "candidateName": "Barry Moore",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "6e478aef-a1e4-47a3-85ee-bb29436c564c"
+    },
+    {
+      "memberName": "Balint, Becca",
+      "state": "VT",
+      "district": "00",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026810",
+      "docIds": [
+        "500026810"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026810.pdf",
+      "bioguide": "B001318",
+      "candidateId": "25568e33-5299-445c-939d-b72563d37007",
+      "candidateName": "Becca Balint",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "86a5b883-5182-449a-bcc0-b75dcafc4d08"
+    },
+    {
+      "memberName": "Crockett, Jasmine",
+      "state": "TX",
+      "district": "30",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026945",
+      "docIds": [
+        "500026945",
+        "500027080"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026945.pdf",
+      "bioguide": "C001130",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2TX30178, S6TX00552",
+      "recordId": null
+    },
+    {
+      "memberName": "Davis, Don",
+      "state": "NC",
+      "district": "01",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026842",
+      "docIds": [
+        "500026842"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026842.pdf",
+      "bioguide": "D000230",
+      "candidateId": "6f5c36d5-4faf-4658-b860-b6b3ce2b307a",
+      "candidateName": "Don Davis",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "3d87da19-6367-491b-8733-b75f5dd77760"
+    },
+    {
+      "memberName": "Deluzio, Chris",
+      "state": "PA",
+      "district": "17",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026839",
+      "docIds": [
+        "500026839"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026839.pdf",
+      "bioguide": "D000530",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2PA17103",
+      "recordId": null
+    },
+    {
+      "memberName": "Goldman, Daniel",
+      "state": "NY",
+      "district": "10",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026841",
+      "docIds": [
+        "500026841"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026841.pdf",
+      "bioguide": "G000599",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2NY10308",
+      "recordId": null
+    },
+    {
+      "memberName": "Hoyer, Steny",
+      "state": "MD",
+      "district": "05",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026857",
+      "docIds": [
+        "500026857"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026857.pdf",
+      "bioguide": "H000874",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MD05155",
+      "recordId": null
+    },
+    {
+      "memberName": "Jeffries, Hakeem",
+      "state": "NY",
+      "district": "08",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-09",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026816",
+      "docIds": [
+        "500026816"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026816.pdf",
+      "bioguide": "J000294",
+      "candidateId": "1f4a9430-2069-4869-bc83-00f9b9f2c405",
+      "candidateName": "Hakeem S. Jeffries",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "e1dcd964-32af-44f8-b7d4-1b13037f11cd"
+    },
+    {
+      "memberName": "Landsman, Greg",
+      "state": "OH",
+      "district": "01",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026815",
+      "docIds": [
+        "500026815"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026815.pdf",
+      "bioguide": "L000601",
+      "candidateId": "f263073f-4bf8-4002-9663-d3ce33440be7",
+      "candidateName": "Greg Landsman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c25093a8-6625-46df-9b55-cf8b27207248"
+    },
+    {
+      "memberName": "Menendez, Robert",
+      "state": "NJ",
+      "district": "08",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026922",
+      "docIds": [
+        "500026922"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026922.pdf",
+      "bioguide": "M001226",
+      "candidateId": "95068611-db7c-4c5d-b95d-b422c0dc7120",
+      "candidateName": "Rob Menendez",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "214094e8-f397-49fc-9f08-4370895afde6"
+    },
+    {
+      "memberName": "Moskowitz, Jared",
+      "state": "FL",
+      "district": "23",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation Inc.",
+      "sponsorKey": "aief",
+      "docId": "500029079",
+      "docIds": [
+        "500029079"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500029079.pdf",
+      "bioguide": "M001217",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2FL22171",
+      "recordId": null
+    },
+    {
+      "memberName": "Nickel, Wiley",
+      "state": "NC",
+      "district": "13",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027003",
+      "docIds": [
+        "500027003"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027003.pdf",
+      "bioguide": "N000194",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2NC14019",
+      "recordId": null
+    },
+    {
+      "memberName": "Pettersen, Brittany",
+      "state": "CO",
+      "district": "07",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026914",
+      "docIds": [
+        "500026914"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026914.pdf",
+      "bioguide": "P000620",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8CO07045",
+      "recordId": null
+    },
+    {
+      "memberName": "Ryan, Patrick",
+      "state": "NY",
+      "district": "18",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026910",
+      "docIds": [
+        "500026910"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026910.pdf",
+      "bioguide": "R000579",
+      "candidateId": "c25cda06-e6b5-4bce-a996-61e0e08a65f5",
+      "candidateName": "Pat Ryan",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "5669e49f-7500-4eb7-a50d-52d306a0cac5"
+    },
+    {
+      "memberName": "Salinas, Andrea",
+      "state": "OR",
+      "district": "06",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026909",
+      "docIds": [
+        "500026909"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026909.pdf",
+      "bioguide": "S001226",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2OR06066",
+      "recordId": null
+    },
+    {
+      "memberName": "Schneider, Brad",
+      "state": "IL",
+      "district": "10",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026812",
+      "docIds": [
+        "500026812"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026812.pdf",
+      "bioguide": "S001190",
+      "candidateId": "1be2499a-f221-4330-9b52-fb8fdd6d3bb1",
+      "candidateName": "Brad Schneider",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f5a896a7-6520-4111-8a93-ed39cb636e7b"
+    },
+    {
+      "memberName": "Scholten, Hillary",
+      "state": "MI",
+      "district": "03",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026919",
+      "docIds": [
+        "500026919"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026919.pdf",
+      "bioguide": "S001221",
+      "candidateId": "620b3b51-d8b6-4217-8879-be0f711a107e",
+      "candidateName": "Hillary Scholten",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "5bc0e192-7841-45d5-8fc6-7abad2c9f215"
+    },
+    {
+      "memberName": "Sorensen, Eric",
+      "state": "IL",
+      "district": "17",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026915",
+      "docIds": [
+        "500026915"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026915.pdf",
+      "bioguide": "S001225",
+      "candidateId": "c5ba42d8-7484-4d4a-aeec-28421809ad90",
+      "candidateName": "Eric Sorensen",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "4808c5fb-fdf6-4185-b755-bd89e36e81ca"
+    },
+    {
+      "memberName": "Stevens, Haley",
+      "state": "MI",
+      "district": "11",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026846",
+      "docIds": [
+        "500026846"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026846.pdf",
+      "bioguide": "S001215",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "out_of_scope",
+      "detail": "out_of_scope: Haley Stevens is not on a Nov-2026-or-later election",
+      "recordId": null
+    },
+    {
+      "memberName": "Sykes, Emilia",
+      "state": "OH",
+      "district": "13",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026912",
+      "docIds": [
+        "500026912"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026912.pdf",
+      "bioguide": "S001223",
+      "candidateId": "67a9d94b-118f-4cfc-983e-31fa9941aa4c",
+      "candidateName": "Emilia Sykes",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "e579a5c4-3f1b-4ce1-8cb9-b381131e47b5"
+    },
+    {
+      "memberName": "Thanedar, Shri",
+      "state": "MI",
+      "district": "13",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026926",
+      "docIds": [
+        "500026926"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026926.pdf",
+      "bioguide": "T000488",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "out_of_scope",
+      "detail": "out_of_scope: Shri Thanedar is not on a Nov-2026-or-later election",
+      "recordId": null
+    },
+    {
+      "memberName": "Tokuda, Jill",
+      "state": "HI",
+      "district": "02",
+      "departureDate": "2023-08-05",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026884",
+      "docIds": [
+        "500026884"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026884.pdf",
+      "bioguide": "T000487",
+      "candidateId": "b6bfa6a4-937f-4190-baba-4a089e01584a",
+      "candidateName": "Jill N. Tokuda",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c59ed5da-30c6-4339-adee-ef45e05ae0be"
+    },
+    {
+      "memberName": "Aguilar, Peter",
+      "state": "CA",
+      "district": "33",
+      "departureDate": "2023-08-07",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026847",
+      "docIds": [
+        "500026847",
+        "500026848"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026848.pdf",
+      "bioguide": "A000371",
+      "candidateId": "1cd7da07-936e-4885-ac7e-e6672f22aace",
+      "candidateName": "Pete Aguilar",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "fb75a8f2-d3f1-4424-9afc-c44eed630acb"
+    },
+    {
+      "memberName": "Garcia, Robert",
+      "state": "CA",
+      "district": "42",
+      "departureDate": "2023-08-07",
+      "returnDate": "2023-08-13",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500026849",
+      "docIds": [
+        "500026849"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500026849.pdf",
+      "bioguide": "G000598",
+      "candidateId": "424936bf-b179-45a9-9cad-f6eab1e533ae",
+      "candidateName": "Robert Garcia",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c28a738f-ff10-4dbb-8954-3f08bfc39cdf"
+    },
+    {
+      "memberName": "Adams, Alma",
+      "state": "NC",
+      "district": "12",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027137",
+      "docIds": [
+        "500027137"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027137.pdf",
+      "bioguide": "A000370",
+      "candidateId": "a8e7a3c2-dec1-4084-b9ed-e3ec7f971757",
+      "candidateName": "Alma S. Adams",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "51371ffb-8406-4ad3-b58a-5e89de221cf6"
+    },
+    {
+      "memberName": "Carter, Troy",
+      "state": "LA",
+      "district": "02",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027149",
+      "docIds": [
+        "500027149"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027149.pdf",
+      "bioguide": "C001125",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2LA02149",
+      "recordId": null
+    },
+    {
+      "memberName": "Cherfilus-McCormick, Sheila",
+      "state": "FL",
+      "district": "20",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027111",
+      "docIds": [
+        "500027111"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027111.pdf",
+      "bioguide": "C001127",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8FL20032",
+      "recordId": null
+    },
+    {
+      "memberName": "Foushee, Valerie",
+      "state": "NC",
+      "district": "04",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027132",
+      "docIds": [
+        "500027132"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027132.pdf",
+      "bioguide": "F000477",
+      "candidateId": "0119be93-2f16-4bb4-96ea-d8198a97cff8",
+      "candidateName": "Valerie P. Foushee",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "3d2da207-1f98-43e0-b44a-6b8d9a05fef0"
+    },
+    {
+      "memberName": "Ivey, Glenn",
+      "state": "MD",
+      "district": "04",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027125",
+      "docIds": [
+        "500027125"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027125.pdf",
+      "bioguide": "I000058",
+      "candidateId": "c7ad02f4-08fb-48ec-9fd3-da997b89a87b",
+      "candidateName": "Glenn F. Ivey",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "bfb10162-5e3e-46f2-b8ec-d60295898ba3"
+    },
+    {
+      "memberName": "Jackson, Jonathan",
+      "state": "IL",
+      "district": "01",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027127",
+      "docIds": [
+        "500027127"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027127.pdf",
+      "bioguide": "J000309",
+      "candidateId": "d42a0bb9-bb33-4fbf-a955-90f8ffc510f8",
+      "candidateName": "Jonathan L. Jackson",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "4cdbd241-d74a-4aed-a893-24d0ee3bd752"
+    },
+    {
+      "memberName": "Mcbath, Lucy",
+      "state": "GA",
+      "district": "06",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027117",
+      "docIds": [
+        "500027117"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027117.pdf",
+      "bioguide": "M001208",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8GA06393",
+      "recordId": null
+    },
+    {
+      "memberName": "Torres, Ritchie",
+      "state": "NY",
+      "district": "15",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027129",
+      "docIds": [
+        "500027129"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027129.pdf",
+      "bioguide": "T000486",
+      "candidateId": "e1a73ffb-ff51-4430-bb5a-4bf04cd793ce",
+      "candidateName": "Ritchie Torres",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "710e0c77-17ff-4914-97a6-11e7796ec41a"
+    },
+    {
+      "memberName": "Williams, Nikema",
+      "state": "GA",
+      "district": "05",
+      "departureDate": "2023-09-01",
+      "returnDate": "2023-09-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500027141",
+      "docIds": [
+        "500027141"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2023/500027141.pdf",
+      "bioguide": "W000788",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0GA05301",
+      "recordId": null
+    },
+    {
+      "memberName": "Balint, Becca",
+      "state": "VT",
+      "district": "00",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027758",
+      "docIds": [
+        "500027758"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027758.pdf",
+      "bioguide": "B001318",
+      "candidateId": "25568e33-5299-445c-939d-b72563d37007",
+      "candidateName": "Becca Balint",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "eae654de-685f-42ba-94bf-9f07f9512fe2"
+    },
+    {
+      "memberName": "Carbajal, Salud",
+      "state": "CA",
+      "district": "24",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027786",
+      "docIds": [
+        "500027786"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027786.pdf",
+      "bioguide": "C001112",
+      "candidateId": "cf422ed7-c01b-4728-af8a-d9e50e4dcd2c",
+      "candidateName": "Salud Carbajal",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c96f9d63-c238-41b7-8966-c22792dd5f7d"
+    },
+    {
+      "memberName": "Casten, Sean",
+      "state": "IL",
+      "district": "06",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027755",
+      "docIds": [
+        "500027755"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027755.pdf",
+      "bioguide": "C001117",
+      "candidateId": "cc7c1790-856d-4e68-9828-de5fc5e8bfe3",
+      "candidateName": "Sean Casten",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "98c891aa-3e32-4eb5-80ca-bc9083a94dfb"
+    },
+    {
+      "memberName": "Dean, Madeleine",
+      "state": "PA",
+      "district": "04",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027975",
+      "docIds": [
+        "500027975"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027975.pdf",
+      "bioguide": "D000631",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA04116",
+      "recordId": null
+    },
+    {
+      "memberName": "Delauro, Rosa",
+      "state": "CT",
+      "district": "03",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027768",
+      "docIds": [
+        "500027768"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027768.pdf",
+      "bioguide": "D000216",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0CT03072",
+      "recordId": null
+    },
+    {
+      "memberName": "Takano, Mark",
+      "state": "CA",
+      "district": "39",
+      "departureDate": "2024-02-17",
+      "returnDate": "2024-02-23",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500027760",
+      "docIds": [
+        "500027760",
+        "500027874"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500027760.pdf",
+      "bioguide": "T000472",
+      "candidateId": "fa4e7cc4-c2dc-4216-a204-d1cb9e80d99a",
+      "candidateName": "Mark Takano",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "cdea0cea-38f4-4834-9312-7b458739d773"
+    },
+    {
+      "memberName": "Costa, Jim",
+      "state": "CA",
+      "district": "21",
+      "departureDate": "2024-03-23",
+      "returnDate": "2024-03-29",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028050",
+      "docIds": [
+        "500028050"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028050.pdf",
+      "bioguide": "C001059",
+      "candidateId": "dc77381c-26f4-4565-a5b0-548cff13c2b3",
+      "candidateName": "Jim Costa",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "8e196a52-a979-4724-a25b-a07d33e048ad"
+    },
+    {
+      "memberName": "Foushee, Valerie",
+      "state": "NC",
+      "district": "04",
+      "departureDate": "2024-03-23",
+      "returnDate": "2024-03-29",
+      "sponsorAsFiled": "American Israel Education Fund",
+      "sponsorKey": "aief",
+      "docId": "500028020",
+      "docIds": [
+        "500028020"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028020.pdf",
+      "bioguide": "F000477",
+      "candidateId": "0119be93-2f16-4bb4-96ea-d8198a97cff8",
+      "candidateName": "Valerie P. Foushee",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "87023b5d-e520-490a-8e8a-649cd291fc85"
+    },
+    {
+      "memberName": "Schneider, Brad",
+      "state": "IL",
+      "district": "10",
+      "departureDate": "2024-03-23",
+      "returnDate": "2024-03-31",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028078",
+      "docIds": [
+        "500028078"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028078.pdf",
+      "bioguide": "S001190",
+      "candidateId": "1be2499a-f221-4330-9b52-fb8fdd6d3bb1",
+      "candidateName": "Brad Schneider",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c8a40cb8-e0a3-4117-b173-8fd199c7096a"
+    },
+    {
+      "memberName": "Vargas, Juan",
+      "state": "CA",
+      "district": "52",
+      "departureDate": "2024-03-23",
+      "returnDate": "2024-03-29",
+      "sponsorAsFiled": "American Israel Education Fund",
+      "sponsorKey": "aief",
+      "docId": "500028019",
+      "docIds": [
+        "500028019"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028019.pdf",
+      "bioguide": "V000130",
+      "candidateId": "9d0e2f02-28c1-47d9-8799-bd1acf131818",
+      "candidateName": "Juan Vargas",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "2a4a5797-77fa-4c40-ba8e-a5322f6058ed"
+    },
+    {
+      "memberName": "Manning, Kathy",
+      "state": "NC",
+      "district": "06",
+      "departureDate": "2024-03-24",
+      "returnDate": "2024-03-31",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028056",
+      "docIds": [
+        "500028056"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028056.pdf",
+      "bioguide": "M001135",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8NC13067",
+      "recordId": null
+    },
+    {
+      "memberName": "Strickland, Marilyn",
+      "state": "WA",
+      "district": "10",
+      "departureDate": "2024-03-24",
+      "returnDate": "2024-03-31",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028057",
+      "docIds": [
+        "500028057",
+        "500028176"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028057.pdf",
+      "bioguide": "S001159",
+      "candidateId": "f655cd13-2f08-443d-b4cf-dc405b92b367",
+      "candidateName": "Marilyn Strickland",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "bbdcd95e-7fb6-4b13-b9b0-c9bd8903c8bf"
+    },
+    {
+      "memberName": "Torres, Norma",
+      "state": "CA",
+      "district": "35",
+      "departureDate": "2024-03-24",
+      "returnDate": "2024-03-31",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028074",
+      "docIds": [
+        "500028074"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028074.pdf",
+      "bioguide": "T000474",
+      "candidateId": "5a9a1817-72f1-43df-9b9a-21f5643d29c2",
+      "candidateName": "Norma J. Torres",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f972abbc-114f-42d5-b7ed-ff3acec7db85"
+    },
+    {
+      "memberName": "Wasserman Schultz, Debbie",
+      "state": "FL",
+      "district": "25",
+      "departureDate": "2024-03-24",
+      "returnDate": "2024-03-31",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028054",
+      "docIds": [
+        "500028054"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028054.pdf",
+      "bioguide": "W000797",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4FL20023",
+      "recordId": null
+    },
+    {
+      "memberName": "Griffith, H.",
+      "state": "VA",
+      "district": "09",
+      "departureDate": "2024-03-28",
+      "returnDate": "2024-04-05",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500028086",
+      "docIds": [
+        "500028086"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028086.pdf",
+      "bioguide": "G000568",
+      "candidateId": "bb714437-5b89-4a03-9353-553ebd12dfd2",
+      "candidateName": "H. Morgan Griffith",
+      "action": "insert",
+      "detail": "",
+      "recordId": "4cf1fe25-87b8-4276-bbac-404244b8186f"
+    },
+    {
+      "memberName": "Weber, Randy",
+      "state": "TX",
+      "district": "14",
+      "departureDate": "2024-03-28",
+      "returnDate": "2024-04-05",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500028080",
+      "docIds": [
+        "500028080",
+        "500028248"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028080.pdf",
+      "bioguide": "W000814",
+      "candidateId": "0fa0a0ff-0bb1-4610-8d5e-41e5111e0a9c",
+      "candidateName": "Randy Weber",
+      "action": "insert",
+      "detail": "",
+      "recordId": "bf42af17-a0f3-4b6b-ae21-6ab6c833c202"
+    },
+    {
+      "memberName": "Williams, Brandon",
+      "state": "NY",
+      "district": "22",
+      "departureDate": "2024-03-28",
+      "returnDate": "2024-04-05",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500028063",
+      "docIds": [
+        "500028063"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028063.pdf",
+      "bioguide": "W000828",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2NY22212",
+      "recordId": null
+    },
+    {
+      "memberName": "Torres, Ritchie",
+      "state": "NY",
+      "district": "15",
+      "departureDate": "2024-03-30",
+      "returnDate": "2024-04-02",
+      "sponsorAsFiled": "United Jewish Appeal - Federation of Jewish Philanthropies of New York, Inc.",
+      "sponsorKey": "uja_ny",
+      "docId": "500028299",
+      "docIds": [
+        "500028299"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028299.pdf",
+      "bioguide": "T000486",
+      "candidateId": "e1a73ffb-ff51-4430-bb5a-4bf04cd793ce",
+      "candidateName": "Ritchie Torres",
+      "action": "insert",
+      "detail": "",
+      "recordId": "fb889d35-878f-43c7-b5f9-3f6c283ecaed"
+    },
+    {
+      "memberName": "Alford, Mark",
+      "state": "MO",
+      "district": "04",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028131",
+      "docIds": [
+        "500028131"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028131.pdf",
+      "bioguide": "A000379",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MO04207",
+      "recordId": null
+    },
+    {
+      "memberName": "Burlison, Eric",
+      "state": "MO",
+      "district": "07",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028147",
+      "docIds": [
+        "500028147"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028147.pdf",
+      "bioguide": "B001316",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MO07143",
+      "recordId": null
+    },
+    {
+      "memberName": "Chavez-DeRemer, Lori",
+      "state": "OR",
+      "district": "05",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028174",
+      "docIds": [
+        "500028174"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028174.pdf",
+      "bioguide": "C001135",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2OR05209",
+      "recordId": null
+    },
+    {
+      "memberName": "Ciscomani, Juan",
+      "state": "AZ",
+      "district": "06",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028172",
+      "docIds": [
+        "500028172"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028172.pdf",
+      "bioguide": "C001133",
+      "candidateId": "0b0f8e8b-3111-4d22-99f3-5552cf9b295e",
+      "candidateName": "Juan Ciscomani",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "98a30312-e3ea-4652-8727-a6446bc217bc"
+    },
+    {
+      "memberName": "Crane, Eli",
+      "state": "AZ",
+      "district": "02",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028156",
+      "docIds": [
+        "500028156"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028156.pdf",
+      "bioguide": "C001132",
+      "candidateId": "be752b45-f276-4ec9-b3a7-3a668049817f",
+      "candidateName": "Eli Crane",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "ca8d7c25-ee5b-40be-8f26-54266a8bf959"
+    },
+    {
+      "memberName": "Fitzgerald, Scott",
+      "state": "WI",
+      "district": "05",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028182",
+      "docIds": [
+        "500028182"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028182.pdf",
+      "bioguide": "F000471",
+      "candidateId": "c8958a10-e133-4ded-8994-68bb6e6745db",
+      "candidateName": "Scott Fitzgerald",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "29534a79-318c-4132-83c4-dac988c17238"
+    },
+    {
+      "memberName": "Fry, Russell",
+      "state": "SC",
+      "district": "07",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031483",
+      "docIds": [
+        "500031483"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031483.pdf",
+      "bioguide": "F000478",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2SC07280, S6SC04403",
+      "recordId": null
+    },
+    {
+      "memberName": "Kean, Thomas",
+      "state": "NJ",
+      "district": "07",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028138",
+      "docIds": [
+        "500028138"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028138.pdf",
+      "bioguide": "K000398",
+      "candidateId": "c2c0001b-d743-4e47-8483-2a23f38ccf16",
+      "candidateName": "Thomas H. Kean Jr.",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "45722ee4-8355-45b0-88b7-dbd6a600194e"
+    },
+    {
+      "memberName": "Kiggans, Jennifer",
+      "state": "VA",
+      "district": "02",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028124",
+      "docIds": [
+        "500028124"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028124.pdf",
+      "bioguide": "K000399",
+      "candidateId": "3bcf1dfb-91fb-4e48-989f-4552da6866d5",
+      "candidateName": "Jen A. Kiggans",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "ce03a0d8-c2db-4b72-ab2e-fda97930ee86"
+    },
+    {
+      "memberName": "Kiley, Kevin",
+      "state": "CA",
+      "district": "03",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028185",
+      "docIds": [
+        "500028185"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028185.pdf",
+      "bioguide": "K000401",
+      "candidateId": "726e4d34-31b3-4428-baa3-ba2cb05d5533",
+      "candidateName": "Kevin Kiley",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "79268076-a70c-4cf6-a64d-9e3e2d52eab6"
+    },
+    {
+      "memberName": "Langworthy, Nicholas",
+      "state": "NY",
+      "district": "23",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028161",
+      "docIds": [
+        "500028161"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028161.pdf",
+      "bioguide": "L000600",
+      "candidateId": "e2bd07db-9638-45ae-8ceb-b2cf33e06c7d",
+      "candidateName": "Nicholas A. Langworthy",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "2b8f8bc0-5543-4d6a-9e7d-2a593842fc08"
+    },
+    {
+      "memberName": "Maloy, Celeste",
+      "state": "UT",
+      "district": "02",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028226",
+      "docIds": [
+        "500028226"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028226.pdf",
+      "bioguide": "M001228",
+      "candidateId": "99a788b3-42a0-4f6b-b980-58426c43bc16",
+      "candidateName": "Celeste Maloy",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "7869435e-ce65-4481-badb-6740a6f96435"
+    },
+    {
+      "memberName": "Van Orden, Derrick",
+      "state": "WI",
+      "district": "03",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028155",
+      "docIds": [
+        "500028155"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028155.pdf",
+      "bioguide": "V000135",
+      "candidateId": "a2c96679-abc8-41ba-8bf2-07aff675bf13",
+      "candidateName": "Derrick Van Orden",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1e317b6f-60d9-4259-a6c3-f64633cef179"
+    },
+    {
+      "memberName": "Yakym, Rudy",
+      "state": "IN",
+      "district": "02",
+      "departureDate": "2024-04-01",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028181",
+      "docIds": [
+        "500028181"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028181.pdf",
+      "bioguide": "Y000067",
+      "candidateId": "8f1eb438-17f2-4f66-9888-ba12189e56fa",
+      "candidateName": "Rudy Yakym",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c5d0f0eb-4c2b-473a-a837-5789ed7e45fe"
+    },
+    {
+      "memberName": "Bean, Aaron",
+      "state": "FL",
+      "district": "04",
+      "departureDate": "2024-04-02",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028162",
+      "docIds": [
+        "500028162"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028162.pdf",
+      "bioguide": "B001314",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2FL04211",
+      "recordId": null
+    },
+    {
+      "memberName": "Strong, Dale",
+      "state": "AL",
+      "district": "05",
+      "departureDate": "2024-04-02",
+      "returnDate": "2024-04-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028146",
+      "docIds": [
+        "500028146"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028146.pdf",
+      "bioguide": "S001220",
+      "candidateId": "49bc7f14-07dd-4b34-bee9-7348178c82be",
+      "candidateName": "Dale W. Strong",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "175a9e5e-af4a-4857-a818-ba3f338977db"
+    },
+    {
+      "memberName": "Stefanik, Elise",
+      "state": "NY",
+      "district": "21",
+      "departureDate": "2024-05-17",
+      "returnDate": "2024-05-20",
+      "sponsorAsFiled": "Jewish Policy Center",
+      "sponsorKey": "jewish_policy_center",
+      "docId": "500028381",
+      "docIds": [
+        "500028381"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028381.pdf",
+      "bioguide": "S001196",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4NY21079",
+      "recordId": null
+    },
+    {
+      "memberName": "Cohen, Stephen",
+      "state": "TN",
+      "district": "09",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028709",
+      "docIds": [
+        "500028709"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028709.pdf",
+      "bioguide": "C001068",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6TN09068",
+      "recordId": null
+    },
+    {
+      "memberName": "Ellzey, Jake",
+      "state": "TX",
+      "district": "06",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028695",
+      "docIds": [
+        "500028695"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028695.pdf",
+      "bioguide": "E000071",
+      "candidateId": "1c98a1e8-5e8f-4e51-b336-760025296c7e",
+      "candidateName": "Jake Ellzey",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f31d70ae-5fb0-4086-8552-722e359df516"
+    },
+    {
+      "memberName": "Feenstra, Randy",
+      "state": "IA",
+      "district": "04",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028707",
+      "docIds": [
+        "500028707"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028707.pdf",
+      "bioguide": "F000446",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0IA04145",
+      "recordId": null
+    },
+    {
+      "memberName": "Hoyer, Steny",
+      "state": "MD",
+      "district": "05",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028687",
+      "docIds": [
+        "500028687"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028687.pdf",
+      "bioguide": "H000874",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MD05155",
+      "recordId": null
+    },
+    {
+      "memberName": "Ivey, Glenn",
+      "state": "MD",
+      "district": "04",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028699",
+      "docIds": [
+        "500028699"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028699.pdf",
+      "bioguide": "I000058",
+      "candidateId": "c7ad02f4-08fb-48ec-9fd3-da997b89a87b",
+      "candidateName": "Glenn F. Ivey",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "ce756696-8217-4446-9620-3803e09dde39"
+    },
+    {
+      "memberName": "Landsman, Greg",
+      "state": "OH",
+      "district": "01",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-20",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028694",
+      "docIds": [
+        "500028694"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028694.pdf",
+      "bioguide": "L000601",
+      "candidateId": "f263073f-4bf8-4002-9663-d3ce33440be7",
+      "candidateName": "Greg Landsman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "97095142-da1f-401c-88d6-68ad932cd777"
+    },
+    {
+      "memberName": "Mcbath, Lucy",
+      "state": "GA",
+      "district": "06",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028705",
+      "docIds": [
+        "500028705"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028705.pdf",
+      "bioguide": "M001208",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8GA06393",
+      "recordId": null
+    },
+    {
+      "memberName": "Wilson, Joe",
+      "state": "SC",
+      "district": "02",
+      "departureDate": "2024-06-15",
+      "returnDate": "2024-06-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500028696",
+      "docIds": [
+        "500028696"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2024/500028696.pdf",
+      "bioguide": "W000795",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2SC02059",
+      "recordId": null
+    },
+    {
+      "memberName": "Deluzio, Chris",
+      "state": "PA",
+      "district": "17",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029685",
+      "docIds": [
+        "500029685"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029685.pdf",
+      "bioguide": "D000530",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2PA17103",
+      "recordId": null
+    },
+    {
+      "memberName": "Fischbach, Michelle",
+      "state": "MN",
+      "district": "07",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029680",
+      "docIds": [
+        "500029680"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029680.pdf",
+      "bioguide": "F000470",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0MN07091",
+      "recordId": null
+    },
+    {
+      "memberName": "Flood, Mike",
+      "state": "NE",
+      "district": "01",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029691",
+      "docIds": [
+        "500029691"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029691.pdf",
+      "bioguide": "F000474",
+      "candidateId": "12f22b3c-4e46-4de0-b046-0cc1a9f0e547",
+      "candidateName": "Mike Flood",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "5bd24b6c-3717-4c19-90f2-658c595b7039"
+    },
+    {
+      "memberName": "Garcia, Sylvia",
+      "state": "TX",
+      "district": "29",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029773",
+      "docIds": [
+        "500029773"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029773.pdf",
+      "bioguide": "G000587",
+      "candidateId": "ed3a16f7-fa50-495b-b312-0c9db0c70e22",
+      "candidateName": "Sylvia Garcia",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "805c58dc-ca3f-4942-9364-c6414d98490c"
+    },
+    {
+      "memberName": "Himes, James",
+      "state": "CT",
+      "district": "04",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029659",
+      "docIds": [
+        "500029659"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029659.pdf",
+      "bioguide": "H001047",
+      "candidateId": "2c2ec144-cfd5-4bc0-bf43-7f1b0d1bc65f",
+      "candidateName": "Jim Himes",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d5dbfc3d-5ca9-452e-998b-bc26f74a36d8"
+    },
+    {
+      "memberName": "Jackson, Ronny",
+      "state": "TX",
+      "district": "13",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-20",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029684",
+      "docIds": [
+        "500029684"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029684.pdf",
+      "bioguide": "J000304",
+      "candidateId": "a073082f-8b10-498c-8f84-3018abcad152",
+      "candidateName": "Ronny Jackson",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "4868b33e-8f9d-4851-98b6-dcf797b16e1f"
+    },
+    {
+      "memberName": "Jordan, Jim",
+      "state": "OH",
+      "district": "04",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029678",
+      "docIds": [
+        "500029678"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029678.pdf",
+      "bioguide": "J000289",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6OH04082",
+      "recordId": null
+    },
+    {
+      "memberName": "Luna, Anna",
+      "state": "FL",
+      "district": "13",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029698",
+      "docIds": [
+        "500029698"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029698.pdf",
+      "bioguide": "L000596",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL13158",
+      "recordId": null
+    },
+    {
+      "memberName": "Luttrell, Morgan",
+      "state": "TX",
+      "district": "08",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029681",
+      "docIds": [
+        "500029681"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029681.pdf",
+      "bioguide": "L000603",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2TX08182",
+      "recordId": null
+    },
+    {
+      "memberName": "Mace, Nancy",
+      "state": "SC",
+      "district": "01",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029682",
+      "docIds": [
+        "500029682"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029682.pdf",
+      "bioguide": "M000194",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0SC01394",
+      "recordId": null
+    },
+    {
+      "memberName": "Ogles, Andy",
+      "state": "TN",
+      "district": "05",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029717",
+      "docIds": [
+        "500029717"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029717.pdf",
+      "bioguide": "O000175",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2TN05446",
+      "recordId": null
+    },
+    {
+      "memberName": "Palmer, Gary",
+      "state": "AL",
+      "district": "06",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029695",
+      "docIds": [
+        "500029695"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029695.pdf",
+      "bioguide": "P000609",
+      "candidateId": "2e42d24e-ae49-43a2-84ac-cac681cc838c",
+      "candidateName": "Gary Palmer",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f387e286-3ff2-4625-9842-bb39381b352e"
+    },
+    {
+      "memberName": "Pingree, Chellie",
+      "state": "ME",
+      "district": "01",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029657",
+      "docIds": [
+        "500029657"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029657.pdf",
+      "bioguide": "P000597",
+      "candidateId": "5f0bdf1b-362d-41cc-88a0-56a78a89a048",
+      "candidateName": "Chellie Pingree",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1c422e8d-80d0-489d-9df8-3ecaa93eb2c7"
+    },
+    {
+      "memberName": "Salinas, Andrea",
+      "state": "OR",
+      "district": "06",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029677",
+      "docIds": [
+        "500029677"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029677.pdf",
+      "bioguide": "S001226",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2OR06066",
+      "recordId": null
+    },
+    {
+      "memberName": "Self, Keith",
+      "state": "TX",
+      "district": "03",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029687",
+      "docIds": [
+        "500029687"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029687.pdf",
+      "bioguide": "S001224",
+      "candidateId": "800fc3e9-b32e-430e-94c0-ca7d6528d234",
+      "candidateName": "Keith Self",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "b0ed5838-00f4-41da-9b2f-527bddc4739c"
+    },
+    {
+      "memberName": "Sorensen, Eric",
+      "state": "IL",
+      "district": "17",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500029747",
+      "docIds": [
+        "500029747"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029747.pdf",
+      "bioguide": "S001225",
+      "candidateId": "c5ba42d8-7484-4d4a-aeec-28421809ad90",
+      "candidateName": "Eric Sorensen",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "f940b0f4-9a3c-4c2b-a748-d1b05234e360"
+    },
+    {
+      "memberName": "Weber, Randy",
+      "state": "TX",
+      "district": "14",
+      "departureDate": "2025-02-13",
+      "returnDate": "2025-02-21",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500029683",
+      "docIds": [
+        "500029683"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500029683.pdf",
+      "bioguide": "W000814",
+      "candidateId": "0fa0a0ff-0bb1-4610-8d5e-41e5111e0a9c",
+      "candidateName": "Randy Weber",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "04694892-dba3-475a-b78b-5be08311b228"
+    },
+    {
+      "memberName": "Clyde, Andrew",
+      "state": "GA",
+      "district": "09",
+      "departureDate": "2025-05-24",
+      "returnDate": "2025-05-31",
+      "sponsorAsFiled": "12Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500031212",
+      "docIds": [
+        "500031212"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031212.pdf",
+      "bioguide": "C001116",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0GA09246",
+      "recordId": null
+    },
+    {
+      "memberName": "Stutzman, Marlin",
+      "state": "IN",
+      "district": "03",
+      "departureDate": "2025-05-25",
+      "returnDate": "2025-05-31",
+      "sponsorAsFiled": "12Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500031447",
+      "docIds": [
+        "500031447",
+        "500031452"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031447.pdf",
+      "bioguide": "S001188",
+      "candidateId": "4dcc74b7-f9f6-4b14-8d38-91c72e6c27cb",
+      "candidateName": "Marlin A. Stutzman",
+      "action": "insert",
+      "detail": "",
+      "recordId": "b02632f1-a1d4-498d-897d-271c7dde02e5"
+    },
+    {
+      "memberName": "Bacon, Donald",
+      "state": "NE",
+      "district": "02",
+      "departureDate": "2025-06-13",
+      "returnDate": "2025-06-20",
+      "sponsorAsFiled": "Atlantic Council of the United States, Inc., and Jeffrey M. Talpins Foundation",
+      "sponsorKey": null,
+      "docId": "500031364",
+      "docIds": [
+        "500031364"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031364.pdf",
+      "bioguide": null,
+      "candidateId": null,
+      "candidateName": null,
+      "action": "unknown_sponsor",
+      "detail": "sponsor has no clause in SPONSORED_TRAVEL_DESTINATIONS",
+      "recordId": null
+    },
+    {
+      "memberName": "Nunn, Zach",
+      "state": "IA",
+      "district": "03",
+      "departureDate": "2025-06-13",
+      "returnDate": "2025-06-20",
+      "sponsorAsFiled": "Atlantic Council of the United States, Inc., and Jeffrey M. Talpins Foundation",
+      "sponsorKey": null,
+      "docId": "500031346",
+      "docIds": [
+        "500031346"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031346.pdf",
+      "bioguide": null,
+      "candidateId": null,
+      "candidateName": null,
+      "action": "unknown_sponsor",
+      "detail": "sponsor has no clause in SPONSORED_TRAVEL_DESTINATIONS",
+      "recordId": null
+    },
+    {
+      "memberName": "Schneider, Brad",
+      "state": "IL",
+      "district": "10",
+      "departureDate": "2025-06-13",
+      "returnDate": "2025-06-22",
+      "sponsorAsFiled": "Atlantic Council of the United States, Inc., and Jeffrey M. Talpins Foundation",
+      "sponsorKey": null,
+      "docId": "500031344",
+      "docIds": [
+        "500031344"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031344.pdf",
+      "bioguide": null,
+      "candidateId": null,
+      "candidateName": null,
+      "action": "unknown_sponsor",
+      "detail": "sponsor has no clause in SPONSORED_TRAVEL_DESTINATIONS",
+      "recordId": null
+    },
+    {
+      "memberName": "Cloud, Michael",
+      "state": "TX",
+      "district": "27",
+      "departureDate": "2025-08-01",
+      "returnDate": "2025-08-10",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500031800",
+      "docIds": [
+        "500031800"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031800.pdf",
+      "bioguide": "C001115",
+      "candidateId": "10f165a5-6a23-433d-b2d7-da4bde6e4775",
+      "candidateName": "Michael Cloud",
+      "action": "insert",
+      "detail": "",
+      "recordId": "2c828c03-df59-4e6e-8229-c93271988cea"
+    },
+    {
+      "memberName": "Johnson, Mike",
+      "state": "LA",
+      "district": "04",
+      "departureDate": "2025-08-01",
+      "returnDate": "2025-08-06",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500031801",
+      "docIds": [
+        "500031801"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031801.pdf",
+      "bioguide": "J000299",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6LA04138",
+      "recordId": null
+    },
+    {
+      "memberName": "Moran, Nathaniel",
+      "state": "TX",
+      "district": "01",
+      "departureDate": "2025-08-01",
+      "returnDate": "2025-08-10",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500031805",
+      "docIds": [
+        "500031805"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031805.pdf",
+      "bioguide": "M001224",
+      "candidateId": "09637d3b-4c5b-471e-b63a-614b1a1b97ed",
+      "candidateName": "Nathaniel Moran",
+      "action": "insert",
+      "detail": "",
+      "recordId": "01e6689c-a383-4152-a503-9bbbc62e7a04"
+    },
+    {
+      "memberName": "Tenney, Claudia",
+      "state": "NY",
+      "district": "24",
+      "departureDate": "2025-08-01",
+      "returnDate": "2025-08-10",
+      "sponsorAsFiled": "U.S. Israel Education Association (USIEA)",
+      "sponsorKey": "usiea",
+      "docId": "500031649",
+      "docIds": [
+        "500031649"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031649.pdf",
+      "bioguide": "T000478",
+      "candidateId": "54830010-e63a-4cc8-ae47-a7c0246c2804",
+      "candidateName": "Claudia Tenney",
+      "action": "insert",
+      "detail": "",
+      "recordId": "29f16f18-81de-4708-b6c4-2f64f5e460ba"
+    },
+    {
+      "memberName": "Baumgartner, Michael",
+      "state": "WA",
+      "district": "05",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031799",
+      "docIds": [
+        "500031799"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031799.pdf",
+      "bioguide": "B001322",
+      "candidateId": "308d128e-5218-4c74-8ddc-d1d80bd5f6ad",
+      "candidateName": "Michael Baumgartner",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "5a49c276-eeb0-4e98-bda6-91c3f1f0e7b3"
+    },
+    {
+      "memberName": "Brecheen, Josh",
+      "state": "OK",
+      "district": "02",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031780",
+      "docIds": [
+        "500031780"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031780.pdf",
+      "bioguide": "B001317",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2OK02315",
+      "recordId": null
+    },
+    {
+      "memberName": "Downing, Troy",
+      "state": "MT",
+      "district": "02",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031833",
+      "docIds": [
+        "500031833"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031833.pdf",
+      "bioguide": "D000634",
+      "candidateId": "5547e685-61b7-4f1a-93a2-8592aec7f088",
+      "candidateName": "Troy Downing",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "e384af69-3ad3-418d-895d-152bbb301e32"
+    },
+    {
+      "memberName": "Fedorchak, Julie",
+      "state": "ND",
+      "district": "00",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031782",
+      "docIds": [
+        "500031782"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031782.pdf",
+      "bioguide": "F000482",
+      "candidateId": "b7927fd0-1705-47dc-b44a-b1ca10e4c819",
+      "candidateName": "Julie Fedorchak",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "aa2ce345-fb26-40eb-9a18-97b9137b1c83"
+    },
+    {
+      "memberName": "Fine, Randy",
+      "state": "FL",
+      "district": "06",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031811",
+      "docIds": [
+        "500031811"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031811.pdf",
+      "bioguide": "F000484",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6FL06258",
+      "recordId": null
+    },
+    {
+      "memberName": "Gill, Brandon",
+      "state": "TX",
+      "district": "26",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-10",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031744",
+      "docIds": [
+        "500031744"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031744.pdf",
+      "bioguide": "G000603",
+      "candidateId": "1c710f03-5bb9-47e6-b2ed-614ddaeb5fbc",
+      "candidateName": "Brandon Gill",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "a3329da4-4f8b-4bd2-93dd-b0a86c8435d4"
+    },
+    {
+      "memberName": "Goldman, Craig",
+      "state": "TX",
+      "district": "12",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031749",
+      "docIds": [
+        "500031749"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031749.pdf",
+      "bioguide": "G000601",
+      "candidateId": "e065a184-ef21-46be-9bf9-0ab9632f1a1b",
+      "candidateName": "Craig Goldman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "5c339180-4a9f-4668-9668-2b06a98e24ed"
+    },
+    {
+      "memberName": "Hageman, Harriet",
+      "state": "WY",
+      "district": "00",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031771",
+      "docIds": [
+        "500031771"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031771.pdf",
+      "bioguide": "H001096",
+      "candidateId": "fd9f5a81-b2d1-4d13-8734-e74306ef175d",
+      "candidateName": "Harriet Hageman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "02566122-7c4c-4922-9b53-f3af60e2c7d5"
+    },
+    {
+      "memberName": "Hamadeh, Abraham",
+      "state": "AZ",
+      "district": "08",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031735",
+      "docIds": [
+        "500031735"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031735.pdf",
+      "bioguide": "H001098",
+      "candidateId": "e4746dbb-4c50-49b7-961d-13eb97cdbbfa",
+      "candidateName": "Abraham Hamadeh",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1eea6cfa-c1e5-4673-8815-e046f7af1ba7"
+    },
+    {
+      "memberName": "Harris, Mark",
+      "state": "NC",
+      "district": "08",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031793",
+      "docIds": [
+        "500031793"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031793.pdf",
+      "bioguide": "H001102",
+      "candidateId": "1a707e2e-0099-47cd-9bbc-1e3a3b7e6bd4",
+      "candidateName": "Mark Harris",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1b414058-b90c-444b-bb4b-fe1f9e9e09f9"
+    },
+    {
+      "memberName": "Hurd, Jeff",
+      "state": "CO",
+      "district": "03",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500032890",
+      "docIds": [
+        "500032890"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500032890.pdf",
+      "bioguide": "H001100",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4CO03357",
+      "recordId": null
+    },
+    {
+      "memberName": "Jack, Brian",
+      "state": "GA",
+      "district": "03",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031838",
+      "docIds": [
+        "500031838"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031838.pdf",
+      "bioguide": "J000311",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4GA03126",
+      "recordId": null
+    },
+    {
+      "memberName": "McGuire, John",
+      "state": "VA",
+      "district": "05",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031778",
+      "docIds": [
+        "500031778"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031778.pdf",
+      "bioguide": "M001239",
+      "candidateId": "6daaf4fb-8d20-4053-85b1-e11ee2622055",
+      "candidateName": "John J McGuire III",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1ac6aa17-1b75-4295-91d8-fb7c64270cae"
+    },
+    {
+      "memberName": "Reschenthaler, Guy",
+      "state": "PA",
+      "district": "14",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031766",
+      "docIds": [
+        "500031766"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031766.pdf",
+      "bioguide": "R000610",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA18199",
+      "recordId": null
+    },
+    {
+      "memberName": "Schmidt, Derek",
+      "state": "KS",
+      "district": "02",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031752",
+      "docIds": [
+        "500031752"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031752.pdf",
+      "bioguide": "S001228",
+      "candidateId": "a01575b2-1c92-4394-bafc-30c401247495",
+      "candidateName": "Derek Schmidt",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "3f1fec45-2abb-456c-bb24-4dd533d0900d"
+    },
+    {
+      "memberName": "Shreve, Jefferson",
+      "state": "IN",
+      "district": "06",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031774",
+      "docIds": [
+        "500031774"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031774.pdf",
+      "bioguide": "S001229",
+      "candidateId": "cc13d83c-34ac-485c-990f-e17eb35d1fe2",
+      "candidateName": "Jefferson Shreve",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "18e15846-9d8c-4599-9cc5-4c716c75fe19"
+    },
+    {
+      "memberName": "Stutzman, Marlin",
+      "state": "IN",
+      "district": "03",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031795",
+      "docIds": [
+        "500031795"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031795.pdf",
+      "bioguide": "S001188",
+      "candidateId": "4dcc74b7-f9f6-4b14-8d38-91c72e6c27cb",
+      "candidateName": "Marlin A. Stutzman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "b4ee1e87-6943-40f3-b08b-a8c49c554138"
+    },
+    {
+      "memberName": "Wied, Tony",
+      "state": "WI",
+      "district": "08",
+      "departureDate": "2025-08-03",
+      "returnDate": "2025-08-11",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031830",
+      "docIds": [
+        "500031830"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031830.pdf",
+      "bioguide": "W000829",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4WI08119",
+      "recordId": null
+    },
+    {
+      "memberName": "Aguilar, Peter",
+      "state": "CA",
+      "district": "33",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031808",
+      "docIds": [
+        "500031808"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031808.pdf",
+      "bioguide": "A000371",
+      "candidateId": "1cd7da07-936e-4885-ac7e-e6672f22aace",
+      "candidateName": "Pete Aguilar",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c304481c-2e17-4893-8bd5-a2811487ce72"
+    },
+    {
+      "memberName": "Bell, Wesley",
+      "state": "MO",
+      "district": "01",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031835",
+      "docIds": [
+        "500031835"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031835.pdf",
+      "bioguide": "B001324",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4MO01134, S4MO00250",
+      "recordId": null
+    },
+    {
+      "memberName": "Cisneros, Gilbert",
+      "state": "CA",
+      "district": "31",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500032879",
+      "docIds": [
+        "500032879"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500032879.pdf",
+      "bioguide": "C001123",
+      "candidateId": "b2365dff-e6b1-4865-b07b-d2045f2ed1fa",
+      "candidateName": "Gil Cisneros",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "65e32f68-7a56-41ce-886a-eaee55d1c163"
+    },
+    {
+      "memberName": "Gillen, Laura",
+      "state": "NY",
+      "district": "04",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031789",
+      "docIds": [
+        "500031789"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031789.pdf",
+      "bioguide": "G000602",
+      "candidateId": "c0e0bc39-d8c4-4eeb-9216-15c09088e607",
+      "candidateName": "Laura A. Gillen",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "42666685-1a00-47e7-8605-4c6731c78c6e"
+    },
+    {
+      "memberName": "Hoyer, Steny",
+      "state": "MD",
+      "district": "05",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031824",
+      "docIds": [
+        "500031824"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031824.pdf",
+      "bioguide": "H000874",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2MD05155",
+      "recordId": null
+    },
+    {
+      "memberName": "Johnson, Mike",
+      "state": "LA",
+      "district": "04",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-08",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500032930",
+      "docIds": [
+        "500032930"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500032930.pdf",
+      "bioguide": "J000299",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6LA04138",
+      "recordId": null
+    },
+    {
+      "memberName": "Kennedy, Timothy",
+      "state": "NY",
+      "district": "26",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031828",
+      "docIds": [
+        "500031828"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031828.pdf",
+      "bioguide": "K000402",
+      "candidateId": "f6e2b939-8013-4f06-8a72-daa3da71939a",
+      "candidateName": "Timothy M. Kennedy",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "b120abf5-c5c2-49ef-b6fe-4cdd0207bf89"
+    },
+    {
+      "memberName": "Landsman, Greg",
+      "state": "OH",
+      "district": "01",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031765",
+      "docIds": [
+        "500031765"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031765.pdf",
+      "bioguide": "L000601",
+      "candidateId": "f263073f-4bf8-4002-9663-d3ce33440be7",
+      "candidateName": "Greg Landsman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "35285a05-1eb0-49da-b94f-bc8314e07d2c"
+    },
+    {
+      "memberName": "Latimer, George",
+      "state": "NY",
+      "district": "16",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031762",
+      "docIds": [
+        "500031762"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031762.pdf",
+      "bioguide": "L000606",
+      "candidateId": "4cc704ef-8bfc-467d-adbd-76041a7c4c07",
+      "candidateName": "George S. Latimer",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "8390d752-5121-4c56-9bac-4baf63c0b10f"
+    },
+    {
+      "memberName": "Olszewski, Johnny",
+      "state": "MD",
+      "district": "02",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031779",
+      "docIds": [
+        "500031779"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031779.pdf",
+      "bioguide": "O000176",
+      "candidateId": "c7e8c728-1ec9-4c11-9ff1-f70ebecdb9bf",
+      "candidateName": "John \"Johnny O\" Olszewski, Jr.",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "1d519be1-7ca2-42e5-8160-2a0aaf007a20"
+    },
+    {
+      "memberName": "Pou, Nellie",
+      "state": "NJ",
+      "district": "09",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031806",
+      "docIds": [
+        "500031806"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031806.pdf",
+      "bioguide": "P000621",
+      "candidateId": "0926251a-4eaf-4f88-ba63-3884dc9508b0",
+      "candidateName": "Nelida Pou",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "b03fd1aa-8e35-40b4-acd6-d0479d8de863"
+    },
+    {
+      "memberName": "Riley, Josh",
+      "state": "NY",
+      "district": "19",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-12",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500032895",
+      "docIds": [
+        "500032895"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500032895.pdf",
+      "bioguide": "R000622",
+      "candidateId": "3996a2db-1fed-4058-bc80-8631432611ce",
+      "candidateName": "Josh Riley",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "2774cc25-18ad-430a-9f65-f2e52b98852d"
+    },
+    {
+      "memberName": "Rivas, Luz",
+      "state": "CA",
+      "district": "29",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031791",
+      "docIds": [
+        "500031791"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031791.pdf",
+      "bioguide": "R000620",
+      "candidateId": "b2f14b28-e5ad-4d43-ab5e-35717c448f09",
+      "candidateName": "Luz Maria Rivas",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "c262d031-615f-43d8-b9db-d1c34fa3f253"
+    },
+    {
+      "memberName": "Schneider, Brad",
+      "state": "IL",
+      "district": "10",
+      "departureDate": "2025-08-06",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031743",
+      "docIds": [
+        "500031743"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031743.pdf",
+      "bioguide": "S001190",
+      "candidateId": "1be2499a-f221-4330-9b52-fb8fdd6d3bb1",
+      "candidateName": "Brad Schneider",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "88247527-dadd-4082-bc47-f4382fd934b3"
+    },
+    {
+      "memberName": "Vindman, Eugene",
+      "state": "VA",
+      "district": "07",
+      "departureDate": "2025-08-07",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500031759",
+      "docIds": [
+        "500031759"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500031759.pdf",
+      "bioguide": "V000138",
+      "candidateId": "ddae4b16-5080-4ead-a6ce-fe368fbbef4b",
+      "candidateName": "Eugene S. Vindman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "d6a07bd8-7847-4a5e-87f4-d19b07c1cdf3"
+    },
+    {
+      "memberName": "Conaway, Herbert",
+      "state": "NJ",
+      "district": "03",
+      "departureDate": "2025-08-08",
+      "returnDate": "2025-08-14",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500032881",
+      "docIds": [
+        "500032881"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2025/500032881.pdf",
+      "bioguide": "C001136",
+      "candidateId": "ffbe7711-5b9d-4358-be66-a13f69256c6f",
+      "candidateName": "Herb Conaway",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "04ea301c-c18c-41f8-bca4-d0be3b413d46"
+    },
+    {
+      "memberName": "Bost, Mike",
+      "state": "IL",
+      "district": "12",
+      "departureDate": "2026-01-23",
+      "returnDate": "2026-01-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500033419",
+      "docIds": [
+        "500033419"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033419.pdf",
+      "bioguide": "B001295",
+      "candidateId": "088926d0-f84b-4a7f-9b13-075e17a55d6b",
+      "candidateName": "Mike Bost",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "eaa0567d-d27c-449e-8cb3-14d08a5e8b42"
+    },
+    {
+      "memberName": "Davis, Don",
+      "state": "NC",
+      "district": "01",
+      "departureDate": "2026-01-24",
+      "returnDate": "2026-01-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500033421",
+      "docIds": [
+        "500033421"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033421.pdf",
+      "bioguide": "D000230",
+      "candidateId": "6f5c36d5-4faf-4658-b860-b6b3ce2b307a",
+      "candidateName": "Don Davis",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "bef6def3-e9bf-41b8-a25a-c170b6dc7bd2"
+    },
+    {
+      "memberName": "Ellzey, Jake",
+      "state": "TX",
+      "district": "06",
+      "departureDate": "2026-01-24",
+      "returnDate": "2026-01-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500033413",
+      "docIds": [
+        "500033413"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033413.pdf",
+      "bioguide": "E000071",
+      "candidateId": "1c98a1e8-5e8f-4e51-b336-760025296c7e",
+      "candidateName": "Jake Ellzey",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "052b3d61-898e-4889-a7ee-01f36e77c3bb"
+    },
+    {
+      "memberName": "Kiggans, Jennifer",
+      "state": "VA",
+      "district": "02",
+      "departureDate": "2026-01-24",
+      "returnDate": "2026-01-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500033422",
+      "docIds": [
+        "500033422"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033422.pdf",
+      "bioguide": "K000399",
+      "candidateId": "3bcf1dfb-91fb-4e48-989f-4552da6866d5",
+      "candidateName": "Jen A. Kiggans",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "4d1353fa-24b4-4349-97f6-c7eaaead843a"
+    },
+    {
+      "memberName": "Zinke, Ryan",
+      "state": "MT",
+      "district": "01",
+      "departureDate": "2026-01-24",
+      "returnDate": "2026-01-30",
+      "sponsorAsFiled": "American Israel Education Foundation",
+      "sponsorKey": "aief",
+      "docId": "500033420",
+      "docIds": [
+        "500033420"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033420.pdf",
+      "bioguide": "Z000018",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H4MT01041",
+      "recordId": null
+    },
+    {
+      "memberName": "Casten, Sean",
+      "state": "IL",
+      "district": "06",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-20",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033444",
+      "docIds": [
+        "500033444"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033444.pdf",
+      "bioguide": "C001117",
+      "candidateId": "cc7c1790-856d-4e68-9828-de5fc5e8bfe3",
+      "candidateName": "Sean Casten",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "fbf9d1cf-5d7e-494f-b064-5efd6f758a5d"
+    },
+    {
+      "memberName": "Dean, Madeleine",
+      "state": "PA",
+      "district": "04",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-20",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033449",
+      "docIds": [
+        "500033449"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033449.pdf",
+      "bioguide": "D000631",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H8PA04116",
+      "recordId": null
+    },
+    {
+      "memberName": "Huffman, Jared",
+      "state": "CA",
+      "district": "02",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-19",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033457",
+      "docIds": [
+        "500033457"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033457.pdf",
+      "bioguide": "H001068",
+      "candidateId": "b92d71cc-fce6-4d19-a709-4f5a2d7c101d",
+      "candidateName": "Jared Huffman",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "6312bb55-6964-4df0-8e21-50118df51dba"
+    },
+    {
+      "memberName": "McDonald Rivet, Kristen",
+      "state": "MI",
+      "district": "08",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-20",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033448",
+      "docIds": [
+        "500033448"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033448.pdf",
+      "bioguide": "M001237",
+      "candidateId": "c615c592-2719-43a1-83e0-458667049b2f",
+      "candidateName": "Kristen McDonald Rivet",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "87088357-5629-42f4-be61-e021e07ce3ed"
+    },
+    {
+      "memberName": "Randall, Emily",
+      "state": "WA",
+      "district": "06",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-20",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033447",
+      "docIds": [
+        "500033447"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033447.pdf",
+      "bioguide": "R000621",
+      "candidateId": "774218ef-829c-4a3f-b101-5fb5ee4d7f8b",
+      "candidateName": "Emily Randall",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "79145421-678d-4334-abca-ff9b7fbdcb62"
+    },
+    {
+      "memberName": "Tran, Derek",
+      "state": "CA",
+      "district": "45",
+      "departureDate": "2026-02-12",
+      "returnDate": "2026-02-20",
+      "sponsorAsFiled": "J Street Education Fund",
+      "sponsorKey": "jstreet",
+      "docId": "500033456",
+      "docIds": [
+        "500033456"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033456.pdf",
+      "bioguide": "T000491",
+      "candidateId": "cd23f67d-5a91-4fef-b970-8bdbb5f28d45",
+      "candidateName": "Derek Tran",
+      "action": "unchanged",
+      "detail": "",
+      "recordId": "6bb3b40c-81f3-49e0-8ff5-01eb444b9fdc"
+    },
+    {
+      "memberName": "Franklin, Scott",
+      "state": "FL",
+      "district": "18",
+      "departureDate": "2026-02-13",
+      "returnDate": "2026-02-22",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500033503",
+      "docIds": [
+        "500033503"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033503.pdf",
+      "bioguide": "F000472",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H0FL15104",
+      "recordId": null
+    },
+    {
+      "memberName": "Moolenaar, John",
+      "state": "MI",
+      "district": "02",
+      "departureDate": "2026-02-13",
+      "returnDate": "2026-02-22",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500033497",
+      "docIds": [
+        "500033497"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033497.pdf",
+      "bioguide": "M001194",
+      "candidateId": "543dd775-d69d-4662-bda8-0c3b96203c03",
+      "candidateName": "John Moolenaar",
+      "action": "insert",
+      "detail": "",
+      "recordId": "0cdf5d58-9471-4fab-947f-1fbe156c1f22"
+    },
+    {
+      "memberName": "Walberg, Tim",
+      "state": "MI",
+      "district": "05",
+      "departureDate": "2026-02-13",
+      "returnDate": "2026-02-22",
+      "sponsorAsFiled": "U.S. Israel Education Association",
+      "sponsorKey": "usiea",
+      "docId": "500033686",
+      "docIds": [
+        "500033686"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033686.pdf",
+      "bioguide": "W000798",
+      "candidateId": "676c3474-f02c-46a2-a74a-19c9de714829",
+      "candidateName": "Tim Walberg",
+      "action": "insert",
+      "detail": "",
+      "recordId": "a8344f0f-133f-4612-af11-9c5dcb2560a2"
+    },
+    {
+      "memberName": "Higgins, Clay",
+      "state": "LA",
+      "district": "03",
+      "departureDate": "2026-02-16",
+      "returnDate": "2026-02-23",
+      "sponsorAsFiled": "12 Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500033438",
+      "docIds": [
+        "500033438"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033438.pdf",
+      "bioguide": "H001077",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H6LA03148",
+      "recordId": null
+    },
+    {
+      "memberName": "Ogles, Andy",
+      "state": "TN",
+      "district": "05",
+      "departureDate": "2026-02-16",
+      "returnDate": "2026-02-23",
+      "sponsorAsFiled": "12 Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500033663",
+      "docIds": [
+        "500033663"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033663.pdf",
+      "bioguide": "O000175",
+      "candidateId": null,
+      "candidateName": null,
+      "action": "no_candidate",
+      "detail": "no_candidate: no candidate carries H2TN05446",
+      "recordId": null
+    },
+    {
+      "memberName": "Perry, Scott",
+      "state": "PA",
+      "district": "10",
+      "departureDate": "2026-02-16",
+      "returnDate": "2026-02-23",
+      "sponsorAsFiled": "12 Tribe Films Foundation",
+      "sponsorKey": "12tribe",
+      "docId": "500033459",
+      "docIds": [
+        "500033459"
+      ],
+      "sourceUrl": "https://disclosures-clerk.house.gov/gtimages/MT/2026/500033459.pdf",
+      "bioguide": "P000605",
+      "candidateId": "fbee944c-50ca-48b8-a3c2-34ae0404d2e2",
+      "candidateName": "Scott Perry",
+      "action": "insert",
+      "detail": "",
+      "recordId": "d4666534-3b5c-4b41-bc37-a77ee7c380e1"
+    }
+  ]
+}

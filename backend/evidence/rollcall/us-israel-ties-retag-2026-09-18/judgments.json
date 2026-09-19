@@ -1,0 +1,189 @@
+{
+ "judgments": [
+  {
+   "chamber": "house",
+   "congress": 117,
+   "session": 1,
+   "roll": 275,
+   "measure_id": "H R 5323",
+   "vote_date": "2021-09-23",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 5323, which gave Israel $1 billion to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "nay_description": "Voted against H.R. 5323, which gave Israel $1 billion to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 577,
+   "measure_id": "H R 6126",
+   "vote_date": "2023-11-02",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 6126, which sent Israel $14.3 billion in military aid and cut the same amount from the IRS. The House passed it 226-196. The Senate never passed it, so it did not become law.",
+   "nay_description": "Voted against H.R. 6126, which sent Israel $14.3 billion in military aid and cut the same amount from the IRS. The House passed it 226-196. The Senate never passed it, so it did not become law.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 152,
+   "measure_id": "H R 8034",
+   "vote_date": "2024-04-20",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8034, which approved $26 billion: military aid for Israel, funds for U.S. forces nearby, and about $9 billion in humanitarian aid. It barred funding for the U.N. agency for Palestinian refugees. The House passed it 366-58, and it became law in April 2024.",
+   "nay_description": "Voted against H.R. 8034, which approved $26 billion: military aid for Israel, funds for U.S. forces nearby, and about $9 billion in humanitarian aid. It barred funding for the U.N. agency for Palestinian refugees. The House passed it 366-58, and it became law in April 2024.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 217,
+   "measure_id": "H R 8369",
+   "vote_date": "2024-05-16",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8369, which ordered delivery of weapons shipments to Israel that the president had paused. It froze some Pentagon, State Department and White House funds until delivery. The House passed it 224-187, but the Senate never voted on it.",
+   "nay_description": "Voted against H.R. 8369, which ordered delivery of weapons shipments to Israel that the president had paused. It froze some Pentagon, State Department and White House funds until delivery. The House passed it 224-187, but the Senate never voted on it.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 116,
+   "session": 1,
+   "roll": 16,
+   "measure_id": "S. 1",
+   "vote_date": "2019-02-05",
+   "review_status": "approved",
+   "yea_description": "Voted for S. 1, which authorized $3.3 billion a year in military aid to Israel through 2028. It also let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23, but the House never voted on it.",
+   "nay_description": "Voted against S. 1, which authorized $3.3 billion a year in military aid to Israel through 2028. It also let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23, but the House never voted on it.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "roll": 154,
+   "measure_id": "H.R. 815",
+   "vote_date": "2024-04-23",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 815, a $95 billion foreign aid package. It held about $61 billion for Ukraine, $26 billion for Israel and Gaza aid, and $8 billion for Taiwan and Pacific allies. The Senate agreed 79-18, and it became law in April 2024.",
+   "nay_description": "Voted against H.R. 815, a $95 billion foreign aid package. It held about $61 billion for Ukraine, $26 billion for Israel and Gaza aid, and $8 billion for Taiwan and Pacific allies. The Senate agreed 79-18, and it became law in April 2024.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "roll": 293,
+   "measure_id": "S.J.Res. 113",
+   "vote_date": "2024-11-20",
+   "review_status": "approved",
+   "yea_description": "Voted to advance S.J.Res. 113, a resolution to block the sale of 50,400 mortar shells to Israel. The Senate rejected the motion 19-78, so the sale was not blocked.",
+   "nay_description": "Voted against advancing S.J.Res. 113, a resolution to block the sale of 50,400 mortar shells to Israel. The Senate rejected the motion 19-78, so the sale was not blocked.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "roll": 166,
+   "measure_id": "S.J.Res. 26",
+   "vote_date": "2025-04-03",
+   "review_status": "approved",
+   "yea_description": "Voted to advance S.J.Res. 26, a resolution to block the sale of thousands of bombs and bomb guidance kits to Israel. The Senate rejected the motion 15-83, so the sale was not blocked.",
+   "nay_description": "Voted against advancing S.J.Res. 26, a resolution to block the sale of thousands of bombs and bomb guidance kits to Israel. The Senate rejected the motion 15-83, so the sale was not blocked.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "roll": 454,
+   "measure_id": "S.J.Res. 41",
+   "vote_date": "2025-07-30",
+   "review_status": "approved",
+   "yea_description": "Voted to advance S.J.Res. 41, a resolution to block the sale of 20,000 automatic rifles for Israel's national police. The Senate rejected the motion 27-70, so the sale was not blocked.",
+   "nay_description": "Voted against advancing S.J.Res. 41, a resolution to block the sale of 20,000 automatic rifles for Israel's national police. The Senate rejected the motion 27-70, so the sale was not blocked.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 295,
+   "measure_id": "H R 4795",
+   "vote_date": "2026-09-03",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 4795, a bill to bar colleges that take federal student aid from boycotting Israel. It passed the House 237-169.",
+   "nay_description": "Voted against passing H.R. 4795, a bill to bar colleges that take federal student aid from boycotting Israel. It passed the House 237-169.",
+   "labels": [
+    {
+     "slug": "foreign_trade",
+     "yea": "for",
+     "nay": null
+    },
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  }
+ ]
+}
