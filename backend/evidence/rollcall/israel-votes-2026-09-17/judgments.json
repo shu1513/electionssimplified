@@ -1,0 +1,100 @@
+{
+ "judgments": [
+  {
+   "chamber": "house",
+   "congress": 117,
+   "session": 1,
+   "roll": 275,
+   "measure_id": "H R 5323",
+   "vote_date": "2021-09-23",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 5323, which gave Israel $1 billion to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "nay_description": "Voted against H.R. 5323, which gave Israel $1 billion to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 577,
+   "measure_id": "H R 6126",
+   "vote_date": "2023-11-02",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 6126, which sent Israel $14.3 billion in military aid and cut the same amount from the IRS. The House passed it 226-196. The Senate never passed it, so it did not become law.",
+   "nay_description": "Voted against H.R. 6126, which sent Israel $14.3 billion in military aid and cut the same amount from the IRS. The House passed it 226-196. The Senate never passed it, so it did not become law.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 152,
+   "measure_id": "H R 8034",
+   "vote_date": "2024-04-20",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8034, which approved $26 billion: military aid for Israel, funds for U.S. forces nearby, and about $9 billion in humanitarian aid. It barred funding for the U.N. agency for Palestinian refugees. The House passed it 366-58, and it became law in April 2024.",
+   "nay_description": "Voted against H.R. 8034, which approved $26 billion: military aid for Israel, funds for U.S. forces nearby, and about $9 billion in humanitarian aid. It barred funding for the U.N. agency for Palestinian refugees. The House passed it 366-58, and it became law in April 2024.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 172,
+   "measure_id": "H R 6090",
+   "vote_date": "2024-05-01",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 6090, which told the Education Department to use a set definition of antisemitism in campus discrimination cases. The definition's examples include some statements about Israel. The House passed it 320-91, but the Senate never voted on it.",
+   "nay_description": "Voted against H.R. 6090, which told the Education Department to use a set definition of antisemitism in campus discrimination cases. The definition's examples include some statements about Israel. The House passed it 320-91, but the Senate never voted on it.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 217,
+   "measure_id": "H R 8369",
+   "vote_date": "2024-05-16",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8369, which ordered delivery of weapons shipments to Israel that the president had paused. It froze some Pentagon, State Department and White House funds until delivery. The House passed it 224-187, but the Senate never voted on it.",
+   "nay_description": "Voted against H.R. 8369, which ordered delivery of weapons shipments to Israel that the president had paused. It froze some Pentagon, State Department and White House funds until delivery. The House passed it 224-187, but the Senate never voted on it.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 116,
+   "session": 1,
+   "roll": 16,
+   "measure_id": "S. 1",
+   "vote_date": "2019-02-05",
+   "review_status": "approved",
+   "yea_description": "Voted for S. 1, which authorized $3.3 billion a year in military aid to Israel through 2028. It also let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23, but the House never voted on it.",
+   "nay_description": "Voted against S. 1, which authorized $3.3 billion a year in military aid to Israel through 2028. It also let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23, but the House never voted on it.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  }
+ ]
+}

@@ -14,7 +14,8 @@ export type RollCallQuestionClass =
   | "suspension"
   | "concur_senate_amendment"
   | "conference_report"
-  | "veto_override";
+  | "veto_override"
+  | "hand_add";
 
 export type RollCallClassification = {
   isFloorVote: boolean;
@@ -52,6 +53,17 @@ const SENATE_RULES: readonly QuestionRule[] = [
 
 const EXCLUDED_MEASURE_TYPES = new Set<FederalMeasure["type"]>(["hres", "hconres", "sres", "sconres", "pn"]);
 
+// Explicit hand adds (plan §1): roll calls the regex excludes that the operator
+// chose to import anyway. Keyed `chamber:congress-session:roll`, one line of
+// reason each. The measure and date are still checked by `rollcall:judge`.
+export const FEDERAL_HAND_ADDED_ROLLS: Readonly<Record<string, string>> = {
+  "house:118-1:697": "H.Res. 894, resolution stating anti-Zionism is antisemitism; the only House vote on it",
+  "senate:118-2:154": "H.R. 815, motion to concur; the only Senate vote on the April 2024 foreign aid package",
+  "senate:118-2:293": "S.J.Res. 113, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
+  "senate:119-1:166": "S.J.Res. 26, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
+  "senate:119-1:454": "S.J.Res. 41, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
+};
+
 function normalizeQuestion(question: string): string {
   return question.toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -60,7 +72,14 @@ export function classifyFederalRollCall(input: {
   chamber: LegislativeVoteChamber;
   question: string;
   measure: FederalMeasure | null;
+  roll?: { congress: number; session: number; rollNumber: number };
 }): RollCallClassification {
+  if (input.roll) {
+    const key = `${input.chamber}:${input.roll.congress}-${input.roll.session}:${input.roll.rollNumber}`;
+    if (key in FEDERAL_HAND_ADDED_ROLLS) {
+      return { isFloorVote: true, questionClass: "hand_add", reason: "kept:hand_add" };
+    }
+  }
   const rules = input.chamber === "house" ? HOUSE_RULES : SENATE_RULES;
   const normalized = normalizeQuestion(input.question);
   const rule = rules.find((candidate) => candidate.pattern.test(normalized));

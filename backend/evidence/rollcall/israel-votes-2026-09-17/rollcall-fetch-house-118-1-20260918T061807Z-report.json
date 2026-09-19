@@ -1,0 +1,60 @@
+{
+  "runId": "rollcall-fetch-house-118-1-20260918T061807Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "house",
+  "congress": 118,
+  "session": 1,
+  "dryRun": false,
+  "startedAt": "2026-09-18T06:18:07.749Z",
+  "finishedAt": "2026-09-18T06:18:08.707Z",
+  "evidenceDir": "evidence/rollcall/israel-votes-2026-09-17",
+  "requestedRolls": 2,
+  "floorVotes": 1,
+  "counts": {
+    "unchanged": 2
+  },
+  "rows": [
+    {
+      "chamber": "house",
+      "congress": 118,
+      "session": 1,
+      "roll": 577,
+      "machineUrl": "https://clerk.house.gov/evs/2023/roll577.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "house-118-1-roll00577.xml",
+      "voteDate": "2023-11-02",
+      "measureId": "H R 6126",
+      "question": "On Passage",
+      "result": "Passed",
+      "yeas": 226,
+      "nays": 196,
+      "memberVoteCount": 433,
+      "isFloorVote": true,
+      "questionClass": "passage",
+      "classificationReason": "kept:passage",
+      "judgmentCleared": false,
+      "error": null
+    },
+    {
+      "chamber": "house",
+      "congress": 118,
+      "session": 1,
+      "roll": 697,
+      "machineUrl": "https://clerk.house.gov/evs/2023/roll697.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "house-118-1-roll00697.xml",
+      "voteDate": "2023-12-05",
+      "measureId": "H RES 894",
+      "question": "On Motion to Suspend the Rules and Agree",
+      "result": "Passed",
+      "yeas": 311,
+      "nays": 14,
+      "memberVoteCount": 434,
+      "isFloorVote": false,
+      "questionClass": null,
+      "classificationReason": "excluded_question",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}

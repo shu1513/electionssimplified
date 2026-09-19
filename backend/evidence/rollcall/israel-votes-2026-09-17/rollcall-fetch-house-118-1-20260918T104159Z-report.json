@@ -1,0 +1,39 @@
+{
+  "runId": "rollcall-fetch-house-118-1-20260918T104159Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "house",
+  "congress": 118,
+  "session": 1,
+  "dryRun": false,
+  "startedAt": "2026-09-18T10:41:59.154Z",
+  "finishedAt": "2026-09-18T10:41:59.749Z",
+  "evidenceDir": "evidence/rollcall/israel-votes-2026-09-17",
+  "requestedRolls": 1,
+  "floorVotes": 1,
+  "counts": {
+    "updated": 1
+  },
+  "rows": [
+    {
+      "chamber": "house",
+      "congress": 118,
+      "session": 1,
+      "roll": 697,
+      "machineUrl": "https://clerk.house.gov/evs/2023/roll697.xml",
+      "outcome": "updated",
+      "evidenceFile": "house-118-1-roll00697.xml",
+      "voteDate": "2023-12-05",
+      "measureId": "H RES 894",
+      "question": "On Motion to Suspend the Rules and Agree",
+      "result": "Passed",
+      "yeas": 311,
+      "nays": 14,
+      "memberVoteCount": 434,
+      "isFloorVote": true,
+      "questionClass": "hand_add",
+      "classificationReason": "kept:hand_add",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}
