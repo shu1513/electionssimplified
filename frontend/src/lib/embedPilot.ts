@@ -3,6 +3,7 @@
 // in backend/). Only cities reviewed by hand and marked enabled are served;
 // everything else is a 404, which is also how a city is withdrawn.
 
+import { isJudicialRetentionTitle } from "@voteapp/api-client";
 import { EMBED_PILOT_CITIES, EMBED_PILOT_PUBLISHERS, type EmbedPilotCity } from "../data/embedPilotCities";
 
 export type { EmbedPilotCity };
@@ -11,6 +12,20 @@ export type { EmbedPilotCity };
 export const CONTACT_EMAIL = "contact@electionssimplified.com";
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** The box's race scope: the reviewed election day only, and no judicial
+ * retention questions (a city can carry dozens, and they would bury the
+ * contested races). Shared by the city list and the in-box draft page so the
+ * two always show the same races. */
+export function isEmbedListedRace(
+  election: { election_date: string; race_type: string; official_ballot_title: string },
+  electionDate: string
+): boolean {
+  return (
+    election.election_date === electionDate &&
+    !(election.race_type !== "ballot_measure" && isJudicialRetentionTitle(election.official_ballot_title))
+  );
+}
 
 export function getEmbedPilotCity(slug: string | undefined): EmbedPilotCity | null {
   if (!slug || !SLUG.test(slug)) {

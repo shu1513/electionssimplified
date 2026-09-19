@@ -26,6 +26,7 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
+import { isEmbedListedRace } from "../lib/embedPilot";
 import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
@@ -136,12 +137,21 @@ export function DraftPage() {
   // never disagree. This deliberately gives up the cache reuse with
   // BallotPage's default-sort query — a guest arriving from /ballot refetches
   // once — in exchange for one order everywhere.
+  // Inside the box the list keeps the box's scope: the city list's pinned
+  // election day and no retention questions, so this page and the counter
+  // show exactly the races the reader was offered.
+  const embedDate = embedSession ? (draft.target?.election_date ?? null) : null;
   const ballot = useQuery({
-    queryKey: ["ballot", districtIds.join(","), "preview"],
-    queryFn: () =>
-      apiRequest<BallotSummary>(
-        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false`
-      ),
+    queryKey: ["ballot", districtIds.join(","), "preview", embedDate],
+    queryFn: async () => {
+      const summary = await apiRequest<BallotSummary>(
+        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false` +
+          (embedDate ? `&election_date=${embedDate}` : "")
+      );
+      return embedDate
+        ? { ...summary, elections: summary.elections.filter((election) => isEmbedListedRace(election, embedDate)) }
+        : summary;
+    },
     enabled: me === null && districtIds.length > 0,
   });
 

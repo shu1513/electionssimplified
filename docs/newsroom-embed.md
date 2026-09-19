@@ -80,7 +80,12 @@ The content may be reused freely with attribution.
   new tab. A third-party frame has no session cookie and its own storage, so
   the reader is always a guest there. The site only offers picks once it
   knows the reader's districts; inside the frame the city's districts stand
-  in, so the draft counts against the city's contested races.
+  in, so the draft counts against the city's contested races. That context
+  is pinned in the frame's memory (`pinDraftBallotContext`), not stored:
+  every box on one publisher's site shares the same storage, and a stored
+  context would let one city's box replace another's. Picks stay shared.
+  The in-box draft page keeps the list's scope (`isEmbedListedRace`): the
+  reviewed election day only, no retention questions.
 - The Cloudflare router worker drops `X-Frame-Options` and sets
   `frame-ancestors *` for `/embed/city/*` only, and edge-caches both routes
   for 60 seconds like other public pages.

@@ -25,16 +25,15 @@ import {
   ballotLevelLabel,
   BALLOT_LEVELS,
   formatElectionDate,
-  isJudicialRetentionTitle,
   type BallotLevel,
   type BallotSummary,
   type ElectionPreview,
 } from "@voteapp/api-client";
 import { EmbedHeader } from "../components/EmbedHeader";
 import type { BackTo, CandidateNavState, ElectionNavState } from "../lib/detailNavContext";
-import { getEmbedPilotCity, publisherCodeFromHash, withSource } from "../lib/embedPilot";
+import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
 import { rememberEmbedSource, setEmbedHome, useEmbedSession } from "../lib/embedSession";
-import { nearestUpcomingTarget, setDraftBallotContext } from "../lib/ballotDraft";
+import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -82,14 +81,8 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
     include: "preview",
   });
   const ballot = await loadFromApi<BallotSummary>(`/api/ballot?${query.toString()}`, request);
-  // Judicial retention questions are left out: a city can carry dozens of
-  // yes/no "keep this judge" lines, and they would bury the contested races.
   const races = ballot.elections
-    .filter(
-      (election) =>
-        election.election_date === city.election_date &&
-        !(election.race_type !== "ballot_measure" && isJudicialRetentionTitle(election.official_ballot_title))
-    )
+    .filter((election) => isEmbedListedRace(election, city.election_date))
     .map((election) => ({
       id: election.id,
       title: election.official_ballot_title,
@@ -379,9 +372,9 @@ export function EmbedCityPage() {
   // The site only offers picks once it knows the reader's districts. The box
   // has no address, so inside the frame the city's own districts stand in:
   // every listed race can be picked, the header counts against the city's
-  // contested races, and the draft page lists them. Framed only — the
-  // frame's storage is its own, so this never touches a draft the reader
-  // built on the site itself.
+  // contested races, and the draft page lists them. Framed only, and pinned
+  // in memory rather than stored, so a second box on the same publisher's
+  // site cannot replace this one's context.
   const framed = useEmbedSession();
   useEffect(() => {
     const districtIds = framed && embedded ? getEmbedPilotCity(city.slug)?.district_ids : undefined;
@@ -394,7 +387,7 @@ export function EmbedCityPage() {
       race_type: race.race_type,
       official_ballot_title: race.title,
     }));
-    setDraftBallotContext(districtIds, nearestUpcomingTarget(elections, usLatestLocalDate()));
+    pinDraftBallotContext(districtIds, nearestUpcomingTarget(elections, usLatestLocalDate()));
   }, [framed, embedded, city.slug, city.election_date, races]);
   const toggleGroup = (key: string, open: boolean) => {
     setOpenGroups((previous) => {

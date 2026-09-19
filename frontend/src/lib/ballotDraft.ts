@@ -183,9 +183,33 @@ function writeDraft(next: BallotDraft): void {
   emit();
 }
 
+// The newsroom embed's ballot context. A box has no address, so its city's
+// districts and race list stand in for the reader's — but that belongs to ONE
+// framed document, not to the browser: every box on a publisher's site shares
+// this storage, and a stored context would let one city's box replace
+// another's (wrong counter, missing pick controls). So it lives in memory and
+// overlays whatever is stored. Picks stay shared.
+let pinnedContext: Pick<BallotDraft, "district_ids" | "target"> | null = null;
+
 function currentDraft(): BallotDraft {
-  cache ??= readStorage();
+  if (!cache) {
+    const stored = readStorage();
+    cache = pinnedContext ? { ...stored, ...pinnedContext } : stored;
+  }
   return cache;
+}
+
+export function unpinDraftBallotContextForTests(): void {
+  pinnedContext = null;
+  cache = null;
+}
+
+/** Pins this document's ballot context for its lifetime; page loads that
+ * would refresh the context (setDraftBallotContext) are then ignored. */
+export function pinDraftBallotContext(districtIds: string[], target: BallotDraft["target"]): void {
+  pinnedContext = { district_ids: districtIds, target };
+  cache = { ...currentDraft(), ...pinnedContext };
+  emit();
 }
 
 function subscribe(listener: () => void): () => void {
@@ -214,7 +238,7 @@ export function useBallotDraft(): BallotDraft {
 }
 
 export function clearBallotDraft(): void {
-  cache = EMPTY_DRAFT;
+  cache = pinnedContext ? { ...EMPTY_DRAFT, ...pinnedContext } : EMPTY_DRAFT;
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -301,6 +325,9 @@ export function setDraftBallotContext(
   districtIds: string[],
   target: BallotDraft["target"]
 ): void {
+  if (pinnedContext) {
+    return;
+  }
   const draft = currentDraft();
   writeDraft({ ...draft, district_ids: districtIds, target });
 }
