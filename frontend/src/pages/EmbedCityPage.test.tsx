@@ -3,8 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ElectionSummary } from "@voteapp/api-client";
 import { renderRoutes } from "../test/render";
-import { ballotSummary, electionDetail, electionSummary, retentionElection, VOTE_POWER_WITH_EXPLANATION } from "../test/fixtures";
-import { stubApiRoutes } from "../test/mockApi";
+import { ballotSummary, electionSummary, retentionElection } from "../test/fixtures";
 
 vi.mock("../data/embedPilotCities", () => ({
   EMBED_PILOT_PUBLISHERS: ["alpha-news"],
@@ -121,9 +120,9 @@ function overview(overrides: Partial<CityOverview> = {}): CityOverview {
       official_source_url: "https://www.sos.state.tx.us/elections/",
     },
     races: [
-      { id: "e-house", title: "U.S. House District 10", race_type: "office", level: "federal", district_name: "Congressional District 10", sub_district_seat: null, vote_power_label: "high", preview: federalRace().preview ?? null },
-      { id: "e-county", title: "County Commissioner, Precinct 2", race_type: "office", level: "county", district_name: "Travis County", sub_district_seat: "Precinct 2", vote_power_label: "very_low", preview: countyRace().preview ?? null },
-      { id: "e-prop", title: "Proposition A", race_type: "ballot_measure", level: "city", district_name: "Austin city", sub_district_seat: null, vote_power_label: "unknown", preview: measure().preview ?? null },
+      { id: "e-house", title: "U.S. House District 10", race_type: "office", level: "federal", district_name: "Congressional District 10", sub_district_seat: null, preview: federalRace().preview ?? null },
+      { id: "e-county", title: "County Commissioner, Precinct 2", race_type: "office", level: "county", district_name: "Travis County", sub_district_seat: "Precinct 2", preview: countyRace().preview ?? null },
+      { id: "e-prop", title: "Proposition A", race_type: "ballot_measure", level: "city", district_name: "Austin city", sub_district_seat: null, preview: measure().preview ?? null },
     ],
     embedded: true,
     ...overrides,
@@ -173,8 +172,9 @@ describe("loader", () => {
     );
     expect(result.embedded).toBe(true);
     expect(result.races.map((race) => race.id)).toEqual(["e-house"]);
-    expect(result.races[0]).toMatchObject({ level: "federal", district_name: "Congressional District 10", sub_district_seat: null, vote_power_label: "high" });
+    expect(result.races[0]).toMatchObject({ level: "federal", district_name: "Congressional District 10", sub_district_seat: null });
     expect(result.races[0]).not.toHaveProperty("vote_power");
+    expect(result.races[0]).not.toHaveProperty("vote_power_label");
   });
 
   it("leaves judicial retention questions out of the list", async () => {
@@ -262,28 +262,10 @@ describe("EmbedCityPage", () => {
     expect(await screen.findByText(/Travis County · covers Precinct 2 · Vote for up to 2/)).toBeInTheDocument();
   });
 
-  it("shows the site's vote-power badge per race, folding very low into low and hiding unknown", async () => {
+  it("shows no vote-power rating on the list", async () => {
     renderCity(overview());
-    expect(await screen.findByRole("button", { name: /Vote power: High/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Vote power: Below average/ })).toBeInTheDocument();
-    expect(screen.getAllByRole("button", { name: /Vote power:/ })).toHaveLength(2);
-  });
-
-  it("explains a race's vote power in a closable box, fetched only on demand", async () => {
-    const fetchMock = stubApiRoutes({
-      "/api/elections/e-house": { body: electionDetail({ id: "e-house", vote_power: VOTE_POWER_WITH_EXPLANATION }) },
-    });
-    renderCity(overview());
-    const badge = await screen.findByRole("button", { name: /Vote power: High/ });
-    expect(fetchMock).not.toHaveBeenCalled();
-    await userEvent.click(badge);
-    const box = await screen.findByRole("region", { name: "Vote power explanation" });
-    expect(await within(box).findByText(/mid-sized for its type/)).toBeInTheDocument();
-    expect(within(box).getByText("Average representation + high decisiveness → Vote power: High.")).toBeInTheDocument();
-    expect(within(box).getByText("Some data is missing.")).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    await userEvent.click(within(box).getByRole("button", { name: "Close" }));
-    expect(screen.queryByRole("region", { name: "Vote power explanation" })).not.toBeInTheDocument();
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByText(/Vote power/)).not.toBeInTheDocument();
   });
 
   it("applies an allowlisted publisher code from the hash to outbound links only", async () => {

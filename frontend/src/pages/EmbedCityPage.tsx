@@ -19,19 +19,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import {
-  apiRequest,
   APP_NAME,
   ballotLevel,
   ballotLevelLabel,
   BALLOT_LEVELS,
   formatElectionDate,
-  formatVotePowerLabel,
   isJudicialRetentionTitle,
   type BallotLevel,
   type BallotSummary,
-  type ElectionDetail,
   type ElectionPreview,
 } from "@voteapp/api-client";
 import { EmbedHeader } from "../components/EmbedHeader";
@@ -42,7 +38,6 @@ import { nearestUpcomingTarget, setDraftBallotContext } from "../lib/ballotDraft
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { votePowerBadgeClass } from "../lib/votePowerBadge";
 
 /** The slice of an election the page renders. Trimmed in the loader so the
  * server HTML carries only what is shown (no vote power, sources, results). */
@@ -53,9 +48,6 @@ export type CityRace = {
   level: BallotLevel;
   district_name: string;
   sub_district_seat: string | null;
-  /** The site's vote-power rating for the race's district; "unknown" and
-   * "retention" render no badge, same as the ballot list. */
-  vote_power_label: string;
   preview: ElectionPreview | null;
 };
 
@@ -105,7 +97,6 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
       level: ballotLevel(election.office?.scope, election.district.district_type, election.discovery_contest_family),
       district_name: election.district.name,
       sub_district_seat: election.sub_district_seat ?? null,
-      vote_power_label: election.vote_power.label,
       preview: election.preview ?? null,
     }));
   return {
@@ -249,59 +240,6 @@ function CandidateRow({
   );
 }
 
-/** The rating's reasoning, fetched only when a reader asks (the list payload
- * carries the label alone). Rendered in place under the race header rather
- * than as a modal: inside the auto-sized iframe a fixed overlay would center
- * on the whole document, far from where the reader clicked. */
-function VotePowerExplainer({ electionId, onClose }: { electionId: string; onClose: () => void }) {
-  const query = useQuery({
-    queryKey: ["embed-election", electionId],
-    queryFn: () => apiRequest<ElectionDetail>(`/api/elections/${electionId}`),
-  });
-  const explanation = query.data?.vote_power.explanation ?? null;
-  // The backend words the result for a reader on their own ballot; this box
-  // describes the race, not the reader.
-  const impersonal = (text: string) => text.replace(/\bMy vote power\b/g, "Vote power");
-  return (
-    <div
-      role="region"
-      aria-label="Vote power explanation"
-      className="relative mx-3 mb-2 rounded-md border border-line bg-surface p-3 pr-9 text-sm text-ink"
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute right-2 top-1.5 text-lg leading-none text-ink-soft hover:text-ink"
-      >
-        ×
-      </button>
-      {query.isPending ? (
-        <p className="text-ink-soft">Loading…</p>
-      ) : !explanation ? (
-        <p className="text-ink-soft">The explanation is not available right now.</p>
-      ) : (
-        <>
-          <p className="whitespace-pre-line">{impersonal(explanation.how)}</p>
-          <ul className="mt-2 space-y-2">
-            {explanation.parts.map((part) => (
-              <li key={part.title}>
-                <p>
-                  <span className="font-semibold">{part.title}:</span> {part.grade}
-                  {part.stat ? <span className="text-ink-soft"> · {part.stat}</span> : null}
-                </p>
-                <p className="mt-0.5 text-xs text-ink-soft">{part.detail}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 font-medium">{impersonal(explanation.result)}</p>
-          {explanation.caveat ? <p className="mt-1 text-xs text-ink-soft">{explanation.caveat}</p> : null}
-        </>
-      )}
-    </div>
-  );
-}
-
 function RaceBox({ race, source, backTo }: { race: CityRace; source: string | null; backTo: BackTo | null }) {
   const preview = race.preview;
   const candidateNavState: CandidateNavState | null = backTo
@@ -311,34 +249,16 @@ function RaceBox({ race, source, backTo }: { race: CityRace; source: string | nu
         candidates: (preview?.candidates ?? []).map((candidate) => ({ id: candidate.candidate_id, name: candidate.display_name })),
       }
     : null;
-  const [explainOpen, setExplainOpen] = useState(false);
-  // Same collapse of the two lowest ratings as the ballot list's badge.
-  const powerLabel = race.vote_power_label === "very_low" ? "low" : race.vote_power_label;
-  const showPower = powerLabel !== "unknown" && powerLabel !== "retention";
   return (
     <section className="rounded-md border border-line bg-white">
       <header className="px-3 py-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <h4 className="text-sm font-bold leading-snug text-ink">{race.title}</h4>
-          {showPower ? (
-            <button
-              type="button"
-              aria-expanded={explainOpen}
-              onClick={() => setExplainOpen((open) => !open)}
-              className={`text-xs font-semibold ${votePowerBadgeClass(powerLabel)}`}
-            >
-              Vote power: {formatVotePowerLabel(powerLabel)} <span aria-hidden="true">ⓘ</span>
-              <span className="sr-only">, what this means</span>
-            </button>
-          ) : null}
-        </div>
+        <h4 className="text-sm font-bold leading-snug text-ink">{race.title}</h4>
         <p className="mt-0.5 text-xs text-ink-soft">
           {race.district_name}
           {race.sub_district_seat ? ` · covers ${race.sub_district_seat}` : null}
           {seatNote(preview?.seats_to_fill ?? null) ? ` · ${seatNote(preview?.seats_to_fill ?? null)}` : null}
         </p>
       </header>
-      {showPower && explainOpen ? <VotePowerExplainer electionId={race.id} onClose={() => setExplainOpen(false)} /> : null}
       {preview && preview.candidates.length > 0 ? (
         <ul>
           {preview.candidates.map((candidate) => (

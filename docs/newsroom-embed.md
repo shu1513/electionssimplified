@@ -35,7 +35,7 @@ What the box shows: every race that touches the city (or, for a state code,
 the statewide races) for the reviewed election date, grouped by level (Federal, State, County, City, Ballot
 measures), each group collapsed until the reader opens it. For each
 candidate: name, party where the race is partisan, incumbent status, and
-withdrawn status, plus the site's vote-power rating for the race. Ballot
+withdrawn status. Ballot
 measures are listed by title; each opens its own page with a short
 description and what a yes and a no vote mean, in our words, not the ballot
 text. Judicial retention questions are left out.
