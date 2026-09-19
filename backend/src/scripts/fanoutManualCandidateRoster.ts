@@ -263,6 +263,13 @@ async function main(): Promise<void> {
       throw new Error(`Invalid candidate roster staging payload for ingest_key=${ingestKey}: ${extracted.reason}`);
     }
     const candidates = extracted.candidates;
+    // No-FEC-ID exception rows get no profile draft: the profile consumer
+    // requires roster FEC IDs for federal contests, so a draft would only
+    // retry and park. Their profiles go through manual:candidate-profile:write.
+    const draftCandidates = candidates.filter((candidate) => !candidate.no_fec_id_exception);
+    const manualProfileRequired = candidates
+      .filter((candidate) => candidate.no_fec_id_exception)
+      .map((candidate) => candidate.display_name);
 
     const runId = readFlag("--run-id") ?? stagingRow.run_id ?? `manual_candidate_roster_fanout_${new Date().toISOString()}`;
     const electionSeedUrls = parseSeedUrls(election.sources);
@@ -278,6 +285,7 @@ async function main(): Promise<void> {
             researchMode,
             requiresFecIds: includeFecIds,
             candidateCount: candidates.length,
+            manualProfileRequired,
           },
           null,
           2
@@ -289,7 +297,7 @@ async function main(): Promise<void> {
     await redis!.connect();
     const fanout = await enqueueCandidateProfileDrafts(
       redis!,
-      candidates.flatMap((candidate) => [
+      draftCandidates.flatMap((candidate) => [
         {
           electionId,
           runId,
@@ -331,6 +339,7 @@ async function main(): Promise<void> {
           researchMode,
           requiresFecIds: includeFecIds,
           candidateCount: candidates.length,
+          manualProfileRequired,
           emittedCount: fanout.emittedCount,
           skippedCount: fanout.skippedCount,
         },
