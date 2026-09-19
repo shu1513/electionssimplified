@@ -312,8 +312,6 @@ function RaceBox({ race, source, backTo }: { race: CityRace; source: string | nu
       }
     : null;
   const [explainOpen, setExplainOpen] = useState(false);
-  const isMeasure = race.race_type === "ballot_measure";
-  const detailHref = withSource(`/elections/${race.id}`, source);
   // Same collapse of the two lowest ratings as the ballot list's badge.
   const powerLabel = race.vote_power_label === "very_low" ? "low" : race.vote_power_label;
   const showPower = powerLabel !== "unknown" && powerLabel !== "retention";
@@ -321,19 +319,7 @@ function RaceBox({ race, source, backTo }: { race: CityRace; source: string | nu
     <section className="rounded-md border border-line bg-white">
       <header className="px-3 py-2">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <h4 className="text-sm font-bold leading-snug text-ink">
-            {isMeasure && backTo ? (
-              <Link to={detailHref} state={{ backTo } satisfies ElectionNavState} className="hover:underline">
-                {race.title} <span aria-hidden="true" className="font-normal text-ink-soft">›</span>
-              </Link>
-            ) : isMeasure ? (
-              <a href={detailHref} className="hover:underline">
-                {race.title} <span aria-hidden="true" className="font-normal text-ink-soft">›</span>
-              </a>
-            ) : (
-              race.title
-            )}
-          </h4>
+          <h4 className="text-sm font-bold leading-snug text-ink">{race.title}</h4>
           {showPower ? (
             <button
               type="button"
@@ -349,33 +335,11 @@ function RaceBox({ race, source, backTo }: { race: CityRace; source: string | nu
         <p className="mt-0.5 text-xs text-ink-soft">
           {race.district_name}
           {race.sub_district_seat ? ` · covers ${race.sub_district_seat}` : null}
-          {!isMeasure && seatNote(preview?.seats_to_fill ?? null)
-            ? ` · ${seatNote(preview?.seats_to_fill ?? null)}`
-            : null}
+          {seatNote(preview?.seats_to_fill ?? null) ? ` · ${seatNote(preview?.seats_to_fill ?? null)}` : null}
         </p>
       </header>
       {showPower && explainOpen ? <VotePowerExplainer electionId={race.id} onClose={() => setExplainOpen(false)} /> : null}
-      {isMeasure ? (
-        <div className="border-t border-line px-3 py-2 text-sm text-ink">
-          {preview?.measure ? (
-            <>
-              {preview.measure.summary ? (
-                <p className="text-ink-soft">
-                  <span className="font-semibold">Description:</span> {preview.measure.summary}
-                </p>
-              ) : null}
-              <p className="mt-1">
-                <span className="font-semibold">A yes vote means:</span> {preview.measure.what_yes_means}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold">A no vote means:</span> {preview.measure.what_no_means}
-              </p>
-            </>
-          ) : (
-            <p className="text-xs text-ink-soft">Explanation not yet available.</p>
-          )}
-        </div>
-      ) : preview && preview.candidates.length > 0 ? (
+      {preview && preview.candidates.length > 0 ? (
         <ul>
           {preview.candidates.map((candidate) => (
             <CandidateRow
@@ -390,6 +354,52 @@ function RaceBox({ race, source, backTo }: { race: CityRace; source: string | nu
         <p className="border-t border-line px-3 py-1.5 text-xs text-ink-soft">Candidate list not final.</p>
       )}
     </section>
+  );
+}
+
+/** The ballot-measure group: one row per measure, title only. The measure's
+ * own page carries the description and what a yes and a no vote mean; here
+ * the rows work like the candidate rows, and inside the box the page opens in
+ * the box with the other measures as its Prev / Next sequence. */
+function MeasureList({ races, source, backTo }: { races: CityRace[]; source: string | null; backTo: BackTo | null }) {
+  const navState: ElectionNavState | null = backTo
+    ? {
+        backTo,
+        raceType: "ballot_measure",
+        contests: races.map((race) => ({ id: race.id, title: race.title, race_type: "ballot_measure" as const })),
+      }
+    : null;
+  return (
+    <ul className="rounded-md border border-line bg-white">
+      {races.map((race, index) => {
+        const href = withSource(`/elections/${race.id}`, source);
+        const content = (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium text-ink">{race.title}</span>
+              <span className="block text-xs text-ink-soft">{race.district_name}</span>
+            </span>
+            <span aria-hidden="true" className="text-ink-soft">
+              ›
+            </span>
+          </>
+        );
+        const className = "flex items-center gap-x-2 px-3 py-1.5 text-sm hover:bg-surface";
+        return (
+          <li key={race.id} className={index > 0 ? "border-t border-line" : undefined}>
+            {navState ? (
+              <Link to={href} state={navState} className={className}>
+                {content}
+              </Link>
+            ) : (
+              <a href={href} className={className}>
+                {content}
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -517,9 +527,11 @@ export function EmbedCityPage() {
                 </span>
               </summary>
               <div className="mt-2 space-y-2">
-                {group.races.map((race) => (
-                  <RaceBox key={race.id} race={race} source={source} backTo={backTo} />
-                ))}
+                {group.key === MEASURE_GROUP ? (
+                  <MeasureList races={group.races} source={source} backTo={backTo} />
+                ) : (
+                  group.races.map((race) => <RaceBox key={race.id} race={race} source={source} backTo={backTo} />)
+                )}
               </div>
             </details>
           ))}

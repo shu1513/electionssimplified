@@ -246,12 +246,15 @@ describe("EmbedCityPage", () => {
     expect(withdrawn.closest("li")).toHaveTextContent("(withdrew)");
   });
 
-  it("labels the measure explanation as ours and shows what yes and no mean", async () => {
+  it("lists each ballot measure as a title row that opens the measure's own page", async () => {
     renderCity(overview());
-    expect(await screen.findByText(/Raises the library levy/)).toHaveTextContent("Description: Raises the library levy.");
-    expect(screen.getByText("A yes vote means:").closest("p")).toHaveTextContent("A yes vote means: The levy rises.");
-    expect(screen.getByText("A no vote means:").closest("p")).toHaveTextContent("A no vote means: The levy stays.");
-    expect(screen.getByRole("link", { name: /Proposition A/ })).toHaveAttribute("href", "/elections/e-prop");
+    const link = await screen.findByRole("link", { name: /Proposition A/ });
+    expect(link).toHaveAttribute("href", "/elections/e-prop");
+    expect(link).not.toHaveAttribute("target");
+    expect(link).toHaveTextContent("Austin city");
+    // The description and the yes/no meanings live on the measure page.
+    expect(screen.queryByText(/Raises the library levy/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/A yes vote means/)).not.toBeInTheDocument();
   });
 
   it("shows seat counts and the ward-level seat note", async () => {
