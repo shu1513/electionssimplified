@@ -237,6 +237,43 @@ describe("findOrCreateCandidateFromProfile", () => {
     expect(String(query.mock.calls[3]?.[0])).toContain("profile_sources = $4::jsonb");
   });
 
+  it("adds a first FEC ID to the existing website-matched candidate instead of inserting a duplicate", async () => {
+    // Manual no-FEC-ID exception follow-up: the candidate was written with a
+    // campaign website only; the FEC ID arrives on a later profile write.
+    const query = identityQueryMock()
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            id: "candidate-existing",
+            first_name: "Jane",
+            last_name: "Candidate",
+            date_of_birth: null,
+            twitter_handle: null,
+            linkedin_url: null,
+            official_website_url: "https://jane.example",
+            fec_ids: null,
+            state_filing_ids: null,
+            current_office: null,
+            state: "OH",
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [{ fec_ids: null, state_filing_ids: null, current_office: null }] })
+      .mockResolvedValueOnce({ rowCount: 1 });
+
+    const result = await findOrCreateCandidateFromProfile({
+      client: { query } as never,
+      profile: profile({ official_website_url: "https://jane.example", fec_ids: ["H6OH04999"] }),
+      state: "OH",
+      rosterParty: "Independent",
+      includeParty: true,
+    });
+
+    expect(result).toEqual({ candidateId: "candidate-existing", matchedExisting: true });
+    expect(query.mock.calls.some((call) => String(call[0]).includes("INSERT INTO public.candidates"))).toBe(false);
+    expect(JSON.stringify(query.mock.calls[3]?.[1])).toContain("H6OH04999");
+  });
+
   it("fills a blank current office for an existing hard-identifier match", async () => {
     const query = identityQueryMock()
       .mockResolvedValueOnce({

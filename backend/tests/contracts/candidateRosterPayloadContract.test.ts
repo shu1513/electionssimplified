@@ -439,3 +439,121 @@ describe("parseCandidateRosterPayload", () => {
     expect(parsed.ok).toBe(true);
   });
 });
+
+describe("parseCandidateRosterPayload no_fec_id_exception", () => {
+  const officialUrl = "https://elections.example.gov/certified-candidates";
+  function exceptionRow(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+    return {
+      display_name: "Ivy Independent",
+      party: "Independent",
+      sources: [officialUrl],
+      no_fec_id_exception: {
+        reason: "  Certified for the ballot; OpenFEC shows a committee but no candidate ID.  ",
+        official_roster_url: officialUrl,
+      },
+      ...overrides,
+    };
+  }
+  const registeredRow = {
+    display_name: "Rhea Registered",
+    fec_ids: ["H6OH04082"],
+    sources: ["https://www.fec.gov/data/candidate/H6OH04082/"],
+  };
+  const federalManual = { allowFecIds: true, requireFecIds: true, allowNoFecIdException: true };
+
+  it("keeps a federal row without FEC IDs when the manual path allows the exception", () => {
+    const parsed = parseCandidateRosterPayload({ candidates: [registeredRow, exceptionRow()] }, federalManual);
+
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    expect(parsed.skippedCandidatesWithoutFecIds).toEqual([]);
+    expect(parsed.keptCandidateIndexes).toEqual([0, 1]);
+    expect(parsed.payload.candidates[1]).toEqual({
+      display_name: "Ivy Independent",
+      party: "Independent",
+      no_fec_id_exception: {
+        reason: "Certified for the ballot; OpenFEC shows a committee but no candidate ID.",
+        official_roster_url: officialUrl,
+      },
+      sources: [officialUrl],
+    });
+  });
+
+  it("ignores the exception by default, so the AI path still skips the row", () => {
+    const parsed = parseCandidateRosterPayload(
+      { candidates: [registeredRow, exceptionRow()] },
+      { allowFecIds: true, requireFecIds: true }
+    );
+
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    expect(parsed.skippedCandidatesWithoutFecIds).toEqual(["Ivy Independent"]);
+    expect(parsed.payload.candidates).toHaveLength(1);
+    expect(parsed.payload.candidates[0]).not.toHaveProperty("no_fec_id_exception");
+  });
+
+  it("still skips federal rows that have neither FEC IDs nor the exception", () => {
+    const parsed = parseCandidateRosterPayload(
+      { candidates: [registeredRow, exceptionRow({ no_fec_id_exception: undefined })] },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    expect(parsed.skippedCandidatesWithoutFecIds).toEqual(["Ivy Independent"]);
+  });
+
+  it.each([
+    ["a missing reason", { reason: " ", official_roster_url: officialUrl }, "no_fec_id_exception.reason"],
+    ["an invalid URL", { reason: "Certified.", official_roster_url: "not a url" }, "official_roster_url must be a valid"],
+    [
+      "a URL that is not one of the row sources",
+      { reason: "Certified.", official_roster_url: "https://other.example.gov/list" },
+      "must also be listed in row.sources",
+    ],
+    ["a non-object value", "certified", "must be an object"],
+  ])("rejects %s", (_label, exception, expectedReason) => {
+    const parsed = parseCandidateRosterPayload(
+      { candidates: [exceptionRow({ no_fec_id_exception: exception })] },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok) {
+      return;
+    }
+    expect(parsed.reason).toContain(expectedReason);
+  });
+
+  it("rejects the exception on a row that already has FEC IDs", () => {
+    const parsed = parseCandidateRosterPayload(
+      { candidates: [exceptionRow({ fec_ids: ["H6OH04999"] })] },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok) {
+      return;
+    }
+    expect(parsed.reason).toContain("cannot be combined with row.fec_ids");
+  });
+
+  it("rejects the exception outside federal contests", () => {
+    const parsed = parseCandidateRosterPayload(
+      { candidates: [exceptionRow()] },
+      { allowFecIds: false, requireFecIds: false, allowNoFecIdException: true }
+    );
+
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok) {
+      return;
+    }
+    expect(parsed.reason).toContain("only allowed for federal contests");
+  });
+});

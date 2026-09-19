@@ -66,6 +66,13 @@ describe("listCandidateRostersDue", () => {
       staged_candidate_count: 3,
       linked_candidate_count: 3,
       roster_skipped_no_fec_id: ["Tanis, Philip"],
+      roster_no_fec_id_exceptions: [
+        {
+          display_name: "Ivy Independent",
+          reason: "Certified for the ballot; no FEC candidate ID issued.",
+          official_roster_url: "https://elections.example.gov/certified",
+        },
+      ],
       reason: "stale",
     };
     const db = createMockQueryable([row]);
@@ -104,6 +111,9 @@ describe("listCandidateRostersDue", () => {
     // The federal no-FEC skip list rides along so the refresh pass re-checks
     // those names for late FEC registrations.
     expect(sql).toContain("s.ai_raw_debug->'roster_skipped_no_fec_id'");
+    // Manual no-FEC-ID exceptions ride along the same way, so the refresh
+    // pass re-checks OpenFEC for them too.
+    expect(sql).toContain("s.ai_raw_debug->'roster_no_fec_id_exceptions'");
   });
 
   it("orders soonest election first, oldest roster first within a date", async () => {

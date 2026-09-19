@@ -163,6 +163,62 @@ describe("applyRegularElectionProfileContext", () => {
     ).toThrow("candidate_fec_ids is required in roster context for federal profile import");
   });
 
+  describe("roster row with no_fec_id_exception", () => {
+    const rosterHints = {
+      rosterIndex: 2,
+      displayName: "Jane Candidate",
+      fecIds: [],
+      stateFilingIds: [],
+      noFecIdException: {
+        reason: "Certified for the ballot; no FEC candidate ID issued.",
+        official_roster_url: "https://elections.example.gov/certified",
+      },
+    };
+
+    it("accepts a federal profile without FEC IDs when the campaign website is a cited source", () => {
+      const result = applyRegularElectionProfileContext({
+        profile: profile({ party: "Independent", state_filing_ids: ["OH-1"] }),
+        researchMode: "federal_us_house",
+        rosterHints,
+      });
+
+      expect(result.fec_ids).toBeUndefined();
+      expect(result.official_website_url).toBe("https://jane.example");
+      expect(result.party).toBeUndefined();
+      expect(result.state_filing_ids).toBeUndefined();
+    });
+
+    it("requires a campaign website", () => {
+      expect(() =>
+        applyRegularElectionProfileContext({
+          profile: profile({ official_website_url: undefined, twitter_handle: "janecandidate" }),
+          researchMode: "federal_us_house",
+          rosterHints,
+        })
+      ).toThrow("payload.official_website_url is required for a roster row with no_fec_id_exception");
+    });
+
+    it("requires the campaign website host among the cited sources", () => {
+      expect(() =>
+        applyRegularElectionProfileContext({
+          profile: profile({ sources: ["https://news.example/jane-candidate"] }),
+          researchMode: "federal_us_house",
+          rosterHints,
+        })
+      ).toThrow("payload.sources must include a page on jane.example");
+    });
+
+    it("uses roster FEC IDs and ignores a leftover exception once the ID exists", () => {
+      const result = applyRegularElectionProfileContext({
+        profile: profile({ official_website_url: undefined }),
+        researchMode: "federal_us_house",
+        rosterHints: { ...rosterHints, fecIds: ["H6OH04999"] },
+      });
+
+      expect(result.fec_ids).toEqual(["H6OH04999"]);
+    });
+  });
+
   it("injects roster state filing IDs for state-level profiles", () => {
     const result = applyRegularElectionProfileContext({
       profile: profile({ party: "Independent" }),

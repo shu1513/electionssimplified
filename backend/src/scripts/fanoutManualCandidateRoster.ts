@@ -114,7 +114,13 @@ function extractRosterCandidates(
   // Re-parse of an already-written staging payload: rosters imported before
   // the source-domain policy can carry a now-blocked URL, and fanout must not
   // fail over evidence the roster write already accepted.
-  const parsed = parseCandidateRosterPayload(payload, { ...options, enforceSourcePolicy: false });
+  // allowNoFecIdException: the staged row was already accepted by the manual
+  // inject, the only import path that lets the exception in.
+  const parsed = parseCandidateRosterPayload(payload, {
+    ...options,
+    enforceSourcePolicy: false,
+    allowNoFecIdException: true,
+  });
   if (!parsed.ok) {
     return { ok: false, reason: parsed.reason };
   }
