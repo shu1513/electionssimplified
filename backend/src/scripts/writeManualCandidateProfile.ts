@@ -12,7 +12,11 @@ import { validateCandidateProfileAiPayload } from "../ai/enrichCandidateProfile.
 import { loadProjectEnv } from "../config/env.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 import { STAGING_ITEM_TYPE_CANDIDATE_ROSTER } from "../config/electionsPipeline.js";
-import { parseCandidateRosterPayload } from "../contracts/candidateRosterPayloadContract.js";
+import {
+  parseCandidateRosterPayload,
+  type CandidateRosterNoFecIdException,
+} from "../contracts/candidateRosterPayloadContract.js";
+import { assertNoFecIdExceptionProfileHasVerifiedWebsite } from "../pipeline/candidates/candidateRosterNoFecIdException.js";
 import {
   isNoPublicInfoSummary,
   type CandidateProfilePayload,
@@ -71,6 +75,7 @@ type RosterIdentityHints = {
   isIncumbent?: boolean;
   fecIds: string[];
   stateFilingIds: string[];
+  noFecIdException?: CandidateRosterNoFecIdException;
 };
 
 function toReason(error: unknown): string {
@@ -282,6 +287,9 @@ async function loadRosterIdentityHints(input: {
     // the source-domain policy can carry a now-blocked URL, and a profile
     // write must not fail over evidence the roster write already accepted.
     enforceSourcePolicy: false,
+    // The staged row was already accepted by the manual inject, the only
+    // import path that lets the exception in.
+    allowNoFecIdException: true,
   });
   if (!parsed.ok) {
     throw new Error(`Candidate roster staging payload failed validation for this election context: ${parsed.reason}`);
@@ -307,6 +315,7 @@ async function loadRosterIdentityHints(input: {
       stateFilingIds: normalizeStringArray(candidate.state_filing_ids),
       ...(candidate.party ? { party: candidate.party } : {}),
       ...(candidate.is_incumbent !== undefined ? { isIncumbent: candidate.is_incumbent } : {}),
+      ...(candidate.no_fec_id_exception ? { noFecIdException: candidate.no_fec_id_exception } : {}),
     } satisfies RosterIdentityHints;
   });
 
@@ -343,8 +352,15 @@ export function applyRegularElectionProfileContext(input: {
   const { party: _party, ...withoutParty } = input.profile;
   if (input.researchMode !== "state_level") {
     const fecIds = normalizeStringArray(input.rosterHints?.fecIds);
-    if (fecIds.length === 0) {
+    const noFecIdException = fecIds.length === 0 ? input.rosterHints?.noFecIdException : undefined;
+    if (fecIds.length === 0 && !noFecIdException) {
       throw new Error("candidate_fec_ids is required in roster context for federal profile import");
+    }
+    if (noFecIdException) {
+      // No FEC ID to match on, so the campaign website is the identifier that
+      // keeps identity matching and duplicate prevention working. It must be
+      // on a cited host: cited sources are the URLs this writer verifies.
+      assertNoFecIdExceptionProfileHasVerifiedWebsite(withoutParty);
     }
     // The regular federal profile path stores date_of_birth as null (the AI
     // prompt tells the model to omit it). Refuse instead of silently
@@ -356,10 +372,12 @@ export function applyRegularElectionProfileContext(input: {
       );
     }
     const { state_filing_ids: _stateFilingIds, ...federalProfile } = withoutParty;
-    return {
-      ...federalProfile,
-      fec_ids: fecIds,
-    };
+    return noFecIdException
+      ? federalProfile
+      : {
+          ...federalProfile,
+          fec_ids: fecIds,
+        };
   }
 
   const stateFilingIds = normalizeStringArray(input.rosterHints?.stateFilingIds);
@@ -813,6 +831,7 @@ async function main(): Promise<void> {
               matched: Boolean(rosterHints),
               rosterIndex: rosterHints?.rosterIndex ?? null,
               fecIds: rosterHints?.fecIds ?? [],
+              noFecIdException: rosterHints?.noFecIdException ?? null,
               stateFilingIds: rosterHints?.stateFilingIds ?? [],
               party: rosterHints?.party ?? null,
               isIncumbent: rosterHints?.isIncumbent ?? null,

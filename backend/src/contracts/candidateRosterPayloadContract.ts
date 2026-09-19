@@ -8,11 +8,22 @@ export type CandidateRosterRunningMate = {
   sources: string[];
 };
 
+// Manual-only exception to the federal FEC-ID rule: a candidate an election
+// authority lists on the ballot while the FEC has issued no candidate ID.
+// reason says why the ID is missing; official_roster_url is the election
+// authority page that lists the candidate and must also be one of the row's
+// sources.
+export type CandidateRosterNoFecIdException = {
+  reason: string;
+  official_roster_url: string;
+};
+
 export type CandidateRosterEntry = {
   display_name: string;
   party?: string;
   is_incumbent?: boolean;
   fec_ids?: string[];
+  no_fec_id_exception?: CandidateRosterNoFecIdException;
   state_filing_ids?: string[];
   running_mate?: CandidateRosterRunningMate;
   sources: string[];
@@ -25,6 +36,11 @@ export type CandidateRosterPayload = {
 type CandidateRosterParseOptions = {
   requireFecIds?: boolean;
   allowFecIds?: boolean;
+  // OFF by default. Only manual:candidate-roster:inject and the re-parses of
+  // a roster it staged (fanout, profile write) pass true. Everywhere else —
+  // the AI enricher included — row.no_fec_id_exception is ignored like any
+  // unknown field, so the row is skipped under requireFecIds as before.
+  allowNoFecIdException?: boolean;
   // Domain policy over row/running-mate sources (blocked classes: UGC/social,
   // generated directories, bot-check interstitials). ON by default so every
   // fresh import — manual inject and AI validation alike — rejects the same
@@ -151,6 +167,44 @@ function parseEntry(
   }
   const normalizedFecIds = fecIds ?? undefined;
 
+  let noFecIdException: CandidateRosterNoFecIdException | undefined;
+  if (
+    options.allowNoFecIdException === true &&
+    input.no_fec_id_exception !== undefined &&
+    input.no_fec_id_exception !== null
+  ) {
+    if (options.requireFecIds !== true) {
+      return { ok: false, reason: "row.no_fec_id_exception is only allowed for federal contests that require FEC IDs" };
+    }
+    if (normalizedFecIds && normalizedFecIds.length > 0) {
+      return {
+        ok: false,
+        reason: "row.no_fec_id_exception cannot be combined with row.fec_ids; remove the exception once the FEC ID exists",
+      };
+    }
+    if (typeof input.no_fec_id_exception !== "object" || Array.isArray(input.no_fec_id_exception)) {
+      return { ok: false, reason: "row.no_fec_id_exception must be an object when provided" };
+    }
+    const exception = input.no_fec_id_exception as Record<string, unknown>;
+    if (!isNonEmptyString(exception.reason)) {
+      return { ok: false, reason: "row.no_fec_id_exception.reason must be a non-empty string" };
+    }
+    const officialRosterUrl =
+      typeof exception.official_roster_url === "string" ? normalizeHttpUrl(exception.official_roster_url) : null;
+    if (!officialRosterUrl) {
+      return { ok: false, reason: "row.no_fec_id_exception.official_roster_url must be a valid http(s) URL" };
+    }
+    // Tied to the row's evidence so the URL passes the same source policy and
+    // stays visible wherever the row's sources are shown.
+    if (!sources.includes(officialRosterUrl)) {
+      return {
+        ok: false,
+        reason: "row.no_fec_id_exception.official_roster_url must also be listed in row.sources",
+      };
+    }
+    noFecIdException = { reason: exception.reason.trim(), official_roster_url: officialRosterUrl };
+  }
+
   const stateFilingIds = normalizeOptionalStringArray(input.state_filing_ids);
   if (stateFilingIds === null) {
     return { ok: false, reason: "row.state_filing_ids must be an array of non-empty strings when provided" };
@@ -209,6 +263,7 @@ function parseEntry(
       ...(party ? { party } : {}),
       ...(isIncumbent !== undefined ? { is_incumbent: isIncumbent } : {}),
       ...(normalizedFecIds !== undefined ? { fec_ids: normalizedFecIds } : {}),
+      ...(noFecIdException ? { no_fec_id_exception: noFecIdException } : {}),
       ...(normalizedStateFilingIds !== undefined ? { state_filing_ids: normalizedStateFilingIds } : {}),
       ...(runningMate ? { running_mate: runningMate } : {}),
       sources,
@@ -249,7 +304,11 @@ export function parseCandidateRosterPayload(
     if (!parsed.ok) {
       return { ok: false, reason: `payload.candidates[${index}]: ${parsed.reason}` };
     }
-    if (requireFecIds && (!parsed.entry.fec_ids || parsed.entry.fec_ids.length === 0)) {
+    if (
+      requireFecIds &&
+      (!parsed.entry.fec_ids || parsed.entry.fec_ids.length === 0) &&
+      !parsed.entry.no_fec_id_exception
+    ) {
       skippedCandidatesWithoutFecIds.push(parsed.entry.display_name);
       continue;
     }
