@@ -1261,6 +1261,19 @@ describe("CandidatePage back link and nav context", () => {
     expect(router.state.location.state).toEqual(ARRIVAL.backState);
   });
 
+  it("names the arrival race above the candidate, and nothing on a deep link", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const detail = () => candidateDetail({ elections: [candidateElection({ election_id: "e-1", official_ballot_title: "Governor" })] });
+    const arrived = renderCandidate(detail, "c-1", ARRIVAL);
+    const heading = await screen.findByRole("heading", { level: 1 });
+    expect(heading.parentElement?.previousElementSibling).toHaveTextContent(/^Governor · /);
+    arrived.unmount();
+
+    renderCandidate(detail);
+    const deepLinkHeading = await screen.findByRole("heading", { level: 1 });
+    expect(deepLinkHeading.parentElement?.previousElementSibling?.tagName).not.toBe("P");
+  });
+
   it("shows no nav bar on a deep link, even with a sole candidacy", async () => {
     // Deep links have no arrival context — no bar at all, by product
     // choice; the Elections section below still links every race.

@@ -335,6 +335,10 @@ export function CandidatePage() {
   // reloads via history.state, but SSR rendered with null — reading it
   // before hydration mismatches the server HTML.
   const navState = hydrated ? readCandidateNavState(location.state) : null;
+  const arrivedFromRace =
+    navState?.electionId !== undefined
+      ? (candidate.elections.find((election) => election.election_id === navState.electionId) ?? null)
+      : null;
   // The rail's roster sort: offered only for the sorts this snapshot can
   // honor (candidateRailSortsOffered — an old snapshot without the stance
   // keys offers none; My issues additionally needs saved areas). Same
@@ -545,6 +549,15 @@ export function CandidatePage() {
             ...(candidate.official_website_url ? { url: candidate.official_website_url } : {}),
           }}
         />
+        {/* Arrived from a specific race (a ballot row, an election roster, the
+            newsroom box): name that race above the candidate, so the page
+            says which contest the reader is looking at. Deep links carry no
+            race and show nothing. */}
+        {arrivedFromRace ? (
+          <p className="mb-1 text-sm font-semibold text-ink-soft">
+            {arrivedFromRace.official_ballot_title} · {formatElectionDate(arrivedFromRace.election_date)}
+          </p>
+        ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-title font-bold">{candidate.display_name}</h1>
           <div className="flex items-center gap-2">
