@@ -8,6 +8,7 @@ import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
 import { guardEmbedClick, useEmbedSession } from "./lib/embedSession";
+import { importDraftHandoff, isDraftHandoffHash } from "./lib/ballotDraft";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
@@ -239,6 +240,21 @@ export function App() {
   const mainRef = useRef<HTMLElement>(null);
   const lastPathname = useRef(location.pathname);
   const embedSession = useEmbedSession();
+  const navigate = useNavigate();
+  const { me } = useMe();
+  // Draft handoff from the newsroom box's "Save" link (lib/ballotDraft.ts).
+  // Guests only: a link must never write picks into a signed-in account, so
+  // for anyone else the fragment is just dropped. Waits for the session to
+  // resolve, then clears the fragment either way.
+  useEffect(() => {
+    if (embedSession || me === undefined || !isDraftHandoffHash(location.hash)) {
+      return;
+    }
+    if (me === null) {
+      importDraftHandoff(location.hash);
+    }
+    navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
+  }, [embedSession, me, location.hash, location.pathname, location.search, location.state, navigate]);
   // Replays a guest ballot draft into the account on login/registration.
   useFlushBallotDraft();
   // Initializes account districts from a guest address search once /api/me

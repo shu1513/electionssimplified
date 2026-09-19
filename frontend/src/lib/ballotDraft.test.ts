@@ -4,10 +4,12 @@ import {
   allRacesDecided,
   clearBallotDraft,
   draftChoicesByElectionId,
+  draftHandoffFragment,
   draftPickCount,
   draftProgress,
   flushBallotDraftToAccount,
   hasDraftPicks,
+  importDraftHandoff,
   nearestUpcomingTarget,
   pinDraftBallotContext,
   readBallotDraft,
@@ -279,6 +281,36 @@ describe("pinned ballot context (newsroom embed)", () => {
     pinDraftBallotContext([CITY_A], TARGET_A);
     setDraftBallotContext([CITY_A], { election_date: "2026-10-06", election_ids: ["e1", "e2"] });
     expect(readBallotDraft().target).toEqual(TARGET_A);
+  });
+});
+
+describe("draft handoff (newsroom box → site)", () => {
+  it("carries the box's picks to another browser context, accents included", () => {
+    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c1", candidateName: "José Peña", chosen: true });
+    const fragment = draftHandoffFragment(readBallotDraft());
+    expect(fragment.startsWith("#draft=")).toBe(true);
+
+    clearBallotDraft();
+    expect(importDraftHandoff(fragment)).toBe(1);
+    expect(readBallotDraft().choices.e1?.picks[0]).toMatchObject({ candidate_id: "c1", display_name: "José Peña" });
+  });
+
+  it("adds picks but never replaces a race already decided here", () => {
+    pickJane();
+    const fragment = draftHandoffFragment(readBallotDraft());
+    clearBallotDraft();
+    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c2", candidateName: "John Roe", chosen: true });
+
+    expect(importDraftHandoff(fragment)).toBe(0);
+    expect(readBallotDraft().choices.e1?.picks.map((pick) => pick.candidate_id)).toEqual(["c2"]);
+  });
+
+  it("has no fragment for an empty draft and ignores junk", () => {
+    expect(draftHandoffFragment(readBallotDraft())).toBe("");
+    expect(importDraftHandoff("#draft=not-base64!!")).toBe(0);
+    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify([{ election_id: 7 }])))).toBe(0);
+    expect(importDraftHandoff("#other")).toBe(0);
+    expect(hasDraftPicks(readBallotDraft())).toBe(false);
   });
 });
 

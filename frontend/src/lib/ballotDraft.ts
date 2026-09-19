@@ -199,6 +199,71 @@ function currentDraft(): BallotDraft {
   return cache;
 }
 
+// Draft handoff: the newsroom box keeps its draft in the frame's own storage,
+// which the site itself cannot read. The box's "Save" link opens the sign-up
+// page in a new tab with the picks in the URL FRAGMENT (never sent to the
+// server, never in a Referer); the site merges them into its own draft, and
+// the usual flush replays that draft into the account after sign-up.
+const HANDOFF_PREFIX = "#draft=";
+const MAX_HANDOFF_ROWS = 200;
+
+function toBase64Url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromBase64Url(value: string): string {
+  const binary = atob(value.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
+}
+
+/** "#draft=…" carrying the draft's decided picks, or "" when there are none. */
+export function draftHandoffFragment(draft: BallotDraft): string {
+  const rows = Object.values(draft.choices).filter((choice) => isDecidedChoice(choice));
+  return rows.length > 0 ? `${HANDOFF_PREFIX}${toBase64Url(JSON.stringify(rows))}` : "";
+}
+
+export function isDraftHandoffHash(hash: string): boolean {
+  return hash.startsWith(HANDOFF_PREFIX);
+}
+
+/** Merges a handoff fragment into this browser's draft and returns how many
+ * races it added. Every row goes through the same sanitizer as stored
+ * drafts, and a race the reader already decided here is never replaced: a
+ * link can add picks, it cannot change one. */
+export function importDraftHandoff(hash: string): number {
+  if (!isDraftHandoffHash(hash)) {
+    return 0;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fromBase64Url(hash.slice(HANDOFF_PREFIX.length)));
+  } catch {
+    return 0;
+  }
+  if (!Array.isArray(parsed)) {
+    return 0;
+  }
+  const draft = currentDraft();
+  const choices = { ...draft.choices };
+  let added = 0;
+  for (const value of parsed.slice(0, MAX_HANDOFF_ROWS)) {
+    const row = sanitizeChoiceRow(value);
+    if (row && !isDecidedChoice(choices[row.election_id])) {
+      choices[row.election_id] = row;
+      added += 1;
+    }
+  }
+  if (added > 0) {
+    writeDraft({ ...draft, choices });
+  }
+  return added;
+}
+
 export function unpinDraftBallotContextForTests(): void {
   pinnedContext = null;
   cache = null;

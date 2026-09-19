@@ -14,6 +14,7 @@ import {
   draftChoicesByElectionId,
   draftPickCount,
   nearestUpcomingTarget,
+  draftHandoffFragment,
   setDraftBallotContext,
   useBallotDraft,
 } from "../lib/ballotDraft";
@@ -26,8 +27,8 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { isEmbedListedRace } from "../lib/embedPilot";
-import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { isEmbedListedRace, withSource } from "../lib/embedPilot";
+import { getEmbedHome, rememberEmbedSource, useEmbedSession } from "../lib/embedSession";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
 
@@ -245,7 +246,23 @@ export function DraftPage() {
           backTo={{ path: ballotPath, label: "My elections" }}
         />
       ) : null}
-      <h1 className="text-title font-bold">My Ballot Draft</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-title font-bold">My Ballot Draft</h1>
+        {/* The box's draft lives in the frame's own storage, so "Save" carries
+            the picks to the site's sign-up page in the URL fragment (new tab;
+            the article stays). Same yellow as "Make my pick". */}
+        {embedSession && pickCount > 0 ? (
+          <a
+            href={`${withSource(`/register?next=${encodeURIComponent("/draft")}`, rememberEmbedSource(null))}${draftHandoffFragment(draft)}`}
+            target="_blank"
+            rel="noopener"
+            onClick={() => track("signup_prompt", { source: "draft", action: "click" })}
+            className="rounded-lg bg-pick px-4 py-1.5 text-sm font-semibold text-ink transition hover:bg-pick-hover"
+          >
+            Save
+          </a>
+        ) : null}
+      </div>
 
       {districtIds.length === 0 ? (
         pickCount === 0 ? (
