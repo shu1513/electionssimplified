@@ -17,29 +17,26 @@
 // navigation out of an iframe cannot offer.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type React from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import {
-  apiRequest,
   APP_NAME,
   ballotLevel,
   ballotLevelLabel,
   BALLOT_LEVELS,
   formatElectionDate,
-  formatVotePowerLabel,
-  isJudicialRetentionTitle,
   type BallotLevel,
   type BallotSummary,
-  type ElectionDetail,
   type ElectionPreview,
 } from "@voteapp/api-client";
-import { getEmbedPilotCity, publisherCodeFromHash, withSource } from "../lib/embedPilot";
+import { EmbedHeader } from "../components/EmbedHeader";
+import type { BackTo, CandidateNavState, ElectionNavState } from "../lib/detailNavContext";
+import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
+import { rememberEmbedSource, setEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { votePowerBadgeClass } from "../lib/votePowerBadge";
 
 /** The slice of an election the page renders. Trimmed in the loader so the
  * server HTML carries only what is shown (no vote power, sources, results). */
@@ -50,9 +47,6 @@ export type CityRace = {
   level: BallotLevel;
   district_name: string;
   sub_district_seat: string | null;
-  /** The site's vote-power rating for the race's district; "unknown" and
-   * "retention" render no badge, same as the ballot list. */
-  vote_power_label: string;
   preview: ElectionPreview | null;
 };
 
@@ -88,7 +82,7 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
   });
   const ballot = await loadFromApi<BallotSummary>(`/api/ballot?${query.toString()}`, request);
   const races = ballot.elections
-    .filter((election) => election.election_date === city.election_date)
+    .filter((election) => isEmbedListedRace(election, city.election_date))
     .map((election) => ({
       id: election.id,
       title: election.official_ballot_title,
@@ -96,7 +90,6 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
       level: ballotLevel(election.office?.scope, election.district.district_type, election.discovery_contest_family),
       district_name: election.district.name,
       sub_district_seat: election.sub_district_seat ?? null,
-      vote_power_label: election.vote_power.label,
       preview: election.preview ?? null,
     }));
   return {
@@ -193,180 +186,80 @@ function seatNote(seatsToFill: number | null): string | null {
   return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : null;
 }
 
+const ROW_LINK_CLASS = "flex flex-wrap items-baseline gap-x-2 px-3 py-1.5 text-sm hover:bg-surface";
+
 function CandidateRow({
   candidate,
   href,
-  embedded,
+  navState,
 }: {
   candidate: ElectionPreview["candidates"][number];
   href: string;
-  embedded: boolean;
+  /** Set inside the box: the profile opens in the box, and this state gives
+   * its top bar the way back to the list and the race's other candidates. */
+  navState: CandidateNavState | null;
 }) {
   const withdrawn = candidate.status === "withdrawn";
   // The whole row is the link: a chevron and hover tint say "tap me" without
   // repeating a "details" label on every line.
+  const content = (
+    <>
+      <span className={withdrawn ? "text-ink-soft line-through" : "font-medium text-ink"}>
+        {candidate.display_name}
+        {candidate.running_mate ? ` and ${candidate.running_mate.display_name}` : null}
+      </span>
+      {candidate.party ? <span className="text-ink-soft">{candidate.party}</span> : null}
+      {candidate.is_incumbent ? (
+        <span className="rounded bg-surface px-1.5 py-0.5 text-xs font-semibold text-ink">Incumbent</span>
+      ) : null}
+      {withdrawn ? <span className="text-xs text-ink-soft">(withdrew)</span> : null}
+      <span aria-hidden="true" className="ml-auto text-ink-soft">
+        ›
+      </span>
+    </>
+  );
   return (
     <li className="border-t border-line">
-      <a
-        href={href}
-        target={embedded ? "_blank" : undefined}
-        rel={embedded ? "noopener" : undefined}
-        className="flex flex-wrap items-baseline gap-x-2 px-3 py-1.5 text-sm hover:bg-surface"
-      >
-        <span className={withdrawn ? "text-ink-soft line-through" : "font-medium text-ink"}>
-          {candidate.display_name}
-          {candidate.running_mate ? ` and ${candidate.running_mate.display_name}` : null}
-        </span>
-        {candidate.party ? <span className="text-ink-soft">{candidate.party}</span> : null}
-        {candidate.is_incumbent ? (
-          <span className="rounded bg-surface px-1.5 py-0.5 text-xs font-semibold text-ink">Incumbent</span>
-        ) : null}
-        {withdrawn ? <span className="text-xs text-ink-soft">(withdrew)</span> : null}
-        <span aria-hidden="true" className="ml-auto text-ink-soft">
-          ›
-        </span>
-      </a>
+      {navState ? (
+        <Link to={href} state={navState} className={ROW_LINK_CLASS}>
+          {content}
+        </Link>
+      ) : (
+        <a href={href} className={ROW_LINK_CLASS}>
+          {content}
+        </a>
+      )}
     </li>
   );
 }
 
-/** The rating's reasoning, fetched only when a reader asks (the list payload
- * carries the label alone). Rendered in place under the race header rather
- * than as a modal: inside the auto-sized iframe a fixed overlay would center
- * on the whole document, far from where the reader clicked. */
-function VotePowerExplainer({ electionId, onClose }: { electionId: string; onClose: () => void }) {
-  const query = useQuery({
-    queryKey: ["embed-election", electionId],
-    queryFn: () => apiRequest<ElectionDetail>(`/api/elections/${electionId}`),
-  });
-  const explanation = query.data?.vote_power.explanation ?? null;
-  // The backend words the result for a reader on their own ballot; this box
-  // describes the race, not the reader.
-  const impersonal = (text: string) => text.replace(/\bMy vote power\b/g, "Vote power");
-  return (
-    <div
-      role="region"
-      aria-label="Vote power explanation"
-      className="relative mx-3 mb-2 rounded-md border border-line bg-surface p-3 pr-9 text-sm text-ink"
-    >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute right-2 top-1.5 text-lg leading-none text-ink-soft hover:text-ink"
-      >
-        ×
-      </button>
-      {query.isPending ? (
-        <p className="text-ink-soft">Loading…</p>
-      ) : !explanation ? (
-        <p className="text-ink-soft">The explanation is not available right now.</p>
-      ) : (
-        <>
-          <p className="whitespace-pre-line">{impersonal(explanation.how)}</p>
-          <ul className="mt-2 space-y-2">
-            {explanation.parts.map((part) => (
-              <li key={part.title}>
-                <p>
-                  <span className="font-semibold">{part.title}:</span> {part.grade}
-                  {part.stat ? <span className="text-ink-soft"> · {part.stat}</span> : null}
-                </p>
-                <p className="mt-0.5 text-xs text-ink-soft">{part.detail}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 font-medium">{impersonal(explanation.result)}</p>
-          {explanation.caveat ? <p className="mt-1 text-xs text-ink-soft">{explanation.caveat}</p> : null}
-        </>
-      )}
-    </div>
-  );
-}
-
-function RaceBox({ race, source, embedded }: { race: CityRace; source: string | null; embedded: boolean }) {
+function RaceBox({ race, source, backTo }: { race: CityRace; source: string | null; backTo: BackTo | null }) {
   const preview = race.preview;
-  const [explainOpen, setExplainOpen] = useState(false);
-  const isMeasure = race.race_type === "ballot_measure";
-  const isRetention = !isMeasure && isJudicialRetentionTitle(race.title);
-  const detailHref = withSource(`/elections/${race.id}`, source);
-  // Same collapse of the two lowest ratings as the ballot list's badge.
-  const powerLabel = race.vote_power_label === "very_low" ? "low" : race.vote_power_label;
-  const showPower = powerLabel !== "unknown" && powerLabel !== "retention";
+  const candidateNavState: CandidateNavState | null = backTo
+    ? {
+        backTo,
+        electionId: race.id,
+        candidates: (preview?.candidates ?? []).map((candidate) => ({ id: candidate.candidate_id, name: candidate.display_name })),
+      }
+    : null;
   return (
     <section className="rounded-md border border-line bg-white">
       <header className="px-3 py-2">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-          <h4 className="text-sm font-bold leading-snug text-ink">
-            {isMeasure ? (
-              <a
-                href={detailHref}
-                target={embedded ? "_blank" : undefined}
-                rel={embedded ? "noopener" : undefined}
-                className="hover:underline"
-              >
-                {race.title} <span aria-hidden="true" className="font-normal text-ink-soft">›</span>
-              </a>
-            ) : (
-              race.title
-            )}
-          </h4>
-          {showPower ? (
-            <button
-              type="button"
-              aria-expanded={explainOpen}
-              onClick={() => setExplainOpen((open) => !open)}
-              className={`text-xs font-semibold ${votePowerBadgeClass(powerLabel)}`}
-            >
-              Vote power: {formatVotePowerLabel(powerLabel)} <span aria-hidden="true">ⓘ</span>
-              <span className="sr-only">, what this means</span>
-            </button>
-          ) : null}
-        </div>
+        <h4 className="text-sm font-bold leading-snug text-ink">{race.title}</h4>
         <p className="mt-0.5 text-xs text-ink-soft">
           {race.district_name}
           {race.sub_district_seat ? ` · covers ${race.sub_district_seat}` : null}
-          {!isMeasure && !isRetention && seatNote(preview?.seats_to_fill ?? null)
-            ? ` · ${seatNote(preview?.seats_to_fill ?? null)}`
-            : null}
+          {seatNote(preview?.seats_to_fill ?? null) ? ` · ${seatNote(preview?.seats_to_fill ?? null)}` : null}
         </p>
       </header>
-      {showPower && explainOpen ? <VotePowerExplainer electionId={race.id} onClose={() => setExplainOpen(false)} /> : null}
-      {isMeasure ? (
-        <div className="border-t border-line px-3 py-2 text-sm text-ink">
-          {preview?.measure ? (
-            <>
-              {preview.measure.summary ? (
-                <p className="text-ink-soft">
-                  <span className="font-semibold">Description:</span> {preview.measure.summary}
-                </p>
-              ) : null}
-              <p className="mt-1">
-                <span className="font-semibold">A yes vote means:</span> {preview.measure.what_yes_means}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold">A no vote means:</span> {preview.measure.what_no_means}
-              </p>
-            </>
-          ) : (
-            <p className="text-xs text-ink-soft">Explanation not yet available.</p>
-          )}
-        </div>
-      ) : isRetention && preview && preview.candidates.length === 1 ? (
-        <ul>
-          <CandidateRow
-            candidate={preview.candidates[0]}
-            href={withSource(`/candidates/${preview.candidates[0].candidate_id}`, source)}
-            embedded={embedded}
-          />
-        </ul>
-      ) : preview && preview.candidates.length > 0 ? (
+      {preview && preview.candidates.length > 0 ? (
         <ul>
           {preview.candidates.map((candidate) => (
             <CandidateRow
               key={candidate.candidate_election_id}
               candidate={candidate}
               href={withSource(`/candidates/${candidate.candidate_id}`, source)}
-              embedded={embedded}
+              navState={candidateNavState}
             />
           ))}
         </ul>
@@ -377,25 +270,79 @@ function RaceBox({ race, source, embedded }: { race: CityRace; source: string | 
   );
 }
 
-/** Tells the framing page how tall the content is so the iframe can grow and
- * shrink with it. It measures the content wrapper, not the document: inside
- * an iframe the document's scrollHeight is never smaller than the iframe
- * itself, so collapsing a section would leave the frame at its expanded
- * height. The host (embed.js) checks the message origin and source window
- * before acting on it. */
-function useReportHeight(enabled: boolean, content: React.RefObject<HTMLDivElement | null>): void {
+/** The ballot-measure group: one row per measure, title only. The measure's
+ * own page carries the description and what a yes and a no vote mean; here
+ * the rows work like the candidate rows, and inside the box the page opens in
+ * the box with the other measures as its Prev / Next sequence. */
+function MeasureList({ races, source, backTo }: { races: CityRace[]; source: string | null; backTo: BackTo | null }) {
+  const navState: ElectionNavState | null = backTo
+    ? {
+        backTo,
+        raceType: "ballot_measure",
+        contests: races.map((race) => ({ id: race.id, title: race.title, race_type: "ballot_measure" as const })),
+      }
+    : null;
+  return (
+    <ul className="rounded-md border border-line bg-white">
+      {races.map((race, index) => {
+        const href = withSource(`/elections/${race.id}`, source);
+        const content = (
+          <>
+            <span className="min-w-0 flex-1">
+              <span className="block font-medium text-ink">{race.title}</span>
+              <span className="block text-xs text-ink-soft">{race.district_name}</span>
+            </span>
+            <span aria-hidden="true" className="text-ink-soft">
+              ›
+            </span>
+          </>
+        );
+        const className = "flex items-center gap-x-2 px-3 py-1.5 text-sm hover:bg-surface";
+        return (
+          <li key={race.id} className={index > 0 ? "border-t border-line" : undefined}>
+            {navState ? (
+              <Link to={href} state={navState} className={className}>
+                {content}
+              </Link>
+            ) : (
+              <a href={href} className={className}>
+                {content}
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Tells the framing page once how tall the content is, so embed.js can fit
+ * the box to it instead of leaving empty space under the footer. It measures
+ * the content wrapper, not the document: inside an iframe the document is
+ * never shorter than the iframe itself. The box does not resize after that;
+ * the host (embed.js) checks the message origin and source window. */
+function useReportInitialHeight(enabled: boolean, content: { current: HTMLDivElement | null }): void {
   useEffect(() => {
     const element = content.current;
     if (!enabled || !element || typeof window === "undefined" || window.parent === window) {
       return;
     }
+    let cancelled = false;
     const post = () => {
-      window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
+      if (!cancelled) {
+        window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
+      }
     };
-    post();
-    const observer = new ResizeObserver(post);
-    observer.observe(element);
-    return () => observer.disconnect();
+    // Wait for web fonts so the measured height is the settled one.
+    const fonts = document.fonts?.ready;
+    if (fonts) {
+      void fonts.then(post, post);
+    } else {
+      post();
+    }
+    return () => {
+      cancelled = true;
+    };
   }, [enabled, content]);
 }
 
@@ -407,9 +354,41 @@ export function EmbedCityPage() {
   // apply after hydration.
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
   useEffect(() => {
-    setSource(publisherCodeFromHash(window.location.hash));
+    // The fragment is gone when the reader comes back from a profile, so the
+    // session keeps the code it started with.
+    setSource(rememberEmbedSource(publisherCodeFromHash(window.location.hash)));
     setOpenGroups(readOpenGroups());
   }, []);
+  // Inside the box, profiles and measures open in the box and come back here.
+  const backTo: BackTo | null = useMemo(
+    () => (embedded ? { path: `/embed/city/${city.slug}`, label: `${city.name} races` } : null),
+    [embedded, city.slug, city.name]
+  );
+  useEffect(() => {
+    if (backTo) {
+      setEmbedHome(backTo);
+    }
+  }, [backTo]);
+  // The site only offers picks once it knows the reader's districts. The box
+  // has no address, so inside the frame the city's own districts stand in:
+  // every listed race can be picked, the header counts against the city's
+  // contested races, and the draft page lists them. Framed only, and pinned
+  // in memory rather than stored, so a second box on the same publisher's
+  // site cannot replace this one's context.
+  const framed = useEmbedSession();
+  useEffect(() => {
+    const districtIds = framed && embedded ? getEmbedPilotCity(city.slug)?.district_ids : undefined;
+    if (!districtIds) {
+      return;
+    }
+    const elections = races.map((race) => ({
+      id: race.id,
+      election_date: city.election_date,
+      race_type: race.race_type,
+      official_ballot_title: race.title,
+    }));
+    pinDraftBallotContext(districtIds, nearestUpcomingTarget(elections, usLatestLocalDate()));
+  }, [framed, embedded, city.slug, city.election_date, races]);
   const toggleGroup = (key: string, open: boolean) => {
     setOpenGroups((previous) => {
       if (previous.has(key) === open) {
@@ -425,54 +404,24 @@ export function EmbedCityPage() {
       return next;
     });
   };
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  useReportHeight(embedded, contentRef);
   const groups = useMemo(() => groupRaces(races), [races]);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";
   const electionPassed = usLatestLocalDate() > city.election_date;
-  const target = embedded ? "_blank" : undefined;
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  useReportInitialHeight(embedded, contentRef);
   const homeHref = withSource("/", source);
 
   return (
     <div ref={contentRef} className={embedded ? "bg-page px-3 py-3 text-ink" : "mx-auto max-w-3xl px-4 py-6 text-ink"}>
-      {embedded ? (
-        <header>
-          <a href={homeHref} target="_blank" rel="nofollow noopener" className="text-base font-extrabold tracking-tight text-rausch">
-            {APP_NAME}
-          </a>
-        </header>
-      ) : null}
+      {embedded ? <EmbedHeader homeHref={homeHref} /> : null}
 
       <h1 className={embedded ? "mt-2 text-lg font-bold leading-snug" : "mt-2 text-title font-bold leading-tight"}>
         {isState ? `Explore ${electionDay} statewide races in ${city.name}.` : `Explore ${electionDay} races across ${city.name}, ${city.state}.`}
       </h1>
-      <p className="mt-1 text-sm text-ink-soft">
-        {isState
-          ? "These are the statewide races and measures, not your full ballot. Your local races depend on your address."
-          : "This is every race that touches the city, not your ballot. Your races depend on your address."}
-      </p>
       {electionPassed ? (
         <p className="mt-2 rounded-md bg-surface px-3 py-2 text-sm font-semibold">This election has passed.</p>
       ) : null}
-      {embedded ? (
-        <a
-          href={homeHref}
-          target="_blank"
-          rel="noopener"
-          className="mt-3 inline-block rounded-lg bg-rausch px-4 py-2 text-sm font-semibold text-white hover:bg-rausch-dark"
-        >
-          Find my races and build my ballot
-        </a>
-      ) : (
-        <Link
-          to={homeHref}
-          className="mt-3 inline-block rounded-lg bg-rausch px-4 py-2 text-sm font-semibold text-white hover:bg-rausch-dark"
-        >
-          Find my races and build my ballot
-        </Link>
-      )}
-
       {groups.length === 0 ? (
         <p className="mt-4 text-sm text-ink-soft">No {electionDay} races are listed for this {isState ? "state" : "city"} yet.</p>
       ) : (
@@ -491,21 +440,16 @@ export function EmbedCityPage() {
                 </span>
               </summary>
               <div className="mt-2 space-y-2">
-                {group.races.map((race) => (
-                  <RaceBox key={race.id} race={race} source={source} embedded={embedded} />
-                ))}
+                {group.key === MEASURE_GROUP ? (
+                  <MeasureList races={group.races} source={source} backTo={backTo} />
+                ) : (
+                  group.races.map((race) => <RaceBox key={race.id} race={race} source={source} backTo={backTo} />)
+                )}
               </div>
             </details>
           ))}
         </div>
       )}
-
-      <footer className="mt-4 border-t border-line pt-3 text-xs text-ink-soft">
-        Powered by{" "}
-        <a href={homeHref} target={target} rel={embedded ? "nofollow noopener" : "nofollow"} className="font-semibold text-rausch-deep">
-          {APP_NAME}
-        </a>
-      </footer>
     </div>
   );
 }

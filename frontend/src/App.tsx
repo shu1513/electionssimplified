@@ -3,9 +3,12 @@ import { Link, Outlet, ScrollRestoration, useLocation, useNavigate } from "react
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChatWidget } from "./components/chatbot/ChatWidget";
 import { DraftCompleteNotice } from "./components/DraftCompleteNotice";
+import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
+import { guardEmbedClick, useEmbedSession } from "./lib/embedSession";
+import { importDraftHandoff, isDraftHandoffHash } from "./lib/ballotDraft";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
@@ -236,6 +239,22 @@ export function App() {
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
   const lastPathname = useRef(location.pathname);
+  const embedSession = useEmbedSession();
+  const navigate = useNavigate();
+  const { me } = useMe();
+  // Draft handoff from the newsroom box's "Save" link (lib/ballotDraft.ts).
+  // Guests only: a link must never write picks into a signed-in account, so
+  // for anyone else the fragment is just dropped. Waits for the session to
+  // resolve, then clears the fragment either way.
+  useEffect(() => {
+    if (embedSession || me === undefined || !isDraftHandoffHash(location.hash)) {
+      return;
+    }
+    if (me === null) {
+      importDraftHandoff(location.hash);
+    }
+    navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
+  }, [embedSession, me, location.hash, location.pathname, location.search, location.state, navigate]);
   // Replays a guest ballot draft into the account on login/registration.
   useFlushBallotDraft();
   // Initializes account districts from a guest address search once /api/me
@@ -257,6 +276,25 @@ export function App() {
     lastPathname.current = location.pathname;
     mainRef.current?.focus({ preventScroll: true });
   }, [location.pathname]);
+
+  // Inside the newsroom embed's frame (lib/embedSession.ts) the pages keep
+  // their content but trade the site header and footer for the box's compact
+  // chrome: no account links (a third-party frame has no session), no chat
+  // bubble, and a click guard that sends every page outside the box to a new
+  // tab.
+  if (embedSession) {
+    return (
+      <div className="bg-page text-ink" onClickCapture={guardEmbedClick}>
+        <div className="px-3 pt-3">
+          <EmbedHeader />
+        </div>
+        <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">
+          <Outlet />
+        </main>
+        <ScrollRestoration />
+      </div>
+    );
+  }
 
   // Mirrors AccountNav's landing test: "/" is the address-search landing.
   const onSearchLanding = location.pathname === "/";

@@ -26,6 +26,9 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
+import { isEmbedListedRace } from "../lib/embedPilot";
+import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
 
@@ -120,22 +123,37 @@ export function DraftPage() {
   useDocumentTitle("My Ballot Draft");
   const { me } = useMe();
   const draft = useBallotDraft();
+  // Inside the newsroom embed: list view only, the way back is the city list
+  // the box started on, and no sign-up button (the box's draft lives in the
+  // frame's own storage, so an account made in a new tab would not get it).
+  const embedSession = useEmbedSession();
+  const embedHome = embedSession ? getEmbedHome() : null;
   const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
   const [view, setView] = useState<"list" | "ballot">("list");
+  const [saveOpen, setSaveOpen] = useState(false);
   // ONE payload for both views, in paper-ballot contest order (same contract
   // as the signed-in picks page): the date cards take within-date order from
   // it and the ballot sheets render it as-is, so List and Ballot view can
   // never disagree. This deliberately gives up the cache reuse with
   // BallotPage's default-sort query — a guest arriving from /ballot refetches
   // once — in exchange for one order everywhere.
+  // Inside the box the list keeps the box's scope: the city list's pinned
+  // election day and no retention questions, so this page and the counter
+  // show exactly the races the reader was offered.
+  const embedDate = embedSession ? (draft.target?.election_date ?? null) : null;
   const ballot = useQuery({
-    queryKey: ["ballot", districtIds.join(","), "preview"],
-    queryFn: () =>
-      apiRequest<BallotSummary>(
-        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false`
-      ),
+    queryKey: ["ballot", districtIds.join(","), "preview", embedDate],
+    queryFn: async () => {
+      const summary = await apiRequest<BallotSummary>(
+        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false` +
+          (embedDate ? `&election_date=${embedDate}` : "")
+      );
+      return embedDate
+        ? { ...summary, elections: summary.elections.filter((election) => isEmbedListedRace(election, embedDate)) }
+        : summary;
+    },
     enabled: me === null && districtIds.length > 0,
   });
 
@@ -219,7 +237,9 @@ export function DraftPage() {
           the draft carries district ids — the /ballot URL needs nothing
           else — and skipped for the no-ballot cases below, which already
           point at the address search. The label is BallotPage's own title. */}
-      {districtIds.length > 0 ? (
+      {embedHome ? (
+        <DetailPager ariaLabel="Draft navigation" prev={null} next={null} backTo={embedHome} />
+      ) : districtIds.length > 0 ? (
         <DetailPager
           ariaLabel="Draft navigation"
           prev={null}
@@ -227,7 +247,28 @@ export function DraftPage() {
           backTo={{ path: ballotPath, label: "My elections" }}
         />
       ) : null}
-      <h1 className="text-title font-bold">My Ballot Draft</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-title font-bold">My Ballot Draft</h1>
+        {/* Inside the box only. Same yellow as "Make my pick"; opens the
+            same sign-up prompt the other account-only actions use, whose
+            links carry the box's picks to the site. */}
+        {embedSession && pickCount > 0 ? (
+          <button
+            type="button"
+            onClick={() => setSaveOpen(true)}
+            className="rounded-lg bg-pick px-4 py-1.5 text-sm font-semibold text-ink transition hover:bg-pick-hover"
+          >
+            Save
+          </button>
+        ) : null}
+      </div>
+      <RegisterPromptDialog
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        title="Save my draft"
+        description="Sign up for free to save your draft. Your picks come with you."
+        source="draft"
+      />
 
       {districtIds.length === 0 ? (
         pickCount === 0 ? (
@@ -273,19 +314,21 @@ export function DraftPage() {
                 <DraftMilestone
                   show={milestoneShown}
                   date={dates[0]}
-                  signup
+                  signup={!embedSession}
                   hasOpenRetention={nearestRaces.retention.some((election) => !isDecidedChoice(choices.get(election.id)))}
                 />
-                <div className="mt-4">
-                  <BallotViewToggle
-                    view={view}
-                    onChange={(next) => {
-                      track("list_control", { control: "view_toggle", value: next });
-                      setView(next);
-                    }}
-                  />
-                </div>
-                {view === "ballot" ? (
+                {embedSession ? null : (
+                  <div className="mt-4">
+                    <BallotViewToggle
+                      view={view}
+                      onChange={(next) => {
+                        track("list_control", { control: "view_toggle", value: next });
+                        setView(next);
+                      }}
+                    />
+                  </div>
+                )}
+                {view === "ballot" && !embedSession ? (
                   // Same settled payload as the cards — no second fetch, no
                   // loading state of its own.
                   <BallotPreviewSheets
@@ -334,7 +377,7 @@ export function DraftPage() {
       {/* Hidden while the milestone above the toggle renders: it carries
           this same link and hint, and two identical buttons on one short
           page read as a mistake. */}
-      {pickCount > 0 && !milestoneShown ? <DraftSignupCta /> : null}
+      {pickCount > 0 && !milestoneShown && !embedSession ? <DraftSignupCta /> : null}
     </div>
   );
 }

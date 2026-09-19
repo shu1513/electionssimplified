@@ -4,15 +4,19 @@ import {
   allRacesDecided,
   clearBallotDraft,
   draftChoicesByElectionId,
+  draftHandoffFragment,
   draftPickCount,
   draftProgress,
   flushBallotDraftToAccount,
   hasDraftPicks,
+  importDraftHandoff,
   nearestUpcomingTarget,
+  pinDraftBallotContext,
   readBallotDraft,
   setDraftBallotContext,
   setDraftCandidateChoice,
   setDraftMeasureChoice,
+  unpinDraftBallotContextForTests,
 } from "./ballotDraft";
 
 vi.mock("@voteapp/api-client", async (importOriginal) => {
@@ -241,6 +245,72 @@ describe("ballotDraft store", () => {
     expect(choice?.official_ballot_title).toBe("Governor");
     expect(choice?.race_type).toBe("office");
     expect(choice?.election_date).toBe("2026-11-03");
+  });
+});
+
+describe("pinned ballot context (newsroom embed)", () => {
+  const CITY_A = "aaaaaaaa-1111-4111-8111-111111111111";
+  const CITY_B = "bbbbbbbb-2222-4222-8222-222222222222";
+  const TARGET_A = { election_date: "2026-11-03", election_ids: ["e1"] };
+
+  afterEach(() => {
+    unpinDraftBallotContextForTests();
+  });
+
+  it("keeps this box's districts and target when another box rewrites the shared draft", () => {
+    pinDraftBallotContext([CITY_A], TARGET_A);
+    pickJane();
+    // A second box on the same publisher site stores its own context.
+    seedStorage(
+      JSON.stringify({
+        v: 1,
+        district_ids: [CITY_B],
+        target: { election_date: "2026-11-03", election_ids: ["e9", "e10"] },
+        choices: readBallotDraft().choices,
+      })
+    );
+    const draft = readBallotDraft();
+    expect(draft.district_ids).toEqual([CITY_A]);
+    expect(draft.target).toEqual(TARGET_A);
+    // Picks stay shared.
+    expect(draftPickCount(draft)).toBe(1);
+    expect(draftProgress(draft, TODAY)).toMatchObject({ picked: 1, total: 1, complete: true });
+  });
+
+  it("ignores a page load that would refresh the context", () => {
+    pinDraftBallotContext([CITY_A], TARGET_A);
+    setDraftBallotContext([CITY_A], { election_date: "2026-10-06", election_ids: ["e1", "e2"] });
+    expect(readBallotDraft().target).toEqual(TARGET_A);
+  });
+});
+
+describe("draft handoff (newsroom box → site)", () => {
+  it("carries the box's picks to another browser context, accents included", () => {
+    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c1", candidateName: "José Peña", chosen: true });
+    const fragment = draftHandoffFragment(readBallotDraft());
+    expect(fragment.startsWith("#draft=")).toBe(true);
+
+    clearBallotDraft();
+    expect(importDraftHandoff(fragment)).toBe(1);
+    expect(readBallotDraft().choices.e1?.picks[0]).toMatchObject({ candidate_id: "c1", display_name: "José Peña" });
+  });
+
+  it("adds picks but never replaces a race already decided here", () => {
+    pickJane();
+    const fragment = draftHandoffFragment(readBallotDraft());
+    clearBallotDraft();
+    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c2", candidateName: "John Roe", chosen: true });
+
+    expect(importDraftHandoff(fragment)).toBe(0);
+    expect(readBallotDraft().choices.e1?.picks.map((pick) => pick.candidate_id)).toEqual(["c2"]);
+  });
+
+  it("has no fragment for an empty draft and ignores junk", () => {
+    expect(draftHandoffFragment(readBallotDraft())).toBe("");
+    expect(importDraftHandoff("#draft=not-base64!!")).toBe(0);
+    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify([{ election_id: 7 }])))).toBe(0);
+    expect(importDraftHandoff("#other")).toBe(0);
+    expect(hasDraftPicks(readBallotDraft())).toBe(false);
   });
 });
 
