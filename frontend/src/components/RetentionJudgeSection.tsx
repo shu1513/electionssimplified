@@ -43,7 +43,9 @@ export function RetentionJudgeSection({
       <p className="text-sm text-ink-soft">
         <span className={partyColorClass(candidate.party) || undefined}>{candidate.party}</span>
         {candidate.is_incumbent ? " · Incumbent" : ""}
-        {candidate.status !== "active" ? ` · ${candidate.status}` : ""}
+        {candidate.status !== "active" && candidate.status !== "declared"
+          ? ` · ${candidate.status}`
+          : ""}
         {website ? (
           <>
             {" · "}

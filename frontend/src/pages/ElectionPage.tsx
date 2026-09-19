@@ -1144,7 +1144,9 @@ export function ElectionPage() {
                         {candidate.party}
                       </span>
                       {candidate.is_incumbent ? " · Incumbent" : ""}
-                      {candidate.status !== "active" ? ` · ${candidate.status}` : ""}
+                      {candidate.status !== "active" && candidate.status !== "declared"
+                        ? ` · ${candidate.status}`
+                        : ""}
                     </p>
                     {candidate.summary ? (
                       <p className="mt-2 line-clamp-3 text-sm text-ink">{candidate.summary}</p>
