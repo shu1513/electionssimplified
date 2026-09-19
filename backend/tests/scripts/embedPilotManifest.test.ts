@@ -3,7 +3,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { readConfig, renderManifest } from "../../src/scripts/embedPilotManifest.js";
+import { readConfig, renderManifest, splitByCityShare } from "../../src/scripts/embedPilotManifest.js";
+import type { MappedDistrict } from "../../src/scripts/majorCityCoverage.js";
 
 function writeConfig(value: unknown): string {
   const dir = mkdtempSync(path.join(tmpdir(), "embed-pilot-"));
@@ -83,5 +84,26 @@ describe("renderManifest", () => {
     const source = renderManifest([], []);
     expect(source).toContain("EMBED_PILOT_PUBLISHERS: readonly string[] = [];");
     expect(source).toContain("EMBED_PILOT_CITIES: Readonly<Record<string, EmbedPilotCity>> = {};");
+  });
+});
+
+describe("splitByCityShare", () => {
+  function district(name: string, city_share: number): MappedDistrict {
+    return { district_type: "school_unified", geoid_compact: name, name, city_share };
+  }
+
+  it("drops boundary slivers and keeps districts at or above the share", () => {
+    const { kept, dropped } = splitByCityShare(
+      [district("Los Angeles Unified", 0.97), district("Inglewood Unified", 0.0006), district("Edge", 0.01)],
+      0.01
+    );
+    expect(kept.map((d) => d.name)).toEqual(["Los Angeles Unified", "Edge"]);
+    expect(dropped.map((d) => d.name)).toEqual(["Inglewood Unified"]);
+  });
+
+  it("keeps everything when the share is zero", () => {
+    const { kept, dropped } = splitByCityShare([district("Sliver", 0.0003)], 0);
+    expect(kept).toHaveLength(1);
+    expect(dropped).toHaveLength(0);
   });
 });

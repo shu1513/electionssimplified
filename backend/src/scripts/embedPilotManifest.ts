@@ -44,6 +44,25 @@ function isRealDate(value: string): boolean {
 }
 const MAX_SLUG_LENGTH = 48;
 
+// The city map keeps any district that contains a single sample point, which
+// is right for finding research work but lets boundary slivers through (Los
+// Angeles picked up Inglewood Unified at 0.06% of the city). The box is a
+// city-wide overview, so drop districts below this share of the city unless
+// --min-share says otherwise. Dropped districts are printed for the reviewer.
+const DEFAULT_MIN_CITY_SHARE = 0.01;
+
+export function splitByCityShare(
+  districts: MappedDistrict[],
+  minShare: number
+): { kept: MappedDistrict[]; dropped: MappedDistrict[] } {
+  const kept: MappedDistrict[] = [];
+  const dropped: MappedDistrict[] = [];
+  for (const district of districts) {
+    (district.city_share >= minShare ? kept : dropped).push(district);
+  }
+  return { kept, dropped };
+}
+
 type PilotCityInput = {
   slug: string;
   name: string;
@@ -267,7 +286,7 @@ async function main(): Promise<void> {
   assertKnownCliFlags("embed:pilot-manifest", argv, FLAG_SPECS);
   const configPath = readStrictFlagValue(argv, "--config") ?? CONFIG_PATH;
   const rawShare = readStrictFlagValue(argv, "--min-share");
-  const minShare = rawShare === null ? 0 : Number.parseFloat(rawShare);
+  const minShare = rawShare === null ? DEFAULT_MIN_CITY_SHARE : Number.parseFloat(rawShare);
   if (!Number.isFinite(minShare) || minShare < 0 || minShare > 1) {
     fail(`--min-share must be between 0 and 1, got: ${rawShare}`);
   }
@@ -287,8 +306,11 @@ async function main(): Promise<void> {
       if (!entry) {
         fail(`${input.slug}: ${cityKey(input)} is not in city-districts.json; run manual:city-coverage:build-map first`);
       }
-      const wanted = entry.districts.filter((d) => d.city_share >= minShare);
-      cities.push(await resolveCity(pool, input, wanted));
+      const { kept, dropped } = splitByCityShare(entry.districts, minShare);
+      for (const d of dropped) {
+        console.log(`  ${input.slug}: dropped ${d.district_type} ${d.name} (${(d.city_share * 100).toFixed(2)}% of the city)`);
+      }
+      cities.push(await resolveCity(pool, input, kept));
     }
     for (const input of config.states) {
       cities.push(await resolveState(pool, input));

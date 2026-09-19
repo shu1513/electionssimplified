@@ -3,7 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ElectionSummary } from "@voteapp/api-client";
 import { renderRoutes } from "../test/render";
-import { ballotSummary, electionDetail, electionSummary, VOTE_POWER_WITH_EXPLANATION } from "../test/fixtures";
+import { ballotSummary, electionDetail, electionSummary, retentionElection, VOTE_POWER_WITH_EXPLANATION } from "../test/fixtures";
 import { stubApiRoutes } from "../test/mockApi";
 
 vi.mock("../data/embedPilotCities", () => ({
@@ -49,6 +49,7 @@ const loadFromApi = vi.fn();
 vi.mock("../lib/loadFromApi", () => ({ loadFromApi: (...args: unknown[]) => loadFromApi(...args) }));
 
 import type { LoaderFunctionArgs } from "react-router";
+import { resetEmbedSessionForTests } from "../lib/embedSession";
 import { EmbedCityPage, ErrorBoundary, loader, type CityOverview } from "./EmbedCityPage";
 
 const CANDIDATE = {
@@ -140,6 +141,7 @@ function renderCity(data: CityOverview, path = "/embed/city/austin-tx", hash = "
 }
 
 beforeEach(() => {
+  resetEmbedSessionForTests();
   loadFromApi.mockReset();
   window.location.hash = "";
   window.localStorage.clear();
@@ -175,6 +177,12 @@ describe("loader", () => {
     expect(result.races[0]).not.toHaveProperty("vote_power");
   });
 
+  it("leaves judicial retention questions out of the list", async () => {
+    loadFromApi.mockResolvedValue(ballotSummary([federalRace(), retentionElection("e-retain", { election_date: "2026-11-03" })]));
+    const result = await loader(args("austin-tx", "http://x/embed/city/austin-tx"));
+    expect(result.races.map((race) => race.id)).toEqual(["e-house"]);
+  });
+
   it("serves a state code from the manifest with its single statewide district", async () => {
     loadFromApi.mockResolvedValue(ballotSummary([]));
     const result = await loader(args("tx", "http://x/embed/city/tx"));
@@ -193,14 +201,11 @@ describe("loader", () => {
 });
 
 describe("EmbedCityPage", () => {
-  it("shows the city-wide framing, grouped races, and the address call to action", async () => {
+  it("shows the city-wide framing, grouped races, and no address call to action", async () => {
     renderCity(overview());
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Explore November 3, 2026 races across Austin, TX.");
-    expect(screen.getByText(/not your ballot/)).toBeInTheDocument();
-    const cta = screen.getByRole("link", { name: "Find my races and build my ballot" });
-    expect(cta).toHaveAttribute("href", "/");
-    expect(cta).toHaveAttribute("target", "_blank");
-    expect(cta).toHaveAttribute("rel", "noopener");
+    expect(screen.queryByText(/not your ballot/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Find my races and build my ballot" })).not.toBeInTheDocument();
     // Every group starts collapsed, each with a race count.
     const federal = screen.getByText("Federal").closest("details")!;
     expect(federal).not.toHaveAttribute("open");
@@ -227,15 +232,15 @@ describe("EmbedCityPage", () => {
     expect(JSON.parse(window.localStorage.getItem("voteapp_city_open_groups")!)).toEqual(["federal"]);
   });
 
-  it("renders each candidate as one clickable row with party, incumbent and withdrawn state, opening a new tab", async () => {
+  it("renders each candidate as one clickable row with party, incumbent and withdrawn state, opening inside the box", async () => {
     renderCity(overview());
     const row = (await screen.findAllByText("Ada Lovelace"))[0].closest("li")!;
     expect(within(row).getByText("Democratic")).toBeInTheDocument();
     expect(within(row).getByText("Incumbent")).toBeInTheDocument();
     const link = within(row).getByRole("link", { name: /Ada Lovelace/ });
     expect(link).toHaveAttribute("href", "/candidates/c-1");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener");
+    // A router link: the profile opens in the box, not a new tab.
+    expect(link).not.toHaveAttribute("target");
     const withdrawn = screen.getByText("Grace Hopper");
     expect(withdrawn).toHaveClass("line-through");
     expect(withdrawn.closest("li")).toHaveTextContent("(withdrew)");
@@ -281,34 +286,31 @@ describe("EmbedCityPage", () => {
   it("applies an allowlisted publisher code from the hash to outbound links only", async () => {
     window.location.hash = "#pub=alpha-news";
     renderCity(overview());
-    const cta = await screen.findByRole("link", { name: "Find my races and build my ballot" });
-    await waitFor(() => expect(cta).toHaveAttribute("href", "/?src=alpha-news"));
+    const brand = (await screen.findAllByRole("link", { name: "Elections Simplified" }))[0]!;
+    await waitFor(() => expect(brand).toHaveAttribute("href", "/?src=alpha-news"));
     expect(screen.getAllByRole("link", { name: /Ada Lovelace/ })[0]).toHaveAttribute("href", "/candidates/c-1?src=alpha-news");
   });
 
   it("ignores a publisher code that is not on the allowlist", async () => {
     window.location.hash = "#pub=stranger";
     renderCity(overview());
-    const cta = await screen.findByRole("link", { name: "Find my races and build my ballot" });
+    const brand = (await screen.findAllByRole("link", { name: "Elections Simplified" }))[0]!;
     // Give the hash effect a chance to run; the href must stay untouched.
-    await waitFor(() => expect(cta).toHaveAttribute("href", "/"));
+    await waitFor(() => expect(brand).toHaveAttribute("href", "/"));
     expect(screen.getAllByRole("link", { name: /Ada Lovelace/ })[0]).toHaveAttribute("href", "/candidates/c-1");
   });
 
   it("drops the frame-only chrome and targets on the plain city page", async () => {
     renderCity(overview({ embedded: false }), "/cities/austin-tx");
-    const cta = await screen.findByRole("link", { name: "Find my races and build my ballot" });
-    expect(cta).not.toHaveAttribute("target");
-    // Only the footer "Powered by" link remains; the header wordmark is frame-only.
-    const brandLinks = screen.getAllByRole("link", { name: "Elections Simplified" });
-    expect(brandLinks).toHaveLength(1);
-    expect(brandLinks[0]).not.toHaveAttribute("target");
+    await screen.findByRole("heading", { level: 1 });
+    // The header wordmark is frame-only; the site header carries the brand here.
+    expect(screen.queryByRole("link", { name: "Elections Simplified" })).not.toBeInTheDocument();
   });
 
   it("frames a two-letter state code as statewide races only", async () => {
     renderCity(overview({ city: { ...overview().city, slug: "tx", name: "Texas", kind: "state" } }), "/embed/city/tx");
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Explore November 3, 2026 statewide races in Texas.");
-    expect(screen.getByText(/statewide races and measures, not your full ballot/)).toBeInTheDocument();
+    expect(screen.queryByText(/not your full ballot/)).not.toBeInTheDocument();
   });
 
   it("says when the election has passed", async () => {

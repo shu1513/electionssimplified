@@ -1,5 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useEffect, useRef, useState } from "react";
+import { useEmbedSession } from "../lib/embedSession";
 import { SITE_ORIGIN } from "../lib/pageMeta";
 import { track } from "../lib/usage";
 
@@ -57,6 +58,7 @@ export function ShareButton({ path, shareText, affirmative = false, ariaLabel }:
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"copied" | "failed" | null>(null);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const embedSession = useEmbedSession();
 
   useEffect(() => {
     // Coarse pointer = touch-first device. Optional-chained: jsdom and old
@@ -96,6 +98,11 @@ export function ShareButton({ path, shareText, affirmative = false, ariaLabel }:
   // share_open = the control was opened, not proof anything was shared.
   const shareSubject = path.startsWith("/elections/") ? "election" : path.startsWith("/candidates/") ? "candidate" : "picks";
   const onShareOpen = () => track("share_open", { subject: shareSubject });
+
+  // No sharing from inside the newsroom embed.
+  if (embedSession) {
+    return null;
+  }
 
   if (canNativeShare) {
     return (
