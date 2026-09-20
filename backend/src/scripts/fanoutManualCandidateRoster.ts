@@ -114,7 +114,13 @@ function extractRosterCandidates(
   // Re-parse of an already-written staging payload: rosters imported before
   // the source-domain policy can carry a now-blocked URL, and fanout must not
   // fail over evidence the roster write already accepted.
-  const parsed = parseCandidateRosterPayload(payload, { ...options, enforceSourcePolicy: false });
+  // allowNoFecIdException: the staged row was already accepted by the manual
+  // inject, the only import path that lets the exception in.
+  const parsed = parseCandidateRosterPayload(payload, {
+    ...options,
+    enforceSourcePolicy: false,
+    allowNoFecIdException: true,
+  });
   if (!parsed.ok) {
     return { ok: false, reason: parsed.reason };
   }
@@ -257,6 +263,13 @@ async function main(): Promise<void> {
       throw new Error(`Invalid candidate roster staging payload for ingest_key=${ingestKey}: ${extracted.reason}`);
     }
     const candidates = extracted.candidates;
+    // No-FEC-ID exception rows get no profile draft: the profile consumer
+    // requires roster FEC IDs for federal contests, so a draft would only
+    // retry and park. Their profiles go through manual:candidate-profile:write.
+    // Only the lead's draft is skipped; a running mate's draft is still emitted.
+    const manualProfileRequired = candidates
+      .filter((candidate) => candidate.no_fec_id_exception)
+      .map((candidate) => candidate.display_name);
 
     const runId = readFlag("--run-id") ?? stagingRow.run_id ?? `manual_candidate_roster_fanout_${new Date().toISOString()}`;
     const electionSeedUrls = parseSeedUrls(election.sources);
@@ -272,6 +285,7 @@ async function main(): Promise<void> {
             researchMode,
             requiresFecIds: includeFecIds,
             candidateCount: candidates.length,
+            manualProfileRequired,
           },
           null,
           2
@@ -284,19 +298,23 @@ async function main(): Promise<void> {
     const fanout = await enqueueCandidateProfileDrafts(
       redis!,
       candidates.flatMap((candidate) => [
-        {
-          electionId,
-          runId,
-          displayName: candidate.display_name,
-          rosterIndex: candidate.roster_index,
-          rosterParty: candidate.party,
-          rosterIsIncumbent: candidate.is_incumbent,
-          disambiguationHint: candidate.disambiguation_hint,
-          fecIds: candidate.fec_ids,
-          stateFilingIdsHint: candidate.state_filing_ids,
-          skipPerElectionNameDedupe: candidate.skip_per_election_name_dedupe,
-          seedUrls: mergeSeedUrls(candidate.sources, electionSeedUrls),
-        },
+        ...(candidate.no_fec_id_exception
+          ? []
+          : [
+              {
+                electionId,
+                runId,
+                displayName: candidate.display_name,
+                rosterIndex: candidate.roster_index,
+                rosterParty: candidate.party,
+                rosterIsIncumbent: candidate.is_incumbent,
+                disambiguationHint: candidate.disambiguation_hint,
+                fecIds: candidate.fec_ids,
+                stateFilingIdsHint: candidate.state_filing_ids,
+                skipPerElectionNameDedupe: candidate.skip_per_election_name_dedupe,
+                seedUrls: mergeSeedUrls(candidate.sources, electionSeedUrls),
+              },
+            ]),
         ...(candidate.running_mate
           ? [
               {
@@ -325,6 +343,7 @@ async function main(): Promise<void> {
           researchMode,
           requiresFecIds: includeFecIds,
           candidateCount: candidates.length,
+          manualProfileRequired,
           emittedCount: fanout.emittedCount,
           skippedCount: fanout.skippedCount,
         },

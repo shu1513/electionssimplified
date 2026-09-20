@@ -65,6 +65,14 @@ export type CandidateRosterDueRow = {
   // the refresh pass re-checks fec.gov for late registrants; null when the
   // roster skipped nobody or is non-federal.
   roster_skipped_no_fec_id: string[] | null;
+  // Candidates kept under the manual no-FEC-ID exception
+  // (staging_items.ai_raw_debug.roster_no_fec_id_exceptions). The refresh
+  // pass re-checks OpenFEC for each; once an ID exists, re-inject the row
+  // with fec_ids and without the exception, then re-write the profile so the
+  // existing candidate gains the ID. null when the roster has none.
+  roster_no_fec_id_exceptions:
+    | Array<{ display_name: string; reason: string; official_roster_url: string }>
+    | null;
   reason: "no_results" | "empty_roster" | "stale";
 };
 
@@ -155,6 +163,7 @@ export async function listCandidateRostersDue(
         COALESCE(jsonb_array_length(s.payload->'candidates'), 0) AS staged_candidate_count,
         linked.linked_candidate_count,
         s.ai_raw_debug->'roster_skipped_no_fec_id' AS roster_skipped_no_fec_id,
+        s.ai_raw_debug->'roster_no_fec_id_exceptions' AS roster_no_fec_id_exceptions,
         CASE
           WHEN s.status = 'no_results' THEN 'no_results'
           WHEN COALESCE(jsonb_array_length(s.payload->'candidates'), 0) = 0 THEN 'empty_roster'

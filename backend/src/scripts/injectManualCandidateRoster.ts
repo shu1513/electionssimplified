@@ -18,6 +18,7 @@ import {
   parseCandidateRosterPayload,
   type CandidateRosterEntry,
 } from "../contracts/candidateRosterPayloadContract.js";
+import { listRosterNoFecIdExceptions } from "../pipeline/candidates/candidateRosterNoFecIdException.js";
 
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 type ElectionPreflightRow = {
@@ -71,6 +72,11 @@ function usage(): string {
     "  npm run manual:candidate-roster:inject -- --election-id uuid --file roster.json [--run-id id] [--dry-run]",
     "",
     "Payload may be either { candidates: [...] } or { election_id, candidates: [...] }.",
+    "",
+    "Federal rows need fec_ids. A row for a candidate an election authority lists on the",
+    "ballot while the FEC has issued no candidate ID may instead carry",
+    "  no_fec_id_exception: { reason, official_roster_url }",
+    "where official_roster_url is also one of the row's sources.",
   ].join("\n");
 }
 
@@ -211,6 +217,8 @@ async function main(): Promise<void> {
     const parsed = parseCandidateRosterPayload(rawPayload, {
       allowFecIds: includeFecIds,
       requireFecIds: includeFecIds,
+      // The only fresh-import path that accepts the exception.
+      allowNoFecIdException: true,
     });
     if (!parsed.ok) {
       throw new Error(`Candidate roster payload failed validation: ${parsed.reason}`);
@@ -225,6 +233,8 @@ async function main(): Promise<void> {
       includeParty,
       partyLabels: parsed.payload.candidates.map((candidate) => candidate.party),
     });
+
+    const noFecIdExceptions = listRosterNoFecIdExceptions(parsed.payload.candidates);
 
     const ingestKey = `candidate_roster:${electionId}`;
     const runId = readFlag("--run-id") ?? `manual_candidate_roster_${new Date().toISOString()}`;
@@ -249,6 +259,7 @@ async function main(): Promise<void> {
             requiresFecIds: includeFecIds,
             candidateCount: parsed.payload.candidates.length,
             skippedCandidatesWithoutFecIds: parsed.skippedCandidatesWithoutFecIds,
+            noFecIdExceptions,
           },
           null,
           2
@@ -305,6 +316,9 @@ async function main(): Promise<void> {
           ...(parsed.skippedCandidatesWithoutFecIds.length > 0
             ? { roster_skipped_no_fec_id: parsed.skippedCandidatesWithoutFecIds }
             : {}),
+          // Audit trail for the manual no-FEC-ID exception. The due list reads
+          // it so each refresh re-checks OpenFEC for these people.
+          ...(noFecIdExceptions.length > 0 ? { roster_no_fec_id_exceptions: noFecIdExceptions } : {}),
         }),
       ]
     );
@@ -347,6 +361,7 @@ async function main(): Promise<void> {
           requiresFecIds: includeFecIds,
           candidateCount: parsed.payload.candidates.length,
           skippedCandidatesWithoutFecIds: parsed.skippedCandidatesWithoutFecIds,
+          noFecIdExceptions,
           // Manual-research continuation is the local no-AI fanout. The generic
           // candidates:roster:enrich path can send the staged roster to an
           // external AI provider — reserve it for AI-produced rosters and never

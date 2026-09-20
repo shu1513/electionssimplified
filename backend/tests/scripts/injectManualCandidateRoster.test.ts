@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { listRosterNoFecIdExceptions } from "../../src/pipeline/candidates/candidateRosterNoFecIdException.js";
 import { buildInjectedCandidateRosterStagingPayload } from "../../src/scripts/injectManualCandidateRoster.js";
 
 describe("buildInjectedCandidateRosterStagingPayload", () => {
@@ -90,5 +91,36 @@ describe("buildInjectedCandidateRosterStagingPayload", () => {
         },
       ],
     });
+  });
+});
+
+describe("manual no-FEC-ID exception staging", () => {
+  const exception = {
+    reason: "Certified for the ballot; no FEC candidate ID issued.",
+    official_roster_url: "https://elections.example.gov/certified",
+  };
+  const candidates = [
+    { display_name: "Rhea Registered", fec_ids: ["H6OH04082"], sources: ["https://example.org/rhea"] },
+    {
+      display_name: "Ivy Independent",
+      no_fec_id_exception: exception,
+      sources: ["https://elections.example.gov/certified"],
+    },
+  ];
+
+  it("stores the exception on the staged row so later refreshes can see it", () => {
+    const payload = buildInjectedCandidateRosterStagingPayload({
+      electionId: "election-1",
+      rawPayload: { candidates },
+      candidates,
+    });
+
+    expect(payload.candidates[0]).not.toHaveProperty("no_fec_id_exception");
+    expect(payload.candidates[1]?.no_fec_id_exception).toEqual(exception);
+  });
+
+  it("lists exception rows for the staging audit trail", () => {
+    expect(listRosterNoFecIdExceptions(candidates)).toEqual([{ display_name: "Ivy Independent", ...exception }]);
+    expect(listRosterNoFecIdExceptions([candidates[0]!])).toEqual([]);
   });
 });
