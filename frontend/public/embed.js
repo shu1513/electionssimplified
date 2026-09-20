@@ -10,10 +10,11 @@
  * narrower screen. data-height is described below.
  *
  * Inserts an iframe of /embed/city/<city> right after the script tag. The
- * box is sized once, when the page first reports its content height (the
- * list with every group closed), up to data-height (pixels, 240-2000,
- * default 480). After that it never changes: readers scroll inside it, so
- * nothing they do moves the rest of the host page. The height message is
+ * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
+ * height. Without it the box is sized once, when the page first reports its
+ * content height (the list with every group closed), between 300 and 480
+ * pixels. Either way it never changes after that: readers scroll inside it,
+ * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
  * page can be cached once for every publisher; the page reads it in the
  * browser and tags its outbound links.
@@ -69,12 +70,14 @@
   frame.style.border = "1px solid #dddddd";
   frame.style.borderRadius = "8px";
   var height = Number(script.getAttribute("data-height"));
-  if (!isFinite(height) || height < MIN_HEIGHT || height > MAX_HEIGHT) {
-    height = DEFAULT_HEIGHT;
-  }
-  var maxHeight = Math.round(height);
+  var fixedHeight = isFinite(height) && height >= MIN_HEIGHT && height <= MAX_HEIGHT;
+  var maxHeight = fixedHeight ? Math.round(height) : DEFAULT_HEIGHT;
   frame.style.height = maxHeight + "px";
   script.parentNode.insertBefore(frame, script.nextSibling);
+  if (fixedHeight) {
+    // The publisher chose the height; nothing to fit.
+    return;
+  }
 
   function onMessage(event) {
     if (event.origin !== origin || event.source !== frame.contentWindow) {

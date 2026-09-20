@@ -20,10 +20,11 @@ Paste this where the box should appear:
 - `data-width` sets the widest the box may be, in pixels (240 to 2000). It is
   optional; without it the box fills the column you put it in. Either way it
   shrinks to fit a narrower screen, so it never overflows a phone.
-- `data-height` sets the tallest the box may be, in pixels (240 to 2000). It
-  is optional; the default is 480. The box fits the closed list once when it
-  loads (never under 300 pixels), then never changes height: readers scroll
-  inside it, so nothing they do moves the rest of your page.
+- `data-height` sets the box's height in pixels (240 to 2000). It is
+  optional; without it the box fits the closed list once when it loads
+  (between 300 and 480 pixels). Either way the box never changes height
+  after that: readers scroll inside it, so nothing they do moves the rest of
+  your page.
 
 If your publishing system strips `<script>` tags, use the iframe form:
 
@@ -65,11 +66,11 @@ The content may be reused freely with attribution.
 ## How it works
 
 - `frontend/public/embed.js` inserts an iframe of `/embed/city/<slug>` after
-  the script tag. The page reports its content height once; the script fits
-  the box to it, up to `data-height` (default 480px), and ignores anything
-  later. The page scrolls inside the frame after that, so the host page's
-  layout never changes. The message is honoured only from our origin and
-  from that iframe's own window.
+  the script tag. With `data-height` the box is exactly that tall. Without
+  it, the page reports its content height once and the script fits the box
+  to it (300 to 480 pixels), ignoring anything later. The page scrolls
+  inside the frame, so the host page's layout never changes. The message is
+  honoured only from our origin and from that iframe's own window.
 - The publisher code rides in the URL fragment, which never reaches the
   server, so one cached copy of the page serves every publisher. The page
   reads it in the browser and appends `?src=<code>` to its outbound links.
