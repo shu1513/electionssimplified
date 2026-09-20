@@ -21,9 +21,9 @@ Paste this where the box should appear:
   optional; without it the box fills the column you put it in. Either way it
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the tallest the box may be, in pixels (240 to 2000). It
-  is optional; the default is 480. The box fits its content once when it
-  loads, then never changes height: readers scroll inside it, so opening a
-  group does not move the rest of your page.
+  is optional; the default is 480. The box fits the closed list once when it
+  loads (never under 300 pixels), then never changes height: readers scroll
+  inside it, so nothing they do moves the rest of your page.
 
 If your publishing system strips `<script>` tags, use the iframe form:
 
@@ -36,11 +36,10 @@ If neither works, link to the plain page: `https://electionssimplified.com/citie
 
 What the box shows: every race that touches the city (or, for a state code,
 the statewide races) for the reviewed election date, grouped by level
-(Federal, State, County, City, Ballot measures). Every load starts the same
-way: groups open from the top until about eight races show, the rest
-collapsed, so the box is the same height on every load and is never mostly
-empty. What a reader opens is remembered only while they move around inside
-the box. Each group is a list of race titles, like the site's own
+(Federal, State, County, City, Ballot measures), each group collapsed until
+the reader opens it. Every load starts that way, so the box is the same
+height on every load. What a reader opens is remembered only while they move
+around inside the box. Each group is a list of race titles, like the site's own
 election list. A race opens its own page: the candidates (name, party,
 incumbent and withdrawn status), or for a measure a short description and
 what a yes and a no vote mean, in our words, not the ballot text. Judicial

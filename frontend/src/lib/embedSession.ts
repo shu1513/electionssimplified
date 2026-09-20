@@ -10,7 +10,7 @@
 // X-Frame-Options: DENY for everything else); the other pages are reached by
 // client-side navigation only.
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 function isFramed(): boolean {
   try {
@@ -27,6 +27,37 @@ const subscribe = () => () => {};
  * the server, so the server HTML is the same for every visitor. */
 export function useEmbedSession(): boolean {
   return useSyncExternalStore(subscribe, isFramed, () => false);
+}
+
+/** Tells the framing page ONCE how tall the first view is (the city list
+ * with every group closed), so embed.js can fit the box to it instead of
+ * leaving empty space under the list. The box never resizes after that. It
+ * measures the content wrapper, not the document: inside an iframe the
+ * document is never shorter than the iframe itself. The host (embed.js)
+ * checks the message origin and source window, and ignores later messages. */
+export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLElement | null }): void {
+  useEffect(() => {
+    const element = content.current;
+    if (!enabled || !element || window.parent === window) {
+      return;
+    }
+    let cancelled = false;
+    const post = () => {
+      if (!cancelled) {
+        window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
+      }
+    };
+    // Wait for web fonts so the measured height is the settled one.
+    const fonts = document.fonts?.ready;
+    if (fonts) {
+      void fonts.then(post, post);
+    } else {
+      post();
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, content]);
 }
 
 const IN_BOX_PATHS = [/^\/embed\/city\/[^/]+\/?$/, /^\/candidates\/[^/]+\/?$/, /^\/elections\/[^/]+\/?$/, /^\/draft\/?$/];

@@ -49,7 +49,7 @@ vi.mock("../lib/loadFromApi", () => ({ loadFromApi: (...args: unknown[]) => load
 
 import type { LoaderFunctionArgs } from "react-router";
 import { resetEmbedSessionForTests } from "../lib/embedSession";
-import { defaultOpenGroups, EmbedCityPage, ErrorBoundary, groupRaces, loader, type CityOverview } from "./EmbedCityPage";
+import { EmbedCityPage, ErrorBoundary, loader, type CityOverview } from "./EmbedCityPage";
 
 const CANDIDATE = {
   candidate_election_id: "ce-1",
@@ -175,43 +175,31 @@ describe("EmbedCityPage", () => {
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent("Explore November 3, 2026 races across Austin, TX.");
     expect(screen.queryByText(/not your ballot/)).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Find my races and build my ballot" })).not.toBeInTheDocument();
-    // Three one-race groups: all start open (fewer than eight races showing).
+    // Every group starts collapsed, each with a race count.
     const federal = screen.getByText("Federal").closest("details")!;
-    expect(federal).toHaveAttribute("open");
+    expect(federal).not.toHaveAttribute("open");
     expect(federal).toHaveTextContent("Federal (1 race)");
     const county = screen.getByText("County").closest("details")!;
-    expect(county).toHaveAttribute("open");
+    expect(county).not.toHaveAttribute("open");
     expect(county).toHaveTextContent("County (1 race)");
     expect(screen.getByText("Ballot measures")).toBeInTheDocument();
   });
 
-  it("opens groups from the top until eight races show, and no further", () => {
-    const race = (id: string, level: CityOverview["races"][number]["level"]): CityOverview["races"][number] => ({
-      id, title: id, race_type: "office", level, district_name: "d", sub_district_seat: null,
-    });
-    const groups = groupRaces([
-      race("f1", "federal"),
-      ...Array.from({ length: 9 }, (_, i) => race(`s${i}`, "state")),
-      race("c1", "county"),
-    ]);
-    expect([...defaultOpenGroups(groups)]).toEqual(["federal", "state"]);
-  });
-
   it("remembers opened groups only for the session, never from an earlier visit", async () => {
     // A choice stored by an older build must not change the first view.
-    window.localStorage.setItem("voteapp_city_open_groups", JSON.stringify([]));
+    window.localStorage.setItem("voteapp_city_open_groups", JSON.stringify(["county"]));
     const first = renderCity(overview());
     const county = (await screen.findByText("County")).closest("details")!;
-    expect(county).toHaveAttribute("open");
+    expect(county).not.toHaveAttribute("open");
 
     await userEvent.click(screen.getByText("County"));
-    await waitFor(() => expect(county).not.toHaveAttribute("open"));
+    await waitFor(() => expect(county).toHaveAttribute("open"));
     first.unmount();
 
     // Coming back to the list in the same session finds it as the reader left it.
     renderCity(overview());
-    expect((await screen.findByText("County")).closest("details")).not.toHaveAttribute("open");
-    expect(screen.getByText("Federal").closest("details")).toHaveAttribute("open");
+    expect((await screen.findByText("County")).closest("details")).toHaveAttribute("open");
+    expect(screen.getByText("Federal").closest("details")).not.toHaveAttribute("open");
   });
 
   it("lists each race as a title row that opens the race's own page, with no candidates on the list", async () => {

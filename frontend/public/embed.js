@@ -10,11 +10,11 @@
  * narrower screen. data-height is described below.
  *
  * Inserts an iframe of /embed/city/<city> right after the script tag. The
- * box is sized once, when the page first reports its content height, up to
- * data-height (pixels, 240-2000, default 480). After that it never changes:
- * readers scroll inside it, so opening a group never moves the rest of the
- * host page. The height message is only honoured when it comes from our
- * origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
+ * box is sized once, when the page first reports its content height (the
+ * list with every group closed), up to data-height (pixels, 240-2000,
+ * default 480). After that it never changes: readers scroll inside it, so
+ * nothing they do moves the rest of the host page. The height message is
+ * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
  * page can be cached once for every publisher; the page reads it in the
  * browser and tags its outbound links.
  *
@@ -32,7 +32,9 @@
   var MIN_HEIGHT = 240;
   var MIN_WIDTH = 240;
   var MAX_WIDTH = 2000;
-  var SMALLEST_BOX = 120;
+  // A short list (a state code with two groups closes to under 200px) must
+  // still leave room to read a race or a candidate page inside the box.
+  var SMALLEST_BOX = 300;
   var BORDER = 2;
   var MAX_HEIGHT = 2000;
   var city = script.getAttribute("data-city") || "";

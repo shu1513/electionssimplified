@@ -31,7 +31,14 @@ import {
 import { EmbedHeader } from "../components/EmbedHeader";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
 import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
-import { recallOpenGroups, rememberEmbedSource, rememberOpenGroups, setEmbedHome, useEmbedSession } from "../lib/embedSession";
+import {
+  recallOpenGroups,
+  rememberEmbedSource,
+  rememberOpenGroups,
+  setEmbedHome,
+  useEmbedSession,
+  useReportEmbedHeight,
+} from "../lib/embedSession";
 import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
@@ -127,30 +134,10 @@ const MEASURE_GROUP = "measures";
 type GroupKey = BallotLevel | typeof MEASURE_GROUP;
 type RaceGroup = { key: GroupKey; label: string; races: CityRace[] };
 
-// Every load starts the same way: groups open from the top until enough races
-// show to fill the box (a state list can lead with a one-race group), the
-// rest closed.
-// The box is sized once from this first view (embed.js), so a view that
-// varied between loads (groups remembered from last time, say) would give
-// the same box a different height each time, or leave it mostly empty.
-// What the reader opens is remembered only for the framed session
-// (lib/embedSession.ts), so coming back from a race finds the list as they
-// left it.
-const MIN_RACES_SHOWING = 8;
-
-export function defaultOpenGroups(groups: RaceGroup[]): Set<string> {
-  const open = new Set<string>();
-  let showing = 0;
-  for (const group of groups) {
-    if (showing >= MIN_RACES_SHOWING) {
-      break;
-    }
-    open.add(group.key);
-    showing += group.races.length;
-  }
-  return open;
-}
-
+// Every group starts collapsed: a big city has dozens of state races alone,
+// and the box often sits inside a phone-width article column. What the reader
+// opens is remembered only for the framed session (lib/embedSession.ts), so
+// coming back from a race finds the list as they left it.
 export function groupRaces(races: CityRace[]): RaceGroup[] {
   const byKey = new Map<GroupKey, CityRace[]>();
   for (const race of races) {
@@ -229,43 +216,13 @@ function RaceList({ races, source, backTo }: { races: CityRace[]; source: string
   );
 }
 
-/** Tells the framing page once how tall the content is, so embed.js can fit
- * the box to it instead of leaving empty space under the footer. It measures
- * the content wrapper, not the document: inside an iframe the document is
- * never shorter than the iframe itself. The box does not resize after that;
- * the host (embed.js) checks the message origin and source window. */
-function useReportInitialHeight(enabled: boolean, content: { current: HTMLDivElement | null }): void {
-  useEffect(() => {
-    const element = content.current;
-    if (!enabled || !element || typeof window === "undefined" || window.parent === window) {
-      return;
-    }
-    let cancelled = false;
-    const post = () => {
-      if (!cancelled) {
-        window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
-      }
-    };
-    // Wait for web fonts so the measured height is the settled one.
-    const fonts = document.fonts?.ready;
-    if (fonts) {
-      void fonts.then(post, post);
-    } else {
-      post();
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [enabled, content]);
-}
-
 export function EmbedCityPage() {
   const data = useLoaderData<typeof loader>();
   const { city, races, embedded } = data;
   const [source, setSource] = useState<string | null>(null);
   const groups = useMemo(() => groupRaces(races), [races]);
   const [openGroups, setOpenGroups] = useState<Set<string>>(
-    () => recallOpenGroups(city.slug) ?? defaultOpenGroups(groups)
+    () => recallOpenGroups(city.slug) ?? new Set()
   );
   useEffect(() => {
     // The fragment is gone when the reader comes back from a profile, so the
@@ -321,7 +278,7 @@ export function EmbedCityPage() {
   const isState = city.kind === "state";
   const electionPassed = usLatestLocalDate() > city.election_date;
   const contentRef = useRef<HTMLDivElement | null>(null);
-  useReportInitialHeight(embedded, contentRef);
+  useReportEmbedHeight(embedded, contentRef);
   const homeHref = withSource("/", source);
 
   return (
