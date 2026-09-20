@@ -258,7 +258,12 @@ async function main(): Promise<void> {
       }
 
       const measure = parseFederalMeasure(parsed.measureId);
-      const classification = classifyFederalRollCall({ chamber, question: parsed.question, measure });
+      const classification = classifyFederalRollCall({
+        chamber,
+        question: parsed.question,
+        measure,
+        roll: { congress, session, rollNumber: roll },
+      });
       row.isFloorVote = classification.isFloorVote;
       row.questionClass = classification.questionClass;
       row.classificationReason = classification.reason;
