@@ -13,11 +13,15 @@ function renderPager(prev: { path: string; label: string } | null, next: { path:
 }
 
 describe("DetailPager", () => {
-  it("puts the back link at the left edge when there is no previous page", async () => {
+  it("puts Back at the left and Next at the right on one line when there is no previous page", async () => {
     renderPager(null, { path: "/candidates/c-2", label: "Grace Hopper" });
     const back = await screen.findByRole("link", { name: "Back to My elections" });
-    expect(back.closest("p")).toHaveClass("text-left");
-    expect(back.closest("div")).toHaveClass("sm:order-1");
+    const next = screen.getByRole("link", { name: "Next: Grace Hopper" });
+    const row = back.closest("nav")!;
+    // One flex row at every width, not the stacked / three-column layout.
+    expect(row).toHaveClass("flex", "justify-between");
+    expect(row).not.toHaveClass("sm:grid");
+    expect([...row.children]).toEqual([back.parentElement, next.parentElement]);
   });
 
   it("keeps the back link in the middle between Prev and Next", async () => {
