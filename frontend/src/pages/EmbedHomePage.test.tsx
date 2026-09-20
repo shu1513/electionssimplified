@@ -35,12 +35,10 @@ describe("EmbedHomePage", () => {
     expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
   });
 
-  it("links a returning reader straight to their ballot", async () => {
+  it("stays the landing page for a returning reader: no extra links the site does not have", async () => {
     setDraftBallotContext(["dddddddd-1111-4111-8111-111111111111"], null);
     renderHome();
-    expect(await screen.findByRole("link", { name: "My elections" })).toHaveAttribute(
-      "href",
-      "/ballot?d=dddddddd-1111-4111-8111-111111111111"
-    );
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
   });
 });

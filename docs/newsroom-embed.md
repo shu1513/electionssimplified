@@ -118,9 +118,9 @@ The content may be reused freely with attribution.
   paths, and the usage events are the same code. `/ballot` is an in-box
   path. A ballot the reader loads is their own: it is stored like on the site
   (`setDraftBallotContext` also ends a city's pinned stand-in), so the next
-  box on the same publisher's site already knows it (`hasOwnBallot`). The
-  box's front page then links to "My elections", the city list stops
-  pinning, and the draft page returns to that ballot. Suggestions use the same paid
+  box on the same publisher's site already knows it (`hasOwnBallot`): a
+  city list stops pinning its stand-in, and the draft page returns to that
+  ballot. Suggestions use the same paid
   autocomplete endpoint as the site.
 - Save: the frame's storage is separate from the site's, so inside the box
   the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"

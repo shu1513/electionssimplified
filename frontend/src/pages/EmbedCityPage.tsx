@@ -40,7 +40,7 @@ import {
   useEmbedSession,
   useReportEmbedHeight,
 } from "../lib/embedSession";
-import { hasOwnBallot, nearestUpcomingTarget, pinDraftBallotContext, readBallotDraft } from "../lib/ballotDraft";
+import { hasOwnBallot, nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -277,12 +277,6 @@ export function EmbedCityPage() {
       return next;
     });
   };
-  // Read after mount: module state is client-only, and the server HTML must
-  // be the same for every reader.
-  const [myBallotPath, setMyBallotPath] = useState<string | null>(null);
-  useEffect(() => {
-    setMyBallotPath(hasOwnBallot() ? `/ballot?d=${encodeURIComponent(readBallotDraft().district_ids.join(","))}` : null);
-  }, []);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";
   const electionPassed = usLatestLocalDate() > city.election_date;
@@ -306,13 +300,6 @@ export function EmbedCityPage() {
       {embedded && !electionPassed ? (
         <div className="mt-3">
           <AddressSearchForm variant="compact" label="Enter your address to see only your races:" />
-          {myBallotPath ? (
-            <p className="mt-2 text-sm">
-              <Link to={myBallotPath} className="font-semibold text-ink underline hover:text-rausch">
-                My elections
-              </Link>
-            </p>
-          ) : null}
         </div>
       ) : null}
       {groups.length === 0 ? (

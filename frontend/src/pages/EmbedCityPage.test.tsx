@@ -49,7 +49,7 @@ vi.mock("../lib/loadFromApi", () => ({ loadFromApi: (...args: unknown[]) => load
 
 import type { LoaderFunctionArgs } from "react-router";
 import { resetEmbedSessionForTests } from "../lib/embedSession";
-import { clearBallotDraft, setDraftBallotContext, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
+import { clearBallotDraft, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
 import { EmbedCityPage, ErrorBoundary, loader, type CityOverview } from "./EmbedCityPage";
 
 const CANDIDATE = {
@@ -231,20 +231,10 @@ describe("EmbedCityPage", () => {
     expect(await screen.findByText(/Travis County · covers Precinct 2/)).toBeInTheDocument();
   });
 
-  it("offers the site's address search in the box, and a way back to a ballot the reader already has", async () => {
-    const first = renderCity(overview());
+  it("offers the site's address search above the city list", async () => {
+    renderCity(overview());
     expect(await screen.findByLabelText("Enter your address to see only your races:")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Search" })).toBeDisabled();
-    expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
-    first.unmount();
-
-    // The reader already searched their address (here or in another box on this site).
-    setDraftBallotContext(["dddddddd-1111-4111-8111-111111111111"], null);
-    renderCity(overview());
-    expect(await screen.findByRole("link", { name: "My elections" })).toHaveAttribute(
-      "href",
-      "/ballot?d=dddddddd-1111-4111-8111-111111111111"
-    );
   });
 
   it("leaves the address search off the plain city page", async () => {
