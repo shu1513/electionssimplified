@@ -45,7 +45,7 @@ export default function MissionPage() {
         <h1 className="text-title font-bold">Mission</h1>
 
         <h2 className="pt-2 text-heading font-semibold">Why do we do what we do?</h2>
-        <p>When we go voting, two problems show up:</p>
+        <p>When we get our ballots, two problems come up:</p>
         <ol className="list-decimal space-y-1 pl-6">
           <li>We don’t know if our votes actually matter.</li>
           <li>We don’t know who most of these candidates are.</li>
@@ -53,17 +53,16 @@ export default function MissionPage() {
 
         <h2 className="pt-2 text-heading font-semibold">Do our votes matter?</h2>
         <p>
-          In a presidential election, unless we live in a key district in a swing state, our vote is
-          one among more than 150 million. But in a city council or school board race, a few hundred
-          votes may decide the outcome. Ironically, these local offices could affect our daily lives
-          far more.
+          For big offices such as the president, our vote is 1 in 150 million. But in smaller local
+          races, our votes have a lot more power because a few hundred votes may decide the
+          outcome. Ironically, these local offices could affect our daily lives far more.
         </p>
 
         <h2 className="pt-2 text-heading font-semibold">Who are these candidates?</h2>
         <p>
-          The bigger the election, such as the presidential election, the more media coverage it
-          gets. So we know only about the candidates our votes have the least power over, but
-          nothing about the candidates our votes matter the most for.
+          The bigger the office, for example the president, the more media coverage it gets.
+          However, we get almost no substantial information for smaller offices, where our votes matter
+          the most.
         </p>
         <p>
           The little information we do get about candidates is usually heavily biased with an
@@ -72,9 +71,9 @@ export default function MissionPage() {
 
         <h2 className="pt-2 text-heading font-semibold">What {APP_NAME} does</h2>
         <p>
-          The purpose of {APP_NAME} is to give real track records of candidates based on what they
-          actually did, so we can see more clearly who these candidates are, and make a decision on
-          who to pick based on the issues that matter to us, not on their ads.
+          The purpose of {APP_NAME} is to give real candidates’ track records based on their
+          actions and voting records, so we can see clearly who these candidates are, and make our
+          decisions based on what matters to us, not on the politicians’ ad campaigns.
         </p>
 
         <h2 className="pt-2 text-heading font-semibold">
@@ -82,17 +81,21 @@ export default function MissionPage() {
         </h2>
         <p>
           Because we believe that no single person or small group knows best what everyone else
-          should think and do. What I believe is good is not necessarily what is good for you.
+          should think and do.
         </p>
-        <p>Only people themselves can decide what’s best for them.</p>
-        <p>So the best thing to do is to lay out the facts so we can decide for ourselves.</p>
+        <p>Only people themselves can decide what’s best for them after seeing the facts.</p>
+        <p>
+          The best thing we can do is to uncover the facts so we all can decide for ourselves.
+        </p>
 
         <h2 className="pt-2 text-heading font-semibold">How we do it</h2>
         <p>
-          We use only American AI models to research and summarize. Then we filter and validate
-          everything through
-          multiple guardrails before it’s written, and run quality passes with both humans and AI.
-          Our source code is open and public{" "}
+          We use American AI models to do 2 things: 1. research the web for verifiable public
+          records, and 2. summarize them plainly.
+        </p>
+        <p>
+          Next, we filter and validate everything through multiple guardrails and run quality passes with both humans and AI to ensure the
+          integrity of the sources. Our source code is open and public{" "}
           <a
             href="https://github.com/shu1513/electionssimplified"
             target="_blank"
@@ -101,22 +104,22 @@ export default function MissionPage() {
           >
             here
           </a>
-          , where you can see the algorithms and prompts we use.
+          .
         </p>
         <p>
-          Keeping this information current (new elections, new candidates, new records) takes
-          constant effort from our staff and money for AI usage.
+          To keep this operation high quality and keep up with the newest elections, it takes
+          tremendous effort from our staff and costs a considerable amount of AI tokens.
         </p>
 
-        <p>To literally keep us alive, you can help in three ways.</p>
+        <p>To help keep us literally alive, you can help in three ways.</p>
         <ol className="list-decimal space-y-4 pl-6">
           <li>
             <span className="font-semibold">Become an honorary member:</span>
             <p className="mt-1">
               For a small monthly contribution, less than a cup of coffee, you can become an
-              honorary member and help us keep bringing you higher-quality content. As an honorary
-              member, you may receive occasional member-only analysis emails on the important
-              issues that could affect you (no schedule or minimum number is promised).
+              honorary member and help us keep bringing you higher-quality content. And as an
+              honorary member, you may receive occasional member-only analysis reports on the
+              important issues that we think could affect you.
             </p>
             <p className="mt-2">
               <Link to="/support/member" className={memberCtaClass}>
@@ -151,8 +154,8 @@ export default function MissionPage() {
         <p>
           We understand that life is hard. And life has been hard. So we don’t expect
           contributions from anyone. We will keep this site running for as long as we can afford
-          to with our own money. But if you believe as we believe, join us, and we will keep
-          bringing you quality content.
+          to with our own money. But if you believe as we believe, join us to make the most
+          transparent, honest voting for all of us.
         </p>
 
         <p className="text-ink-soft">
@@ -225,23 +228,7 @@ export default function MissionPage() {
         // The standard unverified interstitial: names the address and offers
         // a real resend (nothing else on this page can).
         <VerifyPrompt email={me.email} />
-      ) : (
-        // Shown while /api/me is unresolved too, same tradeoff as the header
-        // nav: a self-correcting logged-out CTA beats an invisible one, and
-        // warm navigation has the session cached anyway.
-        // ?next lands the prospective supporter on the payment page after auth
-        // instead of into normal onboarding.
-        <p className="text-sm">
-          <Link to="/login?next=%2Fsupport" className="font-semibold underline hover:text-ink">
-            Log in
-          </Link>{" "}
-          or{" "}
-          <Link to="/register?next=%2Fsupport" className="font-semibold underline hover:text-ink">
-            sign up
-          </Link>{" "}
-          to become a member or make a one-time contribution.
-        </p>
-      )}
+      ) : null}
     </div>
   );
 }
