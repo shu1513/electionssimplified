@@ -183,8 +183,13 @@ export default function MissionPage() {
                 code shows only the statewide races.
               </li>
               <li>
-                The box sizes itself to fit your page, and every link opens our site in a new tab, so
-                your readers stay on your page.
+                The box is as wide as the column you put it in and sets its own height. To choose the
+                size yourself, add <code>data-width="560"</code> or <code>data-height="600"</code>, in
+                pixels.
+              </li>
+              <li>
+                Races and candidates open inside the box. Every other link opens our site in a new tab,
+                so your readers stay on your page.
               </li>
               <li>
                 We add cities as we finish reviewing them. Email{" "}
