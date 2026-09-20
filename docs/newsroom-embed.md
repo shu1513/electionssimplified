@@ -20,10 +20,10 @@ Paste this where the box should appear:
 To choose the size yourself, add either or both of the size settings:
 
 ```html
-<script src="https://electionssimplified.com/embed.js" data-city="austin-tx" data-publisher="your-code" data-width="560" data-height="600"></script>
+<script src="https://electionssimplified.com/embed.js" data-city="austin-tx" data-publisher="your-code" data-max-width="560" data-height="600"></script>
 ```
 
-- `data-width` sets the widest the box may be, in pixels (240 to 2000). It is
+- `data-max-width` sets the widest the box may be, in pixels (240 to 2000). It is
   optional; without it the box fills the column you put it in. Either way it
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the box's height in pixels (240 to 2000). It is

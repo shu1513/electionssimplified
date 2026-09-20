@@ -5,7 +5,7 @@
  *   <script src="https://electionssimplified.com/embed.js"
  *           data-city="austin-tx" data-publisher="your-code"></script>
  *
- * Optional size, in pixels: data-width (240-2000) is the widest the box may
+ * Optional size, in pixels: data-max-width (240-2000) is the widest the box may
  * be; without it the box fills its container. It always shrinks to fit a
  * narrower screen. data-height is described below.
  *
@@ -62,7 +62,7 @@
   frame.style.display = "block";
   frame.style.width = "100%";
   // A maximum, not a fixed width: a fixed 560px box overflows a phone.
-  var width = Number(script.getAttribute("data-width"));
+  var width = Number(script.getAttribute("data-max-width"));
   if (isFinite(width) && width >= MIN_WIDTH && width <= MAX_WIDTH) {
     frame.style.maxWidth = Math.round(width) + "px";
   }

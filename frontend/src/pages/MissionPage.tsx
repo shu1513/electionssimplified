@@ -184,7 +184,7 @@ export default function MissionPage() {
               </li>
               <li>
                 The box is as wide as the column you put it in and sets its own height. To choose the
-                size yourself, add <code>data-width="560"</code> or <code>data-height="600"</code>, in
+                size yourself, add <code>data-max-width="560"</code> or <code>data-height="600"</code>, in
                 pixels.
               </li>
               <li>
