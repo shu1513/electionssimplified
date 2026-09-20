@@ -335,17 +335,6 @@ export function CandidatePage() {
   // reloads via history.state, but SSR rendered with null — reading it
   // before hydration mismatches the server HTML.
   const navState = hydrated ? readCandidateNavState(location.state) : null;
-  const arrivedFromRace =
-    navState?.electionId !== undefined
-      ? (candidate.elections.find((election) => election.election_id === navState.electionId) ?? null)
-      : null;
-  // A retention judge keeps the one-line "Retention question" link below
-  // instead: the full retention ballot title is too long for this spot.
-  const soleRace =
-    activeOngoingElections.length === 1 && !isJudicialRetentionTitle(activeOngoingElections[0]!.official_ballot_title)
-      ? activeOngoingElections[0]!
-      : null;
-  const headlineRace = arrivedFromRace ?? soleRace;
   // The rail's roster sort: offered only for the sorts this snapshot can
   // honor (candidateRailSortsOffered — an old snapshot without the stance
   // keys offers none; My issues additionally needs saved areas). Same
@@ -556,20 +545,6 @@ export function CandidatePage() {
             ...(candidate.official_website_url ? { url: candidate.official_website_url } : {}),
           }}
         />
-        {/* The race above the candidate's name: the one the reader arrived
-            from (a ballot row, an election roster, the newsroom box), or the
-            candidate's only current race. It is also the link to that race,
-            which is why a one-race candidate needs no "Race … is in:" list
-            further down. A deep link to a candidate in several races shows
-            nothing here; the list below names them all. */}
-        {headlineRace ? (
-          <p className="mb-1 text-sm font-semibold text-ink-soft">
-            <Link to={`/elections/${headlineRace.election_id}`} state={electionNavState} className="hover:text-ink hover:underline">
-              {headlineRace.official_ballot_title}
-            </Link>{" "}
-            · {formatElectionDate(headlineRace.election_date)}
-          </p>
-        ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-title font-bold">{candidate.display_name}</h1>
           <div className="flex items-center gap-2">
@@ -755,11 +730,12 @@ export function CandidatePage() {
             </Link>{" "}
             · {formatElectionDate(activeOngoingElections[0]!.election_date)}
           </p>
-        ) : activeOngoingElections.length > 1 ? (
-          // One current race is already named (and linked) above the
-          // candidate's name; the list earns its place from two races up.
+        ) : activeOngoingElections.length > 1 || (activeOngoingElections.length === 1 && navState === null) ? (
+          // A one-race list only repeats what the reader already knows when
+          // they arrived from a list or a race (the top bar leads back there).
+          // On a deep link it stays: it is the page's only link to the race.
           <ElectionHistorySection
-            heading={`Races ${candidate.display_name} is in:`}
+            heading={`${activeOngoingElections.length === 1 ? "Race" : "Races"} ${candidate.display_name} is in:`}
             elections={activeOngoingElections}
             navState={electionNavState}
           />
