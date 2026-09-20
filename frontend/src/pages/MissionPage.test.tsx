@@ -52,7 +52,7 @@ function renderMission() {
 }
 
 describe("MissionPage", () => {
-  it("shows the pitch, the support buttons, and the login/signup path to logged-out readers", async () => {
+  it("shows the pitch and the support buttons to logged-out readers, with no login line", async () => {
     stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
     renderMission();
 
@@ -63,15 +63,9 @@ describe("MissionPage", () => {
       "href",
       "/support/once"
     );
-    // ?next lands the prospective supporter on the payment page after auth.
-    expect(await screen.findByRole("link", { name: "Log in" })).toHaveAttribute(
-      "href",
-      "/login?next=%2Fsupport"
-    );
-    expect(screen.getByRole("link", { name: "sign up" })).toHaveAttribute(
-      "href",
-      "/register?next=%2Fsupport"
-    );
+    // The support pages handle auth gating, so the page carries no login line.
+    expect(screen.queryByRole("link", { name: "Log in" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "sign up" })).not.toBeInTheDocument();
     // No payment forms and no error box — the membership query must not fire
     // without a verified session.
     expect(screen.queryByRole("button", { name: "Support monthly" })).not.toBeInTheDocument();

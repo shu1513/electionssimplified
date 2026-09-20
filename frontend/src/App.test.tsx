@@ -42,8 +42,8 @@ describe("App account nav", () => {
     // A first-time visitor has no draft to link to — the nav stays clean
     // until they've seen a ballot or made a pick.
     expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
-    // Mission never rides in the guest header; the footer link keeps the
-    // page reachable.
+    // Mission stays out of the landing's guest header; the footer link keeps
+    // the page reachable.
     expect(screen.queryByRole("navigation", { name: "Footer" })).not.toBeNull();
     const header = screen.getByRole("banner");
     expect(header.querySelector('a[href="/mission"]')).toBeNull();
@@ -63,6 +63,14 @@ describe("App account nav", () => {
     renderApp("/elections/e-1");
     const wordmark = await screen.findByRole("link", { name: "Elections Simplified" });
     expect(wordmark).toHaveAttribute("href", "/");
+  });
+
+  it("shows Mission in the guest header on every page but the landing", async () => {
+    stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
+    renderApp("/elections/e-1");
+    await screen.findByRole("link", { name: "Log in" });
+    const header = within(screen.getByRole("banner"));
+    expect(header.getByRole("link", { name: "Mission" })).toHaveAttribute("href", "/mission");
   });
 
   it("shows the draft link once the guest has looked at a ballot — but never on the search landing", async () => {

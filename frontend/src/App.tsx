@@ -171,13 +171,29 @@ function AccountNav() {
   if (!me) {
     // The address-search landing keeps the leanest header of all — just
     // Log in + Sign up. A returning guest's draft link would be noise on
-    // the page whose whole job is starting a fresh search, and the Mission
-    // pitch no longer rides in any guest header (the footer link keeps the
-    // page reachable).
+    // the page whose whole job is starting a fresh search, and so would the
+    // Mission link — every other page shows it, and the footer link keeps
+    // the page reachable from the landing.
     const onSearchLanding = pathname === "/";
     const showDraftLink = !onSearchLanding && guestDraftNav !== null;
     return (
-      <span className="flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 sm:gap-x-4">
+      <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 sm:gap-x-4">
+        {/* Yields on phones beside a draft link, for the same 375px reason
+            as Log in below — but returns at 480px, where the row has room
+            for it again. Measured at 375px: logo + Mission + Log in +
+            Sign up share one row only with gap-x-2 and the button's px-2. */}
+        {onSearchLanding ? null : (
+          <Link
+            to="/mission"
+            className={
+              showDraftLink
+                ? "hidden text-ink-soft hover:text-ink min-[480px]:inline"
+                : "text-ink-soft hover:text-ink"
+            }
+          >
+            Mission
+          </Link>
+        )}
         {showDraftLink ? (
           <Link
             to={guestDraftNav.to}
@@ -204,7 +220,7 @@ function AccountNav() {
         </Link>
         <Link
           to="/register"
-          className="whitespace-nowrap rounded-lg bg-rausch px-2.5 py-1.5 font-semibold text-white transition hover:bg-rausch-dark sm:px-3"
+          className="whitespace-nowrap rounded-lg bg-rausch px-2 py-1.5 font-semibold text-white transition hover:bg-rausch-dark sm:px-3"
         >
           Sign up
         </Link>
@@ -324,9 +340,9 @@ export function App() {
             Disclaimer link it already points at. Non-blocking by design. */}
         <p className="mb-3 px-4">{VERIFY_WITH_OFFICIALS_NOTE}</p>
         <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-5 gap-y-2">
-          {/* Mission left the header (guests: gone entirely; signed-in: in
-              the account menu) — the footer keeps it reachable from every
-              page for the guests it pitches to. */}
+          {/* The header's Mission link has gaps (guests: absent on the
+              landing and on phones beside a draft link; signed-in: in the
+              account menu) — the footer keeps it reachable from every page. */}
           <Link to="/mission" className="underline hover:text-ink">
             Mission
           </Link>
