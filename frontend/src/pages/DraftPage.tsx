@@ -266,7 +266,7 @@ export function DraftPage() {
         open={saveOpen}
         onClose={() => setSaveOpen(false)}
         title="Save my draft"
-        description="Sign up for free to save your draft. Your picks come with you."
+        description="Sign up for free to save your draft."
         source="draft"
       />
 
