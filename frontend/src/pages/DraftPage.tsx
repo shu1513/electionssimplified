@@ -13,7 +13,6 @@ import {
   allRacesDecided,
   draftChoicesByElectionId,
   draftPickCount,
-  hasOwnBallot,
   nearestUpcomingTarget,
   setDraftBallotContext,
   useBallotDraft,
@@ -27,8 +26,7 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { isEmbedListedRace } from "../lib/embedPilot";
-import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { useEmbedSession } from "../lib/embedSession";
 import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
@@ -124,14 +122,9 @@ export function DraftPage() {
   useDocumentTitle("My Ballot Draft");
   const { me } = useMe();
   const draft = useBallotDraft();
-  // Inside the newsroom embed: list view only, the way back is the city list
-  // the box started on, and no sign-up button (the box's draft lives in the
-  // frame's own storage, so an account made in a new tab would not get it).
+  // Inside the newsroom box: list view only, and a "Save" button instead of
+  // the sign-up line (its prompt carries the box's picks to the site).
   const embedSession = useEmbedSession();
-  // A reader who searched their address in the box has their own ballot: the
-  // draft then behaves as on the site (their races, back to their ballot).
-  const embedPersonal = embedSession && hasOwnBallot();
-  const embedHome = embedSession && !embedPersonal ? getEmbedHome() : null;
   const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
@@ -143,21 +136,12 @@ export function DraftPage() {
   // never disagree. This deliberately gives up the cache reuse with
   // BallotPage's default-sort query — a guest arriving from /ballot refetches
   // once — in exchange for one order everywhere.
-  // Inside the box the list keeps the box's scope: the city list's pinned
-  // election day and no retention questions, so this page and the counter
-  // show exactly the races the reader was offered.
-  const embedDate = embedSession && !embedPersonal ? (draft.target?.election_date ?? null) : null;
   const ballot = useQuery({
-    queryKey: ["ballot", districtIds.join(","), "preview", embedDate],
-    queryFn: async () => {
-      const summary = await apiRequest<BallotSummary>(
-        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false` +
-          (embedDate ? `&election_date=${embedDate}` : "")
-      );
-      return embedDate
-        ? { ...summary, elections: summary.elections.filter((election) => isEmbedListedRace(election, embedDate)) }
-        : summary;
-    },
+    queryKey: ["ballot", districtIds.join(","), "preview"],
+    queryFn: () =>
+      apiRequest<BallotSummary>(
+        `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&include=preview&sort=state_baseline&followed_first=false`
+      ),
     enabled: me === null && districtIds.length > 0,
   });
 
@@ -241,9 +225,7 @@ export function DraftPage() {
           the draft carries district ids — the /ballot URL needs nothing
           else — and skipped for the no-ballot cases below, which already
           point at the address search. The label is BallotPage's own title. */}
-      {embedHome ? (
-        <DetailPager ariaLabel="Draft navigation" prev={null} next={null} backTo={embedHome} />
-      ) : districtIds.length > 0 ? (
+      {districtIds.length > 0 ? (
         <DetailPager
           ariaLabel="Draft navigation"
           prev={null}

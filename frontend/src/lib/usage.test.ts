@@ -45,7 +45,7 @@ afterEach(() => {
   window.history.replaceState({}, "", "/");
 });
 
-vi.mock("../data/embedPilotCities", () => ({ EMBED_PILOT_PUBLISHERS: ["alpha-news"], EMBED_PILOT_CITIES: {} }));
+vi.mock("../data/embedPublishers", () => ({ EMBED_PUBLISHERS: ["alpha-news"] }));
 
 describe("track", () => {
   it("records an allowlisted publisher code from the arrival URL on session_start, and nothing else from the query", async () => {

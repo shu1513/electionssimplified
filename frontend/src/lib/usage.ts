@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useLocation, useMatches } from "react-router";
 import { ApiError, hasFinanceContent, useMe } from "@voteapp/api-client";
 import { readCandidateNavState, readElectionNavState } from "./detailNavContext";
-import { isEmbedPublisherCode } from "./embedPilot";
+import { isEmbedPublisherCode } from "./embedPublisher";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
 // First-party usage analytics (docs/plans/usage-analytics.md). What leaves
@@ -76,9 +76,6 @@ const ROUTE_BY_MATCH_ID: Record<string, UsageRoute> = {
   "pages/FollowsPage": "follows",
   "pages/SettingsPage": "settings",
   "pages/PublicPickCardPage": "pick_card",
-  // routes.ts gives the city overview an explicit id (the module also serves
-  // the untracked /embed/city route outside the App layout).
-  city: "city",
   "pages/NotFoundPage": "not_found",
 };
 

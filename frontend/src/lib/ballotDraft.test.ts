@@ -9,15 +9,12 @@ import {
   draftProgress,
   flushBallotDraftToAccount,
   hasDraftPicks,
-  hasOwnBallot,
   importDraftHandoff,
   nearestUpcomingTarget,
-  pinDraftBallotContext,
   readBallotDraft,
   setDraftBallotContext,
   setDraftCandidateChoice,
   setDraftMeasureChoice,
-  unpinDraftBallotContextForTests,
 } from "./ballotDraft";
 
 vi.mock("@voteapp/api-client", async (importOriginal) => {
@@ -246,47 +243,6 @@ describe("ballotDraft store", () => {
     expect(choice?.official_ballot_title).toBe("Governor");
     expect(choice?.race_type).toBe("office");
     expect(choice?.election_date).toBe("2026-11-03");
-  });
-});
-
-describe("pinned ballot context (newsroom embed)", () => {
-  const CITY_A = "aaaaaaaa-1111-4111-8111-111111111111";
-  const CITY_B = "bbbbbbbb-2222-4222-8222-222222222222";
-  const TARGET_A = { election_date: "2026-11-03", election_ids: ["e1"] };
-
-  afterEach(() => {
-    unpinDraftBallotContextForTests();
-  });
-
-  it("keeps this box's districts and target when another box rewrites the shared draft", () => {
-    pinDraftBallotContext([CITY_A], TARGET_A);
-    pickJane();
-    // A second box on the same publisher site stores its own context.
-    seedStorage(
-      JSON.stringify({
-        v: 1,
-        district_ids: [CITY_B],
-        target: { election_date: "2026-11-03", election_ids: ["e9", "e10"] },
-        choices: readBallotDraft().choices,
-      })
-    );
-    const draft = readBallotDraft();
-    expect(draft.district_ids).toEqual([CITY_A]);
-    expect(draft.target).toEqual(TARGET_A);
-    // Picks stay shared.
-    expect(draftPickCount(draft)).toBe(1);
-    expect(draftProgress(draft, TODAY)).toMatchObject({ picked: 1, total: 1, complete: true });
-  });
-
-  it("gives way to a ballot of the reader's own, which is stored like on the site", () => {
-    pinDraftBallotContext([CITY_A], TARGET_A);
-    expect(hasOwnBallot()).toBe(false);
-    const mine = { election_date: "2026-11-03", election_ids: ["e1", "e2"] };
-    // The reader searched their address inside the box.
-    setDraftBallotContext([CITY_B], mine);
-    expect(readBallotDraft().district_ids).toEqual([CITY_B]);
-    expect(readBallotDraft().target).toEqual(mine);
-    expect(hasOwnBallot()).toBe(true);
   });
 });
 

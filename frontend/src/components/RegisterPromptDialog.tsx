@@ -2,7 +2,7 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/re
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { draftHandoffFragment, useBallotDraft } from "../lib/ballotDraft";
-import { withSource } from "../lib/embedPilot";
+import { withSource } from "../lib/embedPublisher";
 import { readPendingDistrictIds } from "../lib/pendingDistricts";
 import { rememberEmbedSource, useEmbedSession } from "../lib/embedSession";
 import { track } from "../lib/usage";

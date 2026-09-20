@@ -4,7 +4,7 @@ import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
-import { CONTACT_EMAIL, listEnabledEmbedCodes } from "../lib/embedPilot";
+import { CONTACT_EMAIL } from "../lib/embedPublisher";
 import { pageMeta } from "../lib/pageMeta";
 
 // Kept as a string so JSX never tries to interpret the tag.
@@ -32,8 +32,6 @@ const onceCtaClass = `${ctaBase} bg-purple-700 hover:bg-purple-800`;
 // bottom (MembershipThanks); management lives on /me/membership.
 export default function MissionPage() {
   const { me } = useMe();
-  const embedCodes = listEnabledEmbedCodes();
-  const exampleCode = embedCodes.includes("los-angeles-ca") ? "los-angeles-ca" : embedCodes[0];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
@@ -175,21 +173,6 @@ export default function MissionPage() {
             size yourself, add <code>data-max-width="560"</code> or <code>data-height="600"</code>, in
             pixels.
           </li>
-          {/* Only codes that render today: the page never advertises a code the
-              embed answers with a 404. */}
-          {embedCodes.length > 0 ? (
-            <li>
-              To open on one city's or state's race list instead, add{" "}
-              <code>data-city="{exampleCode}"</code>. Codes available now:{" "}
-              {embedCodes.map((code, i) => (
-                <span key={code}>
-                  {i > 0 ? ", " : ""}
-                  <code>{code}</code>
-                </span>
-              ))}
-              .
-            </li>
-          ) : null}
           <li>
             Email{" "}
             <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">

@@ -4,20 +4,18 @@
  * Usage (paste where the box should appear):
  *   <script src="https://electionssimplified.com/embed.js"></script>
  *
- * That box opens on the site's landing page: an address search that gives
- * the reader their own ballot, inside the box. Optional attributes:
+ * The box opens on the site's landing page: an address search that gives
+ * the reader their own ballot, inside the box. Optional:
  *   data-publisher="your-code"  counts readers who came from your page
- *   data-city="austin-tx"       opens on that city's (or state's) race list
- *                               instead, with the same search above it
  *
  * Optional size, in pixels: data-max-width (240-2000) is the widest the box may
  * be; without it the box fills its container. It always shrinks to fit a
  * narrower screen. data-height is described below.
  *
- * Inserts an iframe of /embed/city/<city> right after the script tag. The
+ * Inserts an iframe of /embed right after the script tag. The
  * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
  * height. Without it the box is sized once, when the page first reports its
- * content height (the list with every group closed), between 420 and 600
+ * content height (the landing page), between 420 and 600
  * pixels. Either way it never changes after that: readers scroll inside it,
  * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
@@ -43,27 +41,21 @@
   var SMALLEST_BOX = 420;
   var BORDER = 2;
   var MAX_HEIGHT = 2000;
-  var city = script.getAttribute("data-city") || "";
   var publisher = script.getAttribute("data-publisher") || "";
-  // A city code that is present but malformed is a typo: insert nothing
-  // rather than quietly showing a different box.
-  if (city !== "" && (!CODE.test(city) || city.length > MAX_CODE_LENGTH)) {
-    return;
-  }
   var origin;
   try {
     origin = new URL(script.src).origin;
   } catch {
     return;
   }
-  var src = city === "" ? origin + "/embed" : origin + "/embed/city/" + city;
+  var src = origin + "/embed";
   if (CODE.test(publisher) && publisher.length <= MAX_CODE_LENGTH) {
     src += "#pub=" + publisher;
   }
 
   var frame = document.createElement("iframe");
   frame.src = src;
-  frame.title = city === "" ? "Find what is on your ballot, from Elections Simplified" : "Election races for this city, from Elections Simplified";
+  frame.title = "Find what is on your ballot, from Elections Simplified";
   frame.setAttribute("loading", "lazy");
   frame.referrerPolicy = "strict-origin-when-cross-origin";
   frame.style.display = "block";

@@ -17,7 +17,7 @@ afterEach(() => {
 describe("isInBoxPath", () => {
   it("keeps only the box's own pages in the frame", () => {
     expect(isInBoxPath("/embed")).toBe(true);
-    expect(isInBoxPath("/embed/city/austin-tx")).toBe(true);
+    expect(isInBoxPath("/embed/city/austin-tx")).toBe(false);
     expect(isInBoxPath("/candidates/c-1")).toBe(true);
     expect(isInBoxPath("/elections/e-1")).toBe(true);
     expect(isInBoxPath("/draft")).toBe(true);

@@ -1,12 +1,12 @@
-// The newsroom embed frames /embed/city/<slug> on a publisher's page. From
-// there the reader walks candidate, race, and draft pages with ordinary
+// The newsroom embed frames /embed (the landing page) on a publisher's page.
+// From there the reader walks ballot, race, candidate, and draft pages with ordinary
 // in-app navigation, so those pages render inside the same frame. "Embed
 // session" = this document is framed; the app then swaps the site chrome for
 // the compact box chrome, keeps only the box's own pages in the frame, and
 // hides the actions that cannot work there (a third-party frame gets no
 // session cookie and its own partitioned storage).
 //
-// Only /embed/city/* may be LOADED in a frame (the router worker sends
+// Only /embed may be LOADED in a frame (the router worker sends
 // X-Frame-Options: DENY for everything else); the other pages are reached by
 // client-side navigation only.
 
@@ -29,8 +29,8 @@ export function useEmbedSession(): boolean {
   return useSyncExternalStore(subscribe, isFramed, () => false);
 }
 
-/** Tells the framing page ONCE how tall the first view is (the city list
- * with every group closed), so embed.js can fit the box to it instead of
+/** Tells the framing page ONCE how tall the first view is (the landing
+ * page), so embed.js can fit the box to it instead of
  * leaving empty space under the list. The box never resizes after that. It
  * measures the content wrapper, not the document: inside an iframe the
  * document is never shorter than the iframe itself. The host (embed.js)
@@ -60,7 +60,7 @@ export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLE
   }, [enabled, content]);
 }
 
-const IN_BOX_PATHS = [/^\/embed\/?$/, /^\/embed\/city\/[^/]+\/?$/, /^\/ballot\/?$/, /^\/candidates\/[^/]+\/?$/, /^\/elections\/[^/]+\/?$/, /^\/draft\/?$/];
+const IN_BOX_PATHS = [/^\/embed\/?$/, /^\/ballot\/?$/, /^\/candidates\/[^/]+\/?$/, /^\/elections\/[^/]+\/?$/, /^\/draft\/?$/];
 
 /** Pages that stay inside the box. Every other link opens a new tab. */
 export function isInBoxPath(pathname: string): boolean {
@@ -74,7 +74,7 @@ export type EmbedHome = { path: string; label: string };
 let home: EmbedHome | null = null;
 let source: string | null = null;
 
-/** The city list the box started on; the draft page's way back. */
+/** The box's front page; where "search again" and the ballot's top bar lead. */
 export function setEmbedHome(next: EmbedHome): void {
   home = next;
 }
@@ -83,26 +83,13 @@ export function getEmbedHome(): EmbedHome | null {
   return home;
 }
 
-/** The allowlisted publisher code, kept so returning to the city list (whose
+/** The allowlisted publisher code, kept so returning to the front page (whose
  * URL no longer carries the #pub= fragment) still tags outbound links. */
 export function rememberEmbedSource(code: string | null): string | null {
   if (code !== null) {
     source = code;
   }
   return source;
-}
-
-// Which groups the reader has open on a city list, kept for this document
-// only: a fresh load always starts from the same view (the box is sized from
-// it), while coming back from a race finds the list as the reader left it.
-let openGroups: { slug: string; keys: Set<string> } | null = null;
-
-export function rememberOpenGroups(slug: string, keys: Set<string>): void {
-  openGroups = { slug, keys };
-}
-
-export function recallOpenGroups(slug: string): Set<string> | null {
-  return openGroups?.slug === slug ? openGroups.keys : null;
 }
 
 /** Click guard for the box: a same-origin link to a page outside the box, or
@@ -137,5 +124,4 @@ export function guardEmbedClick(event: {
 export function resetEmbedSessionForTests(): void {
   home = null;
   source = null;
-  openGroups = null;
 }

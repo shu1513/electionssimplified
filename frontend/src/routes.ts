@@ -4,11 +4,9 @@ export default [
   // Resource route (no layout): Apple universal-links manifest for the mobile
   // app, kept out of public/ so it is served as application/json.
   route(".well-known/apple-app-site-association", "routes/apple-app-site-association.ts"),
-  // Newsroom embed: the city race overview with no site chrome, framed by
-  // third-party pages via public/embed.js. Same module as /cities/:slug
-  // below; the explicit ids keep the two entries distinct.
+  // Newsroom embed: the landing page with no site chrome, framed by
+  // third-party pages via public/embed.js. Outside the App layout on purpose.
   route("embed", "pages/EmbedHomePage.tsx"),
-  route("embed/city/:slug", "pages/EmbedCityPage.tsx", { id: "embed-city" }),
   layout("App.tsx", [
     index("pages/HomePage.tsx"),
     route("ballot", "pages/BallotPage.tsx"),
@@ -19,9 +17,6 @@ export default [
     route("draft", "pages/DraftPage.tsx"),
     route("elections/:electionId", "pages/ElectionPage.tsx"),
     route("candidates/:candidateId", "pages/CandidatePage.tsx"),
-    // City race overview for the reviewed pilot cities — the linkable page
-    // behind the newsroom embed (see the top-level embed/city route).
-    route("cities/:slug", "pages/EmbedCityPage.tsx", { id: "city" }),
     route("mission", "pages/MissionPage.tsx"),
     route("support", "pages/SupportPage.tsx"),
     route("support/member", "pages/SupportMemberPage.tsx"),

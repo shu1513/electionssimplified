@@ -4,14 +4,14 @@ import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { ballotSummary, electionSummary } from "../test/fixtures";
 
-// The newsroom box: the app is framed, and the reader came from a city list.
+// The newsroom box: the app is framed, and the reader came from its front page.
 vi.mock("../lib/embedSession", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../lib/embedSession")>();
   return { ...actual, useEmbedSession: () => true };
 });
 
 import { resetEmbedSessionForTests, setEmbedHome } from "../lib/embedSession";
-import { clearBallotDraft, hasOwnBallot, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
+import { clearBallotDraft, readBallotDraft } from "../lib/ballotDraft";
 import { BallotPage } from "./BallotPage";
 
 const DISTRICT = "dddddddd-1111-4111-8111-111111111111";
@@ -19,12 +19,11 @@ const DISTRICT = "dddddddd-1111-4111-8111-111111111111";
 beforeEach(() => {
   resetEmbedSessionForTests();
   clearBallotDraft();
-  setEmbedHome({ path: "/embed/city/austin-tx", label: "Austin races" });
+  setEmbedHome({ path: "/embed", label: "Search" });
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  unpinDraftBallotContextForTests();
 });
 
 describe("BallotPage inside the newsroom box", () => {
@@ -36,14 +35,14 @@ describe("BallotPage inside the newsroom box", () => {
     renderRoutes(
       [
         { path: "/ballot", element: <BallotPage /> },
-        { path: "/embed/city/:slug", element: <p /> },
+        { path: "/embed", element: <p /> },
         { path: "/elections/:electionId", element: <p /> },
       ],
       `/ballot?d=${DISTRICT}&partial=1`
     );
 
-    expect(await screen.findByRole("link", { name: "Back to Austin races" })).toHaveAttribute("href", "/embed/city/austin-tx");
-    expect(screen.getByRole("link", { name: "Enter your street address" })).toHaveAttribute("href", "/embed/city/austin-tx");
-    await waitFor(() => expect(hasOwnBallot()).toBe(true));
+    expect(await screen.findByRole("link", { name: "Back to Search" })).toHaveAttribute("href", "/embed");
+    expect(screen.getByRole("link", { name: "Enter your street address" })).toHaveAttribute("href", "/embed");
+    await waitFor(() => expect(readBallotDraft().district_ids).toEqual([DISTRICT]));
   });
 });
