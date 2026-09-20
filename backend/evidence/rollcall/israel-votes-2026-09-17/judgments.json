@@ -1,0 +1,110 @@
+{
+ "judgments": [
+  {
+   "chamber": "house",
+   "congress": 117,
+   "session": 1,
+   "roll": 275,
+   "measure_id": "H R 5323",
+   "vote_date": "2021-09-23",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 5323, which gave Israel $1 billion in U.S. taxpayer money to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "nay_description": "Voted against H.R. 5323, which gave Israel $1 billion in U.S. taxpayer money to restock its Iron Dome rocket-defense system. The House passed it 420-9. The money later became law inside a 2022 spending bill.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 577,
+   "measure_id": "H R 6126",
+   "vote_date": "2023-11-02",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 6126, which would have sent Israel $14.3 billion in U.S. taxpayer money as military aid. To pay for it, the bill would have taken the same amount from extra funding Congress gave the IRS. The House passed it 226-196.",
+   "nay_description": "Voted against H.R. 6126, which would have sent Israel $14.3 billion in U.S. taxpayer money as military aid. To pay for it, the bill would have taken the same amount from extra funding Congress gave the IRS. The House passed it 226-196.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 152,
+   "measure_id": "H R 8034",
+   "vote_date": "2024-04-20",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8034, which approved $26 billion in U.S. taxpayer money: military aid for Israel and funds for U.S. forces nearby. About $9 billion of it was humanitarian aid, and none could go to the U.N. agency for Palestinian refugees. It passed 366-58 and became law in April 2024.",
+   "nay_description": "Voted against H.R. 8034, which approved $26 billion in U.S. taxpayer money: military aid for Israel and funds for U.S. forces nearby. About $9 billion of it was humanitarian aid, and none could go to the U.N. agency for Palestinian refugees. It passed 366-58 and became law in April 2024.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 172,
+   "measure_id": "H R 6090",
+   "vote_date": "2024-05-01",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 6090, which would have told the Education Department to use a set definition of antisemitism in campus discrimination cases. The definition's examples include some statements about Israel. The House passed it 320-91.",
+   "nay_description": "Voted against H.R. 6090, which would have told the Education Department to use a set definition of antisemitism in campus discrimination cases. The definition's examples include some statements about Israel. The House passed it 320-91.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 2,
+   "roll": 217,
+   "measure_id": "H R 8369",
+   "vote_date": "2024-05-16",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 8369, which would have ordered delivery of weapons shipments to Israel that the president had paused. It would have frozen some Pentagon, State Department and White House funds until delivery. The House passed it 224-187.",
+   "nay_description": "Voted against H.R. 8369, which would have ordered delivery of weapons shipments to Israel that the president had paused. It would have frozen some Pentagon, State Department and White House funds until delivery. The House passed it 224-187.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 116,
+   "session": 1,
+   "roll": 16,
+   "measure_id": "S. 1",
+   "vote_date": "2019-02-05",
+   "review_status": "approved",
+   "yea_description": "Voted for S. 1, which would have authorized $3.3 billion a year in U.S. taxpayer money as military aid to Israel through 2028. It also would have let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23.",
+   "nay_description": "Voted against S. 1, which would have authorized $3.3 billion a year in U.S. taxpayer money as military aid to Israel through 2028. It also would have let states refuse contracts with companies that boycott Israel, and sanctioned Syria's government. The Senate passed it 77-23.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  }
+ ]
+}

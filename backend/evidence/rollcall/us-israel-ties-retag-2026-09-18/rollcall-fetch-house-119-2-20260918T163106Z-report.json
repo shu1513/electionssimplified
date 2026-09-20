@@ -1,0 +1,39 @@
+{
+  "runId": "rollcall-fetch-house-119-2-20260918T163106Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "house",
+  "congress": 119,
+  "session": 2,
+  "dryRun": false,
+  "startedAt": "2026-09-18T16:31:06.639Z",
+  "finishedAt": "2026-09-18T16:31:08.831Z",
+  "evidenceDir": "evidence/rollcall/us-israel-ties-retag-2026-09-18",
+  "requestedRolls": 1,
+  "floorVotes": 1,
+  "counts": {
+    "unchanged": 1
+  },
+  "rows": [
+    {
+      "chamber": "house",
+      "congress": 119,
+      "session": 2,
+      "roll": 295,
+      "machineUrl": "https://clerk.house.gov/evs/2026/roll295.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "house-119-2-roll00295.xml",
+      "voteDate": "2026-09-03",
+      "measureId": "H R 4795",
+      "question": "On Passage",
+      "result": "Passed",
+      "yeas": 237,
+      "nays": 169,
+      "memberVoteCount": 433,
+      "isFloorVote": true,
+      "questionClass": "passage",
+      "classificationReason": "kept:passage",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}

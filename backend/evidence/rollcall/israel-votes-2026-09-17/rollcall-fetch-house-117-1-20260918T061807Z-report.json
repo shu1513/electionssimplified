@@ -1,0 +1,39 @@
+{
+  "runId": "rollcall-fetch-house-117-1-20260918T061807Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "house",
+  "congress": 117,
+  "session": 1,
+  "dryRun": false,
+  "startedAt": "2026-09-18T06:18:07.113Z",
+  "finishedAt": "2026-09-18T06:18:07.551Z",
+  "evidenceDir": "evidence/rollcall/israel-votes-2026-09-17",
+  "requestedRolls": 1,
+  "floorVotes": 1,
+  "counts": {
+    "unchanged": 1
+  },
+  "rows": [
+    {
+      "chamber": "house",
+      "congress": 117,
+      "session": 1,
+      "roll": 275,
+      "machineUrl": "https://clerk.house.gov/evs/2021/roll275.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "house-117-1-roll00275.xml",
+      "voteDate": "2021-09-23",
+      "measureId": "H R 5323",
+      "question": "On Motion to Suspend the Rules and Pass",
+      "result": "Passed",
+      "yeas": 420,
+      "nays": 9,
+      "memberVoteCount": 432,
+      "isFloorVote": true,
+      "questionClass": "suspension",
+      "classificationReason": "kept:suspension",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}

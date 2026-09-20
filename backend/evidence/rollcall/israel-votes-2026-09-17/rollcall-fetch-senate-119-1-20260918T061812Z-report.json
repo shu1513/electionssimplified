@@ -1,0 +1,60 @@
+{
+  "runId": "rollcall-fetch-senate-119-1-20260918T061812Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "senate",
+  "congress": 119,
+  "session": 1,
+  "dryRun": false,
+  "startedAt": "2026-09-18T06:18:12.861Z",
+  "finishedAt": "2026-09-18T06:18:13.749Z",
+  "evidenceDir": "evidence/rollcall/israel-votes-2026-09-17",
+  "requestedRolls": 2,
+  "floorVotes": 0,
+  "counts": {
+    "unchanged": 2
+  },
+  "rows": [
+    {
+      "chamber": "senate",
+      "congress": 119,
+      "session": 1,
+      "roll": 166,
+      "machineUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00166.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "senate-119-1-roll00166.xml",
+      "voteDate": "2025-04-03",
+      "measureId": "S.J.Res. 26",
+      "question": "On the Motion to Discharge",
+      "result": "Motion to Discharge Rejected",
+      "yeas": 15,
+      "nays": 83,
+      "memberVoteCount": 100,
+      "isFloorVote": false,
+      "questionClass": null,
+      "classificationReason": "excluded_question",
+      "judgmentCleared": false,
+      "error": null
+    },
+    {
+      "chamber": "senate",
+      "congress": 119,
+      "session": 1,
+      "roll": 454,
+      "machineUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1191/vote_119_1_00454.xml",
+      "outcome": "unchanged",
+      "evidenceFile": "senate-119-1-roll00454.xml",
+      "voteDate": "2025-07-30",
+      "measureId": "S.J.Res. 41",
+      "question": "On the Motion to Discharge",
+      "result": "Motion to Discharge Rejected",
+      "yeas": 27,
+      "nays": 70,
+      "memberVoteCount": 100,
+      "isFloorVote": false,
+      "questionClass": null,
+      "classificationReason": "excluded_question",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}

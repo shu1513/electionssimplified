@@ -144,6 +144,11 @@ VALUES
     'labor_rights',
     'Labor Rights',
     'Protect workers through fair wages, paid leave, safe workplaces, and the right to organize and bargain collectively.'
+  ),
+  (
+    'us_israel_ties',
+    'U.S.-Israel Ties',
+    'Keep the United States closely tied to Israel through military and financial aid, weapons sales, laws that protect the relationship, and official and sponsored exchanges.'
   )
 ON CONFLICT (slug)
 DO UPDATE SET

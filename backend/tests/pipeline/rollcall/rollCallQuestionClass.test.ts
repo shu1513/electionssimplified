@@ -100,4 +100,28 @@ describe("classifyFederalRollCall — Senate", () => {
     expect(classify("senate", "On the Joint Resolution", "S.Res. 12").reason).toBe("excluded_measure:sres");
     expect(classify("senate", "On the Joint Resolution", "S.Con.Res. 7").reason).toBe("excluded_measure:sconres");
   });
+
+  it("keeps an excluded question only for a roll call on the hand-add list", () => {
+    const measure = parseFederalMeasure("S.J.Res. 41");
+    const question = "On the Motion to Discharge";
+    const handAdded = classifyFederalRollCall({
+      chamber: "senate",
+      question,
+      measure,
+      roll: { congress: 119, session: 1, rollNumber: 454 },
+    });
+    expect(handAdded).toEqual({ isFloorVote: true, questionClass: "hand_add", reason: "kept:hand_add" });
+    const sameQuestionOtherRoll = classifyFederalRollCall({
+      chamber: "senate",
+      question,
+      measure,
+      roll: { congress: 119, session: 1, rollNumber: 455 },
+    });
+    expect(sameQuestionOtherRoll.isFloorVote).toBe(false);
+    // The key carries the chamber: House roll 454 of the same session is not added.
+    expect(
+      classifyFederalRollCall({ chamber: "house", question, measure, roll: { congress: 119, session: 1, rollNumber: 454 } })
+        .isFloorVote
+    ).toBe(false);
+  });
 });

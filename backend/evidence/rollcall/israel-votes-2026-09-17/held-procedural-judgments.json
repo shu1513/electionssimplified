@@ -1,0 +1,92 @@
+{
+ "judgments": [
+  {
+   "chamber": "house",
+   "congress": 118,
+   "session": 1,
+   "roll": 697,
+   "measure_id": "H RES 894",
+   "vote_date": "2023-12-05",
+   "review_status": "approved",
+   "yea_description": "Voted for H.Res. 894, a House resolution that condemned antisemitism and stated that anti-Zionism is antisemitism. The House adopted it 311-14, with 92 members voting present.",
+   "nay_description": "Voted against H.Res. 894, a House resolution that condemned antisemitism and stated that anti-Zionism is antisemitism. The House adopted it 311-14, with 92 members voting present.",
+   "labels": [
+    {
+     "slug": "general"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "roll": 154,
+   "measure_id": "H.R. 815",
+   "vote_date": "2024-04-23",
+   "review_status": "approved",
+   "yea_description": "Voted for H.R. 815, a $95 billion foreign aid package paid with U.S. taxpayer money. It held $61 billion for Ukraine, $26 billion for Israel and humanitarian aid in Gaza and elsewhere, and $8 billion for Taiwan and Pacific allies. The Senate agreed 79-18, and it became law in April 2024.",
+   "nay_description": "Voted against H.R. 815, a $95 billion foreign aid package paid with U.S. taxpayer money. It held $61 billion for Ukraine, $26 billion for Israel and humanitarian aid in Gaza and elsewhere, and $8 billion for Taiwan and Pacific allies. The Senate agreed 79-18, and it became law in April 2024.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 118,
+   "session": 2,
+   "roll": 293,
+   "measure_id": "S.J.Res. 113",
+   "vote_date": "2024-11-20",
+   "review_status": "approved",
+   "yea_description": "Voted to stop the U.S. from selling 50,400 mortar shells to Israel (S.J.Res. 113). The effort failed 19-78, so the sale was allowed.",
+   "nay_description": "Voted to allow the U.S. sale of 50,400 mortar shells to Israel, against an effort to stop it (S.J.Res. 113). The effort failed 19-78, so the sale was allowed.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "roll": 166,
+   "measure_id": "S.J.Res. 26",
+   "vote_date": "2025-04-03",
+   "review_status": "approved",
+   "yea_description": "Voted to stop the U.S. from selling thousands of bombs and bomb-guiding kits to Israel (S.J.Res. 26). The effort failed 15-83, so the sale was allowed.",
+   "nay_description": "Voted to allow the U.S. sale of thousands of bombs and bomb-guiding kits to Israel, against an effort to stop it (S.J.Res. 26). The effort failed 15-83, so the sale was allowed.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "senate",
+   "congress": 119,
+   "session": 1,
+   "roll": 454,
+   "measure_id": "S.J.Res. 41",
+   "vote_date": "2025-07-30",
+   "review_status": "approved",
+   "yea_description": "Voted to stop the U.S. from selling 20,000 automatic rifles to Israel's national police (S.J.Res. 41). The effort failed 27-70, so the sale was allowed.",
+   "nay_description": "Voted to allow the U.S. sale of 20,000 automatic rifles to Israel's national police, against an effort to stop it (S.J.Res. 41). The effort failed 27-70, so the sale was allowed.",
+   "labels": [
+    {
+     "slug": "us_israel_ties",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  }
+ ]
+}

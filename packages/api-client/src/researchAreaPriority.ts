@@ -29,6 +29,7 @@ const RESEARCH_AREA_PRIORITY: readonly string[] = [
   "corporate_accountability",
   "public_infrastructure",
   "peaceful_foreign_policy",
+  "us_israel_ties",
 ];
 
 // Slugs pinned to the very end of every list, after even the unranked ones.
