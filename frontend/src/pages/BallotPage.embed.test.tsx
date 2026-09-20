@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { ballotSummary, electionSummary } from "../test/fixtures";
@@ -10,8 +10,8 @@ vi.mock("../lib/embedSession", async (importOriginal) => {
   return { ...actual, useEmbedSession: () => true };
 });
 
-import { getEmbedBallotPath, resetEmbedSessionForTests, setEmbedHome } from "../lib/embedSession";
-import { clearBallotDraft, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
+import { resetEmbedSessionForTests, setEmbedHome } from "../lib/embedSession";
+import { clearBallotDraft, hasOwnBallot, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
 import { BallotPage } from "./BallotPage";
 
 const DISTRICT = "dddddddd-1111-4111-8111-111111111111";
@@ -28,10 +28,10 @@ afterEach(() => {
 });
 
 describe("BallotPage inside the newsroom box", () => {
-  it("leads back to the city list, remembers the reader's ballot, and sends a new search to the box's own field", async () => {
+  it("leads back to the box's search page, keeps the reader's ballot, and sends a new search there too", async () => {
     stubApiRoutes({
       "/api/me": apiError(401, "unauthorized", "Not logged in"),
-      [`/api/ballot?district_ids=${DISTRICT}&sort=vote_power`]: { body: ballotSummary([electionSummary({ id: "e-1" })]) },
+      "/api/ballot": { body: ballotSummary([electionSummary({ id: "e-1" })]) },
     });
     renderRoutes(
       [
@@ -44,6 +44,6 @@ describe("BallotPage inside the newsroom box", () => {
 
     expect(await screen.findByRole("link", { name: "Back to Austin races" })).toHaveAttribute("href", "/embed/city/austin-tx");
     expect(screen.getByRole("link", { name: "Enter your street address" })).toHaveAttribute("href", "/embed/city/austin-tx");
-    expect(getEmbedBallotPath()).toBe(`/ballot?d=${DISTRICT}&partial=1`);
+    await waitFor(() => expect(hasOwnBallot()).toBe(true));
   });
 });

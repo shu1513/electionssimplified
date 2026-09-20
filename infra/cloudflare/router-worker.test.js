@@ -248,6 +248,7 @@ describe("isCacheablePublicPage", () => {
     "/elections/abc123",
     "/candidates/abc123",
     "/cities/austin-tx",
+    "/embed",
     "/embed/city/austin-tx",
     "/Embed/City/Austin-TX/",
     // React Router renders these variants too — same normalization rules
@@ -480,7 +481,12 @@ describe("security headers", () => {
     }
   });
 
-  it("withSecurityHeaders lets only the embed city route be framed", () => {
+  it("withSecurityHeaders lets only the embed routes be framed", () => {
+    for (const path of ["/embed", "/embed/"]) {
+      const home = withSecurityHeaders(new Response("ok"), path);
+      assert.equal(home.headers.get("X-Frame-Options"), null, path);
+      assert.match(home.headers.get("Content-Security-Policy"), /frame-ancestors \*/, path);
+    }
     const framed = withSecurityHeaders(new Response("ok"), "/embed/city/austin-tx");
     assert.equal(framed.headers.get("X-Frame-Options"), null);
     assert.match(framed.headers.get("Content-Security-Policy"), /frame-ancestors \*/);
@@ -489,7 +495,10 @@ describe("security headers", () => {
     assert.match(framed.headers.get("Content-Security-Policy"), /default-src 'self'/);
     assert.equal(framed.headers.get("X-Content-Type-Options"), "nosniff");
 
-    for (const path of ["/cities/austin-tx", "/embed", "/embed/", "/embed/city", "/embed/city/austin-tx/extra", "/", "/ballot"]) {
+    // The pages a reader reaches from the box (ballot, races, candidates,
+    // draft) are client-side navigations only: loading them in a frame stays
+    // refused.
+    for (const path of ["/cities/austin-tx", "/embed/city", "/embed/city/austin-tx/extra", "/embedded", "/", "/ballot", "/draft", "/candidates/abc"]) {
       const plain = withSecurityHeaders(new Response("ok"), path);
       assert.equal(plain.headers.get("X-Frame-Options"), "DENY", path);
       assert.match(plain.headers.get("Content-Security-Policy"), /frame-ancestors 'none'/, path);
@@ -505,7 +514,10 @@ describe("security headers", () => {
     assert.equal(policies.split(",").length, 1);
   });
 
-  it("isFrameablePath matches the embed city route only", () => {
+  it("isFrameablePath matches the embed home and city routes only", () => {
+    assert.equal(isFrameablePath("/embed"), true);
+    assert.equal(isFrameablePath("/Embed/"), true);
+    assert.equal(isFrameablePath("/embedded"), false);
     assert.equal(isFrameablePath("/embed/city/austin-tx"), true);
     assert.equal(isFrameablePath("/embed/city/austin-tx/"), true);
     assert.equal(isFrameablePath("/EMBED/CITY/Austin-TX"), true);

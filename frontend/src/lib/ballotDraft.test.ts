@@ -9,6 +9,7 @@ import {
   draftProgress,
   flushBallotDraftToAccount,
   hasDraftPicks,
+  hasOwnBallot,
   importDraftHandoff,
   nearestUpcomingTarget,
   pinDraftBallotContext,
@@ -277,14 +278,15 @@ describe("pinned ballot context (newsroom embed)", () => {
     expect(draftProgress(draft, TODAY)).toMatchObject({ picked: 1, total: 1, complete: true });
   });
 
-  it("follows a ballot this document loads, without writing the context to storage", () => {
+  it("gives way to a ballot of the reader's own, which is stored like on the site", () => {
     pinDraftBallotContext([CITY_A], TARGET_A);
+    expect(hasOwnBallot()).toBe(false);
     const mine = { election_date: "2026-11-03", election_ids: ["e1", "e2"] };
     // The reader searched their address inside the box.
     setDraftBallotContext([CITY_B], mine);
     expect(readBallotDraft().district_ids).toEqual([CITY_B]);
     expect(readBallotDraft().target).toEqual(mine);
-    expect(window.localStorage.getItem("voteapp_ballot_draft")).toBeNull();
+    expect(hasOwnBallot()).toBe(true);
   });
 });
 

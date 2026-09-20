@@ -287,9 +287,14 @@ export function unpinDraftBallotContextForTests(): void {
   cache = null;
 }
 
-/** Pins this document's ballot context for its lifetime: it overlays the
- * stored draft, and later context refreshes (setDraftBallotContext) update
- * the pin instead of storage. */
+/** True when this browser holds a ballot of the reader's own (an address
+ * search), as opposed to a city's pinned stand-in. */
+export function hasOwnBallot(): boolean {
+  return readStorage().district_ids.length > 0;
+}
+
+/** Pins a stand-in ballot context for this document: it overlays the stored
+ * draft until the reader loads a ballot of their own (setDraftBallotContext). */
 export function pinDraftBallotContext(districtIds: string[], target: BallotDraft["target"]): void {
   pinnedContext = { district_ids: districtIds, target };
   cache = { ...currentDraft(), ...pinnedContext };
@@ -409,14 +414,10 @@ export function setDraftBallotContext(
   districtIds: string[],
   target: BallotDraft["target"]
 ): void {
-  if (pinnedContext) {
-    // Inside the newsroom box the context is this document's own and never
-    // stored (see pinnedContext). A ballot the reader loads here (their
-    // address search) replaces the city's stand-in context; another box's
-    // storage writes still cannot.
-    pinDraftBallotContext(districtIds, target);
-    return;
-  }
+  // A ballot the reader loaded is THEIR ballot, whatever page it happened on:
+  // it ends a city's stand-in context (see pinnedContext) and is stored, so
+  // the next box on the same publisher's site already knows it.
+  pinnedContext = null;
   const draft = currentDraft();
   writeDraft({ ...draft, district_ids: districtIds, target });
 }

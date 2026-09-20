@@ -86,7 +86,7 @@ describe("MissionPage", () => {
       await screen.findByRole("heading", { name: "For organizations and developers" })
     ).toBeInTheDocument();
     expect(
-      screen.getByText('<script src="https://electionssimplified.com/embed.js" data-city="los-angeles-ca"></script>')
+      screen.getByText('<script src="https://electionssimplified.com/embed.js"></script>')
     ).toBeInTheDocument();
     // Enabled cities first, then states; the disabled entry is not advertised.
     expect(screen.getByText(/Codes available now/).closest("li")).toHaveTextContent(

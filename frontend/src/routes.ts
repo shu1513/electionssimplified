@@ -7,6 +7,7 @@ export default [
   // Newsroom embed: the city race overview with no site chrome, framed by
   // third-party pages via public/embed.js. Same module as /cities/:slug
   // below; the explicit ids keep the two entries distinct.
+  route("embed", "pages/EmbedHomePage.tsx"),
   route("embed/city/:slug", "pages/EmbedCityPage.tsx", { id: "embed-city" }),
   layout("App.tsx", [
     index("pages/HomePage.tsx"),

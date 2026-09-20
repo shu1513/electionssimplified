@@ -33,7 +33,6 @@ import { EmbedHeader } from "../components/EmbedHeader";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
 import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
 import {
-  getEmbedBallotPath,
   recallOpenGroups,
   rememberEmbedSource,
   rememberOpenGroups,
@@ -41,7 +40,7 @@ import {
   useEmbedSession,
   useReportEmbedHeight,
 } from "../lib/embedSession";
-import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
+import { hasOwnBallot, nearestUpcomingTarget, pinDraftBallotContext, readBallotDraft } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -252,7 +251,7 @@ export function EmbedCityPage() {
     const districtIds = framed && embedded ? getEmbedPilotCity(city.slug)?.district_ids : undefined;
     // Once the reader has searched their address here, the box is about
     // their own ballot; coming back to this list must not swap it out.
-    if (!districtIds || getEmbedBallotPath() !== null) {
+    if (!districtIds || hasOwnBallot()) {
       return;
     }
     const elections = races.map((race) => ({
@@ -282,7 +281,7 @@ export function EmbedCityPage() {
   // be the same for every reader.
   const [myBallotPath, setMyBallotPath] = useState<string | null>(null);
   useEffect(() => {
-    setMyBallotPath(getEmbedBallotPath());
+    setMyBallotPath(hasOwnBallot() ? `/ballot?d=${encodeURIComponent(readBallotDraft().district_ids.join(","))}` : null);
   }, []);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";

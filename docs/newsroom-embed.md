@@ -1,33 +1,39 @@
 # Newsroom embed
 
-A one-line snippet that lets a news site show the full list of November races
-for one city, pulled live from Elections Simplified, with links back to the
-candidate and measure pages and to the address lookup.
+A one-line snippet that puts a small copy of Elections Simplified inside a
+news article. Readers find their own ballot, read about the races and
+candidates, and make their picks, without leaving the page.
 
 ## For editors
 
 Paste this where the box should appear:
 
 ```html
-<script src="https://electionssimplified.com/embed.js" data-city="austin-tx" data-publisher="your-code"></script>
+<script src="https://electionssimplified.com/embed.js"></script>
 ```
 
-- `data-city` is the code we give you. A city code like `austin-tx` shows
-  every race that touches that city. A two-letter state code like `tx` shows
-  only the statewide races and measures, for a statewide guide.
-- `data-publisher` is the code we give your newsroom. It lets us count how
-  many readers reached the site from your page. It is optional.
+The box opens on our landing page: the address search. Nothing else is
+needed. Optional settings:
+
+- `data-publisher="your-code"` is the code we give your newsroom. It lets us
+  count how many readers reached the site from your page.
+- `data-city="austin-tx"` opens the box on that city's race list instead
+  (every race that touches the city), with the same address search above it.
+  A two-letter state code like `tx` lists only the statewide races and
+  measures. City and state codes are added as we finish reviewing them; an
+  unknown code shows "City not available".
+
 To choose the size yourself, add either or both of the size settings:
 
 ```html
-<script src="https://electionssimplified.com/embed.js" data-city="austin-tx" data-publisher="your-code" data-max-width="560" data-height="600"></script>
+<script src="https://electionssimplified.com/embed.js" data-max-width="560" data-height="600"></script>
 ```
 
 - `data-max-width` sets the widest the box may be, in pixels (240 to 2000). It is
   optional; without it the box fills the column you put it in. Either way it
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the box's height in pixels (240 to 2000). It is
-  optional; without it the box fits the closed list once when it loads
+  optional; without it the box fits its first page once when it loads
   (between 420 and 600 pixels). Either way the box never changes height
   after that: readers scroll inside it, so nothing they do moves the rest of
   your page.
@@ -35,13 +41,13 @@ To choose the size yourself, add either or both of the size settings:
 If your publishing system strips `<script>` tags, use the iframe form:
 
 ```html
-<iframe src="https://electionssimplified.com/embed/city/austin-tx#pub=your-code" title="Election races for this city, from Elections Simplified" style="width:100%;border:0;height:600px"></iframe>
+<iframe src="https://electionssimplified.com/embed#pub=your-code" title="Find what is on your ballot, from Elections Simplified" style="width:100%;border:0;height:600px"></iframe>
 ```
 
 Set a height that suits your page; readers scroll inside the box.
 If neither works, link to the plain page: `https://electionssimplified.com/cities/austin-tx`.
 
-What the box shows: every race that touches the city (or, for a state code,
+With a city code, the box shows every race that touches the city (or, for a state code,
 the statewide races) for the reviewed election date, grouped by level
 (Federal, State, County, City, Ballot measures), each group collapsed until
 the reader opens it. Every load starts that way, so the box is the same

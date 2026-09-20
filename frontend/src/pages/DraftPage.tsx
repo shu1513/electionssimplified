@@ -13,6 +13,7 @@ import {
   allRacesDecided,
   draftChoicesByElectionId,
   draftPickCount,
+  hasOwnBallot,
   nearestUpcomingTarget,
   setDraftBallotContext,
   useBallotDraft,
@@ -27,7 +28,7 @@ import { pageMeta } from "../lib/pageMeta";
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { isEmbedListedRace } from "../lib/embedPilot";
-import { getEmbedBallotPath, getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
 import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
@@ -129,7 +130,7 @@ export function DraftPage() {
   const embedSession = useEmbedSession();
   // A reader who searched their address in the box has their own ballot: the
   // draft then behaves as on the site (their races, back to their ballot).
-  const embedPersonal = embedSession && getEmbedBallotPath() !== null;
+  const embedPersonal = embedSession && hasOwnBallot();
   const embedHome = embedSession && !embedPersonal ? getEmbedHome() : null;
   const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };

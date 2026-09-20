@@ -32,8 +32,19 @@ function isPhoneWidth(): boolean {
  * helpers; "compact" is a tighter form for the box, with no focus grabbing
  * (it sits inside someone else's article).
  */
-export function AddressSearchForm({ variant, label }: { variant: "landing" | "compact"; label: string }) {
+export function AddressSearchForm({
+  variant,
+  label,
+  grabFocus = true,
+}: {
+  variant: "landing" | "compact";
+  label: string;
+  /** Landing only: focus the field on load and catch stray typing. Off inside
+   * the newsroom box, where it would pull the host page to the box. */
+  grabFocus?: boolean;
+}) {
   const landing = variant === "landing";
+  const focusHelpers = landing && grabFocus;
   const navigate = useNavigate();
   const { me } = useMe();
   const [address, setAddress] = useState("");
@@ -88,7 +99,7 @@ export function AddressSearchForm({ variant, label }: { variant: "landing" | "co
   // Registered per-render but removed on cleanup, so the listener exists
   // only while the landing page is mounted.
   useEffect(() => {
-    if (!landing) {
+    if (!focusHelpers) {
       return;
     }
     function redirectStrayTyping(e: KeyboardEvent) {
@@ -116,7 +127,7 @@ export function AddressSearchForm({ variant, label }: { variant: "landing" | "co
     }
     document.addEventListener("keydown", redirectStrayTyping);
     return () => document.removeEventListener("keydown", redirectStrayTyping);
-  }, [landing, termsOpen]);
+  }, [focusHelpers, termsOpen]);
 
   // Desktop keeps the Google-style cursor-in-box on load, but via an effect
   // rather than the autoFocus prop: React SSRs autoFocus as a real autofocus
@@ -127,10 +138,10 @@ export function AddressSearchForm({ variant, label }: { variant: "landing" | "co
   // wanted: at phone widths the box stays idle so the glyph shows —
   // Google's mobile pattern (no keyboard over the page).
   useEffect(() => {
-    if (landing && !isPhoneWidth()) {
+    if (focusHelpers && !isPhoneWidth()) {
       document.getElementById("address")?.focus();
     }
-  }, [landing]);
+  }, [focusHelpers]);
 
   const resolve = useMutation({
     mutationFn: async (input: {

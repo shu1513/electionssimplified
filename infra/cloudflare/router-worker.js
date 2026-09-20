@@ -111,11 +111,14 @@ const SECURITY_HEADERS = {
 // CORS-mode, so their Origin header is unaffected by this policy.
 const NO_REFERRER_PATHS = new Set(["/verify-email", "/verify-email-change", "/reset-password"]);
 
-// The newsroom embed (frontend/public/embed.js) frames /embed/city/<slug> on
-// third-party pages, so that one route must be allowed in any frame. Only
-// that route: everything else keeps DENY + frame-ancestors 'none'. The page
-// is anonymous and read-only, so clickjacking has nothing to gain there.
-const EMBED_FRAMEABLE_PATH = /^\/embed\/city\/[^/]+\/?$/;
+// The newsroom embed (frontend/public/embed.js) frames /embed (the landing
+// page's address search) or /embed/city/<slug> (a city's race list) on
+// third-party pages, so those two routes must be allowed in any frame. Only
+// those: everything else keeps DENY + frame-ancestors 'none'. The pages a
+// reader reaches from the box are client-side navigations inside the frame,
+// never frame loads, and a third-party frame carries no session cookie, so
+// clickjacking has no signed-in action to reach.
+const EMBED_FRAMEABLE_PATH = /^\/embed(?:\/city\/[^/]+)?\/?$/;
 const EMBED_CSP_POLICY = CSP_POLICY.replace("frame-ancestors 'none'", "frame-ancestors *");
 
 export function isFrameablePath(pathname) {
@@ -203,7 +206,7 @@ const CACHEABLE_DETAIL_PATH = /^\/(?:elections|candidates)\/[^/]+$/;
 // their data, and publisher-neutral (the publisher code rides in the URL
 // fragment, which never reaches the edge), so one cached copy serves every
 // newsroom that embeds the same city.
-const CACHEABLE_CITY_PATH = /^\/(?:cities|embed\/city)\/[^/]+$/;
+const CACHEABLE_CITY_PATH = /^\/(?:embed|(?:cities|embed\/city)\/[^/]+)$/;
 
 export function isCacheablePublicPage(pathname) {
   // React Router matches case-insensitively and ignores trailing slashes

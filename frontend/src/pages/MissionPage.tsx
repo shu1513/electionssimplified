@@ -7,12 +7,8 @@ import { VerifyPrompt } from "../components/VerifyPrompt";
 import { CONTACT_EMAIL, listEnabledEmbedCodes } from "../lib/embedPilot";
 import { pageMeta } from "../lib/pageMeta";
 
-// The paste-in snippet is built from a code that renders today, so the page
-// never advertises a code the embed answers with a 404. Kept as a string so
-// JSX never tries to interpret the tag.
-function embedSnippet(code: string): string {
-  return `<script src="https://electionssimplified.com/embed.js" data-city="${code}"></script>`;
-}
+// Kept as a string so JSX never tries to interpret the tag.
+const EMBED_SNIPPET = '<script src="https://electionssimplified.com/embed.js"></script>';
 
 export const meta: MetaFunction = () =>
   pageMeta({
@@ -165,61 +161,52 @@ export default function MissionPage() {
           We offer our civic tool at no cost to all organizations and developers that contribute to
           fair elections and help people get informed. You can use our embed here:
         </p>
-        {exampleCode ? (
-          <>
-            <p>Paste this one line where the race list should appear on your page:</p>
-            <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm">
-              <code>{embedSnippet(exampleCode)}</code>
-            </pre>
-            <ul className="list-disc space-y-1 pl-6">
-              <li>
-                Codes available now: {embedCodes.map((code, i) => (
-                  <span key={code}>
-                    {i > 0 ? ", " : ""}
-                    <code>{code}</code>
-                  </span>
-                ))}
-                . A city code shows every upcoming race that touches that city. A two-letter state
-                code shows only the statewide races.
-              </li>
-              <li>
-                The box is as wide as the column you put it in and sets its own height. To choose the
-                size yourself, add <code>data-max-width="560"</code> or <code>data-height="600"</code>, in
-                pixels.
-              </li>
-              <li>
-                Races and candidates open inside the box. Every other link opens our site in a new tab,
-                so your readers stay on your page.
-              </li>
-              <li>
-                We add cities as we finish reviewing them. Email{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
-                  {CONTACT_EMAIL}
-                </a>{" "}
-                to request your city or ask for help. Full instructions, including an iframe option,
-                are in the{" "}
-                <a
-                  href="https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold underline hover:text-ink"
-                >
-                  embed guide
-                </a>
-                .
-              </li>
-            </ul>
-          </>
-        ) : (
-          <p>
-            We are reviewing the first cities now, and the embed opens as soon as they are ready.
+        <p>Paste this one line where the box should appear on your page:</p>
+        <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm">
+          <code>{EMBED_SNIPPET}</code>
+        </pre>
+        <ul className="list-disc space-y-1 pl-6">
+          <li>
+            The box opens on our address search. Your readers find their own ballot, read about the
+            races and candidates, and make their picks, all inside the box.
+          </li>
+          <li>
+            The box is as wide as the column you put it in and sets its own height. To choose the
+            size yourself, add <code>data-max-width="560"</code> or <code>data-height="600"</code>, in
+            pixels.
+          </li>
+          {/* Only codes that render today: the page never advertises a code the
+              embed answers with a 404. */}
+          {embedCodes.length > 0 ? (
+            <li>
+              To open on one city's or state's race list instead, add{" "}
+              <code>data-city="{exampleCode}"</code>. Codes available now:{" "}
+              {embedCodes.map((code, i) => (
+                <span key={code}>
+                  {i > 0 ? ", " : ""}
+                  <code>{code}</code>
+                </span>
+              ))}
+              .
+            </li>
+          ) : null}
+          <li>
             Email{" "}
             <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
               {CONTACT_EMAIL}
             </a>{" "}
-            to ask for your city first.
-          </p>
-        )}
+            for help. Full instructions, including an iframe option, are in the{" "}
+            <a
+              href="https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline hover:text-ink"
+            >
+              embed guide
+            </a>
+            .
+          </li>
+        </ul>
       </section>
 
       {me?.email_verified ? (

@@ -48,7 +48,8 @@ const loadFromApi = vi.fn();
 vi.mock("../lib/loadFromApi", () => ({ loadFromApi: (...args: unknown[]) => loadFromApi(...args) }));
 
 import type { LoaderFunctionArgs } from "react-router";
-import { rememberEmbedBallotPath, resetEmbedSessionForTests } from "../lib/embedSession";
+import { resetEmbedSessionForTests } from "../lib/embedSession";
+import { clearBallotDraft, setDraftBallotContext, unpinDraftBallotContextForTests } from "../lib/ballotDraft";
 import { EmbedCityPage, ErrorBoundary, loader, type CityOverview } from "./EmbedCityPage";
 
 const CANDIDATE = {
@@ -110,6 +111,8 @@ function renderCity(data: CityOverview, path = "/embed/city/austin-tx", hash = "
 
 beforeEach(() => {
   resetEmbedSessionForTests();
+  unpinDraftBallotContextForTests();
+  clearBallotDraft();
   loadFromApi.mockReset();
   window.location.hash = "";
   window.localStorage.clear();
@@ -235,7 +238,8 @@ describe("EmbedCityPage", () => {
     expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
     first.unmount();
 
-    rememberEmbedBallotPath("/ballot?d=dddddddd-1111-4111-8111-111111111111");
+    // The reader already searched their address (here or in another box on this site).
+    setDraftBallotContext(["dddddddd-1111-4111-8111-111111111111"], null);
     renderCity(overview());
     expect(await screen.findByRole("link", { name: "My elections" })).toHaveAttribute(
       "href",
