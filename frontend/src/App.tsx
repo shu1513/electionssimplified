@@ -9,6 +9,7 @@ import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
 import { guardEmbedClick, useEmbedSession } from "./lib/embedSession";
 import { importDraftHandoff, isDraftHandoffHash } from "./lib/ballotDraft";
+import { savePendingDistrictIds } from "./lib/pendingDistricts";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
@@ -251,7 +252,13 @@ export function App() {
       return;
     }
     if (me === null) {
-      importDraftHandoff(location.hash);
+      // The reader's exact ballot from the box arms the same district handoff
+      // an address search on this site would: the districts become the new
+      // account's saved ballot once it is verified.
+      const { districtIds } = importDraftHandoff(location.hash);
+      if (districtIds.length > 0) {
+        savePendingDistrictIds(districtIds);
+      }
     }
     navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
   }, [embedSession, me, location.hash, location.pathname, location.search, location.state, navigate]);

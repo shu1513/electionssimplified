@@ -221,47 +221,65 @@ function fromBase64Url(value: string): string {
   return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
 }
 
-/** "#draft=…" carrying the draft's decided picks, or "" when there are none. */
-export function draftHandoffFragment(draft: BallotDraft): string {
-  const rows = Object.values(draft.choices).filter((choice) => isDecidedChoice(choice));
-  return rows.length > 0 ? `${HANDOFF_PREFIX}${toBase64Url(JSON.stringify(rows))}` : "";
+/** "#draft=…" carrying the draft's decided picks and, when the reader has
+ * an exact ballot, its district ids (never the address itself: the site's
+ * own guest-to-account handoff is district ids too). "" when there is
+ * nothing to carry. */
+export function draftHandoffFragment(draft: BallotDraft, districtIds: readonly string[] = []): string {
+  const choices = Object.values(draft.choices).filter((choice) => isDecidedChoice(choice));
+  if (choices.length === 0 && districtIds.length === 0) {
+    return "";
+  }
+  return `${HANDOFF_PREFIX}${toBase64Url(JSON.stringify({ choices, districts: districtIds }))}`;
 }
 
 export function isDraftHandoffHash(hash: string): boolean {
   return hash.startsWith(HANDOFF_PREFIX);
 }
 
-/** Merges a handoff fragment into this browser's draft and returns how many
- * races it added. Every row goes through the same sanitizer as stored
- * drafts, and a race the reader already decided here is never replaced: a
- * link can add picks, it cannot change one. */
-export function importDraftHandoff(hash: string): number {
+/** Merges a handoff fragment into this browser's draft. Every pick goes
+ * through the same sanitizer as stored drafts, and a race the reader already
+ * decided here is never replaced: a link can add picks, it cannot change one.
+ * District ids are UUID-checked and become the draft's ballot only when this
+ * browser has none of its own; they are returned so the caller can arm the
+ * guest-to-account district handoff. */
+export function importDraftHandoff(hash: string): { added: number; districtIds: string[] } {
+  const nothing = { added: 0, districtIds: [] };
   if (!isDraftHandoffHash(hash)) {
-    return 0;
+    return nothing;
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(fromBase64Url(hash.slice(HANDOFF_PREFIX.length)));
   } catch {
-    return 0;
+    return nothing;
   }
-  if (!Array.isArray(parsed)) {
-    return 0;
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return nothing;
   }
+  const payload = parsed as Record<string, unknown>;
+  const rows = Array.isArray(payload.choices) ? payload.choices : [];
+  const districtIds = Array.isArray(payload.districts)
+    ? payload.districts
+        .filter((id): id is string => typeof id === "string" && UUID_SHAPE_RE.test(id))
+        .slice(0, MAX_DRAFT_DISTRICT_IDS)
+    : [];
   const draft = currentDraft();
   const choices = { ...draft.choices };
   let added = 0;
-  for (const value of parsed.slice(0, MAX_HANDOFF_ROWS)) {
+  for (const value of rows.slice(0, MAX_HANDOFF_ROWS)) {
     const row = sanitizeChoiceRow(value);
     if (row && !isDecidedChoice(choices[row.election_id])) {
       choices[row.election_id] = row;
       added += 1;
     }
   }
-  if (added > 0) {
-    writeDraft({ ...draft, choices });
+  const adoptDistricts = districtIds.length > 0 && draft.district_ids.length === 0;
+  if (added > 0 || adoptDistricts) {
+    // target: null — the draft page recomputes it from the ballot it loads.
+    writeDraft({ ...draft, choices, ...(adoptDistricts ? { district_ids: districtIds, target: null } : {}) });
   }
-  return added;
+  return { added, districtIds };
 }
 
 export function unpinDraftBallotContextForTests(): void {

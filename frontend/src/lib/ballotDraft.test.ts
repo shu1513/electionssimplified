@@ -289,31 +289,43 @@ describe("pinned ballot context (newsroom embed)", () => {
 });
 
 describe("draft handoff (newsroom box → site)", () => {
-  it("carries the box's picks to another browser context, accents included", () => {
+  const MINE = ["aaaaaaaa-1111-4111-8111-111111111111", "bbbbbbbb-2222-4222-8222-222222222222"];
+
+  it("carries the box's picks and districts to another browser context, accents included", () => {
     setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c1", candidateName: "José Peña", chosen: true });
-    const fragment = draftHandoffFragment(readBallotDraft());
+    const fragment = draftHandoffFragment(readBallotDraft(), MINE);
     expect(fragment.startsWith("#draft=")).toBe(true);
 
     clearBallotDraft();
-    expect(importDraftHandoff(fragment)).toBe(1);
+    expect(importDraftHandoff(fragment)).toEqual({ added: 1, districtIds: MINE });
     expect(readBallotDraft().choices.e1?.picks[0]).toMatchObject({ candidate_id: "c1", display_name: "José Peña" });
+    expect(readBallotDraft().district_ids).toEqual(MINE);
   });
 
-  it("adds picks but never replaces a race already decided here", () => {
+  it("adds picks but never replaces a race already decided here, nor this browser's own ballot", () => {
     pickJane();
-    const fragment = draftHandoffFragment(readBallotDraft());
+    const fragment = draftHandoffFragment(readBallotDraft(), MINE);
     clearBallotDraft();
+    const own = ["cccccccc-3333-4333-8333-333333333333"];
+    setDraftBallotContext(own, null);
     setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c2", candidateName: "John Roe", chosen: true });
 
-    expect(importDraftHandoff(fragment)).toBe(0);
+    expect(importDraftHandoff(fragment).added).toBe(0);
     expect(readBallotDraft().choices.e1?.picks.map((pick) => pick.candidate_id)).toEqual(["c2"]);
+    expect(readBallotDraft().district_ids).toEqual(own);
+  });
+
+  it("carries districts alone, and drops ids that are not UUIDs", () => {
+    const fragment = draftHandoffFragment(readBallotDraft(), [MINE[0], "not-a-uuid"]);
+    expect(importDraftHandoff(fragment)).toEqual({ added: 0, districtIds: [MINE[0]] });
   });
 
   it("has no fragment for an empty draft and ignores junk", () => {
     expect(draftHandoffFragment(readBallotDraft())).toBe("");
-    expect(importDraftHandoff("#draft=not-base64!!")).toBe(0);
-    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify([{ election_id: 7 }])))).toBe(0);
-    expect(importDraftHandoff("#other")).toBe(0);
+    expect(importDraftHandoff("#draft=not-base64!!").added).toBe(0);
+    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify({ choices: [{ election_id: 7 }] }))).added).toBe(0);
+    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify([1, 2]))).added).toBe(0);
+    expect(importDraftHandoff("#other").added).toBe(0);
     expect(hasDraftPicks(readBallotDraft())).toBe(false);
   });
 });

@@ -116,7 +116,11 @@ The content may be reused freely with attribution.
 - Save: the frame's storage is separate from the site's, so inside the box
   the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"
   button and by the other account-only actions) puts the picks in the
-  sign-up and log-in URLs' fragment
+  sign-up and log-in URLs' fragment, together with the district ids of an
+  exact address search made in the box (never the address itself; a ZIP or
+  city search carries none, so a partial ballot cannot become an account's
+  saved one). On arrival the districts arm the site's usual guest-to-account
+  district handoff (`savePendingDistrictIds`). The picks travel as a fragment
   (`draftHandoffFragment`; a fragment is never sent to a server or in a
   Referer). The app merges them into the site's draft for guests only
   (`importDraftHandoff`: sanitized, never replaces an existing pick), clears

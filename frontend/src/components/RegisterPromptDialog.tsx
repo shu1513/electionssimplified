@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import { draftHandoffFragment, useBallotDraft } from "../lib/ballotDraft";
 import { withSource } from "../lib/embedPilot";
+import { readPendingDistrictIds } from "../lib/pendingDistricts";
 import { rememberEmbedSource, useEmbedSession } from "../lib/embedSession";
 import { track } from "../lib/usage";
 
@@ -31,7 +32,10 @@ export function RegisterPromptDialog({ open, onClose, title, description, source
   // picks ride along in the URL fragment (lib/ballotDraft.ts, draft handoff).
   const draft = useBallotDraft();
   const embedSession = useEmbedSession();
-  const handoff = embedSession ? draftHandoffFragment(draft) : "";
+  // readPendingDistrictIds: set only by an EXACT address search in this box
+  // (a ZIP or city search clears it), so a partial ballot never becomes an
+  // account's saved one.
+  const handoff = embedSession ? draftHandoffFragment(draft, readPendingDistrictIds()) : "";
   // The publisher code keeps the sign-up attributed to the box it came from.
   const publisher = embedSession ? rememberEmbedSource(null) : null;
   useEffect(() => {
