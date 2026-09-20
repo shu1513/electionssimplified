@@ -35,15 +35,15 @@ Set a height that suits your page; readers scroll inside the box.
 If neither works, link to the plain page: `https://electionssimplified.com/cities/austin-tx`.
 
 What the box shows: every race that touches the city (or, for a state code,
-the statewide races) for the reviewed election date, grouped by level (Federal, State, County, City, Ballot
-measures), each group collapsed until the reader opens it. For each
-candidate: name, party where the race is partisan, incumbent status, and
-withdrawn status. Ballot
-measures are listed by title; each opens its own page with a short
-description and what a yes and a no vote mean, in our words, not the ballot
-text. Judicial retention questions are left out.
+the statewide races) for the reviewed election date, grouped by level
+(Federal, State, County, City, Ballot measures), each group collapsed until
+the reader opens it. Each group is a list of race titles, like the site's own
+election list. A race opens its own page: the candidates (name, party,
+incumbent and withdrawn status), or for a measure a short description and
+what a yes and a no vote mean, in our words, not the ballot text. Judicial
+retention questions are left out.
 
-The box works as a small copy of the site. A candidate or measure opens
+The box works as a small copy of the site. Races and candidates open
 inside the box, with the site's own Back / Prev / Next bar. Readers can pick
 candidates; after the first pick a "My Draft" counter appears at the top
 right and opens their draft, also inside the box. The draft is kept in the
@@ -73,7 +73,7 @@ The content may be reused freely with attribution.
   reads it in the browser and appends `?src=<code>` to its outbound links.
 - `/embed/city/:slug` and `/cities/:slug` share one module,
   `frontend/src/pages/EmbedCityPage.tsx`. The loader is server-side: it calls
-  `/api/ballot?district_ids=…&election_date=…&sort=vote_power&include=preview`,
+  `/api/ballot?district_ids=…&election_date=…&sort=vote_power`,
   pinned to the reviewed election date (so the list outlives the API's
   recent-past window), and returns a trimmed race list, so the HTML is
   complete without a client fetch.

@@ -27,10 +27,9 @@ import {
   formatElectionDate,
   type BallotLevel,
   type BallotSummary,
-  type ElectionPreview,
 } from "@voteapp/api-client";
 import { EmbedHeader } from "../components/EmbedHeader";
-import type { BackTo, CandidateNavState, ElectionNavState } from "../lib/detailNavContext";
+import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
 import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
 import { rememberEmbedSource, setEmbedHome, useEmbedSession } from "../lib/embedSession";
 import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
@@ -47,7 +46,6 @@ export type CityRace = {
   level: BallotLevel;
   district_name: string;
   sub_district_seat: string | null;
-  preview: ElectionPreview | null;
 };
 
 export type CityOverview = {
@@ -78,7 +76,6 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
     district_ids: city.district_ids.join(","),
     election_date: city.election_date,
     sort: "vote_power",
-    include: "preview",
   });
   const ballot = await loadFromApi<BallotSummary>(`/api/ballot?${query.toString()}`, request);
   const races = ballot.elections
@@ -90,7 +87,6 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
       level: ballotLevel(election.office?.scope, election.district.district_type, election.discovery_contest_family),
       district_name: election.district.name,
       sub_district_seat: election.sub_district_seat ?? null,
-      preview: election.preview ?? null,
     }));
   return {
     city: {
@@ -180,106 +176,20 @@ export function groupRaces(races: CityRace[]): RaceGroup[] {
   return ordered;
 }
 
-// Only the unusual case gets a note; "vote for one" and "yes or no" are the
-// default and would repeat on every race.
-function seatNote(seatsToFill: number | null): string | null {
-  return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : null;
-}
-
-const ROW_LINK_CLASS = "flex flex-wrap items-baseline gap-x-2 px-3 py-1.5 text-sm hover:bg-surface";
-
-function CandidateRow({
-  candidate,
-  href,
-  navState,
-}: {
-  candidate: ElectionPreview["candidates"][number];
-  href: string;
-  /** Set inside the box: the profile opens in the box, and this state gives
-   * its top bar the way back to the list and the race's other candidates. */
-  navState: CandidateNavState | null;
-}) {
-  const withdrawn = candidate.status === "withdrawn";
-  // The whole row is the link: a chevron and hover tint say "tap me" without
-  // repeating a "details" label on every line.
-  const content = (
-    <>
-      <span className={withdrawn ? "text-ink-soft line-through" : "font-medium text-ink"}>
-        {candidate.display_name}
-        {candidate.running_mate ? ` and ${candidate.running_mate.display_name}` : null}
-      </span>
-      {candidate.party ? <span className="text-ink-soft">{candidate.party}</span> : null}
-      {candidate.is_incumbent ? (
-        <span className="rounded bg-surface px-1.5 py-0.5 text-xs font-semibold text-ink">Incumbent</span>
-      ) : null}
-      {withdrawn ? <span className="text-xs text-ink-soft">(withdrew)</span> : null}
-      <span aria-hidden="true" className="ml-auto text-ink-soft">
-        ›
-      </span>
-    </>
-  );
-  return (
-    <li className="border-t border-line">
-      {navState ? (
-        <Link to={href} state={navState} className={ROW_LINK_CLASS}>
-          {content}
-        </Link>
-      ) : (
-        <a href={href} className={ROW_LINK_CLASS}>
-          {content}
-        </a>
-      )}
-    </li>
-  );
-}
-
-function RaceBox({ race, source, backTo }: { race: CityRace; source: string | null; backTo: BackTo | null }) {
-  const preview = race.preview;
-  const candidateNavState: CandidateNavState | null = backTo
-    ? {
-        backTo,
-        electionId: race.id,
-        candidates: (preview?.candidates ?? []).map((candidate) => ({ id: candidate.candidate_id, name: candidate.display_name })),
-      }
-    : null;
-  return (
-    <section className="rounded-md border border-line bg-white">
-      <header className="px-3 py-2">
-        <h4 className="text-sm font-bold leading-snug text-ink">{race.title}</h4>
-        <p className="mt-0.5 text-xs text-ink-soft">
-          {race.district_name}
-          {race.sub_district_seat ? ` · covers ${race.sub_district_seat}` : null}
-          {seatNote(preview?.seats_to_fill ?? null) ? ` · ${seatNote(preview?.seats_to_fill ?? null)}` : null}
-        </p>
-      </header>
-      {preview && preview.candidates.length > 0 ? (
-        <ul>
-          {preview.candidates.map((candidate) => (
-            <CandidateRow
-              key={candidate.candidate_election_id}
-              candidate={candidate}
-              href={withSource(`/candidates/${candidate.candidate_id}`, source)}
-              navState={candidateNavState}
-            />
-          ))}
-        </ul>
-      ) : (
-        <p className="border-t border-line px-3 py-1.5 text-xs text-ink-soft">Candidate list not final.</p>
-      )}
-    </section>
-  );
-}
-
-/** The ballot-measure group: one row per measure, title only. The measure's
- * own page carries the description and what a yes and a no vote mean; here
- * the rows work like the candidate rows, and inside the box the page opens in
- * the box with the other measures as its Prev / Next sequence. */
-function MeasureList({ races, source, backTo }: { races: CityRace[]; source: string | null; backTo: BackTo | null }) {
+/** One group's races: a row per race, title and district only, like the
+ * site's own election list. The race's page carries the candidates (or, for
+ * a measure, the description and what a yes and a no vote mean). Inside the
+ * box that page opens in the box, with the group's other races as its
+ * Prev / Next sequence and this list as its way back. */
+function RaceList({ races, source, backTo }: { races: CityRace[]; source: string | null; backTo: BackTo | null }) {
   const navState: ElectionNavState | null = backTo
     ? {
         backTo,
-        raceType: "ballot_measure",
-        contests: races.map((race) => ({ id: race.id, title: race.title, race_type: "ballot_measure" as const })),
+        contests: races.map((race) => ({
+          id: race.id,
+          title: race.title,
+          race_type: race.race_type === "ballot_measure" ? ("ballot_measure" as const) : ("office" as const),
+        })),
       }
     : null;
   return (
@@ -290,7 +200,10 @@ function MeasureList({ races, source, backTo }: { races: CityRace[]; source: str
           <>
             <span className="min-w-0 flex-1">
               <span className="block font-medium text-ink">{race.title}</span>
-              <span className="block text-xs text-ink-soft">{race.district_name}</span>
+              <span className="block text-xs text-ink-soft">
+                {race.district_name}
+                {race.sub_district_seat ? ` · covers ${race.sub_district_seat}` : null}
+              </span>
             </span>
             <span aria-hidden="true" className="text-ink-soft">
               ›
@@ -440,11 +353,7 @@ export function EmbedCityPage() {
                 </span>
               </summary>
               <div className="mt-2 space-y-2">
-                {group.key === MEASURE_GROUP ? (
-                  <MeasureList races={group.races} source={source} backTo={backTo} />
-                ) : (
-                  group.races.map((race) => <RaceBox key={race.id} race={race} source={source} backTo={backTo} />)
-                )}
+                <RaceList races={group.races} source={source} backTo={backTo} />
               </div>
             </details>
           ))}
