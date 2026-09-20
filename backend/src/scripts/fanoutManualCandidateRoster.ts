@@ -266,7 +266,7 @@ async function main(): Promise<void> {
     // No-FEC-ID exception rows get no profile draft: the profile consumer
     // requires roster FEC IDs for federal contests, so a draft would only
     // retry and park. Their profiles go through manual:candidate-profile:write.
-    const draftCandidates = candidates.filter((candidate) => !candidate.no_fec_id_exception);
+    // Only the lead's draft is skipped; a running mate's draft is still emitted.
     const manualProfileRequired = candidates
       .filter((candidate) => candidate.no_fec_id_exception)
       .map((candidate) => candidate.display_name);
@@ -297,20 +297,24 @@ async function main(): Promise<void> {
     await redis!.connect();
     const fanout = await enqueueCandidateProfileDrafts(
       redis!,
-      draftCandidates.flatMap((candidate) => [
-        {
-          electionId,
-          runId,
-          displayName: candidate.display_name,
-          rosterIndex: candidate.roster_index,
-          rosterParty: candidate.party,
-          rosterIsIncumbent: candidate.is_incumbent,
-          disambiguationHint: candidate.disambiguation_hint,
-          fecIds: candidate.fec_ids,
-          stateFilingIdsHint: candidate.state_filing_ids,
-          skipPerElectionNameDedupe: candidate.skip_per_election_name_dedupe,
-          seedUrls: mergeSeedUrls(candidate.sources, electionSeedUrls),
-        },
+      candidates.flatMap((candidate) => [
+        ...(candidate.no_fec_id_exception
+          ? []
+          : [
+              {
+                electionId,
+                runId,
+                displayName: candidate.display_name,
+                rosterIndex: candidate.roster_index,
+                rosterParty: candidate.party,
+                rosterIsIncumbent: candidate.is_incumbent,
+                disambiguationHint: candidate.disambiguation_hint,
+                fecIds: candidate.fec_ids,
+                stateFilingIdsHint: candidate.state_filing_ids,
+                skipPerElectionNameDedupe: candidate.skip_per_election_name_dedupe,
+                seedUrls: mergeSeedUrls(candidate.sources, electionSeedUrls),
+              },
+            ]),
         ...(candidate.running_mate
           ? [
               {
