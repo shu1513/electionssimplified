@@ -45,7 +45,7 @@ If your publishing system strips `<script>` tags, use the iframe form:
 ```
 
 Set a height that suits your page; readers scroll inside the box.
-If neither works, link to the plain page: `https://electionssimplified.com/cities/austin-tx`.
+If neither works, link to our home page, or to a city's plain page: `https://electionssimplified.com/cities/austin-tx`.
 
 With a city code, the box shows every race that touches the city (or, for a state code,
 the statewide races) for the reviewed election date, grouped by level
@@ -84,7 +84,9 @@ The content may be reused freely with attribution.
 
 ## How it works
 
-- `frontend/public/embed.js` inserts an iframe of `/embed/city/<slug>` after
+- `frontend/public/embed.js` inserts an iframe of `/embed` (the landing
+  page, `pages/EmbedHomePage.tsx`, which shares `LandingHero` with the home
+  page) or, with a city code, of `/embed/city/<slug>`, after
   the script tag. With `data-height` the box is exactly that tall. Without
   it, the page reports its content height once and the script fits the box
   to it (420 to 600 pixels), ignoring anything later. The page scrolls
@@ -99,7 +101,7 @@ The content may be reused freely with attribution.
   pinned to the reviewed election date (so the list outlives the API's
   recent-past window), and returns a trimmed race list, so the HTML is
   complete without a client fetch.
-- In-box pages: only `/embed/city/*` can be loaded in a frame. Candidate,
+- In-box pages: only `/embed` and `/embed/city/*` can be loaded in a frame. Candidate,
   race, and draft pages are reached by client-side navigation and render in
   the normal app layout, which detects the frame
   (`frontend/src/lib/embedSession.ts`) and swaps the site header and footer
@@ -114,10 +116,11 @@ The content may be reused freely with attribution.
 - Address search: the city list renders `AddressSearchForm` (the landing
   page's own form, compact variant), so the clickwrap, the partial-ballot
   paths, and the usage events are the same code. `/ballot` is an in-box
-  path. A ballot loaded in the box replaces the city's stand-in context
-  (`setDraftBallotContext` updates the pin), `embedSession` remembers its
-  path, the city list then links to "My elections" and stops re-pinning, and
-  the draft page returns to that ballot. Suggestions use the same paid
+  path. A ballot the reader loads is their own: it is stored like on the site
+  (`setDraftBallotContext` also ends a city's pinned stand-in), so the next
+  box on the same publisher's site already knows it (`hasOwnBallot`). The
+  box's front page then links to "My elections", the city list stops
+  pinning, and the draft page returns to that ballot. Suggestions use the same paid
   autocomplete endpoint as the site.
 - Save: the frame's storage is separate from the site's, so inside the box
   the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"
