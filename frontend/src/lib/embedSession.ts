@@ -60,7 +60,7 @@ export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLE
   }, [enabled, content]);
 }
 
-const IN_BOX_PATHS = [/^\/embed\/city\/[^/]+\/?$/, /^\/candidates\/[^/]+\/?$/, /^\/elections\/[^/]+\/?$/, /^\/draft\/?$/];
+const IN_BOX_PATHS = [/^\/embed\/city\/[^/]+\/?$/, /^\/ballot\/?$/, /^\/candidates\/[^/]+\/?$/, /^\/elections\/[^/]+\/?$/, /^\/draft\/?$/];
 
 /** Pages that stay inside the box. Every other link opens a new tab. */
 export function isInBoxPath(pathname: string): boolean {
@@ -90,6 +90,20 @@ export function rememberEmbedSource(code: string | null): string | null {
     source = code;
   }
   return source;
+}
+
+// The reader's own ballot, once they have searched an address inside the box
+// (path + query of the ballot page). From then on the box is about THEIR
+// races: the city list stops standing in for their districts, and the draft
+// page goes back to this ballot instead of the city list.
+let ballotPath: string | null = null;
+
+export function rememberEmbedBallotPath(path: string): void {
+  ballotPath = path;
+}
+
+export function getEmbedBallotPath(): string | null {
+  return ballotPath;
 }
 
 // Which groups the reader has open on a city list, kept for this document
@@ -138,4 +152,5 @@ export function resetEmbedSessionForTests(): void {
   home = null;
   source = null;
   openGroups = null;
+  ballotPath = null;
 }

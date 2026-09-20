@@ -48,7 +48,7 @@ const loadFromApi = vi.fn();
 vi.mock("../lib/loadFromApi", () => ({ loadFromApi: (...args: unknown[]) => loadFromApi(...args) }));
 
 import type { LoaderFunctionArgs } from "react-router";
-import { resetEmbedSessionForTests } from "../lib/embedSession";
+import { rememberEmbedBallotPath, resetEmbedSessionForTests } from "../lib/embedSession";
 import { EmbedCityPage, ErrorBoundary, loader, type CityOverview } from "./EmbedCityPage";
 
 const CANDIDATE = {
@@ -226,6 +226,27 @@ describe("EmbedCityPage", () => {
   it("shows the ward-level seat under the race title", async () => {
     renderCity(overview());
     expect(await screen.findByText(/Travis County · covers Precinct 2/)).toBeInTheDocument();
+  });
+
+  it("offers the site's address search in the box, and a way back to a ballot the reader already has", async () => {
+    const first = renderCity(overview());
+    expect(await screen.findByLabelText("Enter your address to see only your races:")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Search" })).toBeDisabled();
+    expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
+    first.unmount();
+
+    rememberEmbedBallotPath("/ballot?d=dddddddd-1111-4111-8111-111111111111");
+    renderCity(overview());
+    expect(await screen.findByRole("link", { name: "My elections" })).toHaveAttribute(
+      "href",
+      "/ballot?d=dddddddd-1111-4111-8111-111111111111"
+    );
+  });
+
+  it("leaves the address search off the plain city page", async () => {
+    renderCity(overview({ embedded: false }), "/cities/austin-tx");
+    await screen.findByRole("heading", { level: 1 });
+    expect(screen.queryByLabelText("Enter your address to see only your races:")).not.toBeInTheDocument();
   });
 
   it("shows no vote-power rating on the list", async () => {

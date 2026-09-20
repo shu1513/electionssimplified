@@ -28,7 +28,7 @@ To choose the size yourself, add either or both of the size settings:
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the box's height in pixels (240 to 2000). It is
   optional; without it the box fits the closed list once when it loads
-  (between 300 and 480 pixels). Either way the box never changes height
+  (between 420 and 600 pixels). Either way the box never changes height
   after that: readers scroll inside it, so nothing they do moves the rest of
   your page.
 
@@ -52,6 +52,13 @@ incumbent and withdrawn status), or for a measure a short description and
 what a yes and a no vote mean, in our words, not the ballot text. Judicial
 retention questions are left out.
 
+The list is city-wide: every race that touches the city, so each reader can
+find theirs. Above it is the same address search as our home page. A reader
+who enters an address (or a ZIP or city, for a partial ballot) gets their own
+ballot inside the box, with only the races they can vote in; the draft
+counter then counts their ballot, not the city's. The first search asks them
+to accept our Terms of Use, as on the site.
+
 The box works as a small copy of the site. Races and candidates open
 inside the box, with the site's own Back / Prev / Next bar. Readers can pick
 candidates; after the first pick a "My Draft" counter appears at the top
@@ -74,7 +81,7 @@ The content may be reused freely with attribution.
 - `frontend/public/embed.js` inserts an iframe of `/embed/city/<slug>` after
   the script tag. With `data-height` the box is exactly that tall. Without
   it, the page reports its content height once and the script fits the box
-  to it (300 to 480 pixels), ignoring anything later. The page scrolls
+  to it (420 to 600 pixels), ignoring anything later. The page scrolls
   inside the frame, so the host page's layout never changes. The message is
   honoured only from our origin and from that iframe's own window.
 - The publisher code rides in the URL fragment, which never reaches the
@@ -98,6 +105,14 @@ The content may be reused freely with attribution.
   is pinned in the frame's memory (`pinDraftBallotContext`), not stored:
   every box on one publisher's site shares the same storage, and a stored
   context would let one city's box replace another's. Picks stay shared.
+- Address search: the city list renders `AddressSearchForm` (the landing
+  page's own form, compact variant), so the clickwrap, the partial-ballot
+  paths, and the usage events are the same code. `/ballot` is an in-box
+  path. A ballot loaded in the box replaces the city's stand-in context
+  (`setDraftBallotContext` updates the pin), `embedSession` remembers its
+  path, the city list then links to "My elections" and stops re-pinning, and
+  the draft page returns to that ballot. Suggestions use the same paid
+  autocomplete endpoint as the site.
 - Save: the frame's storage is separate from the site's, so inside the box
   the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"
   button and by the other account-only actions) puts the picks in the

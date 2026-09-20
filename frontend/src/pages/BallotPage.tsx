@@ -34,6 +34,8 @@ import { pageMeta } from "../lib/pageMeta";
 // path: a ballot URL is district-specific, so no canonical or og:url here.
 export const meta: MetaFunction = () => pageMeta({ title: `Elections · ${APP_NAME}` });
 import { useHydrated } from "../lib/useHydrated";
+import { getEmbedHome, rememberEmbedBallotPath, useEmbedSession } from "../lib/embedSession";
+import { DetailPager } from "../components/DetailPager";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { useTrackBallotResult, track } from "../lib/usage";
 
@@ -129,6 +131,20 @@ export function BallotPage() {
   // Keep the guest draft's badge link and progress denominator tracking the
   // ballot the guest actually looked at last. Signed-in visitors never touch
   // the draft here — theirs lives in the account.
+  // Inside the newsroom box: this is the reader's own ballot from the box's
+  // address search. Remember it (the city list links back here, the draft
+  // page returns here), and send "search again" to the city list, where the
+  // box's search field is, instead of the site's landing page.
+  const embedSession = useEmbedSession();
+  const embedHome = embedSession ? getEmbedHome() : null;
+  const searchAgainPath = embedHome?.path ?? "/?new=1";
+  const ballotPathForEmbed = districtIds.length > 0 ? location.pathname + location.search : null;
+  useEffect(() => {
+    if (embedSession && ballotPathForEmbed) {
+      rememberEmbedBallotPath(ballotPathForEmbed);
+    }
+  }, [embedSession, ballotPathForEmbed]);
+
   const ballotElections = ballot.data?.elections;
   useEffect(() => {
     if (!isGuest || !ballotElections) {
@@ -202,7 +218,7 @@ export function BallotPage() {
         <h1 className="sr-only">Elections</h1>
         <EmptyNotice text="No districts selected." />
         <p className="text-center">
-          <Link to="/" className="text-ink underline hover:text-rausch">
+          <Link to={embedHome?.path ?? "/"} className="text-ink underline hover:text-rausch">
             Start with your address
           </Link>
         </p>
@@ -218,6 +234,7 @@ export function BallotPage() {
           elections. "My elections", not "Upcoming elections": the list keeps
           just-finished elections for BALLOT_PAST_ELECTION_VISIBILITY_DAYS so
           their results stay discoverable, and those are not upcoming. */}
+      {embedHome ? <DetailPager ariaLabel="Ballot navigation" prev={null} next={null} backTo={embedHome} /> : null}
       <h1 className="mb-4 text-title font-bold text-ink">My elections:</h1>
       {/* Race-type tabs and sorting on the left, the "How to vote" resources
           on the right — its disclosure panel opens inline under its own
@@ -277,7 +294,7 @@ export function BallotPage() {
             "This is a partial ballot."
           )}{" "}
           <Link
-            to="/?new=1"
+            to={searchAgainPath}
             onClick={() => track("partial_upgrade_click", { banner: "partial" })}
             className="underline hover:text-rausch"
           >
@@ -292,7 +309,7 @@ export function BallotPage() {
           Your search matched {ambiguousMatchCount} possible addresses, and this ballot is for{" "}
           <span className="font-medium">{matchedAddress}</span>. If that is not your address,{" "}
           <Link
-            to="/?new=1"
+            to={searchAgainPath}
             onClick={() => track("partial_upgrade_click", { banner: "ambiguous" })}
             className="underline hover:text-rausch"
           >

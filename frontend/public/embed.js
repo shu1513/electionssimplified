@@ -12,7 +12,7 @@
  * Inserts an iframe of /embed/city/<city> right after the script tag. The
  * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
  * height. Without it the box is sized once, when the page first reports its
- * content height (the list with every group closed), between 300 and 480
+ * content height (the list with every group closed), between 420 and 600
  * pixels. Either way it never changes after that: readers scroll inside it,
  * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
@@ -29,13 +29,13 @@
   }
   var CODE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
   var MAX_CODE_LENGTH = 48;
-  var DEFAULT_HEIGHT = 480;
+  var DEFAULT_HEIGHT = 600;
   var MIN_HEIGHT = 240;
   var MIN_WIDTH = 240;
   var MAX_WIDTH = 2000;
-  // A short list (a state code with two groups closes to under 200px) must
-  // still leave room to read a race or a candidate page inside the box.
-  var SMALLEST_BOX = 300;
+  // The box is a small copy of the site (address search, ballot, race and
+  // candidate pages), so even a short list leaves room to read those.
+  var SMALLEST_BOX = 420;
   var BORDER = 2;
   var MAX_HEIGHT = 2000;
   var city = script.getAttribute("data-city") || "";

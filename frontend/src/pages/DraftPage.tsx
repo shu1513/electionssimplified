@@ -27,7 +27,7 @@ import { pageMeta } from "../lib/pageMeta";
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { isEmbedListedRace } from "../lib/embedPilot";
-import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { getEmbedBallotPath, getEmbedHome, useEmbedSession } from "../lib/embedSession";
 import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
@@ -127,7 +127,10 @@ export function DraftPage() {
   // the box started on, and no sign-up button (the box's draft lives in the
   // frame's own storage, so an account made in a new tab would not get it).
   const embedSession = useEmbedSession();
-  const embedHome = embedSession ? getEmbedHome() : null;
+  // A reader who searched their address in the box has their own ballot: the
+  // draft then behaves as on the site (their races, back to their ballot).
+  const embedPersonal = embedSession && getEmbedBallotPath() !== null;
+  const embedHome = embedSession && !embedPersonal ? getEmbedHome() : null;
   const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
@@ -142,7 +145,7 @@ export function DraftPage() {
   // Inside the box the list keeps the box's scope: the city list's pinned
   // election day and no retention questions, so this page and the counter
   // show exactly the races the reader was offered.
-  const embedDate = embedSession ? (draft.target?.election_date ?? null) : null;
+  const embedDate = embedSession && !embedPersonal ? (draft.target?.election_date ?? null) : null;
   const ballot = useQuery({
     queryKey: ["ballot", districtIds.join(","), "preview", embedDate],
     queryFn: async () => {

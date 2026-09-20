@@ -20,6 +20,7 @@ describe("isInBoxPath", () => {
     expect(isInBoxPath("/candidates/c-1")).toBe(true);
     expect(isInBoxPath("/elections/e-1")).toBe(true);
     expect(isInBoxPath("/draft")).toBe(true);
+    expect(isInBoxPath("/ballot")).toBe(true);
     expect(isInBoxPath("/")).toBe(false);
     expect(isInBoxPath("/register")).toBe(false);
     expect(isInBoxPath("/me/picks")).toBe(false);

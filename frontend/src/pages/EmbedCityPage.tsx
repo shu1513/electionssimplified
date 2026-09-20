@@ -28,10 +28,12 @@ import {
   type BallotLevel,
   type BallotSummary,
 } from "@voteapp/api-client";
+import { AddressSearchForm } from "../components/AddressSearchForm";
 import { EmbedHeader } from "../components/EmbedHeader";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
 import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
 import {
+  getEmbedBallotPath,
   recallOpenGroups,
   rememberEmbedSource,
   rememberOpenGroups,
@@ -248,7 +250,9 @@ export function EmbedCityPage() {
   const framed = useEmbedSession();
   useEffect(() => {
     const districtIds = framed && embedded ? getEmbedPilotCity(city.slug)?.district_ids : undefined;
-    if (!districtIds) {
+    // Once the reader has searched their address here, the box is about
+    // their own ballot; coming back to this list must not swap it out.
+    if (!districtIds || getEmbedBallotPath() !== null) {
       return;
     }
     const elections = races.map((race) => ({
@@ -274,6 +278,12 @@ export function EmbedCityPage() {
       return next;
     });
   };
+  // Read after mount: module state is client-only, and the server HTML must
+  // be the same for every reader.
+  const [myBallotPath, setMyBallotPath] = useState<string | null>(null);
+  useEffect(() => {
+    setMyBallotPath(getEmbedBallotPath());
+  }, []);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";
   const electionPassed = usLatestLocalDate() > city.election_date;
@@ -290,6 +300,21 @@ export function EmbedCityPage() {
       </h1>
       {electionPassed ? (
         <p className="mt-2 rounded-md bg-surface px-3 py-2 text-sm font-semibold">This election has passed.</p>
+      ) : null}
+      {/* The list is city-wide: every race that touches the city. A reader who
+          gives an address gets their own ballot instead, inside the box, the
+          same search the site's landing page runs. */}
+      {embedded && !electionPassed ? (
+        <div className="mt-3">
+          <AddressSearchForm variant="compact" label="Enter your address to see only your races:" />
+          {myBallotPath ? (
+            <p className="mt-2 text-sm">
+              <Link to={myBallotPath} className="font-semibold text-ink underline hover:text-rausch">
+                My elections
+              </Link>
+            </p>
+          ) : null}
+        </div>
       ) : null}
       {groups.length === 0 ? (
         <p className="mt-4 text-sm text-ink-soft">No {electionDay} races are listed for this {isState ? "state" : "city"} yet.</p>

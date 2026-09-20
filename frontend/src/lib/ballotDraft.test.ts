@@ -277,10 +277,14 @@ describe("pinned ballot context (newsroom embed)", () => {
     expect(draftProgress(draft, TODAY)).toMatchObject({ picked: 1, total: 1, complete: true });
   });
 
-  it("ignores a page load that would refresh the context", () => {
+  it("follows a ballot this document loads, without writing the context to storage", () => {
     pinDraftBallotContext([CITY_A], TARGET_A);
-    setDraftBallotContext([CITY_A], { election_date: "2026-10-06", election_ids: ["e1", "e2"] });
-    expect(readBallotDraft().target).toEqual(TARGET_A);
+    const mine = { election_date: "2026-11-03", election_ids: ["e1", "e2"] };
+    // The reader searched their address inside the box.
+    setDraftBallotContext([CITY_B], mine);
+    expect(readBallotDraft().district_ids).toEqual([CITY_B]);
+    expect(readBallotDraft().target).toEqual(mine);
+    expect(window.localStorage.getItem("voteapp_ballot_draft")).toBeNull();
   });
 });
 

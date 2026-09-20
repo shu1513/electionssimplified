@@ -269,8 +269,9 @@ export function unpinDraftBallotContextForTests(): void {
   cache = null;
 }
 
-/** Pins this document's ballot context for its lifetime; page loads that
- * would refresh the context (setDraftBallotContext) are then ignored. */
+/** Pins this document's ballot context for its lifetime: it overlays the
+ * stored draft, and later context refreshes (setDraftBallotContext) update
+ * the pin instead of storage. */
 export function pinDraftBallotContext(districtIds: string[], target: BallotDraft["target"]): void {
   pinnedContext = { district_ids: districtIds, target };
   cache = { ...currentDraft(), ...pinnedContext };
@@ -391,6 +392,11 @@ export function setDraftBallotContext(
   target: BallotDraft["target"]
 ): void {
   if (pinnedContext) {
+    // Inside the newsroom box the context is this document's own and never
+    // stored (see pinnedContext). A ballot the reader loads here (their
+    // address search) replaces the city's stand-in context; another box's
+    // storage writes still cannot.
+    pinDraftBallotContext(districtIds, target);
     return;
   }
   const draft = currentDraft();
