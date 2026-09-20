@@ -61,6 +61,19 @@ export function rememberEmbedSource(code: string | null): string | null {
   return source;
 }
 
+// Which groups the reader has open on a city list, kept for this document
+// only: a fresh load always starts from the same view (the box is sized from
+// it), while coming back from a race finds the list as the reader left it.
+let openGroups: { slug: string; keys: Set<string> } | null = null;
+
+export function rememberOpenGroups(slug: string, keys: Set<string>): void {
+  openGroups = { slug, keys };
+}
+
+export function recallOpenGroups(slug: string): Set<string> | null {
+  return openGroups?.slug === slug ? openGroups.keys : null;
+}
+
 /** Click guard for the box: a same-origin link to a page outside the box, or
  * any external link, opens in a new tab so the reader never loses the
  * article. Links to in-box pages are left to the router. */
@@ -93,4 +106,5 @@ export function guardEmbedClick(event: {
 export function resetEmbedSessionForTests(): void {
   home = null;
   source = null;
+  openGroups = null;
 }

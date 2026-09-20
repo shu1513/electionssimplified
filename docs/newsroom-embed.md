@@ -36,8 +36,11 @@ If neither works, link to the plain page: `https://electionssimplified.com/citie
 
 What the box shows: every race that touches the city (or, for a state code,
 the statewide races) for the reviewed election date, grouped by level
-(Federal, State, County, City, Ballot measures), each group collapsed until
-the reader opens it. Each group is a list of race titles, like the site's own
+(Federal, State, County, City, Ballot measures). Every load starts the same
+way: groups open from the top until about eight races show, the rest
+collapsed, so the box is the same height on every load and is never mostly
+empty. What a reader opens is remembered only while they move around inside
+the box. Each group is a list of race titles, like the site's own
 election list. A race opens its own page: the candidates (name, party,
 incumbent and withdrawn status), or for a measure a short description and
 what a yes and a no vote mean, in our words, not the ballot text. Judicial

@@ -31,7 +31,7 @@ import {
 import { EmbedHeader } from "../components/EmbedHeader";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
 import { getEmbedPilotCity, isEmbedListedRace, publisherCodeFromHash, withSource } from "../lib/embedPilot";
-import { rememberEmbedSource, setEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { recallOpenGroups, rememberEmbedSource, rememberOpenGroups, setEmbedHome, useEmbedSession } from "../lib/embedSession";
 import { nearestUpcomingTarget, pinDraftBallotContext } from "../lib/ballotDraft";
 import { loadFromApi } from "../lib/loadFromApi";
 import { pageMeta } from "../lib/pageMeta";
@@ -127,28 +127,28 @@ const MEASURE_GROUP = "measures";
 type GroupKey = BallotLevel | typeof MEASURE_GROUP;
 type RaceGroup = { key: GroupKey; label: string; races: CityRace[] };
 
-// Every group starts collapsed: a big city has dozens of state races alone,
-// and the box often sits inside a phone-width article column. Which groups a
-// reader opened is remembered in their browser (below) so the next city page
-// or embed they see opens the same way.
-const OPEN_GROUPS_KEY = "voteapp_city_open_groups";
+// Every load starts the same way: groups open from the top until enough races
+// show to fill the box (a state list can lead with a one-race group), the
+// rest closed.
+// The box is sized once from this first view (embed.js), so a view that
+// varied between loads (groups remembered from last time, say) would give
+// the same box a different height each time, or leave it mostly empty.
+// What the reader opens is remembered only for the framed session
+// (lib/embedSession.ts), so coming back from a race finds the list as they
+// left it.
+const MIN_RACES_SHOWING = 8;
 
-function readOpenGroups(): Set<string> {
-  try {
-    const raw = window.localStorage.getItem(OPEN_GROUPS_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : []);
-  } catch {
-    return new Set();
+export function defaultOpenGroups(groups: RaceGroup[]): Set<string> {
+  const open = new Set<string>();
+  let showing = 0;
+  for (const group of groups) {
+    if (showing >= MIN_RACES_SHOWING) {
+      break;
+    }
+    open.add(group.key);
+    showing += group.races.length;
   }
-}
-
-function writeOpenGroups(open: Set<string>): void {
-  try {
-    window.localStorage.setItem(OPEN_GROUPS_KEY, JSON.stringify([...open]));
-  } catch {
-    // Storage blocked (private mode, third-party frame): the toggle still works for this page.
-  }
+  return open;
 }
 
 export function groupRaces(races: CityRace[]): RaceGroup[] {
@@ -263,14 +263,14 @@ export function EmbedCityPage() {
   const data = useLoaderData<typeof loader>();
   const { city, races, embedded } = data;
   const [source, setSource] = useState<string | null>(null);
-  // Server HTML renders every group closed; the reader's remembered choices
-  // apply after hydration.
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const groups = useMemo(() => groupRaces(races), [races]);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => recallOpenGroups(city.slug) ?? defaultOpenGroups(groups)
+  );
   useEffect(() => {
     // The fragment is gone when the reader comes back from a profile, so the
     // session keeps the code it started with.
     setSource(rememberEmbedSource(publisherCodeFromHash(window.location.hash)));
-    setOpenGroups(readOpenGroups());
   }, []);
   // Inside the box, profiles and measures open in the box and come back here.
   const backTo: BackTo | null = useMemo(
@@ -313,11 +313,10 @@ export function EmbedCityPage() {
       } else {
         next.delete(key);
       }
-      writeOpenGroups(next);
+      rememberOpenGroups(city.slug, next);
       return next;
     });
   };
-  const groups = useMemo(() => groupRaces(races), [races]);
   const electionDay = formatElectionDate(city.election_date);
   const isState = city.kind === "state";
   const electionPassed = usLatestLocalDate() > city.election_date;
