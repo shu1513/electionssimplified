@@ -17,6 +17,9 @@ Paste this where the box should appear:
   only the statewide races and measures, for a statewide guide.
 - `data-publisher` is the code we give your newsroom. It lets us count how
   many readers reached the site from your page. It is optional.
+- `data-width` sets the widest the box may be, in pixels (240 to 2000). It is
+  optional; without it the box fills the column you put it in. Either way it
+  shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the tallest the box may be, in pixels (240 to 2000). It
   is optional; the default is 480. The box fits its content once when it
   loads, then never changes height: readers scroll inside it, so opening a
