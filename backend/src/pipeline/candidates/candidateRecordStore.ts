@@ -14,8 +14,8 @@ import type { PoolClient } from "pg";
 // the stored content actually changes.
 //
 // Kept as a runtime list so the migration test can pin the DB CHECK
-// (migrations 197 + 252) to this union.
-export const CANDIDATE_RECORD_ORIGINS = ["ai_enricher", "repair", "manual", "rollcall_import"] as const;
+// (migrations 197 + 252 + 289) to this union.
+export const CANDIDATE_RECORD_ORIGINS = ["ai_enricher", "repair", "manual", "rollcall_import", "travel_import"] as const;
 export type CandidateRecordOrigin = (typeof CANDIDATE_RECORD_ORIGINS)[number];
 
 export type CandidateRecordUpsertInput = {

@@ -17,6 +17,10 @@ const MIGRATION_252_SQL = readFileSync(
   new URL("../../../../db/migrations/252_add_rollcall_import_record_origin.sql", import.meta.url),
   "utf8"
 );
+const MIGRATION_289_SQL = readFileSync(
+  new URL("../../../../db/migrations/289_add_travel_import_record_origin.sql", import.meta.url),
+  "utf8"
+);
 
 /**
  * The exact string literals inside a named CHECK (... IN ('a', 'b')) — so the
@@ -87,8 +91,12 @@ describe("legislative votes migration", () => {
 
 describe("candidate_records origin migration", () => {
   it("keeps the origin CHECK exactly aligned with CandidateRecordOrigin", () => {
-    expect(checkConstraintValues(MIGRATION_252_SQL, "candidate_records_origin_check")).toEqual(
+    expect(checkConstraintValues(MIGRATION_289_SQL, "candidate_records_origin_check")).toEqual(
       [...CANDIDATE_RECORD_ORIGINS].sort()
     );
+    // 252 is the earlier list: everything it allowed is still allowed.
+    for (const origin of checkConstraintValues(MIGRATION_252_SQL, "candidate_records_origin_check")) {
+      expect(CANDIDATE_RECORD_ORIGINS).toContain(origin);
+    }
   });
 });
