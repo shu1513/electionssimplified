@@ -31,8 +31,9 @@ export default function RootLayout() {
       {Platform.OS === "web" ? null : <PushNotificationRouter />}
       <Stack>
         {/* The tab navigator draws its own headers; a stack header on top
-            would double them. */}
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            would double them. The title only feeds the iOS back-button label
+            on pushed screens, which otherwise shows the group name "(tabs)". */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Home" }} />
       </Stack>
       {/* After the Stack so the overlay renders above every screen. */}
       <TermsRenewalGate />

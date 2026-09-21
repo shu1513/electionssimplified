@@ -8,7 +8,8 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://electionssimplified.com",
-        "EXPO_PUBLIC_DEPLOY_ENV": "preview"
+        "EXPO_PUBLIC_DEPLOY_ENV": "preview",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       },
       "android": {
         "buildType": "apk"
@@ -18,7 +19,8 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_API_URL": "https://electionssimplified.com",
-        "EXPO_PUBLIC_DEPLOY_ENV": "production"
+        "EXPO_PUBLIC_DEPLOY_ENV": "production",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     }
   }
