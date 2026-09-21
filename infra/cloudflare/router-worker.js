@@ -197,7 +197,7 @@ export function withSecurityHeaders(response, pathname = "") {
 export const SESSION_COOKIE_NAME = "voteapp_auth_session";
 export const EDGE_CACHE_TTL_SECONDS = 60;
 
-const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
+const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
 // Exactly one path segment, mirroring the declared routes /elections/:id and
 // /candidates/:id (frontend/src/routes.ts). Nested paths like
 // /elections/x/junk render the 404 catch-all and must stay cache-ineligible.

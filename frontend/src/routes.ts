@@ -18,6 +18,7 @@ export default [
     route("elections/:electionId", "pages/ElectionPage.tsx"),
     route("candidates/:candidateId", "pages/CandidatePage.tsx"),
     route("mission", "pages/MissionPage.tsx"),
+    route("embed-instructions", "pages/EmbedGuidePage.tsx"),
     route("support", "pages/SupportPage.tsx"),
     route("support/member", "pages/SupportMemberPage.tsx"),
     route("support/once", "pages/SupportOncePage.tsx"),

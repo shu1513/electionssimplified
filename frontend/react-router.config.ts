@@ -6,5 +6,5 @@ export default {
   // PerplexityBot) can read election/candidate content; the listed static
   // routes still prerender at build time and are served as static HTML.
   ssr: true,
-  prerender: ["/", "/mission", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy", "/register", "/login"],
+  prerender: ["/", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy", "/register", "/login"],
 } satisfies Config;

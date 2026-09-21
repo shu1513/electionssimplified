@@ -4,11 +4,7 @@ import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
-import { CONTACT_EMAIL } from "../lib/embedPublisher";
 import { pageMeta } from "../lib/pageMeta";
-
-// Kept as a string so JSX never tries to interpret the tag.
-const EMBED_SNIPPET = '<script src="https://electionssimplified.com/embed.js"></script>';
 
 export const meta: MetaFunction = () =>
   pageMeta({
@@ -154,42 +150,15 @@ export default function MissionPage() {
           charity.
         </p>
 
-        <h2 className="pt-2 text-heading font-semibold">For organizations and developers</h2>
+        <h2 className="pt-2 text-heading font-semibold">How to use our civic tool on your website</h2>
         <p>
           We offer our civic tool at no cost to all organizations and developers that contribute to
-          fair elections and help people get informed. You can use our embed here:
+          fair elections and help people get informed. You can use our tool with the instructions{" "}
+          <Link to="/embed-instructions" className="font-semibold underline hover:text-ink">
+            here
+          </Link>
+          .
         </p>
-        <p>Paste this one line where the box should appear on your page:</p>
-        <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm">
-          <code>{EMBED_SNIPPET}</code>
-        </pre>
-        <ul className="list-disc space-y-1 pl-6">
-          <li>
-            The box opens on our address search. Your readers find their own ballot, read about the
-            races and candidates, and make their picks, all inside the box.
-          </li>
-          <li>
-            The box is as wide as the column you put it in and sets its own height. To choose the
-            size yourself, add <code>data-max-width="560"</code> or <code>data-height="600"</code>, in
-            pixels.
-          </li>
-          <li>
-            Email{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
-              {CONTACT_EMAIL}
-            </a>{" "}
-            for help. Full instructions, including an iframe option, are in the{" "}
-            <a
-              href="https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold underline hover:text-ink"
-            >
-              embed guide
-            </a>
-            .
-          </li>
-        </ul>
       </section>
 
       {me?.email_verified ? (

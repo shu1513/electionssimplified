@@ -66,25 +66,17 @@ describe("MissionPage", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
-  it("hands out the one-line embed snippet, which needs no city code", async () => {
+  it("points website owners to the instructions page", async () => {
     stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
     renderMission();
 
     expect(
-      await screen.findByRole("heading", { name: "For organizations and developers" })
+      await screen.findByRole("heading", { name: "How to use our civic tool on your website" })
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('<script src="https://electionssimplified.com/embed.js"></script>')
-    ).toBeInTheDocument();
-    expect(screen.queryByText(/data-city/)).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "contact@electionssimplified.com" })).toHaveAttribute(
-      "href",
-      "mailto:contact@electionssimplified.com"
-    );
-    expect(screen.getByRole("link", { name: "embed guide" })).toHaveAttribute(
-      "href",
-      "https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
-    );
+    const links = screen.getAllByRole("link", { name: "here" });
+    expect(links.some((link) => link.getAttribute("href") === "/embed-instructions")).toBe(true);
+    // The snippet and its settings live on that page, not here.
+    expect(screen.queryByText(/embed\.js/)).not.toBeInTheDocument();
   });
 
   it("asks unverified accounts to verify", async () => {
