@@ -3555,4 +3555,108 @@ describe("OfficeMatcher", () => {
       expect(result.officeId, title).toBe("office-city-council");
     }
   });
+
+  describe("county board seats vs the Board of Review", () => {
+    const countyOffices = [
+      { id: "office-supervisor", canonical_name: "County Supervisor" },
+      { id: "office-review", canonical_name: "County Board of Review Member" },
+      { id: "office-commissioner", canonical_name: "County Commissioner" },
+    ];
+
+    it("sends Illinois, Virginia and New York county board seats to County Supervisor", async () => {
+      const matcher = new OfficeMatcher(
+        createMatcherDataClient({ aliasesByScope: { county: [] }, officesByScope: { county: countyOffices } }) as never
+      );
+      const cases: Array<[string, string, string]> = [
+        ["County Board Member #10", "Sangamon County, Illinois", "IL"],
+        ["DeKalb County Board Member - District 5 (2-year unexpired term)", "DeKalb County, Illinois", "IL"],
+        ["Knox County Board District 1", "Knox County, Illinois", "IL"],
+        ["Jasper County Board District 1, 2-Year Term", "Jasper County, Illinois", "IL"],
+        ["Stephenson County Board B District Member", "Stephenson County, Illinois", "IL"],
+        ["Vermilion County Board Members", "Vermilion County, Illinois", "IL"],
+        ["Powhatan County Board of Supervisors District 5 Special Election", "Powhatan County, Virginia", "VA"],
+        ["Lewis County Board of Legislators District 1", "Lewis County, New York", "NY"],
+      ];
+      for (const [title, districtName, state] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle: title,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, title).toBe("office-supervisor");
+      }
+    });
+
+    it("keeps real Board of Review titles on the Board of Review", async () => {
+      const matcher = new OfficeMatcher(
+        createMatcherDataClient({ aliasesByScope: { county: [] }, officesByScope: { county: countyOffices } }) as never
+      );
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: "Vermilion County, Illinois",
+        state: "IL",
+        officialBallotTitle: "Vermilion County Board of Review Members",
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId).toBe("office-review");
+    });
+
+    it("never scores a non-review title into the Board of Review", async () => {
+      const matcher = new OfficeMatcher(
+        createMatcherDataClient({ aliasesByScope: { county: [] }, officesByScope: { county: countyOffices } }) as never
+      );
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: "Kiowa County, Kansas",
+        state: "KS",
+        officialBallotTitle: "Kiowa County Hospital Board",
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId).not.toBe("office-review");
+    });
+
+    it("ignores a learned Board of Review alias for a title without 'review'", async () => {
+      const client = createMatcherDataClient({
+        aliasesByScope: {
+          county: [{ office_id: "office-review", normalized_alias: normalizeElectionTitleKey("County Board Member #10") }],
+        },
+        officesByScope: { county: countyOffices },
+      });
+      const matcher = new OfficeMatcher(client as never);
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: "Sangamon County, Illinois",
+        state: "IL",
+        officialBallotTitle: "County Board Member #10",
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId).toBe("office-supervisor");
+      expect(result.method).not.toBe("alias_exact");
+    });
+
+    it("leaves other 'County Board of ...' bodies alone, whatever separates the words", async () => {
+      const matcher = new OfficeMatcher(
+        createMatcherDataClient({ aliasesByScope: { county: [] }, officesByScope: { county: countyOffices } }) as never
+      );
+      const cases: Array<[string, string, string]> = [
+        ["Member of Cook County Board of Commissioners", "Cook County, Illinois", "IL"],
+        ["Alamance County Board of Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board  of Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board-of-Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board\tof Commissioners District 02", "Alamance County, North Carolina", "NC"],
+      ];
+      for (const [title, districtName, state] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle: title,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, JSON.stringify(title)).toBe("office-commissioner");
+      }
+    });
+  });
 });
