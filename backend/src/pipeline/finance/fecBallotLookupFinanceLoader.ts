@@ -12,9 +12,11 @@ import {
   parseFinanceAmount,
   parseFinanceCount,
   type BallotLookupFinanceBreakdown,
+  type BallotLookupFinanceConduitDonation,
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
+  type BallotLookupFinancePacDonor,
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 
@@ -55,6 +57,9 @@ function parseStringArray(raw: unknown): string[] {
 
 const GENERIC_FEC_DATA_SOURCE_URL = "https://www.fec.gov/data/";
 const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/independent-expenditures/";
+// The payload carries at most this many committee donors and conduits per
+// candidate; the full counts ride along so the card can say how many exist.
+const MAX_FEC_CONTRIBUTOR_ROWS = 50;
 
 type CandidateFinanceSummaryRequest = {
   candidate_id: string;
@@ -76,6 +81,20 @@ type CandidateFinanceSummaryRow = {
   outside_oppose_total: string | number | null;
   source_url: string | null;
   last_synced_at: string;
+  contributors_synced_at: string | null;
+};
+
+type CandidateFinanceContributorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  connected_organization?: string | null;
+  is_payment_platform?: boolean;
+  amount: string | number;
+  contribution_count: number;
+  source_url: string | null;
+  total_rows: string | number;
 };
 
 type CandidateFinanceDirectBreakdownRow = {
@@ -240,7 +259,8 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
         summary.outside_support_total,
         summary.outside_oppose_total,
         summary.source_url,
-        summary.last_synced_at::text AS last_synced_at
+        summary.last_synced_at::text AS last_synced_at,
+        summary.contributors_synced_at::text AS contributors_synced_at
       FROM requested
       JOIN public.candidate_finance_summaries AS summary
         ON summary.fec_candidate_id = requested.fec_candidate_id
@@ -488,6 +508,72 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
+  const contributorQuery = (table: string, extraColumn: string): string => `
+      WITH selected AS (
+        SELECT
+          candidate_id::uuid AS candidate_id,
+          election_id::uuid AS election_id,
+          fec_candidate_id,
+          election_year
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+          candidate_id text,
+          election_id text,
+          fec_candidate_id text,
+          election_year int
+        )
+      ),
+      ranked AS (
+        SELECT
+          selected.candidate_id::text AS candidate_id,
+          selected.election_id::text AS election_id,
+          contributor.committee_id,
+          contributor.committee_name,
+          contributor.${extraColumn},
+          contributor.amount,
+          contributor.contribution_count,
+          contributor.source_url,
+          count(*) OVER (PARTITION BY selected.candidate_id, selected.election_id) AS total_rows,
+          row_number() OVER (
+            PARTITION BY selected.candidate_id, selected.election_id
+            ORDER BY contributor.amount DESC, contributor.committee_name ASC
+          ) AS rn
+        FROM selected
+        JOIN public.${table} AS contributor
+          ON contributor.fec_candidate_id = selected.fec_candidate_id
+         AND contributor.election_year = selected.election_year
+      )
+      SELECT candidate_id, election_id, committee_id, committee_name, ${extraColumn},
+        amount, contribution_count, source_url, total_rows
+      FROM ranked
+      WHERE rn <= $2::int
+      ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
+    `;
+  // Only candidates whose lists were loaded are queried, so a page with none
+  // pays for no extra round trips.
+  const contributorRequests = summaryResult.rows
+    .filter((row) => row.contributors_synced_at)
+    .map((row) => ({
+      candidate_id: row.candidate_id,
+      election_id: row.election_id,
+      fec_candidate_id: row.fec_candidate_id,
+      election_year: row.election_year,
+    }));
+  const emptyContributorResult = { rows: [] as CandidateFinanceContributorRow[] };
+  const pacDonorResult =
+    contributorRequests.length > 0
+      ? await db.query<CandidateFinanceContributorRow>(
+          contributorQuery("candidate_finance_pac_donors", "connected_organization"),
+          [JSON.stringify(contributorRequests), MAX_FEC_CONTRIBUTOR_ROWS]
+        )
+      : emptyContributorResult;
+  const conduitResult =
+    contributorRequests.length > 0
+      ? await db.query<CandidateFinanceContributorRow>(
+          contributorQuery("candidate_finance_conduit_totals", "is_payment_platform"),
+          [JSON.stringify(contributorRequests), MAX_FEC_CONTRIBUTOR_ROWS]
+        )
+      : emptyContributorResult;
+
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directEmployersByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
@@ -504,6 +590,35 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     } else {
       addFinanceBreakdown(directIndustriesByCandidateElection, row.candidate_id, row.election_id, mapped);
     }
+  }
+
+  const pacDonorsByCandidateElection = new Map<string, { count: number; rows: BallotLookupFinancePacDonor[] }>();
+  for (const row of pacDonorResult.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const entry = pacDonorsByCandidateElection.get(key) ?? { count: parseFinanceCount(row.total_rows) ?? 0, rows: [] };
+    entry.rows.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      connected_organization: row.connected_organization ?? null,
+      amount: parseFinanceAmount(row.amount) ?? 0,
+      contribution_count: row.contribution_count,
+      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_FEC_DATA_SOURCE_URL),
+    });
+    pacDonorsByCandidateElection.set(key, entry);
+  }
+  const conduitsByCandidateElection = new Map<string, { count: number; rows: BallotLookupFinanceConduitDonation[] }>();
+  for (const row of conduitResult.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const entry = conduitsByCandidateElection.get(key) ?? { count: parseFinanceCount(row.total_rows) ?? 0, rows: [] };
+    entry.rows.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      is_payment_platform: row.is_payment_platform === true,
+      amount: parseFinanceAmount(row.amount) ?? 0,
+      contribution_count: row.contribution_count,
+      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_FEC_DATA_SOURCE_URL),
+    });
+    conduitsByCandidateElection.set(key, entry);
   }
 
   const supportingGroupsByCandidateElection = new Map<string, BallotLookupFinanceOutsideGroup[]>();
@@ -584,6 +699,16 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             top_occupations: topDirectDonorOccupations,
             top_employers: directEmployersByCandidateElection.get(key) ?? [],
             top_industries: directIndustriesByCandidateElection.get(key) ?? [],
+            // Present only once the lists were loaded, so an empty list
+            // means "none reported", never "not loaded yet".
+            ...(row.contributors_synced_at
+              ? {
+                  pac_donors: pacDonorsByCandidateElection.get(key)?.rows ?? [],
+                  pac_donor_count: pacDonorsByCandidateElection.get(key)?.count ?? 0,
+                  conduit_donations: conduitsByCandidateElection.get(key)?.rows ?? [],
+                  conduit_donation_count: conduitsByCandidateElection.get(key)?.count ?? 0,
+                }
+              : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),

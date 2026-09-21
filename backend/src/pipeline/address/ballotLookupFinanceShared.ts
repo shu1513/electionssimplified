@@ -29,6 +29,35 @@ export type BallotLookupFinanceOutsideGroup = {
   label_source_urls?: string[];
 };
 
+/**
+ * A committee that reported contributions to the candidate in the cycle (FEC
+ * bulk committee-to-candidate file). `amount` is net of refunds the committee
+ * reported; `contribution_count` counts the positive entries.
+ */
+export type BallotLookupFinancePacDonor = {
+  committee_id: string;
+  committee_name: string;
+  connected_organization: string | null;
+  amount: number;
+  contribution_count: number;
+  source_url: string | null;
+};
+
+/**
+ * Itemized individual contributions the candidate's committee reported as
+ * earmarked through one conduit committee. `is_payment_platform` marks
+ * conduits that forward to a very large number of committees and give no
+ * money of their own; the card lists those apart.
+ */
+export type BallotLookupFinanceConduitDonation = {
+  committee_id: string;
+  committee_name: string;
+  is_payment_platform: boolean;
+  amount: number;
+  contribution_count: number;
+  source_url: string | null;
+};
+
 export type BallotLookupFinanceUnallocatedOutsideEdge = {
   filing_id: string;
   report_date: string;
@@ -142,6 +171,15 @@ export type BallotLookupFinanceSummary = {
     top_employers?: BallotLookupFinanceBreakdown[];
     top_industries: BallotLookupFinanceBreakdown[];
     contribution_size_buckets?: BallotLookupFinanceBreakdown[];
+    /**
+     * Named committee donors and conduit totals (FEC only). Absent until the
+     * lists were loaded for this cycle; an empty array means none reported.
+     * The arrays are capped; the counts give the full number of rows.
+     */
+    pac_donors?: BallotLookupFinancePacDonor[];
+    pac_donor_count?: number;
+    conduit_donations?: BallotLookupFinanceConduitDonation[];
+    conduit_donation_count?: number;
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders

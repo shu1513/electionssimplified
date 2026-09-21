@@ -2,6 +2,10 @@ import type { Pool, PoolClient } from "pg";
 
 import { type OpenFecClientOptions } from "../presidential/openFecClient.js";
 import {
+  syncCandidateFinanceContributors,
+  type CandidateFinanceContributorSyncResult,
+} from "./candidateFinanceContributorSync.js";
+import {
   syncCandidateFinance,
   type CandidateFinanceIndustryClassifier,
   type CandidateFinanceSyncFecClient,
@@ -24,6 +28,17 @@ export type CandidateFinanceBatchSyncInput = {
   now?: Date;
   dryRun?: boolean;
   includeOutside?: boolean;
+  /**
+   * Also refresh named committee donors and conduit totals from the FEC bulk
+   * files. The files answer every candidate at once, so this covers all
+   * candidates in the election window, not only the ones due for an API sync.
+   */
+  includeContributors?: boolean;
+  /** Refresh only the bulk-file lists; make no OpenFEC API calls. */
+  contributorsOnly?: boolean;
+  bulkDataDirectory?: string;
+  /** Limit the contributor refresh to these FEC candidate ids (sample runs). */
+  contributorCandidateIds?: readonly string[];
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -34,6 +49,7 @@ export type CandidateFinanceBatchSyncInput = {
   financeIndustryClassifier?: CandidateFinanceIndustryClassifier;
   aiClassificationMinAmount?: number;
   syncCandidateFinanceFn?: typeof syncCandidateFinance;
+  syncCandidateFinanceContributorsFn?: typeof syncCandidateFinanceContributors;
 };
 
 export type CandidateFinanceBatchSyncItemResult = {
@@ -57,6 +73,8 @@ export type CandidateFinanceBatchSyncResult = {
   syncedCandidateCount: number;
   failedCandidateCount: number;
   results: CandidateFinanceBatchSyncItemResult[];
+  /** Present only when the run refreshed the bulk-file donor and conduit lists. */
+  contributors?: CandidateFinanceContributorSyncResult;
 };
 
 type CandidateFinanceDueQueryRow = {
@@ -73,6 +91,7 @@ const DEFAULT_STALE_AFTER_DAYS = 7;
 // Keep one extra calendar day so UTC scheduler timing cannot skip election-night finance syncs.
 const DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS = 1;
 const DEFAULT_ELECTION_LOOKAHEAD_DAYS = 730;
+const ALL_WINDOW_CANDIDATES_LIMIT = 1_000_000;
 
 function assertValidDate(date: Date, label: string): void {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
@@ -111,6 +130,8 @@ export async function listDueCandidateFinanceSyncRows(
     maxCandidates: number;
     electionLookbackDays: number;
     electionLookaheadDays: number;
+    /** List every candidate in the election window, synced recently or not. */
+    includeFresh?: boolean;
   }
 ): Promise<{ rows: CandidateFinanceDueRow[]; totalDueRows: number }> {
   const result = await db.query<CandidateFinanceDueQueryRow>(
@@ -194,7 +215,8 @@ export async function listDueCandidateFinanceSyncRows(
         LEFT JOIN public.candidate_finance_summaries AS summary
           ON summary.fec_candidate_id = candidate_fecs.fec_candidate_id
          AND summary.election_year = candidate_fecs.election_year
-        WHERE summary.last_synced_at IS NULL
+        WHERE $6::boolean
+           OR summary.last_synced_at IS NULL
            OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
         ORDER BY summary.last_synced_at ASC NULLS FIRST, candidate_fecs.election_year DESC, candidate_fecs.fec_candidate_id
         LIMIT $3::int
@@ -214,6 +236,7 @@ export async function listDueCandidateFinanceSyncRows(
       input.maxCandidates,
       input.electionLookbackDays,
       input.electionLookaheadDays,
+      input.includeFresh === true,
     ]
   );
 
@@ -248,6 +271,8 @@ export async function syncDueCandidateFinance(
   const includeOutside = input.includeOutside === true;
   const dryRun = input.dryRun === true;
   const syncFn = input.syncCandidateFinanceFn ?? syncCandidateFinance;
+  const contributorsOnly = input.contributorsOnly === true;
+  const includeContributors = input.includeContributors === true || contributorsOnly;
 
   const due = await listDueCandidateFinanceSyncRows(input.db, {
     now,
@@ -258,7 +283,7 @@ export async function syncDueCandidateFinance(
   });
 
   const results: CandidateFinanceBatchSyncItemResult[] = [];
-  for (const row of due.rows) {
+  for (const row of contributorsOnly ? [] : due.rows) {
     try {
       const result = await syncFn({
         db: input.db,
@@ -294,6 +319,32 @@ export async function syncDueCandidateFinance(
     }
   }
 
+  // Runs after the totals sync so new summary rows exist to carry the
+  // contributors_synced_at mark.
+  const contributorCandidateIds = input.contributorCandidateIds?.length
+    ? new Set(input.contributorCandidateIds.map((id) => id.trim().toUpperCase()))
+    : null;
+  let contributors: CandidateFinanceContributorSyncResult | undefined;
+  if (includeContributors) {
+    const windowRows = await listDueCandidateFinanceSyncRows(input.db, {
+      now,
+      staleAfterDays,
+      maxCandidates: ALL_WINDOW_CANDIDATES_LIMIT,
+      electionLookbackDays,
+      electionLookaheadDays,
+      includeFresh: true,
+    });
+    contributors = await (input.syncCandidateFinanceContributorsFn ?? syncCandidateFinanceContributors)({
+      db: input.db,
+      targets: windowRows.rows
+        .filter((row) => !contributorCandidateIds || contributorCandidateIds.has(row.fecCandidateId))
+        .map((row) => ({ fecCandidateId: row.fecCandidateId, electionYear: row.electionYear })),
+      now,
+      dryRun,
+      bulkDataDirectory: input.bulkDataDirectory,
+    });
+  }
+
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
     dryRun,
@@ -306,5 +357,6 @@ export async function syncDueCandidateFinance(
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results,
+    ...(contributors ? { contributors } : {}),
   };
 }

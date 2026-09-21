@@ -30,6 +30,10 @@ export const DEFAULT_OPEN_FEC_LARGE_DRAIN_REQUEST_INTERVAL_MS = Math.ceil(
 export type SyncDueCandidateFinanceScriptOptions = {
   dryRun: boolean;
   includeOutside: boolean;
+  includeContributors: boolean;
+  contributorsOnly: boolean;
+  bulkDataDirectory?: string;
+  contributorCandidateIds?: string[];
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -73,8 +77,8 @@ function parseIntegerFlag(args: readonly string[], name: string, minimum: number
   return parsed;
 }
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--include-outside"]);
-const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--per-page", "--request-interval-ms", "--stale-after-days", "--timeout-ms", "--top-groups"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--contributors-only", "--dry-run", "--include-contributors", "--include-outside"]);
+const KNOWN_VALUE_FLAGS = new Set(["--bulk-data-dir", "--contributor-candidate-ids", "--lookahead-days", "--lookback-days", "--max-candidates", "--per-page", "--request-interval-ms", "--stale-after-days", "--timeout-ms", "--top-groups"]);
 
 export function parseSyncDueCandidateFinanceScriptArgs(
   args: readonly string[]
@@ -83,6 +87,13 @@ export function parseSyncDueCandidateFinanceScriptArgs(
   return {
     dryRun: args.includes("--dry-run"),
     includeOutside: args.includes("--include-outside"),
+    includeContributors: args.includes("--include-contributors"),
+    contributorsOnly: args.includes("--contributors-only"),
+    bulkDataDirectory: parseFlagValue(args, "--bulk-data-dir")?.trim() || undefined,
+    contributorCandidateIds: parseFlagValue(args, "--contributor-candidate-ids")
+      ?.split(",")
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0),
     maxCandidates: parseIntegerFlag(args, "--max-candidates", 1),
     staleAfterDays: parseIntegerFlag(args, "--stale-after-days", 1),
     electionLookbackDays: parseIntegerFlag(args, "--lookback-days", 1),
@@ -129,6 +140,8 @@ export function toSyncDueCandidateFinanceScriptOutput(input: {
     started_at: input.startedAt.toISOString(),
     dry_run: input.options.dryRun,
     include_outside: input.options.includeOutside,
+    include_contributors: input.options.includeContributors || input.options.contributorsOnly,
+    contributors_only: input.options.contributorsOnly,
     request_interval_ms: input.requestIntervalMs,
     result: input.result,
   };
@@ -147,7 +160,8 @@ async function main(): Promise<void> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_OPEN_FEC_TIMEOUT_MS;
   const pacing = createOpenFecPacingPlan(options);
 
-  if (apiKeys.length === 0) {
+  // The contributors-only run reads FEC bulk files and needs no API key.
+  if (apiKeys.length === 0 && !options.contributorsOnly) {
     throw new Error("No OpenFEC API keys configured. Set FEC_API_KEY_1 or FEC_API_KEY.");
   }
 
@@ -160,6 +174,10 @@ async function main(): Promise<void> {
       now: startedAt,
       dryRun: options.dryRun,
       includeOutside: options.includeOutside,
+      includeContributors: options.includeContributors,
+      contributorsOnly: options.contributorsOnly,
+      bulkDataDirectory: options.bulkDataDirectory,
+      contributorCandidateIds: options.contributorCandidateIds,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,
