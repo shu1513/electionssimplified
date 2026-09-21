@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { ballotSummary, electionSummary } from "../test/fixtures";
@@ -27,6 +28,44 @@ afterEach(() => {
 });
 
 describe("BallotPage inside the newsroom box", () => {
+  it("starts with the biggest districts first and every section closed, and keeps what the reader opens", async () => {
+    const calls: string[] = [];
+    stubApiRoutes({
+      "/api/me": apiError(401, "unauthorized", "Not logged in"),
+      "/api/ballot": (url: URL) => {
+        calls.push(url.search);
+        return {
+          body: ballotSummary([
+            electionSummary({ id: "e-1", official_ballot_title: "Governor" }),
+            electionSummary({ id: "e-2", official_ballot_title: "Secretary of State" }),
+          ]),
+        };
+      },
+    });
+    const { router } = renderRoutes(
+      [
+        { path: "/ballot", element: <BallotPage /> },
+        { path: "/embed", element: <p /> },
+        { path: "/elections/:electionId", element: <p>Race page</p> },
+      ],
+      `/ballot?d=${DISTRICT}`
+    );
+
+    const section = await screen.findByRole("button", { name: /^Other/ });
+    expect(calls[0]).toContain("sort=district_size");
+    expect(section).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Governor")).not.toBeInTheDocument();
+
+    await userEvent.click(section);
+    expect(await screen.findByText("Governor")).toBeInTheDocument();
+    // Into a race and back: the section the reader opened is still open.
+    await userEvent.click(screen.getByRole("link", { name: /Governor/ }));
+    expect(await screen.findByText("Race page")).toBeInTheDocument();
+    await router.navigate(-1);
+    expect(await screen.findByRole("button", { name: /^Other/ })).toHaveAttribute("aria-expanded", "true");
+  });
+
+
   it("leads back to the box's search page, keeps the reader's ballot, and sends a new search there too", async () => {
     stubApiRoutes({
       "/api/me": apiError(401, "unauthorized", "Not logged in"),

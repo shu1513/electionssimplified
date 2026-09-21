@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router";
 import { readElectionListState, type ElectionListState } from "./detailNavContext";
+import { useEmbedSession } from "./embedSession";
 import { useHydrated } from "./useHydrated";
 
 /** Remember disclosures for list → election → list navigation only. */
@@ -24,10 +25,22 @@ export function useElectionListState() {
     if (open) dates.push(date);
     updateState({ expandedRetentionDates: dates });
   };
+  // Sections the reader never touched take the page's default: open on the
+  // site, closed inside the newsroom box (it is small, and a long ballot
+  // would bury everything below the first section). Whatever the reader
+  // opens or closes is kept either way, so a round trip to a race or a
+  // candidate comes back to the list as they left it.
+  const sectionsStartOpen = !useEmbedSession();
+  const sectionOpen = listState?.sectionOpen ?? {};
+  const isSectionOpen = (key: string) =>
+    sectionOpen[key] ?? (collapsedVotePowerGroups.includes(key) ? false : sectionsStartOpen);
+  const setSectionOpen = (key: string, open: boolean) => {
+    updateState({ sectionOpen: { ...sectionOpen, [key]: open } });
+  };
   const setVotePowerOpen = (key: string, open: boolean) => {
     const groups = collapsedVotePowerGroups.filter((entry) => entry !== key);
     if (!open) groups.push(key);
-    updateState({ collapsedVotePowerGroups: groups });
+    updateState({ collapsedVotePowerGroups: groups, sectionOpen: { ...sectionOpen, [key]: open } });
   };
   const awaitingCandidatesOpen = listState?.awaitingCandidatesOpen ?? false;
   const setAwaitingCandidatesOpen = (open: boolean) => updateState({ awaitingCandidatesOpen: open });
@@ -39,5 +52,7 @@ export function useElectionListState() {
     setVotePowerOpen,
     awaitingCandidatesOpen,
     setAwaitingCandidatesOpen,
+    isSectionOpen,
+    setSectionOpen,
   };
 }

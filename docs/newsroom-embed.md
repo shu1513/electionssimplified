@@ -74,6 +74,12 @@ may be reused freely with attribution.
   home page uses, so the clickwrap, the ZIP and city partial-ballot paths,
   the paid address suggestions, and the usage events are one piece of code.
   A search navigates to `/ballot` inside the frame.
+- The box is small, so the ballot list starts compact there: sorted by
+  biggest district first, with every section (district levels, vote-power
+  bands, retention races, races awaiting candidates) closed. What the reader
+  opens or closes rides the list's nav state (`sectionOpen` in
+  `lib/detailNavContext.ts`), so coming back from a race or a candidate
+  finds the list as they left it. On the site the same sections start open.
 - In-box pages: only `/embed` can be loaded in a frame. The ballot, race,
   candidate, and draft pages are reached by client-side navigation and
   render in the normal App layout, which detects the frame

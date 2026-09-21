@@ -266,6 +266,10 @@ describe("readElectionListState", () => {
       awaitingCandidatesOpen: true,
     });
     expect(readElectionListState({ awaitingCandidatesOpen: "yes" })).toBeUndefined();
+    // Section choices: dated keys and real booleans only.
+    expect(
+      readElectionListState({ sectionOpen: { "2026-11-03:level:state": true, "2026-11-03:high": false, junk: true, "2026-11-03:low": "no" } })
+    ).toEqual({ expandedRetentionDates: [], sectionOpen: { "2026-11-03:level:state": true, "2026-11-03:high": false } });
     expect(readElectionListState({ expandedRetentionDates: ["2026-11-03"] })).toEqual({
       expandedRetentionDates: ["2026-11-03"],
     });

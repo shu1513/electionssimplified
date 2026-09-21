@@ -25,11 +25,21 @@ export type ElectionListState = {
   /** The "Elections awaiting candidate information" tail starts collapsed;
    * true once the reader opened it, so a round trip to a race keeps it open. */
   awaitingCandidatesOpen?: boolean;
+  /** Explicit open/closed choices for the list's other sections (district
+   * level and vote-power bands), by section key. A section the reader never
+   * touched has no entry and takes the page's default: open on the site,
+   * closed inside the newsroom box, which is small. */
+  sectionOpen?: Record<string, boolean>;
 };
 
 export function readElectionListState(state: unknown): ElectionListState | undefined {
   if (typeof state !== "object" || state === null) return undefined;
-  const { expandedRetentionDates: dates, collapsedVotePowerGroups: groups, awaitingCandidatesOpen: awaitingOpen } = state as Record<string, unknown>;
+  const {
+    expandedRetentionDates: dates,
+    collapsedVotePowerGroups: groups,
+    awaitingCandidatesOpen: awaitingOpen,
+    sectionOpen: sections,
+  } = state as Record<string, unknown>;
   let result: ElectionListState | undefined;
   if (Array.isArray(dates) && dates.every((date) => typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date))) {
     result = { expandedRetentionDates: dates };
@@ -40,6 +50,14 @@ export function readElectionListState(state: unknown): ElectionListState | undef
   }
   if (awaitingOpen === true) {
     result = { ...result, expandedRetentionDates: result?.expandedRetentionDates ?? [], awaitingCandidatesOpen: true };
+  }
+  if (typeof sections === "object" && sections !== null && !Array.isArray(sections)) {
+    const entries = Object.entries(sections).filter(
+      ([key, open]) => /^\d{4}-\d{2}-\d{2}:[a-z_:]{1,40}$/.test(key) && typeof open === "boolean"
+    ) as [string, boolean][];
+    if (entries.length > 0 && entries.length <= 200) {
+      result = { ...result, expandedRetentionDates: result?.expandedRetentionDates ?? [], sectionOpen: Object.fromEntries(entries) };
+    }
   }
   return result;
 }

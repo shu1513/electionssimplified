@@ -367,10 +367,11 @@ export function ElectionList({
     listState,
     expandedRetentionDates,
     setRetentionOpen,
-    collapsedVotePowerGroups,
     setVotePowerOpen,
     awaitingCandidatesOpen,
     setAwaitingCandidatesOpen,
+    isSectionOpen,
+    setSectionOpen,
   } = useElectionListState();
   const nonRetentionCounts = new Map<string, number>();
   if (sort === "vote_power") {
@@ -447,7 +448,13 @@ export function ElectionList({
             // every section open even where a level's first race is unchanged.
             <div className="mt-3 space-y-5">
               {splitLevelRuns(group.contested).map((run) => (
-                <ElectionSection key={`${sort}-${run.level}-${run.elections[0].id}`} label={ballotLevelLabel(run.level)} count={run.elections.length}>
+                <ElectionSection
+                  key={`${sort}-${run.level}-${run.elections[0].id}`}
+                  label={ballotLevelLabel(run.level)}
+                  count={run.elections.length}
+                  open={isSectionOpen(`${group.date}:level:${run.level}`)}
+                  onOpenChange={(open) => setSectionOpen(`${group.date}:level:${run.level}`, open)}
+                >
                   {renderCards(run.elections)}
                 </ElectionSection>
               ))}
@@ -460,7 +467,7 @@ export function ElectionList({
                   label={`My vote power: ${band.label}`}
                   count={band.elections.length}
                   colorClass={votePowerBadgeClass(band.rating)}
-                  open={!collapsedVotePowerGroups.includes(`${group.date}:${band.rating}`)}
+                  open={isSectionOpen(`${group.date}:${band.rating}`)}
                   onOpenChange={(open) => setVotePowerOpen(`${group.date}:${band.rating}`, open)}
                 >
                   {renderCards(band.elections, false)}

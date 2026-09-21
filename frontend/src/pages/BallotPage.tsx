@@ -95,6 +95,11 @@ export function BallotPage() {
     .split(",")
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
+  // Inside the newsroom box the list starts with the biggest districts first
+  // (president, governor, U.S. Senate), the order a reader expects from a
+  // ballot; a sort the reader picks still wins, as on the site.
+  const embedSession = useEmbedSession();
+  const defaultSort: BallotSort = embedSession ? "district_size" : "vote_power";
   const rawSort = searchParams.get("sort") ?? "";
   // my_areas is only real once the viewer's saved areas confirm (hasSaved);
   // until then — and for anonymous visitors forever — it degrades to the
@@ -104,10 +109,10 @@ export function BallotPage() {
   const sort: BallotSort = myAreasRequested
     ? hasSaved
       ? "my_areas"
-      : "vote_power"
+      : defaultSort
     : SORT_VALUES.includes(rawSort)
       ? (rawSort as BallotSort)
-      : "vote_power";
+      : defaultSort;
   // What the anonymous endpoint is asked for: my_areas is client-side here,
   // so its fetch requests (and caches under) the plain vote_power payload.
   const fetchSort: BallotSort = sort === "my_areas" ? "vote_power" : sort;
@@ -133,7 +138,6 @@ export function BallotPage() {
   // the draft here — theirs lives in the account.
   // Inside the newsroom box: "search again" goes to the box's own search
   // page instead of the site's landing page, and a top bar leads back there.
-  const embedSession = useEmbedSession();
   const embedHome = embedSession ? getEmbedHome() : null;
   const searchAgainPath = embedHome?.path ?? "/?new=1";
 
