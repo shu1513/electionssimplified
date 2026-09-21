@@ -217,7 +217,7 @@ export function DraftPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3">
       {/* Same top bar as the election and candidate pages, back slot only:
           this page is one step below the guest's ballot, and the guest
           header has no ballot link (only "My Draft"), so without it the

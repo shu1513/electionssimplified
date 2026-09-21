@@ -179,7 +179,7 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
         // 17.5px: a hair above the card titles (subheading, 16-17px) and
         // under the date heading (19-22px) — user tuned this by eye on
         // 2026-09-12 (text-lg read a touch too big).
-        className={`flex min-h-10 w-full items-center gap-1.5 text-left ${heading ? "text-heading font-bold" : "text-[1.09375rem] font-semibold"} ${colorClass}`}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left box:min-h-8 ${heading ? "text-heading font-bold" : "text-[1.09375rem] font-semibold"} ${colorClass}`}
       >
         {label}
         <span className="text-sm font-normal text-ink-soft">({count})</span>
@@ -198,7 +198,7 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   return (
     <section>
       {heading ? <h2>{toggle}</h2> : toggle}
-      {open ? <div className="mt-2 space-y-3">{children}</div> : null}
+      {open ? <div className="mt-2 space-y-3 box:mt-1 box:space-y-2">{children}</div> : null}
     </section>
   );
 }
@@ -232,7 +232,7 @@ export function RetentionGroup({
           setOpen(!open);
           onOpenChange?.(!open);
         }}
-        className={`flex min-h-10 w-full items-center gap-1.5 text-left font-semibold text-ink ${showProgress ? "text-heading" : "text-[1.09375rem]"}`}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left font-semibold text-ink box:min-h-8 ${showProgress ? "text-heading" : "text-[1.09375rem]"}`}
       >
         Retention Races{" "}
         {!showProgress ? (
@@ -267,7 +267,7 @@ export function RetentionGroup({
           </span>
         </div>
       ) : null}
-      {open ? <div className="mt-2 space-y-3">{children}</div> : null}
+      {open ? <div className="mt-2 space-y-3 box:mt-1 box:space-y-2">{children}</div> : null}
     </section>
   );
 }
@@ -435,7 +435,7 @@ export function ElectionList({
       </SeatRun>
     ));
   return (
-    <div className="mt-4 space-y-6">
+    <div className="mt-4 space-y-6 box:mt-3 box:space-y-4">
       {groups.map((group) => (
         // One date section, with grouped retention after its contested races.
         <section key={group.date}>
@@ -446,7 +446,7 @@ export function ElectionList({
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
-            <div className="mt-3 space-y-5">
+            <div className="mt-3 space-y-5 box:mt-1 box:space-y-1">
               {splitLevelRuns(group.contested).map((run) => (
                 <ElectionSection
                   key={`${sort}-${run.level}-${run.elections[0].id}`}
@@ -460,7 +460,7 @@ export function ElectionList({
               ))}
             </div>
           ) : votePowerDates.has(group.date) ? (
-            <div className="mt-3 space-y-5">
+            <div className="mt-3 space-y-5 box:mt-1 box:space-y-1">
               {splitVotePowerGroups(group.contested).map((band) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}
@@ -616,7 +616,7 @@ function ElectionCard({
       // Faint tint at rest; on hover the border goes brand and the title
       // takes the link color (via group-hover below). The old cue — gray bg
       // one step grayer — was under 2% lightness and read as nothing.
-      className="group block rounded-xl border border-line bg-surface p-4 shadow-sm transition hover:border-rausch hover:shadow-md"
+      className="group block rounded-xl border border-line bg-surface p-4 box:p-3 shadow-sm transition hover:border-rausch hover:shadow-md"
     >
       {/* No per-card date: ElectionList's group heading carries it. Vote
           power and roster status sit to the right of the title. */}

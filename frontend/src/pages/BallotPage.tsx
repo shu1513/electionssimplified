@@ -223,7 +223,7 @@ export function BallotPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3">
       {/* Visible page heading, one step larger than the date group headings
           ("Elections on …") below it, so a first-time visitor landing here
           straight from the address form knows what the list is: THEIR
@@ -231,7 +231,7 @@ export function BallotPage() {
           just-finished elections for BALLOT_PAST_ELECTION_VISIBILITY_DAYS so
           their results stay discoverable, and those are not upcoming. */}
       {embedHome ? <DetailPager ariaLabel="Ballot navigation" prev={null} next={null} backTo={embedHome} /> : null}
-      <h1 className="mb-4 text-title font-bold text-ink">My elections:</h1>
+      <h1 className="mb-4 text-title font-bold text-ink box:mb-2">My elections:</h1>
       {/* Race-type tabs and sorting on the left, the "How to vote" resources
           on the right — its disclosure panel opens inline under its own
           column. The how-to-vote control waits for the ballot response

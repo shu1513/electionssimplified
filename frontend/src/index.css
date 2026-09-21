@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* `box:` styles apply only inside the newsroom embed's frame (App.tsx puts
+   .embed-box on its shell there). The box is a few hundred pixels tall, so
+   page chrome sized for a full browser window gets tighter in it. */
+@custom-variant box (.embed-box &);
+
 @theme {
   /* Fluid type roles (Vogue/Verso pattern: one token per role, components
      never carry raw sizes). clamp() interpolates 320px -> 1280px viewports;

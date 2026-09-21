@@ -291,8 +291,8 @@ export function App() {
   // tab.
   if (embedSession) {
     return (
-      <div className="bg-page text-ink" onClickCapture={guardEmbedClick}>
-        <div className="px-3 pt-3">
+      <div className="embed-box bg-page text-ink" onClickCapture={guardEmbedClick}>
+        <div className="px-3 pt-2">
           <EmbedHeader />
         </div>
         <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">

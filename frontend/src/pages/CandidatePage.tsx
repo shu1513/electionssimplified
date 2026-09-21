@@ -468,8 +468,8 @@ export function CandidatePage() {
     <div
       className={
         railCandidates !== null
-          ? "mx-auto max-w-3xl px-4 py-8 lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
-          : "mx-auto max-w-3xl px-4 py-8"
+          ? "mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3 lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
+          : "mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3"
       }
     >
       {railCandidates !== null && navState !== null ? (
