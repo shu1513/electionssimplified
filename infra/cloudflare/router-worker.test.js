@@ -408,7 +408,7 @@ describe("security headers", () => {
       "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; " +
       "img-src 'self' data:; font-src 'self'; " +
       "connect-src 'self' https://*.sentry.io https://accounts.google.com/gsi/ https://cloudflareinsights.com; " +
-      "frame-src https://accounts.google.com/gsi/; " +
+      "frame-src 'self' https://accounts.google.com/gsi/; " +
       "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
   };
 

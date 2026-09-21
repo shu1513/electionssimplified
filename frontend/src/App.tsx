@@ -3,13 +3,12 @@ import { Link, Outlet, ScrollRestoration, useLocation, useNavigate } from "react
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChatWidget } from "./components/chatbot/ChatWidget";
 import { DraftCompleteNotice } from "./components/DraftCompleteNotice";
+import { DraftHandoffGate } from "./components/DraftHandoffGate";
 import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
 import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
-import { importDraftHandoff, isDraftHandoffHash } from "./lib/ballotDraft";
-import { savePendingDistrictIds } from "./lib/pendingDistricts";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
@@ -245,27 +244,6 @@ export function App() {
   // reader is on by then, so the in-box pages report their height too.
   const embedShellRef = useRef<HTMLDivElement>(null);
   useReportEmbedHeight(embedSession, embedShellRef);
-  const navigate = useNavigate();
-  const { me } = useMe();
-  // Draft handoff from the newsroom box's "Save" link (lib/ballotDraft.ts).
-  // Guests only: a link must never write picks into a signed-in account, so
-  // for anyone else the fragment is just dropped. Waits for the session to
-  // resolve, then clears the fragment either way.
-  useEffect(() => {
-    if (embedSession || me === undefined || !isDraftHandoffHash(location.hash)) {
-      return;
-    }
-    if (me === null) {
-      // The reader's exact ballot from the box arms the same district handoff
-      // an address search on this site would: the districts become the new
-      // account's saved ballot once it is verified.
-      const { districtIds } = importDraftHandoff(location.hash);
-      if (districtIds.length > 0) {
-        savePendingDistrictIds(districtIds);
-      }
-    }
-    navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
-  }, [embedSession, me, location.hash, location.pathname, location.search, location.state, navigate]);
   // Replays a guest ballot draft into the account on login/registration.
   useFlushBallotDraft();
   // Initializes account districts from a guest address search once /api/me
@@ -352,6 +330,8 @@ export function App() {
         <Outlet />
       </main>
       <TermsRenewalGate />
+      {/* Picks carried over from the newsroom box (its "Save" link). */}
+      <DraftHandoffGate />
       {/* Flag-guarded chatbot widget (docs/plans/chatbot-rag.md): floating
           lower-right bubble on most pages; the component owns its own
           per-route visibility and auth-wall rules. */}

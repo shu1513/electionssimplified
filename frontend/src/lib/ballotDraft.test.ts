@@ -10,7 +10,9 @@ import {
   flushBallotDraftToAccount,
   hasDraftPicks,
   importDraftHandoff,
+  mergeDraftHandoff,
   nearestUpcomingTarget,
+  parseDraftHandoff,
   readBallotDraft,
   setDraftBallotContext,
   setDraftCandidateChoice,
@@ -248,29 +250,44 @@ describe("ballotDraft store", () => {
 
 describe("draft handoff (newsroom box → site)", () => {
   const MINE = ["aaaaaaaa-1111-4111-8111-111111111111", "bbbbbbbb-2222-4222-8222-222222222222"];
+  // Real election ids are UUIDs; the handoff accepts nothing else.
+  const E1 = "eeeeeeee-1111-4111-8111-111111111111";
+  const race = { electionId: E1, raceTitle: "Governor", electionDate: "2026-11-03" };
+  const pick = (candidateId: string, candidateName: string) =>
+    setDraftCandidateChoice({ ...race, seatsToFill: null, candidateId, candidateName, chosen: true });
+  const fragmentFor = (payload: unknown) => "#draft=" + btoa(JSON.stringify(payload));
 
   it("carries the box's picks and districts to another browser context, accents included", () => {
-    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c1", candidateName: "José Peña", chosen: true });
+    pick("c1", "José Peña");
     const fragment = draftHandoffFragment(readBallotDraft(), MINE);
     expect(fragment.startsWith("#draft=")).toBe(true);
 
     clearBallotDraft();
     expect(importDraftHandoff(fragment)).toEqual({ added: 1, districtIds: MINE });
-    expect(readBallotDraft().choices.e1?.picks[0]).toMatchObject({ candidate_id: "c1", display_name: "José Peña" });
+    expect(readBallotDraft().choices[E1]?.picks[0]).toMatchObject({ candidate_id: "c1", display_name: "José Peña" });
     expect(readBallotDraft().district_ids).toEqual(MINE);
   });
 
   it("adds picks but never replaces a race already decided here, nor this browser's own ballot", () => {
-    pickJane();
+    pick("c1", "Jane Doe");
     const fragment = draftHandoffFragment(readBallotDraft(), MINE);
     clearBallotDraft();
     const own = ["cccccccc-3333-4333-8333-333333333333"];
     setDraftBallotContext(own, null);
-    setDraftCandidateChoice({ ...RACE, seatsToFill: null, candidateId: "c2", candidateName: "John Roe", chosen: true });
+    pick("c2", "John Roe");
 
     expect(importDraftHandoff(fragment).added).toBe(0);
-    expect(readBallotDraft().choices.e1?.picks.map((pick) => pick.candidate_id)).toEqual(["c2"]);
+    expect(readBallotDraft().choices[E1]?.picks.map((p) => p.candidate_id)).toEqual(["c2"]);
     expect(readBallotDraft().district_ids).toEqual(own);
+  });
+
+  it("skips races the caller says are already decided elsewhere (a signed-in reader's account)", () => {
+    pick("c1", "Jane Doe");
+    const handoff = parseDraftHandoff(draftHandoffFragment(readBallotDraft()))!;
+    clearBallotDraft();
+    expect(mergeDraftHandoff(handoff, new Set([E1]))).toBe(0);
+    expect(hasDraftPicks(readBallotDraft())).toBe(false);
+    expect(mergeDraftHandoff(handoff)).toBe(1);
   });
 
   it("carries districts alone, and drops ids that are not UUIDs", () => {
@@ -278,12 +295,30 @@ describe("draft handoff (newsroom box → site)", () => {
     expect(importDraftHandoff(fragment)).toEqual({ added: 0, districtIds: [MINE[0]] });
   });
 
+  it("survives election ids that name inherited object properties", () => {
+    const row = (election_id: string) => ({
+      election_id,
+      race_type: "office",
+      official_ballot_title: "Governor",
+      election_date: "2026-11-03",
+      seats_to_fill: null,
+      picks: [{ candidate_id: "c1", display_name: "Jane Doe", candidacy_status: "active" }],
+      measure_position: null,
+      updated_at: "2026-09-20T00:00:00.000Z",
+    });
+    const fragment = fragmentFor({ choices: ["constructor", "__proto__", "toString", "e1"].map(row) });
+    expect(() => importDraftHandoff(fragment)).not.toThrow();
+    expect(importDraftHandoff(fragment).added).toBe(0);
+    expect(hasDraftPicks(readBallotDraft())).toBe(false);
+  });
+
   it("has no fragment for an empty draft and ignores junk", () => {
     expect(draftHandoffFragment(readBallotDraft())).toBe("");
     expect(importDraftHandoff("#draft=not-base64!!").added).toBe(0);
-    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify({ choices: [{ election_id: 7 }] }))).added).toBe(0);
-    expect(importDraftHandoff("#draft=" + btoa(JSON.stringify([1, 2]))).added).toBe(0);
+    expect(importDraftHandoff(fragmentFor({ choices: [{ election_id: 7 }] })).added).toBe(0);
+    expect(importDraftHandoff(fragmentFor([1, 2])).added).toBe(0);
     expect(importDraftHandoff("#other").added).toBe(0);
+    expect(parseDraftHandoff("#other")).toBeNull();
     expect(hasDraftPicks(readBallotDraft())).toBe(false);
   });
 });

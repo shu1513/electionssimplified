@@ -226,49 +226,67 @@ export function isDraftHandoffHash(hash: string): boolean {
   return hash.startsWith(HANDOFF_PREFIX);
 }
 
-/** Merges a handoff fragment into this browser's draft. Every pick goes
- * through the same sanitizer as stored drafts, and a race the reader already
- * decided here is never replaced: a link can add picks, it cannot change one.
- * District ids are UUID-checked and become the draft's ballot only when this
- * browser has none of its own; they are returned so the caller can arm the
- * guest-to-account district handoff. */
-export function importDraftHandoff(hash: string): { added: number; districtIds: string[] } {
-  const nothing = { added: 0, districtIds: [] };
+export type DraftHandoff = { rows: ElectionChoice[]; districtIds: string[] };
+
+/** Reads a handoff fragment without touching the draft; null when it is not
+ * one or cannot be read. Every pick goes through the same sanitizer as stored
+ * drafts, and only rows keyed by a real (UUID) election id survive: the ids
+ * index plain objects below, where "constructor" or "__proto__" would reach
+ * inherited properties instead of picks. */
+export function parseDraftHandoff(hash: string): DraftHandoff | null {
   if (!isDraftHandoffHash(hash)) {
-    return nothing;
+    return null;
   }
   let parsed: unknown;
   try {
     parsed = JSON.parse(fromBase64Url(hash.slice(HANDOFF_PREFIX.length)));
   } catch {
-    return nothing;
+    return null;
   }
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    return nothing;
+    return null;
   }
   const payload = parsed as Record<string, unknown>;
-  const rows = Array.isArray(payload.choices) ? payload.choices : [];
+  const rows = (Array.isArray(payload.choices) ? payload.choices : [])
+    .slice(0, MAX_HANDOFF_ROWS)
+    .map((value) => sanitizeChoiceRow(value))
+    .filter((row): row is ElectionChoice => row !== null && UUID_SHAPE_RE.test(row.election_id));
   const districtIds = Array.isArray(payload.districts)
     ? payload.districts
         .filter((id): id is string => typeof id === "string" && UUID_SHAPE_RE.test(id))
         .slice(0, MAX_DRAFT_DISTRICT_IDS)
     : [];
+  return { rows, districtIds };
+}
+
+/** Merges a handoff into this browser's draft and returns how many races it
+ * added. A race already decided here, or listed in `skipElectionIds` (the
+ * races a signed-in reader already picked in their account), is never
+ * replaced: a link can add picks, it cannot change one. The district ids
+ * become the draft's ballot only when this browser has none of its own. */
+export function mergeDraftHandoff(handoff: DraftHandoff, skipElectionIds: ReadonlySet<string> = new Set()): number {
   const draft = currentDraft();
   const choices = { ...draft.choices };
   let added = 0;
-  for (const value of rows.slice(0, MAX_HANDOFF_ROWS)) {
-    const row = sanitizeChoiceRow(value);
-    if (row && !isDecidedChoice(choices[row.election_id])) {
+  for (const row of handoff.rows) {
+    const existing = Object.hasOwn(choices, row.election_id) ? choices[row.election_id] : undefined;
+    if (!isDecidedChoice(existing) && !skipElectionIds.has(row.election_id)) {
       choices[row.election_id] = row;
       added += 1;
     }
   }
-  const adoptDistricts = districtIds.length > 0 && draft.district_ids.length === 0;
+  const adoptDistricts = handoff.districtIds.length > 0 && draft.district_ids.length === 0;
   if (added > 0 || adoptDistricts) {
     // target: null — the draft page recomputes it from the ballot it loads.
-    writeDraft({ ...draft, choices, ...(adoptDistricts ? { district_ids: districtIds, target: null } : {}) });
+    writeDraft({ ...draft, choices, ...(adoptDistricts ? { district_ids: handoff.districtIds, target: null } : {}) });
   }
-  return { added, districtIds };
+  return added;
+}
+
+/** parseDraftHandoff + mergeDraftHandoff, for a guest arrival. */
+export function importDraftHandoff(hash: string): { added: number; districtIds: string[] } {
+  const handoff = parseDraftHandoff(hash);
+  return handoff ? { added: mergeDraftHandoff(handoff), districtIds: handoff.districtIds } : { added: 0, districtIds: [] };
 }
 
 function subscribe(listener: () => void): () => void {

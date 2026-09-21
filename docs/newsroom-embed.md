@@ -98,12 +98,15 @@ may be reused freely with attribution.
   sign-up and log-in URLs' fragment, together with the district ids of an
   exact address search made in the box (never the address itself; a ZIP or
   city search carries none, so a partial ballot cannot become an account's
-  saved one). A fragment is never sent to a server or in a Referer. The app
-  merges the picks into the site's draft for guests only
-  (`importDraftHandoff`: sanitized, never replaces an existing pick), arms
-  the site's usual guest-to-account district handoff
-  (`savePendingDistrictIds`), and clears the fragment. The usual flush
-  replays the draft into the account after sign-up.
+  saved one). A fragment is never sent to a server or in a Referer. On the
+  site, `components/DraftHandoffGate.tsx` clears the fragment at once and:
+  for a guest (or an unverified account) merges the picks into the site's
+  draft, arms the usual guest-to-account district handoff
+  (`savePendingDistrictIds`), and leaves the rest to the normal flush after
+  sign-up; for a reader who is already signed in, ASKS first, because a link
+  must never write into an account by itself, then adds only the races the
+  account has not decided. Rows are sanitized, must carry a real (UUID)
+  election id, and never replace an existing pick.
 - The publisher code rides in the URL fragment, which never reaches the
   server, so the cached page is publisher-neutral. The page reads it in the
   browser (`frontend/src/lib/embedPublisher.ts`) and outbound links carry it
