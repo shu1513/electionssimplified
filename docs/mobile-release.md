@@ -46,6 +46,13 @@ variables (Expo dashboard → project → Environment variables), scoped to the
 - `SENTRY_AUTH_TOKEN` — lets the `@sentry/react-native` config plugin upload
   source maps during the build (secret).
 
+Until a mobile Sentry project exists, both profiles in `eas.json` set
+`SENTRY_DISABLE_AUTO_UPLOAD=true`: with no auth token, organization, or
+project configured, the plugin's upload step has nothing to upload to. When
+you add the DSN and auth token (plus the plugin's `organization` / `project`
+in `app.json`), remove that flag from `eas.json` in the same change, or
+production crash reports will arrive minified.
+
 ## 2. Push notifications [account]
 
 - **iOS:** `npx eas-cli credentials -p ios` → let EAS create the APNs key.
