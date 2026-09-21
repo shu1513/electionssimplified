@@ -8,8 +8,8 @@ export const TAGLINE = "Factual, nonpartisan, AI-assisted research with linked s
  * The landing page's masthead and address search. Shared by the site's home
  * page and the newsroom box's front page (pages/EmbedHomePage.tsx), so the
  * box opens on the same page the site does. `framed`: the box sits inside
- * someone else's article, so the wordmark links out to the site and the
- * search never grabs focus (autofocus there would scroll the host page).
+ * someone else's article, so it drops the big wordmark and the search never
+ * grabs focus (autofocus there would scroll the host page).
  */
 export function LandingHero({ framed = false }: { framed?: boolean }) {
   return (
@@ -24,20 +24,16 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
             is the pitch, and two h1-ish marks would fight). text-wordmark
             interpolates 32 -> 52px — a text wordmark this long can't carry
             Google's ~90px image-logo scale without wrapping on phones. */}
-        {framed ? (
-          // Inside the newsroom box the wordmark is the one way to the site.
-          <a href="/" target="_blank" rel="nofollow noopener" className="text-wordmark font-extrabold tracking-tight text-rausch">
-            {APP_NAME}
-          </a>
-        ) : (
-          <p className="text-wordmark font-extrabold tracking-tight text-rausch">{APP_NAME}</p>
-        )}
+        {/* Not inside the newsroom box: that space is the publisher's, and
+            the box credits the site in a small line at the bottom instead
+            (pages/EmbedHomePage.tsx). */}
+        {framed ? null : <p className="text-wordmark font-extrabold tracking-tight text-rausch">{APP_NAME}</p>}
         {/* One sentence, still the whole pitch. 23 -> 35px: one notch above
             the shared text-title (22 -> 32px) because this is a masthead, not
             a page heading, while keeping a clear step below the wordmark;
             text-balance stops the centred wrap from ragging into a one-word
             last line. */}
-        <h1 className="mt-6 text-balance text-[clamp(1.4375rem,1.1875rem+1.25vw,2.1875rem)] font-bold leading-[1.2]">
+        <h1 className={`${framed ? "" : "mt-6 "}text-balance text-[clamp(1.4375rem,1.1875rem+1.25vw,2.1875rem)] font-bold leading-[1.2]`}>
           See who the candidates in your elections really are by their track records
         </h1>
         {/* What the service is, where a first-time visitor actually looks.

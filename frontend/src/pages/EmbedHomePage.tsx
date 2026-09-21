@@ -34,6 +34,13 @@ export function EmbedHomePage() {
   return (
     <div ref={contentRef} className="bg-page text-ink">
       <LandingHero framed />
+      {/* The box's one credit, and the front page's one way to the site. */}
+      <p className="-mt-2 pb-4 text-center text-xs text-ink-soft">
+        Powered by{" "}
+        <a href="/" target="_blank" rel="nofollow noopener" className="font-semibold text-rausch-deep hover:underline">
+          {APP_NAME}
+        </a>
+      </p>
     </div>
   );
 }

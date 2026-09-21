@@ -67,8 +67,9 @@ may be reused freely with attribution.
 - `/embed` is `frontend/src/pages/EmbedHomePage.tsx`: the site's landing
   page (`components/LandingHero.tsx`, shared with the home page) outside the
   App layout, with no loader, so one cached copy serves everyone. Framed,
-  the search never grabs focus (autofocus would scroll the host page) and
-  the wordmark opens the site in a new tab.
+  the search never grabs focus (autofocus would scroll the host page), and
+  the big wordmark gives way to a small "Powered by Elections Simplified"
+  line at the bottom, which opens the site in a new tab.
 - The search is `components/AddressSearchForm.tsx`, the same component the
   home page uses, so the clickwrap, the ZIP and city partial-ballot paths,
   the paid address suggestions, and the usage events are one piece of code.

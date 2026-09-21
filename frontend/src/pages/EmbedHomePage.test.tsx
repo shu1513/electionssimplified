@@ -29,8 +29,12 @@ describe("EmbedHomePage", () => {
     expect(screen.getByText("Factual, nonpartisan, AI-assisted research with linked sources")).toBeInTheDocument();
     const field = screen.getByLabelText("Enter address to see which elections you can vote in:");
     expect(field).not.toHaveFocus();
-    // The wordmark is the way to the site, in a new tab.
-    expect(screen.getByRole("link", { name: "Elections Simplified" })).toHaveAttribute("target", "_blank");
+    // No big wordmark in a publisher's article: one small credit at the
+    // bottom, which is also the way to the site, in a new tab.
+    const credit = screen.getByRole("link", { name: "Elections Simplified" });
+    expect(credit).toHaveAttribute("target", "_blank");
+    expect(credit.closest("p")).toHaveTextContent("Powered by Elections Simplified");
+    expect(screen.getAllByText("Elections Simplified")).toHaveLength(1);
     expect(getEmbedHome()).toEqual({ path: "/embed", label: "Search" });
     expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
   });
