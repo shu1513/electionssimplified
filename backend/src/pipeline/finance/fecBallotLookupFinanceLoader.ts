@@ -65,6 +65,8 @@ const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/indepe
 export const FEC_PLACEHOLDER_LABEL_PATTERN =
   "^(NULL|NONE|N/?A|UNKNOWN|NOT PROVIDED|REFUSED|REQUESTED.*|INFORMATION REQUESTED.*|[.\\-]*)$";
 const MAX_FEC_CONDUIT_ROWS = 5;
+// The card shows the top five of everything; interests are no exception.
+const MAX_PAC_INTEREST_ROWS = 5;
 // PACs named under each interest row's expandable detail.
 const MAX_PACS_PER_INTEREST = 5;
 
@@ -647,6 +649,10 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
   for (const row of pacInterestResult.rows) {
     const key = candidateElectionKey(row.candidate_id, row.election_id);
     const list = pacInterestsByCandidateElection.get(key) ?? [];
+    // Rows arrive largest first, so the first five are the top five.
+    if (list.length >= MAX_PAC_INTEREST_ROWS) {
+      continue;
+    }
     list.push({
       interest: row.interest,
       interest_name: pacInterestDisplayName(row.interest),

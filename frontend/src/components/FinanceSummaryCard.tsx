@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type {
   FinanceBreakdown,
   FinanceConduitDonation,
@@ -9,7 +8,6 @@ import type {
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
-  VISIBLE_PAC_INTEREST_ROWS,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -113,11 +111,9 @@ function BreakdownList({
  * not loaded (render nothing) and empty when no PAC gave.
  */
 function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
-  const [showAll, setShowAll] = useState(false);
   if (rows === undefined) {
     return null;
   }
-  const visible = showAll ? rows : rows.slice(0, VISIBLE_PAC_INTEREST_ROWS);
   return (
     <div className="mt-3">
       <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</h4>
@@ -125,7 +121,7 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
         <p className="mt-1 text-sm text-ink-soft">No PAC donations reported.</p>
       ) : (
         <ul className="mt-1 space-y-0.5">
-          {visible.map((row) => (
+          {rows.map((row) => (
             <li key={row.interest} className="text-sm">
               <details>
                 <summary className="flex cursor-pointer select-none justify-between gap-3 hover:underline">
@@ -159,15 +155,6 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
           ))}
         </ul>
       )}
-      {rows.length > VISIBLE_PAC_INTEREST_ROWS ? (
-        <button
-          type="button"
-          onClick={() => setShowAll((current) => !current)}
-          className="mt-1 text-xs text-ink-soft underline hover:text-ink"
-        >
-          {showAll ? "Show fewer" : `Show all (${rows.length})`}
-        </button>
-      ) : null}
     </div>
   );
 }

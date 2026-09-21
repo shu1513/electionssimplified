@@ -8,7 +8,6 @@ import type {
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
-  VISIBLE_PAC_INTEREST_ROWS,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -86,12 +85,10 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
  * the list was not loaded and empty when no PAC gave.
  */
 function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
-  const [showAll, setShowAll] = useState(false);
   const [openInterest, setOpenInterest] = useState<string | null>(null);
   if (rows === undefined) {
     return null;
   }
-  const visible = showAll ? rows : rows.slice(0, VISIBLE_PAC_INTEREST_ROWS);
   return (
     <View className="mt-3">
       <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</Text>
@@ -99,7 +96,7 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
         <Text className="mt-1 text-sm text-ink-soft">No PAC donations reported.</Text>
       ) : (
         <View className="mt-1 gap-0.5">
-          {visible.map((row) => (
+          {rows.map((row) => (
             <View key={row.interest}>
               <Pressable
                 accessibilityRole="button"
@@ -137,13 +134,6 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
           ))}
         </View>
       )}
-      {rows.length > VISIBLE_PAC_INTEREST_ROWS ? (
-        <Pressable accessibilityRole="button" onPress={() => setShowAll((current) => !current)}>
-          <Text className="mt-1 text-xs text-ink-soft underline">
-            {showAll ? "Show fewer" : `Show all (${rows.length})`}
-          </Text>
-        </Pressable>
-      ) : null}
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { FinanceSummaryCard, hasFinanceContent } from "./FinanceSummaryCard";
 import { financeSummary, emptyFinanceSummary } from "../test/fixtures";
 
@@ -666,15 +666,13 @@ describe("FinanceSummaryCard", () => {
       interest("gun_rights", "Gun rights groups and gun makers", 9_900, 1),
       interest("gun_control", "Gun control groups", 9_900, 1),
       interest("healthcare", "Healthcare", 8_000, 2),
-      interest("retail", "Retail", 5_000, 1),
-      interest("tobacco", "Tobacco", 2_500, 1),
     ];
     render(<FinanceSummaryCard summary={summary} />);
 
     const list = screen.getByText("PAC money by interest").parentElement as HTMLElement;
     expect(within(list).getByText("$62,000")).toBeInTheDocument();
     expect(within(list).getByText(/· 9 PACs/)).toBeInTheDocument();
-    expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(3);
+    expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(2);
     // Largest interest first.
     expect(within(list).getAllByRole("group")[0]).toHaveTextContent("Labor unions");
     expect(within(list).getByRole("link", { name: "LABOR UNIONS EXAMPLE PAC" })).toHaveAttribute(
@@ -682,9 +680,8 @@ describe("FinanceSummaryCard", () => {
       "https://www.fec.gov/data/disbursements/?committee_id=C-labor_unions"
     );
     expect(within(list).getByText("and 8 more")).toBeInTheDocument();
-    expect(within(list).queryByText("Tobacco")).not.toBeInTheDocument();
-    fireEvent.click(within(list).getByRole("button", { name: "Show all (7)" }));
-    expect(within(list).getByText("Tobacco")).toBeInTheDocument();
+    // The backend sends the top five; the card adds no "show all".
+    expect(within(list).queryByRole("button")).not.toBeInTheDocument();
   });
 
   it("says so when no PAC gave, and shows nothing when the PAC list was not loaded", () => {
