@@ -309,6 +309,75 @@ describe("manual:deferral record", () => {
     expect(supersedeStatement(electionWide.statements)?.text).toContain("NOT LIKE 'profile-%'");
   });
 
+  // Two concurrent --replace calls under different keys could each write
+  // their row and then cancel the other's, leaving no open deferral while
+  // both report success. The record path therefore runs in one transaction
+  // behind a unit-scoped advisory lock, and prints only after COMMIT.
+  it("runs record in a transaction behind a unit lock and prints after COMMIT", async () => {
+    const { client, statements } = fakeClient({
+      others: [{ id: OTHER_ID, blocker_key: "district_discovery_roster" }],
+    });
+    const log = console.log as unknown as { mock: { calls: unknown[][] } };
+    let printedAt = -1;
+    log.mock.calls.length = 0;
+    (console.log as unknown as { mockImplementation: (fn: () => void) => void }).mockImplementation(
+      () => {
+        printedAt = statements.length;
+      }
+    );
+    await runCommand(
+      client,
+      "record",
+      recordFlags(["--election-id", ELECTION_ID, "--blocker-key", "new-key", "--replace"])
+    );
+
+    const texts = statements.map((s) => s.text.trim());
+    const at = (needle: string): number => texts.findIndex((t) => t.includes(needle));
+    expect(at("BEGIN")).toBe(0);
+    const lock = statements[at("pg_advisory_xact_lock")];
+    expect(lock?.values).toEqual([`manual_research_deferrals:${ELECTION_ID}:elections`]);
+    expect(at("pg_advisory_xact_lock")).toBeLessThan(at("SELECT id, reason, blocked_until"));
+    expect(at("INSERT INTO")).toBeLessThan(at("SET status = 'cancelled'"));
+    expect(at("SET status = 'cancelled'")).toBeLessThan(at("COMMIT"));
+    expect(at("ROLLBACK")).toBe(-1);
+    expect(printedAt).toBe(statements.length);
+  });
+
+  it("locks on the district when there is no election", async () => {
+    const { client, statements } = fakeClient();
+    await runCommand(client, "record", recordFlags());
+    const lock = statements.find((s) => s.text.includes("pg_advisory_xact_lock"));
+    expect(lock?.values).toEqual([`manual_research_deferrals:district:${DISTRICT_ID}:elections`]);
+  });
+
+  it("rolls back on a collision and never prints", async () => {
+    const { client, statements } = fakeClient({
+      existing: { reason: "old", blocked_until: "2026-10-05" },
+    });
+    await expect(runCommand(client, "record", recordFlags())).rejects.toThrow(/Nothing was written/);
+    const texts = statements.map((s) => s.text.trim());
+    expect(texts[0]).toBe("BEGIN");
+    expect(texts.at(-1)).toBe("ROLLBACK");
+    expect(texts).not.toContain("COMMIT");
+    expect((console.log as unknown as { mock: { calls: unknown[][] } }).mock.calls).toHaveLength(0);
+  });
+
+  // A failed INSERT inside the transaction would abort the re-read that
+  // builds the collision message; the savepoint keeps that path alive.
+  it("wraps the insert in a savepoint so the raced re-read still runs", async () => {
+    const { client, statements } = fakeClient({
+      racedIn: { reason: "recorded by the other session", blocked_until: "2026-11-02" },
+    });
+    await expect(runCommand(client, "record", recordFlags())).rejects.toThrow(
+      /while this command was running/
+    );
+    const texts = statements.map((s) => s.text.trim());
+    const insertAt = texts.findIndex((t) => t.includes("INSERT INTO"));
+    expect(texts[insertAt - 1]).toBe("SAVEPOINT deferral_insert");
+    expect(texts[insertAt + 1]).toBe("ROLLBACK TO SAVEPOINT deferral_insert");
+    expect(texts.at(-1)).toBe("ROLLBACK");
+  });
+
   // A distinct blocker key is a distinct row, so the probe must not match the
   // NULL-keyed row and the write must be an INSERT.
   it("scopes the open-row probe by blocker key and election id", async () => {

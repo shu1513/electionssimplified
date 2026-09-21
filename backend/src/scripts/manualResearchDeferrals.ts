@@ -194,6 +194,224 @@ function parseBlockedUntil(raw: string): string {
   return raw;
 }
 
+type RecordResult = {
+  deferral_id: string;
+  district_name: string;
+  blocker_key: string | null;
+  replaced?: true;
+  recorded?: true;
+  superseded?: { id: string; blocker_key: string | null }[];
+};
+
+// The whole record path runs inside one transaction on one connection (see
+// runCommand): probe, write, and the --replace supersede step commit together
+// or not at all, and the caller prints only after COMMIT.
+async function recordDeferral(
+  pool: DeferralClient,
+  flags: Map<string, string>
+): Promise<RecordResult> {
+  const districtId = requireFlag(flags, "district-id");
+  const stage = requireFlag(flags, "stage");
+  if (!DEFERRAL_STAGES.includes(stage as DeferralStage)) {
+    throw new Error(`Invalid --stage: ${stage}. Expected one of ${DEFERRAL_STAGES.join(", ")}.`);
+  }
+  const reason = requireFlag(flags, "reason");
+  const blockedUntil = parseBlockedUntil(requireFlag(flags, "blocked-until"));
+  const electionId = optionalValueFlag(flags, "election-id");
+  const sourceUrl = optionalValueFlag(flags, "source-url");
+  const blockerKey = parseBlockerKey(optionalValueFlag(flags, "blocker-key"));
+  const replace = flags.get("replace") === "true";
+
+  const districtRow = await pool.query(`SELECT name FROM public.districts WHERE id = $1`, [
+    districtId,
+  ]);
+  if (districtRow.rows.length === 0) {
+    throw new Error(`District ${districtId} not found.`);
+  }
+  const districtName = (districtRow.rows[0] as { name: string }).name;
+
+  if (electionId) {
+    const electionRow = await pool.query(
+      `SELECT id FROM public.elections WHERE id = $1 AND district_id = $2`,
+      [electionId, districtId]
+    );
+    if (electionRow.rows.length === 0) {
+      throw new Error(`Election ${electionId} not found in district ${districtId}.`);
+    }
+  }
+
+  // Serialize writers on one unit (election|district + stage). Without
+  // this, two concurrent --replace calls under different keys could each
+  // write their row and then cancel the other's, leaving NO open deferral
+  // while both report success. The lock is transaction-scoped, so the
+  // second caller waits, then sees the first caller's row and closes it.
+  await pool.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [
+    `manual_research_deferrals:${electionId ?? `district:${districtId}`}:${stage}`,
+  ]);
+
+  // Look before writing. The previous version went straight to an UPDATE
+  // and treated a hit as success, so a second blocker recorded on the same
+  // key silently replaced the first one's reason and date and the lost work
+  // never came back on the due list (2026-07-10: a judicial-retention
+  // deferral clobbered a runoff-generals one). A collision is now an error
+  // that names the row and the three ways out.
+  //
+  // Two partial unique indexes (election-scoped and district-wide) cannot
+  // share one ON CONFLICT target, so the match is spelled out here.
+  const existing = await pool.query<{
+    id: string;
+    reason: string;
+    blocked_until: string;
+  }>(
+    `
+      SELECT id, reason, blocked_until::text AS blocked_until
+      FROM public.manual_research_deferrals
+      WHERE status = 'deferred'
+        AND district_id = $1
+        AND stage = $2
+        AND election_id IS NOT DISTINCT FROM $3
+        AND blocker_key IS NOT DISTINCT FROM $4
+    `,
+    [districtId, stage, electionId, blockerKey]
+  );
+
+  const scope = electionId ? `election ${electionId}` : `district ${districtId} (district-wide)`;
+  const keySuffix = blockerKey ? ` with blocker-key ${blockerKey}` : "";
+
+  // --replace means "this is now THE deferral for this election|district +
+  // stage". Before 2026-09-21 it only touched the row with the exact same
+  // blocker key, so a re-record under a different (or blank) key left two
+  // open rows for one unit and every later session had to close the
+  // stale one by hand. This runs AFTER the new row is written, so a
+  // failure here leaves the new row standing and the old ones still open
+  // (the pre-fix state) rather than losing the deferral.
+  //
+  // Per-candidate profile rows (`profile-<id>`) share one election + stage
+  // but are separate units: a profile-keyed call replaces only its own
+  // row, and no other call closes profile rows.
+  const supersedeOthers = async (
+    keptId: string
+  ): Promise<{ id: string; blocker_key: string | null }[]> => {
+    if (blockerKey !== null && blockerKey.startsWith("profile-")) {
+      return [];
+    }
+    const closed = await pool.query<{ id: string; blocker_key: string | null }>(
+      `
+        UPDATE public.manual_research_deferrals
+        SET status = 'cancelled', resolved_at = now(), updated_at = now(),
+            resolution_note = $5
+        WHERE status = 'deferred'
+          AND district_id = $1
+          AND stage = $2
+          AND election_id IS NOT DISTINCT FROM $3
+          AND id <> $4
+          AND (blocker_key IS NULL OR blocker_key NOT LIKE 'profile-%')
+        RETURNING id, blocker_key
+      `,
+      [
+        districtId,
+        stage,
+        electionId,
+        keptId,
+        `superseded by deferral ${keptId} (manual:deferral:record --replace)`,
+      ]
+    );
+    return closed.rows;
+  };
+
+  if (existing.rows.length > 0 && !replace) {
+    throw collisionError(existing.rows[0], stage, scope, keySuffix);
+  }
+
+  if (existing.rows.length > 0) {
+    const updated = await pool.query<{ id: string }>(
+      `
+        UPDATE public.manual_research_deferrals
+        SET reason = $1, blocked_until = $2, source_url = $3, updated_at = now()
+        WHERE id = $4
+          AND status = 'deferred'
+        RETURNING id
+      `,
+      [reason, blockedUntil, sourceUrl, existing.rows[0].id]
+    );
+    // The status guard matters: without it a row that another session
+    // resolved between the probe and this write would have its reason and
+    // date rewritten while staying closed, and we would report success.
+    if (updated.rows.length === 0) {
+      throw new Error(
+        `Deferral ${existing.rows[0].id} was resolved or cancelled by another session ` +
+          `after this command read it. Nothing was written — re-run to record a fresh deferral.`
+      );
+    }
+    const superseded = await supersedeOthers(updated.rows[0].id);
+    return {
+      deferral_id: updated.rows[0].id,
+      district_name: districtName,
+      blocker_key: blockerKey,
+      replaced: true,
+      superseded,
+    };
+  }
+
+  // The probe above is a read, so two sessions recording the same key at
+  // once can both find nothing and both try to insert. The unique index
+  // still holds — the loser writes nothing and no work is lost — but it
+  // would surface as a raw 23505 dump instead of the actionable message
+  // this command promises. Translate it back.
+  // Inside the transaction a failed INSERT would abort every later
+  // statement, including the re-read that builds the message, so the
+  // insert gets its own savepoint.
+  let inserted: { rows: { id: string }[] };
+  await pool.query("SAVEPOINT deferral_insert");
+  try {
+    inserted = await pool.query<{ id: string }>(
+      `
+        INSERT INTO public.manual_research_deferrals
+          (district_id, election_id, stage, reason, blocked_until, source_url,
+           district_name_snapshot, blocker_key)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING id
+      `,
+      [districtId, electionId, stage, reason, blockedUntil, sourceUrl, districtName, blockerKey]
+    );
+  } catch (error: unknown) {
+    if (!isUniqueViolation(error)) {
+      throw error;
+    }
+    await pool.query("ROLLBACK TO SAVEPOINT deferral_insert");
+    const raced = await pool.query<{
+      id: string;
+      reason: string;
+      blocked_until: string;
+    }>(
+      `
+        SELECT id, reason, blocked_until::text AS blocked_until
+        FROM public.manual_research_deferrals
+        WHERE status = 'deferred'
+          AND district_id = $1
+          AND stage = $2
+          AND election_id IS NOT DISTINCT FROM $3
+          AND blocker_key IS NOT DISTINCT FROM $4
+      `,
+      [districtId, stage, electionId, blockerKey]
+    );
+    // Nothing to point at (the winner closed its row again in the gap):
+    // the raw error is more honest than a fabricated explanation.
+    if (raced.rows.length === 0) {
+      throw error;
+    }
+    throw collisionError(raced.rows[0], stage, scope, keySuffix, { concurrent: true, replace });
+  }
+  const superseded = replace ? await supersedeOthers(inserted.rows[0].id) : [];
+  return {
+    deferral_id: inserted.rows[0].id,
+    district_name: districtName,
+    blocker_key: blockerKey,
+    recorded: true,
+    ...(replace ? { superseded } : {}),
+  };
+}
+
 export async function runCommand(
   pool: DeferralClient,
   command: string,
@@ -201,193 +419,16 @@ export async function runCommand(
 ): Promise<void> {
   switch (command) {
     case "record": {
-      const districtId = requireFlag(flags, "district-id");
-      const stage = requireFlag(flags, "stage");
-      if (!DEFERRAL_STAGES.includes(stage as DeferralStage)) {
-        throw new Error(`Invalid --stage: ${stage}. Expected one of ${DEFERRAL_STAGES.join(", ")}.`);
-      }
-      const reason = requireFlag(flags, "reason");
-      const blockedUntil = parseBlockedUntil(requireFlag(flags, "blocked-until"));
-      const electionId = optionalValueFlag(flags, "election-id");
-      const sourceUrl = optionalValueFlag(flags, "source-url");
-      const blockerKey = parseBlockerKey(optionalValueFlag(flags, "blocker-key"));
-      const replace = flags.get("replace") === "true";
-
-      const districtRow = await pool.query(`SELECT name FROM public.districts WHERE id = $1`, [
-        districtId,
-      ]);
-      if (districtRow.rows.length === 0) {
-        throw new Error(`District ${districtId} not found.`);
-      }
-      const districtName = (districtRow.rows[0] as { name: string }).name;
-
-      if (electionId) {
-        const electionRow = await pool.query(
-          `SELECT id FROM public.elections WHERE id = $1 AND district_id = $2`,
-          [electionId, districtId]
-        );
-        if (electionRow.rows.length === 0) {
-          throw new Error(`Election ${electionId} not found in district ${districtId}.`);
-        }
-      }
-
-      // Look before writing. The previous version went straight to an UPDATE
-      // and treated a hit as success, so a second blocker recorded on the same
-      // key silently replaced the first one's reason and date and the lost work
-      // never came back on the due list (2026-07-10: a judicial-retention
-      // deferral clobbered a runoff-generals one). A collision is now an error
-      // that names the row and the three ways out.
-      //
-      // Two partial unique indexes (election-scoped and district-wide) cannot
-      // share one ON CONFLICT target, so the match is spelled out here.
-      const existing = await pool.query<{
-        id: string;
-        reason: string;
-        blocked_until: string;
-      }>(
-        `
-          SELECT id, reason, blocked_until::text AS blocked_until
-          FROM public.manual_research_deferrals
-          WHERE status = 'deferred'
-            AND district_id = $1
-            AND stage = $2
-            AND election_id IS NOT DISTINCT FROM $3
-            AND blocker_key IS NOT DISTINCT FROM $4
-        `,
-        [districtId, stage, electionId, blockerKey]
-      );
-
-      const scope = electionId ? `election ${electionId}` : `district ${districtId} (district-wide)`;
-      const keySuffix = blockerKey ? ` with blocker-key ${blockerKey}` : "";
-
-      // --replace means "this is now THE deferral for this election|district +
-      // stage". Before 2026-09-21 it only touched the row with the exact same
-      // blocker key, so a re-record under a different (or blank) key left two
-      // open rows for one unit and every later session had to close the
-      // stale one by hand. This runs AFTER the new row is written, so a
-      // failure here leaves the new row standing and the old ones still open
-      // (the pre-fix state) rather than losing the deferral.
-      //
-      // Per-candidate profile rows (`profile-<id>`) share one election + stage
-      // but are separate units: a profile-keyed call replaces only its own
-      // row, and no other call closes profile rows.
-      const supersedeOthers = async (
-        keptId: string
-      ): Promise<{ id: string; blocker_key: string | null }[]> => {
-        if (blockerKey !== null && blockerKey.startsWith("profile-")) {
-          return [];
-        }
-        const closed = await pool.query<{ id: string; blocker_key: string | null }>(
-          `
-            UPDATE public.manual_research_deferrals
-            SET status = 'cancelled', resolved_at = now(), updated_at = now(),
-                resolution_note = $5
-            WHERE status = 'deferred'
-              AND district_id = $1
-              AND stage = $2
-              AND election_id IS NOT DISTINCT FROM $3
-              AND id <> $4
-              AND (blocker_key IS NULL OR blocker_key NOT LIKE 'profile-%')
-            RETURNING id, blocker_key
-          `,
-          [
-            districtId,
-            stage,
-            electionId,
-            keptId,
-            `superseded by deferral ${keptId} (manual:deferral:record --replace)`,
-          ]
-        );
-        return closed.rows;
-      };
-
-      if (existing.rows.length > 0 && !replace) {
-        throw collisionError(existing.rows[0], stage, scope, keySuffix);
-      }
-
-      if (existing.rows.length > 0) {
-        const updated = await pool.query<{ id: string }>(
-          `
-            UPDATE public.manual_research_deferrals
-            SET reason = $1, blocked_until = $2, source_url = $3, updated_at = now()
-            WHERE id = $4
-              AND status = 'deferred'
-            RETURNING id
-          `,
-          [reason, blockedUntil, sourceUrl, existing.rows[0].id]
-        );
-        // The status guard matters: without it a row that another session
-        // resolved between the probe and this write would have its reason and
-        // date rewritten while staying closed, and we would report success.
-        if (updated.rows.length === 0) {
-          throw new Error(
-            `Deferral ${existing.rows[0].id} was resolved or cancelled by another session ` +
-              `after this command read it. Nothing was written — re-run to record a fresh deferral.`
-          );
-        }
-        const superseded = await supersedeOthers(updated.rows[0].id);
-        print({
-          deferral_id: updated.rows[0].id,
-          district_name: districtName,
-          blocker_key: blockerKey,
-          replaced: true,
-          superseded,
-        });
-        return;
-      }
-
-      // The probe above is a read, so two sessions recording the same key at
-      // once can both find nothing and both try to insert. The unique index
-      // still holds — the loser writes nothing and no work is lost — but it
-      // would surface as a raw 23505 dump instead of the actionable message
-      // this command promises. Translate it back.
-      let inserted: { rows: { id: string }[] };
+      await pool.query("BEGIN");
+      let result: RecordResult;
       try {
-        inserted = await pool.query<{ id: string }>(
-          `
-            INSERT INTO public.manual_research_deferrals
-              (district_id, election_id, stage, reason, blocked_until, source_url,
-               district_name_snapshot, blocker_key)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING id
-          `,
-          [districtId, electionId, stage, reason, blockedUntil, sourceUrl, districtName, blockerKey]
-        );
+        result = await recordDeferral(pool, flags);
+        await pool.query("COMMIT");
       } catch (error: unknown) {
-        if (!isUniqueViolation(error)) {
-          throw error;
-        }
-        const raced = await pool.query<{
-          id: string;
-          reason: string;
-          blocked_until: string;
-        }>(
-          `
-            SELECT id, reason, blocked_until::text AS blocked_until
-            FROM public.manual_research_deferrals
-            WHERE status = 'deferred'
-              AND district_id = $1
-              AND stage = $2
-              AND election_id IS NOT DISTINCT FROM $3
-              AND blocker_key IS NOT DISTINCT FROM $4
-          `,
-          [districtId, stage, electionId, blockerKey]
-        );
-        // Nothing to point at (the winner closed its row again in the gap):
-        // the raw error is more honest than a fabricated explanation.
-        if (raced.rows.length === 0) {
-          throw error;
-        }
-        throw collisionError(raced.rows[0], stage, scope, keySuffix, { concurrent: true, replace });
+        await pool.query("ROLLBACK").catch(() => undefined);
+        throw error;
       }
-      const superseded = replace ? await supersedeOthers(inserted.rows[0].id) : [];
-      print({
-        deferral_id: inserted.rows[0].id,
-        district_name: districtName,
-        blocker_key: blockerKey,
-        recorded: true,
-        ...(replace ? { superseded } : {}),
-      });
+      print(result);
       return;
     }
 
@@ -546,9 +587,13 @@ async function main(): Promise<void> {
   loadProjectEnv();
 
   const pool = new Pool({ connectionString: requireEnv("DATABASE_URL") });
+  // One checked-out connection: `record` wraps its statements in a
+  // transaction, which Pool.query (a fresh connection per call) cannot hold.
+  const client = await pool.connect();
   try {
-    await runCommand(pool, command, parseFlags(rest));
+    await runCommand(client, command, parseFlags(rest));
   } finally {
+    client.release();
     await pool.end();
   }
 }
