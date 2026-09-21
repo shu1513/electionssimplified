@@ -20,6 +20,7 @@ describe("EmbedGuidePage", () => {
     renderRoutes([{ path: "/embed-instructions", element: <EmbedGuidePage /> }], "/embed-instructions");
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("How to use our civic tool on your website");
+    expect(screen.getByRole("link", { name: "Back to Mission" })).toHaveAttribute("href", "/mission");
     expect(screen.getByText('<script src="https://electionssimplified.com/embed.js"></script>')).toBeInTheDocument();
     // The live example is the real box page, framed.
     expect(screen.getByTitle("The Elections Simplified tool, as it appears on your website")).toHaveAttribute("src", "/embed");
