@@ -28,7 +28,9 @@ function usage(): string {
     `           Stages: ${DEFERRAL_STAGES.join(", ")}`,
     "           One open row per (election|district) + stage + blocker-key. Use --election-id",
     "           for a per-election blocker, --blocker-key for a second district-wide blocker",
-    "           on the same stage, and --replace only to rewrite the row you already have.",
+    "           on the same stage. --replace rewrites the row for this key AND closes every",
+    "           other open deferral for the same election|district + stage (per-candidate",
+    "           profile-<id> rows are their own unit and are only replaced by their own key).",
     "  due      List deferred rows whose blocked_until has passed. [--limit <n>] [--all] [--district-id <id>]",
     "           (--all lists every open deferral regardless of date, uncapped unless --limit is given)",
     "  resolve  Close a deferral after the deferred unit was completed. --deferral-id <id> [--note <text>]",
@@ -131,9 +133,12 @@ function collisionError(
   keySuffix: string,
   options: { concurrent?: boolean; replace?: boolean } = {}
 ): Error {
+  // "Nothing was written" leads every variant: under `npm run` this message
+  // sits below a wall of npm error lines, and agents have read a silent
+  // no-op as success (2026-09-21, Crittenden County AR).
   const lead = options.concurrent
-    ? `Another session recorded an open ${stage} deferral for ${scope}${keySuffix} while this command was running.`
-    : `An open ${stage} deferral already exists for ${scope}${keySuffix}.`;
+    ? `Nothing was written: another session recorded an open ${stage} deferral for ${scope}${keySuffix} while this command was running.`
+    : `Nothing was written: an open ${stage} deferral already exists for ${scope}${keySuffix}.`;
   // Re-offering --replace to someone who already passed it is noise; what they
   // need is to re-run now that a row exists to replace.
   const guidance =
@@ -145,6 +150,8 @@ function collisionError(
           "  --blocker-key <slug>  this is a SEPARATE district-wide blocker on the same",
           "                        stage (e.g. ballot_measure_family, office_matcher)",
           "  --replace             you mean to rewrite the row above with a new reason/date",
+          "                        (also closes every other open deferral for this stage",
+          "                        and election/district, and lists the closed ids)",
         ];
   return new Error(
     [
@@ -253,6 +260,47 @@ export async function runCommand(
       const scope = electionId ? `election ${electionId}` : `district ${districtId} (district-wide)`;
       const keySuffix = blockerKey ? ` with blocker-key ${blockerKey}` : "";
 
+      // --replace means "this is now THE deferral for this election|district +
+      // stage". Before 2026-09-21 it only touched the row with the exact same
+      // blocker key, so a re-record under a different (or blank) key left two
+      // open rows for one unit and every later session had to close the
+      // stale one by hand. This runs AFTER the new row is written, so a
+      // failure here leaves the new row standing and the old ones still open
+      // (the pre-fix state) rather than losing the deferral.
+      //
+      // Per-candidate profile rows (`profile-<id>`) share one election + stage
+      // but are separate units: a profile-keyed call replaces only its own
+      // row, and no other call closes profile rows.
+      const supersedeOthers = async (
+        keptId: string
+      ): Promise<{ id: string; blocker_key: string | null }[]> => {
+        if (blockerKey !== null && blockerKey.startsWith("profile-")) {
+          return [];
+        }
+        const closed = await pool.query<{ id: string; blocker_key: string | null }>(
+          `
+            UPDATE public.manual_research_deferrals
+            SET status = 'cancelled', resolved_at = now(), updated_at = now(),
+                resolution_note = $5
+            WHERE status = 'deferred'
+              AND district_id = $1
+              AND stage = $2
+              AND election_id IS NOT DISTINCT FROM $3
+              AND id <> $4
+              AND (blocker_key IS NULL OR blocker_key NOT LIKE 'profile-%')
+            RETURNING id, blocker_key
+          `,
+          [
+            districtId,
+            stage,
+            electionId,
+            keptId,
+            `superseded by deferral ${keptId} (manual:deferral:record --replace)`,
+          ]
+        );
+        return closed.rows;
+      };
+
       if (existing.rows.length > 0 && !replace) {
         throw collisionError(existing.rows[0], stage, scope, keySuffix);
       }
@@ -277,11 +325,13 @@ export async function runCommand(
               `after this command read it. Nothing was written — re-run to record a fresh deferral.`
           );
         }
+        const superseded = await supersedeOthers(updated.rows[0].id);
         print({
           deferral_id: updated.rows[0].id,
           district_name: districtName,
           blocker_key: blockerKey,
           replaced: true,
+          superseded,
         });
         return;
       }
@@ -330,11 +380,13 @@ export async function runCommand(
         }
         throw collisionError(raced.rows[0], stage, scope, keySuffix, { concurrent: true, replace });
       }
+      const superseded = replace ? await supersedeOthers(inserted.rows[0].id) : [];
       print({
         deferral_id: inserted.rows[0].id,
         district_name: districtName,
         blocker_key: blockerKey,
         recorded: true,
+        ...(replace ? { superseded } : {}),
       });
       return;
     }
