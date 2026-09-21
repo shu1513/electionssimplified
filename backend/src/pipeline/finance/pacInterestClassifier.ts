@@ -38,6 +38,11 @@ export const PAC_ONLY_INTEREST_SLUGS = [
   "centrist_groups",
   "womens_groups",
   "other_issue_groups",
+  // Groups whose stated purpose is electing one party's candidates, without a
+  // policy cause of their own. One slug per party, never a shared row.
+  "democratic_party_groups",
+  "republican_party_groups",
+  "private_prisons",
 ] as const;
 
 export const PAC_INTEREST_SLUGS = [...FINANCE_INDUSTRY_SLUGS, ...PAC_ONLY_INTEREST_SLUGS] as const;
@@ -94,6 +99,9 @@ export const PAC_INTEREST_DISPLAY_NAMES: Record<PacInterestSlug | typeof UNCLASS
   centrist_groups: "Centrist groups",
   womens_groups: "Groups that back women candidates",
   other_issue_groups: "Other issue groups",
+  democratic_party_groups: "Groups that work to elect Democrats",
+  republican_party_groups: "Groups that work to elect Republicans",
+  private_prisons: "Private prison companies",
   unclassified: "Not yet sorted",
 };
 
