@@ -12,7 +12,11 @@ import type { MetaFunction } from "react-router";
 import { APP_NAME } from "@voteapp/api-client";
 import { LandingHero } from "../components/LandingHero";
 import { publisherCodeFromHash, withSource } from "../lib/embedPublisher";
-import { rememberEmbedSource, setEmbedHome, useReportEmbedHeight } from "../lib/embedSession";
+import {
+  rememberEmbedSource,
+  setEmbedHome,
+  useReportEmbedHeight,
+} from "../lib/embedSession";
 import { pageMeta } from "../lib/pageMeta";
 
 export const meta: MetaFunction = () => [
@@ -34,20 +38,28 @@ export function EmbedHomePage() {
   }, []);
 
   return (
-    <div ref={contentRef} className="bg-page text-ink">
-      <LandingHero framed />
-      {/* The box's one credit, and the front page's one way to the site. */}
-      <p className="-mt-2 pb-4 text-center text-xs text-ink-soft">
-        Powered by{" "}
-        <a
-          href={withSource("/", source)}
-          target="_blank"
-          rel="nofollow noopener"
-          className="font-semibold text-rausch-deep hover:underline"
-        >
-          {APP_NAME}
-        </a>
-      </p>
+    // The outer div fills the frame and centres the content, so when the box
+    // is taller than the page (its minimum height, or a publisher's
+    // data-height) the spare room is split evenly above and below. The INNER
+    // div is what gets measured: the outer one is always as tall as the frame.
+    <div className="flex min-h-screen flex-col justify-center bg-page text-ink">
+      <div ref={contentRef}>
+        <LandingHero framed />
+        {/* The box's one credit, and the front page's one way to the site. Its
+          bottom padding matches the headline's top padding (LandingHero), so
+          the page sits evenly in the box. */}
+        <p className="-mt-2 pb-9 text-center text-xs text-ink-soft sm:pb-10">
+          Powered by{" "}
+          <a
+            href={withSource("/", source)}
+            target="_blank"
+            rel="nofollow noopener"
+            className="font-semibold text-rausch-deep hover:underline"
+          >
+            {APP_NAME}
+          </a>
+        </p>
+      </div>
     </div>
   );
 }
