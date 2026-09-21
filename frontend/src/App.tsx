@@ -312,10 +312,9 @@ export function App() {
       >
         Skip to content
       </a>
-      {/* On "/" the landing masthead carries a big centred wordmark
-          (HomePage.tsx), so the header drops its own copy — one brand mark
-          per page — and its border, so the white canvas runs unbroken from
-          the top edge to the address field. */}
+      {/* On "/" the header keeps its small corner logo like every other page
+          but drops its border, so the white canvas runs unbroken from the
+          top edge to the address field. */}
       <header className={onSearchLanding ? "bg-page" : "border-b border-line bg-page"}>
         {/* flex-wrap: when logo + nav outgrow the row (guest nav with the
             draft link at phone widths) the nav drops to its own line instead
@@ -325,11 +324,9 @@ export function App() {
           {/* text-base below sm: the smaller logo is what buys the header
               its single line at 375px (measured: the text-xl wordmark alone
               is 185px of a 343px row). */}
-          {onSearchLanding ? null : (
-            <Link to="/" className="shrink-0 text-base font-extrabold tracking-tight text-rausch sm:text-xl">
-              {APP_NAME}
-            </Link>
-          )}
+          <Link to="/" className="shrink-0 text-base font-extrabold tracking-tight text-rausch sm:text-xl">
+            {APP_NAME}
+          </Link>
           {/* min-w-0 (not shrink-0): the nav must be squeezable so the guest
               span's flex-wrap can still break links onto an extra line as a
               last resort on very narrow screens. */}

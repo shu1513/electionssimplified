@@ -39,7 +39,7 @@ export function FollowsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
       <FollowedCandidatesSection />
     </div>
   );

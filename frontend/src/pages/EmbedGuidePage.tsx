@@ -26,7 +26,7 @@ export const meta: MetaFunction = () =>
  */
 export default function EmbedGuidePage() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 text-body leading-relaxed text-ink">
+    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] text-body leading-relaxed text-ink">
       {/* Most readers arrive from the Mission page; a publisher sent straight
           here finds out who we are there. Same top bar as the detail pages. */}
       <DetailPager

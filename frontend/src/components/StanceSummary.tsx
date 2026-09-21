@@ -75,24 +75,20 @@ export function StanceSummary({
       </div>
     );
   return (
-    <section className="mt-4">
-      {/* sr-only heading so the section lands in heading navigation; the
-          visible lead-in is aria-hidden because it says the same thing —
-          without the name, which a heading jumped to on its own needs. */}
+    <section ref={exposureRef} className="mt-[18px]">
+      {/* sr-only heading so the section lands in heading navigation. No
+          visible lead-in: the Supports / Opposes boxes explain themselves. */}
       <Heading className="sr-only">{`Where ${candidateName} stands, based on their records`}</Heading>
-      <p ref={exposureRef} className="text-sm text-ink-soft" aria-hidden="true">
-        Where they stand, based on their records:
-      </p>
       {supports.length > 0 || opposes.length > 0 ? (
         // Two columns only when both sides exist — one box alone spans the
         // full row instead of leaving an empty half.
-        <div className={`mt-2 grid gap-3${supports.length > 0 && opposes.length > 0 ? " sm:grid-cols-2" : ""}`}>
+        <div className={`grid gap-3${supports.length > 0 && opposes.length > 0 ? " sm:grid-cols-2" : ""}`}>
           {sideBox("supports", supports)}
           {sideBox("opposes", opposes)}
         </div>
       ) : null}
       {mixed.length > 0 ? (
-        <div className="mt-3 rounded border border-amber-200 bg-amber-50 p-3">
+        <div className={`${supports.length > 0 || opposes.length > 0 ? "mt-3 " : ""}rounded border border-amber-200 bg-amber-50 p-3`}>
           <BoxHeading className="text-subheading font-semibold text-amber-900">Mixed record</BoxHeading>
           {/* Same "N support · N oppose" phrasing as the record group
               headers, so the two surfaces can't drift apart. */}

@@ -31,11 +31,6 @@
      don't belong. */
   --text-title: clamp(1.375rem, 1.1667rem + 1.0417vw, 2rem);
   --text-title--line-height: 1.2;
-  /* Landing masthead wordmark only: 32 -> 56px, one clear step above
-     the landing pitch so the brand mark outranks it without dwarfing it.
-     32px floor keeps "Elections Simplified" on one line at 375px. */
-  --text-wordmark: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
-  --text-wordmark--line-height: 1.1;
   --text-heading: clamp(1.1875rem, 1.125rem + 0.3125vw, 1.375rem);
   --text-heading--line-height: 1.35;
   --text-subheading: clamp(1rem, 0.9792rem + 0.1042vw, 1.0625rem);

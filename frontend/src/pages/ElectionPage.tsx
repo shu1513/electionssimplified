@@ -493,8 +493,8 @@ export function ElectionPage() {
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
-          : "mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px]"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
+          : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
       {railContests !== null && railNav !== null ? (
@@ -741,7 +741,7 @@ export function ElectionPage() {
 
         {showOfficeInfo ? (
           // Duties first, then which issues the election touches.
-          <section className="mt-6 box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
+          <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
             <h2 ref={officeRef} className="text-heading font-semibold">About this office</h2>
             {officeBullets.length > 0 ? (
               <ul className="mt-2 list-disc space-y-1 pl-5 text-body text-ink">
@@ -779,7 +779,7 @@ export function ElectionPage() {
         ) : null}
 
         {measure ? (
-          <section className="mt-6 box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
+          <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
             {/* nudge-deep green (user decision 2026-09-11) — not party blue
                 on a nonpartisan measure. */}
             <h2 ref={measureSummaryRef} className="text-heading font-semibold text-nudge-deep">Ballot Measure</h2>
@@ -959,7 +959,7 @@ export function ElectionPage() {
             ) : null}
           </>
         ) : data.candidates.length > 0 || (showChoiceControls && hasStrandedPicks) ? (
-          <section className="mt-6 box:mt-[18px]">
+          <section className="mt-[29px] box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 ref={candidatesRef} className="text-heading font-semibold">Candidates</h2>
               {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
@@ -1244,7 +1244,7 @@ export function ElectionPage() {
         ) : data.candidate_roster_status ? (
           // Empty office roster: say WHY instead of hiding the section (roster
           // awaiting certification, profiles being prepared, or unavailable).
-          <section className="mt-6 box:mt-[18px]">
+          <section className="mt-[29px] box:mt-[18px]">
             <h2 className="text-heading font-semibold">Candidates</h2>
             <p className="mt-3 rounded-xl border border-line bg-surface p-4 box:p-[11px] text-sm text-ink-soft">
               {formatRosterStatus(data.candidate_roster_status).long}
@@ -1253,7 +1253,7 @@ export function ElectionPage() {
         ) : null}
 
         {data.results.length > 0 ? (
-          <section className="mt-6 box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
+          <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
             <h2 ref={resultsRef} className="text-heading font-semibold">Results</h2>
             {hasCertifiedRow(data.results) ? null : (
               <p className="mt-1 text-xs text-ink-soft">
@@ -1293,7 +1293,7 @@ export function ElectionPage() {
         {/* One footnote line, no heading: the research trail is usually two
             pages of one site (index + detail), and a heading plus a line per
             URL read as the same source printed twice. */}
-        <SourceFootnote urls={electionOnlySources} className="mt-6 box:mt-[18px]" />
+        <SourceFootnote urls={electionOnlySources} className="mt-[29px] box:mt-[18px]" />
 
         {/* Last on purpose: reporting is a reaction to reading the page, not a
             headline action worth space above the candidates. Skipped when the
@@ -1302,7 +1302,7 @@ export function ElectionPage() {
             "Report an issue" (with the same source line above it) read as a
             duplicate. */}
         {measure === null ? (
-          <div className="mt-6 box:mt-[18px]">
+          <div className="mt-[29px] box:mt-[18px]">
             <ReportContentButton
               entityType="election"
               entityId={data.id}
@@ -1330,7 +1330,7 @@ export function ElectionPage() {
           // question a voter can answer without knowing the stakes.
           <div
             data-sticky-pick-cta=""
-            className="sticky bottom-3 z-30 mt-6 box:mt-[18px] rounded-xl border border-line bg-surface p-3 shadow-lg"
+            className="sticky bottom-3 z-30 mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-3 shadow-lg"
           >
             {retention ? (
               <p className="mb-2 text-sm text-ink-soft">Yes keeps this judge in office. No removes them.</p>
@@ -1364,7 +1364,7 @@ export function ElectionPage() {
             viewport pinning). Same measure !== null guard as the card: a
             TBD measure renders no pick UI of any kind. */}
         {measure !== null && data.race_type === "ballot_measure" && showAddressNudge ? (
-          <div className="mt-6 box:mt-[18px]">
+          <div className="mt-[29px] box:mt-[18px]">
             <AddressNudge />
           </div>
         ) : null}
