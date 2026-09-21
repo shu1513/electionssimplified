@@ -42,8 +42,8 @@ export default function EmbedGuidePage() {
         className="block h-[480px] w-full rounded-[8px] border border-[#dddddd]"
       />
       <p>
-        Visitors to your website can use it to see their elections and the candidates, while staying on
-        your website the whole time.
+        Now visitors to your website can use it to see their elections and the candidates, while staying
+        on your website the whole time.
       </p>
 
       <h2 className="pt-2 text-heading font-semibold">Changing the size</h2>
