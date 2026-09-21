@@ -272,14 +272,13 @@ export async function replaceCandidateFinanceContributors(input: {
         [input.fecCandidateId, input.electionYear, JSON.stringify(conduitRows), syncedAt]
       );
     }
-    // Marks the lists as loaded for the read side. A candidate with no
-    // summary row yet gets the mark when the totals sync creates one and the
-    // next contributor sync runs.
+    // Marks the lists as loaded for the read side, whether or not the
+    // candidate's totals have been synced yet.
     await db.query(
       `
-        UPDATE public.candidate_finance_summaries
-        SET contributors_synced_at = $3::timestamptz
-        WHERE fec_candidate_id = $1 AND election_year = $2
+        INSERT INTO public.candidate_finance_contributor_syncs (fec_candidate_id, election_year, synced_at)
+        VALUES ($1, $2, $3::timestamptz)
+        ON CONFLICT (fec_candidate_id, election_year) DO UPDATE SET synced_at = EXCLUDED.synced_at
       `,
       [input.fecCandidateId, input.electionYear, syncedAt]
     );

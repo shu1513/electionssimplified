@@ -49,6 +49,9 @@ function createFakeDb() {
         if (table === failOnInsertInto) {
           throw new Error("insert failed");
         }
+        if (!(table in tables)) {
+          return { rows: [] };
+        }
         for (const row of JSON.parse(String(params[2])) as Record<string, unknown>[]) {
           tables[table]?.push({ fec_candidate_id: String(params[0]), election_year: Number(params[1]), ...row });
         }
@@ -134,7 +137,7 @@ describe("syncCandidateFinanceContributors", () => {
       "DELETE FROM public.candidate_finance_conduit_totals WHERE",
       "INSERT INTO public.candidate_finance_pac_donors (",
       "INSERT INTO public.candidate_finance_conduit_totals (",
-      "UPDATE public.candidate_finance_summaries SET contributors_synced_at",
+      "INSERT INTO public.candidate_finance_contributor_syncs (fec_candidate_id,",
       "COMMIT",
     ]);
     expect(db.tables.candidate_finance_pac_donors).toHaveLength(2);

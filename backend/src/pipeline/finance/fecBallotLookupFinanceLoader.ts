@@ -273,11 +273,14 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
         summary.outside_oppose_total,
         summary.source_url,
         summary.last_synced_at::text AS last_synced_at,
-        summary.contributors_synced_at::text AS contributors_synced_at
+        contributor_sync.synced_at::text AS contributors_synced_at
       FROM requested
       JOIN public.candidate_finance_summaries AS summary
         ON summary.fec_candidate_id = requested.fec_candidate_id
        AND summary.election_year = requested.election_year
+      LEFT JOIN public.candidate_finance_contributor_syncs AS contributor_sync
+        ON contributor_sync.fec_candidate_id = summary.fec_candidate_id
+       AND contributor_sync.election_year = summary.election_year
       ORDER BY requested.candidate_id, requested.election_id, summary.last_synced_at DESC, summary.id
     `,
     [JSON.stringify(requests)]
