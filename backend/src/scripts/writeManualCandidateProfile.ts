@@ -356,20 +356,18 @@ export function applyRegularElectionProfileContext(input: {
     if (fecIds.length === 0 && !noFecIdException) {
       throw new Error("candidate_fec_ids is required in roster context for federal profile import");
     }
-    const exceptionStateFilingIds = noFecIdException
-      ? normalizeStringArray(input.rosterHints?.stateFilingIds)
-      : [];
+    // The payload's own state_filing_ids are dropped below, as on the AI path.
+    // The staged roster row's filing number is kept, beside any FEC ID: a
+    // primary candidate written under the exception is stored with the filing
+    // number only, and the same number on the general-election roster row is
+    // what matches that stored row once an FEC ID exists.
+    const rosterStateFilingIds = normalizeStringArray(input.rosterHints?.stateFilingIds);
     if (noFecIdException) {
       // No FEC ID to match on, so another hard identifier keeps identity
       // matching and duplicate prevention working: the election authority's
       // filing number from the roster row, or a campaign website on a cited
       // host (cited sources are the URLs this writer verifies).
-      // When the FEC later issues an ID, the roster row is fixed and this same
-      // election's profile is re-written: the stored row is found by its
-      // election link and display name, and gains the FEC ID there. Filing
-      // numbers are issued per election cycle, so they are not carried beside
-      // FEC IDs as a cross-election identifier.
-      assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, exceptionStateFilingIds);
+      assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, rosterStateFilingIds);
     }
     // The regular federal profile path stores date_of_birth as null (the AI
     // prompt tells the model to omit it). Refuse instead of silently
@@ -381,14 +379,11 @@ export function applyRegularElectionProfileContext(input: {
       );
     }
     const { state_filing_ids: _stateFilingIds, ...federalProfile } = withoutParty;
-    return noFecIdException
-      ? exceptionStateFilingIds.length > 0
-        ? { ...federalProfile, state_filing_ids: exceptionStateFilingIds }
-        : federalProfile
-      : {
-          ...federalProfile,
-          fec_ids: fecIds,
-        };
+    return {
+      ...federalProfile,
+      ...(rosterStateFilingIds.length > 0 ? { state_filing_ids: rosterStateFilingIds } : {}),
+      ...(noFecIdException ? {} : { fec_ids: fecIds }),
+    };
   }
 
   const stateFilingIds = normalizeStringArray(input.rosterHints?.stateFilingIds);
