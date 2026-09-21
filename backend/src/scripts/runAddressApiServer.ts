@@ -809,7 +809,7 @@ async function main(): Promise<void> {
     lookupElectionDetail: (electionId) => lookupElectionDetailById(pool, electionId),
     lookupCandidateElectionFinance: (electionId, candidateId) =>
       lookupCandidateElectionFinanceSummaryById(pool, electionId, candidateId),
-    lookupCandidateStockTrades: (candidateId, limit) => lookupCandidateStockTradesById(pool, candidateId, limit),
+    lookupCandidateStockTrades: (candidateId) => lookupCandidateStockTradesById(pool, candidateId),
     checkDatabaseHealth: createApiDbPoolHealthCheck(pool),
     listResearchAreas: () => listSelectableResearchAreas(pool),
     getStateVotingResources: (stateAbbreviation) => getStateVotingResources(pool, stateAbbreviation),

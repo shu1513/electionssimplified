@@ -2422,8 +2422,8 @@ async function dispatchApiRequest(
       return;
     }
 
-    const { candidateId, limit } = parseCandidateStockTradesPath(url);
-    const result = await options.lookupCandidateStockTrades(candidateId, limit);
+    const { candidateId } = parseCandidateStockTradesPath(url);
+    const result = await options.lookupCandidateStockTrades(candidateId);
     if (!result) {
       sendApiResponse(response, toErrorResponse(404, "not_found", "Candidate not found", corsHeaders));
       return;

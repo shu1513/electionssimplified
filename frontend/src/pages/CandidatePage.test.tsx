@@ -552,7 +552,7 @@ describe("CandidatePage", () => {
     expect(screen.getByText("$120,000")).toBeInTheDocument();
   });
 
-  it("shows Stock Trades collapsed by default, below campaign finance, with each trade linked to its filing", async () => {
+  it("shows Stock Trades collapsed by default, below campaign finance, with most-traded assets and the filings as source", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderCandidate(() => ({
       ...candidateDetail({ elections: [candidateElection()] }),
@@ -560,25 +560,27 @@ describe("CandidatePage", () => {
       stock_trades: {
         chambers: ["house"],
         checked_through: "2026-09-20",
-        trade_count: 1,
+        trade_count: 3,
         since_year: 2025,
-        amount_low_total: 1001,
-        amount_high_total: 15000,
+        amount_low_total: 3003,
+        amount_high_total: 45000,
         amount_high_is_minimum: false,
-        trades: [
+        top_assets: [
           {
             asset_name: "Rollins, Inc. Common Stock",
             ticker: "ROL",
-            asset_type: "ST",
-            transaction_type: "purchase",
-            transaction_date: "2025-01-08",
-            amount_low: 1001,
-            amount_high: 15000,
-            owner: "spouse",
-            source_url: "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf",
+            trade_count: 3,
+            amount_low_total: 3003,
+            amount_high_total: 45000,
+            amount_high_is_minimum: false,
           },
         ],
-        unread_filings: [],
+        filing_count: 2,
+        latest_filing: {
+          source_url: "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf",
+          filing_date: "2025-01-16",
+        },
+        unread_filing_count: 0,
       },
     }));
 
@@ -587,19 +589,16 @@ describe("CandidatePage", () => {
     expect(details).toBeTruthy();
     expect(details!.open).toBe(false);
     // Collapsed, not absent.
-    expect(screen.getByText("Reported 1 stock trade since 2025, worth between $1,001 and $15,000.")).toBeInTheDocument();
-    // Date once as a group heading; the row carries action, ticker, asset,
-    // amount and owner.
-    expect(screen.getByRole("heading", { name: "January 8, 2025" })).toBeInTheDocument();
-    expect(screen.getByText("Buy")).toBeInTheDocument();
+    expect(screen.getByText("Reported 3 stock trades since 2025, worth between $3,003 and $45,000.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Most traded" })).toBeInTheDocument();
     expect(screen.getByText("ROL")).toBeInTheDocument();
-    expect(screen.getByText("Rollins, Inc. Common Stock")).toBeInTheDocument();
-    expect(screen.getAllByText("$1,001 – $15,000").length).toBeGreaterThan(0);
-    expect(screen.getByText(/Spouse/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Filing" })).toHaveAttribute(
+    expect(screen.getByText("3 trades · $3,003 to $45,000")).toBeInTheDocument();
+    // No single trades are listed; the filings are the source.
+    expect(screen.getByRole("link", { name: "Latest report (January 16, 2025)" })).toHaveAttribute(
       "href",
       "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf"
     );
+    expect(screen.getByRole("link", { name: "Clerk of the U.S. House of Representatives" })).toBeInTheDocument();
     const finance = screen.getByRole("heading", { name: "Campaign Finance Information — Governor" });
     expect(finance.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });

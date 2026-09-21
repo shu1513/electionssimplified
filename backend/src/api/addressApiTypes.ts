@@ -131,7 +131,7 @@ export type AddressApiServerOptions = {
   lookupCandidateElectionFinance?: (electionId: string, candidateId: string) => Promise<CandidateElectionFinanceResult | null>;
   /** GET /api/candidates/:candidate_id/stock-trades — one candidate's
    * reported securities trades. null = candidate not found (404). */
-  lookupCandidateStockTrades?: (candidateId: string, limit: number | null) => Promise<CandidateStockTradesResult | null>;
+  lookupCandidateStockTrades?: (candidateId: string) => Promise<CandidateStockTradesResult | null>;
   /** POST /api/chatbot/ask — retrieval-only "Ask" pipeline
    * (docs/plans/chatbot-rag.md). Wired only when CHATBOT_ENABLED; the
    * endpoint 404s when absent so the kill switch fully hides the feature.

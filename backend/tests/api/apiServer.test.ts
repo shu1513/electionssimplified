@@ -4178,19 +4178,7 @@ describe("createApiApp", () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(result);
-      expect(lookupCandidateStockTrades).toHaveBeenCalledWith(candidateId, null);
-
-      await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
-        method: "GET",
-        path: `${stockTradesPath}?limit=25`,
-      });
-      expect(lookupCandidateStockTrades).toHaveBeenLastCalledWith(candidateId, 25);
-
-      const badLimit = await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
-        method: "GET",
-        path: `${stockTradesPath}?limit=0`,
-      });
-      expect(badLimit.statusCode).toBe(400);
+      expect(lookupCandidateStockTrades).toHaveBeenCalledWith(candidateId);
       expect(lookupCandidateDetail).not.toHaveBeenCalled();
     });
 

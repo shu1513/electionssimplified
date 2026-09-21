@@ -1395,7 +1395,7 @@ export function isCandidateStockTradesPath(pathname: string): boolean {
   return CANDIDATE_STOCK_TRADES_PATH_PATTERN.test(pathname);
 }
 
-export function parseCandidateStockTradesPath(url: URL): { candidateId: string; limit: number | null } {
+export function parseCandidateStockTradesPath(url: URL): { candidateId: string } {
   const match = CANDIDATE_STOCK_TRADES_PATH_PATTERN.exec(url.pathname);
   if (!match) {
     throw new RequestValidationError("Candidate stock trades path must be /api/candidates/:candidate_id/stock-trades");
@@ -1404,15 +1404,7 @@ export function parseCandidateStockTradesPath(url: URL): { candidateId: string; 
   if (!isUuid(candidateId)) {
     throw new RequestValidationError(`Candidate stock trades path contains invalid candidate UUID: ${candidateId}`);
   }
-  // Optional ?limit=N caps the listed rows (the totals still cover all).
-  const rawLimit = url.searchParams.get("limit");
-  if (rawLimit === null) {
-    return { candidateId, limit: null };
-  }
-  if (!/^[1-9]\d{0,3}$/.test(rawLimit)) {
-    throw new RequestValidationError("Candidate stock trades limit must be an integer from 1 to 9999");
-  }
-  return { candidateId, limit: Number(rawLimit) };
+  return { candidateId };
 }
 
 export function isPickCardPath(pathname: string): boolean {

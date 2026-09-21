@@ -48,7 +48,7 @@ import { partyColorClass, profilePartyLabel } from "@voteapp/api-client";
 import { candidateProfileLinks } from "@voteapp/api-client";
 import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
-import { STOCK_TRADES_INITIAL_ROWS, useMe } from "@voteapp/api-client";
+import { useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
 import { sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
@@ -79,7 +79,7 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
   // Same reasoning as finance: loader-fetched so the collapsed panel is in
   // the SSR HTML, and a failure only hides the panel.
   const stockTrades = loadFromApi<CandidateStockTradesResponse>(
-    `/api/candidates/${detail.candidate.candidate_id}/stock-trades?limit=${STOCK_TRADES_INITIAL_ROWS}`,
+    `/api/candidates/${detail.candidate.candidate_id}/stock-trades`,
     request
   )
     .then((result) => result.stock_trades ?? null)
@@ -698,11 +698,7 @@ export function CandidatePage() {
           />
         ))}
 
-        {detail.stock_trades ? <StockTradesPanel
-            key={`trades-${candidate.candidate_id}`}
-            candidateId={candidate.candidate_id}
-            summary={detail.stock_trades}
-          /> : null}
+        {detail.stock_trades ? <StockTradesPanel summary={detail.stock_trades} /> : null}
 
         <TrackRecordSection
           // Keyed by candidate: the roster pager keeps this page mounted

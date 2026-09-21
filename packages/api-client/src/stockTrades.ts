@@ -1,21 +1,20 @@
 // "Stock Trades" panel: types and wording shared by web and mobile. The
-// wording states what the filing says and nothing more.
+// panel gives totals and the most-traded assets, then links the official
+// filings. The wording states what the filings say and nothing more.
 
-// Mirrors CandidateStockTradesSummary (backend stockTradesReader.ts).
-export type StockTrade = {
+// Mirrors CandidateStockTradeAsset (backend stockTradesReader.ts).
+export type StockTradeAsset = {
   asset_name: string;
   ticker: string | null;
-  asset_type: string | null;
-  transaction_type: "purchase" | "sale" | "partial_sale" | "exchange";
-  transaction_date: string;
-  /** Dollar range as filed. amount_high is null for an open-ended top range. */
-  amount_low: number;
-  amount_high: number | null;
-  owner: "self" | "spouse" | "child" | "joint";
-  /** The official filing this row comes from. */
-  source_url: string;
+  trade_count: number;
+  /** Sum of the low ends and of the high ends of the filed ranges. */
+  amount_low_total: number;
+  amount_high_total: number;
+  /** True when an open-ended range makes the high total a floor. */
+  amount_high_is_minimum: boolean;
 };
 
+// Mirrors CandidateStockTradesSummary (backend stockTradesReader.ts).
 export type StockTradesSummary = {
   chambers: ("house" | "senate")[];
   checked_through: string;
@@ -23,63 +22,16 @@ export type StockTradesSummary = {
   since_year: number | null;
   amount_low_total: number;
   amount_high_total: number;
-  /** True when an open-ended range makes the high total a floor. */
   amount_high_is_minimum: boolean;
-  trades: StockTrade[];
-  /** Filings on record whose rows were not read (scanned paper filings). */
-  unread_filings: { source_url: string; filing_date: string | null }[];
+  /** Assets with the largest summed ranges, largest first. */
+  top_assets: StockTradeAsset[];
+  filing_count: number;
+  latest_filing: { source_url: string; filing_date: string | null } | null;
+  /** Paper reports whose trades are in none of the numbers. */
+  unread_filing_count: number;
 };
-
-// Rows a screen asks for up front (?limit=). Some filers report hundreds of
-// trades a year; the rest load only when the reader asks for them.
-export const STOCK_TRADES_INITIAL_ROWS = 25;
 
 export type CandidateStockTradesResponse = { stock_trades: StockTradesSummary | null };
-
-const OWNER_LABELS: Record<StockTrade["owner"], string> = {
-  self: "Self",
-  spouse: "Spouse",
-  child: "Child",
-  joint: "Joint",
-};
-
-const TRANSACTION_LABELS: Record<StockTrade["transaction_type"], string> = {
-  purchase: "Buy",
-  sale: "Sell",
-  partial_sale: "Sell (part)",
-  exchange: "Exchange",
-};
-
-// House asset type codes that are not plain stock, in everyday words. A code
-// not listed here shows no label.
-const ASSET_TYPE_LABELS: Record<string, string> = {
-  GS: "Government bond",
-  CS: "Corporate bond",
-  OP: "Stock option",
-  CT: "Cryptocurrency",
-  EF: "Fund",
-  MF: "Fund",
-  ET: "Fund",
-  PS: "Private stock",
-  HN: "Private fund",
-};
-
-export function stockTradeOwnerLabel(owner: StockTrade["owner"]): string {
-  return OWNER_LABELS[owner] ?? owner;
-}
-
-export function stockTradeTransactionLabel(type: StockTrade["transaction_type"]): string {
-  return TRANSACTION_LABELS[type] ?? type;
-}
-
-export function stockTradeAssetTypeLabel(assetType: string | null): string | null {
-  return assetType ? ASSET_TYPE_LABELS[assetType] ?? null : null;
-}
-
-/** "Rollins, Inc. Common Stock (ROL)", or the name alone with no ticker. */
-export function stockTradeAssetLabel(trade: Pick<StockTrade, "asset_name" | "ticker">): string {
-  return trade.ticker ? `${trade.asset_name} (${trade.ticker})` : trade.asset_name;
-}
 
 function dollars(amount: number): string {
   return `$${Math.round(amount).toLocaleString("en-US")}`;
@@ -100,15 +52,25 @@ export function formatStockTradeTotal(amount: number): string {
   return dollars(amount);
 }
 
-/** One row's range as filed: "$1,001 – $15,000", "Over $50,000,000". */
-export function formatStockTradeRange(trade: Pick<StockTrade, "amount_low" | "amount_high">): string {
-  if (trade.amount_high === null) {
-    return `Over ${dollars(trade.amount_low)}`;
+type RangeTotals = Pick<StockTradesSummary, "amount_low_total" | "amount_high_total" | "amount_high_is_minimum">;
+
+/** "$1.2 million to $4.5 million", "at least $1.2 million", or one figure. */
+export function formatStockTradeTotalRange(totals: RangeTotals): string {
+  const low = formatStockTradeTotal(totals.amount_low_total);
+  const high = formatStockTradeTotal(totals.amount_high_total);
+  if (totals.amount_high_is_minimum) {
+    return `at least ${low}`;
   }
-  if (trade.amount_high === trade.amount_low) {
-    return dollars(trade.amount_low);
-  }
-  return `${dollars(trade.amount_low)} – ${dollars(trade.amount_high)}`;
+  return low === high ? low : `${low} to ${high}`;
+}
+
+function tradeCount(count: number): string {
+  return `${count.toLocaleString("en-US")} ${count === 1 ? "trade" : "trades"}`;
+}
+
+/** "112 trades · $71.6 million to $323.7 million" */
+export function stockTradeAssetLine(asset: StockTradeAsset): string {
+  return `${tradeCount(asset.trade_count)} · ${formatStockTradeTotalRange(asset)}`;
 }
 
 /**
@@ -117,44 +79,34 @@ export function formatStockTradeRange(trade: Pick<StockTrade, "amount_low" | "am
  */
 export function stockTradesSummaryLine(summary: StockTradesSummary): string {
   if (summary.trade_count === 0) {
-    const unread = summary.unread_filings.length;
+    const unread = summary.unread_filing_count;
     return unread === 0
       ? "No stock trades reported."
-      : `Filed ${unread} trade ${unread === 1 ? "report" : "reports"} on paper. The trades are not listed here.`;
+      : `Filed ${unread} trade ${unread === 1 ? "report" : "reports"} on paper. They are not summarized here.`;
   }
   const count = `${summary.trade_count.toLocaleString("en-US")} stock ${summary.trade_count === 1 ? "trade" : "trades"}`;
   const since = summary.since_year ? ` since ${summary.since_year}` : "";
-  const low = formatStockTradeTotal(summary.amount_low_total);
-  const high = formatStockTradeTotal(summary.amount_high_total);
-  const worth = summary.amount_high_is_minimum
-    ? `worth at least ${low}`
-    : low === high
-      ? `worth ${low}`
-      : `worth between ${low} and ${high}`;
+  const range = formatStockTradeTotalRange(summary);
+  const worth = summary.amount_high_is_minimum || !range.includes(" to ") ? `worth ${range}` : `worth between ${range.replace(" to ", " and ")}`;
   return `Reported ${count}${since}, ${worth}.`;
+}
+
+/** Shown only when some reports were read and some were not. */
+export function stockTradesPaperNote(summary: StockTradesSummary): string | null {
+  const unread = summary.unread_filing_count;
+  if (unread === 0 || summary.trade_count === 0) {
+    return null;
+  }
+  return `${unread} more ${unread === 1 ? "report was" : "reports were"} filed on paper and ${unread === 1 ? "is" : "are"} not counted.`;
 }
 
 export const STOCK_TRADES_SOURCE_LABELS: Record<StockTradesSummary["chambers"][number], { label: string; url: string }> = {
   house: {
-    label: "Clerk of the U.S. House of Representatives, Periodic Transaction Reports",
+    label: "Clerk of the U.S. House of Representatives",
     url: "https://disclosures-clerk.house.gov/FinancialDisclosure",
   },
   senate: {
-    label: "U.S. Senate, Periodic Transaction Reports",
+    label: "U.S. Senate financial disclosures",
     url: "https://efdsearch.senate.gov/search/",
   },
 };
-
-/** Consecutive trades of one transaction date, in the order given. */
-export function groupStockTradesByDate(trades: readonly StockTrade[]): { date: string; trades: StockTrade[] }[] {
-  const groups: { date: string; trades: StockTrade[] }[] = [];
-  for (const trade of trades) {
-    const last = groups[groups.length - 1];
-    if (last && last.date === trade.transaction_date) {
-      last.trades.push(trade);
-    } else {
-      groups.push({ date: trade.transaction_date, trades: [trade] });
-    }
-  }
-  return groups;
-}

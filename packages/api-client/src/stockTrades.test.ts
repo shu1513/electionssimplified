@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatStockTradeRange,
   formatStockTradeTotal,
-  groupStockTradesByDate,
-  stockTradeAssetLabel,
+  stockTradeAssetLine,
+  stockTradesPaperNote,
   stockTradesSummaryLine,
   type StockTradesSummary,
 } from "./stockTrades";
@@ -18,8 +17,10 @@ function summary(overrides: Partial<StockTradesSummary> = {}): StockTradesSummar
     amount_low_total: 1_234_047,
     amount_high_total: 4_560_000,
     amount_high_is_minimum: false,
-    trades: [],
-    unread_filings: [],
+    top_assets: [],
+    filing_count: 9,
+    latest_filing: { source_url: "https://example.gov/9.pdf", filing_date: "2026-08-20" },
+    unread_filing_count: 0,
     ...overrides,
   };
 }
@@ -37,57 +38,49 @@ describe("stockTradesSummaryLine", () => {
     ).toBe("Reported 1 stock trade since 2025, worth between $1,001 and $15,000.");
   });
 
-  it("says 'at least' when a range is open-ended", () => {
+  it("says 'at least' when a range is open-ended, and one figure when both ends agree", () => {
     expect(stockTradesSummaryLine(summary({ amount_high_is_minimum: true }))).toBe(
       "Reported 47 stock trades since 2023, worth at least $1.2 million."
+    );
+    expect(stockTradesSummaryLine(summary({ trade_count: 1, amount_low_total: 823, amount_high_total: 823 }))).toBe(
+      "Reported 1 stock trade since 2023, worth $823."
     );
   });
 
   it("covers a filer with no trades and a filer with only paper reports", () => {
     const none = summary({ trade_count: 0, since_year: null, amount_low_total: 0, amount_high_total: 0 });
     expect(stockTradesSummaryLine(none)).toBe("No stock trades reported.");
-    expect(
-      stockTradesSummaryLine({ ...none, unread_filings: [{ source_url: "https://example.gov/1.pdf", filing_date: null }] })
-    ).toBe("Filed 1 trade report on paper. The trades are not listed here.");
+    expect(stockTradesSummaryLine({ ...none, unread_filing_count: 1 })).toBe(
+      "Filed 1 trade report on paper. They are not summarized here."
+    );
   });
 });
 
-describe("stock trade formatters", () => {
+describe("stock trade wording helpers", () => {
   it("formats totals", () => {
     expect(formatStockTradeTotal(999_999)).toBe("$999,999");
     expect(formatStockTradeTotal(1_000_000)).toBe("$1 million");
     expect(formatStockTradeTotal(2_360_000_000)).toBe("$2.3 billion");
   });
 
-  it("formats a row's range as filed", () => {
-    expect(formatStockTradeRange({ amount_low: 1001, amount_high: 15000 })).toBe("$1,001 – $15,000");
-    expect(formatStockTradeRange({ amount_low: 50_000_000, amount_high: null })).toBe("Over $50,000,000");
-    expect(formatStockTradeRange({ amount_low: 823, amount_high: 823 })).toBe("$823");
+  it("describes one asset by trade count and summed range", () => {
+    expect(
+      stockTradeAssetLine({
+        asset_name: "Microsoft Corporation - Common Stock",
+        ticker: "MSFT",
+        trade_count: 112,
+        amount_low_total: 71_673_112,
+        amount_high_total: 323_770_000,
+        amount_high_is_minimum: false,
+      })
+    ).toBe("112 trades · $71.6 million to $323.7 million");
   });
 
-  it("adds the ticker only when the filing has one", () => {
-    expect(stockTradeAssetLabel({ asset_name: "Rollins, Inc.", ticker: "ROL" })).toBe("Rollins, Inc. (ROL)");
-    expect(stockTradeAssetLabel({ asset_name: "US Treasury Bill", ticker: null })).toBe("US Treasury Bill");
-  });
-});
-
-describe("groupStockTradesByDate", () => {
-  it("groups consecutive trades of one date and keeps the order", () => {
-    const trade = (transaction_date: string, asset_name: string) => ({
-      asset_name,
-      ticker: null,
-      asset_type: null,
-      transaction_type: "purchase" as const,
-      transaction_date,
-      amount_low: 1001,
-      amount_high: 15000,
-      owner: "self" as const,
-      source_url: "https://example.gov/1.pdf",
-    });
-    const groups = groupStockTradesByDate([trade("2026-08-14", "A"), trade("2026-08-14", "B"), trade("2026-08-06", "C")]);
-    expect(groups.map((group) => [group.date, group.trades.map((row) => row.asset_name)])).toEqual([
-      ["2026-08-14", ["A", "B"]],
-      ["2026-08-06", ["C"]],
-    ]);
+  it("notes paper reports only beside read ones", () => {
+    expect(stockTradesPaperNote(summary())).toBeNull();
+    expect(stockTradesPaperNote(summary({ unread_filing_count: 2 }))).toBe(
+      "2 more reports were filed on paper and are not counted."
+    );
+    expect(stockTradesPaperNote(summary({ trade_count: 0, unread_filing_count: 2 }))).toBeNull();
   });
 });
