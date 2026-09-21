@@ -666,6 +666,13 @@ export async function writeMergedSweepConfirmation(
   entryCount: number;
   otherContextRowsPruned: number;
 }> {
+  // Serialize sweep-ledger writes per candidate. FOR UPDATE below only locks
+  // a row that already exists, so two first writes could both read "no
+  // ledger" and the later upsert would drop the earlier one's evidence.
+  await client.query(
+    `SELECT pg_advisory_xact_lock(hashtextextended('candidate_sweep_confirmation:' || $1, 0))`,
+    [input.candidateId]
+  );
   const prior = await client.query<{ evidence: unknown }>(
     `
       SELECT evidence

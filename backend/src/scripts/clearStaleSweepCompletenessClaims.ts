@@ -40,9 +40,18 @@ function isContradictedByRecords(gapId: string, shape: CandidateRecordSetShape):
   return shape.activeRecordCount > 0;
 }
 
-function readFlag(name: string): string | null {
-  const index = process.argv.indexOf(name);
-  return index === -1 ? null : (process.argv[index + 1] ?? null);
+// A flag given without its value must fail: a bare trailing --candidate-id
+// would otherwise read as "no filter" and repair every candidate.
+export function readValueFlag(argv: readonly string[], name: string): string | null {
+  const index = argv.indexOf(name);
+  if (index === -1) {
+    return null;
+  }
+  const value = argv[index + 1];
+  if (value === undefined || value.startsWith("--")) {
+    throw new Error(`${name} needs a value`);
+  }
+  return value;
 }
 
 async function main(): Promise<void> {
@@ -51,6 +60,7 @@ async function main(): Promise<void> {
     { name: "--include-no-records-found", value: "none" },
     { name: "--candidate-id", value: "space" },
   ]);
+  const candidateId = readValueFlag(process.argv, "--candidate-id");
   loadProjectEnv();
   const databaseUrl = process.env.DATABASE_URL ?? "";
   requireLocalDatabaseTarget(databaseUrl);
@@ -59,8 +69,6 @@ async function main(): Promise<void> {
   const gapIds = process.argv.includes("--include-no-records-found")
     ? [ONLY_GENERAL_LABELS_GAP_ID, NO_RECORDS_FOUND_GAP_ID]
     : [ONLY_GENERAL_LABELS_GAP_ID];
-  const candidateId = readFlag("--candidate-id");
-
   const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
   try {

@@ -26,6 +26,7 @@ import {
   upsertSweepConfirmation,
   type SweepEvidenceEntry,
 } from "../../src/scripts/candidateRecordSweepEvidence.js";
+import { readValueFlag } from "../../src/scripts/clearStaleSweepCompletenessClaims.js";
 import { isConfirmedNull } from "../../src/scripts/auditCandidateRecordsCompleteness.js";
 import { buildCandidateRecordQualityGaps } from "../../src/scripts/writeManualCandidateRecords.js";
 
@@ -975,6 +976,11 @@ describe("writeMergedSweepConfirmation", () => {
       contextId: "election-1",
     });
 
+    // The per-candidate lock comes before the ledger read, so two first
+    // writes cannot both see "no ledger".
+    expect(calls[0]!.text).toContain("pg_advisory_xact_lock");
+    expect(calls[0]!.values).toEqual(["candidate-1"]);
+    expect(calls[1]!.text).toContain("FOR UPDATE");
     expect(result.confirmedGapIds).toEqual([]);
     expect(result.droppedGapIds).toEqual(["candidate_records.only_general_labels"]);
     expect(result.entryCount).toBe(3);
@@ -1045,5 +1051,14 @@ describe("deleteSweepCompletenessConfirmation exceptContext", () => {
     });
     expect(calls[0]!.text).toContain("NOT (context_type = $3 AND context_id = $4)");
     expect(calls[0]!.values.slice(2)).toEqual(["presidential_cycle", "cycle-1"]);
+  });
+});
+
+describe("clear-stale-claims readValueFlag", () => {
+  it("rejects a flag without a value instead of dropping the filter", () => {
+    expect(() => readValueFlag(["--apply", "--candidate-id"], "--candidate-id")).toThrow("needs a value");
+    expect(() => readValueFlag(["--candidate-id", "--apply"], "--candidate-id")).toThrow("needs a value");
+    expect(readValueFlag(["--candidate-id", "abc"], "--candidate-id")).toBe("abc");
+    expect(readValueFlag(["--apply"], "--candidate-id")).toBeNull();
   });
 });
