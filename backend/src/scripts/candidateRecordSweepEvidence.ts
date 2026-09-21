@@ -754,29 +754,8 @@ export async function refreshSweepConfirmationTimestamp(
  */
 export async function deleteSweepCompletenessConfirmation(
   client: Pick<PoolClient, "query">,
-  candidateId: string,
-  options: {
-    /** Keep this context's row: the caller merges into it right after. */
-    exceptContext?: { contextType: "election" | "presidential_cycle"; contextId: string };
-  } = {}
+  candidateId: string
 ): Promise<void> {
-  if (options.exceptContext) {
-    await client.query(
-      `
-        DELETE FROM public.candidate_record_sweep_confirmations
-        WHERE candidate_id = $1
-          AND confirmed_gap_ids && $2::text[]
-          AND NOT (context_type = $3 AND context_id = $4)
-      `,
-      [
-        candidateId,
-        [...SWEEP_COMPLETENESS_GAP_IDS],
-        options.exceptContext.contextType,
-        options.exceptContext.contextId,
-      ]
-    );
-    return;
-  }
   await client.query(
     `
       DELETE FROM public.candidate_record_sweep_confirmations

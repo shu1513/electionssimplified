@@ -1037,23 +1037,6 @@ describe("pruneUnsupportedSweepClaims", () => {
   });
 });
 
-describe("deleteSweepCompletenessConfirmation exceptContext", () => {
-  it("keeps the caller's own context row", async () => {
-    const calls: { text: string; values: unknown[] }[] = [];
-    const client = {
-      query: async (text: string, values?: unknown[]) => {
-        calls.push({ text, values: values ?? [] });
-        return { rows: [], rowCount: 0 };
-      },
-    };
-    await deleteSweepCompletenessConfirmation(client as never, "candidate-1", {
-      exceptContext: { contextType: "presidential_cycle", contextId: "cycle-1" },
-    });
-    expect(calls[0]!.text).toContain("NOT (context_type = $3 AND context_id = $4)");
-    expect(calls[0]!.values.slice(2)).toEqual(["presidential_cycle", "cycle-1"]);
-  });
-});
-
 describe("clear-stale-claims readValueFlag", () => {
   it("rejects a flag without a value instead of dropping the filter", () => {
     expect(() => readValueFlag(["--apply", "--candidate-id"], "--candidate-id")).toThrow("needs a value");
