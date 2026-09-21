@@ -103,7 +103,14 @@ export async function writeManualPacInterests(db: Queryable, rows: readonly Manu
   );
   const nameById = new Map(known.rows.map((row) => [row.committee_id, row.committee_name]));
   const problems: string[] = [];
+  const seen = new Set<string>();
   for (const row of rows) {
+    // The UPDATE below would apply one of two rows for the same committee at
+    // random, so a repeated id is refused rather than guessed at.
+    if (seen.has(row.committee_id)) {
+      problems.push(`${row.committee_id}: listed more than once`);
+    }
+    seen.add(row.committee_id);
     const stored = nameById.get(row.committee_id);
     if (!stored) {
       problems.push(`${row.committee_id}: not in finance_pac_interests (run the contributor sync first)`);

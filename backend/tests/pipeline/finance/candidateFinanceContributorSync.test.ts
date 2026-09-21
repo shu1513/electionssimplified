@@ -189,6 +189,59 @@ describe("syncCandidateFinanceContributors", () => {
     expect(db.statements.at(-1)).toBe("ROLLBACK");
   });
 
+  function lookupWithCommittees(byCandidate: Record<string, Partial<CandidateFinanceContributors>>) {
+    return vi.fn<LoadCandidateFinanceContributorsFn>(async () =>
+      Object.assign(
+        (fecCandidateId: string) => ({
+          fecCandidateId,
+          pacDonors: byCandidate[fecCandidateId]?.pacDonors ?? [],
+          conduits: byCandidate[fecCandidateId]?.conduits ?? [],
+        }),
+        {
+          getCommittee: (committeeId: string) => ({
+            committeeId,
+            name: "UNITED WORKERS UNION PAC",
+            committeeType: "Q",
+            designation: "B",
+            organizationType: "L",
+            connectedOrganization: "UNITED WORKERS UNION",
+            candidateId: null,
+          }),
+        }
+      )
+    );
+  }
+
+  it("records PAC interests before it marks any candidate's lists as loaded", async () => {
+    const db = createFakeDb();
+    await syncCandidateFinanceContributors({
+      db,
+      now,
+      targets,
+      loadContributorsFn: lookupWithCommittees({ H0XX01234: { pacDonors: [UNION_DONOR] } }),
+    });
+    const interests = db.statements.indexOf("INSERT INTO public.finance_pac_interests (");
+    const mark = db.statements.indexOf("INSERT INTO public.candidate_finance_contributor_syncs (fec_candidate_id,");
+    expect(interests).toBeGreaterThanOrEqual(0);
+    expect(interests).toBeLessThan(mark);
+  });
+
+  it("marks nothing as loaded when PAC interests cannot be recorded", async () => {
+    const db = createFakeDb();
+    db.failOnInsertInto("finance_pac_interests");
+    const result = await syncCandidateFinanceContributors({
+      db,
+      now,
+      targets,
+      loadContributorsFn: lookupWithCommittees({ H0XX01234: { pacDonors: [UNION_DONOR] } }),
+    });
+
+    expect(result.failedCycles).toEqual([{ cycle: 2026, candidateCount: 1, error: "insert failed" }]);
+    expect(result.results).toEqual([]);
+    expect(db.tables.candidate_finance_pac_donors).toEqual([]);
+    expect(db.statements.some((statement) => statement.includes("candidate_finance_contributor_syncs"))).toBe(false);
+  });
+
   it("writes nothing on a dry run", async () => {
     const db = createFakeDb();
     const result = await syncCandidateFinanceContributors({
@@ -255,6 +308,25 @@ describe("fecBulkDataClient", () => {
     expect(fecCycleForElectionYear(2025)).toBe(2026);
     expect(fecBulkFileUrl("committee_contributions", 2026)).toBe("https://www.fec.gov/files/bulk-downloads/2026/pas226.zip");
     expect(fecBulkFileUrl("individual_contributions", 2026)).toBe("https://www.fec.gov/files/bulk-downloads/2026/indiv26.zip");
+  });
+
+  it("fails on a truncated archive instead of returning the rows it managed to read", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "fec-bulk-test-"));
+    try {
+      const rows = Array.from({ length: 20000 }, (_, index) => `row ${index} ${(index * 7919) % 104729}`).join("\n");
+      const zip = zipSync({ "itpas2.txt": strToU8(`${rows}\n`) });
+      const zipPath = join(directory, "pas226.zip");
+      await writeFile(zipPath, zip.subarray(0, Math.floor(zip.length / 2)));
+
+      let linesSeen = 0;
+      await expect(
+        readFecBulkFileLines({ kind: "committee_contributions", zipPath, onLine: () => (linesSeen += 1) })
+      ).rejects.toThrow();
+      expect(linesSeen).toBeGreaterThan(0);
+      expect(linesSeen).toBeLessThan(20000);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it("reads only the first entry, so the by-date copies of the same rows are not read twice", async () => {

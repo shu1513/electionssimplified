@@ -393,15 +393,32 @@ export async function syncCandidateFinanceContributors(
       failedCycles.push({ cycle, candidateCount: targets.size, error: error instanceof Error ? error.message : String(error) });
       continue;
     }
+    // PAC interests go in before any candidate is written. The read side
+    // takes a candidate's "lists loaded" mark to mean its donors' interests
+    // are there too, so the mark must never be committed first. Interest rows
+    // are not tied to a candidate and the upsert is idempotent, so writing
+    // them early is harmless even if a later step fails. A failure here skips
+    // the cycle before anything is marked.
     const donorCommittees = new Map<string, FecBulkCommittee>();
     for (const target of targets.values()) {
-      const contributors = lookup(target.fecCandidateId);
-      for (const donor of contributors.pacDonors) {
+      for (const donor of lookup(target.fecCandidateId).pacDonors) {
         const committee = lookup.getCommittee?.(donor.committeeId);
         if (committee) {
           donorCommittees.set(committee.committeeId, committee);
         }
       }
+    }
+    if (!dryRun && donorCommittees.size > 0) {
+      try {
+        await upsertPacInterests({ db: input.db, committees: [...donorCommittees.values()] });
+      } catch (error) {
+        failedCycles.push({ cycle, candidateCount: targets.size, error: error instanceof Error ? error.message : String(error) });
+        continue;
+      }
+    }
+
+    for (const target of targets.values()) {
+      const contributors = lookup(target.fecCandidateId);
       if (!dryRun) {
         await replaceCandidateFinanceContributors({
           db: input.db,
@@ -419,9 +436,6 @@ export async function syncCandidateFinanceContributors(
         conduitCount: contributors.conduits.length,
         conduitTotal: sumAmounts(contributors.conduits),
       });
-    }
-    if (!dryRun && donorCommittees.size > 0) {
-      await upsertPacInterests({ db: input.db, committees: [...donorCommittees.values()] });
     }
   }
 

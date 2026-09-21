@@ -66,6 +66,14 @@ describe("manual PAC interests", () => {
     expect(query).toHaveBeenCalledTimes(1);
   });
 
+  it("refuses a payload that lists the same committee twice, and writes nothing", async () => {
+    const query = vi.fn().mockResolvedValueOnce({ rows: [{ committee_id: "C00000012", committee_name: "ACME CORP PAC" }] });
+    await expect(
+      writeManualPacInterests({ query }, [row, { ...row, interest_slug: "retail" }], false)
+    ).rejects.toThrow("C00000012: listed more than once");
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
   it("marks written rows as manual, and skips the write on a dry run", async () => {
     const known = { rows: [{ committee_id: "C00000012", committee_name: "Acme  Corp PAC" }] };
     const dryQuery = vi.fn().mockResolvedValueOnce(known);

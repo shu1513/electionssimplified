@@ -134,12 +134,23 @@ export async function readFecBulkFileLines(input: {
 
   let lineCount = 0;
   const lines = createInterface({ input: inflater.setEncoding("latin1"), crlfDelay: Infinity });
+  // Whether readline passes an input-stream error on to this loop depends on
+  // the Node version. Catch it here so a corrupt or truncated archive always
+  // fails the read and can never pass for a short but complete file.
+  let streamError: Error | null = null;
+  inflater.on("error", (error: Error) => {
+    streamError = error;
+    lines.close();
+  });
   for await (const line of lines) {
     if (line.length === 0) {
       continue;
     }
     lineCount += 1;
     input.onLine(line);
+  }
+  if (streamError) {
+    throw streamError;
   }
   return lineCount;
 }
