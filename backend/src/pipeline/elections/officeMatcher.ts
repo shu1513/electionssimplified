@@ -207,6 +207,19 @@ function normalizeMatcherText(value: string): string {
     // Diego live); the catalog keys on "County Supervisor", and the body
     // form tokenizes into zero overlap ("supervisors" ≠ "supervisor").
     .replace(/\bmember,? board of supervisors\b/g, "county supervisor")
+    // Illinois titles the county legislature "County Board" ("County Board
+    // Member #10", "Knox County Board District 1", "Stephenson County Board B
+    // District Member"); Virginia and New York name the body ("Powhatan County
+    // Board of Supervisors", "Lewis County Board of Legislators"). All of them
+    // are the catalog's County Supervisor. Left alone, "county board member"
+    // shares three of four words with County Board of Review Member and one
+    // with County Supervisor, so the scorer filed these seats under the tax
+    // appeals board and learned ~40 such aliases. Other county boards keep
+    // their own words: "board of review", "board of education", "board of
+    // commissioners" and the like all follow "county board" with "of", which
+    // the lookahead leaves untouched.
+    .replace(/\bcounty board of (?:supervisors|legislators)\b/g, "county supervisor")
+    .replace(/\bcounty board(?: members?)?\b(?! (?:of|supervisors?|chair|chairman|president)\b)/g, "county supervisor")
     // "TREASURER/TAX COLLECTOR" (San Diego live) is the county treasurer's
     // combined office; the compound form scores 1-of-3 token overlap against
     // "County Treasurer" and misses the confidence floor.
@@ -875,6 +888,14 @@ function hasPhrase(text: string, phrase: string): boolean {
 // state's own wording for a catalogued office is still expressed the same way
 // it always was, by adding the alias.
 const CITY_MARSHAL_OFFICE_KEY = "city marshal";
+// Illinois' Board of Review hears property-tax appeals. Every "County Board"
+// title shares "county board" with it, so only a title that says "review"
+// may land here — in scoring and through a learned alias alike.
+const BOARD_OF_REVIEW_OFFICE_KEY = "county board of review member";
+
+function isBoardOfReviewMismatch(titleMatcherKey: string, office: OfficeCandidate): boolean {
+  return office.canonicalMatcherKey === BOARD_OF_REVIEW_OFFICE_KEY && !hasPhrase(titleMatcherKey, "review");
+}
 const DISTINCT_FUNCTION_NOUNS = [
   "marshal",
   "coroner",
@@ -930,6 +951,10 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
   }
 
   if (coversNoFunctionNounOfTitle(titleMatcherKey, office)) {
+    return 0;
+  }
+
+  if (isBoardOfReviewMismatch(titleMatcherKey, office)) {
     return 0;
   }
 
@@ -1213,6 +1238,15 @@ export class OfficeMatcher {
       // legislative body is never what such a title elects.
       const aliasTarget = (await this.loadOffices(input.scope)).find((office) => office.id === exactOfficeId);
       if (aliasTarget && aliasTarget.canonicalMatcherKey === COUNTY_COMMISSIONER_OFFICE_KEY) {
+        exactOfficeId = undefined;
+      }
+    }
+    if (exactOfficeId) {
+      // Runs in August learned "county board member 10" and similar keys ->
+      // County Board of Review Member. Drop such an alias so a database that
+      // still carries one fails safe; the scorer then routes the title.
+      const aliasTarget = (await this.loadOffices(input.scope)).find((office) => office.id === exactOfficeId);
+      if (aliasTarget && isBoardOfReviewMismatch(titleMatcherKey || normalizedAlias, aliasTarget)) {
         exactOfficeId = undefined;
       }
     }
