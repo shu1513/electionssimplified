@@ -19,7 +19,9 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
           the landing reads as one white canvas — the grey band and its border
           are gone, and there is one brand mark, not a big one plus a small
           duplicate in the corner. */}
-      <div className="mx-auto max-w-2xl px-4 pt-6 text-center sm:pt-8">
+      {/* Framed, the headline is the first thing in the box (no wordmark above
+          it), so it gets a little more air from the box's top edge. */}
+      <div className={`mx-auto max-w-2xl px-4 text-center ${framed ? "pt-9 sm:pt-10" : "pt-6 sm:pt-8"}`}>
         {/* Not a link (it would link to this page) and not a heading (the h1
             is the pitch, and two h1-ish marks would fight). text-wordmark
             interpolates 32 -> 52px — a text wordmark this long can't carry
