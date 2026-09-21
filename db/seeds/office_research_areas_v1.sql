@@ -2711,7 +2711,8 @@ DECLARE
     'data_privacy',
     'corporate_accountability',
     'anti_corruption',
-    'government_efficiency'
+    'government_efficiency',
+    'immigration'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -2783,7 +2784,8 @@ DECLARE
     'data_privacy',
     'corporate_accountability',
     'anti_corruption',
-    'government_efficiency'
+    'government_efficiency',
+    'immigration'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -2854,7 +2856,8 @@ DECLARE
     'civil_rights',
     'data_privacy',
     'corporate_accountability',
-    'anti_corruption'
+    'anti_corruption',
+    'immigration'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -3276,7 +3279,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('statewide', 'Corporation Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
     ('statewide', 'Labor Commissioner', ARRAY['civil_rights', 'corporate_accountability', 'labor_rights', 'reduce_wealth_gap', 'social_programs_and_welfare']::text[]),
     ('statewide', 'Land Commissioner', ARRAY['corporate_accountability', 'environment_and_public_health', 'government_spending_reduction', 'housing_affordability']::text[]),
-    ('statewide', 'Lieutenant Governor', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'gun_control', 'healthcare_affordability', 'housing_affordability', 'labor_rights', 'personal_income_tax_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control', 'reduce_wealth_gap', 'social_programs_and_welfare', 'womens_reproductive_rights']::text[]),
+    ('statewide', 'Lieutenant Governor', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'gun_control', 'healthcare_affordability', 'housing_affordability', 'immigration', 'labor_rights', 'personal_income_tax_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control', 'reduce_wealth_gap', 'social_programs_and_welfare', 'womens_reproductive_rights']::text[]),
     ('statewide', 'Public Service Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
     ('statewide', 'Railroad Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
     ('statewide', 'Secretary of State', ARRAY['anti_corruption', 'civil_rights', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
