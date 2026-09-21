@@ -4,15 +4,7 @@ import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
-import { CONTACT_EMAIL, listEnabledEmbedCodes } from "../lib/embedPilot";
 import { pageMeta } from "../lib/pageMeta";
-
-// The paste-in snippet is built from a code that renders today, so the page
-// never advertises a code the embed answers with a 404. Kept as a string so
-// JSX never tries to interpret the tag.
-function embedSnippet(code: string): string {
-  return `<script src="https://electionssimplified.com/embed.js" data-city="${code}"></script>`;
-}
 
 export const meta: MetaFunction = () =>
   pageMeta({
@@ -36,8 +28,6 @@ const onceCtaClass = `${ctaBase} bg-purple-700 hover:bg-purple-800`;
 // bottom (MembershipThanks); management lives on /me/membership.
 export default function MissionPage() {
   const { me } = useMe();
-  const embedCodes = listEnabledEmbedCodes();
-  const exampleCode = embedCodes.includes("los-angeles-ca") ? "los-angeles-ca" : embedCodes[0];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
@@ -163,61 +153,15 @@ export default function MissionPage() {
           charity.
         </p>
 
-        <h2 className="pt-2 text-heading font-semibold">For organizations and developers</h2>
+        <h2 className="pt-2 text-heading font-semibold">How to use our civic tool on your website</h2>
         <p>
           We offer our civic tool at no cost to all organizations and developers that contribute to
-          fair elections and help people get informed. You can use our embed here:
+          fair elections and help people get informed. You can use our tool with the instructions{" "}
+          <Link to="/embed-instructions" className="font-semibold underline hover:text-ink">
+            here
+          </Link>
+          .
         </p>
-        {exampleCode ? (
-          <>
-            <p>Paste this one line where the race list should appear on your page:</p>
-            <pre className="overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm">
-              <code>{embedSnippet(exampleCode)}</code>
-            </pre>
-            <ul className="list-disc space-y-1 pl-6">
-              <li>
-                Codes available now: {embedCodes.map((code, i) => (
-                  <span key={code}>
-                    {i > 0 ? ", " : ""}
-                    <code>{code}</code>
-                  </span>
-                ))}
-                . A city code shows every upcoming race that touches that city. A two-letter state
-                code shows only the statewide races.
-              </li>
-              <li>
-                The box sizes itself to fit your page, and every link opens our site in a new tab, so
-                your readers stay on your page.
-              </li>
-              <li>
-                We add cities as we finish reviewing them. Email{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
-                  {CONTACT_EMAIL}
-                </a>{" "}
-                to request your city or ask for help. Full instructions, including an iframe option,
-                are in the{" "}
-                <a
-                  href="https://github.com/shu1513/electionssimplified/blob/main/docs/newsroom-embed.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold underline hover:text-ink"
-                >
-                  embed guide
-                </a>
-                .
-              </li>
-            </ul>
-          </>
-        ) : (
-          <p>
-            We are reviewing the first cities now, and the embed opens as soon as they are ready.
-            Email{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
-              {CONTACT_EMAIL}
-            </a>{" "}
-            to ask for your city first.
-          </p>
-        )}
       </section>
 
       {me?.email_verified ? (

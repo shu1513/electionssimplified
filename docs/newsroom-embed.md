@@ -1,125 +1,140 @@
 # Newsroom embed
 
-A one-line snippet that lets a news site show the full list of November races
-for one city, pulled live from Elections Simplified, with links back to the
-candidate and measure pages and to the address lookup.
+A one-line snippet that puts a small copy of Elections Simplified inside a
+news article. Readers find their own ballot, read about the races and
+candidates, and make their picks, without leaving the page.
 
 ## For editors
 
 Paste this where the box should appear:
 
 ```html
-<script src="https://electionssimplified.com/embed.js" data-city="austin-tx" data-publisher="your-code"></script>
+<script src="https://electionssimplified.com/embed.js"></script>
 ```
 
-- `data-city` is the code we give you. A city code like `austin-tx` shows
-  every race that touches that city. A two-letter state code like `tx` shows
-  only the statewide races and measures, for a statewide guide.
-- `data-publisher` is the code we give your newsroom. It lets us count how
-  many readers reached the site from your page. It is optional.
+The box opens on our landing page: the address search. It works for any
+address in the country. Nothing else is needed.
+
+To choose the size yourself, add either or both of the size settings:
+
+```html
+<script src="https://electionssimplified.com/embed.js" data-max-width="560" data-height="600"></script>
+```
+
+- `data-max-width` sets the widest the box may be, in pixels (240 to 2000). It is
+  optional; without it the box fills the column you put it in. Either way it
+  shrinks to fit a narrower screen, so it never overflows a phone.
+- `data-height` sets the box's height in pixels (240 to 2000). It is
+  optional; without it the box fits its page when it loads (between 380 and
+  600 pixels), and re-fits only if the box's width changes, for example when
+  a reader rotates their phone. Readers scroll inside it, so nothing they do
+  in the box moves the rest of your page.
+- A size outside its range, or one that is not a number, is ignored and the
+  box sizes itself as if the setting were not there. It is not rounded to
+  the nearest limit: a typo such as `60` for `600` should not produce a
+  240-pixel box.
+- `data-publisher="your-code"` is the code we give your newsroom. It lets us
+  count how many readers reached the site from your page. It is optional.
 
 If your publishing system strips `<script>` tags, use the iframe form:
 
 ```html
-<iframe src="https://electionssimplified.com/embed/city/austin-tx#pub=your-code" title="Election races for this city, from Elections Simplified" style="width:100%;border:0;height:600px"></iframe>
+<iframe src="https://electionssimplified.com/embed#pub=your-code" title="Find what is on your ballot, from Elections Simplified" style="width:100%;border:0;height:600px"></iframe>
 ```
 
-The iframe form does not resize itself; set a height that suits your page.
-If neither works, link to the plain page: `https://electionssimplified.com/cities/austin-tx`.
+Set a height that suits your page; readers scroll inside the box. If neither
+form works, link to our home page.
 
-What the box shows: every race that touches the city (or, for a state code,
-the statewide races) for the reviewed election date, grouped by level (Federal, State, County, City, Ballot
-measures), each group collapsed until the reader opens it. For each
-candidate: name, party where the race is partisan, incumbent status, and
-withdrawn status, plus the site's vote-power rating for the race. For each
-measure: a short description and what a yes and a no vote mean, in our
-words, not the ballot text.
-
-Every link in the box opens our site in a new tab, so your readers keep
-your page.
-
-The box is a city-wide overview, not a ballot. A city spans many districts
-that belong to different voters, so the box says so and offers "Find my races
-and build my ballot," which opens the address lookup on our site.
+What readers can do in the box: search an address (or a ZIP or city, for a
+partial ballot), see the elections they can vote in, open a race and its
+candidates, and pick. The first search asks them to accept our Terms of Use,
+as on the site. After the first pick a "My Draft" counter appears at the top
+right and opens their draft, also inside the box. The draft is kept in the
+reader's browser for your site only. A "Save" button on the draft opens a
+small prompt; its sign-up link opens our site in a new tab and carries the
+picks along, so they are saved to the new account. Follow and Share are not
+offered in the box. Every other link (sources, candidate websites, the rest
+of our site) opens in a new tab, so your readers keep your page.
 
 Data comes from official candidate lists and public records, researched and
-reviewed by hand before a city is added. Corrections: contact@electionssimplified.com.
-The content may be reused freely with attribution.
+reviewed by hand. Corrections: contact@electionssimplified.com. The content
+may be reused freely with attribution.
 
 ## How it works
 
-- `frontend/public/embed.js` inserts an iframe of `/embed/city/<slug>` after
-  the script tag and grows it to fit, honouring height messages only from our
-  origin and from that iframe's own window.
+- `frontend/public/embed.js` inserts an iframe of `/embed` after the script
+  tag. With `data-height` the box is exactly that tall. Without it, the page
+  reports its content height while it loads and the script fits the box to
+  it (380 to 600 pixels). Reports are honoured for about 2.5 seconds after
+  the first one (styles or fonts can land late), and again for 2.5 seconds
+  whenever the box's own width changes (a rotated phone, a resized window),
+  since content fitted to the old width would leave the box half empty or
+  too short. Nothing the reader does inside the box resizes it. The page scrolls inside the frame,
+  so the host page's layout never changes. The message is honoured only
+  from our origin and from that iframe's own window.
+- `/embed` is `frontend/src/pages/EmbedHomePage.tsx`: the site's landing
+  page (`components/LandingHero.tsx`, shared with the home page) outside the
+  App layout, with no loader, so one cached copy serves everyone. Framed,
+  the search never grabs focus (autofocus would scroll the host page), and
+  the big wordmark gives way to a small "Powered by Elections Simplified"
+  line at the bottom, which opens the site in a new tab.
+- The search is `components/AddressSearchForm.tsx`, the same component the
+  home page uses, so the clickwrap, the ZIP and city partial-ballot paths,
+  the paid address suggestions, and the usage events are one piece of code.
+  A search navigates to `/ballot` inside the frame.
+- The box is small, so the ballot list starts compact there: sorted by
+  biggest district first, with every section (district levels, vote-power
+  bands, retention races, races awaiting candidates) closed. What the reader
+  opens or closes rides the list's nav state (`sectionOpen` in
+  `lib/detailNavContext.ts`), so coming back from a race or a candidate
+  finds the list as they left it. On the site the same sections start open.
+- In-box pages: only `/embed` can be loaded in a frame. The ballot, race,
+  candidate, and draft pages are reached by client-side navigation and
+  render in the normal App layout, which detects the frame
+  (`frontend/src/lib/embedSession.ts`) and swaps the site header and footer
+  for the box header. A click guard sends every page outside the box to a
+  new tab. A third-party frame has no session cookie and its own storage, so
+  the reader is always a guest there, and their draft is shared by every
+  box on the same publisher's site.
+- Save: the frame's storage is separate from the site's, so inside the box
+  the sign-up prompt (`RegisterPromptDialog`, opened by the draft's "Save"
+  button and by the other account-only actions) puts the picks in the
+  sign-up and log-in URLs' fragment, together with the district ids of an
+  exact address search made in the box (never the address itself; a ZIP or
+  city search carries none, so a partial ballot cannot become an account's
+  saved one). A fragment is never sent to a server or in a Referer. On the
+  site, `components/DraftHandoffGate.tsx` clears the fragment at once and:
+  for a guest (or an unverified account) merges the picks into the site's
+  draft, arms the usual guest-to-account district handoff
+  (`savePendingDistrictIds`), and leaves the rest to the normal flush after
+  sign-up; for a reader who is already signed in (verified or not, since any
+  signed-in account can save picks), ASKS first, because a link must never
+  write into an account by itself, then adds only the races the account has
+  not decided. Until they answer, the handoff is also kept in session
+  storage, so a failed request and a reload do not lose it; if the account's
+  picks cannot be loaded the dialog says so and offers a retry. A guest's
+  districts arm the account handoff only when the draft adopted them. Rows are sanitized, must carry a real (UUID)
+  election id, and never replace an existing pick.
 - The publisher code rides in the URL fragment, which never reaches the
-  server, so one cached copy of the page serves every publisher. The page
-  reads it in the browser and appends `?src=<code>` to its outbound links.
-- `/embed/city/:slug` and `/cities/:slug` share one module,
-  `frontend/src/pages/EmbedCityPage.tsx`. The loader is server-side: it calls
-  `/api/ballot?district_ids=…&election_date=…&sort=vote_power&include=preview`,
-  pinned to the reviewed election date (so the list outlives the API's
-  recent-past window), and returns a trimmed race list, so the HTML is
-  complete without a client fetch.
+  server, so the cached page is publisher-neutral. The page reads it in the
+  browser (`frontend/src/lib/embedPublisher.ts`) and outbound links carry it
+  as `?src=<code>`. Only codes listed in
+  `frontend/src/data/embedPublishers.ts` are accepted; add a newsroom's code
+  there when we give it to them.
 - The Cloudflare router worker drops `X-Frame-Options` and sets
-  `frame-ancestors *` for `/embed/city/*` only, and edge-caches both routes
-  for 60 seconds like other public pages.
-- Arrival attribution: `frontend/src/lib/usage.ts` records an allowlisted
-  `?src=` code as the `source` prop of `session_start`. Nothing else from the
-  query string is read.
-
-## Adding or withdrawing a city
-
-Cities and states are listed in `backend/manual-research/major-cities/embed-pilot.json`.
-A state entry has the same fields minus `slug` and `name`; its code is the
-lower-case state abbreviation and it resolves to the statewide district only.
-
-```json
-{
-  "publishers": ["your-code"],
-  "states": [
-    {
-      "state": "TX",
-      "election_date": "2026-11-03",
-      "review_date": "2026-09-16",
-      "official_source_url": "https://www.sos.state.tx.us/elections/",
-      "enabled": true
-    }
-  ],
-  "cities": [
-    {
-      "slug": "austin-tx",
-      "name": "Austin",
-      "state": "TX",
-      "election_date": "2026-11-03",
-      "review_date": "2026-09-16",
-      "official_source_url": "https://www.sos.state.tx.us/elections/",
-      "enabled": true
-    }
-  ]
-}
-```
-
-1. Confirm the city has no open roster or deferral units in
-   `npm run manual:city-coverage:report`, then review every race for the
-   election date against the official candidate list. Record the date and
-   source URL.
-2. Run `npm run embed:pilot-manifest` in `backend/`. It resolves the city's
-   district ids from the database and writes
-   `frontend/src/data/embedPilotCities.ts`. It fails if any mapped district is
-   missing from the database or the city needs more than 50 district ids.
-3. Commit both files and deploy the frontend.
-
-To withdraw a city, set `enabled` to `false`, regenerate, deploy, and purge
-`/embed/city/<slug>` and `/cities/<slug>` in the Cloudflare cache. The page
-then returns 404 and the box shows "City not available."
-
-After the election date passes, the box keeps the list (the lookup is
-pinned to that date) and shows "This election has passed." It never rolls
-to a different election on its own.
+  `frame-ancestors *` for `/embed` only, and edge-caches it for 60 seconds
+  like other public pages. Every other page keeps refusing to be framed.
+- Attribution: `frontend/src/lib/usage.ts` records an allowlisted publisher
+  code as the `source` prop of `session_start`, for both kinds of session: a
+  reader working INSIDE a box (the code that box was loaded with) and a
+  reader who opened the site from a box (`?src=` on the arrival URL).
+  Nothing else from the publisher's page is recorded. This needs usage
+  analytics switched on (`USAGE_ANALYTICS_ENABLED`); with it off, nothing is
+  recorded for anyone.
 
 ## Measuring
 
-- Embeds rendered: Cloudflare request counts for `/embed/city/*`.
+- Embeds rendered: Cloudflare request counts for `/embed`.
 - Tagged arrivals, guest picks, and account outcomes by publisher: SQL over
   `usage.events`, joining `session_start.props->>'source'` to later events
   in the same `session_id`. A guest who later registers appears in both

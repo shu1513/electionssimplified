@@ -154,7 +154,7 @@ function splitVotePowerGroups(elections: ElectionSummary[]) {
  * state so returning from a detail page restores their disclosures.
  */
 function ElectionSection({ label, count, children, colorClass = "text-ink hover:text-rausch-deep",
-  open: controlledOpen, onOpenChange,
+  open: controlledOpen, onOpenChange, heading = false,
 }: {
   label: string;
   count: number;
@@ -162,11 +162,13 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   colorClass?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Render the toggle as an h2 at the date headings' size: for a section
+   * that sits beside "Elections on {date}", not inside one. */
+  heading?: boolean;
 }) {
   const [localOpen, setOpen] = useState(true);
   const open = controlledOpen ?? localOpen;
-  return (
-    <section>
+  const toggle = (
       <button
         type="button"
         aria-expanded={open}
@@ -177,7 +179,7 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
         // 17.5px: a hair above the card titles (subheading, 16-17px) and
         // under the date heading (19-22px) — user tuned this by eye on
         // 2026-09-12 (text-lg read a touch too big).
-        className={`flex min-h-10 w-full items-center gap-1.5 text-left text-[1.09375rem] font-semibold ${colorClass}`}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left box:min-h-8 ${heading ? "text-heading font-bold" : "text-[1.09375rem] font-semibold"} ${colorClass}`}
       >
         {label}
         <span className="text-sm font-normal text-ink-soft">({count})</span>
@@ -192,7 +194,11 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
           <path d="M7 5l6 5-6 5V5z" />
         </svg>
       </button>
-      {open ? <div className="mt-2 space-y-3">{children}</div> : null}
+  );
+  return (
+    <section>
+      {heading ? <h2>{toggle}</h2> : toggle}
+      {open ? <div className="mt-2 space-y-3 box:mt-[6px] box:space-y-[11px]">{children}</div> : null}
     </section>
   );
 }
@@ -226,7 +232,7 @@ export function RetentionGroup({
           setOpen(!open);
           onOpenChange?.(!open);
         }}
-        className={`flex min-h-10 w-full items-center gap-1.5 text-left font-semibold text-ink ${showProgress ? "text-heading" : "text-[1.09375rem]"}`}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left font-semibold text-ink box:min-h-8 ${showProgress ? "text-heading" : "text-[1.09375rem]"}`}
       >
         Retention Races{" "}
         {!showProgress ? (
@@ -261,7 +267,7 @@ export function RetentionGroup({
           </span>
         </div>
       ) : null}
-      {open ? <div className="mt-2 space-y-3">{children}</div> : null}
+      {open ? <div className="mt-2 space-y-3 box:mt-[6px] box:space-y-[11px]">{children}</div> : null}
     </section>
   );
 }
@@ -357,7 +363,16 @@ export function ElectionList({
    * always-engaged sort control starts where the list was. */
   railSort?: RailSortKey;
 }) {
-  const { listState, expandedRetentionDates, setRetentionOpen, collapsedVotePowerGroups, setVotePowerOpen } = useElectionListState();
+  const {
+    listState,
+    expandedRetentionDates,
+    setRetentionOpen,
+    setVotePowerOpen,
+    awaitingCandidatesOpen,
+    setAwaitingCandidatesOpen,
+    isSectionOpen,
+    setSectionOpen,
+  } = useElectionListState();
   const nonRetentionCounts = new Map<string, number>();
   if (sort === "vote_power") {
     for (const election of elections) {
@@ -420,7 +435,7 @@ export function ElectionList({
       </SeatRun>
     ));
   return (
-    <div className="mt-4 space-y-6">
+    <div className="mt-4 space-y-6 box:mt-[18px] box:space-y-[29px]">
       {groups.map((group) => (
         // One date section, with grouped retention after its contested races.
         <section key={group.date}>
@@ -431,22 +446,28 @@ export function ElectionList({
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
-            <div className="mt-3 space-y-5">
+            <div className="mt-3 space-y-5 box:mt-[11px] box:space-y-[8px]">
               {splitLevelRuns(group.contested).map((run) => (
-                <ElectionSection key={`${sort}-${run.level}-${run.elections[0].id}`} label={ballotLevelLabel(run.level)} count={run.elections.length}>
+                <ElectionSection
+                  key={`${sort}-${run.level}-${run.elections[0].id}`}
+                  label={ballotLevelLabel(run.level)}
+                  count={run.elections.length}
+                  open={isSectionOpen(`${group.date}:level:${run.level}`)}
+                  onOpenChange={(open) => setSectionOpen(`${group.date}:level:${run.level}`, open)}
+                >
                   {renderCards(run.elections)}
                 </ElectionSection>
               ))}
             </div>
           ) : votePowerDates.has(group.date) ? (
-            <div className="mt-3 space-y-5">
+            <div className="mt-3 space-y-5 box:mt-[11px] box:space-y-[8px]">
               {splitVotePowerGroups(group.contested).map((band) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}
                   label={`My vote power: ${band.label}`}
                   count={band.elections.length}
                   colorClass={votePowerBadgeClass(band.rating)}
-                  open={!collapsedVotePowerGroups.includes(`${group.date}:${band.rating}`)}
+                  open={isSectionOpen(`${group.date}:${band.rating}`)}
                   onOpenChange={(open) => setVotePowerOpen(`${group.date}:${band.rating}`, open)}
                 >
                   {renderCards(band.elections, false)}
@@ -472,34 +493,38 @@ export function ElectionList({
         </section>
       ))}
       {awaitingCandidates.length > 0 ? (
-        <section>
-          {/* Neutral about WHO the wait is on: this section spans every
-              zero-candidate reason, and roster_processing means the list is
-              published and this app is still preparing profiles — "waiting
-              on officials" would misplace that blame. Matches the generic
-              roster-status copy. Leads with "Elections" to parallel the
-              "Elections on {date}" headings above it. */}
-          <h2 className="text-heading font-bold text-ink">Elections awaiting candidate information</h2>
-          <div className="mt-2 space-y-3">
-            {/* No level sections here: this tail spans dates and levels
-                under one heading, and a card carries its own date already. */}
-            {splitSeatRuns(awaitingCandidates).map((run) => (
-              <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
-                {run.elections.map((election) => (
-                  <ElectionCard
-                    key={election.id}
-                    election={election}
-                    savedAreaWeights={savedAreaWeights}
-                    myChoice={choicesByElectionId?.get(election.id)}
-                    navState={navState}
-                    position={positionById.get(election.id) ?? 1}
-                    showDate
-                  />
-                ))}
-              </SeatRun>
-            ))}
-          </div>
-        </section>
+        // Neutral about WHO the wait is on: this section spans every
+        // zero-candidate reason, and roster_processing means the list is
+        // published and this app is still preparing profiles — "waiting on
+        // officials" would misplace that blame. Leads with "Elections" to
+        // parallel the "Elections on {date}" headings above it. Collapsed by
+        // default: these races have nothing to read or pick yet, and on a
+        // long ballot they pushed the real list's end out of sight.
+        <ElectionSection
+          heading
+          label="Elections awaiting candidate information"
+          count={awaitingCandidates.length}
+          open={awaitingCandidatesOpen}
+          onOpenChange={setAwaitingCandidatesOpen}
+        >
+          {/* No level sections here: this tail spans dates and levels
+              under one heading, and a card carries its own date already. */}
+          {splitSeatRuns(awaitingCandidates).map((run) => (
+            <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
+              {run.elections.map((election) => (
+                <ElectionCard
+                  key={election.id}
+                  election={election}
+                  savedAreaWeights={savedAreaWeights}
+                  myChoice={choicesByElectionId?.get(election.id)}
+                  navState={navState}
+                  position={positionById.get(election.id) ?? 1}
+                  showDate
+                />
+              ))}
+            </SeatRun>
+          ))}
+        </ElectionSection>
       ) : null}
     </div>
   );
@@ -591,7 +616,7 @@ function ElectionCard({
       // Faint tint at rest; on hover the border goes brand and the title
       // takes the link color (via group-hover below). The old cue — gray bg
       // one step grayer — was under 2% lightness and read as nothing.
-      className="group block rounded-xl border border-line bg-surface p-4 shadow-sm transition hover:border-rausch hover:shadow-md"
+      className="group block rounded-xl border border-line bg-surface p-4 box:p-[11px] shadow-sm transition hover:border-rausch hover:shadow-md"
     >
       {/* No per-card date: ElectionList's group heading carries it. Vote
           power and roster status sit to the right of the title. */}

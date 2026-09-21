@@ -3,9 +3,12 @@ import { Link, Outlet, ScrollRestoration, useLocation, useNavigate } from "react
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChatWidget } from "./components/chatbot/ChatWidget";
 import { DraftCompleteNotice } from "./components/DraftCompleteNotice";
+import { DraftHandoffGate } from "./components/DraftHandoffGate";
+import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
+import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
@@ -252,6 +255,11 @@ export function App() {
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
   const lastPathname = useRef(location.pathname);
+  const embedSession = useEmbedSession();
+  // The box re-fits when its width changes (embed.js), whatever page the
+  // reader is on by then, so the in-box pages report their height too.
+  const embedShellRef = useRef<HTMLDivElement>(null);
+  useReportEmbedHeight(embedSession, embedShellRef);
   // Replays a guest ballot draft into the account on login/registration.
   useFlushBallotDraft();
   // Initializes account districts from a guest address search once /api/me
@@ -273,6 +281,25 @@ export function App() {
     lastPathname.current = location.pathname;
     mainRef.current?.focus({ preventScroll: true });
   }, [location.pathname]);
+
+  // Inside the newsroom embed's frame (lib/embedSession.ts) the pages keep
+  // their content but trade the site header and footer for the box's compact
+  // chrome: no account links (a third-party frame has no session), no chat
+  // bubble, and a click guard that sends every page outside the box to a new
+  // tab.
+  if (embedSession) {
+    return (
+      <div ref={embedShellRef} className="embed-box bg-page text-ink" onClickCapture={guardEmbedClick}>
+        <div className="px-[11px] pt-[11px]">
+          <EmbedHeader />
+        </div>
+        <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">
+          <Outlet />
+        </main>
+        <ScrollRestoration />
+      </div>
+    );
+  }
 
   // Mirrors AccountNav's landing test: "/" is the address-search landing.
   const onSearchLanding = location.pathname === "/";
@@ -319,6 +346,8 @@ export function App() {
         <Outlet />
       </main>
       <TermsRenewalGate />
+      {/* Picks carried over from the newsroom box (its "Save" link). */}
+      <DraftHandoffGate />
       {/* Flag-guarded chatbot widget (docs/plans/chatbot-rag.md): floating
           lower-right bubble on most pages; the component owns its own
           per-route visibility and auth-wall rules. */}

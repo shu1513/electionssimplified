@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { pagerNeighbors, readCandidateNavState, readElectionNavState } from "./detailNavContext";
+import {
+  pagerNeighbors,
+  readCandidateNavState,
+  readElectionNavState,
+  readElectionListState,
+} from "./detailNavContext";
 
 const BACK_TO = { path: "/ballot?d=d-1&sort=district_size", label: "All elections" };
 
@@ -252,4 +257,21 @@ it("preserves a valid retention flag and discards malformed flags", () => {
     { id: "a", title: "Judge A", retention: true },
     { id: "b", title: "Judge B", retention: "true" },
   ] })?.contests).toEqual([{ id: "a", title: "Judge A", retention: true }, { id: "b", title: "Judge B" }]);
+});
+
+describe("readElectionListState", () => {
+  it("keeps the opened waiting section across a round trip, and only a literal true", () => {
+    expect(readElectionListState({ awaitingCandidatesOpen: true })).toEqual({
+      expandedRetentionDates: [],
+      awaitingCandidatesOpen: true,
+    });
+    expect(readElectionListState({ awaitingCandidatesOpen: "yes" })).toBeUndefined();
+    // Section choices: dated keys and real booleans only.
+    expect(
+      readElectionListState({ sectionOpen: { "2026-11-03:level:state": true, "2026-11-03:high": false, junk: true, "2026-11-03:low": "no" } })
+    ).toEqual({ expandedRetentionDates: [], sectionOpen: { "2026-11-03:level:state": true, "2026-11-03:high": false } });
+    expect(readElectionListState({ expandedRetentionDates: ["2026-11-03"] })).toEqual({
+      expandedRetentionDates: ["2026-11-03"],
+    });
+  });
 });

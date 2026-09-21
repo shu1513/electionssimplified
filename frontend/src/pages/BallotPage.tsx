@@ -34,6 +34,8 @@ import { pageMeta } from "../lib/pageMeta";
 // path: a ballot URL is district-specific, so no canonical or og:url here.
 export const meta: MetaFunction = () => pageMeta({ title: `Elections · ${APP_NAME}` });
 import { useHydrated } from "../lib/useHydrated";
+import { getEmbedHome, useEmbedSession } from "../lib/embedSession";
+import { DetailPager } from "../components/DetailPager";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { useTrackBallotResult, track } from "../lib/usage";
 
@@ -93,6 +95,11 @@ export function BallotPage() {
     .split(",")
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
+  // Inside the newsroom box the list starts with the biggest districts first
+  // (president, governor, U.S. Senate), the order a reader expects from a
+  // ballot; a sort the reader picks still wins, as on the site.
+  const embedSession = useEmbedSession();
+  const defaultSort: BallotSort = embedSession ? "district_size" : "vote_power";
   const rawSort = searchParams.get("sort") ?? "";
   // my_areas is only real once the viewer's saved areas confirm (hasSaved);
   // until then — and for anonymous visitors forever — it degrades to the
@@ -102,10 +109,10 @@ export function BallotPage() {
   const sort: BallotSort = myAreasRequested
     ? hasSaved
       ? "my_areas"
-      : "vote_power"
+      : defaultSort
     : SORT_VALUES.includes(rawSort)
       ? (rawSort as BallotSort)
-      : "vote_power";
+      : defaultSort;
   // What the anonymous endpoint is asked for: my_areas is client-side here,
   // so its fetch requests (and caches under) the plain vote_power payload.
   const fetchSort: BallotSort = sort === "my_areas" ? "vote_power" : sort;
@@ -129,6 +136,11 @@ export function BallotPage() {
   // Keep the guest draft's badge link and progress denominator tracking the
   // ballot the guest actually looked at last. Signed-in visitors never touch
   // the draft here — theirs lives in the account.
+  // Inside the newsroom box: "search again" goes to the box's own search
+  // page instead of the site's landing page, and a top bar leads back there.
+  const embedHome = embedSession ? getEmbedHome() : null;
+  const searchAgainPath = embedHome?.path ?? "/?new=1";
+
   const ballotElections = ballot.data?.elections;
   useEffect(() => {
     if (!isGuest || !ballotElections) {
@@ -202,7 +214,7 @@ export function BallotPage() {
         <h1 className="sr-only">Elections</h1>
         <EmptyNotice text="No districts selected." />
         <p className="text-center">
-          <Link to="/" className="text-ink underline hover:text-rausch">
+          <Link to={embedHome?.path ?? "/"} className="text-ink underline hover:text-rausch">
             Start with your address
           </Link>
         </p>
@@ -211,14 +223,15 @@ export function BallotPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px]">
       {/* Visible page heading, one step larger than the date group headings
           ("Elections on …") below it, so a first-time visitor landing here
           straight from the address form knows what the list is: THEIR
           elections. "My elections", not "Upcoming elections": the list keeps
           just-finished elections for BALLOT_PAST_ELECTION_VISIBILITY_DAYS so
           their results stay discoverable, and those are not upcoming. */}
-      <h1 className="mb-4 text-title font-bold text-ink">My elections:</h1>
+      {embedHome ? <DetailPager ariaLabel="Ballot navigation" prev={null} next={null} backTo={embedHome} /> : null}
+      <h1 className="mb-4 text-title font-bold text-ink box:mb-[11px]">My elections:</h1>
       {/* Race-type tabs and sorting on the left, the "How to vote" resources
           on the right — its disclosure panel opens inline under its own
           column. The how-to-vote control waits for the ballot response
@@ -245,7 +258,9 @@ export function BallotPage() {
             </select>
           </label>
         </div>
-        {ballot.isSuccess ? (
+        {/* Not inside the newsroom box: its links all leave the box, and the
+            row is too narrow there to spare the room. */}
+        {ballot.isSuccess && !embedSession ? (
           <HowToVoteControl states={ballot.data.districts.map((district) => district.state)} />
         ) : null}
       </div>
@@ -277,7 +292,7 @@ export function BallotPage() {
             "This is a partial ballot."
           )}{" "}
           <Link
-            to="/?new=1"
+            to={searchAgainPath}
             onClick={() => track("partial_upgrade_click", { banner: "partial" })}
             className="underline hover:text-rausch"
           >
@@ -292,7 +307,7 @@ export function BallotPage() {
           Your search matched {ambiguousMatchCount} possible addresses, and this ballot is for{" "}
           <span className="font-medium">{matchedAddress}</span>. If that is not your address,{" "}
           <Link
-            to="/?new=1"
+            to={searchAgainPath}
             onClick={() => track("partial_upgrade_click", { banner: "ambiguous" })}
             className="underline hover:text-rausch"
           >

@@ -41,8 +41,9 @@ describe("parseUsageEvent", () => {
     expect(parseUsageEvent(sessionStart({ source: "a".repeat(49) }))).toBeNull();
   });
 
-  it("accepts the city route", () => {
-    expect(parseUsageEvent(event({ route: "city" }))?.route).toBe("city");
+  it("accepts the embed instructions route, and no longer the removed city route", () => {
+    expect(parseUsageEvent(event({ route: "embed_instructions" }))?.route).toBe("embed_instructions");
+    expect(parseUsageEvent(event({ route: "city" }))).toBeNull();
   });
 
   it("accepts a catalog event and lower-cases its ids", () => {

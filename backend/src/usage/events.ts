@@ -48,7 +48,7 @@ export const USAGE_ROUTES = [
   "follows",
   "settings",
   "pick_card",
-  "city",
+  "embed_instructions",
   "not_found",
   "other",
 ] as const;

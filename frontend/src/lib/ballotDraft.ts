@@ -188,6 +188,117 @@ function currentDraft(): BallotDraft {
   return cache;
 }
 
+// Draft handoff: the newsroom box keeps its draft in the frame's own storage,
+// which the site itself cannot read. The box's "Save" link opens the sign-up
+// page in a new tab with the picks in the URL FRAGMENT (never sent to the
+// server, never in a Referer); the site merges them into its own draft, and
+// the usual flush replays that draft into the account after sign-up.
+const HANDOFF_PREFIX = "#draft=";
+const MAX_HANDOFF_ROWS = 200;
+
+function toBase64Url(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function fromBase64Url(value: string): string {
+  const binary = atob(value.replace(/-/g, "+").replace(/_/g, "/"));
+  return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
+}
+
+/** "#draft=…" carrying the draft's decided picks and, when the reader has
+ * an exact ballot, its district ids (never the address itself: the site's
+ * own guest-to-account handoff is district ids too). "" when there is
+ * nothing to carry. */
+export function draftHandoffFragment(draft: BallotDraft, districtIds: readonly string[] = []): string {
+  const choices = Object.values(draft.choices).filter((choice) => isDecidedChoice(choice));
+  if (choices.length === 0 && districtIds.length === 0) {
+    return "";
+  }
+  return `${HANDOFF_PREFIX}${toBase64Url(JSON.stringify({ choices, districts: districtIds }))}`;
+}
+
+export function isDraftHandoffHash(hash: string): boolean {
+  return hash.startsWith(HANDOFF_PREFIX);
+}
+
+export type DraftHandoff = { rows: ElectionChoice[]; districtIds: string[] };
+
+/** Reads a handoff fragment without touching the draft; null when it is not
+ * one or cannot be read. Every pick goes through the same sanitizer as stored
+ * drafts, and only rows keyed by a real (UUID) election id survive: the ids
+ * index plain objects below, where "constructor" or "__proto__" would reach
+ * inherited properties instead of picks. */
+export function parseDraftHandoff(hash: string): DraftHandoff | null {
+  if (!isDraftHandoffHash(hash)) {
+    return null;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fromBase64Url(hash.slice(HANDOFF_PREFIX.length)));
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    return null;
+  }
+  const payload = parsed as Record<string, unknown>;
+  const rows = (Array.isArray(payload.choices) ? payload.choices : [])
+    .slice(0, MAX_HANDOFF_ROWS)
+    .map((value) => sanitizeChoiceRow(value))
+    .filter((row): row is ElectionChoice => row !== null && UUID_SHAPE_RE.test(row.election_id));
+  const districtIds = Array.isArray(payload.districts)
+    ? payload.districts
+        .filter((id): id is string => typeof id === "string" && UUID_SHAPE_RE.test(id))
+        .slice(0, MAX_DRAFT_DISTRICT_IDS)
+    : [];
+  return { rows, districtIds };
+}
+
+/** Merges a handoff into this browser's draft. A race already decided here,
+ * or listed in `skipElectionIds` (the races a signed-in reader already picked
+ * in their account), is never replaced: a link can add picks, it cannot
+ * change one. The district ids become the draft's ballot only when this
+ * browser has none of its own; `adoptedDistricts` says whether they did, so a
+ * caller arms the account district handoff with the SAME ballot the draft
+ * kept, never a different one. */
+export function mergeDraftHandoff(
+  handoff: DraftHandoff,
+  skipElectionIds: ReadonlySet<string> = new Set()
+): { added: number; adoptedDistricts: boolean } {
+  const draft = currentDraft();
+  const choices = { ...draft.choices };
+  let added = 0;
+  for (const row of handoff.rows) {
+    const existing = Object.hasOwn(choices, row.election_id) ? choices[row.election_id] : undefined;
+    if (!isDecidedChoice(existing) && !skipElectionIds.has(row.election_id)) {
+      choices[row.election_id] = row;
+      added += 1;
+    }
+  }
+  const adoptDistricts = handoff.districtIds.length > 0 && draft.district_ids.length === 0;
+  if (added > 0 || adoptDistricts) {
+    // target: null — the draft page recomputes it from the ballot it loads.
+    writeDraft({ ...draft, choices, ...(adoptDistricts ? { district_ids: handoff.districtIds, target: null } : {}) });
+  }
+  return { added, adoptedDistricts: adoptDistricts };
+}
+
+/** parseDraftHandoff + mergeDraftHandoff, for a guest arrival. `districtIds`
+ * holds the incoming districts only when the draft adopted them. */
+export function importDraftHandoff(hash: string): { added: number; districtIds: string[] } {
+  const handoff = parseDraftHandoff(hash);
+  if (!handoff) {
+    return { added: 0, districtIds: [] };
+  }
+  const { added, adoptedDistricts } = mergeDraftHandoff(handoff);
+  return { added, districtIds: adoptedDistricts ? handoff.districtIds : [] };
+}
+
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);

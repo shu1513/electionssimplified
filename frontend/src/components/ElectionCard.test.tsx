@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ElectionList } from "./ElectionCard";
 import { renderRoutes } from "../test/render";
@@ -431,7 +431,10 @@ describe("ElectionCard", () => {
     // One date heading for the readable race; the pending race sits under the
     // waiting section instead of repeating that date at the bottom.
     expect(screen.getAllByRole("heading", { name: "Elections on November 3, 2026" })).toHaveLength(1);
-    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Elections awaiting candidate information/ })).toBeInTheDocument();
+    // Collapsed by default: nothing to read or pick there yet.
+    expect(screen.queryByText("Candidate list not final")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Elections awaiting candidate information/ }));
     // Its section heading names no date, so the card carries its own.
     expect(screen.getByText("Alaska · November 3, 2026")).toBeInTheDocument();
     expect(screen.getByText("Candidate list not final")).toBeInTheDocument();
@@ -461,7 +464,7 @@ describe("ElectionCard", () => {
 
     // Zero candidates is a measure's normal state — no waiting section.
     expect(screen.getByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Elections awaiting candidate information" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Elections awaiting candidate information/ })).not.toBeInTheDocument();
   });
 
   it("keeps candidate-less races with a recorded result inside their date group", () => {
@@ -491,7 +494,7 @@ describe("ElectionCard", () => {
     );
 
     expect(screen.getByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Elections awaiting candidate information" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Elections awaiting candidate information/ })).not.toBeInTheDocument();
   });
 
   it("renders only the waiting section when every race lacks a candidate list", () => {
@@ -515,7 +518,7 @@ describe("ElectionCard", () => {
       "/"
     );
 
-    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Elections awaiting candidate information/ })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Elections on/ })).not.toBeInTheDocument();
   });
 
@@ -962,7 +965,7 @@ describe("retention grouping", () => {
       expect(group).toHaveAttribute("aria-expanded", "false");
       expect(screen.queryByText(elections[0].official_ballot_title)).not.toBeInTheDocument();
       expect(screen.getByText("Governor").compareDocumentPosition(group) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-      expect(group.compareDocumentPosition(screen.getByText("Elections awaiting candidate information")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(group.compareDocumentPosition(screen.getByRole("heading", { name: /^Elections awaiting candidate information/ })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       await userEvent.click(group);
       expect(group).toHaveAttribute("aria-expanded", "true");
       expect(screen.getByText(elections[0].official_ballot_title)).toBeInTheDocument();
@@ -1000,7 +1003,8 @@ describe("retention grouping", () => {
         const section = screen.getByRole("heading", { name: `Elections on ${date}` }).parentElement!;
         expect(within(section).getByText(election.official_ballot_title)).toBeInTheDocument();
       }
-      const waiting = screen.getByRole("heading", { name: "Elections awaiting candidate information" }).parentElement!;
+      const waiting = screen.getByRole("heading", { name: /^Elections awaiting candidate information/ }).parentElement!;
+      fireEvent.click(screen.getByRole("button", { name: /^Elections awaiting candidate information/ }));
       expect(within(waiting).getByText("Awaiting mayor")).toBeInTheDocument();
       expect(within(waiting).queryByText(/Shall Judge/)).not.toBeInTheDocument();
       await userEvent.click(screen.getByRole("link", { name: new RegExp(singleton.official_ballot_title) }));
@@ -1056,7 +1060,8 @@ describe("vote-power sections", () => {
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
     if (count === 10) expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
     else expect(screen.queryByRole("button", { name: /My vote power:/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Elections awaiting candidate information\s*\(4\)/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Elections awaiting candidate information/ }));
     for (let i = 0; i < 4; i++) expect(screen.getByText(`Race waiting-${i}`)).toBeInTheDocument();
   });
 
@@ -1068,7 +1073,7 @@ describe("vote-power sections", () => {
     ];
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
     expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Elections awaiting candidate information" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^Elections awaiting candidate information/ })).not.toBeInTheDocument();
   });
 
   it("orders populated bands highest first, combines the bottom two, and preserves card navigation order", async () => {
@@ -1146,8 +1151,11 @@ describe("vote-power sections", () => {
       election_date: i < 5 ? "2026-11-03" : "2027-11-02", candidate_count: i === 9 ? 0 : 2,
     }));
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Elections awaiting candidate information" })).toBeInTheDocument();
+    // No vote-power sections; the waiting section's own toggle is the only button.
+    expect(screen.queryByRole("button", { name: /My vote power/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^Elections awaiting candidate information/ })).toBeInTheDocument();
+    expect(screen.queryByText("Race e-9")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Elections awaiting candidate information/ }));
     expect(screen.getByText("Race e-9")).toBeInTheDocument();
   });
 

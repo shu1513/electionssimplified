@@ -8,6 +8,7 @@ import { ErrorNotice } from "../components/Status";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
 import { SIGNUP_CHECKBOX_LABEL, TERMS_VERSION } from "@voteapp/api-client";
 import { useAdoptPreHydrationValue } from "../lib/preHydrationInput";
+import { draftPickCount, useBallotDraft } from "../lib/ballotDraft";
 import { safeInternalPath } from "../lib/safeInternalPath";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { postLoginDestination } from "../lib/postLoginDestination";
@@ -35,6 +36,9 @@ export function RegisterPage() {
   // mid-task (e.g. the register-to-follow prompt) can get back after they
   // log in. The email-verification hop can't carry it — a verification link
   // may be opened on another device — so only the same-tab path keeps it.
+  // A guest's draft (made here or carried over from the newsroom box) is
+  // replayed into the new account; say so, since it is why most arrive.
+  const draftPicks = draftPickCount(useBallotDraft());
   const [searchParams] = useSearchParams();
   const next = safeInternalPath(searchParams.get("next"));
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
@@ -134,6 +138,11 @@ export function RegisterPage() {
   return (
     <div className="mx-auto max-w-md px-4 py-10">
       <h1 className="text-title font-bold">Create your account</h1>
+      {draftPicks > 0 ? (
+        <p className="mt-2 text-sm text-ink-soft">
+          Your {draftPicks} {draftPicks === 1 ? "pick" : "picks"} will be saved to your account.
+        </p>
+      ) : null}
 
       {/* The clickwrap checkbox leads the page because it gates BOTH signup
           paths below it — Google directly underneath and the email form

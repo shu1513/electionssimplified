@@ -383,7 +383,7 @@ export function PickDateCard({
     const autoResult = autoResults?.get(election.id);
     const decided = hasRenderablePick(choice);
     return (
-      <li key={election.id} className="grid gap-x-6 border-b border-line/60 py-2 text-sm sm:grid-cols-2">
+      <li key={election.id} className="grid gap-x-6 border-b border-line/60 py-2 text-sm min-[480px]:grid-cols-[1.618fr_1fr]">
         <div className="min-w-0 font-[430]">
           {/* Undecided rows carry "no pick yet" for screen readers
               only: sighted users read the empty pick column. */}
@@ -417,7 +417,7 @@ export function PickDateCard({
     );
   });
   return (
-    <section className="rounded-xl border border-line bg-surface p-4">
+    <section className="rounded-xl border border-line bg-surface p-4 box:p-[11px]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Date only: the page h1 already says "My Election Draft". */}
         <h3 className="text-heading font-semibold text-ink">{formatElectionDate(date)}</h3>
@@ -469,16 +469,20 @@ export function PickDateCard({
       ) : null}
       {/* Two aligned columns, race | my pick (a grid, not a table: no cell
           borders, just hairline row dividers). Long titles wrap inside
-          their column; the pick stays aligned on the right. Below sm the
-          columns stack so a phone reads title-over-pick. */}
+          their column; the pick stays aligned on the right. Below 480px
+          the columns stack so a phone reads title-over-pick. 480 rather
+          than sm (640): the newsroom box is often 500-640px wide and should
+          read like the desktop page, not the phone one. Golden ratio
+          (1.618:1), not halves: office titles run long and candidate names
+          short. */}
       <div
         aria-hidden="true"
-        className="mt-3 hidden gap-x-6 border-b border-line pb-1 text-xs font-semibold uppercase tracking-wide text-ink-soft sm:grid sm:grid-cols-2"
+        className="mt-3 hidden gap-x-6 border-b border-line pb-1 text-xs font-semibold uppercase tracking-wide text-ink-soft min-[480px]:grid min-[480px]:grid-cols-[1.618fr_1fr]"
       >
         <span>Race</span>
         <span>My pick</span>
       </div>
-      <ul className="mt-3 border-t border-line sm:mt-0 sm:border-t-0">
+      <ul className="mt-3 border-t border-line min-[480px]:mt-0 min-[480px]:border-t-0">
         {renderRows(contested)}
       </ul>
       {retention.length > 0 ? (
@@ -525,7 +529,7 @@ function UpcomingUncardedPicks({
     return null;
   }
   return (
-    <section className="mt-6">
+    <section className="mt-6 box:mt-[18px]">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-soft">{title}</h2>
       <ul className="mt-3 space-y-2">
         {upcoming.map((choice) => (

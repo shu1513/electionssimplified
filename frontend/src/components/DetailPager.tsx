@@ -93,7 +93,7 @@ export function DetailPager({
     // No sequence to walk (deep link, single-entry list, the draft page):
     // one arrowed link at the left edge, where a back link is expected.
     return (
-      <nav aria-label={ariaLabel} className="-mt-4 mb-6 border-b border-line pb-3 text-sm">
+      <nav aria-label={ariaLabel} className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px]">
         <p className="min-w-0">
           <Link
             to={backTo.path}
@@ -110,10 +110,51 @@ export function DetailPager({
       </nav>
     );
   }
+  if (prev === null && next !== null) {
+    // First in the sequence: Back at the left edge, where a back link is
+    // expected, and Next at the right, on ONE line at every width. The
+    // three-slot layout below would float Back in the middle beside an empty
+    // Prev cell, and on narrow screens stack it on a line of its own.
+    return (
+      <nav aria-label={ariaLabel} className="-mt-4 mb-6 flex items-stretch justify-between gap-x-3 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px]">
+        <p className="min-w-0 max-w-[50%]">
+          <Link
+            to={backTo.path}
+            state={backToState}
+            aria-label={`Back to ${backTo.label}`}
+            title={backTo.label}
+            onClick={() => track("detail_control", { control: "pager_back", value: "none" })}
+            className={`flex h-full items-center ${linkClass}`}
+          >
+            <span className="line-clamp-2">
+              <span className={captionClass}>Back to: </span>
+              {backTo.label}
+            </span>
+          </Link>
+        </p>
+        <p className="min-w-0 max-w-[50%] text-right">
+          <Link
+            to={next.path}
+            state={siblingState}
+            aria-label={`Next: ${next.label}`}
+            title={next.label}
+            onClick={() => track("detail_control", { control: "pager_next", value: "none" })}
+            className={`flex h-full items-center justify-end ${linkClass}`}
+          >
+            <span className="line-clamp-2">
+              <span className={captionClass}>Next: </span>
+              {next.label}
+              <span aria-hidden="true"> →</span>
+            </span>
+          </Link>
+        </p>
+      </nav>
+    );
+  }
   return (
     <nav
       aria-label={ariaLabel}
-      className="-mt-4 mb-6 border-b border-line pb-3 text-sm sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-x-3"
+      className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px] sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-x-3"
     >
       {/* Back first on narrow screens (it matches "where you came from"
           reading order and stops Next floating alone above it); sm:order-2

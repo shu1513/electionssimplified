@@ -650,13 +650,29 @@ describe("CandidatePage", () => {
     expect(screen.getByText("Opposes Transit")).toBeInTheDocument();
   });
 
+  it("lists a one-race candidate's race on a deep link, the page's only link to it", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(() => candidateDetail({ elections: [candidateElection({ official_ballot_title: "Governor" })] }));
+
+    await screen.findByRole("heading", { level: 1, name: "Jordan Voter" });
+    expect(screen.getByRole("heading", { name: "Race Jordan Voter is in:" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Governor" })).toHaveAttribute("href", "/elections/e-1");
+  });
+
   it("renders the profile report button after the record and election sections", async () => {
     stubApiRoutes({ ...ANONYMOUS });
-    renderCandidate(() => candidateDetail({ elections: [candidateElection()] }));
+    renderCandidate(() =>
+      candidateDetail({
+        elections: [
+          candidateElection(),
+          candidateElection({ candidate_election_id: "ce-2", election_id: "e-2", election_date: "2099-12-01" }),
+        ],
+      })
+    );
 
     await screen.findByRole("heading", { name: "Jordan Voter" });
     const button = screen.getByRole("button", { name: "Report an issue with candidate profile" });
-    const electionsHeading = screen.getByRole("heading", { name: "Race Jordan Voter is in:" });
+    const electionsHeading = screen.getByRole("heading", { name: "Races Jordan Voter is in:" });
     expect(electionsHeading.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -715,9 +731,6 @@ describe("CandidatePage", () => {
     // the candidacy stays visible as history.
     expect(screen.getByRole("heading", { name: "Race Jordan Voter is in:" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Race Jordan Voter is no longer in:" })).toBeInTheDocument();
-    const active = screen.getByRole("heading", { name: "Race Jordan Voter is in:" });
-    const exited = screen.getByRole("heading", { name: "Race Jordan Voter is no longer in:" });
-    expect(active.compareDocumentPosition(exited) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("cuts the newest-first view off at 20 with a show-all button", async () => {
@@ -1259,6 +1272,20 @@ describe("CandidatePage back link and nav context", () => {
     expect(router.state.location.pathname).toBe("/elections/e-1");
     // The election page gets its own ballot context back.
     expect(router.state.location.state).toEqual(ARRIVAL.backState);
+  });
+
+  it("drops the one-race list for a reader who arrived from a race, and never names the race above the name", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(
+      () => candidateDetail({ elections: [candidateElection({ election_id: "e-1", official_ballot_title: "Governor" })] }),
+      "c-1",
+      ARRIVAL
+    );
+    const heading = await screen.findByRole("heading", { level: 1 });
+    // The top bar already leads back to the race.
+    expect(screen.getByRole("link", { name: "Back to Election" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /is in:/ })).not.toBeInTheDocument();
+    expect(heading.parentElement?.previousElementSibling?.tagName).not.toBe("P");
   });
 
   it("shows no nav bar on a deep link, even with a sole candidacy", async () => {

@@ -43,9 +43,12 @@ afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
   window.history.replaceState({}, "", "/");
+  resetEmbedSessionForTests();
 });
 
-vi.mock("../data/embedPilotCities", () => ({ EMBED_PILOT_PUBLISHERS: ["alpha-news"], EMBED_PILOT_CITIES: {} }));
+vi.mock("../data/embedPublishers", () => ({ EMBED_PUBLISHERS: ["alpha-news"] }));
+
+import { rememberEmbedSource, resetEmbedSessionForTests } from "./embedSession";
 
 describe("track", () => {
   it("records an allowlisted publisher code from the arrival URL on session_start, and nothing else from the query", async () => {
@@ -59,6 +62,18 @@ describe("track", () => {
     expect(start.name).toBe("session_start");
     expect(start.props).toMatchObject({ source: "alpha-news" });
     expect(JSON.stringify(start)).not.toContain("leak");
+  });
+
+  it("tags a session that runs inside a box with the code that box was loaded with", async () => {
+    vi.stubEnv("VITE_USAGE_ANALYTICS_ENABLED", "true");
+    // The box's front page read `#pub=alpha-news`; the reader is now on /ballot, which has no ?src=.
+    rememberEmbedSource("alpha-news");
+    window.history.replaceState({}, "", "/ballot?d=abc");
+    const fetchMock = stubFetch();
+    track("address_input");
+    flushUsageEventsForTests();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    expect(sentBodies(fetchMock)[0]!.events[0]!.props).toMatchObject({ source: "alpha-news" });
   });
 
   it("ignores a source code that is not on the allowlist", async () => {

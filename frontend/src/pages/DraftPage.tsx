@@ -26,6 +26,8 @@ import { pageMeta } from "../lib/pageMeta";
 // the draft is per-browser, so no canonical or og:url.
 export const meta: MetaFunction = () => pageMeta({ title: `My Ballot Draft · ${APP_NAME}` });
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
+import { useEmbedSession } from "../lib/embedSession";
+import { RegisterPromptDialog } from "../components/RegisterPromptDialog";
 import { countBucket, track } from "../lib/usage";
 import { useShowDraftMilestone } from "../lib/useShowDraftMilestone";
 
@@ -36,7 +38,7 @@ function DraftSignupCta() {
     track("signup_prompt", { source: "draft", action: "shown" });
   }, []);
   return (
-    <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+    <p className="mt-6 box:mt-[18px] flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
       <Link
         to={`/register?next=${encodeURIComponent("/draft")}`}
         onClick={() => track("signup_prompt", { source: "draft", action: "click" })}
@@ -120,10 +122,14 @@ export function DraftPage() {
   useDocumentTitle("My Ballot Draft");
   const { me } = useMe();
   const draft = useBallotDraft();
+  // Inside the newsroom box: list view only, and a "Save" button instead of
+  // the sign-up line (its prompt carries the box's picks to the site).
+  const embedSession = useEmbedSession();
   const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
   const [view, setView] = useState<"list" | "ballot">("list");
+  const [saveOpen, setSaveOpen] = useState(false);
   // ONE payload for both views, in paper-ballot contest order (same contract
   // as the signed-in picks page): the date cards take within-date order from
   // it and the ballot sheets render it as-is, so List and Ballot view can
@@ -211,7 +217,7 @@ export function DraftPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px]">
       {/* Same top bar as the election and candidate pages, back slot only:
           this page is one step below the guest's ballot, and the guest
           header has no ballot link (only "My Draft"), so without it the
@@ -227,7 +233,28 @@ export function DraftPage() {
           backTo={{ path: ballotPath, label: "My elections" }}
         />
       ) : null}
-      <h1 className="text-title font-bold">My Ballot Draft</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-title font-bold">My Ballot Draft</h1>
+        {/* Inside the box only. Same yellow as "Make my pick"; opens the
+            same sign-up prompt the other account-only actions use, whose
+            links carry the box's picks to the site. */}
+        {embedSession && pickCount > 0 ? (
+          <button
+            type="button"
+            onClick={() => setSaveOpen(true)}
+            className="rounded-lg bg-pick px-4 py-1.5 text-sm font-semibold text-ink transition hover:bg-pick-hover"
+          >
+            Save
+          </button>
+        ) : null}
+      </div>
+      <RegisterPromptDialog
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        title="Save my draft"
+        description="Sign up for free to save your draft."
+        source="draft"
+      />
 
       {districtIds.length === 0 ? (
         pickCount === 0 ? (
@@ -273,19 +300,21 @@ export function DraftPage() {
                 <DraftMilestone
                   show={milestoneShown}
                   date={dates[0]}
-                  signup
+                  signup={!embedSession}
                   hasOpenRetention={nearestRaces.retention.some((election) => !isDecidedChoice(choices.get(election.id)))}
                 />
-                <div className="mt-4">
-                  <BallotViewToggle
-                    view={view}
-                    onChange={(next) => {
-                      track("list_control", { control: "view_toggle", value: next });
-                      setView(next);
-                    }}
-                  />
-                </div>
-                {view === "ballot" ? (
+                {embedSession ? null : (
+                  <div className="mt-4">
+                    <BallotViewToggle
+                      view={view}
+                      onChange={(next) => {
+                        track("list_control", { control: "view_toggle", value: next });
+                        setView(next);
+                      }}
+                    />
+                  </div>
+                )}
+                {view === "ballot" && !embedSession ? (
                   // Same settled payload as the cards — no second fetch, no
                   // loading state of its own.
                   <BallotPreviewSheets
@@ -320,7 +349,7 @@ export function DraftPage() {
               once the ballot settles — before that, "outside the cards" is
               unknowable. */}
           {ballot.isSuccess && extraRows.length > 0 ? (
-            <section className="mt-6">
+            <section className="mt-6 box:mt-[18px]">
               <h2 className="text-heading font-semibold text-ink">Other saved picks</h2>
               <p className="mt-0.5 text-xs text-ink-soft">
                 Races you picked from a direct link — not part of the ballot above.
@@ -334,7 +363,7 @@ export function DraftPage() {
       {/* Hidden while the milestone above the toggle renders: it carries
           this same link and hint, and two identical buttons on one short
           page read as a mistake. */}
-      {pickCount > 0 && !milestoneShown ? <DraftSignupCta /> : null}
+      {pickCount > 0 && !milestoneShown && !embedSession ? <DraftSignupCta /> : null}
     </div>
   );
 }

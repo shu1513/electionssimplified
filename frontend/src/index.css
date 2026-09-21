@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* `box:` styles apply only inside the newsroom embed's frame (App.tsx puts
+   .embed-box on its shell there; the box's front page opts in itself). The
+   box is a few hundred pixels tall, so page chrome sized for a full browser
+   window gets tighter in it, on ONE ladder of gaps where each step is about
+   1.618x the one below (golden ratio): 7px inside a unit (label to field,
+   section title to its first card), 11px between related items (cards, side
+   padding, card padding), 18px between blocks (sections, page blocks), 29px
+   between regions (date groups, page bottom, the front page's edges). A few
+   margins are a pixel or three under their step so the MEASURED text-to-text
+   gap lands on it (line-height adds the rest). Used for page structure only:
+   dense content inside cards and records keeps the site's own spacing. */
+@custom-variant box (.embed-box &);
+
 @theme {
   /* Fluid type roles (Vogue/Verso pattern: one token per role, components
      never carry raw sizes). clamp() interpolates 320px -> 1280px viewports;

@@ -83,7 +83,8 @@ const CSP_POLICY =
   "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; " +
   "img-src 'self' data:; font-src 'self'; " +
   "connect-src 'self' https://*.sentry.io https://accounts.google.com/gsi/ https://cloudflareinsights.com; " +
-  "frame-src https://accounts.google.com/gsi/; " +
+  // 'self': the instructions page frames our own /embed as its live example.
+  "frame-src 'self' https://accounts.google.com/gsi/; " +
   "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
 const SECURITY_HEADERS = {
@@ -111,11 +112,14 @@ const SECURITY_HEADERS = {
 // CORS-mode, so their Origin header is unaffected by this policy.
 const NO_REFERRER_PATHS = new Set(["/verify-email", "/verify-email-change", "/reset-password"]);
 
-// The newsroom embed (frontend/public/embed.js) frames /embed/city/<slug> on
-// third-party pages, so that one route must be allowed in any frame. Only
-// that route: everything else keeps DENY + frame-ancestors 'none'. The page
-// is anonymous and read-only, so clickjacking has nothing to gain there.
-const EMBED_FRAMEABLE_PATH = /^\/embed\/city\/[^/]+\/?$/;
+// The newsroom embed (frontend/public/embed.js) frames /embed (the landing
+// page's address search) on third-party pages, so that one route must be
+// allowed in any frame. Only that route: everything else keeps DENY +
+// frame-ancestors 'none'. The pages a
+// reader reaches from the box are client-side navigations inside the frame,
+// never frame loads, and a third-party frame carries no session cookie, so
+// clickjacking has no signed-in action to reach.
+const EMBED_FRAMEABLE_PATH = /^\/embed\/?$/;
 const EMBED_CSP_POLICY = CSP_POLICY.replace("frame-ancestors 'none'", "frame-ancestors *");
 
 export function isFrameablePath(pathname) {
@@ -194,16 +198,15 @@ export function withSecurityHeaders(response, pathname = "") {
 export const SESSION_COOKIE_NAME = "voteapp_auth_session";
 export const EDGE_CACHE_TTL_SECONDS = 60;
 
-const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
+const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
 // Exactly one path segment, mirroring the declared routes /elections/:id and
 // /candidates/:id (frontend/src/routes.ts). Nested paths like
 // /elections/x/junk render the 404 catch-all and must stay cache-ineligible.
 const CACHEABLE_DETAIL_PATH = /^\/(?:elections|candidates)\/[^/]+$/;
-// City race overview and its framed twin: anonymous, server-rendered with
-// their data, and publisher-neutral (the publisher code rides in the URL
-// fragment, which never reaches the edge), so one cached copy serves every
-// newsroom that embeds the same city.
-const CACHEABLE_CITY_PATH = /^\/(?:cities|embed\/city)\/[^/]+$/;
+// The newsroom box's front page: anonymous and publisher-neutral (the
+// publisher code rides in the URL fragment, which never reaches the edge),
+// so one cached copy serves every newsroom.
+const CACHEABLE_EMBED_PATH = /^\/embed$/;
 
 export function isCacheablePublicPage(pathname) {
   // React Router matches case-insensitively and ignores trailing slashes
@@ -212,7 +215,7 @@ export function isCacheablePublicPage(pathname) {
   // and stays uncached.
   const normalized = pathname.toLowerCase().replace(/\/+$/, "") || "/";
   return (
-    CACHEABLE_EXACT_PATHS.has(normalized) || CACHEABLE_DETAIL_PATH.test(normalized) || CACHEABLE_CITY_PATH.test(normalized)
+    CACHEABLE_EXACT_PATHS.has(normalized) || CACHEABLE_DETAIL_PATH.test(normalized) || CACHEABLE_EMBED_PATH.test(normalized)
   );
 }
 

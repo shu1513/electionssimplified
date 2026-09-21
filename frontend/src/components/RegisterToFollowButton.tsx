@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEmbedSession } from "../lib/embedSession";
 import { RegisterPromptDialog } from "./RegisterPromptDialog";
 
 // Stand-in for FollowButton shown to logged-out visitors: styled like the
@@ -12,10 +13,17 @@ type RegisterToFollowButtonProps = {
 
 export function RegisterToFollowButton({ candidateName, size = "md" }: RegisterToFollowButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const embedSession = useEmbedSession();
   const base =
     size === "sm"
       ? "rounded-lg px-3 py-1 text-xs font-semibold transition"
       : "rounded-lg px-4 py-2 text-sm font-semibold transition";
+
+  // No Follow inside the newsroom embed: following needs an account, and a
+  // third-party frame cannot hold a session.
+  if (embedSession) {
+    return null;
+  }
 
   return (
     <>

@@ -152,6 +152,8 @@ describe("BallotPage", () => {
 
     // The roster status renders in the card's title row where the candidate
     // count would sit, so match it as a substring.
+    // The waiting section starts collapsed.
+    await userEvent.click(await screen.findByRole("button", { name: /^Elections awaiting candidate information/ }));
     expect(await screen.findByText(/Candidate list not final/)).toBeInTheDocument();
     expect(screen.queryByText(/0 candidates/)).not.toBeInTheDocument();
   });
