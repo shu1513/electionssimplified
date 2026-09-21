@@ -278,22 +278,21 @@ function StanceSummary({
     return `${area.name} (${count} record${count === 1 ? "" : "s"})`;
   };
   return (
-    <View className="mt-4" accessibilityLabel={`Where ${candidateName} stands, based on their records`}>
-      <Text className="text-sm text-ink-soft">Where they stand, based on their records:</Text>
+    <View className="mt-4 gap-2" accessibilityLabel={`Where ${candidateName} stands, based on their records`}>
       {supports.length > 0 ? (
-        <View className="mt-2 rounded border border-green-200 bg-green-50 p-3">
+        <View className="rounded border border-green-200 bg-green-50 p-3">
           <Text className="text-sm font-semibold text-green-900">Supports</Text>
           <Text className="mt-1 text-sm text-ink">{areaList(supports, countLabel)}</Text>
         </View>
       ) : null}
       {opposes.length > 0 ? (
-        <View className="mt-2 rounded border border-red-200 bg-red-50 p-3">
+        <View className="rounded border border-red-200 bg-red-50 p-3">
           <Text className="text-sm font-semibold text-red-900">Opposes</Text>
           <Text className="mt-1 text-sm text-ink">{areaList(opposes, countLabel)}</Text>
         </View>
       ) : null}
       {mixed.length > 0 ? (
-        <View className="mt-2 rounded border border-amber-200 bg-amber-50 p-3">
+        <View className="rounded border border-amber-200 bg-amber-50 p-3">
           <Text className="text-sm font-semibold text-amber-900">Mixed record</Text>
           {/* Same "N support · N oppose" phrasing as the web summary and the
               record group headers, so the surfaces can't drift apart. */}
