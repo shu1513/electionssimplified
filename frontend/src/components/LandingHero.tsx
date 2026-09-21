@@ -20,8 +20,13 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
           are gone, and there is one brand mark, not a big one plus a small
           duplicate in the corner. */}
       {/* Framed, the headline is the first thing in the box (no wordmark above
-          it), so it gets a little more air from the box's top edge. */}
-      <div className={`mx-auto max-w-2xl px-4 text-center ${framed ? "pt-7 sm:pt-8" : "pt-6 sm:pt-8"}`}>
+          it), so it gets a little more air from the box's top edge. Inside the
+          box every gap is a step of one golden-ratio ladder, each about 1.618x
+          the one below: 7px (label to field), 11px (headline to tagline,
+          field to button), 18px (between blocks), 29px (the box's edges). The
+          `box:` values are margins tuned so the MEASURED text-to-text gaps
+          land on those steps; line-height adds the rest. */}
+      <div className={`mx-auto max-w-2xl px-4 text-center ${framed ? "pt-7" : "pt-6 sm:pt-8"}`}>
         {/* Not a link (it would link to this page) and not a heading (the h1
             is the pitch, and two h1-ish marks would fight). text-wordmark
             interpolates 32 -> 52px — a text wordmark this long can't carry
@@ -44,11 +49,11 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
             label/input convention. Size and ink-mid set it apart as a
             standalone claim (ink-soft failed APCA for a must-read line). */}
         {/* 16.5 -> 18.5px: a hair under text-body (17 -> 19px). */}
-        <p className="mt-3 text-[clamp(1.03125rem,0.9896rem+0.2083vw,1.15625rem)] font-medium leading-relaxed text-ink-mid">
+        <p className="mt-3 box:mt-[7px] text-[clamp(1.03125rem,0.9896rem+0.2083vw,1.15625rem)] font-medium leading-relaxed text-ink-mid">
           {TAGLINE}
         </p>
       </div>
-      <div className="mx-auto max-w-2xl px-4 pt-[13px] pb-8">
+      <div className="mx-auto max-w-2xl px-4 pt-[13px] pb-8 box:pt-3">
         <AddressSearchForm
           variant="landing"
           label="Enter address to see which elections you can vote in:"

@@ -42,13 +42,14 @@ export function EmbedHomePage() {
     // is taller than the page (its minimum height, or a publisher's
     // data-height) the spare room is split evenly above and below. The INNER
     // div is what gets measured: the outer one is always as tall as the frame.
-    <div className="flex min-h-screen flex-col justify-center bg-page text-ink">
+    <div className="embed-box flex min-h-screen flex-col justify-center bg-page text-ink">
       <div ref={contentRef}>
         <LandingHero framed />
         {/* The box's one credit, and the front page's one way to the site. Its
           bottom padding matches the headline's top padding (LandingHero), so
-          the page sits evenly in the box. */}
-        <p className="-mt-2 pb-7 text-center text-xs text-ink-soft sm:pb-8">
+          the page sits evenly in the box. Spacing in the box follows one
+          golden-ratio ladder (LandingHero): 7, 11, 18, 29px. */}
+        <p className="-mt-4 pb-7 text-center text-xs text-ink-soft">
           Powered by{" "}
           <a
             href={withSource("/", source)}

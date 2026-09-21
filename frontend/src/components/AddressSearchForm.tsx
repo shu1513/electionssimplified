@@ -341,7 +341,7 @@ export function AddressSearchForm({
             {/* Google-sized: a small centered button right under the pill box,
                 not a full-width bar competing with the field. The privacy note
                 sits below it so the box-and-button pair reads as one unit. */}
-            <div className={landing ? "mt-4 flex justify-center" : "mt-2"}>
+            <div className={landing ? "mt-4 flex justify-center box:mt-[11px]" : "mt-2"}>
               <button
                 type="submit"
                 disabled={!canSearch}
