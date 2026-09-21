@@ -93,7 +93,7 @@ export function DetailPager({
     // No sequence to walk (deep link, single-entry list, the draft page):
     // one arrowed link at the left edge, where a back link is expected.
     return (
-      <nav aria-label={ariaLabel} className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-3 box:pb-2">
+      <nav aria-label={ariaLabel} className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px]">
         <p className="min-w-0">
           <Link
             to={backTo.path}
@@ -116,7 +116,7 @@ export function DetailPager({
     // three-slot layout below would float Back in the middle beside an empty
     // Prev cell, and on narrow screens stack it on a line of its own.
     return (
-      <nav aria-label={ariaLabel} className="-mt-4 mb-6 flex items-stretch justify-between gap-x-3 border-b border-line pb-3 text-sm box:mt-0 box:mb-3 box:pb-2">
+      <nav aria-label={ariaLabel} className="-mt-4 mb-6 flex items-stretch justify-between gap-x-3 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px]">
         <p className="min-w-0 max-w-[50%]">
           <Link
             to={backTo.path}
@@ -154,7 +154,7 @@ export function DetailPager({
   return (
     <nav
       aria-label={ariaLabel}
-      className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-3 box:pb-2 sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-x-3"
+      className="-mt-4 mb-6 border-b border-line pb-3 text-sm box:mt-0 box:mb-[18px] box:pb-[11px] sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-x-3"
     >
       {/* Back first on narrow screens (it matches "where you came from"
           reading order and stops Next floating alone above it); sm:order-2

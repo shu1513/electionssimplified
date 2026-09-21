@@ -38,7 +38,7 @@ function DraftSignupCta() {
     track("signup_prompt", { source: "draft", action: "shown" });
   }, []);
   return (
-    <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+    <p className="mt-6 box:mt-[18px] flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
       <Link
         to={`/register?next=${encodeURIComponent("/draft")}`}
         onClick={() => track("signup_prompt", { source: "draft", action: "click" })}
@@ -217,7 +217,7 @@ export function DraftPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3">
+    <div className="mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px]">
       {/* Same top bar as the election and candidate pages, back slot only:
           this page is one step below the guest's ballot, and the guest
           header has no ballot link (only "My Draft"), so without it the
@@ -349,7 +349,7 @@ export function DraftPage() {
               once the ballot settles — before that, "outside the cards" is
               unknowable. */}
           {ballot.isSuccess && extraRows.length > 0 ? (
-            <section className="mt-6">
+            <section className="mt-6 box:mt-[18px]">
               <h2 className="text-heading font-semibold text-ink">Other saved picks</h2>
               <p className="mt-0.5 text-xs text-ink-soft">
                 Races you picked from a direct link — not part of the ballot above.

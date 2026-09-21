@@ -152,7 +152,7 @@ export function TrackRecordSection({
     return <>{emptyState}</>;
   }
   return (
-          <section className="mt-6">
+          <section className="mt-6 box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
               {/* "Track record", not "Record"/"Records": bare "Record" read as
                   a typo next to a list of many items, and "Records" reads as

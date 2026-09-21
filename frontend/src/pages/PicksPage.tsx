@@ -417,7 +417,7 @@ export function PickDateCard({
     );
   });
   return (
-    <section className="rounded-xl border border-line bg-surface p-4">
+    <section className="rounded-xl border border-line bg-surface p-4 box:p-[11px]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Date only: the page h1 already says "My Election Draft". */}
         <h3 className="text-heading font-semibold text-ink">{formatElectionDate(date)}</h3>
@@ -529,7 +529,7 @@ function UpcomingUncardedPicks({
     return null;
   }
   return (
-    <section className="mt-6">
+    <section className="mt-6 box:mt-[18px]">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-soft">{title}</h2>
       <ul className="mt-3 space-y-2">
         {upcoming.map((choice) => (

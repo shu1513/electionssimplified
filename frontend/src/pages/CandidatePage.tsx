@@ -109,14 +109,14 @@ function OngoingElectionFinance({
     // "Not available", not "not found": the gap is usually a source we do
     // not cover (or a failed fetch), not proof the candidate filed nothing.
     return (
-      <p className="mt-6 text-sm text-ink-soft">
+      <p className="mt-6 box:mt-[18px] text-sm text-ink-soft">
         Campaign finance information not available
         {showElection ? ` · ${election.official_ballot_title}` : ""}
       </p>
     );
   }
   return (
-    <section className="mt-6">
+    <section className="mt-6 box:mt-[18px]">
       {/* Collapsed by default: finance is reference material, and open it
           pushed the record — the page's main content — below the fold. The
           collapsed content still ships in the SSR HTML (details just hides
@@ -149,7 +149,7 @@ function OngoingElectionFinance({
             </>
           ) : null}
         </summary>
-        <div className="mt-2 rounded-xl border border-line bg-surface p-4">
+        <div className="mt-2 rounded-xl border border-line bg-surface p-4 box:p-[11px]">
           <FinanceSummaryCard summary={summary} />
         </div>
       </details>
@@ -180,7 +180,7 @@ function ElectionHistorySection({
   navState: ElectionNavState;
 }) {
   return (
-    <section className="mt-6">
+    <section className="mt-6 box:mt-[18px]">
       <h2 className="text-heading font-semibold">{heading}</h2>
       <ul className="mt-2 divide-y divide-line rounded-xl border border-line bg-surface">
         {elections.map((election) => (
@@ -468,8 +468,8 @@ export function CandidatePage() {
     <div
       className={
         railCandidates !== null
-          ? "mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3 lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
-          : "mx-auto max-w-3xl px-4 py-8 box:px-3 box:py-3"
+          ? "mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
+          : "mx-auto max-w-3xl px-4 py-8 box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
       {railCandidates !== null && navState !== null ? (
@@ -703,7 +703,7 @@ export function CandidatePage() {
             // dropped for permanently failing source checks, and the
             // checkpoint still advances — the array only proves nothing
             // verifiable was kept.
-            <p className="mt-6 text-sm text-ink-soft">
+            <p className="mt-6 box:mt-[18px] text-sm text-ink-soft">
               {candidate.records_researched_through
                 ? `No verified public records for this candidate — record history researched through ${formatElectionDate(candidate.records_researched_through)}.`
                 : "This candidate's record history has not been researched yet."}
@@ -720,7 +720,7 @@ export function CandidatePage() {
           // A retention judge is not "in a race" against anyone: one line
           // pointing at the Yes/No question, not a race list with the full
           // ballot title, state, and incumbent tag repeated.
-          <p className="mt-6 text-sm text-ink-soft">
+          <p className="mt-6 box:mt-[18px] text-sm text-ink-soft">
             <Link
               to={`/elections/${activeOngoingElections[0]!.election_id}`}
               state={electionNavState}
@@ -758,7 +758,7 @@ export function CandidatePage() {
         ) : null}
 
         {candidate.last_researched ? (
-          <p className="mt-6 text-xs text-ink-soft">
+          <p className="mt-6 box:mt-[18px] text-xs text-ink-soft">
             Profile last researched {formatElectionDate(candidate.last_researched.slice(0, 10))}.
           </p>
         ) : null}
@@ -766,7 +766,7 @@ export function CandidatePage() {
         {/* Last on purpose: reporting is a reaction to reading the profile, not
             a headline action worth space above the record. Per-record report
             buttons stay on their cards. */}
-        <div className="mt-6">
+        <div className="mt-6 box:mt-[18px]">
           <ReportContentButton
             entityType="candidate"
             entityId={candidate.candidate_id}
@@ -789,7 +789,7 @@ export function CandidatePage() {
           // the launcher would cover the button's right end on phones).
           <div
             data-sticky-pick-cta=""
-            className="sticky bottom-3 z-30 mt-6 rounded-xl border border-line bg-surface p-3 shadow-lg"
+            className="sticky bottom-3 z-30 mt-6 box:mt-[18px] rounded-xl border border-line bg-surface p-3 shadow-lg"
           >
             {isJudicialRetentionTitle(primaryPickElection.official_ballot_title) ? (
               // Retention race: the sticky card asks Yes/No on keeping the
