@@ -23,10 +23,10 @@ export const SITE_ORIGIN = "https://electionssimplified.com";
 // Facebook, Slack) cache the image by URL, so a same-URL replacement keeps
 // showing the old picture for weeks.
 const SHARE_IMAGE = `${SITE_ORIGIN}/og-card.png?v=4`;
-const SHARE_IMAGE_ALT = `${APP_NAME} — uncover who the candidates really are in your upcoming elections`;
+const SHARE_IMAGE_ALT = `${APP_NAME} — uncover who your candidates really are in the upcoming elections`;
 
 export const DEFAULT_DESCRIPTION =
-  "Uncover who the candidates really are in your upcoming elections.";
+  "Uncover who your candidates really are in the upcoming elections.";
 
 type PageMetaInput = {
   title: string;

@@ -83,7 +83,7 @@ describe("HomePage pre-search clickwrap", () => {
     // is the first thing on the page and its sole h1.
     expect(screen.queryByText("Elections Simplified")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /^Uncover who the candidates really are in your upcoming elections$/
+      /^Uncover who your candidates really are in the upcoming elections$/
     );
   });
 
