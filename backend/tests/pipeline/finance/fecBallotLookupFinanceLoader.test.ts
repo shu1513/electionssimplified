@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { loadFecCandidateFinanceSummariesByCandidateElection } from "../../../src/pipeline/finance/fecBallotLookupFinanceLoader.js";
+import {
+  FEC_PLACEHOLDER_LABEL_PATTERN,
+  loadFecCandidateFinanceSummariesByCandidateElection,
+} from "../../../src/pipeline/finance/fecBallotLookupFinanceLoader.js";
 
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
 const ELECTION_ID = "22222222-2222-4222-8222-222222222222";
@@ -126,5 +129,21 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
     expect(direct).toBeDefined();
     expect(direct).not.toHaveProperty("conduit_donations");
     expect(direct).not.toHaveProperty("pac_money_by_interest");
+  });
+
+  it("keeps blank and placeholder answers out of the top occupations", async () => {
+    vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "true");
+    const query = vi.fn().mockResolvedValueOnce({ rows: [summaryRow(null)] }).mockResolvedValue({ rows: [] });
+    await loadFecCandidateFinanceSummariesByCandidateElection({ query }, candidateRows, electionRows);
+
+    expect(String(query.mock.calls[1]?.[0])).toContain("!~ $2");
+    expect(query.mock.calls[1]?.[1]?.[1]).toBe(FEC_PLACEHOLDER_LABEL_PATTERN);
+    const placeholder = new RegExp(FEC_PLACEHOLDER_LABEL_PATTERN);
+    for (const label of ["NULL", "N/A", "NA", "NONE", "INFORMATION REQUESTED PER BEST EFFORTS", "REQUESTED", "UNKNOWN", ""]) {
+      expect(placeholder.test(label)).toBe(true);
+    }
+    for (const label of ["RETIRED", "ATTORNEY", "HOMEMAKER", "NOT EMPLOYED", "NURSE"]) {
+      expect(placeholder.test(label)).toBe(false);
+    }
   });
 });

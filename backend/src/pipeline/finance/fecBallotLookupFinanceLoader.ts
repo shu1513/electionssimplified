@@ -60,6 +60,10 @@ const GENERIC_FEC_DATA_SOURCE_URL = "https://www.fec.gov/data/";
 const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/independent-expenditures/";
 // The card shows the largest few conduit groups, each with a researched
 // one-line description, so the payload carries no more than that.
+// What the FEC aggregates return when a donor left the field blank or the
+// campaign is still asking for it (matched against the upper-cased label).
+export const FEC_PLACEHOLDER_LABEL_PATTERN =
+  "^(NULL|NONE|N/?A|UNKNOWN|NOT PROVIDED|REFUSED|REQUESTED.*|INFORMATION REQUESTED.*|[.\\-]*)$";
 const MAX_FEC_CONDUIT_ROWS = 5;
 // PACs named under each interest row's expandable detail.
 const MAX_PACS_PER_INTEREST = 5;
@@ -323,13 +327,16 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
           ON breakdown.fec_candidate_id = selected.fec_candidate_id
          AND breakdown.election_year = selected.election_year
         WHERE breakdown.category_type IN ('occupation', 'employer', 'industry')
+          -- Blank and placeholder answers on the donor form are not occupations
+          -- or employers; drop them before ranking so they cannot take a top slot.
+          AND upper(btrim(breakdown.category_name)) !~ $2
       )
       SELECT candidate_id, election_id, category_type, category_name, amount, contributor_count, source_url
       FROM ranked
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, category_type, amount DESC, category_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
+    [JSON.stringify(selectedRequests), FEC_PLACEHOLDER_LABEL_PATTERN]
   );
 
   const outsideGroupResult = await db.query<CandidateFinanceOutsideGroupRow>(
