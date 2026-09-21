@@ -15,7 +15,8 @@
  * Inserts an iframe of /embed right after the script tag. The
  * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
  * height. Without it the box is sized as it loads (it may settle for a
- * couple of seconds), from the page's reported content height (the landing page), between 380 and 600
+ * couple of seconds), and again if the box's width changes, from the page's
+ * reported content height (the landing page), between 380 and 600
  * pixels. Either way it never changes after that: readers scroll inside it,
  * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
@@ -79,7 +80,27 @@
     return;
   }
 
-  var settling = false;
+  // When height reports are honoured: for a short while after the first one
+  // (styles or fonts can land late), and again for a short while whenever the
+  // BOX'S OWN WIDTH changes (a rotated phone, a resized window: the host page
+  // is re-laying itself out then anyway, and content fitted to the old width
+  // would leave the box too tall or too short). Never otherwise, so nothing
+  // the reader does inside the box resizes it.
+  var acceptUntil = 0;
+  var started = false;
+  function openWindow() {
+    acceptUntil = Date.now() + SETTLE_MS;
+  }
+  if (typeof ResizeObserver !== "undefined") {
+    var lastWidth = null;
+    new ResizeObserver(function () {
+      var width = frame.offsetWidth;
+      if (lastWidth !== null && width !== lastWidth && started) {
+        openWindow();
+      }
+      lastWidth = width;
+    }).observe(frame);
+  }
   function onMessage(event) {
     if (event.origin !== origin || event.source !== frame.contentWindow) {
       return;
@@ -92,14 +113,12 @@
     if (!isFinite(content) || content <= 0) {
       return;
     }
-    // Settle, then lock: a first measurement can be early (styles or fonts
-    // still arriving), so later ones are honoured for a short while after
-    // it. From then on the box never changes, whatever the reader does.
-    if (!settling) {
-      settling = true;
-      window.setTimeout(function () {
-        window.removeEventListener("message", onMessage);
-      }, SETTLE_MS);
+    if (!started) {
+      started = true;
+      openWindow();
+    }
+    if (Date.now() > acceptUntil) {
+      return;
     }
     var fitted = Math.ceil(content) + BORDER;
     frame.style.height = Math.min(maxHeight, Math.max(SMALLEST_BOX, fitted)) + "px";

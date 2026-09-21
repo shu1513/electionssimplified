@@ -29,16 +29,14 @@ export function useEmbedSession(): boolean {
   return useSyncExternalStore(subscribe, isFramed, () => false);
 }
 
-const SETTLE_MS = 2500;
-
-/** Tells the framing page how tall the first view is (the landing page), so
- * embed.js can fit the box to it instead of leaving empty space under it. It
- * reports while the page settles (styles and fonts can land after the first
- * paint) and then stops; embed.js locks the box on the same schedule, so
- * nothing the reader does later resizes it. It measures the content wrapper,
- * not the document: inside an iframe the document is never shorter than the
- * iframe itself. The host (embed.js) checks the message origin and source
- * window. */
+/** Tells the framing page how tall the current page's content is, whenever
+ * that changes. embed.js decides when to listen: while the box first loads,
+ * and again when the box's own width changes (a rotated phone, a resized
+ * window), so content fitted to an old width never leaves the box half empty.
+ * It ignores every other report, so nothing the reader does resizes the box.
+ * Measures the content wrapper, not the document: inside an iframe the
+ * document is never shorter than the iframe itself. The host checks the
+ * message origin and source window. */
 export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLElement | null }): void {
   useEffect(() => {
     const element = content.current;
@@ -52,11 +50,7 @@ export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLE
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(post);
     observer?.observe(element);
     void document.fonts?.ready.then(post, post);
-    const stop = window.setTimeout(() => observer?.disconnect(), SETTLE_MS);
-    return () => {
-      window.clearTimeout(stop);
-      observer?.disconnect();
-    };
+    return () => observer?.disconnect();
   }, [enabled, content]);
 }
 

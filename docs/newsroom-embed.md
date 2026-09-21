@@ -25,10 +25,10 @@ To choose the size yourself, add either or both of the size settings:
   optional; without it the box fills the column you put it in. Either way it
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the box's height in pixels (240 to 2000). It is
-  optional; without it the box fits its first page once when it loads
-  (between 380 and 600 pixels). Either way the box never changes height
-  after that: readers scroll inside it, so nothing they do moves the rest of
-  your page.
+  optional; without it the box fits its page when it loads (between 380 and
+  600 pixels), and re-fits only if the box's width changes, for example when
+  a reader rotates their phone. Readers scroll inside it, so nothing they do
+  in the box moves the rest of your page.
 - `data-publisher="your-code"` is the code we give your newsroom. It lets us
   count how many readers reached the site from your page. It is optional.
 
@@ -61,8 +61,11 @@ may be reused freely with attribution.
 - `frontend/public/embed.js` inserts an iframe of `/embed` after the script
   tag. With `data-height` the box is exactly that tall. Without it, the page
   reports its content height while it loads and the script fits the box to
-  it (380 to 600 pixels); both stop about 2.5 seconds after the first report
-  (styles or fonts can land late), and nothing later changes the box. The page scrolls inside the frame,
+  it (380 to 600 pixels). Reports are honoured for about 2.5 seconds after
+  the first one (styles or fonts can land late), and again for 2.5 seconds
+  whenever the box's own width changes (a rotated phone, a resized window),
+  since content fitted to the old width would leave the box half empty or
+  too short. Nothing the reader does inside the box resizes it. The page scrolls inside the frame,
   so the host page's layout never changes. The message is honoured only
   from our origin and from that iframe's own window.
 - `/embed` is `frontend/src/pages/EmbedHomePage.tsx`: the site's landing

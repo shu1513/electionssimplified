@@ -7,7 +7,7 @@ import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
-import { guardEmbedClick, useEmbedSession } from "./lib/embedSession";
+import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
 import { importDraftHandoff, isDraftHandoffHash } from "./lib/ballotDraft";
 import { savePendingDistrictIds } from "./lib/pendingDistricts";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
@@ -241,6 +241,10 @@ export function App() {
   const mainRef = useRef<HTMLElement>(null);
   const lastPathname = useRef(location.pathname);
   const embedSession = useEmbedSession();
+  // The box re-fits when its width changes (embed.js), whatever page the
+  // reader is on by then, so the in-box pages report their height too.
+  const embedShellRef = useRef<HTMLDivElement>(null);
+  useReportEmbedHeight(embedSession, embedShellRef);
   const navigate = useNavigate();
   const { me } = useMe();
   // Draft handoff from the newsroom box's "Save" link (lib/ballotDraft.ts).
@@ -291,7 +295,7 @@ export function App() {
   // tab.
   if (embedSession) {
     return (
-      <div className="embed-box bg-page text-ink" onClickCapture={guardEmbedClick}>
+      <div ref={embedShellRef} className="embed-box bg-page text-ink" onClickCapture={guardEmbedClick}>
         <div className="px-[11px] pt-[11px]">
           <EmbedHeader />
         </div>
