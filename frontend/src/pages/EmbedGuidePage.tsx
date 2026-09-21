@@ -58,10 +58,7 @@ export default function EmbedGuidePage() {
       </ul>
       <p>Example:</p>
       <CopyableCode code={SIZED_SNIPPET} label="Copy the example" />
-      <p>
-        Change the numbers to whatever looks right on your page. The box never changes size while
-        someone is using it, so it won&apos;t push your article around.
-      </p>
+      <p>Change the numbers to whatever looks right on your page.</p>
 
       <h2 className="pt-2 text-heading font-semibold">Questions</h2>
       <p>
