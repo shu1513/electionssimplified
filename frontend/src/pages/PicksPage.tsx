@@ -529,7 +529,7 @@ function UpcomingUncardedPicks({
     return null;
   }
   return (
-    <section className="mt-6 box:mt-[18px]">
+    <section className="mt-[29px] box:mt-[18px]">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-soft">{title}</h2>
       <ul className="mt-3 space-y-2">
         {upcoming.map((choice) => (
@@ -773,7 +773,7 @@ export function PicksPage() {
   const picksSettled = ballot.isSuccess && choicesReady;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
       <section>
         <h1 className="text-title font-bold">My Election Draft{dates.length > 1 ? "s" : ""}</h1>
         {ballot.isPending || (choicesLoading && !choicesError) ? (

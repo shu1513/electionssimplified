@@ -272,7 +272,7 @@ export function SavedBallotPage() {
       return <VerifyPrompt email={me.email} />;
     }
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
         <ErrorNotice error={ballot.error} />
       </div>
     );
@@ -330,7 +330,7 @@ export function SavedBallotPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
       {addressSaved ? (
         <div className="mb-4">
           <AddressSavedNotice saved={addressSaved} />

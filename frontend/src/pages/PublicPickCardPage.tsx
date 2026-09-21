@@ -159,7 +159,7 @@ export function PublicPickCardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
       <section className="rounded-xl border border-line bg-surface p-5">
         <h1 className="text-title font-bold text-ink">{cardTitle(card)}</h1>
         <p className="mt-1 text-sm text-ink-soft">Shared from {APP_NAME}.</p>

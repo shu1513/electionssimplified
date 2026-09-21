@@ -435,7 +435,7 @@ export function ElectionList({
       </SeatRun>
     ));
   return (
-    <div className="mt-4 space-y-6 box:mt-[18px] box:space-y-[29px]">
+    <div className="mt-[18px] space-y-[29px]">
       {groups.map((group) => (
         // One date section, with grouped retention after its contested races.
         <section key={group.date}>
@@ -446,7 +446,7 @@ export function ElectionList({
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
-            <div className="mt-3 space-y-5 box:mt-[11px] box:space-y-[8px]">
+            <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
               {splitLevelRuns(group.contested).map((run) => (
                 <ElectionSection
                   key={`${sort}-${run.level}-${run.elections[0].id}`}
@@ -460,7 +460,7 @@ export function ElectionList({
               ))}
             </div>
           ) : votePowerDates.has(group.date) ? (
-            <div className="mt-3 space-y-5 box:mt-[11px] box:space-y-[8px]">
+            <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
               {splitVotePowerGroups(group.contested).map((band) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}

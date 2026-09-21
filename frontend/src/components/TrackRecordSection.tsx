@@ -152,7 +152,7 @@ export function TrackRecordSection({
     return <>{emptyState}</>;
   }
   return (
-          <section className="mt-6 box:mt-[18px]">
+          <section className="mt-[29px] box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
               {/* "Track record", not "Record"/"Records": bare "Record" read as
                   a typo next to a list of many items, and "Records" reads as
@@ -198,7 +198,7 @@ export function TrackRecordSection({
                 ) : null}
               </>
             ) : (
-              recordGroups.map((group) => {
+              <div className="mt-2 space-y-4">{recordGroups.map((group) => {
                 // Stance tally shown while collapsed, so the split is readable
                 // without opening the group. Evaluative areas keep their
                 // evidence wording (favorable/unfavorable), matching the cards
@@ -207,7 +207,7 @@ export function TrackRecordSection({
                 const { forCount, againstCount } = groupStanceCounts(group);
                 const evaluative = group.areaSlug != null && EVALUATIVE_AREA_SLUGS.has(group.areaSlug);
                 return (
-                  <div key={group.areaId ?? "other"} className="mt-4">
+                  <div key={group.areaId ?? "other"}>
                     {/* The heading lives OUTSIDE the summary, sr-only — same
                         rule as the finance disclosure above: <summary> maps to
                         a button, and a heading inside it can drop out of
@@ -290,7 +290,7 @@ export function TrackRecordSection({
                     </details>
                   </div>
                 );
-              })
+              })}</div>
             )}
           </section>
   );

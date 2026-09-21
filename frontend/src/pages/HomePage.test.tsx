@@ -77,14 +77,13 @@ describe("HomePage pre-search clickwrap", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
-  it("opens with the centred brand masthead above the pitch", () => {
+  it("opens on the pitch, with no brand mark of its own", () => {
     renderHome();
-    // The wordmark lives here (not the shared header) on the landing; the
-    // pitch stays the sole h1 so the brand mark never outranks the content
-    // outline.
-    expect(screen.getByText("Elections Simplified")).toBeInTheDocument();
+    // The brand mark is the shared header's corner logo (App.tsx); the pitch
+    // is the first thing on the page and its sole h1.
+    expect(screen.queryByText("Elections Simplified")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /^See who the candidates in your elections really are by their track records$/
+      /^Uncover who your candidates really are in the upcoming elections$/
     );
   });
 

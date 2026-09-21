@@ -49,13 +49,14 @@ describe("App account nav", () => {
     expect(header.querySelector('a[href="/mission"]')).toBeNull();
   });
 
-  it("drops the header wordmark on the landing page, where the masthead carries it", async () => {
+  it("shows the header wordmark on the landing page as its only brand mark", async () => {
     stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
     renderApp();
     await screen.findByRole("link", { name: "Log in" });
-    // HomePage's big centred wordmark is the landing's only brand mark; a
-    // small duplicate in the header corner would read as two logos.
-    expect(within(screen.getByRole("banner")).queryByText("Elections Simplified")).toBeNull();
+    // The small corner logo is the landing's brand mark, same as every other
+    // page; the page body carries no second, bigger copy.
+    expect(within(screen.getByRole("banner")).getByRole("link", { name: "Elections Simplified" })).toHaveAttribute("href", "/");
+    expect(screen.getAllByText("Elections Simplified")).toHaveLength(1);
   });
 
   it("keeps the header wordmark link home on every other page", async () => {
