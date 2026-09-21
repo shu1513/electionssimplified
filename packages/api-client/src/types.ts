@@ -321,7 +321,7 @@ export type FinanceConduitDonation = {
 };
 
 // Mirrors BallotLookupFinancePacInterest (backend): what the PACs of one
-// interest reported giving to the candidate. "unclassified" comes last.
+// interest reported giving to the candidate, largest first.
 export type FinancePacInterest = {
   interest: string;
   interest_name: string;

@@ -48,6 +48,12 @@ export type PacInterestSource = "fec" | "rule" | "manual" | "unknown";
 
 export const UNCLASSIFIED_PAC_INTEREST = "unclassified";
 
+// The card answers "which industries and causes fund this candidate", largest
+// first. Money from other politicians' PACs and campaigns is not an industry
+// or a cause, and unsorted PACs say nothing yet, so neither is listed. They
+// stay in the table, so the split is still available to other readers.
+export const PAC_INTERESTS_NOT_LISTED: readonly PacInterestSlug[] = ["leadership_pacs", "candidate_committees"];
+
 export const PAC_INTEREST_DISPLAY_NAMES: Record<PacInterestSlug | typeof UNCLASSIFIED_PAC_INTEREST, string> = {
   technology: "Technology",
   oil_gas_energy: "Oil, gas, and energy",

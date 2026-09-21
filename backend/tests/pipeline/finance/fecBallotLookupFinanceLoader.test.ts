@@ -74,7 +74,6 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
           pac_count: 2,
           pacs: [{ committee_id: "C00000011", committee_name: "UNITED WORKERS UNION PAC", amount: 10000, source_url: null }],
         },
-        { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, interest: null, amount: "2500.00", pac_count: 1, pacs: [] },
       ],
     });
 
@@ -82,7 +81,10 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
     const direct = [...result.values()][0]?.direct_campaign;
 
     expect(query).toHaveBeenCalledTimes(7);
-    expect(String(query.mock.calls[6]?.[0])).toContain("LEFT JOIN public.finance_pac_interests");
+    // Only real industries and causes are listed: no politicians' PACs, no
+    // other campaigns, no unsorted PACs.
+    expect(String(query.mock.calls[6]?.[0])).toContain("interests.interest_slug IS NOT NULL");
+    expect(query.mock.calls[6]?.[1]?.[2]).toEqual(["leadership_pacs", "candidate_committees"]);
     expect(direct?.pac_money_by_interest).toEqual([
       {
         interest: "labor_unions",
@@ -91,7 +93,6 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
         pac_count: 2,
         pacs: [{ committee_id: "C00000011", committee_name: "UNITED WORKERS UNION PAC", amount: 10000, source_url: "https://www.fec.gov/data/" }],
       },
-      { interest: "unclassified", interest_name: "Not yet sorted", amount: 2500, pac_count: 1, pacs: [] },
     ]);
     expect(String(query.mock.calls[5]?.[0])).toContain("public.candidate_finance_conduit_totals");
     expect(String(query.mock.calls[5]?.[0])).toContain("WHERE NOT conduit.is_payment_platform");

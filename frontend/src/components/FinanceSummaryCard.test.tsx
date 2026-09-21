@@ -667,7 +667,7 @@ describe("FinanceSummaryCard", () => {
       interest("gun_control", "Gun control groups", 9_900, 1),
       interest("healthcare", "Healthcare", 8_000, 2),
       interest("retail", "Retail", 5_000, 1),
-      interest("unclassified", "Not yet sorted", 30_000, 12),
+      interest("tobacco", "Tobacco", 2_500, 1),
     ];
     render(<FinanceSummaryCard summary={summary} />);
 
@@ -675,15 +675,16 @@ describe("FinanceSummaryCard", () => {
     expect(within(list).getByText("$62,000")).toBeInTheDocument();
     expect(within(list).getByText(/· 9 PACs/)).toBeInTheDocument();
     expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(3);
+    // Largest interest first.
+    expect(within(list).getAllByRole("group")[0]).toHaveTextContent("Labor unions");
     expect(within(list).getByRole("link", { name: "LABOR UNIONS EXAMPLE PAC" })).toHaveAttribute(
       "href",
       "https://www.fec.gov/data/disbursements/?committee_id=C-labor_unions"
     );
     expect(within(list).getByText("and 8 more")).toBeInTheDocument();
-    // Six rows first; the unsorted remainder is reachable, never hidden.
-    expect(within(list).queryByText("Not yet sorted")).not.toBeInTheDocument();
+    expect(within(list).queryByText("Tobacco")).not.toBeInTheDocument();
     fireEvent.click(within(list).getByRole("button", { name: "Show all (7)" }));
-    expect(within(list).getByText("Not yet sorted")).toBeInTheDocument();
+    expect(within(list).getByText("Tobacco")).toBeInTheDocument();
   });
 
   it("says so when no PAC gave, and shows nothing when the PAC list was not loaded", () => {

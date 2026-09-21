@@ -56,8 +56,9 @@ export type BallotLookupFinanceConduitDonation = {
  * What the PACs of one interest reported giving to the candidate in the
  * cycle. A PAC may give a candidate at most $5,000 per election, so single
  * PAC checks look alike; the total per interest is what differs between
- * candidates. `interest` is a slug from the PAC interest taxonomy, or
- * "unclassified" for PACs nobody has sorted yet (always listed last).
+ * candidates. `interest` is a slug from the PAC interest taxonomy. Rows are
+ * sorted largest first. Other politicians' PACs, other candidates' campaigns
+ * and PACs nobody has sorted yet are left out.
  */
 export type BallotLookupFinancePacInterest = {
   interest: string;

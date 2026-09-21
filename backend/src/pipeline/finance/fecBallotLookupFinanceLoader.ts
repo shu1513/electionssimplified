@@ -2,7 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCandidateFinanceEnabled } from "../../config/featureFlags.js";
 import type { ElectionContestFamily, ElectionDistrictType, ElectionRaceType } from "../../types/election.js";
-import { UNCLASSIFIED_PAC_INTEREST, pacInterestDisplayName } from "./pacInterestClassifier.js";
+import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName } from "./pacInterestClassifier.js";
 import {
   addFinanceBreakdown,
   buildOutsideIndustrySupportExplanation,
@@ -100,7 +100,7 @@ type CandidateFinanceConduitRow = {
 type CandidateFinancePacInterestRow = {
   candidate_id: string;
   election_id: string;
-  interest: string | null;
+  interest: string;
   amount: string | number;
   pac_count: number;
   pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
@@ -606,8 +606,10 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
               JOIN public.candidate_finance_pac_donors AS donor
                 ON donor.fec_candidate_id = selected.fec_candidate_id
                AND donor.election_year = selected.election_year
-              LEFT JOIN public.finance_pac_interests AS interests
+              JOIN public.finance_pac_interests AS interests
                 ON interests.committee_id = donor.committee_id
+              WHERE interests.interest_slug IS NOT NULL
+                AND interests.interest_slug <> ALL($3::text[])
             )
             SELECT
               candidate_id,
@@ -625,9 +627,9 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
               ) FILTER (WHERE rn <= $2::int) AS pacs
             FROM donors
             GROUP BY candidate_id, election_id, interest
-            ORDER BY candidate_id, election_id, (interest IS NULL), sum(amount) DESC, interest ASC
+            ORDER BY candidate_id, election_id, sum(amount) DESC, interest ASC
           `,
-          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST]
+          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST, PAC_INTERESTS_NOT_LISTED]
         )
       : { rows: [] as CandidateFinancePacInterestRow[] };
 
@@ -636,7 +638,7 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     const key = candidateElectionKey(row.candidate_id, row.election_id);
     const list = pacInterestsByCandidateElection.get(key) ?? [];
     list.push({
-      interest: row.interest ?? UNCLASSIFIED_PAC_INTEREST,
+      interest: row.interest,
       interest_name: pacInterestDisplayName(row.interest),
       amount: parseFinanceAmount(row.amount) ?? 0,
       pac_count: row.pac_count,
