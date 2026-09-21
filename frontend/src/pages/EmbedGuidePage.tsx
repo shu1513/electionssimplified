@@ -37,7 +37,9 @@ export default function EmbedGuidePage() {
         src="/embed"
         title="The Elections Simplified tool, as it appears on your website"
         loading="lazy"
-        className="block h-[480px] w-full rounded-lg border border-line"
+        // The same frame embed.js draws on a publisher's page (1px #ddd, 8px
+        // corners), so the example looks exactly like the real thing.
+        className="block h-[480px] w-full rounded-[8px] border border-[#dddddd]"
       />
       <p>
         Visitors to your website can use it to see their elections and the candidates, while staying on
