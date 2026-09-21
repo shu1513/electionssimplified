@@ -40,18 +40,23 @@ export function DraftHandoffGate() {
     if (me === undefined || !isDraftHandoffHash(location.hash)) {
       return;
     }
-    const handoff = parseDraftHandoff(location.hash);
-    if (handoff) {
-      if (me?.email_verified) {
-        setPending(handoff);
-      } else {
-        mergeDraftHandoff(handoff);
-        if (handoff.districtIds.length > 0) {
-          savePendingDistrictIds(handoff.districtIds);
+    try {
+      const handoff = parseDraftHandoff(location.hash);
+      if (handoff) {
+        if (me?.email_verified) {
+          setPending(handoff);
+        } else {
+          mergeDraftHandoff(handoff);
+          if (handoff.districtIds.length > 0) {
+            savePendingDistrictIds(handoff.districtIds);
+          }
         }
       }
+    } finally {
+      // Whatever happened above, the fragment goes: a bad one must not be
+      // retried on every reload.
+      void navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
     }
-    void navigate({ pathname: location.pathname, search: location.search, hash: "" }, { replace: true, state: location.state });
   }, [me, location.hash, location.pathname, location.search, location.state, navigate]);
 
   // The account's own picks decide what is new; wait for them before asking.
