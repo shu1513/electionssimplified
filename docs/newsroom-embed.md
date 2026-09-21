@@ -26,7 +26,7 @@ To choose the size yourself, add either or both of the size settings:
   shrinks to fit a narrower screen, so it never overflows a phone.
 - `data-height` sets the box's height in pixels (240 to 2000). It is
   optional; without it the box fits its first page once when it loads
-  (between 420 and 600 pixels). Either way the box never changes height
+  (between 380 and 600 pixels). Either way the box never changes height
   after that: readers scroll inside it, so nothing they do moves the rest of
   your page.
 - `data-publisher="your-code"` is the code we give your newsroom. It lets us
@@ -61,7 +61,7 @@ may be reused freely with attribution.
 - `frontend/public/embed.js` inserts an iframe of `/embed` after the script
   tag. With `data-height` the box is exactly that tall. Without it, the page
   reports its content height while it loads and the script fits the box to
-  it (420 to 600 pixels); both stop about 2.5 seconds after the first report
+  it (380 to 600 pixels); both stop about 2.5 seconds after the first report
   (styles or fonts can land late), and nothing later changes the box. The page scrolls inside the frame,
   so the host page's layout never changes. The message is honoured only
   from our origin and from that iframe's own window.

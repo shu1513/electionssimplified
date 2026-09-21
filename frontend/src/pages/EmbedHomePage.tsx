@@ -48,7 +48,7 @@ export function EmbedHomePage() {
         {/* The box's one credit, and the front page's one way to the site. Its
           bottom padding matches the headline's top padding (LandingHero), so
           the page sits evenly in the box. */}
-        <p className="-mt-2 pb-9 text-center text-xs text-ink-soft sm:pb-10">
+        <p className="-mt-2 pb-7 text-center text-xs text-ink-soft sm:pb-8">
           Powered by{" "}
           <a
             href={withSource("/", source)}

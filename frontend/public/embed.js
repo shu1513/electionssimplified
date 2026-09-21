@@ -15,7 +15,7 @@
  * Inserts an iframe of /embed right after the script tag. The
  * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
  * height. Without it the box is sized as it loads (it may settle for a
- * couple of seconds), from the page's reported content height (the landing page), between 420 and 600
+ * couple of seconds), from the page's reported content height (the landing page), between 380 and 600
  * pixels. Either way it never changes after that: readers scroll inside it,
  * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
@@ -38,7 +38,7 @@
   var MAX_WIDTH = 2000;
   // The box is a small copy of the site (address search, ballot, race and
   // candidate pages), so even a short list leaves room to read those.
-  var SMALLEST_BOX = 420;
+  var SMALLEST_BOX = 380;
   var SETTLE_MS = 2500;
   var BORDER = 2;
   var MAX_HEIGHT = 2000;
