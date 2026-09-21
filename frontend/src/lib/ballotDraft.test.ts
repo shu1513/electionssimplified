@@ -276,7 +276,9 @@ describe("draft handoff (newsroom box → site)", () => {
     setDraftBallotContext(own, null);
     pick("c2", "John Roe");
 
-    expect(importDraftHandoff(fragment).added).toBe(0);
+    // Nothing added, and no districts reported back: the caller must not arm
+    // an account handoff with a ballot the draft did not take.
+    expect(importDraftHandoff(fragment)).toEqual({ added: 0, districtIds: [] });
     expect(readBallotDraft().choices[E1]?.picks.map((p) => p.candidate_id)).toEqual(["c2"]);
     expect(readBallotDraft().district_ids).toEqual(own);
   });
@@ -285,9 +287,9 @@ describe("draft handoff (newsroom box → site)", () => {
     pick("c1", "Jane Doe");
     const handoff = parseDraftHandoff(draftHandoffFragment(readBallotDraft()))!;
     clearBallotDraft();
-    expect(mergeDraftHandoff(handoff, new Set([E1]))).toBe(0);
+    expect(mergeDraftHandoff(handoff, new Set([E1])).added).toBe(0);
     expect(hasDraftPicks(readBallotDraft())).toBe(false);
-    expect(mergeDraftHandoff(handoff)).toBe(1);
+    expect(mergeDraftHandoff(handoff).added).toBe(1);
   });
 
   it("carries districts alone, and drops ids that are not UUIDs", () => {

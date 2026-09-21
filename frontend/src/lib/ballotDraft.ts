@@ -259,12 +259,17 @@ export function parseDraftHandoff(hash: string): DraftHandoff | null {
   return { rows, districtIds };
 }
 
-/** Merges a handoff into this browser's draft and returns how many races it
- * added. A race already decided here, or listed in `skipElectionIds` (the
- * races a signed-in reader already picked in their account), is never
- * replaced: a link can add picks, it cannot change one. The district ids
- * become the draft's ballot only when this browser has none of its own. */
-export function mergeDraftHandoff(handoff: DraftHandoff, skipElectionIds: ReadonlySet<string> = new Set()): number {
+/** Merges a handoff into this browser's draft. A race already decided here,
+ * or listed in `skipElectionIds` (the races a signed-in reader already picked
+ * in their account), is never replaced: a link can add picks, it cannot
+ * change one. The district ids become the draft's ballot only when this
+ * browser has none of its own; `adoptedDistricts` says whether they did, so a
+ * caller arms the account district handoff with the SAME ballot the draft
+ * kept, never a different one. */
+export function mergeDraftHandoff(
+  handoff: DraftHandoff,
+  skipElectionIds: ReadonlySet<string> = new Set()
+): { added: number; adoptedDistricts: boolean } {
   const draft = currentDraft();
   const choices = { ...draft.choices };
   let added = 0;
@@ -280,13 +285,18 @@ export function mergeDraftHandoff(handoff: DraftHandoff, skipElectionIds: Readon
     // target: null — the draft page recomputes it from the ballot it loads.
     writeDraft({ ...draft, choices, ...(adoptDistricts ? { district_ids: handoff.districtIds, target: null } : {}) });
   }
-  return added;
+  return { added, adoptedDistricts: adoptDistricts };
 }
 
-/** parseDraftHandoff + mergeDraftHandoff, for a guest arrival. */
+/** parseDraftHandoff + mergeDraftHandoff, for a guest arrival. `districtIds`
+ * holds the incoming districts only when the draft adopted them. */
 export function importDraftHandoff(hash: string): { added: number; districtIds: string[] } {
   const handoff = parseDraftHandoff(hash);
-  return handoff ? { added: mergeDraftHandoff(handoff), districtIds: handoff.districtIds } : { added: 0, districtIds: [] };
+  if (!handoff) {
+    return { added: 0, districtIds: [] };
+  }
+  const { added, adoptedDistricts } = mergeDraftHandoff(handoff);
+  return { added, districtIds: adoptedDistricts ? handoff.districtIds : [] };
 }
 
 function subscribe(listener: () => void): () => void {

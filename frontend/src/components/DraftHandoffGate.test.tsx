@@ -4,12 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import type { ElectionChoice } from "@voteapp/api-client";
-import { ME_VERIFIED } from "../test/fixtures";
+import { ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
 import {
   clearBallotDraft,
   draftHandoffFragment,
   draftPickCount,
   readBallotDraft,
+  setDraftBallotContext,
   setDraftCandidateChoice,
 } from "../lib/ballotDraft";
 import { readPendingDistrictIds, clearPendingDistrictIds } from "../lib/pendingDistricts";
@@ -61,6 +62,7 @@ function arrive(fragment: string) {
 beforeEach(() => {
   clearBallotDraft();
   clearPendingDistrictIds();
+  sessionStorage.removeItem("voteapp_pending_handoff");
 });
 
 afterEach(() => {
@@ -78,6 +80,54 @@ describe("DraftHandoffGate", () => {
     expect(router.state.location.hash).toBe("");
     expect(router.state.location.search).toBe("?next=%2Fdraft");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps a guest's own ballot, and then does not arm the account handoff with the incoming one", async () => {
+    const fragment = boxFragment();
+    const own = "cccccccc-3333-4333-8333-333333333333";
+    setDraftBallotContext([own], null);
+    stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
+    arrive(fragment);
+
+    await waitFor(() => expect(draftPickCount(readBallotDraft())).toBe(2));
+    expect(readBallotDraft().district_ids).toEqual([own]);
+    expect(readPendingDistrictIds()).toEqual([]);
+  });
+
+  it("asks an unverified signed-in reader too: any signed-in account can save picks", async () => {
+    const fragment = boxFragment();
+    stubApiRoutes({
+      "/api/me": { body: ME_UNVERIFIED },
+      "/api/me/election-choices": { body: { choices: [] } },
+    });
+    arrive(fragment);
+
+    expect(await screen.findByRole("dialog")).toHaveTextContent("You made 2 picks on another website.");
+    expect(draftPickCount(readBallotDraft())).toBe(0);
+  });
+
+  it("says so and offers a retry when the account's picks cannot be loaded, and survives a reload", async () => {
+    const fragment = boxFragment();
+    let fail = true;
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/election-choices": () => (fail ? apiError(500, "server_error", "boom") : { body: { choices: [] } }),
+    });
+    const first = arrive(fragment);
+
+    expect(await screen.findByRole("dialog", {}, { timeout: 4000 })).toHaveTextContent("we could not check your account");
+    // The fragment is gone from the URL, but the picks are not lost with it.
+    expect(first.router.state.location.hash).toBe("");
+    first.unmount();
+
+    // A reload: no fragment this time.
+    fail = false;
+    renderRoutes([{ path: "/register", element: <DraftHandoffGate /> }], "/register");
+    expect(await screen.findByRole("dialog", {}, { timeout: 4000 })).toHaveTextContent("You made 2 picks on another website.");
+
+    await userEvent.click(screen.getByRole("button", { name: "Not now" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(sessionStorage.getItem("voteapp_pending_handoff")).toBeNull();
   });
 
   it("asks a signed-in reader first, then adds only the races their account has not decided", async () => {

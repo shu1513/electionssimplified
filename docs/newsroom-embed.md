@@ -29,6 +29,10 @@ To choose the size yourself, add either or both of the size settings:
   600 pixels), and re-fits only if the box's width changes, for example when
   a reader rotates their phone. Readers scroll inside it, so nothing they do
   in the box moves the rest of your page.
+- A size outside its range, or one that is not a number, is ignored and the
+  box sizes itself as if the setting were not there. It is not rounded to
+  the nearest limit: a typo such as `60` for `600` should not produce a
+  240-pixel box.
 - `data-publisher="your-code"` is the code we give your newsroom. It lets us
   count how many readers reached the site from your page. It is optional.
 
@@ -103,9 +107,13 @@ may be reused freely with attribution.
   for a guest (or an unverified account) merges the picks into the site's
   draft, arms the usual guest-to-account district handoff
   (`savePendingDistrictIds`), and leaves the rest to the normal flush after
-  sign-up; for a reader who is already signed in, ASKS first, because a link
-  must never write into an account by itself, then adds only the races the
-  account has not decided. Rows are sanitized, must carry a real (UUID)
+  sign-up; for a reader who is already signed in (verified or not, since any
+  signed-in account can save picks), ASKS first, because a link must never
+  write into an account by itself, then adds only the races the account has
+  not decided. Until they answer, the handoff is also kept in session
+  storage, so a failed request and a reload do not lose it; if the account's
+  picks cannot be loaded the dialog says so and offers a retry. A guest's
+  districts arm the account handoff only when the draft adopted them. Rows are sanitized, must carry a real (UUID)
   election id, and never replace an existing pick.
 - The publisher code rides in the URL fragment, which never reaches the
   server, so the cached page is publisher-neutral. The page reads it in the

@@ -43,7 +43,7 @@ export const USAGE_ROUTES = [
   "follows",
   "settings",
   "pick_card",
-  "city",
+  "embed_instructions",
   "not_found",
   "other",
 ] as const;
@@ -59,6 +59,7 @@ const ROUTE_BY_MATCH_ID: Record<string, UsageRoute> = {
   "pages/ElectionPage": "election",
   "pages/CandidatePage": "candidate",
   "pages/MissionPage": "mission",
+  "pages/EmbedGuidePage": "embed_instructions",
   "pages/SupportPage": "support",
   "pages/SupportMemberPage": "support_member",
   "pages/SupportOncePage": "support_once",
