@@ -5,7 +5,12 @@ import {
   SWEEP_EVIDENCE_MIN_ENTRIES,
   SWEEP_ROUTE_QUESTION_IDS,
   assertedSweepCompletenessGapIds,
+  claimsSupportedByRecordSet,
   deleteSweepCompletenessConfirmation,
+  mergeSweepEvidenceEntries,
+  parseStoredSweepEvidenceEntries,
+  pruneUnsupportedSweepClaims,
+  writeMergedSweepConfirmation,
   currentOfficeRoutingContradiction,
   deleteSweepConfirmation,
   deltaSweepRoutingContradiction,
@@ -856,5 +861,189 @@ describe("audit isConfirmedNull", () => {
         confirmation_covers_latest_search: true,
       })
     ).toBe(false);
+  });
+});
+
+describe("claimsSupportedByRecordSet", () => {
+  const ONLY_GENERAL = "candidate_records.only_general_labels";
+  const NO_RECORDS = "candidate_records.no_records_found";
+
+  it("drops only_general_labels when any active record is stance-labeled", () => {
+    expect(
+      claimsSupportedByRecordSet([ONLY_GENERAL], { activeRecordCount: 130, stanceLabeledRecordCount: 124 })
+    ).toEqual([]);
+  });
+
+  it("keeps only_general_labels when every active record is general", () => {
+    expect(
+      claimsSupportedByRecordSet([ONLY_GENERAL], { activeRecordCount: 3, stanceLabeledRecordCount: 0 })
+    ).toEqual([ONLY_GENERAL]);
+  });
+
+  it("keeps no_records_found only for a candidate with zero active records", () => {
+    expect(claimsSupportedByRecordSet([NO_RECORDS], { activeRecordCount: 0, stanceLabeledRecordCount: 0 })).toEqual([
+      NO_RECORDS,
+    ]);
+    expect(claimsSupportedByRecordSet([NO_RECORDS], { activeRecordCount: 2, stanceLabeledRecordCount: 0 })).toEqual([]);
+  });
+});
+
+describe("mergeSweepEvidenceEntries", () => {
+  it("keeps prior entries, replaces a re-asked question in place, and appends new ones", () => {
+    const merged = mergeSweepEvidenceEntries(
+      [
+        { question: "Roll-call votes?", finding: "HB 9 yes", questionId: "rollcalls" },
+        { question: "Endorsements?", finding: "nothing found", questionId: "endorsements" },
+      ],
+      [
+        { question: "  endorsements? ", finding: "union local 12", questionId: "endorsements" },
+        { question: "Court cases?", finding: "nothing found", questionId: null },
+      ]
+    );
+    expect(merged).toEqual([
+      { question: "Roll-call votes?", finding: "HB 9 yes", questionId: "rollcalls" },
+      { question: "  endorsements? ", finding: "union local 12", questionId: "endorsements" },
+      { question: "Court cases?", finding: "nothing found", questionId: null },
+    ]);
+  });
+});
+
+describe("parseStoredSweepEvidenceEntries", () => {
+  it("reads the stored snake_case shape and skips malformed entries", () => {
+    expect(
+      parseStoredSweepEvidenceEntries({
+        entries: [
+          { question: "votes?", finding: "HB 9", question_id: "rollcalls" },
+          { question: "", finding: "x" },
+          "junk",
+          { question: "archive?", finding: "nothing found" },
+        ],
+      })
+    ).toEqual([
+      { question: "votes?", finding: "HB 9", questionId: "rollcalls" },
+      { question: "archive?", finding: "nothing found", questionId: null },
+    ]);
+    expect(parseStoredSweepEvidenceEntries(null)).toEqual([]);
+  });
+});
+
+describe("writeMergedSweepConfirmation", () => {
+  function fakeClient(input: { priorEvidence: unknown; activeRecords: number; stanceLabeledRecords: number }) {
+    const calls: { text: string; values: unknown[] }[] = [];
+    const client = {
+      query: async (text: string, values?: unknown[]) => {
+        calls.push({ text, values: values ?? [] });
+        if (text.includes("FOR UPDATE")) {
+          return { rows: input.priorEvidence === null ? [] : [{ evidence: input.priorEvidence }], rowCount: 1 };
+        }
+        if (text.includes("active_record_count")) {
+          return {
+            rows: [
+              {
+                active_record_count: String(input.activeRecords),
+                stance_labeled_record_count: String(input.stanceLabeledRecords),
+              },
+            ],
+            rowCount: 1,
+          };
+        }
+        return { rows: [], rowCount: text.includes("UPDATE") ? 1 : 1 };
+      },
+    };
+    return { client, calls };
+  }
+
+  it("does not claim only_general_labels when an all-general batch lands on a candidate with stanced records", async () => {
+    // Nick Allen shape: a small additive write of general-only rows on a
+    // candidate with 124 stance-labeled records.
+    const { client, calls } = fakeClient({
+      priorEvidence: {
+        entries: [
+          { question: "Roll-call votes?", finding: "many votes", question_id: "rollcalls" },
+          { question: "Sponsorship?", finding: "SB 12", question_id: "sponsorship" },
+        ],
+      },
+      activeRecords: 130,
+      stanceLabeledRecords: 124,
+    });
+
+    const result = await writeMergedSweepConfirmation(client as never, {
+      candidateId: "candidate-1",
+      assertedGapIds: ["candidate_records.only_general_labels"],
+      entries: [{ question: "Leadership roles?", finding: "caucus chair", questionId: "leadership" }],
+      contextType: "election",
+      contextId: "election-1",
+    });
+
+    expect(result.confirmedGapIds).toEqual([]);
+    expect(result.droppedGapIds).toEqual(["candidate_records.only_general_labels"]);
+    expect(result.entryCount).toBe(3);
+
+    const insert = calls.find((call) => call.text.includes("INSERT INTO public.candidate_record_sweep_confirmations"));
+    expect(insert?.values[1]).toEqual([]);
+    expect(JSON.parse(insert?.values[2] as string).entries.map((entry: { question: string }) => entry.question)).toEqual([
+      "Roll-call votes?",
+      "Sponsorship?",
+      "Leadership roles?",
+    ]);
+    // Other contexts' now-false claims are pruned too (both completeness
+    // ids are false for a candidate with stance-labeled records).
+    const prune = calls.find((call) => call.text.includes("unnest(confirmed_gap_ids)"));
+    expect(prune?.values).toEqual([
+      "candidate-1",
+      ["candidate_records.no_records_found", "candidate_records.only_general_labels"],
+    ]);
+    expect(result.otherContextRowsPruned).toBe(1);
+  });
+
+  it("keeps only_general_labels when every active record is general", async () => {
+    const { client, calls } = fakeClient({ priorEvidence: null, activeRecords: 2, stanceLabeledRecords: 0 });
+
+    const result = await writeMergedSweepConfirmation(client as never, {
+      candidateId: "candidate-1",
+      assertedGapIds: ["candidate_records.only_general_labels"],
+      entries: [
+        { question: "Career?", finding: "school board", questionId: "career" },
+        { question: "Orgs?", finding: "nothing found", questionId: "orgs_advocacy" },
+        { question: "Court?", finding: "nothing found", questionId: "court_legal" },
+      ],
+      contextType: "election",
+      contextId: "election-1",
+    });
+
+    expect(result.confirmedGapIds).toEqual(["candidate_records.only_general_labels"]);
+    expect(result.droppedGapIds).toEqual([]);
+    const insert = calls.find((call) => call.text.includes("INSERT INTO"));
+    expect(insert?.values[1]).toEqual(["candidate_records.only_general_labels"]);
+  });
+});
+
+describe("pruneUnsupportedSweepClaims", () => {
+  it("does nothing when the record set supports every claim", async () => {
+    const calls: unknown[] = [];
+    const client = { query: async (...args: unknown[]) => (calls.push(args), { rows: [], rowCount: 0 }) };
+    const changed = await pruneUnsupportedSweepClaims(client as never, "candidate-1", {
+      activeRecordCount: 0,
+      stanceLabeledRecordCount: 0,
+    }, ["candidate_records.no_records_found"]);
+    expect(changed).toBe(0);
+    expect(calls).toHaveLength(0);
+  });
+});
+
+describe("deleteSweepCompletenessConfirmation exceptContext", () => {
+  it("keeps the caller's own context row", async () => {
+    const calls: { text: string; values: unknown[] }[] = [];
+    const client = {
+      query: async (text: string, values?: unknown[]) => {
+        calls.push({ text, values: values ?? [] });
+        return { rows: [], rowCount: 0 };
+      },
+    };
+    await deleteSweepCompletenessConfirmation(client as never, "candidate-1", {
+      exceptContext: { contextType: "presidential_cycle", contextId: "cycle-1" },
+    });
+    expect(calls[0]!.text).toContain("NOT (context_type = $3 AND context_id = $4)");
+    expect(calls[0]!.values.slice(2)).toEqual(["presidential_cycle", "cycle-1"]);
   });
 });

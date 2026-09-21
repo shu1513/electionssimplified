@@ -44,7 +44,7 @@ import {
   retainSuppliedSweepEvidence,
   sweepEvidenceMissingError,
   sweepEvidenceRequired,
-  upsertSweepConfirmation,
+  writeMergedSweepConfirmation,
   type SweepEvidenceEntry,
   type SweepRoute,
 } from "./candidateRecordSweepEvidence.js";
@@ -1050,6 +1050,7 @@ async function main(): Promise<void> {
       // checkpoint would skip that local day forever (hit live across eight
       // western-timezone writes).
       const researchedThrough = usLatestLocalDateIso();
+      let mergedConfirmation: Awaited<ReturnType<typeof writeMergedSweepConfirmation>> | null = null;
       await markCandidateRecordsSearchCompleted(client, candidateId, researchedThrough, { preserveClaim: true });
       // First evidence-backed routing answer for this candidate: persist it
       // so the next sweep (manual or AI) routes from the database instead of
@@ -1100,9 +1101,12 @@ async function main(): Promise<void> {
           });
         }
       } else if (sweepEvidenceEntries) {
-        await upsertSweepConfirmation(client, {
+        // Merge into the existing ledger and re-check the claims against ALL
+        // active records: an additive batch that is all general-labeled must
+        // not claim only_general_labels for a candidate with stanced records.
+        mergedConfirmation = await writeMergedSweepConfirmation(client, {
           candidateId,
-          confirmedGapIds: assertedSweepCompletenessGapIds({
+          assertedGapIds: assertedSweepCompletenessGapIds({
             recordCount: validatedRecords.records.length,
             confirmedGapIds,
             qualityGapIds: qualityGaps.map((gap) => gap.id),
@@ -1137,6 +1141,10 @@ async function main(): Promise<void> {
               route: sweepRoute,
               persisted: sweepEvidencePersisted,
               persistedHasHeldPublicOffice: persistHasHeldPublicOffice,
+              confirmedGapIds: mergedConfirmation?.confirmedGapIds ?? null,
+              droppedGapIds: mergedConfirmation?.droppedGapIds ?? null,
+              storedEntryCount: mergedConfirmation?.entryCount ?? null,
+              otherContextRowsPruned: mergedConfirmation?.otherContextRowsPruned ?? null,
             },
             plainLanguageWarnings,
             recordsSearchCompletedThrough: researchedThrough,

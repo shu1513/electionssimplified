@@ -41,7 +41,7 @@ import {
   persistHasHeldPublicOfficeAnswer,
   sweepEvidenceMissingError,
   sweepEvidenceRequired,
-  upsertSweepConfirmation,
+  writeMergedSweepConfirmation,
   type SweepEvidenceEntry,
   type SweepRoute,
 } from "./candidateRecordSweepEvidence.js";
@@ -697,17 +697,31 @@ async function main(): Promise<void> {
       // search stamp, so a stale election-context claim could never be dated
       // historical by the audit; drop it here, before the upsert below so a
       // fresh only_general_labels claim is not swept up with the stale ones.
-      // Empty-claim evidence ledgers are untouched.
+      // Empty-claim evidence ledgers are untouched. When this write carries a
+      // ledger, its own context's row is kept: the merge below re-checks its
+      // claims against all active records and keeps its prior evidence.
       if (validatedRecords.records.length > 0) {
-        await deleteSweepCompletenessConfirmation(client, options.candidateId);
+        await deleteSweepCompletenessConfirmation(
+          client,
+          options.candidateId,
+          sweepEvidenceEntries
+            ? {
+                exceptContext: {
+                  contextType: "presidential_cycle",
+                  contextId: options.presidentialCycleId,
+                },
+              }
+            : {}
+        );
       }
       // Persist the validated confirmation so manual:records:audit can
       // separate an evidence-backed sweep (confirmed null OR stance-bearing
       // with an empty claim set) from a skipped one.
+      let mergedConfirmation: Awaited<ReturnType<typeof writeMergedSweepConfirmation>> | null = null;
       if (sweepEvidenceEntries) {
-        await upsertSweepConfirmation(client, {
+        mergedConfirmation = await writeMergedSweepConfirmation(client, {
           candidateId: options.candidateId,
-          confirmedGapIds: assertedSweepCompletenessGapIds({
+          assertedGapIds: assertedSweepCompletenessGapIds({
             recordCount: validatedRecords.records.length,
             confirmedGapIds: options.confirmedGapIds,
             qualityGapIds: qualityGaps.map((gap) => gap.id),
@@ -750,6 +764,10 @@ async function main(): Promise<void> {
               route: sweepRoute,
               persisted: sweepEvidencePersisted,
               persistedHasHeldPublicOffice: persistHasHeldPublicOffice,
+              confirmedGapIds: mergedConfirmation?.confirmedGapIds ?? null,
+              droppedGapIds: mergedConfirmation?.droppedGapIds ?? null,
+              storedEntryCount: mergedConfirmation?.entryCount ?? null,
+              otherContextRowsPruned: mergedConfirmation?.otherContextRowsPruned ?? null,
             },
             plainLanguageWarnings,
           },
