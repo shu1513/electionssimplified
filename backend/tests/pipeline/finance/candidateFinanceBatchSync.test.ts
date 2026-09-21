@@ -70,6 +70,7 @@ describe("candidateFinanceBatchSync", () => {
       25,
       30,
       730,
+      false,
     ]);
   });
 
@@ -92,6 +93,7 @@ describe("candidateFinanceBatchSync", () => {
       25,
       1,
       730,
+      false,
     ]);
   });
 
@@ -179,7 +181,57 @@ describe("candidateFinanceBatchSync", () => {
       2,
       30,
       730,
+      false,
     ]);
+  });
+
+  it("refreshes donor and conduit lists for every candidate in the window, not only the due ones", async () => {
+    const db = createMockDb([
+      {
+        candidate_id: "11111111-1111-4111-8111-111111111111",
+        fec_candidate_id: "S4CA00001",
+        election_year: 2026,
+        source: "candidate_election",
+        last_synced_at: "2026-05-31 00:00:00+00",
+        total_due_rows: "2",
+      },
+      {
+        candidate_id: "22222222-2222-4222-8222-222222222222",
+        fec_candidate_id: "H4CA00002",
+        election_year: 2026,
+        source: "candidate_election",
+        last_synced_at: null,
+        total_due_rows: "2",
+      },
+    ]);
+    const syncCandidateFinanceFn = vi.fn();
+    const contributorResult = { dryRun: false, candidateCount: 1, candidatesWithPacDonors: 1, candidatesWithConduits: 0, results: [] };
+    const syncCandidateFinanceContributorsFn = vi.fn().mockResolvedValue(contributorResult);
+
+    const result = await syncDueCandidateFinance({
+      db,
+      openFecOptions: { apiKeys: [] },
+      now: new Date("2026-06-01T00:00:00.000Z"),
+      contributorsOnly: true,
+      contributorCandidateIds: ["h4ca00002"],
+      bulkDataDirectory: "/tmp/fec-bulk",
+      syncCandidateFinanceFn,
+      syncCandidateFinanceContributorsFn,
+    });
+
+    // No OpenFEC API sync in a contributors-only run.
+    expect(syncCandidateFinanceFn).not.toHaveBeenCalled();
+    // The second listing ignores staleness so recently synced candidates are covered too.
+    expect(db.query.mock.calls[1]?.[1]?.[5]).toBe(true);
+    expect(syncCandidateFinanceContributorsFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targets: [{ fecCandidateId: "H4CA00002", electionYear: 2026 }],
+        bulkDataDirectory: "/tmp/fec-bulk",
+        dryRun: false,
+      })
+    );
+    expect(result.contributors).toEqual(contributorResult);
+    expect(result.results).toEqual([]);
   });
 
   it("rejects invalid batch options before querying", async () => {

@@ -24,10 +24,17 @@ describe("syncDueCandidateFinance script", () => {
         "8",
         "--timeout-ms=5000",
         "--request-interval-ms=3700",
+        "--include-contributors",
+        "--bulk-data-dir=/tmp/fec-bulk",
+        "--contributor-candidate-ids=H4CA00002, S4CA00001",
       ])
     ).toEqual({
       dryRun: true,
       includeOutside: true,
+      includeContributors: true,
+      contributorsOnly: false,
+      bulkDataDirectory: "/tmp/fec-bulk",
+      contributorCandidateIds: ["H4CA00002", "S4CA00001"],
       maxCandidates: 12,
       staleAfterDays: 3,
       electionLookbackDays: 10,

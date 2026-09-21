@@ -1,5 +1,7 @@
 import type {
   FinanceBreakdown,
+  FinanceConduitDonation,
+  FinancePacInterest,
   FinanceOutsideGroup,
   FinanceOutsideIndustrySupport,
   FinanceSummary,
@@ -12,6 +14,7 @@ import {
   formatFinanceCategory,
   formatMoney,
   formatOutsideEvidenceLines,
+  formatPacCount,
   formatSourceHost,
   hasFinanceContent,
   hasOutsideDirectionContent,
@@ -96,6 +99,118 @@ function BreakdownList({
     <div className="mt-3">
       <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</h4>
       <BreakdownRows rows={visible} />
+    </div>
+  );
+}
+
+/**
+ * PAC contributions rolled up by the interest each PAC speaks for. A single
+ * PAC check is capped by law, so the named list is long and flat; the total
+ * per interest is what tells candidates apart. Each row opens to the PACs
+ * behind it, linked to their FEC pages. `rows` is undefined when the list was
+ * not loaded (render nothing) and empty when no PAC gave.
+ */
+function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
+  if (rows === undefined) {
+    return null;
+  }
+  return (
+    <div className="mt-3">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</h4>
+      {rows.length === 0 ? (
+        <p className="mt-1 text-sm text-ink-soft">No PAC donations reported.</p>
+      ) : (
+        <ul className="mt-1 space-y-0.5">
+          {rows.map((row) => (
+            <li key={row.interest} className="text-sm">
+              <details>
+                <summary className="flex cursor-pointer select-none justify-between gap-3 hover:underline">
+                  <span className="text-ink">
+                    {row.interest_name}
+                    <span className="text-xs text-ink-soft"> · {formatPacCount(row.pac_count)}</span>
+                  </span>
+                  <span className="shrink-0 text-ink-soft">{formatMoney(row.amount)}</span>
+                </summary>
+                <ul className="mb-2 ml-3 mt-1 space-y-0.5 border-l border-line pl-3">
+                  {row.pacs.map((pac) => (
+                    <li key={pac.committee_id} className="flex justify-between gap-3 text-xs">
+                      <span className="text-ink-mid">
+                        {pac.source_url ? (
+                          <a href={pac.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            {pac.committee_name}
+                          </a>
+                        ) : (
+                          pac.committee_name
+                        )}
+                      </span>
+                      <span className="shrink-0 text-ink-soft">{formatMoney(pac.amount)}</span>
+                    </li>
+                  ))}
+                  {row.pac_count > row.pacs.length ? (
+                    <li className="text-xs text-ink-soft">and {row.pac_count - row.pacs.length} more</li>
+                  ) : null}
+                </ul>
+              </details>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Groups that individual donors sent their donations through. The group
+ * collects the money and passes it on with the donor's name, so it does not
+ * count against the group's own giving limit. Each row carries a researched
+ * one-line description, because a committee name alone rarely tells a reader
+ * whose interests the group works for. `rows` is undefined when the list was
+ * not loaded (render nothing) and empty when none were reported.
+ */
+function ConduitDonations({ rows }: { rows: FinanceConduitDonation[] | undefined }) {
+  if (rows === undefined) {
+    return null;
+  }
+  return (
+    <div className="mt-3">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+        Donations sent through groups
+      </h4>
+      {rows.length === 0 ? (
+        <p className="mt-1 text-sm text-ink-soft">No donations sent through groups reported.</p>
+      ) : (
+        <ul className="mt-2 space-y-3">
+          {rows.map((row) => (
+            <li key={row.committee_id} className="text-sm">
+              <div className="flex justify-between gap-3">
+                <span className="font-medium text-ink">
+                  {row.source_url ? (
+                    <a href={row.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      {row.committee_name}
+                    </a>
+                  ) : (
+                    row.committee_name
+                  )}
+                </span>
+                <span className="shrink-0 text-ink-soft">{formatMoney(row.amount)}</span>
+              </div>
+              {row.label ? (
+                <p className="mt-1 text-sm text-ink-mid">
+                  {row.label}
+                  {(row.label_source_urls ?? []).map((url) => (
+                    <span key={url} className="text-xs text-ink-soft">
+                      {" · "}
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
+                        {formatSourceHost(url)}
+                      </a>
+                    </span>
+                  ))}
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -406,6 +521,9 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           <BreakdownRows rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])} />
         </details>
       ) : null}
+
+      <PacMoneyByInterest rows={direct.pac_money_by_interest} />
+      <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (
         <div className="mt-3">

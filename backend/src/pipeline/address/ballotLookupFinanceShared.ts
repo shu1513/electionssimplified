@@ -29,6 +29,51 @@ export type BallotLookupFinanceOutsideGroup = {
   label_source_urls?: string[];
 };
 
+/**
+ * Itemized individual contributions the candidate's committee reported as
+ * earmarked through one conduit committee. Payment platforms (conduits that
+ * forward to a very large number of committees and give no money of their
+ * own) are stored but not sent: they process donations for any campaign, so
+ * they say nothing about which groups back a candidate.
+ */
+export type BallotLookupFinanceConduitDonation = {
+  committee_id: string;
+  committee_name: string;
+  amount: number;
+  contribution_count: number;
+  source_url: string | null;
+  /**
+   * Manually researched one-line description of who the group is
+   * (finance_committee_labels, cycle-scoped), attached at read time like the
+   * outside-group labels. Absent until researched.
+   */
+  label?: string;
+  /** Evidence URLs behind `label` — present exactly when `label` is. */
+  label_source_urls?: string[];
+};
+
+/**
+ * What the PACs of one interest reported giving to the candidate in the
+ * cycle. A PAC may give a candidate at most $5,000 per election, so single
+ * PAC checks look alike; the total per interest is what differs between
+ * candidates. `interest` is a slug from the PAC interest taxonomy. Rows are
+ * sorted largest first. Other politicians' PACs, other candidates' campaigns
+ * and PACs nobody has sorted yet are left out.
+ */
+export type BallotLookupFinancePacInterest = {
+  interest: string;
+  interest_name: string;
+  amount: number;
+  pac_count: number;
+  /** The largest PACs of this interest, for the expandable detail. */
+  pacs: {
+    committee_id: string;
+    committee_name: string;
+    amount: number;
+    source_url: string | null;
+  }[];
+};
+
 export type BallotLookupFinanceUnallocatedOutsideEdge = {
   filing_id: string;
   report_date: string;
@@ -142,6 +187,17 @@ export type BallotLookupFinanceSummary = {
     top_employers?: BallotLookupFinanceBreakdown[];
     top_industries: BallotLookupFinanceBreakdown[];
     contribution_size_buckets?: BallotLookupFinanceBreakdown[];
+    /**
+     * The largest conduit groups individual donations were sent through
+     * (FEC only). Absent until the list was loaded for this cycle; an empty
+     * array means none reported.
+     */
+    conduit_donations?: BallotLookupFinanceConduitDonation[];
+    /**
+     * PAC contributions grouped by the interest the PAC speaks for (FEC
+     * only). Absent until the PAC list was loaded for this cycle.
+     */
+    pac_money_by_interest?: BallotLookupFinancePacInterest[];
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders

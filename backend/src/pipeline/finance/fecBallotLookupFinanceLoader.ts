@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCandidateFinanceEnabled } from "../../config/featureFlags.js";
 import type { ElectionContestFamily, ElectionDistrictType, ElectionRaceType } from "../../types/election.js";
+import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName } from "./pacInterestClassifier.js";
 import {
   addFinanceBreakdown,
   buildOutsideIndustrySupportExplanation,
@@ -12,9 +13,11 @@ import {
   parseFinanceAmount,
   parseFinanceCount,
   type BallotLookupFinanceBreakdown,
+  type BallotLookupFinanceConduitDonation,
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 
@@ -55,6 +58,17 @@ function parseStringArray(raw: unknown): string[] {
 
 const GENERIC_FEC_DATA_SOURCE_URL = "https://www.fec.gov/data/";
 const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/independent-expenditures/";
+// The card shows the largest few conduit groups, each with a researched
+// one-line description, so the payload carries no more than that.
+// What the FEC aggregates return when a donor left the field blank or the
+// campaign is still asking for it (matched against the upper-cased label).
+export const FEC_PLACEHOLDER_LABEL_PATTERN =
+  "^(NULL|NONE|N/?A|UNKNOWN|NOT PROVIDED|REFUSED|REQUESTED.*|INFORMATION REQUESTED.*|[.\\-]*)$";
+const MAX_FEC_CONDUIT_ROWS = 5;
+// The card shows the top five of everything; interests are no exception.
+const MAX_PAC_INTEREST_ROWS = 5;
+// PACs named under each interest row's expandable detail.
+const MAX_PACS_PER_INTEREST = 5;
 
 type CandidateFinanceSummaryRequest = {
   candidate_id: string;
@@ -76,6 +90,26 @@ type CandidateFinanceSummaryRow = {
   outside_oppose_total: string | number | null;
   source_url: string | null;
   last_synced_at: string;
+  contributors_synced_at: string | null;
+};
+
+type CandidateFinanceConduitRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  amount: string | number;
+  contribution_count: number;
+  source_url: string | null;
+};
+
+type CandidateFinancePacInterestRow = {
+  candidate_id: string;
+  election_id: string;
+  interest: string | null;
+  amount: string | number;
+  pac_count: number;
+  pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
 };
 
 type CandidateFinanceDirectBreakdownRow = {
@@ -240,11 +274,15 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
         summary.outside_support_total,
         summary.outside_oppose_total,
         summary.source_url,
-        summary.last_synced_at::text AS last_synced_at
+        summary.last_synced_at::text AS last_synced_at,
+        contributor_sync.synced_at::text AS contributors_synced_at
       FROM requested
       JOIN public.candidate_finance_summaries AS summary
         ON summary.fec_candidate_id = requested.fec_candidate_id
        AND summary.election_year = requested.election_year
+      LEFT JOIN public.candidate_finance_contributor_syncs AS contributor_sync
+        ON contributor_sync.fec_candidate_id = summary.fec_candidate_id
+       AND contributor_sync.election_year = summary.election_year
       ORDER BY requested.candidate_id, requested.election_id, summary.last_synced_at DESC, summary.id
     `,
     [JSON.stringify(requests)]
@@ -294,13 +332,16 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
           ON breakdown.fec_candidate_id = selected.fec_candidate_id
          AND breakdown.election_year = selected.election_year
         WHERE breakdown.category_type IN ('occupation', 'employer', 'industry')
+          -- Blank and placeholder answers on the donor form are not occupations
+          -- or employers; drop them before ranking so they cannot take a top slot.
+          AND upper(btrim(breakdown.category_name)) !~ $2
       )
       SELECT candidate_id, election_id, category_type, category_name, amount, contributor_count, source_url
       FROM ranked
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, category_type, amount DESC, category_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
+    [JSON.stringify(selectedRequests), FEC_PLACEHOLDER_LABEL_PATTERN]
   );
 
   const outsideGroupResult = await db.query<CandidateFinanceOutsideGroupRow>(
@@ -488,6 +529,153 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
+  // Only candidates whose list was loaded are queried, so a page with none
+  // pays for no extra round trip.
+  const conduitRequests = summaryResult.rows
+    .filter((row) => row.contributors_synced_at)
+    .map((row) => ({
+      candidate_id: row.candidate_id,
+      election_id: row.election_id,
+      fec_candidate_id: row.fec_candidate_id,
+      election_year: row.election_year,
+    }));
+  const conduitResult =
+    conduitRequests.length > 0
+      ? await db.query<CandidateFinanceConduitRow>(
+          `
+            WITH selected AS (
+              SELECT
+                candidate_id::uuid AS candidate_id,
+                election_id::uuid AS election_id,
+                fec_candidate_id,
+                election_year
+              FROM jsonb_to_recordset($1::jsonb) AS x(
+                candidate_id text,
+                election_id text,
+                fec_candidate_id text,
+                election_year int
+              )
+            ),
+            ranked AS (
+              SELECT
+                selected.candidate_id::text AS candidate_id,
+                selected.election_id::text AS election_id,
+                conduit.committee_id,
+                conduit.committee_name,
+                conduit.amount,
+                conduit.contribution_count,
+                conduit.source_url,
+                row_number() OVER (
+                  PARTITION BY selected.candidate_id, selected.election_id
+                  ORDER BY conduit.amount DESC, conduit.committee_name ASC
+                ) AS rn
+              FROM selected
+              JOIN public.candidate_finance_conduit_totals AS conduit
+                ON conduit.fec_candidate_id = selected.fec_candidate_id
+               AND conduit.election_year = selected.election_year
+              WHERE NOT conduit.is_payment_platform
+            )
+            SELECT candidate_id, election_id, committee_id, committee_name, amount, contribution_count, source_url
+            FROM ranked
+            WHERE rn <= $2::int
+            ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
+          `,
+          [JSON.stringify(conduitRequests), MAX_FEC_CONDUIT_ROWS]
+        )
+      : { rows: [] as CandidateFinanceConduitRow[] };
+
+  const pacInterestResult =
+    conduitRequests.length > 0
+      ? await db.query<CandidateFinancePacInterestRow>(
+          `
+            WITH selected AS (
+              SELECT
+                candidate_id::uuid AS candidate_id,
+                election_id::uuid AS election_id,
+                fec_candidate_id,
+                election_year
+              FROM jsonb_to_recordset($1::jsonb) AS x(
+                candidate_id text,
+                election_id text,
+                fec_candidate_id text,
+                election_year int
+              )
+            ),
+            donors AS (
+              SELECT
+                selected.candidate_id::text AS candidate_id,
+                selected.election_id::text AS election_id,
+                interests.interest_slug AS interest,
+                donor.committee_id,
+                donor.committee_name,
+                donor.amount,
+                donor.source_url,
+                row_number() OVER (
+                  PARTITION BY selected.candidate_id, selected.election_id, interests.interest_slug
+                  ORDER BY donor.amount DESC, donor.committee_name ASC
+                ) AS rn
+              FROM selected
+              JOIN public.candidate_finance_pac_donors AS donor
+                ON donor.fec_candidate_id = selected.fec_candidate_id
+               AND donor.election_year = selected.election_year
+              LEFT JOIN public.finance_pac_interests AS interests
+                ON interests.committee_id = donor.committee_id
+            )
+            SELECT
+              candidate_id,
+              election_id,
+              interest,
+              sum(amount) AS amount,
+              count(*)::int AS pac_count,
+              jsonb_agg(
+                jsonb_build_object(
+                  'committee_id', committee_id,
+                  'committee_name', committee_name,
+                  'amount', amount,
+                  'source_url', source_url
+                ) ORDER BY rn
+              ) FILTER (WHERE rn <= $2::int) AS pacs
+            FROM donors
+            GROUP BY candidate_id, election_id, interest
+            ORDER BY candidate_id, election_id, sum(amount) DESC, interest ASC
+          `,
+          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST]
+        )
+      : { rows: [] as CandidateFinancePacInterestRow[] };
+
+  const pacInterestsByCandidateElection = new Map<string, BallotLookupFinancePacInterest[]>();
+  // Candidates some PAC gave to, listed or not. An empty list means "no PAC
+  // gave" only for candidates outside this set; for the rest the list is
+  // left out, so the card never reports zero when money was given.
+  const candidateElectionsWithPacMoney = new Set<string>();
+  for (const row of pacInterestResult.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    candidateElectionsWithPacMoney.add(key);
+    // Only industries and causes are listed: not other politicians' PACs,
+    // other campaigns, or PACs nobody has sorted yet.
+    if (row.interest === null || (PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(row.interest)) {
+      continue;
+    }
+    const list = pacInterestsByCandidateElection.get(key) ?? [];
+    // Rows arrive largest first, so the first five are the top five.
+    if (list.length >= MAX_PAC_INTEREST_ROWS) {
+      continue;
+    }
+    list.push({
+      interest: row.interest,
+      interest_name: pacInterestDisplayName(row.interest),
+      amount: parseFinanceAmount(row.amount) ?? 0,
+      pac_count: row.pac_count,
+      pacs: (row.pacs ?? []).map((pac) => ({
+        committee_id: pac.committee_id,
+        committee_name: pac.committee_name,
+        amount: parseFinanceAmount(pac.amount) ?? 0,
+        source_url: firstNonEmptySourceUrl(pac.source_url, GENERIC_FEC_DATA_SOURCE_URL),
+      })),
+    });
+    pacInterestsByCandidateElection.set(key, list);
+  }
+
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directEmployersByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
@@ -504,6 +692,20 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     } else {
       addFinanceBreakdown(directIndustriesByCandidateElection, row.candidate_id, row.election_id, mapped);
     }
+  }
+
+  const conduitsByCandidateElection = new Map<string, BallotLookupFinanceConduitDonation[]>();
+  for (const row of conduitResult.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const list = conduitsByCandidateElection.get(key) ?? [];
+    list.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      amount: parseFinanceAmount(row.amount) ?? 0,
+      contribution_count: row.contribution_count,
+      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_FEC_DATA_SOURCE_URL),
+    });
+    conduitsByCandidateElection.set(key, list);
   }
 
   const supportingGroupsByCandidateElection = new Map<string, BallotLookupFinanceOutsideGroup[]>();
@@ -584,6 +786,16 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             top_occupations: topDirectDonorOccupations,
             top_employers: directEmployersByCandidateElection.get(key) ?? [],
             top_industries: directIndustriesByCandidateElection.get(key) ?? [],
+            // Present only once the list was loaded, so an empty list
+            // means "none reported", never "not loaded yet".
+            ...(row.contributors_synced_at
+              ? {
+                  conduit_donations: conduitsByCandidateElection.get(key) ?? [],
+                  ...(pacInterestsByCandidateElection.has(key) || !candidateElectionsWithPacMoney.has(key)
+                    ? { pac_money_by_interest: pacInterestsByCandidateElection.get(key) ?? [] }
+                    : {}),
+                }
+              : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),

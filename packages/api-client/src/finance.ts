@@ -161,6 +161,11 @@ export function hasOutsideFinanceContent(summary: FinanceSummary): boolean {
   );
 }
 
+/** "9 PACs" / "1 PAC" for an interest row. */
+export function formatPacCount(count: number): string {
+  return `${count} ${count === 1 ? "PAC" : "PACs"}`;
+}
+
 /**
  * Whether the cards should render a member-communications block: spending
  * by organizations to their own members about this candidate (disclosed

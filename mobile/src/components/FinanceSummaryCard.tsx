@@ -1,6 +1,8 @@
 import type {
   FinanceBreakdown,
+  FinanceConduitDonation,
   FinanceOutsideGroup,
+  FinancePacInterest,
   FinanceOutsideIndustrySupport,
   FinanceSummary,
   FinanceUnallocatedOutsideEdge,
@@ -12,6 +14,7 @@ import {
   formatFinanceCategory,
   formatMoney,
   formatOutsideEvidenceLines,
+  formatPacCount,
   formatSourceHost,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
@@ -72,6 +75,116 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
           right={formatMoney(row.amount)}
         />
       ))}
+    </View>
+  );
+}
+
+/**
+ * Port of the web card's PacMoneyByInterest: PAC contributions rolled up by
+ * interest, each row opening to the PACs behind it. `rows` is undefined when
+ * the list was not loaded and empty when no PAC gave.
+ */
+function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
+  const [openInterest, setOpenInterest] = useState<string | null>(null);
+  if (rows === undefined) {
+    return null;
+  }
+  return (
+    <View className="mt-3">
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</Text>
+      {rows.length === 0 ? (
+        <Text className="mt-1 text-sm text-ink-soft">No PAC donations reported.</Text>
+      ) : (
+        <View className="mt-1 gap-0.5">
+          {rows.map((row) => (
+            <View key={row.interest}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ expanded: openInterest === row.interest }}
+                onPress={() => setOpenInterest((current) => (current === row.interest ? null : row.interest))}
+                className="flex-row justify-between gap-3"
+              >
+                <Text className="flex-1 text-sm text-ink">
+                  {row.interest_name}
+                  <Text className="text-xs text-ink-soft"> · {formatPacCount(row.pac_count)}</Text>
+                </Text>
+                <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
+              </Pressable>
+              {openInterest === row.interest ? (
+                <View className="mb-2 ml-3 mt-1 gap-0.5 border-l border-line pl-3">
+                  {row.pacs.map((pac) => (
+                    <View key={pac.committee_id} className="flex-row justify-between gap-3">
+                      <Text
+                        className="flex-1 text-xs text-ink-mid"
+                        {...(pac.source_url
+                          ? { accessibilityRole: "link" as const, onPress: () => openExternalUrl(pac.source_url ?? "") }
+                          : {})}
+                      >
+                        {pac.committee_name}
+                      </Text>
+                      <Text className="shrink-0 text-xs text-ink-soft">{formatMoney(pac.amount)}</Text>
+                    </View>
+                  ))}
+                  {row.pac_count > row.pacs.length ? (
+                    <Text className="text-xs text-ink-soft">and {row.pac_count - row.pacs.length} more</Text>
+                  ) : null}
+                </View>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+/**
+ * Port of the web card's ConduitDonations: the largest groups individual
+ * donations were sent through, each with its researched one-line description
+ * and source links. `rows` is undefined when the list was not loaded and
+ * empty when none were reported.
+ */
+function ConduitDonations({ rows }: { rows: FinanceConduitDonation[] | undefined }) {
+  if (rows === undefined) {
+    return null;
+  }
+  return (
+    <View className="mt-3">
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+        Donations sent through groups
+      </Text>
+      {rows.length === 0 ? (
+        <Text className="mt-1 text-sm text-ink-soft">No donations sent through groups reported.</Text>
+      ) : (
+        <View className="mt-2 gap-3">
+          {rows.map((row) => (
+            <View key={row.committee_id}>
+              <View className="flex-row justify-between gap-3">
+                <Text
+                  className="flex-1 text-sm font-medium text-ink"
+                  {...(row.source_url
+                    ? { accessibilityRole: "link" as const, onPress: () => openExternalUrl(row.source_url ?? "") }
+                    : {})}
+                >
+                  {row.committee_name}
+                </Text>
+                <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
+              </View>
+              {row.label ? (
+                <Text className="mt-1 text-sm text-ink-mid">
+                  {row.label}
+                  {(row.label_source_urls ?? []).map((url) => (
+                    <Text key={url} className="text-xs text-ink-soft" onPress={() => openExternalUrl(url)}>
+                      {" · "}
+                      <Text className="underline">{formatSourceHost(url)}</Text>
+                    </Text>
+                  ))}
+                </Text>
+              ) : null}
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -349,6 +462,9 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
         heading="Direct contributions by size"
         rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])}
       />
+
+      <PacMoneyByInterest rows={direct.pac_money_by_interest} />
+      <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (
         <View className="mt-3">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { FinanceSummaryCard, hasFinanceContent } from "./FinanceSummaryCard";
 import { financeSummary, emptyFinanceSummary } from "../test/fixtures";
 
@@ -587,5 +587,109 @@ describe("FinanceSummaryCard", () => {
     expect(screen.getByText("$250,000")).toBeInTheDocument();
     expect(screen.getByText("Direct contributions by size")).toBeInTheDocument();
     expect(screen.getByText(/Source: NYC Campaign Finance Board/)).toBeInTheDocument();
+  });
+
+  // Made-up groups, one from each side of an issue, so neither is singled out.
+  it("lists the groups donations were sent through, each with its description and sources", () => {
+    const summary = financeSummary();
+    summary.direct_campaign.conduit_donations = [
+      {
+        committee_id: "C00000021",
+        committee_name: "CONDUIT GROUP A PAC",
+        amount: 40_000,
+        contribution_count: 12,
+        source_url: "https://www.fec.gov/data/receipts/?contributor_name=C00000021",
+        label: "A group that backs candidates who support stricter gun laws.",
+        label_source_urls: ["https://example.org/about-a"],
+      },
+      {
+        committee_id: "C00000022",
+        committee_name: "CONDUIT GROUP B PAC",
+        amount: 40_000,
+        contribution_count: 9,
+        source_url: "https://www.fec.gov/data/receipts/?contributor_name=C00000022",
+        label: "A group that backs candidates who oppose stricter gun laws.",
+        label_source_urls: ["https://example.org/about-b"],
+      },
+      {
+        committee_id: "C00000023",
+        committee_name: "UNRESEARCHED GROUP PAC",
+        amount: 500,
+        contribution_count: 1,
+        source_url: null,
+      },
+    ];
+    render(<FinanceSummaryCard summary={summary} />);
+
+    const list = screen.getByText("Donations sent through groups").parentElement as HTMLElement;
+    expect(within(list).getByRole("link", { name: "CONDUIT GROUP A PAC" })).toHaveAttribute(
+      "href",
+      "https://www.fec.gov/data/receipts/?contributor_name=C00000021"
+    );
+    expect(within(list).getByText(/backs candidates who support stricter gun laws/)).toBeInTheDocument();
+    expect(within(list).getByText(/backs candidates who oppose stricter gun laws/)).toBeInTheDocument();
+    expect(within(list).getAllByRole("link", { name: "example.org" })).toHaveLength(2);
+    expect(within(list).getByText("UNRESEARCHED GROUP PAC")).toBeInTheDocument();
+    expect(within(list).getByText("$500")).toBeInTheDocument();
+  });
+
+  it("says so in one line when none were reported, and nothing when the list was not loaded", () => {
+    const loaded = financeSummary();
+    loaded.direct_campaign.conduit_donations = [];
+    const { rerender } = render(<FinanceSummaryCard summary={loaded} />);
+    expect(screen.getByText("No donations sent through groups reported.")).toBeInTheDocument();
+
+    // State sources and unsynced federal candidates send no list at all.
+    rerender(<FinanceSummaryCard summary={financeSummary()} />);
+    expect(screen.queryByText("Donations sent through groups")).not.toBeInTheDocument();
+  });
+
+  it("rolls PAC money up by interest and opens a row to the PACs behind it", () => {
+    const interest = (slug: string, name: string, amount: number, pacCount: number) => ({
+      interest: slug,
+      interest_name: name,
+      amount,
+      pac_count: pacCount,
+      pacs: [
+        {
+          committee_id: `C-${slug}`,
+          committee_name: `${name.toUpperCase()} EXAMPLE PAC`,
+          amount: Math.min(amount, 10_000),
+          source_url: `https://www.fec.gov/data/disbursements/?committee_id=C-${slug}`,
+        },
+      ],
+    });
+    const summary = financeSummary();
+    summary.direct_campaign.pac_money_by_interest = [
+      interest("labor_unions", "Labor unions", 62_000, 9),
+      interest("oil_gas_energy", "Oil, gas, and energy", 40_000, 6),
+      interest("gun_rights", "Gun rights groups and gun makers", 9_900, 1),
+      interest("gun_control", "Gun control groups", 9_900, 1),
+      interest("healthcare", "Healthcare", 8_000, 2),
+    ];
+    render(<FinanceSummaryCard summary={summary} />);
+
+    const list = screen.getByText("PAC money by interest").parentElement as HTMLElement;
+    expect(within(list).getByText("$62,000")).toBeInTheDocument();
+    expect(within(list).getByText(/· 9 PACs/)).toBeInTheDocument();
+    expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(2);
+    // Largest interest first.
+    expect(within(list).getAllByRole("group")[0]).toHaveTextContent("Labor unions");
+    expect(within(list).getByRole("link", { name: "LABOR UNIONS EXAMPLE PAC" })).toHaveAttribute(
+      "href",
+      "https://www.fec.gov/data/disbursements/?committee_id=C-labor_unions"
+    );
+    expect(within(list).getByText("and 8 more")).toBeInTheDocument();
+    // The backend sends the top five; the card adds no "show all".
+    expect(within(list).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("says so when no PAC gave, and shows nothing when the PAC list was not loaded", () => {
+    const loaded = financeSummary();
+    loaded.direct_campaign.pac_money_by_interest = [];
+    const { rerender } = render(<FinanceSummaryCard summary={loaded} />);
+    expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
+    rerender(<FinanceSummaryCard summary={financeSummary()} />);
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
   });
 });
