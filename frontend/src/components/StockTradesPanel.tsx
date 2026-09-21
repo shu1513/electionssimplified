@@ -1,15 +1,18 @@
 import {
   formatElectionDate,
   STOCK_TRADES_SOURCE_LABELS,
-  stockTradeAssetLine,
+  STOCK_TRADES_SIZE_NOTE,
+  stockTradeAssetActivityLine,
+  stockTradeAssetSizeLine,
   stockTradesPaperNote,
   stockTradesSummaryLine,
   type StockTradesSummary,
 } from "@voteapp/api-client";
 
 // Securities trades a member of Congress or federal candidate reported in
-// Periodic Transaction Reports. The panel gives the totals and the assets
-// traded most, then links the official filings, which hold every trade.
+// Periodic Transaction Reports. The panel says how many trades, which assets
+// held the most money and how each was bought and sold, then links the
+// official filings, which hold every trade.
 // Single trades are not listed: some filers report hundreds a year.
 export function StockTradesPanel({ summary }: { summary: StockTradesSummary }) {
   const paperNote = stockTradesPaperNote(summary);
@@ -35,7 +38,9 @@ export function StockTradesPanel({ summary }: { summary: StockTradesSummary }) {
                       {asset.ticker ? <span className="font-semibold">{asset.ticker} </span> : null}
                       <span className={asset.ticker ? "text-ink-soft" : "font-medium"}>{asset.asset_name}</span>
                     </div>
-                    <div className="text-xs text-ink-soft tabular-nums">{stockTradeAssetLine(asset)}</div>
+                    <div className="text-xs text-ink-soft">
+                      {stockTradeAssetActivityLine(asset)} {stockTradeAssetSizeLine(asset)}
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -43,7 +48,7 @@ export function StockTradesPanel({ summary }: { summary: StockTradesSummary }) {
           ) : null}
 
           <p className="mt-3 text-xs text-ink-soft">
-            {summary.trade_count > 0 ? "Amounts add up the dollar ranges given in the reports. " : ""}
+            {summary.trade_count > 0 ? `${STOCK_TRADES_SIZE_NOTE} ` : ""}
             {paperNote ? `${paperNote} ` : ""}
             Source:{" "}
             {summary.filing_count > 0

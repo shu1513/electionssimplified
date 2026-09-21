@@ -5,7 +5,9 @@ import {
   apiRequest,
   formatElectionDate,
   STOCK_TRADES_SOURCE_LABELS,
-  stockTradeAssetLine,
+  STOCK_TRADES_SIZE_NOTE,
+  stockTradeAssetActivityLine,
+  stockTradeAssetSizeLine,
   stockTradesPaperNote,
   stockTradesSummaryLine,
   type CandidateStockTradesResponse,
@@ -57,14 +59,16 @@ export function StockTradesSection({ candidateId }: { candidateId: string }) {
                     {asset.ticker ? <Text className="font-semibold text-ink">{asset.ticker} </Text> : null}
                     <Text className={asset.ticker ? "" : "font-medium text-ink"}>{asset.asset_name}</Text>
                   </Text>
-                  <Text className="text-xs text-ink-soft">{stockTradeAssetLine(asset)}</Text>
+                  <Text className="text-xs text-ink-soft">
+                    {stockTradeAssetActivityLine(asset)} {stockTradeAssetSizeLine(asset)}
+                  </Text>
                 </View>
               ))}
             </View>
           ) : null}
 
           <Text className="mt-3 text-xs text-ink-soft">
-            {summary.trade_count > 0 ? "Amounts add up the dollar ranges given in the reports. " : ""}
+            {summary.trade_count > 0 ? `${STOCK_TRADES_SIZE_NOTE} ` : ""}
             {paperNote ? `${paperNote} ` : ""}
             Source:{" "}
             {summary.filing_count > 0

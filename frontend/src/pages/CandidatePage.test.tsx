@@ -562,17 +562,18 @@ describe("CandidatePage", () => {
         checked_through: "2026-09-20",
         trade_count: 3,
         since_year: 2025,
-        amount_low_total: 3003,
-        amount_high_total: 45000,
-        amount_high_is_minimum: false,
+        largest_asset_name: null,
         top_assets: [
           {
-            asset_name: "Rollins, Inc. Common Stock",
+            asset_name: "Rollins, Inc.",
             ticker: "ROL",
-            trade_count: 3,
-            amount_low_total: 3003,
-            amount_high_total: 45000,
-            amount_high_is_minimum: false,
+            buy_count: 2,
+            sell_count: 1,
+            exchange_count: 0,
+            trade_low_min: 1001,
+            trade_high_max: 15000,
+            trade_high_is_minimum: false,
+            all_same_band: true,
           },
         ],
         filing_count: 2,
@@ -589,10 +590,11 @@ describe("CandidatePage", () => {
     expect(details).toBeTruthy();
     expect(details!.open).toBe(false);
     // Collapsed, not absent.
-    expect(screen.getByText("Reported 3 stock trades since 2025, worth between $3,003 and $45,000.")).toBeInTheDocument();
+    expect(screen.getByText("Reported 3 stock trades since 2025.")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Most traded" })).toBeInTheDocument();
     expect(screen.getByText("ROL")).toBeInTheDocument();
-    expect(screen.getByText("3 trades · $3,003 to $45,000")).toBeInTheDocument();
+    expect(screen.getByText("Bought 2 times, sold once. Each trade was $1,001 – $15,000.")).toBeInTheDocument();
+    expect(screen.getByText(/Reports give the size of each trade, not profit or loss\./)).toBeInTheDocument();
     // No single trades are listed; the filings are the source.
     expect(screen.getByRole("link", { name: "Latest report (January 16, 2025)" })).toHaveAttribute(
       "href",

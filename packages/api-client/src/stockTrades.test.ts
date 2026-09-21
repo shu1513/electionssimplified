@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatStockTradeTotal,
-  stockTradeAssetLine,
+  formatStockTradeAmount,
+  stockTradeAssetActivityLine,
+  stockTradeAssetSizeLine,
   stockTradesPaperNote,
   stockTradesSummaryLine,
+  type StockTradeAsset,
   type StockTradesSummary,
 } from "./stockTrades";
 
@@ -12,43 +14,47 @@ function summary(overrides: Partial<StockTradesSummary> = {}): StockTradesSummar
   return {
     chambers: ["house"],
     checked_through: "2026-09-20",
-    trade_count: 47,
-    since_year: 2023,
-    amount_low_total: 1_234_047,
-    amount_high_total: 4_560_000,
-    amount_high_is_minimum: false,
+    trade_count: 1712,
+    since_year: 2022,
+    largest_asset_name: "Microsoft Corporation",
     top_assets: [],
-    filing_count: 9,
+    filing_count: 45,
     latest_filing: { source_url: "https://example.gov/9.pdf", filing_date: "2026-08-20" },
     unread_filing_count: 0,
     ...overrides,
   };
 }
 
+function asset(overrides: Partial<StockTradeAsset> = {}): StockTradeAsset {
+  return {
+    asset_name: "Eli Lilly and Company",
+    ticker: "LLY",
+    buy_count: 13,
+    sell_count: 24,
+    exchange_count: 0,
+    trade_low_min: 1001,
+    trade_high_max: 15000,
+    trade_high_is_minimum: false,
+    all_same_band: true,
+    ...overrides,
+  };
+}
+
 describe("stockTradesSummaryLine", () => {
-  it("states the count, the first year and the summed range", () => {
+  it("states the count, the first year and where the most money was", () => {
     expect(stockTradesSummaryLine(summary())).toBe(
-      "Reported 47 stock trades since 2023, worth between $1.2 million and $4.5 million."
+      "Reported 1,712 stock trades since 2022. The most money was in Microsoft Corporation."
     );
   });
 
-  it("uses the singular and full dollars under a million", () => {
-    expect(
-      stockTradesSummaryLine(summary({ trade_count: 1, since_year: 2025, amount_low_total: 1001, amount_high_total: 15000 }))
-    ).toBe("Reported 1 stock trade since 2025, worth between $1,001 and $15,000.");
-  });
-
-  it("says 'at least' when a range is open-ended, and one figure when both ends agree", () => {
-    expect(stockTradesSummaryLine(summary({ amount_high_is_minimum: true }))).toBe(
-      "Reported 47 stock trades since 2023, worth at least $1.2 million."
-    );
-    expect(stockTradesSummaryLine(summary({ trade_count: 1, amount_low_total: 823, amount_high_total: 823 }))).toBe(
-      "Reported 1 stock trade since 2023, worth $823."
+  it("leaves the second sentence out when no asset clearly leads", () => {
+    expect(stockTradesSummaryLine(summary({ trade_count: 1, since_year: 2025, largest_asset_name: null }))).toBe(
+      "Reported 1 stock trade since 2025."
     );
   });
 
   it("covers a filer with no trades and a filer with only paper reports", () => {
-    const none = summary({ trade_count: 0, since_year: null, amount_low_total: 0, amount_high_total: 0 });
+    const none = summary({ trade_count: 0, since_year: null, largest_asset_name: null });
     expect(stockTradesSummaryLine(none)).toBe("No stock trades reported.");
     expect(stockTradesSummaryLine({ ...none, unread_filing_count: 1 })).toBe(
       "Filed 1 trade report on paper. They are not summarized here."
@@ -56,24 +62,31 @@ describe("stockTradesSummaryLine", () => {
   });
 });
 
-describe("stock trade wording helpers", () => {
-  it("formats totals", () => {
-    expect(formatStockTradeTotal(999_999)).toBe("$999,999");
-    expect(formatStockTradeTotal(1_000_000)).toBe("$1 million");
-    expect(formatStockTradeTotal(2_360_000_000)).toBe("$2.3 billion");
+describe("asset lines", () => {
+  it("says how often the asset was bought and sold", () => {
+    expect(stockTradeAssetActivityLine(asset())).toBe("Bought 13 times, sold 24 times.");
+    expect(stockTradeAssetActivityLine(asset({ buy_count: 0, sell_count: 1 }))).toBe("Sold once.");
+    expect(stockTradeAssetActivityLine(asset({ buy_count: 1, sell_count: 0, exchange_count: 2 }))).toBe(
+      "Bought once, exchanged 2 times."
+    );
   });
 
-  it("describes one asset by trade count and summed range", () => {
+  it("gives one band when every trade shares it, else the span", () => {
+    expect(stockTradeAssetSizeLine(asset())).toBe("Each trade was $1,001 – $15,000.");
+    expect(stockTradeAssetSizeLine(asset({ buy_count: 1, sell_count: 0 }))).toBe("The trade was $1,001 – $15,000.");
+    expect(stockTradeAssetSizeLine(asset({ trade_high_max: 25_000_000, all_same_band: false }))).toBe(
+      "Trades ranged from $1,001 to $25 million."
+    );
     expect(
-      stockTradeAssetLine({
-        asset_name: "Microsoft Corporation - Common Stock",
-        ticker: "MSFT",
-        trade_count: 112,
-        amount_low_total: 71_673_112,
-        amount_high_total: 323_770_000,
-        amount_high_is_minimum: false,
-      })
-    ).toBe("112 trades · $71.6 million to $323.7 million");
+      stockTradeAssetSizeLine(asset({ trade_high_max: 50_000_000, trade_high_is_minimum: true, all_same_band: false }))
+    ).toBe("Trades ranged from $1,001 to over $50 million.");
+    expect(stockTradeAssetSizeLine(asset({ trade_low_min: 823, trade_high_max: 823 }))).toBe("Each trade was $823.");
+  });
+
+  it("formats amounts", () => {
+    expect(formatStockTradeAmount(999_999)).toBe("$999,999");
+    expect(formatStockTradeAmount(1_000_000)).toBe("$1 million");
+    expect(formatStockTradeAmount(2_360_000_000)).toBe("$2.3 billion");
   });
 
   it("notes paper reports only beside read ones", () => {
