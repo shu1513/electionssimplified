@@ -1,12 +1,12 @@
 import type {
   FinanceBreakdown,
+  FinanceConduitDonation,
   FinanceOutsideGroup,
   FinanceOutsideIndustrySupport,
   FinanceSummary,
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
-  VISIBLE_FINANCE_CONTRIBUTOR_ROWS,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -16,11 +16,9 @@ import {
   formatSourceHost,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
-  pacDonorConnectedOrganizationLabel,
   shouldShowDirectCoverageNote,
   sortContributionSizeBuckets,
   spendingExceedsCycleFunds,
-  splitConduitDonations,
 } from "@voteapp/api-client";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
@@ -79,76 +77,53 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
   );
 }
 
-type ContributorRow = {
-  committee_id: string;
-  committee_name: string;
-  amount: number;
-  source_url: string | null;
-  detail: string | null;
-};
-
 /**
- * Port of the web card's ContributorList: top rows, a "Show all" control,
- * each name opening the FEC page the amount comes from. `rows` is undefined
- * when the list was not loaded and empty when none were reported.
+ * Port of the web card's ConduitDonations: the largest groups individual
+ * donations were sent through, each with its researched one-line description
+ * and source links. `rows` is undefined when the list was not loaded and
+ * empty when none were reported.
  */
-function ContributorList({
-  heading,
-  emptyText,
-  rows,
-  totalCount,
-}: {
-  heading: string;
-  emptyText: string | null;
-  rows: ContributorRow[] | undefined;
-  totalCount?: number;
-}) {
-  const [showAll, setShowAll] = useState(false);
-  if (rows === undefined || (rows.length === 0 && emptyText === null)) {
+function ConduitDonations({ rows }: { rows: FinanceConduitDonation[] | undefined }) {
+  if (rows === undefined) {
     return null;
   }
-  const visible = showAll ? rows : rows.slice(0, VISIBLE_FINANCE_CONTRIBUTOR_ROWS);
-  const fullCount = Math.max(totalCount ?? rows.length, rows.length);
   return (
     <View className="mt-3">
-      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</Text>
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+        Donations sent through groups
+      </Text>
       {rows.length === 0 ? (
-        <Text className="mt-1 text-sm text-ink-soft">{emptyText}</Text>
+        <Text className="mt-1 text-sm text-ink-soft">No donations sent through groups reported.</Text>
       ) : (
-        <View className="mt-1 gap-0.5">
-          {visible.map((row) => (
-            <View key={row.committee_id} className="flex-row justify-between gap-3">
-              <View className="flex-1">
-                {row.source_url ? (
-                  <Text
-                    className="text-sm text-ink"
-                    accessibilityRole="link"
-                    onPress={() => openExternalUrl(row.source_url ?? "")}
-                  >
-                    {row.committee_name}
-                  </Text>
-                ) : (
-                  <Text className="text-sm text-ink">{row.committee_name}</Text>
-                )}
-                {row.detail ? <Text className="text-xs text-ink-soft">{row.detail}</Text> : null}
+        <View className="mt-2 gap-3">
+          {rows.map((row) => (
+            <View key={row.committee_id}>
+              <View className="flex-row justify-between gap-3">
+                <Text
+                  className="flex-1 text-sm font-medium text-ink"
+                  {...(row.source_url
+                    ? { accessibilityRole: "link" as const, onPress: () => openExternalUrl(row.source_url ?? "") }
+                    : {})}
+                >
+                  {row.committee_name}
+                </Text>
+                <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
               </View>
-              <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
+              {row.label ? (
+                <Text className="mt-1 text-sm text-ink-mid">
+                  {row.label}
+                  {(row.label_source_urls ?? []).map((url) => (
+                    <Text key={url} className="text-xs text-ink-soft" onPress={() => openExternalUrl(url)}>
+                      {" · "}
+                      <Text className="underline">{formatSourceHost(url)}</Text>
+                    </Text>
+                  ))}
+                </Text>
+              ) : null}
             </View>
           ))}
         </View>
       )}
-      {rows.length > VISIBLE_FINANCE_CONTRIBUTOR_ROWS ? (
-        <Pressable accessibilityRole="button" onPress={() => setShowAll((current) => !current)}>
-          <Text className="mt-1 text-xs text-ink-soft underline">
-            {showAll ? "Show fewer" : `Show all (${fullCount})`}
-          </Text>
-        </Pressable>
-      ) : null}
-      {showAll && fullCount > rows.length ? (
-        <Text className="mt-1 text-xs text-ink-soft">
-          Showing the top {rows.length} of {fullCount}.
-        </Text>
-      ) : null}
     </View>
   );
 }
@@ -378,16 +353,6 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
       ? summary.backing_summary.top_outside_supporting_industries
       : outside.top_supporting_industries;
 
-  const pacDonorRows = direct.pac_donors?.map((donor) => ({
-    ...donor,
-    detail: pacDonorConnectedOrganizationLabel(donor),
-  }));
-  const conduits = direct.conduit_donations ? splitConduitDonations(direct.conduit_donations) : undefined;
-  const toConduitRow = (row: { committee_id: string; committee_name: string; amount: number; source_url: string | null }) => ({
-    ...row,
-    detail: null,
-  });
-
   return (
     <View>
       <Text className="text-xs text-ink-soft">
@@ -437,23 +402,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
         rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])}
       />
 
-      <ContributorList
-        heading="Top PAC donors"
-        emptyText="No PAC donations reported."
-        rows={pacDonorRows}
-        totalCount={direct.pac_donor_count}
-      />
-      <ContributorList
-        heading="Donations sent through groups"
-        emptyText={conduits && conduits.platforms.length > 0 ? null : "No donations sent through groups reported."}
-        rows={conduits?.groups.map(toConduitRow)}
-        totalCount={conduits && conduits.platforms.length === 0 ? direct.conduit_donation_count : undefined}
-      />
-      <ContributorList
-        heading="Donations sent through online payment platforms"
-        emptyText={null}
-        rows={conduits?.platforms.map(toConduitRow)}
-      />
+      <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (
         <View className="mt-3">

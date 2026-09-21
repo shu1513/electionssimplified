@@ -26,7 +26,8 @@ export function committeeLabelKey(source: string, committeeId: string, cycle: nu
 
 /**
  * Attaches manually researched committee labels (finance_committee_labels)
- * to the outside-spending group rows of already-built finance summaries.
+ * to the outside-spending group rows and the conduit group rows of
+ * already-built finance summaries.
  * Mutates the summaries in place: matching groups gain `label` plus the
  * `label_source_urls` evidence behind it.
  *
@@ -35,6 +36,17 @@ export function committeeLabelKey(source: string, committeeId: string, cycle: nu
  * yet applied) or any query failure degrades to unlabeled groups instead of
  * failing the lookup. Issues no query when the summaries carry no groups.
  */
+/** Every row of a summary that can carry a researched committee label. */
+export function labelableFinanceCommittees(
+  summary: BallotLookupFinanceSummary
+): { committee_id: string; label?: string; label_source_urls?: string[] }[] {
+  return [
+    ...summary.outside_spending.top_supporting_groups,
+    ...summary.outside_spending.top_opposing_groups,
+    ...(summary.direct_campaign.conduit_donations ?? []),
+  ];
+}
+
 export async function applyFinanceCommitteeLabels(
   db: Queryable,
   summaries: Iterable<BallotLookupFinanceSummary | null | undefined>
@@ -47,10 +59,7 @@ export async function applyFinanceCommitteeLabels(
   const cycles: number[] = [];
   const seen = new Set<string>();
   for (const summary of summaryList) {
-    for (const group of [
-      ...summary.outside_spending.top_supporting_groups,
-      ...summary.outside_spending.top_opposing_groups,
-    ]) {
+    for (const group of labelableFinanceCommittees(summary)) {
       const key = committeeLabelKey(summary.source, group.committee_id, summary.cycle);
       if (!seen.has(key)) {
         seen.add(key);
@@ -89,10 +98,7 @@ export async function applyFinanceCommitteeLabels(
   }
 
   for (const summary of summaryList) {
-    for (const group of [
-      ...summary.outside_spending.top_supporting_groups,
-      ...summary.outside_spending.top_opposing_groups,
-    ]) {
+    for (const group of labelableFinanceCommittees(summary)) {
       const row = labelByKey.get(committeeLabelKey(summary.source, group.committee_id, summary.cycle));
       if (row !== undefined) {
         group.label = row.label;

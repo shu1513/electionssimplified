@@ -305,27 +305,19 @@ export type FinanceOutsideIndustryEvidence = {
   source_url: string | null;
 };
 
-// Mirrors BallotLookupFinancePacDonor (backend): a committee that reported
-// contributions to the candidate in the cycle, net of reported refunds.
-export type FinancePacDonor = {
-  committee_id: string;
-  committee_name: string;
-  connected_organization: string | null;
-  amount: number;
-  contribution_count: number;
-  source_url: string | null;
-};
-
 // Mirrors BallotLookupFinanceConduitDonation (backend): itemized individual
-// contributions the candidate's committee reported as earmarked through one
-// conduit committee. Payment platforms are listed apart from other conduits.
+// donations the candidate's committee reported as sent through one group.
 export type FinanceConduitDonation = {
   committee_id: string;
   committee_name: string;
-  is_payment_platform: boolean;
   amount: number;
   contribution_count: number;
   source_url: string | null;
+  /** Researched one-line description of who the group is; absent until
+   * researched for this summary's cycle (finance_committee_labels). */
+  label?: string;
+  /** Evidence URLs behind `label` — present exactly when `label` is. */
+  label_source_urls?: string[];
 };
 
 export type FinanceUnallocatedOutsideEdge = {
@@ -368,12 +360,9 @@ export type FinanceSummary = {
     top_employers?: FinanceBreakdown[];
     top_industries: FinanceBreakdown[];
     contribution_size_buckets?: FinanceBreakdown[];
-    /** FEC only. Absent until the lists were loaded; empty means none
-     * reported. Arrays are capped; the counts give the full row totals. */
-    pac_donors?: FinancePacDonor[];
-    pac_donor_count?: number;
+    /** FEC only: the largest groups individual donations were sent through.
+     * Absent until the list was loaded; empty means none reported. */
     conduit_donations?: FinanceConduitDonation[];
-    conduit_donation_count?: number;
     direct_coverage_note?: string | null;
   };
   outside_spending: {

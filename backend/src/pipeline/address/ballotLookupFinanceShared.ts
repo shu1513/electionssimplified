@@ -30,32 +30,26 @@ export type BallotLookupFinanceOutsideGroup = {
 };
 
 /**
- * A committee that reported contributions to the candidate in the cycle (FEC
- * bulk committee-to-candidate file). `amount` is net of refunds the committee
- * reported; `contribution_count` counts the positive entries.
- */
-export type BallotLookupFinancePacDonor = {
-  committee_id: string;
-  committee_name: string;
-  connected_organization: string | null;
-  amount: number;
-  contribution_count: number;
-  source_url: string | null;
-};
-
-/**
  * Itemized individual contributions the candidate's committee reported as
- * earmarked through one conduit committee. `is_payment_platform` marks
- * conduits that forward to a very large number of committees and give no
- * money of their own; the card lists those apart.
+ * earmarked through one conduit committee. Payment platforms (conduits that
+ * forward to a very large number of committees and give no money of their
+ * own) are stored but not sent: they process donations for any campaign, so
+ * they say nothing about which groups back a candidate.
  */
 export type BallotLookupFinanceConduitDonation = {
   committee_id: string;
   committee_name: string;
-  is_payment_platform: boolean;
   amount: number;
   contribution_count: number;
   source_url: string | null;
+  /**
+   * Manually researched one-line description of who the group is
+   * (finance_committee_labels, cycle-scoped), attached at read time like the
+   * outside-group labels. Absent until researched.
+   */
+  label?: string;
+  /** Evidence URLs behind `label` — present exactly when `label` is. */
+  label_source_urls?: string[];
 };
 
 export type BallotLookupFinanceUnallocatedOutsideEdge = {
@@ -172,14 +166,11 @@ export type BallotLookupFinanceSummary = {
     top_industries: BallotLookupFinanceBreakdown[];
     contribution_size_buckets?: BallotLookupFinanceBreakdown[];
     /**
-     * Named committee donors and conduit totals (FEC only). Absent until the
-     * lists were loaded for this cycle; an empty array means none reported.
-     * The arrays are capped; the counts give the full number of rows.
+     * The largest conduit groups individual donations were sent through
+     * (FEC only). Absent until the list was loaded for this cycle; an empty
+     * array means none reported.
      */
-    pac_donors?: BallotLookupFinancePacDonor[];
-    pac_donor_count?: number;
     conduit_donations?: BallotLookupFinanceConduitDonation[];
-    conduit_donation_count?: number;
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders

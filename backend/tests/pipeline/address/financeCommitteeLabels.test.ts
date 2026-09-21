@@ -124,4 +124,33 @@ describe("applyFinanceCommitteeLabels", () => {
     expect(warn).toHaveBeenCalledTimes(1);
     warn.mockRestore();
   });
+
+  it("labels conduit groups the same way as outside groups", async () => {
+    const target = summary({ source: "FEC" });
+    target.outside_spending.top_supporting_groups = [];
+    target.direct_campaign.conduit_donations = [
+      { committee_id: "C00000021", committee_name: "CONDUIT GROUP A PAC", amount: 40000, contribution_count: 12, source_url: null },
+      { committee_id: "C00000022", committee_name: "CONDUIT GROUP B PAC", amount: 40000, contribution_count: 9, source_url: null },
+    ];
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          source: "FEC",
+          committee_id: "C00000021",
+          cycle: 2026,
+          label: "A group that backs candidates who support stricter gun laws.",
+          source_urls: ["https://example.org/about-a"],
+        },
+      ],
+    });
+
+    await applyFinanceCommitteeLabels({ query }, [target]);
+
+    expect(query.mock.calls[0]?.[1]).toEqual([["FEC", "FEC"], ["C00000021", "C00000022"], [2026, 2026]]);
+    expect(target.direct_campaign.conduit_donations?.[0]).toMatchObject({
+      label: "A group that backs candidates who support stricter gun laws.",
+      label_source_urls: ["https://example.org/about-a"],
+    });
+    expect(target.direct_campaign.conduit_donations?.[1]).not.toHaveProperty("label");
+  });
 });

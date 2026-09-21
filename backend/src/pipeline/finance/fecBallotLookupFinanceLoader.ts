@@ -16,7 +16,6 @@ import {
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
-  type BallotLookupFinancePacDonor,
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 
@@ -57,9 +56,9 @@ function parseStringArray(raw: unknown): string[] {
 
 const GENERIC_FEC_DATA_SOURCE_URL = "https://www.fec.gov/data/";
 const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/independent-expenditures/";
-// The payload carries at most this many committee donors and conduits per
-// candidate; the full counts ride along so the card can say how many exist.
-const MAX_FEC_CONTRIBUTOR_ROWS = 50;
+// The card shows the largest few conduit groups, each with a researched
+// one-line description, so the payload carries no more than that.
+const MAX_FEC_CONDUIT_ROWS = 5;
 
 type CandidateFinanceSummaryRequest = {
   candidate_id: string;
@@ -84,17 +83,14 @@ type CandidateFinanceSummaryRow = {
   contributors_synced_at: string | null;
 };
 
-type CandidateFinanceContributorRow = {
+type CandidateFinanceConduitRow = {
   candidate_id: string;
   election_id: string;
   committee_id: string;
   committee_name: string;
-  connected_organization?: string | null;
-  is_payment_platform?: boolean;
   amount: string | number;
   contribution_count: number;
   source_url: string | null;
-  total_rows: string | number;
 };
 
 type CandidateFinanceDirectBreakdownRow = {
@@ -508,49 +504,9 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
-  const contributorQuery = (table: string, extraColumn: string): string => `
-      WITH selected AS (
-        SELECT
-          candidate_id::uuid AS candidate_id,
-          election_id::uuid AS election_id,
-          fec_candidate_id,
-          election_year
-        FROM jsonb_to_recordset($1::jsonb) AS x(
-          candidate_id text,
-          election_id text,
-          fec_candidate_id text,
-          election_year int
-        )
-      ),
-      ranked AS (
-        SELECT
-          selected.candidate_id::text AS candidate_id,
-          selected.election_id::text AS election_id,
-          contributor.committee_id,
-          contributor.committee_name,
-          contributor.${extraColumn},
-          contributor.amount,
-          contributor.contribution_count,
-          contributor.source_url,
-          count(*) OVER (PARTITION BY selected.candidate_id, selected.election_id) AS total_rows,
-          row_number() OVER (
-            PARTITION BY selected.candidate_id, selected.election_id
-            ORDER BY contributor.amount DESC, contributor.committee_name ASC
-          ) AS rn
-        FROM selected
-        JOIN public.${table} AS contributor
-          ON contributor.fec_candidate_id = selected.fec_candidate_id
-         AND contributor.election_year = selected.election_year
-      )
-      SELECT candidate_id, election_id, committee_id, committee_name, ${extraColumn},
-        amount, contribution_count, source_url, total_rows
-      FROM ranked
-      WHERE rn <= $2::int
-      ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
-    `;
-  // Only candidates whose lists were loaded are queried, so a page with none
-  // pays for no extra round trips.
-  const contributorRequests = summaryResult.rows
+  // Only candidates whose list was loaded are queried, so a page with none
+  // pays for no extra round trip.
+  const conduitRequests = summaryResult.rows
     .filter((row) => row.contributors_synced_at)
     .map((row) => ({
       candidate_id: row.candidate_id,
@@ -558,21 +514,50 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
       fec_candidate_id: row.fec_candidate_id,
       election_year: row.election_year,
     }));
-  const emptyContributorResult = { rows: [] as CandidateFinanceContributorRow[] };
-  const pacDonorResult =
-    contributorRequests.length > 0
-      ? await db.query<CandidateFinanceContributorRow>(
-          contributorQuery("candidate_finance_pac_donors", "connected_organization"),
-          [JSON.stringify(contributorRequests), MAX_FEC_CONTRIBUTOR_ROWS]
-        )
-      : emptyContributorResult;
   const conduitResult =
-    contributorRequests.length > 0
-      ? await db.query<CandidateFinanceContributorRow>(
-          contributorQuery("candidate_finance_conduit_totals", "is_payment_platform"),
-          [JSON.stringify(contributorRequests), MAX_FEC_CONTRIBUTOR_ROWS]
+    conduitRequests.length > 0
+      ? await db.query<CandidateFinanceConduitRow>(
+          `
+            WITH selected AS (
+              SELECT
+                candidate_id::uuid AS candidate_id,
+                election_id::uuid AS election_id,
+                fec_candidate_id,
+                election_year
+              FROM jsonb_to_recordset($1::jsonb) AS x(
+                candidate_id text,
+                election_id text,
+                fec_candidate_id text,
+                election_year int
+              )
+            ),
+            ranked AS (
+              SELECT
+                selected.candidate_id::text AS candidate_id,
+                selected.election_id::text AS election_id,
+                conduit.committee_id,
+                conduit.committee_name,
+                conduit.amount,
+                conduit.contribution_count,
+                conduit.source_url,
+                row_number() OVER (
+                  PARTITION BY selected.candidate_id, selected.election_id
+                  ORDER BY conduit.amount DESC, conduit.committee_name ASC
+                ) AS rn
+              FROM selected
+              JOIN public.candidate_finance_conduit_totals AS conduit
+                ON conduit.fec_candidate_id = selected.fec_candidate_id
+               AND conduit.election_year = selected.election_year
+              WHERE NOT conduit.is_payment_platform
+            )
+            SELECT candidate_id, election_id, committee_id, committee_name, amount, contribution_count, source_url
+            FROM ranked
+            WHERE rn <= $2::int
+            ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
+          `,
+          [JSON.stringify(conduitRequests), MAX_FEC_CONDUIT_ROWS]
         )
-      : emptyContributorResult;
+      : { rows: [] as CandidateFinanceConduitRow[] };
 
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directEmployersByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
@@ -592,33 +577,18 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
     }
   }
 
-  const pacDonorsByCandidateElection = new Map<string, { count: number; rows: BallotLookupFinancePacDonor[] }>();
-  for (const row of pacDonorResult.rows) {
-    const key = candidateElectionKey(row.candidate_id, row.election_id);
-    const entry = pacDonorsByCandidateElection.get(key) ?? { count: parseFinanceCount(row.total_rows) ?? 0, rows: [] };
-    entry.rows.push({
-      committee_id: row.committee_id,
-      committee_name: row.committee_name,
-      connected_organization: row.connected_organization ?? null,
-      amount: parseFinanceAmount(row.amount) ?? 0,
-      contribution_count: row.contribution_count,
-      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_FEC_DATA_SOURCE_URL),
-    });
-    pacDonorsByCandidateElection.set(key, entry);
-  }
-  const conduitsByCandidateElection = new Map<string, { count: number; rows: BallotLookupFinanceConduitDonation[] }>();
+  const conduitsByCandidateElection = new Map<string, BallotLookupFinanceConduitDonation[]>();
   for (const row of conduitResult.rows) {
     const key = candidateElectionKey(row.candidate_id, row.election_id);
-    const entry = conduitsByCandidateElection.get(key) ?? { count: parseFinanceCount(row.total_rows) ?? 0, rows: [] };
-    entry.rows.push({
+    const list = conduitsByCandidateElection.get(key) ?? [];
+    list.push({
       committee_id: row.committee_id,
       committee_name: row.committee_name,
-      is_payment_platform: row.is_payment_platform === true,
       amount: parseFinanceAmount(row.amount) ?? 0,
       contribution_count: row.contribution_count,
       source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_FEC_DATA_SOURCE_URL),
     });
-    conduitsByCandidateElection.set(key, entry);
+    conduitsByCandidateElection.set(key, list);
   }
 
   const supportingGroupsByCandidateElection = new Map<string, BallotLookupFinanceOutsideGroup[]>();
@@ -699,15 +669,10 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             top_occupations: topDirectDonorOccupations,
             top_employers: directEmployersByCandidateElection.get(key) ?? [],
             top_industries: directIndustriesByCandidateElection.get(key) ?? [],
-            // Present only once the lists were loaded, so an empty list
+            // Present only once the list was loaded, so an empty list
             // means "none reported", never "not loaded yet".
             ...(row.contributors_synced_at
-              ? {
-                  pac_donors: pacDonorsByCandidateElection.get(key)?.rows ?? [],
-                  pac_donor_count: pacDonorsByCandidateElection.get(key)?.count ?? 0,
-                  conduit_donations: conduitsByCandidateElection.get(key)?.rows ?? [],
-                  conduit_donation_count: conduitsByCandidateElection.get(key)?.count ?? 0,
-                }
+              ? { conduit_donations: conduitsByCandidateElection.get(key) ?? [] }
               : {}),
           },
           outside_spending: {

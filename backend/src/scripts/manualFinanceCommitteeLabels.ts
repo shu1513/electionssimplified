@@ -223,6 +223,34 @@ async function collectUpcomingCommittees(
       }
       committees.set(committeeKey, entry);
     }
+    // Conduit groups (individual donations sent through a group) are shown
+    // with the same researched label, so they queue the same way.
+    for (const conduit of summary.direct_campaign.conduit_donations ?? []) {
+      const committeeKey = committeeLabelKey(summary.source, conduit.committee_id, summary.cycle);
+      const entry = committees.get(committeeKey) ?? {
+        source: summary.source,
+        committee_id: conduit.committee_id,
+        cycle: summary.cycle,
+        committee_name: conduit.committee_name,
+        directions: [],
+        total_amount: 0,
+        elections: [],
+      };
+      if (!entry.directions.includes("conduit")) {
+        entry.directions.push("conduit");
+      }
+      entry.total_amount += conduit.amount;
+      if (election && !entry.elections.some((seen) => seen.election_id === election.election_id)) {
+        entry.elections.push({
+          election_id: election.election_id,
+          official_ballot_title: election.official_ballot_title,
+          district_name: election.district_name,
+          election_date: election.election_date,
+          state: election.state,
+        });
+      }
+      committees.set(committeeKey, entry);
+    }
   }
   return committees;
 }
