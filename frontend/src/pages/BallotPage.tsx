@@ -258,7 +258,9 @@ export function BallotPage() {
             </select>
           </label>
         </div>
-        {ballot.isSuccess ? (
+        {/* Not inside the newsroom box: its links all leave the box, and the
+            row is too narrow there to spare the room. */}
+        {ballot.isSuccess && !embedSession ? (
           <HowToVoteControl states={ballot.data.districts.map((district) => district.state)} />
         ) : null}
       </div>

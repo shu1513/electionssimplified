@@ -446,7 +446,7 @@ export function ElectionList({
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
-            <div className="mt-3 space-y-5 box:mt-1 box:space-y-1">
+            <div className="mt-3 space-y-5 box:mt-2 box:space-y-3">
               {splitLevelRuns(group.contested).map((run) => (
                 <ElectionSection
                   key={`${sort}-${run.level}-${run.elections[0].id}`}
@@ -460,7 +460,7 @@ export function ElectionList({
               ))}
             </div>
           ) : votePowerDates.has(group.date) ? (
-            <div className="mt-3 space-y-5 box:mt-1 box:space-y-1">
+            <div className="mt-3 space-y-5 box:mt-2 box:space-y-3">
               {splitVotePowerGroups(group.contested).map((band) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}

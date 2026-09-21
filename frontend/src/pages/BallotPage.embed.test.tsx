@@ -54,6 +54,7 @@ describe("BallotPage inside the newsroom box", () => {
     const section = await screen.findByRole("button", { name: /^Other/ });
     expect(calls[0]).toContain("sort=district_size");
     expect(section).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: /How to vote/ })).not.toBeInTheDocument();
     expect(screen.queryByText("Governor")).not.toBeInTheDocument();
 
     await userEvent.click(section);
