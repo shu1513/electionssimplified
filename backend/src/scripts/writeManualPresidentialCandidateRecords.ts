@@ -41,7 +41,7 @@ import {
   persistHasHeldPublicOfficeAnswer,
   sweepEvidenceMissingError,
   sweepEvidenceRequired,
-  upsertSweepConfirmation,
+  writeMergedSweepConfirmation,
   type SweepEvidenceEntry,
   type SweepRoute,
 } from "./candidateRecordSweepEvidence.js";
@@ -691,23 +691,26 @@ async function main(): Promise<void> {
       if (persistHasHeldPublicOffice !== null) {
         await persistHasHeldPublicOfficeAnswer(client, options.candidateId, persistHasHeldPublicOffice);
       }
-      // A write that establishes records falsifies any earlier completeness
-      // claim (no_records_found / only_general_labels) in ANY context — those
-      // claims are candidate-wide because records are. This writer advances no
-      // search stamp, so a stale election-context claim could never be dated
-      // historical by the audit; drop it here, before the upsert below so a
-      // fresh only_general_labels claim is not swept up with the stale ones.
-      // Empty-claim evidence ledgers are untouched.
-      if (validatedRecords.records.length > 0) {
+      // A ledger-less write that establishes records falsifies any earlier
+      // completeness claim (no_records_found / only_general_labels) in ANY
+      // context — those claims are candidate-wide because records are. This
+      // writer advances no search stamp, so a stale election-context claim
+      // could never be dated historical by the audit; drop it here. A write
+      // that carries a ledger skips this: the merge below prunes only the
+      // claims the whole record set contradicts and keeps every row's
+      // evidence (an only_general_labels claim in another context stays true
+      // when the new records are general-only too).
+      if (validatedRecords.records.length > 0 && !sweepEvidenceEntries) {
         await deleteSweepCompletenessConfirmation(client, options.candidateId);
       }
       // Persist the validated confirmation so manual:records:audit can
       // separate an evidence-backed sweep (confirmed null OR stance-bearing
       // with an empty claim set) from a skipped one.
+      let mergedConfirmation: Awaited<ReturnType<typeof writeMergedSweepConfirmation>> | null = null;
       if (sweepEvidenceEntries) {
-        await upsertSweepConfirmation(client, {
+        mergedConfirmation = await writeMergedSweepConfirmation(client, {
           candidateId: options.candidateId,
-          confirmedGapIds: assertedSweepCompletenessGapIds({
+          assertedGapIds: assertedSweepCompletenessGapIds({
             recordCount: validatedRecords.records.length,
             confirmedGapIds: options.confirmedGapIds,
             qualityGapIds: qualityGaps.map((gap) => gap.id),
@@ -750,6 +753,10 @@ async function main(): Promise<void> {
               route: sweepRoute,
               persisted: sweepEvidencePersisted,
               persistedHasHeldPublicOffice: persistHasHeldPublicOffice,
+              confirmedGapIds: mergedConfirmation?.confirmedGapIds ?? null,
+              droppedGapIds: mergedConfirmation?.droppedGapIds ?? null,
+              storedEntryCount: mergedConfirmation?.entryCount ?? null,
+              otherContextRowsPruned: mergedConfirmation?.otherContextRowsPruned ?? null,
             },
             plainLanguageWarnings,
           },

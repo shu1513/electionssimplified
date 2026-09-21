@@ -23,8 +23,11 @@
  * remains research-derived and unchecked.
  *
  * Validated confirmations are also persisted (candidate_record_sweep_confirmations,
- * one row per candidate, newest sweep wins) so manual:records:audit can tell
+ * one row per candidate and context) so manual:records:audit can tell
  * an evidence-backed confirmed-null candidate apart from a skipped sweep.
+ * A later write MERGES into the row (see writeMergedSweepConfirmation): prior
+ * evidence entries stay, and the completeness claims are re-checked against
+ * the candidate's whole active record set, not just the new batch.
  * A stance-bearing FULL-history sweep that supplies its ledger persists too,
  * with an empty claim set (confirmed_gap_ids = '{}'): "sweep ran with
  * evidence; stance-labeled records found; no completeness claims". Delta
@@ -33,6 +36,8 @@
  */
 
 import type { PoolClient } from "pg";
+
+import { NON_STANCE_RESEARCH_AREA_SLUGS } from "../pipeline/candidates/candidateRecordResearchAreaPolicy.js";
 
 export const SWEEP_EVIDENCE_MIN_ENTRIES = 3;
 
@@ -483,6 +488,220 @@ export async function upsertSweepConfirmation(
       input.contextId,
     ]
   );
+}
+
+export type CandidateRecordSetShape = {
+  /** Active (non-retired) candidate_records rows. */
+  activeRecordCount: number;
+  /** Active records with at least one stance-area (non-general) label. */
+  stanceLabeledRecordCount: number;
+};
+
+/**
+ * Completeness claims describe the candidate's WHOLE record set, but a
+ * writer only sees its own batch. A small additive write whose new rows are
+ * all general-labeled used to store only_general_labels for a candidate with
+ * many stance-labeled records. Keep a claim only when the full active record
+ * set still supports it; other ids pass through untouched.
+ */
+export function claimsSupportedByRecordSet(
+  claims: readonly string[],
+  shape: CandidateRecordSetShape
+): string[] {
+  return claims.filter((id) => {
+    if (id === "candidate_records.no_records_found") {
+      return shape.activeRecordCount === 0;
+    }
+    if (id === "candidate_records.only_general_labels") {
+      return shape.activeRecordCount > 0 && shape.stanceLabeledRecordCount === 0;
+    }
+    return true;
+  });
+}
+
+function normalizeSweepQuestion(question: string): string {
+  return question.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Read a stored ledger back into entries. Tolerant on purpose: a malformed
+ * stored entry is skipped rather than failing the write that merges into it.
+ */
+export function parseStoredSweepEvidenceEntries(evidence: unknown): SweepEvidenceEntry[] {
+  const rawEntries =
+    typeof evidence === "object" && evidence !== null && !Array.isArray(evidence)
+      ? (evidence as Record<string, unknown>).entries
+      : null;
+  if (!Array.isArray(rawEntries)) {
+    return [];
+  }
+  const entries: SweepEvidenceEntry[] = [];
+  for (const row of rawEntries) {
+    if (typeof row !== "object" || row === null || Array.isArray(row)) {
+      continue;
+    }
+    const entry = row as Record<string, unknown>;
+    if (!isNonEmptyString(entry.question) || !isNonEmptyString(entry.finding)) {
+      continue;
+    }
+    entries.push({
+      question: entry.question.trim(),
+      finding: entry.finding.trim(),
+      questionId: typeof entry.question_id === "string" ? entry.question_id : null,
+    });
+  }
+  return entries;
+}
+
+/**
+ * Prior entries keep their place; a new entry for the same question
+ * (case/space-insensitive) replaces the prior answer, and new questions are
+ * appended. Earlier evidence is never dropped by a later, smaller write.
+ */
+export function mergeSweepEvidenceEntries(
+  prior: readonly SweepEvidenceEntry[],
+  next: readonly SweepEvidenceEntry[]
+): SweepEvidenceEntry[] {
+  const merged = [...prior];
+  const indexByQuestion = new Map(merged.map((entry, index) => [normalizeSweepQuestion(entry.question), index]));
+  for (const entry of next) {
+    const key = normalizeSweepQuestion(entry.question);
+    const existing = indexByQuestion.get(key);
+    if (existing === undefined) {
+      indexByQuestion.set(key, merged.length);
+      merged.push(entry);
+    } else {
+      merged[existing] = entry;
+    }
+  }
+  return merged;
+}
+
+export async function loadCandidateRecordSetShape(
+  client: Pick<PoolClient, "query">,
+  candidateId: string
+): Promise<CandidateRecordSetShape> {
+  const result = await client.query<{ active_record_count: string; stance_labeled_record_count: string }>(
+    `
+      SELECT
+        count(*)::text AS active_record_count,
+        count(*) FILTER (
+          WHERE EXISTS (
+            SELECT 1
+            FROM public.candidate_record_area_tags t
+            JOIN public.research_areas ra ON ra.id = t.research_area_id
+            WHERE t.candidate_record_id = r.id
+              AND NOT (ra.slug = ANY($2::text[]))
+          )
+        )::text AS stance_labeled_record_count
+      FROM public.candidate_records r
+      WHERE r.candidate_id = $1
+        AND r.retired_at IS NULL
+    `,
+    [candidateId, [...NON_STANCE_RESEARCH_AREA_SLUGS]]
+  );
+  return {
+    activeRecordCount: Number(result.rows[0]?.active_record_count ?? "0"),
+    stanceLabeledRecordCount: Number(result.rows[0]?.stance_labeled_record_count ?? "0"),
+  };
+}
+
+/**
+ * Remove every completeness claim the candidate's active record set no
+ * longer supports, in ALL of the candidate's contexts. Claims are
+ * candidate-wide, so stanced records written for one election falsify an
+ * only_general_labels claim stored for another. Rows and their evidence
+ * stay; confirmed_at is not bumped (nothing was re-swept). Returns the
+ * number of rows changed.
+ */
+export async function pruneUnsupportedSweepClaims(
+  client: Pick<PoolClient, "query">,
+  candidateId: string,
+  shape: CandidateRecordSetShape,
+  /** Limit the check to these claim ids (default: every completeness id). */
+  gapIds: readonly string[] = [...SWEEP_COMPLETENESS_GAP_IDS]
+): Promise<number> {
+  const completenessIds = gapIds.filter((id) => SWEEP_COMPLETENESS_GAP_IDS.has(id));
+  const supported = new Set(claimsSupportedByRecordSet(completenessIds, shape));
+  const unsupported = completenessIds.filter((id) => !supported.has(id));
+  if (unsupported.length === 0) {
+    return 0;
+  }
+  const result = await client.query(
+    `
+      UPDATE public.candidate_record_sweep_confirmations
+      SET confirmed_gap_ids = ARRAY(
+            SELECT gap_id
+            FROM unnest(confirmed_gap_ids) AS gap_id
+            WHERE NOT (gap_id = ANY($2::text[]))
+          ),
+          updated_at = now()
+      WHERE candidate_id = $1
+        AND confirmed_gap_ids && $2::text[]
+    `,
+    [candidateId, unsupported]
+  );
+  return result.rowCount ?? 0;
+}
+
+/**
+ * The writers' persist step. Run inside the write transaction, AFTER this
+ * write's records and labels are stored, so the record-set check sees them.
+ * Locks the existing row, merges its evidence with this write's entries,
+ * keeps only the asserted claims the whole active record set supports, and
+ * prunes claims the record set falsifies in the candidate's other contexts.
+ */
+export async function writeMergedSweepConfirmation(
+  client: Pick<PoolClient, "query">,
+  input: {
+    candidateId: string;
+    assertedGapIds: readonly string[];
+    entries: readonly SweepEvidenceEntry[];
+    contextType: "election" | "presidential_cycle";
+    contextId: string;
+  }
+): Promise<{
+  confirmedGapIds: string[];
+  droppedGapIds: string[];
+  entryCount: number;
+  otherContextRowsPruned: number;
+}> {
+  // Serialize sweep-ledger writes per candidate. FOR UPDATE below only locks
+  // a row that already exists, so two first writes could both read "no
+  // ledger" and the later upsert would drop the earlier one's evidence.
+  await client.query(
+    `SELECT pg_advisory_xact_lock(hashtextextended('candidate_sweep_confirmation:' || $1, 0))`,
+    [input.candidateId]
+  );
+  const prior = await client.query<{ evidence: unknown }>(
+    `
+      SELECT evidence
+      FROM public.candidate_record_sweep_confirmations
+      WHERE candidate_id = $1
+        AND context_type = $2
+        AND context_id = $3
+      FOR UPDATE
+    `,
+    [input.candidateId, input.contextType, input.contextId]
+  );
+  const entries = mergeSweepEvidenceEntries(
+    parseStoredSweepEvidenceEntries(prior.rows[0]?.evidence ?? null),
+    input.entries
+  );
+  const shape = await loadCandidateRecordSetShape(client, input.candidateId);
+  const confirmedGapIds = claimsSupportedByRecordSet(input.assertedGapIds, shape);
+  const droppedGapIds = input.assertedGapIds.filter((id) => !confirmedGapIds.includes(id));
+  await upsertSweepConfirmation(client, {
+    candidateId: input.candidateId,
+    confirmedGapIds,
+    entries,
+    contextType: input.contextType,
+    contextId: input.contextId,
+  });
+  // This context's row is already consistent, so any row changed here
+  // belongs to another context.
+  const otherContextRowsPruned = await pruneUnsupportedSweepClaims(client, input.candidateId, shape);
+  return { confirmedGapIds, droppedGapIds, entryCount: entries.length, otherContextRowsPruned };
 }
 
 /**
