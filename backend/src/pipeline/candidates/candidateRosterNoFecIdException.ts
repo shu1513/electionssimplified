@@ -31,17 +31,27 @@ function hostnameWithoutWww(url: string): string | null {
   }
 }
 
-// With no FEC ID, the campaign website is the hard identifier that identity
-// matching and duplicate prevention rely on. "Verified" means a cited source
-// sits on the same host: cited sources are the URLs the profile writer checks
-// for reachability, so the site was actually opened during research.
-export function assertNoFecIdExceptionProfileHasVerifiedWebsite(
-  profile: Pick<CandidateProfilePayload, "official_website_url" | "sources">
+// With no FEC ID, identity matching and duplicate prevention need another hard
+// identifier. Two are accepted:
+// - the election authority's own filing number, carried on the staged roster
+//   row as state_filing_ids (minor-party and write-in candidates often have no
+//   campaign website at all); or
+// - the campaign website, "verified" meaning a cited source sits on the same
+//   host: cited sources are the URLs the profile writer checks for
+//   reachability, so the site was actually opened during research.
+// A website in the payload is always held to the cited-host rule, even when a
+// filing number is present, so an unverified site never rides in beside it.
+export function assertNoFecIdExceptionProfileHasHardIdentifier(
+  profile: Pick<CandidateProfilePayload, "official_website_url" | "sources">,
+  rosterStateFilingIds: readonly string[]
 ): void {
   const websiteHost = profile.official_website_url ? hostnameWithoutWww(profile.official_website_url) : null;
   if (!websiteHost) {
+    if (rosterStateFilingIds.length > 0) {
+      return;
+    }
     throw new Error(
-      "payload.official_website_url is required for a roster row with no_fec_id_exception; the campaign website is the hard identifier when there is no FEC ID"
+      "payload.official_website_url is required for a roster row with no_fec_id_exception unless the roster row carries state_filing_ids; with no FEC ID, the campaign website or the election authority's filing number is the hard identifier"
     );
   }
   const cited = profile.sources.some((source) => hostnameWithoutWww(source) === websiteHost);

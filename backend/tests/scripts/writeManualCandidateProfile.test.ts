@@ -108,14 +108,14 @@ describe("applyRegularElectionProfileContext", () => {
     const result = applyRegularElectionProfileContext({
       profile: profile({
         party: "Republican",
-        state_filing_ids: ["AK-state-id"],
+        state_filing_ids: ["payload-state-id"],
       }),
       researchMode: "federal_us_senate",
       rosterHints: {
         rosterIndex: 0,
         displayName: "Jane Candidate",
         fecIds: ["S6AK00001"],
-        stateFilingIds: ["AK-state-id"],
+        stateFilingIds: [],
       },
     });
 
@@ -123,6 +123,22 @@ describe("applyRegularElectionProfileContext", () => {
     expect(result.party).toBeUndefined();
     expect(result.date_of_birth).toBeUndefined();
     expect(result.state_filing_ids).toBeUndefined();
+  });
+
+  it("keeps the roster row's filing number beside the FEC ID and drops the payload's own", () => {
+    const result = applyRegularElectionProfileContext({
+      profile: profile({ state_filing_ids: ["payload-state-id"] }),
+      researchMode: "federal_us_senate",
+      rosterHints: {
+        rosterIndex: 0,
+        displayName: "Jane Candidate",
+        fecIds: ["S6AK00001"],
+        stateFilingIds: ["AK-roster-id"],
+      },
+    });
+
+    expect(result.fec_ids).toEqual(["S6AK00001"]);
+    expect(result.state_filing_ids).toEqual(["AK-roster-id"]);
   });
 
   it("refuses a federal payload that carries date_of_birth instead of silently stripping it", () => {
@@ -188,7 +204,29 @@ describe("applyRegularElectionProfileContext", () => {
       expect(result.state_filing_ids).toBeUndefined();
     });
 
-    it("requires a campaign website", () => {
+    it("accepts the roster row's state filing number in place of a campaign website", () => {
+      const result = applyRegularElectionProfileContext({
+        profile: profile({ official_website_url: undefined }),
+        researchMode: "federal_us_senate",
+        rosterHints: { ...rosterHints, stateFilingIds: ["497"] },
+      });
+
+      expect(result.fec_ids).toBeUndefined();
+      expect(result.official_website_url).toBeUndefined();
+      expect(result.state_filing_ids).toEqual(["497"]);
+    });
+
+    it("still holds a supplied website to the cited-source rule when a filing number exists", () => {
+      expect(() =>
+        applyRegularElectionProfileContext({
+          profile: profile({ sources: ["https://news.example/jane-candidate"] }),
+          researchMode: "federal_us_house",
+          rosterHints: { ...rosterHints, stateFilingIds: ["497"] },
+        })
+      ).toThrow("payload.sources must include a page on jane.example");
+    });
+
+    it("requires a campaign website when the roster row has no state filing number", () => {
       expect(() =>
         applyRegularElectionProfileContext({
           profile: profile({ official_website_url: undefined, twitter_handle: "janecandidate" }),
