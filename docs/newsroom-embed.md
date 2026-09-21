@@ -60,8 +60,9 @@ may be reused freely with attribution.
 
 - `frontend/public/embed.js` inserts an iframe of `/embed` after the script
   tag. With `data-height` the box is exactly that tall. Without it, the page
-  reports its content height once and the script fits the box to it (420 to
-  600 pixels), ignoring anything later. The page scrolls inside the frame,
+  reports its content height while it loads and the script fits the box to
+  it (420 to 600 pixels); both stop about 2.5 seconds after the first report
+  (styles or fonts can land late), and nothing later changes the box. The page scrolls inside the frame,
   so the host page's layout never changes. The message is honoured only
   from our origin and from that iframe's own window.
 - `/embed` is `frontend/src/pages/EmbedHomePage.tsx`: the site's landing

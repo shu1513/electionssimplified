@@ -14,8 +14,8 @@
  *
  * Inserts an iframe of /embed right after the script tag. The
  * publisher sets the box's size: data-height (pixels, 240-2000) is its exact
- * height. Without it the box is sized once, when the page first reports its
- * content height (the landing page), between 420 and 600
+ * height. Without it the box is sized as it loads (it may settle for a
+ * couple of seconds), from the page's reported content height (the landing page), between 420 and 600
  * pixels. Either way it never changes after that: readers scroll inside it,
  * so nothing they do moves the rest of the host page. The height message is
  * only honoured when it comes from our origin and from this iframe's window. The publisher code rides in the URL fragment so the framed
@@ -39,6 +39,7 @@
   // The box is a small copy of the site (address search, ballot, race and
   // candidate pages), so even a short list leaves room to read those.
   var SMALLEST_BOX = 420;
+  var SETTLE_MS = 2500;
   var BORDER = 2;
   var MAX_HEIGHT = 2000;
   var publisher = script.getAttribute("data-publisher") || "";
@@ -78,6 +79,7 @@
     return;
   }
 
+  var settling = false;
   function onMessage(event) {
     if (event.origin !== origin || event.source !== frame.contentWindow) {
       return;
@@ -90,7 +92,15 @@
     if (!isFinite(content) || content <= 0) {
       return;
     }
-    window.removeEventListener("message", onMessage);
+    // Settle, then lock: a first measurement can be early (styles or fonts
+    // still arriving), so later ones are honoured for a short while after
+    // it. From then on the box never changes, whatever the reader does.
+    if (!settling) {
+      settling = true;
+      window.setTimeout(function () {
+        window.removeEventListener("message", onMessage);
+      }, SETTLE_MS);
+    }
     var fitted = Math.ceil(content) + BORDER;
     frame.style.height = Math.min(maxHeight, Math.max(SMALLEST_BOX, fitted)) + "px";
   }

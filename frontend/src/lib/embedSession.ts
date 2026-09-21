@@ -29,33 +29,33 @@ export function useEmbedSession(): boolean {
   return useSyncExternalStore(subscribe, isFramed, () => false);
 }
 
-/** Tells the framing page ONCE how tall the first view is (the landing
- * page), so embed.js can fit the box to it instead of
- * leaving empty space under the list. The box never resizes after that. It
- * measures the content wrapper, not the document: inside an iframe the
- * document is never shorter than the iframe itself. The host (embed.js)
- * checks the message origin and source window, and ignores later messages. */
+const SETTLE_MS = 2500;
+
+/** Tells the framing page how tall the first view is (the landing page), so
+ * embed.js can fit the box to it instead of leaving empty space under it. It
+ * reports while the page settles (styles and fonts can land after the first
+ * paint) and then stops; embed.js locks the box on the same schedule, so
+ * nothing the reader does later resizes it. It measures the content wrapper,
+ * not the document: inside an iframe the document is never shorter than the
+ * iframe itself. The host (embed.js) checks the message origin and source
+ * window. */
 export function useReportEmbedHeight(enabled: boolean, content: { current: HTMLElement | null }): void {
   useEffect(() => {
     const element = content.current;
     if (!enabled || !element || window.parent === window) {
       return;
     }
-    let cancelled = false;
     const post = () => {
-      if (!cancelled) {
-        window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
-      }
+      window.parent.postMessage({ type: "es-embed-height", height: Math.ceil(element.getBoundingClientRect().height) }, "*");
     };
-    // Wait for web fonts so the measured height is the settled one.
-    const fonts = document.fonts?.ready;
-    if (fonts) {
-      void fonts.then(post, post);
-    } else {
-      post();
-    }
+    post();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(post);
+    observer?.observe(element);
+    void document.fonts?.ready.then(post, post);
+    const stop = window.setTimeout(() => observer?.disconnect(), SETTLE_MS);
     return () => {
-      cancelled = true;
+      window.clearTimeout(stop);
+      observer?.disconnect();
     };
   }, [enabled, content]);
 }
