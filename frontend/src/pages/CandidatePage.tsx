@@ -1,7 +1,13 @@
 import { Fragment, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useLocation, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import type { CandidateDetail, CandidateElection, FinanceSummary } from "@voteapp/api-client";
+import type {
+  CandidateDetail,
+  CandidateElection,
+  CandidateStockTradesResponse,
+  FinanceSummary,
+  StockTradesSummary,
+} from "@voteapp/api-client";
 import {
   CANDIDATE_RAIL_SORTS,
   candidateRailSortsOffered,
@@ -29,6 +35,7 @@ import { AddressNudge } from "../components/AddressNudge";
 import { PostPickActions } from "../components/PostPickActions";
 import { useElectionChoices } from "@voteapp/api-client";
 import { FinanceSummaryCard, hasFinanceContent } from "../components/FinanceSummaryCard";
+import { StockTradesPanel } from "../components/StockTradesPanel";
 import { StanceSummary } from "../components/StanceSummary";
 import { TrackRecordSection, type RecordView } from "../components/TrackRecordSection";
 import { ReportContentButton } from "../components/ReportContentButton";
@@ -41,7 +48,7 @@ import { partyColorClass, profilePartyLabel } from "@voteapp/api-client";
 import { candidateProfileLinks } from "@voteapp/api-client";
 import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
-import { useMe } from "@voteapp/api-client";
+import { STOCK_TRADES_INITIAL_ROWS, useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
 import { sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
@@ -49,6 +56,8 @@ import { sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 // each election they are currently in, keyed by candidate_election_id.
 export type CandidateLoaderData = CandidateDetail & {
   ongoing_finance: Record<string, FinanceSummary | null>;
+  // Reported securities trades; null for anyone who does not file them.
+  stock_trades: StockTradesSummary | null;
 };
 
 // Server loader: the candidate subject arrives in the document HTML so
@@ -67,6 +76,14 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
   const ongoingElections = detail.candidate.elections.filter(
     (election) => election.election_date >= today
   );
+  // Same reasoning as finance: loader-fetched so the collapsed panel is in
+  // the SSR HTML, and a failure only hides the panel.
+  const stockTrades = loadFromApi<CandidateStockTradesResponse>(
+    `/api/candidates/${detail.candidate.candidate_id}/stock-trades?limit=${STOCK_TRADES_INITIAL_ROWS}`,
+    request
+  )
+    .then((result) => result.stock_trades ?? null)
+    .catch(() => null);
   const entries = await Promise.all(
     ongoingElections.map(async (election): Promise<[string, FinanceSummary | null]> => {
       try {
@@ -83,7 +100,7 @@ export async function loader({ params, request }: LoaderFunctionArgs): Promise<C
       }
     })
   );
-  return { ...detail, ongoing_finance: Object.fromEntries(entries) };
+  return { ...detail, ongoing_finance: Object.fromEntries(entries), stock_trades: await stockTrades };
 }
 
 // Finance for an election the candidate is currently in, server-fetched by
@@ -680,6 +697,12 @@ export function CandidatePage() {
             exposureRef={index === 0 ? financeRef : undefined}
           />
         ))}
+
+        {detail.stock_trades ? <StockTradesPanel
+            key={`trades-${candidate.candidate_id}`}
+            candidateId={candidate.candidate_id}
+            summary={detail.stock_trades}
+          /> : null}
 
         <TrackRecordSection
           // Keyed by candidate: the roster pager keeps this page mounted

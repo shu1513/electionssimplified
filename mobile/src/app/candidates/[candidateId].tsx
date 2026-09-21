@@ -38,6 +38,7 @@ import {
   MeasureChoiceButtons,
 } from "../../components/ElectionChoiceControls";
 import { FinanceSummaryCard } from "../../components/FinanceSummaryCard";
+import { StockTradesSection } from "../../components/StockTradesSection";
 import { SAVED_AREA_TEXT_CLASS } from "../../components/ElectionCard";
 import { FollowButton } from "../../components/FollowButton";
 import { NotFoundNotice } from "../../components/NotFoundNotice";
@@ -547,6 +548,8 @@ export default function CandidateScreen() {
           showElection={ongoingElections.length > 1}
         />
       ))}
+
+      <StockTradesSection key={`trades-${candidate.candidate_id}`} candidateId={candidate.candidate_id} />
 
       {recordGroups.length > 0 ? (
         <View className="mt-6">

@@ -552,6 +552,64 @@ describe("CandidatePage", () => {
     expect(screen.getByText("$120,000")).toBeInTheDocument();
   });
 
+  it("shows Stock Trades collapsed by default, below campaign finance, with each trade linked to its filing", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(() => ({
+      ...candidateDetail({ elections: [candidateElection()] }),
+      ongoing_finance: { "ce-1": financeSummary() },
+      stock_trades: {
+        chambers: ["house"],
+        checked_through: "2026-09-20",
+        trade_count: 1,
+        since_year: 2025,
+        amount_low_total: 1001,
+        amount_high_total: 15000,
+        amount_high_is_minimum: false,
+        trades: [
+          {
+            asset_name: "Rollins, Inc. Common Stock",
+            ticker: "ROL",
+            asset_type: "ST",
+            transaction_type: "purchase",
+            transaction_date: "2025-01-08",
+            amount_low: 1001,
+            amount_high: 15000,
+            owner: "spouse",
+            source_url: "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf",
+          },
+        ],
+        unread_filings: [],
+      },
+    }));
+
+    const heading = await screen.findByRole("heading", { name: "Stock Trades" });
+    const details = heading.closest("section")?.querySelector("details");
+    expect(details).toBeTruthy();
+    expect(details!.open).toBe(false);
+    // Collapsed, not absent.
+    expect(screen.getByText("Reported 1 stock trade since 2025, worth between $1,001 and $15,000.")).toBeInTheDocument();
+    expect(screen.getByText("Rollins, Inc. Common Stock (ROL)")).toBeInTheDocument();
+    expect(screen.getByText(/Buy · January 8, 2025 · Spouse/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Filing" })).toHaveAttribute(
+      "href",
+      "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf"
+    );
+    const finance = screen.getByRole("heading", { name: "Campaign Finance Information — Governor" });
+    expect(finance.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows no Stock Trades panel for someone who does not file trade reports", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(() => ({
+      ...candidateDetail({ elections: [candidateElection()] }),
+      ongoing_finance: { "ce-1": financeSummary() },
+      stock_trades: null,
+    }));
+
+    await screen.findByRole("heading", { name: "Campaign Finance Information — Governor" });
+    expect(screen.queryByText("Stock Trades")).not.toBeInTheDocument();
+  });
+
   it("scopes each record's For/Against chip to the group it renders under", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     // One record, for one area and against another: each group's copy must
@@ -1191,6 +1249,8 @@ describe("CandidatePage", () => {
     // The failed fetch degrades to "no finance" instead of failing the page.
     expect(data.ongoing_finance["ce-2"]).toBeNull();
     expect("ce-past" in data.ongoing_finance).toBe(false);
+    // The stock-trades endpoint is unmocked here: its failure only hides the panel.
+    expect(data.stock_trades).toBeNull();
   });
 
   it("shows no finance on past-election rows and never fetches it", async () => {

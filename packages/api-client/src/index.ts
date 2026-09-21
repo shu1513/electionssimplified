@@ -5,6 +5,7 @@
 // Web-standard globals the mobile runtime must polyfill at startup:
 // crypto.randomUUID (useAddressSuggestions; expo-crypto provides it).
 
+export * from "./stockTrades";
 export * from "./types";
 export * from "./autoPick";
 export * from "./ballotFilters";
