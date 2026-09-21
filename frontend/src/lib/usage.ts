@@ -3,6 +3,7 @@ import { useLocation, useMatches } from "react-router";
 import { ApiError, hasFinanceContent, useMe } from "@voteapp/api-client";
 import { readCandidateNavState, readElectionNavState } from "./detailNavContext";
 import { isEmbedPublisherCode } from "./embedPublisher";
+import { rememberEmbedSource } from "./embedSession";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
 // First-party usage analytics (docs/plans/usage-analytics.md). What leaves
@@ -400,13 +401,15 @@ function hadSavedDraft(): boolean {
   }
 }
 
-/** The newsroom-embed publisher code from the arrival URL (`?src=`), only
- * when it is on the allowlist we ship. Nothing else from the query string is
- * ever read (privacy rule 3). */
+/** The newsroom-embed publisher code, only when it is on the allowlist we
+ * ship: from the arrival URL (`?src=`) for a reader who opened the site from
+ * a box, or, for a session that runs INSIDE a box, the code that box was
+ * loaded with (its `#pub=` fragment, kept by lib/embedSession.ts). Nothing
+ * else from the URL is ever read (privacy rule 3). */
 function arrivalSource(): string | null {
   try {
     const value = new URLSearchParams(window.location.search).get("src");
-    return isEmbedPublisherCode(value) ? value : null;
+    return isEmbedPublisherCode(value) ? value : rememberEmbedSource(null);
   } catch {
     return null;
   }

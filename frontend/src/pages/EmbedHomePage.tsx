@@ -7,11 +7,11 @@
 // LOADED in a frame (the router worker allows /embed and nothing else). It has no loader: nothing here
 // depends on the reader or the publisher, so one cached copy serves everyone.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { MetaFunction } from "react-router";
 import { APP_NAME } from "@voteapp/api-client";
 import { LandingHero } from "../components/LandingHero";
-import { publisherCodeFromHash } from "../lib/embedPublisher";
+import { publisherCodeFromHash, withSource } from "../lib/embedPublisher";
 import { rememberEmbedSource, setEmbedHome, useReportEmbedHeight } from "../lib/embedSession";
 import { pageMeta } from "../lib/pageMeta";
 
@@ -26,9 +26,11 @@ const HOME = { path: "/embed", label: "Search" };
 export function EmbedHomePage() {
   const contentRef = useRef<HTMLDivElement | null>(null);
   useReportEmbedHeight(true, contentRef);
+  // Read after mount: the server HTML must be the same for every publisher.
+  const [source, setSource] = useState<string | null>(null);
   useEffect(() => {
     setEmbedHome(HOME);
-    rememberEmbedSource(publisherCodeFromHash(window.location.hash));
+    setSource(rememberEmbedSource(publisherCodeFromHash(window.location.hash)));
   }, []);
 
   return (
@@ -37,7 +39,12 @@ export function EmbedHomePage() {
       {/* The box's one credit, and the front page's one way to the site. */}
       <p className="-mt-2 pb-4 text-center text-xs text-ink-soft">
         Powered by{" "}
-        <a href="/" target="_blank" rel="nofollow noopener" className="font-semibold text-rausch-deep hover:underline">
+        <a
+          href={withSource("/", source)}
+          target="_blank"
+          rel="nofollow noopener"
+          className="font-semibold text-rausch-deep hover:underline"
+        >
           {APP_NAME}
         </a>
       </p>

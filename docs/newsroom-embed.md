@@ -110,9 +110,13 @@ may be reused freely with attribution.
 - The Cloudflare router worker drops `X-Frame-Options` and sets
   `frame-ancestors *` for `/embed` only, and edge-caches it for 60 seconds
   like other public pages. Every other page keeps refusing to be framed.
-- Arrival attribution: `frontend/src/lib/usage.ts` records an allowlisted
-  `?src=` code as the `source` prop of `session_start`. Nothing else from
-  the publisher's page is recorded.
+- Attribution: `frontend/src/lib/usage.ts` records an allowlisted publisher
+  code as the `source` prop of `session_start`, for both kinds of session: a
+  reader working INSIDE a box (the code that box was loaded with) and a
+  reader who opened the site from a box (`?src=` on the arrival URL).
+  Nothing else from the publisher's page is recorded. This needs usage
+  analytics switched on (`USAGE_ANALYTICS_ENABLED`); with it off, nothing is
+  recorded for anyone.
 
 ## Measuring
 

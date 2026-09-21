@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { clearBallotDraft, setDraftBallotContext } from "../lib/ballotDraft";
 import { getEmbedHome, resetEmbedSessionForTests } from "../lib/embedSession";
+vi.mock("../data/embedPublishers", () => ({ EMBED_PUBLISHERS: ["alpha-news"] }));
+
 import { EmbedHomePage } from "./EmbedHomePage";
 
 function renderHome() {
@@ -37,6 +39,14 @@ describe("EmbedHomePage", () => {
     expect(screen.getAllByText("Elections Simplified")).toHaveLength(1);
     expect(getEmbedHome()).toEqual({ path: "/embed", label: "Search" });
     expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
+  });
+
+  it("tags the credit link with an allowlisted publisher code from the frame URL", async () => {
+    window.location.hash = "#pub=alpha-news";
+    renderHome();
+    const credit = await screen.findByRole("link", { name: "Elections Simplified" });
+    await waitFor(() => expect(credit).toHaveAttribute("href", "/?src=alpha-news"));
+    window.location.hash = "";
   });
 
   it("stays the landing page for a returning reader: no extra links the site does not have", async () => {
