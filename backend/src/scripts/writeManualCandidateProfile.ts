@@ -364,6 +364,11 @@ export function applyRegularElectionProfileContext(input: {
       // matching and duplicate prevention working: the election authority's
       // filing number from the roster row, or a campaign website on a cited
       // host (cited sources are the URLs this writer verifies).
+      // When the FEC later issues an ID, the roster row is fixed and this same
+      // election's profile is re-written: the stored row is found by its
+      // election link and display name, and gains the FEC ID there. Filing
+      // numbers are issued per election cycle, so they are not carried beside
+      // FEC IDs as a cross-election identifier.
       assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, exceptionStateFilingIds);
     }
     // The regular federal profile path stores date_of_birth as null (the AI
