@@ -5,8 +5,10 @@ import {
   hasFinanceContent,
   hasMemberCommunications,
   hasOutsideFinanceContent,
+  pacDonorConnectedOrganizationLabel,
   shouldShowDirectCoverageNote,
   spendingExceedsCycleFunds,
+  splitConduitDonations,
 } from "./finance";
 import type { FinanceSummary } from "./types";
 
@@ -274,5 +276,36 @@ describe("spendingExceedsCycleFunds", () => {
     // Spending beyond even the visible loans is unexplained again.
     summary.direct_campaign.total_spent = 31_000_000;
     expect(spendingExceedsCycleFunds(summary)).toBe(true);
+  });
+});
+
+describe("committee donor and conduit helpers", () => {
+  const donor = (committee_name: string, connected_organization: string | null) => ({
+    committee_id: "C00000012",
+    committee_name,
+    connected_organization,
+    amount: 5000,
+    contribution_count: 1,
+    source_url: null,
+  });
+
+  it("shows the connected organization only when the committee name does not already say it", () => {
+    expect(pacDonorConnectedOrganizationLabel(donor("GOOD GOVERNMENT FUND", "ACME CORPORATION"))).toBe("ACME CORPORATION");
+    expect(pacDonorConnectedOrganizationLabel(donor("ACME CORPORATION PAC", "Acme Corporation"))).toBeNull();
+    expect(pacDonorConnectedOrganizationLabel(donor("PROGRESS FORWARD PAC", null))).toBeNull();
+  });
+
+  it("splits payment platforms from other conduits and keeps each list's order", () => {
+    const conduit = (committee_id: string, is_payment_platform: boolean) => ({
+      committee_id,
+      committee_name: committee_id,
+      is_payment_platform,
+      amount: 100,
+      contribution_count: 1,
+      source_url: null,
+    });
+    const split = splitConduitDonations([conduit("C1", true), conduit("C2", false), conduit("C3", false)]);
+    expect(split.groups.map((row) => row.committee_id)).toEqual(["C2", "C3"]);
+    expect(split.platforms.map((row) => row.committee_id)).toEqual(["C1"]);
   });
 });

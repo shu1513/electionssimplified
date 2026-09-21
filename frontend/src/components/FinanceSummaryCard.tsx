@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type {
   FinanceBreakdown,
   FinanceOutsideGroup,
@@ -6,6 +7,7 @@ import type {
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
+  VISIBLE_FINANCE_CONTRIBUTOR_ROWS,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -16,9 +18,11 @@ import {
   hasFinanceContent,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
+  pacDonorConnectedOrganizationLabel,
   shouldShowDirectCoverageNote,
   sortContributionSizeBuckets,
   spendingExceedsCycleFunds,
+  splitConduitDonations,
 } from "@voteapp/api-client";
 
 // Campaign finance disclosure panel, rendered on the candidate profile page
@@ -96,6 +100,79 @@ function BreakdownList({
     <div className="mt-3">
       <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</h4>
       <BreakdownRows rows={visible} />
+    </div>
+  );
+}
+
+type ContributorRow = {
+  committee_id: string;
+  committee_name: string;
+  amount: number;
+  source_url: string | null;
+  detail: string | null;
+};
+
+/**
+ * A named list of committees with amounts: the top rows, then a "Show all"
+ * control. Each name links to the FEC page the amount comes from. `rows` is
+ * undefined when the source has not loaded the list (render nothing) and
+ * empty when it loaded and found none (say so in one line).
+ */
+function ContributorList({
+  heading,
+  emptyText,
+  rows,
+  totalCount,
+}: {
+  heading: string;
+  emptyText: string | null;
+  rows: ContributorRow[] | undefined;
+  totalCount?: number;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  if (rows === undefined || (rows.length === 0 && emptyText === null)) {
+    return null;
+  }
+  const visible = showAll ? rows : rows.slice(0, VISIBLE_FINANCE_CONTRIBUTOR_ROWS);
+  const fullCount = Math.max(totalCount ?? rows.length, rows.length);
+  return (
+    <div className="mt-3">
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</h4>
+      {rows.length === 0 ? (
+        <p className="mt-1 text-sm text-ink-soft">{emptyText}</p>
+      ) : (
+        <ul className="mt-1 space-y-0.5">
+          {visible.map((row) => (
+            <li key={row.committee_id} className="flex justify-between gap-3 text-sm">
+              <span className="text-ink">
+                {row.source_url ? (
+                  <a href={row.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    {row.committee_name}
+                  </a>
+                ) : (
+                  row.committee_name
+                )}
+                {row.detail ? <span className="block text-xs text-ink-soft">{row.detail}</span> : null}
+              </span>
+              <span className="shrink-0 text-ink-soft">{formatMoney(row.amount)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {rows.length > VISIBLE_FINANCE_CONTRIBUTOR_ROWS ? (
+        <button
+          type="button"
+          onClick={() => setShowAll((current) => !current)}
+          className="mt-1 text-xs text-ink-soft underline hover:text-ink"
+        >
+          {showAll ? "Show fewer" : `Show all (${fullCount})`}
+        </button>
+      ) : null}
+      {showAll && fullCount > rows.length ? (
+        <p className="mt-1 text-xs text-ink-soft">
+          Showing the top {rows.length} of {fullCount}.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -345,6 +422,15 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
     moneyStatCount === 6 ? "sm:grid-cols-6" : moneyStatCount === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
   const sourceUrl = firstFinanceSourceUrl(summary);
   const directIndustries = direct.top_occupations.length === 0 ? direct.top_industries : [];
+  const pacDonorRows = direct.pac_donors?.map((donor) => ({
+    ...donor,
+    detail: pacDonorConnectedOrganizationLabel(donor),
+  }));
+  const conduits = direct.conduit_donations ? splitConduitDonations(direct.conduit_donations) : undefined;
+  const toConduitRow = (row: { committee_id: string; committee_name: string; amount: number; source_url: string | null }) => ({
+    ...row,
+    detail: null,
+  });
   // Supporting industries prefer the backing-summary rows, which carry the
   // organizations behind each industry; fall back to the plain breakdown.
   const supportingIndustries: (FinanceBreakdown | FinanceOutsideIndustrySupport)[] =
@@ -406,6 +492,27 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           <BreakdownRows rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])} />
         </details>
       ) : null}
+
+      <ContributorList
+        heading="Top PAC donors"
+        emptyText="No PAC donations reported."
+        rows={pacDonorRows}
+        totalCount={direct.pac_donor_count}
+      />
+      {/* Payment platforms process donations for any campaign, so they get
+          their own short list instead of crowding out the groups. The count
+          covers both lists, so it is passed only when there are no platforms. */}
+      <ContributorList
+        heading="Donations sent through groups"
+        emptyText={conduits && conduits.platforms.length > 0 ? null : "No donations sent through groups reported."}
+        rows={conduits?.groups.map(toConduitRow)}
+        totalCount={conduits && conduits.platforms.length === 0 ? direct.conduit_donation_count : undefined}
+      />
+      <ContributorList
+        heading="Donations sent through online payment platforms"
+        emptyText={null}
+        rows={conduits?.platforms.map(toConduitRow)}
+      />
 
       {hasOutsideFinanceContent(summary) ? (
         <div className="mt-3">

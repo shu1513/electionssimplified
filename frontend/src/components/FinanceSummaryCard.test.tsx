@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { FinanceSummaryCard, hasFinanceContent } from "./FinanceSummaryCard";
 import { financeSummary, emptyFinanceSummary } from "../test/fixtures";
 
@@ -587,5 +587,99 @@ describe("FinanceSummaryCard", () => {
     expect(screen.getByText("$250,000")).toBeInTheDocument();
     expect(screen.getByText("Direct contributions by size")).toBeInTheDocument();
     expect(screen.getByText(/Source: NYC Campaign Finance Board/)).toBeInTheDocument();
+  });
+
+  // Made-up committees: a union PAC, a corporate PAC, one ideological PAC
+  // from each side, two conduit groups and a payment platform.
+  function pacDonor(index: number, name: string, amount: number, connected: string | null = null) {
+    return {
+      committee_id: `C${String(index).padStart(8, "0")}`,
+      committee_name: name,
+      connected_organization: connected,
+      amount,
+      contribution_count: 1,
+      source_url: `https://www.fec.gov/data/disbursements/?committee_id=C${String(index).padStart(8, "0")}`,
+    };
+  }
+
+  it("lists named PAC donors with FEC links and the connected organization when the name does not say it", () => {
+    const summary = financeSummary();
+    summary.direct_campaign.pac_donors = [
+      pacDonor(11, "UNITED WORKERS UNION PAC", 10_000, "UNITED WORKERS UNION"),
+      pacDonor(12, "GOOD GOVERNMENT FUND", 7_500, "ACME CORPORATION"),
+      pacDonor(13, "PROGRESS FORWARD PAC", 5_000),
+      pacDonor(14, "LIBERTY FIRST PAC", 5_000),
+    ];
+    summary.direct_campaign.pac_donor_count = 4;
+    summary.direct_campaign.conduit_donations = [];
+    render(<FinanceSummaryCard summary={summary} />);
+
+    const list = screen.getByText("Top PAC donors").parentElement as HTMLElement;
+    const link = within(list).getByRole("link", { name: "UNITED WORKERS UNION PAC" });
+    expect(link).toHaveAttribute("href", "https://www.fec.gov/data/disbursements/?committee_id=C00000011");
+    expect(within(list).getByText("$10,000")).toBeInTheDocument();
+    expect(within(list).getByText("ACME CORPORATION")).toBeInTheDocument();
+    // "UNITED WORKERS UNION" is already in the committee name.
+    expect(within(list).queryByText("UNITED WORKERS UNION")).not.toBeInTheDocument();
+    expect(within(list).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("shows ten PAC donors, then all of them on request", () => {
+    const summary = financeSummary();
+    summary.direct_campaign.pac_donors = Array.from({ length: 12 }, (_, index) =>
+      pacDonor(100 + index, `EXAMPLE PAC ${index + 1}`, 5_000 - index)
+    );
+    summary.direct_campaign.pac_donor_count = 60;
+    render(<FinanceSummaryCard summary={summary} />);
+
+    expect(screen.getByText("EXAMPLE PAC 10")).toBeInTheDocument();
+    expect(screen.queryByText("EXAMPLE PAC 11")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show all (60)" }));
+    expect(screen.getByText("EXAMPLE PAC 12")).toBeInTheDocument();
+    expect(screen.getByText("Showing the top 12 of 60.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show fewer" }));
+    expect(screen.queryByText("EXAMPLE PAC 11")).not.toBeInTheDocument();
+  });
+
+  it("lists payment platforms apart from the groups donations were sent through", () => {
+    const conduit = (index: number, name: string, amount: number, isPlatform: boolean) => ({
+      committee_id: `C${String(index).padStart(8, "0")}`,
+      committee_name: name,
+      is_payment_platform: isPlatform,
+      amount,
+      contribution_count: 3,
+      source_url: `https://www.fec.gov/data/receipts/?contributor_name=C${String(index).padStart(8, "0")}`,
+    });
+    const summary = financeSummary();
+    summary.direct_campaign.pac_donors = [];
+    summary.direct_campaign.conduit_donations = [
+      conduit(31, "DONATION PLATFORM", 900_000, true),
+      conduit(21, "CONDUIT GROUP A PAC", 40_000, false),
+      conduit(22, "CONDUIT GROUP B PAC", 40_000, false),
+    ];
+    render(<FinanceSummaryCard summary={summary} />);
+
+    const groups = screen.getByText("Donations sent through groups").parentElement as HTMLElement;
+    expect(within(groups).getByRole("link", { name: "CONDUIT GROUP A PAC" })).toBeInTheDocument();
+    expect(within(groups).getByRole("link", { name: "CONDUIT GROUP B PAC" })).toBeInTheDocument();
+    expect(within(groups).queryByText("DONATION PLATFORM")).not.toBeInTheDocument();
+    const platforms = screen.getByText("Donations sent through online payment platforms").parentElement as HTMLElement;
+    expect(within(platforms).getByRole("link", { name: "DONATION PLATFORM" })).toBeInTheDocument();
+    expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
+  });
+
+  it("says so in one line when none were reported, and nothing when the lists were not loaded", () => {
+    const loaded = financeSummary();
+    loaded.direct_campaign.pac_donors = [];
+    loaded.direct_campaign.conduit_donations = [];
+    const { rerender } = render(<FinanceSummaryCard summary={loaded} />);
+    expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
+    expect(screen.getByText("No donations sent through groups reported.")).toBeInTheDocument();
+    expect(screen.queryByText("Donations sent through online payment platforms")).not.toBeInTheDocument();
+
+    // State sources and unsynced federal candidates send no lists at all.
+    rerender(<FinanceSummaryCard summary={financeSummary()} />);
+    expect(screen.queryByText("Top PAC donors")).not.toBeInTheDocument();
+    expect(screen.queryByText("Donations sent through groups")).not.toBeInTheDocument();
   });
 });

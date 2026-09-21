@@ -1,4 +1,7 @@
-import type { FinanceSummary } from "./types";
+import type { FinanceConduitDonation, FinancePacDonor, FinanceSummary } from "./types";
+
+// Rows a donor or conduit list shows before its "Show all" control.
+export const VISIBLE_FINANCE_CONTRIBUTOR_ROWS = 10;
 
 const FINANCE_SOURCE_HOME_URLS: Partial<Record<FinanceSummary["source"], string>> = {
   // Alabama FCPA committee pages are POST/session driven, so the card's
@@ -159,6 +162,34 @@ export function hasOutsideFinanceContent(summary: FinanceSummary): boolean {
       outside.top_opposing_industries
     )
   );
+}
+
+/**
+ * Conduit totals split for display: payment platforms process donations for
+ * any campaign that signs up, so they are listed apart from groups that
+ * choose which candidates to forward money to.
+ */
+export function splitConduitDonations(rows: readonly FinanceConduitDonation[]): {
+  groups: FinanceConduitDonation[];
+  platforms: FinanceConduitDonation[];
+} {
+  return {
+    groups: rows.filter((row) => !row.is_payment_platform),
+    platforms: rows.filter((row) => row.is_payment_platform),
+  };
+}
+
+/**
+ * The connected organization is worth a second line only when the committee
+ * name does not already say it ("ACME CORP PAC" / "ACME CORP").
+ */
+export function pacDonorConnectedOrganizationLabel(donor: FinancePacDonor): string | null {
+  const organization = donor.connected_organization?.trim();
+  if (!organization) {
+    return null;
+  }
+  const normalize = (value: string): string => value.toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
+  return normalize(donor.committee_name).includes(normalize(organization)) ? null : organization;
 }
 
 /**
