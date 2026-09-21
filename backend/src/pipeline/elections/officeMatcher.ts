@@ -207,19 +207,6 @@ function normalizeMatcherText(value: string): string {
     // Diego live); the catalog keys on "County Supervisor", and the body
     // form tokenizes into zero overlap ("supervisors" ≠ "supervisor").
     .replace(/\bmember,? board of supervisors\b/g, "county supervisor")
-    // Illinois titles the county legislature "County Board" ("County Board
-    // Member #10", "Knox County Board District 1", "Stephenson County Board B
-    // District Member"); Virginia and New York name the body ("Powhatan County
-    // Board of Supervisors", "Lewis County Board of Legislators"). All of them
-    // are the catalog's County Supervisor. Left alone, "county board member"
-    // shares three of four words with County Board of Review Member and one
-    // with County Supervisor, so the scorer filed these seats under the tax
-    // appeals board and learned ~40 such aliases. Other county boards keep
-    // their own words: "board of review", "board of education", "board of
-    // commissioners" and the like all follow "county board" with "of", which
-    // the lookahead leaves untouched.
-    .replace(/\bcounty board of (?:supervisors|legislators)\b/g, "county supervisor")
-    .replace(/\bcounty board(?: members?)?\b(?! (?:of|supervisors?|chair|chairman|president)\b)/g, "county supervisor")
     // "TREASURER/TAX COLLECTOR" (San Diego live) is the county treasurer's
     // combined office; the compound form scores 1-of-3 token overlap against
     // "County Treasurer" and misses the confidence floor.
@@ -242,7 +229,23 @@ function normalizeMatcherText(value: string): string {
     // the office once and every parish's JP seats share one alias key. Runs
     // after punctuation folding so a separator between the two copies does
     // not hide the repeat.
-    .replace(/\bjustice of the peace (?=justice of the peace\b)/g, "");
+    .replace(/\bjustice of the peace (?=justice of the peace\b)/g, "")
+    // Illinois titles the county legislature "County Board" ("County Board
+    // Member #10", "Knox County Board District 1", "Stephenson County Board B
+    // District Member"); Virginia and New York name the body ("Powhatan County
+    // Board of Supervisors", "Lewis County Board of Legislators"). All of them
+    // are the catalog's County Supervisor. Left alone, "county board member"
+    // shares three of four words with County Board of Review Member and one
+    // with County Supervisor, so the scorer filed these seats under the tax
+    // appeals board and learned ~40 such aliases. Other county boards keep
+    // their own words: "board of review", "board of education", "board of
+    // commissioners" and the like all follow "county board" with "of", which
+    // the lookahead leaves untouched. Runs after the punctuation fold and
+    // whitespace collapse above so that "Board  of Commissioners" (two
+    // spaces) or "Board-of-Commissioners" reads as one space before "of" and
+    // the lookahead still sees it.
+    .replace(/\bcounty board of (?:supervisors|legislators)\b/g, "county supervisor")
+    .replace(/\bcounty board(?: members?)?\b(?! (?:of|supervisors?|chair|chairman|president)\b)/g, "county supervisor");
 }
 
 function escapeRegExp(value: string): string {

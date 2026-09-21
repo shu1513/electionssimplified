@@ -3636,18 +3636,27 @@ describe("OfficeMatcher", () => {
       expect(result.method).not.toBe("alias_exact");
     });
 
-    it("leaves other 'County Board of ...' bodies alone", async () => {
+    it("leaves other 'County Board of ...' bodies alone, whatever separates the words", async () => {
       const matcher = new OfficeMatcher(
         createMatcherDataClient({ aliasesByScope: { county: [] }, officesByScope: { county: countyOffices } }) as never
       );
-      const result = await matcher.resolve({
-        scope: "county",
-        districtName: "Cook County, Illinois",
-        state: "IL",
-        officialBallotTitle: "Member of Cook County Board of Commissioners",
-        discoveryContestFamily: "non_judicial_office",
-      });
-      expect(result.officeId).toBe("office-commissioner");
+      const cases: Array<[string, string, string]> = [
+        ["Member of Cook County Board of Commissioners", "Cook County, Illinois", "IL"],
+        ["Alamance County Board of Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board  of Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board-of-Commissioners District 02", "Alamance County, North Carolina", "NC"],
+        ["Alamance County Board\tof Commissioners District 02", "Alamance County, North Carolina", "NC"],
+      ];
+      for (const [title, districtName, state] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle: title,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, JSON.stringify(title)).toBe("office-commissioner");
+      }
     });
   });
 });
