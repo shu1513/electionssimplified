@@ -7,10 +7,11 @@ freely; nothing here is final until the owner approves it.
 ## App identity
 
 - Name: **Elections Simplified**
-- Subtitle (Apple, 30 chars): `Your ballot, explained`
+- Subtitle (Apple, 30 chars): `Your ballot, understood`
 - Short description (Google, 80 chars):
   `See every race on your ballot and what each candidate has actually done.`
-- Category: Apple **News** (secondary: Reference); Google **News & Magazines**
+- Category: Apple **News** (secondary: Reference); Google **Books & Reference**
+  (Google's News & Magazines category requires a news-publisher declaration)
 - Age rating: 4+ / Everyone. No user-generated content, no ads, no purchases
   inside the app (support payments are on the website only).
 - Privacy policy URL: `https://electionssimplified.com/privacy`
