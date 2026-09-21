@@ -29,5 +29,15 @@ export function useElectionListState() {
     if (!open) groups.push(key);
     updateState({ collapsedVotePowerGroups: groups });
   };
-  return { listState, expandedRetentionDates, setRetentionOpen, collapsedVotePowerGroups, setVotePowerOpen };
+  const awaitingCandidatesOpen = listState?.awaitingCandidatesOpen ?? false;
+  const setAwaitingCandidatesOpen = (open: boolean) => updateState({ awaitingCandidatesOpen: open });
+  return {
+    listState,
+    expandedRetentionDates,
+    setRetentionOpen,
+    collapsedVotePowerGroups,
+    setVotePowerOpen,
+    awaitingCandidatesOpen,
+    setAwaitingCandidatesOpen,
+  };
 }

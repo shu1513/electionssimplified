@@ -22,11 +22,14 @@ export type ElectionListState = {
   expandedRetentionDates: string[];
   /** Date + rating; collapsing High on one date must not affect another. */
   collapsedVotePowerGroups?: string[];
+  /** The "Elections awaiting candidate information" tail starts collapsed;
+   * true once the reader opened it, so a round trip to a race keeps it open. */
+  awaitingCandidatesOpen?: boolean;
 };
 
 export function readElectionListState(state: unknown): ElectionListState | undefined {
   if (typeof state !== "object" || state === null) return undefined;
-  const { expandedRetentionDates: dates, collapsedVotePowerGroups: groups } = state as Record<string, unknown>;
+  const { expandedRetentionDates: dates, collapsedVotePowerGroups: groups, awaitingCandidatesOpen: awaitingOpen } = state as Record<string, unknown>;
   let result: ElectionListState | undefined;
   if (Array.isArray(dates) && dates.every((date) => typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date))) {
     result = { expandedRetentionDates: dates };
@@ -34,6 +37,9 @@ export function readElectionListState(state: unknown): ElectionListState | undef
   if (Array.isArray(groups) && groups.every((key) => typeof key === "string" &&
     /^\d{4}-\d{2}-\d{2}:(very_high|high|above_average|medium|low|unknown)$/.test(key))) {
     result = { ...result, expandedRetentionDates: result?.expandedRetentionDates ?? [], collapsedVotePowerGroups: groups };
+  }
+  if (awaitingOpen === true) {
+    result = { ...result, expandedRetentionDates: result?.expandedRetentionDates ?? [], awaitingCandidatesOpen: true };
   }
   return result;
 }

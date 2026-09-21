@@ -154,7 +154,7 @@ function splitVotePowerGroups(elections: ElectionSummary[]) {
  * state so returning from a detail page restores their disclosures.
  */
 function ElectionSection({ label, count, children, colorClass = "text-ink hover:text-rausch-deep",
-  open: controlledOpen, onOpenChange,
+  open: controlledOpen, onOpenChange, heading = false,
 }: {
   label: string;
   count: number;
@@ -162,11 +162,13 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   colorClass?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Render the toggle as an h2 at the date headings' size: for a section
+   * that sits beside "Elections on {date}", not inside one. */
+  heading?: boolean;
 }) {
   const [localOpen, setOpen] = useState(true);
   const open = controlledOpen ?? localOpen;
-  return (
-    <section>
+  const toggle = (
       <button
         type="button"
         aria-expanded={open}
@@ -177,7 +179,7 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
         // 17.5px: a hair above the card titles (subheading, 16-17px) and
         // under the date heading (19-22px) — user tuned this by eye on
         // 2026-09-12 (text-lg read a touch too big).
-        className={`flex min-h-10 w-full items-center gap-1.5 text-left text-[1.09375rem] font-semibold ${colorClass}`}
+        className={`flex min-h-10 w-full items-center gap-1.5 text-left ${heading ? "text-heading font-bold" : "text-[1.09375rem] font-semibold"} ${colorClass}`}
       >
         {label}
         <span className="text-sm font-normal text-ink-soft">({count})</span>
@@ -192,6 +194,10 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
           <path d="M7 5l6 5-6 5V5z" />
         </svg>
       </button>
+  );
+  return (
+    <section>
+      {heading ? <h2>{toggle}</h2> : toggle}
       {open ? <div className="mt-2 space-y-3">{children}</div> : null}
     </section>
   );
@@ -357,7 +363,15 @@ export function ElectionList({
    * always-engaged sort control starts where the list was. */
   railSort?: RailSortKey;
 }) {
-  const { listState, expandedRetentionDates, setRetentionOpen, collapsedVotePowerGroups, setVotePowerOpen } = useElectionListState();
+  const {
+    listState,
+    expandedRetentionDates,
+    setRetentionOpen,
+    collapsedVotePowerGroups,
+    setVotePowerOpen,
+    awaitingCandidatesOpen,
+    setAwaitingCandidatesOpen,
+  } = useElectionListState();
   const nonRetentionCounts = new Map<string, number>();
   if (sort === "vote_power") {
     for (const election of elections) {
@@ -472,34 +486,38 @@ export function ElectionList({
         </section>
       ))}
       {awaitingCandidates.length > 0 ? (
-        <section>
-          {/* Neutral about WHO the wait is on: this section spans every
-              zero-candidate reason, and roster_processing means the list is
-              published and this app is still preparing profiles — "waiting
-              on officials" would misplace that blame. Matches the generic
-              roster-status copy. Leads with "Elections" to parallel the
-              "Elections on {date}" headings above it. */}
-          <h2 className="text-heading font-bold text-ink">Elections awaiting candidate information</h2>
-          <div className="mt-2 space-y-3">
-            {/* No level sections here: this tail spans dates and levels
-                under one heading, and a card carries its own date already. */}
-            {splitSeatRuns(awaitingCandidates).map((run) => (
-              <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
-                {run.elections.map((election) => (
-                  <ElectionCard
-                    key={election.id}
-                    election={election}
-                    savedAreaWeights={savedAreaWeights}
-                    myChoice={choicesByElectionId?.get(election.id)}
-                    navState={navState}
-                    position={positionById.get(election.id) ?? 1}
-                    showDate
-                  />
-                ))}
-              </SeatRun>
-            ))}
-          </div>
-        </section>
+        // Neutral about WHO the wait is on: this section spans every
+        // zero-candidate reason, and roster_processing means the list is
+        // published and this app is still preparing profiles — "waiting on
+        // officials" would misplace that blame. Leads with "Elections" to
+        // parallel the "Elections on {date}" headings above it. Collapsed by
+        // default: these races have nothing to read or pick yet, and on a
+        // long ballot they pushed the real list's end out of sight.
+        <ElectionSection
+          heading
+          label="Elections awaiting candidate information"
+          count={awaitingCandidates.length}
+          open={awaitingCandidatesOpen}
+          onOpenChange={setAwaitingCandidatesOpen}
+        >
+          {/* No level sections here: this tail spans dates and levels
+              under one heading, and a card carries its own date already. */}
+          {splitSeatRuns(awaitingCandidates).map((run) => (
+            <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
+              {run.elections.map((election) => (
+                <ElectionCard
+                  key={election.id}
+                  election={election}
+                  savedAreaWeights={savedAreaWeights}
+                  myChoice={choicesByElectionId?.get(election.id)}
+                  navState={navState}
+                  position={positionById.get(election.id) ?? 1}
+                  showDate
+                />
+              ))}
+            </SeatRun>
+          ))}
+        </ElectionSection>
       ) : null}
     </div>
   );
