@@ -84,10 +84,7 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
     const direct = [...result.values()][0]?.direct_campaign;
 
     expect(query).toHaveBeenCalledTimes(7);
-    // Only real industries and causes are listed: no politicians' PACs, no
-    // other campaigns, no unsorted PACs.
-    expect(String(query.mock.calls[6]?.[0])).toContain("interests.interest_slug IS NOT NULL");
-    expect(query.mock.calls[6]?.[1]?.[2]).toEqual(["leadership_pacs", "candidate_committees"]);
+    expect(String(query.mock.calls[6]?.[0])).toContain("LEFT JOIN public.finance_pac_interests");
     expect(direct?.pac_money_by_interest).toEqual([
       {
         interest: "labor_unions",
@@ -116,6 +113,42 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
         source_url: "https://www.fec.gov/data/",
       },
     ]);
+  });
+
+  async function pacInterestsFor(rows: Record<string, unknown>[]) {
+    vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "true");
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [summaryRow("2026-09-20 00:00:00+00")] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: rows.map((row) => ({ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, pacs: [], ...row })) });
+    const result = await loadFecCandidateFinanceSummariesByCandidateElection({ query }, candidateRows, electionRows);
+    return [...result.values()][0]?.direct_campaign;
+  }
+
+  it("never reports zero PAC donations when PACs gave but none of them is listed", async () => {
+    // $15,000 from another politician's PAC, another campaign and an unsorted PAC.
+    const direct = await pacInterestsFor([
+      { interest: "leadership_pacs", amount: "5000.00", pac_count: 1 },
+      { interest: "candidate_committees", amount: "5000.00", pac_count: 1 },
+      { interest: null, amount: "5000.00", pac_count: 1 },
+    ]);
+    expect(direct).not.toHaveProperty("pac_money_by_interest");
+    expect(direct?.conduit_donations).toEqual([]);
+  });
+
+  it("reports an empty list only when no PAC gave, and lists industries without the unlisted rows", async () => {
+    expect((await pacInterestsFor([]))?.pac_money_by_interest).toEqual([]);
+    const direct = await pacInterestsFor([
+      { interest: "leadership_pacs", amount: "9000.00", pac_count: 2 },
+      { interest: "healthcare", amount: "5000.00", pac_count: 1 },
+      { interest: null, amount: "1000.00", pac_count: 1 },
+    ]);
+    expect(direct?.pac_money_by_interest?.map((row) => row.interest)).toEqual(["healthcare"]);
   });
 
   it("leaves the lists out, and runs no extra queries, until they were loaded", async () => {

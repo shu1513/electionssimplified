@@ -89,7 +89,8 @@ export type CandidateFinancePacDonor = {
   connectedOrganization: string | null;
   amount: number;
   contributionCount: number;
-  recipientCommitteeId: string | null;
+  /** Every committee of the candidate the amount went to, largest share first. */
+  recipientCommitteeIds: string[];
 };
 
 export type CandidateFinanceConduitTotal = {
@@ -98,7 +99,8 @@ export type CandidateFinanceConduitTotal = {
   isPaymentPlatform: boolean;
   amount: number;
   contributionCount: number;
-  recipientCommitteeId: string;
+  /** Every committee of the candidate that reported the receipts, largest share first. */
+  recipientCommitteeIds: string[];
 };
 
 export type CandidateFinanceContributors = {
@@ -261,16 +263,16 @@ function addToRunningTotal(totals: Map<string, RunningTotal>, key: string, amoun
   totals.set(key, total);
 }
 
-function largestRecipientCommittee(total: RunningTotal): string | null {
-  let best: string | null = null;
-  let bestAmount = Number.NEGATIVE_INFINITY;
-  for (const [committeeId, amount] of total.byRecipientCommittee) {
-    if (amount > bestAmount || (amount === bestAmount && best !== null && committeeId < best)) {
-      best = committeeId;
-      bestAmount = amount;
-    }
-  }
-  return best;
+// The amount sums every receiving committee, so the evidence link must name
+// them all or a reader checking the number sees less than the card shows.
+// fec.gov filters accept at most ten ids.
+const MAX_RECIPIENT_COMMITTEES_IN_LINK = 10;
+
+function recipientCommittees(total: RunningTotal): string[] {
+  return [...total.byRecipientCommittee]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .slice(0, MAX_RECIPIENT_COMMITTEES_IN_LINK)
+    .map(([committeeId]) => committeeId);
 }
 
 /**
@@ -392,15 +394,15 @@ export class FecBulkContributorAggregator {
         connectedOrganization: committee?.connectedOrganization ?? null,
         amount,
         contributionCount: total.contributionCount,
-        recipientCommitteeId: largestRecipientCommittee(total),
+        recipientCommitteeIds: recipientCommittees(total),
       });
     }
 
     const conduits: CandidateFinanceConduitTotal[] = [];
     for (const [committeeId, total] of this.conduitTotalsByCandidate.get(candidateId) ?? []) {
       const amount = roundCents(total.amount);
-      const recipientCommitteeId = largestRecipientCommittee(total);
-      if (amount <= 0 || !recipientCommitteeId || this.isLinkedToCandidate(candidateId, committeeId)) {
+      const recipientCommitteeIds = recipientCommittees(total);
+      if (amount <= 0 || recipientCommitteeIds.length === 0 || this.isLinkedToCandidate(candidateId, committeeId)) {
         continue;
       }
       conduits.push({
@@ -409,7 +411,7 @@ export class FecBulkContributorAggregator {
         isPaymentPlatform: this.isPaymentPlatform(committeeId),
         amount,
         contributionCount: total.contributionCount,
-        recipientCommitteeId,
+        recipientCommitteeIds,
       });
     }
 

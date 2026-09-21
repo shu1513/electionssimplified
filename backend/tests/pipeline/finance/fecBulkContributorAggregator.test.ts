@@ -185,11 +185,11 @@ describe("FecBulkContributorAggregator", () => {
     ]);
 
     expect(aggregator.getContributors(CANDIDATE).pacDonors).toEqual([
-      { committeeId: UNION_PAC, committeeName: "UNITED WORKERS UNION PAC", connectedOrganization: "UNITED WORKERS UNION", amount: 10000, contributionCount: 2, recipientCommitteeId: CAMPAIGN },
-      { committeeId: CORPORATE_PAC, committeeName: "ACME CORP PAC", connectedOrganization: "ACME CORPORATION", amount: 2999.99, contributionCount: 2, recipientCommitteeId: CAMPAIGN },
+      { committeeId: UNION_PAC, committeeName: "UNITED WORKERS UNION PAC", connectedOrganization: "UNITED WORKERS UNION", amount: 10000, contributionCount: 2, recipientCommitteeIds: [CAMPAIGN] },
+      { committeeId: CORPORATE_PAC, committeeName: "ACME CORP PAC", connectedOrganization: "ACME CORPORATION", amount: 2999.99, contributionCount: 2, recipientCommitteeIds: [CAMPAIGN] },
       // Equal amounts sort by name, so neither side is placed first by rule.
-      { committeeId: CONSERVATIVE_PAC, committeeName: "LIBERTY FIRST PAC", connectedOrganization: null, amount: 1000, contributionCount: 1, recipientCommitteeId: CAMPAIGN },
-      { committeeId: PROGRESSIVE_PAC, committeeName: "PROGRESS FORWARD PAC", connectedOrganization: null, amount: 1000, contributionCount: 1, recipientCommitteeId: CAMPAIGN },
+      { committeeId: CONSERVATIVE_PAC, committeeName: "LIBERTY FIRST PAC", connectedOrganization: null, amount: 1000, contributionCount: 1, recipientCommitteeIds: [CAMPAIGN] },
+      { committeeId: PROGRESSIVE_PAC, committeeName: "PROGRESS FORWARD PAC", connectedOrganization: null, amount: 1000, contributionCount: 1, recipientCommitteeIds: [CAMPAIGN] },
     ]);
   });
 
@@ -256,7 +256,7 @@ describe("FecBulkContributorAggregator", () => {
         isPaymentPlatform: false,
         amount: 250,
         contributionCount: 1,
-        recipientCommitteeId: CAMPAIGN,
+        recipientCommitteeIds: [CAMPAIGN],
       },
     ]);
   });
@@ -303,6 +303,27 @@ describe("FecBulkContributorAggregator", () => {
       aggregator.getContributors(CANDIDATE).conduits.map((conduit) => [conduit.committeeId, conduit.isPaymentPlatform])
     );
     expect(platformFlags).toEqual({ [PLATFORM]: true, [CONDUIT_GROUP_A]: false, [CONDUIT_GROUP_B]: false });
+  });
+
+  it("names every receiving committee, so the evidence link covers the whole amount", () => {
+    const secondCommittee = "C00000004";
+    const aggregator = buildAggregator();
+    const link = parseFecCandidateCommitteeLinkLine(cclLine(CANDIDATE, 2026, secondCommittee, "H", "A"));
+    if (link) {
+      aggregator.addCandidateCommitteeLink(link);
+    }
+    addPas2(aggregator, [
+      pas2Line({ from: UNION_PAC, to: secondCommittee, amount: 4000 }),
+      pas2Line({ from: UNION_PAC, to: CAMPAIGN, amount: 6000 }),
+    ]);
+    addIndiv(aggregator, [
+      indivLine({ filer: secondCommittee, conduit: CONDUIT_GROUP_A, amount: 100 }),
+      indivLine({ filer: CAMPAIGN, conduit: CONDUIT_GROUP_A, amount: 400 }),
+    ]);
+
+    const contributors = aggregator.getContributors(CANDIDATE);
+    expect(contributors.pacDonors[0]).toMatchObject({ amount: 10000, recipientCommitteeIds: [CAMPAIGN, secondCommittee] });
+    expect(contributors.conduits[0]).toMatchObject({ amount: 500, recipientCommitteeIds: [CAMPAIGN, secondCommittee] });
   });
 
   it("returns empty lists for a candidate with no rows", () => {

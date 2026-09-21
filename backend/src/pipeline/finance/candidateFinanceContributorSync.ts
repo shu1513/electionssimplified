@@ -71,6 +71,8 @@ export type CandidateFinanceContributorSyncItemResult = {
 };
 
 export type CandidateFinanceContributorSyncResult = {
+  /** Cycles whose bulk files could not be loaded. Nothing is written or marked as synced for them. */
+  failedCycles?: { cycle: number; candidateCount: number; error: string }[];
   dryRun: boolean;
   candidateCount: number;
   candidatesWithPacDonors: number;
@@ -137,23 +139,26 @@ export const loadCandidateFinanceContributorsFromFecBulk: LoadCandidateFinanceCo
   });
 };
 
-function fecUrl(path: string, params: Record<string, string | number>): string {
+function fecUrl(path: string, params: Record<string, string | number | readonly string[]>): string {
   const url = new URL(`https://www.fec.gov${path}`);
   for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, String(value));
+    // fec.gov reads a repeated parameter as "any of these".
+    for (const item of typeof value === "object" ? value : [value]) {
+      url.searchParams.append(key, String(item));
+    }
   }
   return url.toString();
 }
 
 /** The giving committee's reported disbursements to the candidate's committee. */
 export function buildPacDonorSourceUrl(donor: CandidateFinancePacDonor, cycle: number): string {
-  if (!donor.recipientCommitteeId) {
+  if (donor.recipientCommitteeIds.length === 0) {
     return fecUrl(`/data/committee/${donor.committeeId}/`, { cycle });
   }
   return fecUrl("/data/disbursements/", {
     data_type: "processed",
     committee_id: donor.committeeId,
-    recipient_name: donor.recipientCommitteeId,
+    recipient_name: donor.recipientCommitteeIds,
     two_year_transaction_period: cycle,
   });
 }
@@ -166,7 +171,7 @@ export function buildPacDonorSourceUrl(donor: CandidateFinancePacDonor, cycle: n
 export function buildConduitSourceUrl(conduit: CandidateFinanceConduitTotal, cycle: number): string {
   return fecUrl("/data/receipts/", {
     data_type: "processed",
-    committee_id: conduit.recipientCommitteeId,
+    committee_id: conduit.recipientCommitteeIds,
     contributor_name: conduit.committeeId,
     two_year_transaction_period: cycle,
   });
@@ -371,13 +376,23 @@ export async function syncCandidateFinanceContributors(
   }
 
   const results: CandidateFinanceContributorSyncItemResult[] = [];
+  const failedCycles: NonNullable<CandidateFinanceContributorSyncResult["failedCycles"]> = [];
   for (const [cycle, targets] of targetsByCycle) {
-    const lookup = await loadContributors({
-      cycle,
-      fecCandidateIds: [...new Set([...targets.values()].map((target) => target.fecCandidateId))],
-      bulkDataDirectory: input.bulkDataDirectory,
-      downloadTimeoutMs: input.downloadTimeoutMs,
-    });
+    // The election window reaches two years ahead, so it can include a cycle
+    // whose bulk files the FEC has not published yet. That cycle is skipped and
+    // reported; the others still run.
+    let lookup: CandidateFinanceContributorLookup;
+    try {
+      lookup = await loadContributors({
+        cycle,
+        fecCandidateIds: [...new Set([...targets.values()].map((target) => target.fecCandidateId))],
+        bulkDataDirectory: input.bulkDataDirectory,
+        downloadTimeoutMs: input.downloadTimeoutMs,
+      });
+    } catch (error) {
+      failedCycles.push({ cycle, candidateCount: targets.size, error: error instanceof Error ? error.message : String(error) });
+      continue;
+    }
     const donorCommittees = new Map<string, FecBulkCommittee>();
     for (const target of targets.values()) {
       const contributors = lookup(target.fecCandidateId);
@@ -411,6 +426,7 @@ export async function syncCandidateFinanceContributors(
   }
 
   return {
+    ...(failedCycles.length > 0 ? { failedCycles } : {}),
     dryRun,
     candidateCount: results.length,
     candidatesWithPacDonors: results.filter((result) => result.pacDonorCount > 0).length,

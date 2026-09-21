@@ -78,7 +78,7 @@ const UNION_DONOR = {
   connectedOrganization: "UNITED WORKERS UNION",
   amount: 10000,
   contributionCount: 2,
-  recipientCommitteeId: "C00000001",
+  recipientCommitteeIds: ["C00000001"],
 };
 const CORPORATE_DONOR = {
   committeeId: "C00000012",
@@ -86,7 +86,7 @@ const CORPORATE_DONOR = {
   connectedOrganization: "ACME CORPORATION",
   amount: 2500,
   contributionCount: 1,
-  recipientCommitteeId: "C00000001",
+  recipientCommitteeIds: ["C00000001"],
 };
 const CONDUIT = {
   committeeId: "C00000021",
@@ -94,7 +94,7 @@ const CONDUIT = {
   isPaymentPlatform: false,
   amount: 750,
   contributionCount: 3,
-  recipientCommitteeId: "C00000001",
+  recipientCommitteeIds: ["C00000001"],
 };
 
 function loaderReturning(byCandidate: Record<string, Partial<CandidateFinanceContributors>>) {
@@ -202,11 +202,45 @@ describe("syncCandidateFinanceContributors", () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it("filters the evidence link to every receiving committee", () => {
+    const recipientCommitteeIds = ["C00000001", "C00000004"];
+    expect(buildPacDonorSourceUrl({ ...UNION_DONOR, recipientCommitteeIds }, 2026)).toBe(
+      "https://www.fec.gov/data/disbursements/?data_type=processed&committee_id=C00000011&recipient_name=C00000001&recipient_name=C00000004&two_year_transaction_period=2026"
+    );
+    expect(buildConduitSourceUrl({ ...CONDUIT, recipientCommitteeIds }, 2026)).toBe(
+      "https://www.fec.gov/data/receipts/?data_type=processed&committee_id=C00000001&committee_id=C00000004&contributor_name=C00000021&two_year_transaction_period=2026"
+    );
+  });
+
+  it("skips a cycle whose bulk files are not published yet, without marking it synced, and still runs the rest", async () => {
+    const db = createFakeDb();
+    const loadContributorsFn = vi.fn<LoadCandidateFinanceContributorsFn>(async ({ cycle }) => {
+      if (cycle === 2028) {
+        throw new Error("FEC bulk download failed for https://www.fec.gov/files/bulk-downloads/2028/cm28.zip: HTTP 404");
+      }
+      return (fecCandidateId) => ({ fecCandidateId, pacDonors: [UNION_DONOR], conduits: [] });
+    });
+
+    const result = await syncCandidateFinanceContributors({
+      db,
+      now,
+      loadContributorsFn,
+      // The unavailable cycle comes first, where it used to stop everything.
+      targets: [{ fecCandidateId: "S0YY00567", electionYear: 2028 }, ...targets],
+    });
+
+    expect(result.failedCycles).toEqual([{ cycle: 2028, candidateCount: 1, error: expect.stringContaining("HTTP 404") }]);
+    expect(result.results.map((row) => row.fecCandidateId)).toEqual(["H0XX01234"]);
+    expect(db.tables.candidate_finance_pac_donors?.map((row) => row.fec_candidate_id)).toEqual(["H0XX01234"]);
+    // No statement at all ran for the 2028 candidate, so nothing marks it as synced.
+    expect(db.query.mock.calls.some((call) => (call[1] as unknown[] | undefined)?.includes("S0YY00567"))).toBe(false);
+  });
+
   it("links every row to an FEC page", () => {
     expect(buildPacDonorSourceUrl(UNION_DONOR, 2026)).toBe(
       "https://www.fec.gov/data/disbursements/?data_type=processed&committee_id=C00000011&recipient_name=C00000001&two_year_transaction_period=2026"
     );
-    expect(buildPacDonorSourceUrl({ ...UNION_DONOR, recipientCommitteeId: null }, 2026)).toBe(
+    expect(buildPacDonorSourceUrl({ ...UNION_DONOR, recipientCommitteeIds: [] }, 2026)).toBe(
       "https://www.fec.gov/data/committee/C00000011/?cycle=2026"
     );
     expect(buildConduitSourceUrl(CONDUIT, 2026)).toBe(

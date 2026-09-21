@@ -106,7 +106,7 @@ type CandidateFinanceConduitRow = {
 type CandidateFinancePacInterestRow = {
   candidate_id: string;
   election_id: string;
-  interest: string;
+  interest: string | null;
   amount: string | number;
   pac_count: number;
   pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
@@ -618,10 +618,8 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
               JOIN public.candidate_finance_pac_donors AS donor
                 ON donor.fec_candidate_id = selected.fec_candidate_id
                AND donor.election_year = selected.election_year
-              JOIN public.finance_pac_interests AS interests
+              LEFT JOIN public.finance_pac_interests AS interests
                 ON interests.committee_id = donor.committee_id
-              WHERE interests.interest_slug IS NOT NULL
-                AND interests.interest_slug <> ALL($3::text[])
             )
             SELECT
               candidate_id,
@@ -641,13 +639,23 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             GROUP BY candidate_id, election_id, interest
             ORDER BY candidate_id, election_id, sum(amount) DESC, interest ASC
           `,
-          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST, PAC_INTERESTS_NOT_LISTED]
+          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST]
         )
       : { rows: [] as CandidateFinancePacInterestRow[] };
 
   const pacInterestsByCandidateElection = new Map<string, BallotLookupFinancePacInterest[]>();
+  // Candidates some PAC gave to, listed or not. An empty list means "no PAC
+  // gave" only for candidates outside this set; for the rest the list is
+  // left out, so the card never reports zero when money was given.
+  const candidateElectionsWithPacMoney = new Set<string>();
   for (const row of pacInterestResult.rows) {
     const key = candidateElectionKey(row.candidate_id, row.election_id);
+    candidateElectionsWithPacMoney.add(key);
+    // Only industries and causes are listed: not other politicians' PACs,
+    // other campaigns, or PACs nobody has sorted yet.
+    if (row.interest === null || (PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(row.interest)) {
+      continue;
+    }
     const list = pacInterestsByCandidateElection.get(key) ?? [];
     // Rows arrive largest first, so the first five are the top five.
     if (list.length >= MAX_PAC_INTEREST_ROWS) {
@@ -783,7 +791,9 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             ...(row.contributors_synced_at
               ? {
                   conduit_donations: conduitsByCandidateElection.get(key) ?? [],
-                  pac_money_by_interest: pacInterestsByCandidateElection.get(key) ?? [],
+                  ...(pacInterestsByCandidateElection.has(key) || !candidateElectionsWithPacMoney.has(key)
+                    ? { pac_money_by_interest: pacInterestsByCandidateElection.get(key) ?? [] }
+                    : {}),
                 }
               : {}),
           },
