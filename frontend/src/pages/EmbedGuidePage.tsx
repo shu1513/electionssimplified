@@ -1,5 +1,6 @@
 import type { MetaFunction } from "react-router";
 import { APP_NAME } from "@voteapp/api-client";
+import { CopyableCode } from "../components/CopyableCode";
 import { CONTACT_EMAIL } from "../lib/embedPublisher";
 import { pageMeta } from "../lib/pageMeta";
 
@@ -14,8 +15,6 @@ export const meta: MetaFunction = () =>
     description: "One line of code puts the Elections Simplified ballot tool on your website, at no cost.",
     path: "/embed-instructions",
   });
-
-const CODE_BLOCK = "overflow-x-auto rounded-lg border border-line bg-surface p-3 text-sm";
 
 /**
  * Instructions for a website owner, written for someone who has embedded a
@@ -32,9 +31,7 @@ export default function EmbedGuidePage() {
       <p>
         Copy this line and paste it anywhere on your website where you would like the tool to show:
       </p>
-      <pre className={CODE_BLOCK}>
-        <code>{SNIPPET}</code>
-      </pre>
+      <CopyableCode code={SNIPPET} label="Copy the line" />
       <p>This is what will show up on your website:</p>
       <iframe
         src="/embed"
@@ -60,9 +57,7 @@ export default function EmbedGuidePage() {
         </li>
       </ul>
       <p>Example:</p>
-      <pre className={CODE_BLOCK}>
-        <code>{SIZED_SNIPPET}</code>
-      </pre>
+      <CopyableCode code={SIZED_SNIPPET} label="Copy the example" />
       <p>
         Change the numbers to whatever looks right on your page. The box never changes size while
         someone is using it, so it won&apos;t push your article around.

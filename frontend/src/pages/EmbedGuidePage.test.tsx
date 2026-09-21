@@ -1,9 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { renderRoutes } from "../test/render";
 import EmbedGuidePage from "./EmbedGuidePage";
 
 describe("EmbedGuidePage", () => {
+  it("copies the line to paste with one click and says so", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    renderRoutes([{ path: "/embed-instructions", element: <EmbedGuidePage /> }], "/embed-instructions");
+
+    await userEvent.click(screen.getByRole("button", { name: "Copy the line" }));
+    expect(writeText).toHaveBeenCalledWith('<script src="https://electionssimplified.com/embed.js"></script>');
+    expect(await screen.findByRole("button", { name: "Copied" })).toBeInTheDocument();
+  });
+
+
   it("gives the one line to paste, a live example, the two size settings, and a contact", () => {
     renderRoutes([{ path: "/embed-instructions", element: <EmbedGuidePage /> }], "/embed-instructions");
 
