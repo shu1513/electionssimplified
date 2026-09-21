@@ -144,3 +144,17 @@ export const STOCK_TRADES_SOURCE_LABELS: Record<StockTradesSummary["chambers"][n
     url: "https://efdsearch.senate.gov/search/",
   },
 };
+
+/** Consecutive trades of one transaction date, in the order given. */
+export function groupStockTradesByDate(trades: readonly StockTrade[]): { date: string; trades: StockTrade[] }[] {
+  const groups: { date: string; trades: StockTrade[] }[] = [];
+  for (const trade of trades) {
+    const last = groups[groups.length - 1];
+    if (last && last.date === trade.transaction_date) {
+      last.trades.push(trade);
+    } else {
+      groups.push({ date: trade.transaction_date, trades: [trade] });
+    }
+  }
+  return groups;
+}

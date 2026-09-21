@@ -5,6 +5,7 @@ import {
   apiRequest,
   formatElectionDate,
   formatStockTradeRange,
+  groupStockTradesByDate,
   STOCK_TRADES_INITIAL_ROWS,
   STOCK_TRADES_SOURCE_LABELS,
   stockTradeAssetLabel,
@@ -59,24 +60,42 @@ export function StockTradesSection({ candidateId }: { candidateId: string }) {
         <View className="mt-2 rounded-xl border border-line bg-white p-4">
           <Text className="text-sm text-ink">{stockTradesSummaryLine(summary)}</Text>
 
-          {trades.map((trade, index) => {
-            const assetType = stockTradeAssetTypeLabel(trade.asset_type);
-            return (
-              <View key={`${trade.source_url}-${index}`} className="mt-3 border-t border-line pt-2">
-                <Text className="text-sm font-medium text-ink">{stockTradeAssetLabel(trade)}</Text>
-                <Text className="text-sm text-ink">{formatStockTradeRange(trade)}</Text>
-                <Text className="text-xs text-ink-soft">
-                  {stockTradeTransactionLabel(trade.transaction_type)} · {formatElectionDate(trade.transaction_date)} ·{" "}
-                  {stockTradeOwnerLabel(trade.owner)}
-                  {assetType ? ` · ${assetType}` : ""}
-                  {" · "}
-                  <Text className="underline" accessibilityRole="link" onPress={() => openExternalUrl(trade.source_url)}>
-                    Filing
-                  </Text>
-                </Text>
-              </View>
-            );
-          })}
+          {/* Same structure as the web panel: one block per trade date, then
+              action tag, ticker and asset, amount, owner and filing link. */}
+          {groupStockTradesByDate(trades).map((group) => (
+            <View key={group.date} className="mt-4">
+              <Text className="border-b border-line pb-1 text-xs font-semibold uppercase text-ink-soft">
+                {formatElectionDate(group.date)}
+              </Text>
+              {group.trades.map((trade, index) => {
+                const assetType = stockTradeAssetTypeLabel(trade.asset_type);
+                return (
+                  <View key={`${trade.source_url}-${index}`} className="flex-row border-b border-line py-2">
+                    <View className="mr-3 w-20 self-start rounded border border-line px-1 py-0.5">
+                      <Text className="text-center text-xs font-medium text-ink">
+                        {stockTradeTransactionLabel(trade.transaction_type)}
+                      </Text>
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm text-ink-soft" numberOfLines={1} accessibilityLabel={stockTradeAssetLabel(trade)}>
+                        {trade.ticker ? <Text className="font-semibold text-ink">{trade.ticker} </Text> : null}
+                        <Text className={trade.ticker ? "" : "font-medium text-ink"}>{trade.asset_name}</Text>
+                      </Text>
+                      <Text className="text-sm text-ink">{formatStockTradeRange(trade)}</Text>
+                      <Text className="text-xs text-ink-soft">
+                        {stockTradeOwnerLabel(trade.owner)}
+                        {assetType ? ` · ${assetType}` : ""}
+                        {" · "}
+                        <Text className="underline" accessibilityRole="link" onPress={() => openExternalUrl(trade.source_url)}>
+                          Filing
+                        </Text>
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
 
           {hidden > 0 ? (
             <Pressable onPress={() => setWantAll(true)} accessibilityRole="button" disabled={all.isFetching}>

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatStockTradeRange,
   formatStockTradeTotal,
+  groupStockTradesByDate,
   stockTradeAssetLabel,
   stockTradesSummaryLine,
   type StockTradesSummary,
@@ -67,5 +68,26 @@ describe("stock trade formatters", () => {
   it("adds the ticker only when the filing has one", () => {
     expect(stockTradeAssetLabel({ asset_name: "Rollins, Inc.", ticker: "ROL" })).toBe("Rollins, Inc. (ROL)");
     expect(stockTradeAssetLabel({ asset_name: "US Treasury Bill", ticker: null })).toBe("US Treasury Bill");
+  });
+});
+
+describe("groupStockTradesByDate", () => {
+  it("groups consecutive trades of one date and keeps the order", () => {
+    const trade = (transaction_date: string, asset_name: string) => ({
+      asset_name,
+      ticker: null,
+      asset_type: null,
+      transaction_type: "purchase" as const,
+      transaction_date,
+      amount_low: 1001,
+      amount_high: 15000,
+      owner: "self" as const,
+      source_url: "https://example.gov/1.pdf",
+    });
+    const groups = groupStockTradesByDate([trade("2026-08-14", "A"), trade("2026-08-14", "B"), trade("2026-08-06", "C")]);
+    expect(groups.map((group) => [group.date, group.trades.map((row) => row.asset_name)])).toEqual([
+      ["2026-08-14", ["A", "B"]],
+      ["2026-08-06", ["C"]],
+    ]);
   });
 });

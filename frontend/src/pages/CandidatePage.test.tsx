@@ -588,8 +588,14 @@ describe("CandidatePage", () => {
     expect(details!.open).toBe(false);
     // Collapsed, not absent.
     expect(screen.getByText("Reported 1 stock trade since 2025, worth between $1,001 and $15,000.")).toBeInTheDocument();
-    expect(screen.getByText("Rollins, Inc. Common Stock (ROL)")).toBeInTheDocument();
-    expect(screen.getByText(/Buy · January 8, 2025 · Spouse/)).toBeInTheDocument();
+    // Date once as a group heading; the row carries action, ticker, asset,
+    // amount and owner.
+    expect(screen.getByRole("heading", { name: "January 8, 2025" })).toBeInTheDocument();
+    expect(screen.getByText("Buy")).toBeInTheDocument();
+    expect(screen.getByText("ROL")).toBeInTheDocument();
+    expect(screen.getByText("Rollins, Inc. Common Stock")).toBeInTheDocument();
+    expect(screen.getAllByText("$1,001 – $15,000").length).toBeGreaterThan(0);
+    expect(screen.getByText(/Spouse/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Filing" })).toHaveAttribute(
       "href",
       "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/2025/20026537.pdf"
