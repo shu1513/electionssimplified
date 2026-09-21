@@ -1,4 +1,5 @@
 import type { BallotLookupElection, CandidateElectionFinanceResult } from "../pipeline/address/ballotLookup.js";
+import type { CandidateStockTradesResult } from "../pipeline/stockTrades/stockTradesReader.js";
 // [ballot-personalized-ordering] see ballotElectionOrdering.ts for removal notes
 import type {
   BallotSummaryOptions,
@@ -128,6 +129,9 @@ export type AddressApiServerOptions = {
    * one candidate's finance summary without the full election payload.
    * null = election or candidate/election pairing not found (404). */
   lookupCandidateElectionFinance?: (electionId: string, candidateId: string) => Promise<CandidateElectionFinanceResult | null>;
+  /** GET /api/candidates/:candidate_id/stock-trades — one candidate's
+   * reported securities trades. null = candidate not found (404). */
+  lookupCandidateStockTrades?: (candidateId: string, limit: number | null) => Promise<CandidateStockTradesResult | null>;
   /** POST /api/chatbot/ask — retrieval-only "Ask" pipeline
    * (docs/plans/chatbot-rag.md). Wired only when CHATBOT_ENABLED; the
    * endpoint 404s when absent so the kill switch fully hides the feature.

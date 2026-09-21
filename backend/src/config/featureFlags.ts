@@ -81,6 +81,12 @@ export function isCandidateFinanceEnabled(): boolean {
   return readBooleanEnv("CANDIDATE_FINANCE_ENABLED", false);
 }
 
+// Read-side only: the "Stock Trades" panel reads imported rows from the
+// database. No external calls, no cost.
+export function isCandidateStockTradesEnabled(): boolean {
+  return readBooleanEnv("CANDIDATE_STOCK_TRADES_ENABLED", false);
+}
+
 export function isCandidateFinanceSyncEnabled(force = false): boolean {
   return isCandidateFinanceEnabled() && (force || readBooleanEnv("CANDIDATE_FINANCE_SYNC_ENABLED", false));
 }

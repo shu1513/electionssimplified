@@ -58,6 +58,7 @@ import {
   lookupCandidateElectionFinanceSummaryById,
   lookupElectionDetailById,
 } from "../pipeline/address/ballotLookup.js";
+import { lookupCandidateStockTradesById } from "../pipeline/stockTrades/stockTradesReader.js";
 // [ballot-personalized-ordering]
 import { applyBallotElectionOrdering } from "../pipeline/address/ballotElectionOrdering.js";
 import { resolveAddressToDistricts } from "../pipeline/address/addressResolverService.js";
@@ -808,6 +809,7 @@ async function main(): Promise<void> {
     lookupElectionDetail: (electionId) => lookupElectionDetailById(pool, electionId),
     lookupCandidateElectionFinance: (electionId, candidateId) =>
       lookupCandidateElectionFinanceSummaryById(pool, electionId, candidateId),
+    lookupCandidateStockTrades: (candidateId, limit) => lookupCandidateStockTradesById(pool, candidateId, limit),
     checkDatabaseHealth: createApiDbPoolHealthCheck(pool),
     listResearchAreas: () => listSelectableResearchAreas(pool),
     getStateVotingResources: (stateAbbreviation) => getStateVotingResources(pool, stateAbbreviation),

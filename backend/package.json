@@ -79,6 +79,7 @@
     "rollcall:judge": "tsx src/scripts/judgeRollCallVotes.ts",
     "rollcall:rewrite": "tsx src/scripts/rewriteRollCallDescriptions.ts",
     "rollcall:export-rewrites": "tsx src/scripts/exportRollCallRewrites.ts",
+    "stocks:import": "tsx src/scripts/importStockTrades.ts",
     "travel:import": "tsx src/scripts/importSponsoredTravel.ts",
     "rollcall:oh:fetch": "tsx src/scripts/fetchOhioRollCallVotes.ts",
     "rollcall:oh:resolve": "tsx src/scripts/resolveOhioRollCallMembers.ts",

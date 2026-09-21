@@ -181,6 +181,8 @@ services:
         value: "true"
       - key: CANDIDATE_FINANCE_ENABLED
         value: "true"
+      - key: CANDIDATE_STOCK_TRADES_ENABLED
+        value: "true"
       - key: COLORADO_CAMPAIGN_FINANCE_ENABLED
         value: "true"
       - key: CONNECTICUT_CAMPAIGN_FINANCE_ENABLED

@@ -45,6 +45,7 @@ import {
   ELECTION_DETAIL_PATH_PREFIX,
   isCandidateDetailPath,
   isCandidateElectionFinancePath,
+  isCandidateStockTradesPath,
   isElectionDetailPath,
   MAX_ADDRESS_REQUEST_BODY_BYTES,
   EMAIL_UNSUBSCRIBE_PATH,
@@ -97,6 +98,7 @@ import {
   parseBallotSummaryOptions,
   parseCandidateElectionFinancePath,
   parseCandidateId,
+  parseCandidateStockTradesPath,
   parseCandidateSearchQuery,
   parseDistrictIds,
   parseElectionId,
@@ -206,6 +208,7 @@ function isKnownApiPath(pathname: string): boolean {
     // matches it today: recognition of the search route must not depend on
     // a sibling predicate staying loose.
     pathname === CANDIDATE_SEARCH_PATH ||
+    isCandidateStockTradesPath(pathname) ||
     isCandidateDetailPath(pathname) ||
     // Listed explicitly even though the loose election-detail prefix also
     // matches it today: recognition of the finance route must not depend on
@@ -2394,6 +2397,37 @@ async function dispatchApiRequest(
 
     const searchQuery = parseCandidateSearchQuery(url);
     const result = await options.searchCandidates(searchQuery);
+    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    return;
+  }
+
+  // Before the candidate-detail branch: the stock-trades path shares its
+  // prefix, and parseCandidateId rejects any path with extra segments.
+  if (isCandidateStockTradesPath(url.pathname)) {
+    if (request.method !== "GET") {
+      sendApiResponse(
+        response,
+        toErrorResponse(405, "method_not_allowed", "Use GET /api/candidates/:candidate_id/stock-trades", {
+          ...corsHeaders,
+          allow: "GET",
+        })
+      );
+      return;
+    }
+    if (!options.lookupCandidateStockTrades) {
+      sendApiResponse(
+        response,
+        toErrorResponse(500, "internal_error", "Candidate stock trades lookup is not configured", corsHeaders)
+      );
+      return;
+    }
+
+    const { candidateId, limit } = parseCandidateStockTradesPath(url);
+    const result = await options.lookupCandidateStockTrades(candidateId, limit);
+    if (!result) {
+      sendApiResponse(response, toErrorResponse(404, "not_found", "Candidate not found", corsHeaders));
+      return;
+    }
     sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
     return;
   }

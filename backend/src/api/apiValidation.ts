@@ -1386,6 +1386,35 @@ export function parseCandidateElectionFinancePath(url: URL): { electionId: strin
   return { electionId, candidateId };
 }
 
+// Matches /api/candidates/:candidate_id/stock-trades. Shares the
+// candidate-detail prefix, so the router must test this predicate before
+// isCandidateDetailPath.
+const CANDIDATE_STOCK_TRADES_PATH_PATTERN = /^\/api\/candidates\/([^/]+)\/stock-trades$/;
+
+export function isCandidateStockTradesPath(pathname: string): boolean {
+  return CANDIDATE_STOCK_TRADES_PATH_PATTERN.test(pathname);
+}
+
+export function parseCandidateStockTradesPath(url: URL): { candidateId: string; limit: number | null } {
+  const match = CANDIDATE_STOCK_TRADES_PATH_PATTERN.exec(url.pathname);
+  if (!match) {
+    throw new RequestValidationError("Candidate stock trades path must be /api/candidates/:candidate_id/stock-trades");
+  }
+  const candidateId = match[1].trim();
+  if (!isUuid(candidateId)) {
+    throw new RequestValidationError(`Candidate stock trades path contains invalid candidate UUID: ${candidateId}`);
+  }
+  // Optional ?limit=N caps the listed rows (the totals still cover all).
+  const rawLimit = url.searchParams.get("limit");
+  if (rawLimit === null) {
+    return { candidateId, limit: null };
+  }
+  if (!/^[1-9]\d{0,3}$/.test(rawLimit)) {
+    throw new RequestValidationError("Candidate stock trades limit must be an integer from 1 to 9999");
+  }
+  return { candidateId, limit: Number(rawLimit) };
+}
+
 export function isPickCardPath(pathname: string): boolean {
   return pathname.startsWith(PICK_CARD_PATH_PREFIX);
 }

@@ -4160,6 +4160,78 @@ describe("createApiApp", () => {
       });
     });
   });
+
+  describe("GET /api/candidates/:candidate_id/stock-trades", () => {
+    const candidateId = "44444444-4444-4444-8444-444444444444";
+    const stockTradesPath = `/api/candidates/${candidateId}/stock-trades`;
+
+    it("serves one candidate's stock trades without touching the candidate detail lookup", async () => {
+      const resolveAddress = vi.fn();
+      const lookupCandidateDetail = vi.fn();
+      const result = { stock_trades: null };
+      const lookupCandidateStockTrades = vi.fn().mockResolvedValue(result);
+
+      const response = await invokeExpressApp(
+        createApiApp({ resolveAddress, lookupCandidateDetail, lookupCandidateStockTrades }),
+        { method: "GET", path: stockTradesPath }
+      );
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual(result);
+      expect(lookupCandidateStockTrades).toHaveBeenCalledWith(candidateId, null);
+
+      await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
+        method: "GET",
+        path: `${stockTradesPath}?limit=25`,
+      });
+      expect(lookupCandidateStockTrades).toHaveBeenLastCalledWith(candidateId, 25);
+
+      const badLimit = await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
+        method: "GET",
+        path: `${stockTradesPath}?limit=0`,
+      });
+      expect(badLimit.statusCode).toBe(400);
+      expect(lookupCandidateDetail).not.toHaveBeenCalled();
+    });
+
+    it("returns 404 when the candidate is missing", async () => {
+      const resolveAddress = vi.fn();
+      const lookupCandidateStockTrades = vi.fn().mockResolvedValue(null);
+
+      const response = await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
+        method: "GET",
+        path: stockTradesPath,
+      });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    it("keeps wrong methods as 405 responses", async () => {
+      const resolveAddress = vi.fn();
+      const lookupCandidateStockTrades = vi.fn();
+
+      const response = await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
+        method: "POST",
+        path: stockTradesPath,
+      });
+
+      expect(response.statusCode).toBe(405);
+      expect(lookupCandidateStockTrades).not.toHaveBeenCalled();
+    });
+
+    it("rejects invalid candidate UUIDs before lookup", async () => {
+      const resolveAddress = vi.fn();
+      const lookupCandidateStockTrades = vi.fn();
+
+      const response = await invokeExpressApp(createApiApp({ resolveAddress, lookupCandidateStockTrades }), {
+        method: "GET",
+        path: "/api/candidates/not-a-uuid/stock-trades",
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(lookupCandidateStockTrades).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe("GET /api/me", () => {
