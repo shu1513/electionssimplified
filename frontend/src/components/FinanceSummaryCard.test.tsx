@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { FinanceSummaryCard, hasFinanceContent } from "./FinanceSummaryCard";
 import { financeSummary, emptyFinanceSummary } from "../test/fixtures";
 
@@ -642,5 +642,56 @@ describe("FinanceSummaryCard", () => {
     // State sources and unsynced federal candidates send no list at all.
     rerender(<FinanceSummaryCard summary={financeSummary()} />);
     expect(screen.queryByText("Donations sent through groups")).not.toBeInTheDocument();
+  });
+
+  it("rolls PAC money up by interest and opens a row to the PACs behind it", () => {
+    const interest = (slug: string, name: string, amount: number, pacCount: number) => ({
+      interest: slug,
+      interest_name: name,
+      amount,
+      pac_count: pacCount,
+      pacs: [
+        {
+          committee_id: `C-${slug}`,
+          committee_name: `${name.toUpperCase()} EXAMPLE PAC`,
+          amount: Math.min(amount, 10_000),
+          source_url: `https://www.fec.gov/data/disbursements/?committee_id=C-${slug}`,
+        },
+      ],
+    });
+    const summary = financeSummary();
+    summary.direct_campaign.pac_money_by_interest = [
+      interest("labor_unions", "Labor unions", 62_000, 9),
+      interest("oil_gas_energy", "Oil, gas, and energy", 40_000, 6),
+      interest("gun_rights", "Gun rights groups and gun makers", 9_900, 1),
+      interest("gun_control", "Gun control groups", 9_900, 1),
+      interest("healthcare", "Healthcare", 8_000, 2),
+      interest("retail", "Retail", 5_000, 1),
+      interest("unclassified", "Not yet sorted", 30_000, 12),
+    ];
+    render(<FinanceSummaryCard summary={summary} />);
+
+    const list = screen.getByText("PAC money by interest").parentElement as HTMLElement;
+    expect(within(list).getByText("$62,000")).toBeInTheDocument();
+    expect(within(list).getByText(/· 9 PACs/)).toBeInTheDocument();
+    expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(3);
+    expect(within(list).getByRole("link", { name: "LABOR UNIONS EXAMPLE PAC" })).toHaveAttribute(
+      "href",
+      "https://www.fec.gov/data/disbursements/?committee_id=C-labor_unions"
+    );
+    expect(within(list).getByText("and 8 more")).toBeInTheDocument();
+    // Six rows first; the unsorted remainder is reachable, never hidden.
+    expect(within(list).queryByText("Not yet sorted")).not.toBeInTheDocument();
+    fireEvent.click(within(list).getByRole("button", { name: "Show all (7)" }));
+    expect(within(list).getByText("Not yet sorted")).toBeInTheDocument();
+  });
+
+  it("says so when no PAC gave, and shows nothing when the PAC list was not loaded", () => {
+    const loaded = financeSummary();
+    loaded.direct_campaign.pac_money_by_interest = [];
+    const { rerender } = render(<FinanceSummaryCard summary={loaded} />);
+    expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
+    rerender(<FinanceSummaryCard summary={financeSummary()} />);
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
   });
 });

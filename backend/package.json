@@ -145,6 +145,8 @@
     "candidates:record:live:ai-probe": "tsx src/scripts/liveCandidateRecordAiProbe.ts",
     "ai:candidate-records:relabel": "tsx src/scripts/relabelCandidateRecordAreas.ts",
     "candidates:record:live:pipeline-smoke": "tsx src/scripts/liveCandidateRecordPipelineSmoke.ts",
+    "manual:finance-pac-interests:due": "tsx src/scripts/manualFinancePacInterests.ts due",
+    "manual:finance-pac-interests:write": "tsx src/scripts/manualFinancePacInterests.ts write",
     "candidates:finance:sync": "tsx src/scripts/syncCandidateFinance.ts",
     "austin-candidates:finance:probe": "tsx src/scripts/probeAustinCandidateFinance.ts",
     "austin-candidates:finance:sync-due": "tsx src/scripts/syncDueAustinCandidateFinance.ts",

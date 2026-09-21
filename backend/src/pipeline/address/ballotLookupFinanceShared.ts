@@ -52,6 +52,27 @@ export type BallotLookupFinanceConduitDonation = {
   label_source_urls?: string[];
 };
 
+/**
+ * What the PACs of one interest reported giving to the candidate in the
+ * cycle. A PAC may give a candidate at most $5,000 per election, so single
+ * PAC checks look alike; the total per interest is what differs between
+ * candidates. `interest` is a slug from the PAC interest taxonomy, or
+ * "unclassified" for PACs nobody has sorted yet (always listed last).
+ */
+export type BallotLookupFinancePacInterest = {
+  interest: string;
+  interest_name: string;
+  amount: number;
+  pac_count: number;
+  /** The largest PACs of this interest, for the expandable detail. */
+  pacs: {
+    committee_id: string;
+    committee_name: string;
+    amount: number;
+    source_url: string | null;
+  }[];
+};
+
 export type BallotLookupFinanceUnallocatedOutsideEdge = {
   filing_id: string;
   report_date: string;
@@ -171,6 +192,11 @@ export type BallotLookupFinanceSummary = {
      * array means none reported.
      */
     conduit_donations?: BallotLookupFinanceConduitDonation[];
+    /**
+     * PAC contributions grouped by the interest the PAC speaks for (FEC
+     * only). Absent until the PAC list was loaded for this cycle.
+     */
+    pac_money_by_interest?: BallotLookupFinancePacInterest[];
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders

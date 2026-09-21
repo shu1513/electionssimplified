@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCandidateFinanceEnabled } from "../../config/featureFlags.js";
 import type { ElectionContestFamily, ElectionDistrictType, ElectionRaceType } from "../../types/election.js";
+import { UNCLASSIFIED_PAC_INTEREST, pacInterestDisplayName } from "./pacInterestClassifier.js";
 import {
   addFinanceBreakdown,
   buildOutsideIndustrySupportExplanation,
@@ -16,6 +17,7 @@ import {
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 
@@ -59,6 +61,8 @@ const GENERIC_FEC_OUTSIDE_SPENDING_SOURCE_URL = "https://www.fec.gov/data/indepe
 // The card shows the largest few conduit groups, each with a researched
 // one-line description, so the payload carries no more than that.
 const MAX_FEC_CONDUIT_ROWS = 5;
+// PACs named under each interest row's expandable detail.
+const MAX_PACS_PER_INTEREST = 5;
 
 type CandidateFinanceSummaryRequest = {
   candidate_id: string;
@@ -91,6 +95,15 @@ type CandidateFinanceConduitRow = {
   amount: string | number;
   contribution_count: number;
   source_url: string | null;
+};
+
+type CandidateFinancePacInterestRow = {
+  candidate_id: string;
+  election_id: string;
+  interest: string | null;
+  amount: string | number;
+  pac_count: number;
+  pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
 };
 
 type CandidateFinanceDirectBreakdownRow = {
@@ -559,6 +572,84 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
         )
       : { rows: [] as CandidateFinanceConduitRow[] };
 
+  const pacInterestResult =
+    conduitRequests.length > 0
+      ? await db.query<CandidateFinancePacInterestRow>(
+          `
+            WITH selected AS (
+              SELECT
+                candidate_id::uuid AS candidate_id,
+                election_id::uuid AS election_id,
+                fec_candidate_id,
+                election_year
+              FROM jsonb_to_recordset($1::jsonb) AS x(
+                candidate_id text,
+                election_id text,
+                fec_candidate_id text,
+                election_year int
+              )
+            ),
+            donors AS (
+              SELECT
+                selected.candidate_id::text AS candidate_id,
+                selected.election_id::text AS election_id,
+                interests.interest_slug AS interest,
+                donor.committee_id,
+                donor.committee_name,
+                donor.amount,
+                donor.source_url,
+                row_number() OVER (
+                  PARTITION BY selected.candidate_id, selected.election_id, interests.interest_slug
+                  ORDER BY donor.amount DESC, donor.committee_name ASC
+                ) AS rn
+              FROM selected
+              JOIN public.candidate_finance_pac_donors AS donor
+                ON donor.fec_candidate_id = selected.fec_candidate_id
+               AND donor.election_year = selected.election_year
+              LEFT JOIN public.finance_pac_interests AS interests
+                ON interests.committee_id = donor.committee_id
+            )
+            SELECT
+              candidate_id,
+              election_id,
+              interest,
+              sum(amount) AS amount,
+              count(*)::int AS pac_count,
+              jsonb_agg(
+                jsonb_build_object(
+                  'committee_id', committee_id,
+                  'committee_name', committee_name,
+                  'amount', amount,
+                  'source_url', source_url
+                ) ORDER BY rn
+              ) FILTER (WHERE rn <= $2::int) AS pacs
+            FROM donors
+            GROUP BY candidate_id, election_id, interest
+            ORDER BY candidate_id, election_id, (interest IS NULL), sum(amount) DESC, interest ASC
+          `,
+          [JSON.stringify(conduitRequests), MAX_PACS_PER_INTEREST]
+        )
+      : { rows: [] as CandidateFinancePacInterestRow[] };
+
+  const pacInterestsByCandidateElection = new Map<string, BallotLookupFinancePacInterest[]>();
+  for (const row of pacInterestResult.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const list = pacInterestsByCandidateElection.get(key) ?? [];
+    list.push({
+      interest: row.interest ?? UNCLASSIFIED_PAC_INTEREST,
+      interest_name: pacInterestDisplayName(row.interest),
+      amount: parseFinanceAmount(row.amount) ?? 0,
+      pac_count: row.pac_count,
+      pacs: (row.pacs ?? []).map((pac) => ({
+        committee_id: pac.committee_id,
+        committee_name: pac.committee_name,
+        amount: parseFinanceAmount(pac.amount) ?? 0,
+        source_url: firstNonEmptySourceUrl(pac.source_url, GENERIC_FEC_DATA_SOURCE_URL),
+      })),
+    });
+    pacInterestsByCandidateElection.set(key, list);
+  }
+
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directEmployersByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
@@ -672,7 +763,10 @@ export async function loadFecCandidateFinanceSummariesByCandidateElection(
             // Present only once the list was loaded, so an empty list
             // means "none reported", never "not loaded yet".
             ...(row.contributors_synced_at
-              ? { conduit_donations: conduitsByCandidateElection.get(key) ?? [] }
+              ? {
+                  conduit_donations: conduitsByCandidateElection.get(key) ?? [],
+                  pac_money_by_interest: pacInterestsByCandidateElection.get(key) ?? [],
+                }
               : {}),
           },
           outside_spending: {

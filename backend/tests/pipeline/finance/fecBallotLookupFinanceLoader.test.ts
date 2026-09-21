@@ -64,10 +64,35 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
         ],
       });
 
+    query.mockResolvedValueOnce({
+      rows: [
+        {
+          candidate_id: CANDIDATE_ID,
+          election_id: ELECTION_ID,
+          interest: "labor_unions",
+          amount: "15000.00",
+          pac_count: 2,
+          pacs: [{ committee_id: "C00000011", committee_name: "UNITED WORKERS UNION PAC", amount: 10000, source_url: null }],
+        },
+        { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, interest: null, amount: "2500.00", pac_count: 1, pacs: [] },
+      ],
+    });
+
     const result = await loadFecCandidateFinanceSummariesByCandidateElection({ query }, candidateRows, electionRows);
     const direct = [...result.values()][0]?.direct_campaign;
 
-    expect(query).toHaveBeenCalledTimes(6);
+    expect(query).toHaveBeenCalledTimes(7);
+    expect(String(query.mock.calls[6]?.[0])).toContain("LEFT JOIN public.finance_pac_interests");
+    expect(direct?.pac_money_by_interest).toEqual([
+      {
+        interest: "labor_unions",
+        interest_name: "Labor unions",
+        amount: 15000,
+        pac_count: 2,
+        pacs: [{ committee_id: "C00000011", committee_name: "UNITED WORKERS UNION PAC", amount: 10000, source_url: "https://www.fec.gov/data/" }],
+      },
+      { interest: "unclassified", interest_name: "Not yet sorted", amount: 2500, pac_count: 1, pacs: [] },
+    ]);
     expect(String(query.mock.calls[5]?.[0])).toContain("public.candidate_finance_conduit_totals");
     expect(String(query.mock.calls[5]?.[0])).toContain("WHERE NOT conduit.is_payment_platform");
     expect(query.mock.calls[5]?.[1]?.[1]).toBe(5);
@@ -87,7 +112,6 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
         source_url: "https://www.fec.gov/data/",
       },
     ]);
-    expect(direct).not.toHaveProperty("pac_donors");
   });
 
   it("leaves the lists out, and runs no extra queries, until they were loaded", async () => {
@@ -100,5 +124,6 @@ describe("loadFecCandidateFinanceSummariesByCandidateElection conduit groups", (
     expect(query).toHaveBeenCalledTimes(5);
     expect(direct).toBeDefined();
     expect(direct).not.toHaveProperty("conduit_donations");
+    expect(direct).not.toHaveProperty("pac_money_by_interest");
   });
 });

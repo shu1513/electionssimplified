@@ -161,6 +161,14 @@ export function hasOutsideFinanceContent(summary: FinanceSummary): boolean {
   );
 }
 
+// Interest rows the "PAC money by interest" list shows before "Show all".
+export const VISIBLE_PAC_INTEREST_ROWS = 6;
+
+/** "9 PACs" / "1 PAC" for an interest row. */
+export function formatPacCount(count: number): string {
+  return `${count} ${count === 1 ? "PAC" : "PACs"}`;
+}
+
 /**
  * Whether the cards should render a member-communications block: spending
  * by organizations to their own members about this candidate (disclosed

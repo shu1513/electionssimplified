@@ -54,6 +54,7 @@ export type FecBulkCommittee = {
   name: string;
   committeeType: string | null;
   designation: string | null;
+  organizationType: string | null;
   connectedOrganization: string | null;
   candidateId: string | null;
 };
@@ -147,7 +148,7 @@ function cleanConnectedOrganization(value: string | undefined): string | null {
   return cleaned;
 }
 
-/** cm columns: 1 CMTE_ID, 2 CMTE_NM, 9 CMTE_DSGN, 10 CMTE_TP, 14 CONNECTED_ORG_NM, 15 CAND_ID. */
+/** cm columns: 1 CMTE_ID, 2 CMTE_NM, 9 CMTE_DSGN, 10 CMTE_TP, 13 ORG_TP, 14 CONNECTED_ORG_NM, 15 CAND_ID. */
 export function parseFecCommitteeMasterLine(line: string): FecBulkCommittee | null {
   const columns = splitBulkLine(line);
   const committeeId = cleanCommitteeId(columns[0]);
@@ -160,6 +161,7 @@ export function parseFecCommitteeMasterLine(line: string): FecBulkCommittee | nu
     name,
     designation: cleanText(columns[8])?.toUpperCase() ?? null,
     committeeType: cleanText(columns[9])?.toUpperCase() ?? null,
+    organizationType: cleanText(columns[12])?.toUpperCase() ?? null,
     connectedOrganization: cleanConnectedOrganization(columns[13]),
     candidateId: cleanCandidateId(columns[14]),
   };
@@ -351,6 +353,11 @@ export class FecBulkContributorAggregator {
       addToRunningTotal(totals, row.conduitCommitteeId, row.amount, row.recipientCommitteeId);
       this.conduitTotalsByCandidate.set(candidateId, totals);
     }
+  }
+
+  /** The FEC registration facts for one committee, when the master file has it. */
+  getCommittee(committeeId: string): FecBulkCommittee | null {
+    return this.committees.get(committeeId) ?? null;
   }
 
   private isPaymentPlatform(committeeId: string): boolean {

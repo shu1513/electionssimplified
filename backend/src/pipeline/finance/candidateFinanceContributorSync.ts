@@ -13,7 +13,9 @@ import {
   type CandidateFinanceConduitTotal,
   type CandidateFinanceContributors,
   type CandidateFinancePacDonor,
+  type FecBulkCommittee,
 } from "./fecBulkContributorAggregator.js";
+import { classifyPacInterest } from "./pacInterestClassifier.js";
 import {
   downloadFecBulkFile,
   fecCycleForElectionYear,
@@ -36,7 +38,10 @@ export type CandidateFinanceContributorTarget = {
   electionYear: number;
 };
 
-export type CandidateFinanceContributorLookup = (fecCandidateId: string) => CandidateFinanceContributors;
+export type CandidateFinanceContributorLookup = ((fecCandidateId: string) => CandidateFinanceContributors) & {
+  /** FEC registration facts for a donor committee; absent in test doubles. */
+  getCommittee?: (committeeId: string) => FecBulkCommittee | null;
+};
 
 export type LoadCandidateFinanceContributorsFn = (input: {
   cycle: number;
@@ -127,7 +132,9 @@ export const loadCandidateFinanceContributorsFromFecBulk: LoadCandidateFinanceCo
     }
   }
 
-  return (fecCandidateId) => aggregator.getContributors(fecCandidateId);
+  return Object.assign((fecCandidateId: string) => aggregator.getContributors(fecCandidateId), {
+    getCommittee: (committeeId: string) => aggregator.getCommittee(committeeId),
+  });
 };
 
 function fecUrl(path: string, params: Record<string, string | number>): string {
@@ -279,6 +286,66 @@ export async function replaceCandidateFinanceContributors(input: {
   });
 }
 
+/**
+ * Records every donor committee's FEC facts and its interest. FEC facts are
+ * refreshed on every sync. The interest is refreshed too, except where a
+ * person researched it: a manual row is never overwritten.
+ */
+export async function upsertPacInterests(input: {
+  db: Queryable;
+  committees: readonly FecBulkCommittee[];
+}): Promise<void> {
+  const rows = input.committees.map((committee) => {
+    const classification = classifyPacInterest({
+      committeeName: committee.name,
+      committeeType: committee.committeeType,
+      designation: committee.designation,
+      organizationType: committee.organizationType,
+      connectedOrganization: committee.connectedOrganization,
+    });
+    return {
+      committee_id: committee.committeeId,
+      committee_name: committee.name,
+      committee_type: committee.committeeType,
+      designation: committee.designation,
+      organization_type: committee.organizationType,
+      connected_organization: committee.connectedOrganization,
+      interest_slug: classification.interestSlug,
+      confidence: classification.confidence,
+      classification_source: classification.source,
+    };
+  });
+  for (let start = 0; start < rows.length; start += 500) {
+    await input.db.query(
+      `
+        INSERT INTO public.finance_pac_interests (
+          committee_id, committee_name, committee_type, designation, organization_type,
+          connected_organization, interest_slug, confidence, classification_source
+        )
+        SELECT x.committee_id, x.committee_name, x.committee_type, x.designation, x.organization_type,
+          x.connected_organization, x.interest_slug, x.confidence, x.classification_source
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+          committee_id text, committee_name text, committee_type text, designation text, organization_type text,
+          connected_organization text, interest_slug text, confidence text, classification_source text
+        )
+        ON CONFLICT (committee_id) DO UPDATE SET
+          committee_name = EXCLUDED.committee_name,
+          committee_type = EXCLUDED.committee_type,
+          designation = EXCLUDED.designation,
+          organization_type = EXCLUDED.organization_type,
+          connected_organization = EXCLUDED.connected_organization,
+          interest_slug = CASE WHEN finance_pac_interests.classification_source = 'manual'
+            THEN finance_pac_interests.interest_slug ELSE EXCLUDED.interest_slug END,
+          confidence = CASE WHEN finance_pac_interests.classification_source = 'manual'
+            THEN finance_pac_interests.confidence ELSE EXCLUDED.confidence END,
+          classification_source = CASE WHEN finance_pac_interests.classification_source = 'manual'
+            THEN 'manual' ELSE EXCLUDED.classification_source END
+      `,
+      [JSON.stringify(rows.slice(start, start + 500))]
+    );
+  }
+}
+
 function sumAmounts(rows: readonly { amount: number }[]): number {
   return Math.round(rows.reduce((total, row) => total + row.amount, 0) * 100) / 100;
 }
@@ -312,8 +379,15 @@ export async function syncCandidateFinanceContributors(
       bulkDataDirectory: input.bulkDataDirectory,
       downloadTimeoutMs: input.downloadTimeoutMs,
     });
+    const donorCommittees = new Map<string, FecBulkCommittee>();
     for (const target of targets.values()) {
       const contributors = lookup(target.fecCandidateId);
+      for (const donor of contributors.pacDonors) {
+        const committee = lookup.getCommittee?.(donor.committeeId);
+        if (committee) {
+          donorCommittees.set(committee.committeeId, committee);
+        }
+      }
       if (!dryRun) {
         await replaceCandidateFinanceContributors({
           db: input.db,
@@ -331,6 +405,9 @@ export async function syncCandidateFinanceContributors(
         conduitCount: contributors.conduits.length,
         conduitTotal: sumAmounts(contributors.conduits),
       });
+    }
+    if (!dryRun && donorCommittees.size > 0) {
+      await upsertPacInterests({ db: input.db, committees: [...donorCommittees.values()] });
     }
   }
 

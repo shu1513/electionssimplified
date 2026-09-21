@@ -27,7 +27,7 @@ const CONDUIT_GROUP_B = "C00000022";
 const PLATFORM = "C00000031";
 
 function cmLine(id: string, name: string, designation: string, type: string, connectedOrg = "", candidateId = ""): string {
-  return [id, name, "TREASURER", "1 MAIN ST", "", "CITY", "ST", "00000", designation, type, "", "Q", "", connectedOrg, candidateId].join("|");
+  return [id, name, "TREASURER", "1 MAIN ST", "", "CITY", "ST", "00000", designation, type, "", "Q", "C", connectedOrg, candidateId].join("|");
 }
 
 function cclLine(candidateId: string, cycle: number, committeeId: string, type: string, designation: string): string {
@@ -116,6 +116,7 @@ describe("FEC bulk line parsing", () => {
       name: "ACME CORP PAC",
       designation: "B",
       committeeType: "Q",
+      organizationType: "C",
       connectedOrganization: "ACME CORPORATION",
       candidateId: null,
     });

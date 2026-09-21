@@ -320,6 +320,16 @@ export type FinanceConduitDonation = {
   label_source_urls?: string[];
 };
 
+// Mirrors BallotLookupFinancePacInterest (backend): what the PACs of one
+// interest reported giving to the candidate. "unclassified" comes last.
+export type FinancePacInterest = {
+  interest: string;
+  interest_name: string;
+  amount: number;
+  pac_count: number;
+  pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
+};
+
 export type FinanceUnallocatedOutsideEdge = {
   filing_id: string;
   report_date: string;
@@ -363,6 +373,9 @@ export type FinanceSummary = {
     /** FEC only: the largest groups individual donations were sent through.
      * Absent until the list was loaded; empty means none reported. */
     conduit_donations?: FinanceConduitDonation[];
+    /** FEC only: PAC contributions grouped by the interest the PAC speaks
+     * for. Absent until the PAC list was loaded. */
+    pac_money_by_interest?: FinancePacInterest[];
     direct_coverage_note?: string | null;
   };
   outside_spending: {
