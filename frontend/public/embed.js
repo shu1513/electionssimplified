@@ -68,7 +68,8 @@
     frame.style.maxWidth = Math.round(width) + "px";
   }
   frame.style.boxSizing = "border-box";
-  frame.style.border = "1px solid #dddddd";
+  // The site's brand red (--color-rausch in frontend/src/index.css).
+  frame.style.border = "1px solid #ff385c";
   frame.style.borderRadius = "8px";
   var height = Number(script.getAttribute("data-height"));
   var fixedHeight = isFinite(height) && height >= MIN_HEIGHT && height <= MAX_HEIGHT;

@@ -59,7 +59,7 @@ may be reused freely with attribution.
 ## How it works
 
 - `frontend/public/embed.js` inserts an iframe of `/embed` after the script
-  tag. With `data-height` the box is exactly that tall. Without it, the page
+  tag, with a 1px border in the site's brand red and 8px corners. With `data-height` the box is exactly that tall. Without it, the page
   reports its content height while it loads and the script fits the box to
   it (380 to 600 pixels). Reports are honoured for about 2.5 seconds after
   the first one (styles or fonts can land late), and again for 2.5 seconds
