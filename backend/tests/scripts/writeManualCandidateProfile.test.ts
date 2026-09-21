@@ -188,7 +188,29 @@ describe("applyRegularElectionProfileContext", () => {
       expect(result.state_filing_ids).toBeUndefined();
     });
 
-    it("requires a campaign website", () => {
+    it("accepts the roster row's state filing number in place of a campaign website", () => {
+      const result = applyRegularElectionProfileContext({
+        profile: profile({ official_website_url: undefined }),
+        researchMode: "federal_us_senate",
+        rosterHints: { ...rosterHints, stateFilingIds: ["497"] },
+      });
+
+      expect(result.fec_ids).toBeUndefined();
+      expect(result.official_website_url).toBeUndefined();
+      expect(result.state_filing_ids).toEqual(["497"]);
+    });
+
+    it("still holds a supplied website to the cited-source rule when a filing number exists", () => {
+      expect(() =>
+        applyRegularElectionProfileContext({
+          profile: profile({ sources: ["https://news.example/jane-candidate"] }),
+          researchMode: "federal_us_house",
+          rosterHints: { ...rosterHints, stateFilingIds: ["497"] },
+        })
+      ).toThrow("payload.sources must include a page on jane.example");
+    });
+
+    it("requires a campaign website when the roster row has no state filing number", () => {
       expect(() =>
         applyRegularElectionProfileContext({
           profile: profile({ official_website_url: undefined, twitter_handle: "janecandidate" }),

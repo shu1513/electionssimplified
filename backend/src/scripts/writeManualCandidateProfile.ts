@@ -16,7 +16,7 @@ import {
   parseCandidateRosterPayload,
   type CandidateRosterNoFecIdException,
 } from "../contracts/candidateRosterPayloadContract.js";
-import { assertNoFecIdExceptionProfileHasVerifiedWebsite } from "../pipeline/candidates/candidateRosterNoFecIdException.js";
+import { assertNoFecIdExceptionProfileHasHardIdentifier } from "../pipeline/candidates/candidateRosterNoFecIdException.js";
 import {
   isNoPublicInfoSummary,
   type CandidateProfilePayload,
@@ -356,11 +356,15 @@ export function applyRegularElectionProfileContext(input: {
     if (fecIds.length === 0 && !noFecIdException) {
       throw new Error("candidate_fec_ids is required in roster context for federal profile import");
     }
+    const exceptionStateFilingIds = noFecIdException
+      ? normalizeStringArray(input.rosterHints?.stateFilingIds)
+      : [];
     if (noFecIdException) {
-      // No FEC ID to match on, so the campaign website is the identifier that
-      // keeps identity matching and duplicate prevention working. It must be
-      // on a cited host: cited sources are the URLs this writer verifies.
-      assertNoFecIdExceptionProfileHasVerifiedWebsite(withoutParty);
+      // No FEC ID to match on, so another hard identifier keeps identity
+      // matching and duplicate prevention working: the election authority's
+      // filing number from the roster row, or a campaign website on a cited
+      // host (cited sources are the URLs this writer verifies).
+      assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, exceptionStateFilingIds);
     }
     // The regular federal profile path stores date_of_birth as null (the AI
     // prompt tells the model to omit it). Refuse instead of silently
@@ -373,7 +377,9 @@ export function applyRegularElectionProfileContext(input: {
     }
     const { state_filing_ids: _stateFilingIds, ...federalProfile } = withoutParty;
     return noFecIdException
-      ? federalProfile
+      ? exceptionStateFilingIds.length > 0
+        ? { ...federalProfile, state_filing_ids: exceptionStateFilingIds }
+        : federalProfile
       : {
           ...federalProfile,
           fec_ids: fecIds,
