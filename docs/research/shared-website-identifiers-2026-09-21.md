@@ -23,15 +23,16 @@ rosters, candidate lists.
 
 | Group | URLs | Action |
 | --- | --- | --- |
-| Shared page by URL shape (directory, results, roster, candidate list) | 300 | clear from current and former website fields |
-| Shared page with an opaque path (listed in `shared-website-pages-2026-09-21.txt`) | 42 | clear |
+| Shared page by URL shape (directory, results, roster, candidate list) | 298 | clear from current and former website fields |
+| Shared page with an opaque path or a bare shared host (listed in `shared-website-pages-2026-09-21.txt`) | 44 | clear |
 | Governor / lieutenant governor ticket campaign sites (lead and running mate) | 31 | keep |
 | Slate campaign sites (`ld11.vote`, `forstrongerschoolsjc.com`, `sites.google.com/view/wcp-md`) | 3 | keep |
 | Same person stored twice (`juliaforarizona.com`: Julia Gusse `7b479c7a-…`, Julia Romero Gusse `1b480e3c-…`) | 1 | owner decides; `manual:candidates:merge` |
 
-Dry run of `manual:candidates:clear-shared-websites` with the URL list:
-342 URLs stripped, 1,139 rows changed (some rows lose only a former entry),
-35 shared URLs kept.
+Applied locally on 2026-09-21 with the URL list: 343 URLs stripped, 1,140
+rows changed (some rows lose only a former entry), 34 shared URLs kept. The
+apply step writes a row only if it still holds the values the scan saw and
+reports any row skipped for that reason under `skippedRows`.
 
 Possible duplicate for the owner: Cathy White (`881ea8a6-…`, Working Class
 Party governor ticket) and Cathy Permut (`15e187d0-…`, same party, same site,
@@ -47,7 +48,8 @@ under different titles (districts 1 and 4).
 ## Code guard
 
 - `isSharedPageWebsiteUrl` flags a URL whose last meaningful path segment or
-  query carries a listing word, or a bare government host.
+  query carries a listing word. A bare host is never flagged: 242 local rows
+  store a member's own `x.house.gov` site.
 - `assessWebsiteIdentifier` also refuses a URL already stored (current or
   former) on a live row under a different normalized name. The identity pool
   query now loads those rows.

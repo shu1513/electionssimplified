@@ -381,7 +381,6 @@ const SHARED_PAGE_SUBSTRINGS = [
 // Segments that only point at a document inside a folder; the folder name
 // carries the meaning ("elections_administration/index.php").
 const SHARED_PAGE_INDEX_SEGMENTS = new Set(["index", "default", "page", "pages", "view", "home"]);
-const GOVERNMENT_HOST_PATTERN = /(\.gov|\.mil|\.us|\.k12\.[a-z]{2})$/i;
 
 function sharedPageSegmentWords(segment: string): string[] {
   let decoded = segment;
@@ -413,10 +412,12 @@ function wordsMarkSharedPage(words: readonly string[]): boolean {
  *
  * The check reads the URL's shape only: the last meaningful path segment
  * (skipping bare numbers, one-letter segments and index documents) plus the
- * query string must carry a listing word, or the host must be a government
- * domain with no path at all. Personal campaign sites have neither. A
- * listing page with an opaque path (".../bcityj.html") slips through here
- * and is caught by the stored-holder check instead (assessWebsiteIdentifier).
+ * query string must carry a listing word. Personal campaign sites have none.
+ * A bare host is never flagged, whatever its domain: "clyburn.house.gov" is
+ * one person's official site, and 242 local rows store such a site. A
+ * listing page with an opaque path (".../bcityj.html") or a bare shared
+ * root ("nacogdochesco.gov") slips through here and is caught by the
+ * stored-holder check instead (assessWebsiteIdentifier).
  */
 export function isSharedPageWebsiteUrl(url: string): boolean {
   let parsed: URL;
@@ -429,9 +430,6 @@ export function isSharedPageWebsiteUrl(url: string): boolean {
     return false;
   }
   const segments = parsed.pathname.split("/").filter((segment) => segment.length > 0);
-  if (segments.length === 0) {
-    return GOVERNMENT_HOST_PATTERN.test(parsed.hostname);
-  }
   for (let index = segments.length - 1; index >= 0; index -= 1) {
     const words = sharedPageSegmentWords(segments[index]!);
     const meaningful = words.filter((word) => !/^\d+$/.test(word) && word.length > 1);

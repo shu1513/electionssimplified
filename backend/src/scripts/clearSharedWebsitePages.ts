@@ -55,6 +55,10 @@ export type SharedWebsiteClearPlan = {
     candidateId: string;
     displayName: string | null;
     state: string;
+    // The values seen at scan time; the UPDATE is conditional on them so a
+    // row another writer touched in between is skipped, not overwritten.
+    storedWebsite: string | null;
+    storedFormerWebsites: unknown;
     website: string | null;
     formerWebsites: string[];
     strippedUrls: string[];
@@ -123,6 +127,8 @@ export function planSharedWebsiteClears(
       candidateId: row.id,
       displayName: row.display_name,
       state: row.state,
+      storedWebsite: row.official_website_url,
+      storedFormerWebsites: row.former_website_urls ?? null,
       website: result.website,
       formerWebsites: result.formerWebsites,
       strippedUrls: result.strippedUrls,
@@ -207,24 +213,35 @@ async function main(): Promise<void> {
     const plan = planSharedWebsiteClears(rows.rows, { minRows, listedUrls });
 
     let updatedRows = 0;
+    const skippedRows: string[] = [];
     if (apply) {
       const client = await pool.connect();
       try {
         await client.query("BEGIN");
         for (const change of plan.rowChanges) {
+          // Write only if the row still holds what the scan saw; a row a
+          // profile write changed in between keeps its newer values and is
+          // reported for a re-run.
           const result = await client.query(
             `UPDATE public.candidates
                 SET official_website_url = $2,
                     former_website_urls = $3::jsonb,
                     updated_at = now()
               WHERE id = $1
-                AND deleted_at IS NULL`,
+                AND deleted_at IS NULL
+                AND official_website_url IS NOT DISTINCT FROM $4::text
+                AND former_website_urls IS NOT DISTINCT FROM $5::jsonb`,
             [
               change.candidateId,
               change.website,
               change.formerWebsites.length > 0 ? JSON.stringify(change.formerWebsites) : null,
+              change.storedWebsite,
+              change.storedFormerWebsites === null ? null : JSON.stringify(change.storedFormerWebsites),
             ]
           );
+          if ((result.rowCount ?? 0) === 0) {
+            skippedRows.push(change.candidateId);
+          }
           updatedRows += result.rowCount ?? 0;
         }
         await client.query("COMMIT");
@@ -243,6 +260,7 @@ async function main(): Promise<void> {
       rowsScanned: plan.rowsScanned,
       strippedUrlCount: plan.strippedUrls.length,
       changedRows: apply ? updatedRows : plan.rowChanges.length,
+      skippedRows,
       strippedUrls: plan.strippedUrls,
       sharedButKept: plan.sharedButKept,
       rowChanges: plan.rowChanges,

@@ -36,6 +36,8 @@ describe("planSharedWebsiteClears", () => {
       candidateId: "g",
       displayName: "Jane Own",
       state: "TX",
+      storedWebsite: "https://jane.example",
+      storedFormerWebsites: [countyPage],
       website: "https://jane.example",
       formerWebsites: [],
       strippedUrls: [countyPage],

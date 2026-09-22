@@ -1438,7 +1438,6 @@ describe("shared-page websites are not hard identifiers", () => {
     "https://www.ppsb.org/apps/pages/index.jsp?pREC_ID=staff&type=d&uREC_ID=169137",
     "https://www.wyoleg.gov/Legislators/2026/H",
     "https://hoodcounty.texas.gov/departments/elections_administration/index.php",
-    "https://www.nacogdochesco.gov",
     "https://www.wfyi.org/education/2026-09-11/voter-guide-msd-wayne-township-school-board-2026",
     "https://candidates.sos.mn.gov/CandidateFilingResults.aspx?candidateid=0&county=23",
   ];
@@ -1451,6 +1450,11 @@ describe("shared-page websites are not hard identifiers", () => {
     "https://www.senate.mn.gov/members/member_bio.html?mem_id=1234",
     "https://www.legis.iowa.gov/legislators/legislator?personID=123",
     "https://clyburn.house.gov/about/official-biography",
+    "https://clyburn.house.gov",
+    "https://www.schumer.senate.gov/",
+    "https://burke4congress.us",
+    // A bare shared root is not visible from the URL alone; the stored-holder check catches it.
+    "https://www.nacogdochesco.gov",
     "https://janedoe.com/about",
     "https://www.facebook.com/janeforjudge",
   ];
@@ -1461,7 +1465,7 @@ describe("shared-page websites are not hard identifiers", () => {
     }
   });
 
-  it("leaves personal campaign sites and a legislator's own member page alone", () => {
+  it("leaves personal campaign sites, a member's own bare host, and a legislator's member page alone", () => {
     for (const url of ownSites) {
       expect(isSharedPageWebsiteUrl(url), url).toBe(false);
     }
