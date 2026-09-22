@@ -9,6 +9,7 @@ const RETIRED = "22222222-2222-2222-2222-222222222222";
 const SURVIVOR_A = "33333333-3333-3333-3333-333333333333";
 const SURVIVOR_B = "44444444-4444-4444-4444-444444444444";
 const DISTRICT = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+const REASON = "Generic board shell superseded by the per-district contests.";
 
 function retiredRow(overrides: Partial<Record<string, unknown>> = {}) {
   return {
@@ -16,6 +17,7 @@ function retiredRow(overrides: Partial<Record<string, unknown>> = {}) {
     district_id: DISTRICT,
     election_date: "2026-11-03",
     official_ballot_title: "Chicago Board of Education Member",
+    official_ballot_title_key: "chicago board of education member",
     race_type: "office",
     election_stage: "general",
     sources: ["https://chicagoelections.gov/contests"],
@@ -66,6 +68,7 @@ function happyResponses(overrides: Partial<Record<string, unknown[][]>> = {}) {
     ],
     "count(*)::text AS n FROM public.candidate_elections": [[{ n: "0" }]],
     "count(*)::text AS n FROM public.user_election_follows": [[{ n: "0" }]],
+    "INSERT INTO public.retired_election_identities": [[{ id: "ledger-1" }]],
     ...overrides,
   };
 }
@@ -76,7 +79,7 @@ describe("runSupersedeElection", () => {
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
     );
 
     expect(result.deletedElectionId).toBe(RETIRED);
@@ -95,17 +98,49 @@ describe("runSupersedeElection", () => {
     expect(calls.at(-1)?.text).toBe("COMMIT");
   });
 
+  it("writes a superseded tombstone naming the survivors, before the delete", async () => {
+    const { query, calls } = buildClient(happyResponses());
+
+    const result = await runSupersedeElection(
+      { query },
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+    );
+
+    const ledgerIndex = calls.findIndex((call) => call.text.includes("INSERT INTO public.retired_election_identities"));
+    const deleteIndex = calls.findIndex((call) => call.text.includes("DELETE FROM public.elections"));
+    expect(ledgerIndex).toBeGreaterThan(0);
+    expect(ledgerIndex).toBeLessThan(deleteIndex);
+    expect(calls[ledgerIndex]?.values).toEqual([
+      DISTRICT,
+      "2026-11-03",
+      "chicago board of education member",
+      "Chicago Board of Education Member",
+      "office",
+      RETIRED,
+      "superseded",
+      REASON,
+      "https://chicagoelections.gov/contests",
+      [SURVIVOR_A, SURVIVOR_B],
+      null,
+      null,
+    ]);
+    expect(result.retiredIdentity.ledgerId).toBe("ledger-1");
+    expect(result.retiredIdentity.officialBallotTitleKey).toBe("chicago board of education member");
+  });
+
   it("dry-run reports the plan and rolls back without deleting", async () => {
     const { query, calls } = buildClient(happyResponses());
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: true }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: true }
     );
 
     expect(result.dryRun).toBe(true);
     expect(result.supersededBy[1]).toMatchObject({ electionId: SURVIVOR_B, sourcesAppended: 1 });
     expect(calls.some((call) => call.text.startsWith("DELETE") || call.text.includes("SET sources"))).toBe(false);
+    expect(calls.some((call) => call.text.includes("INSERT INTO public.retired_election_identities"))).toBe(false);
+    expect(result.retiredIdentity.ledgerId).toBeNull();
     expect(calls.at(-1)?.text).toBe("ROLLBACK");
   });
 
@@ -117,7 +152,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/candidate_elections\.election_id \(5\).*manual:candidate-elections:move/);
   });
@@ -131,7 +166,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: wrongDistrict.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/different district/);
 
@@ -143,7 +178,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: wrongDate.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/different date/);
   });
@@ -163,7 +198,7 @@ describe("runSupersedeElection", () => {
     }));
     const result = await runSupersedeElection(
       { query: allowed.query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
     );
     expect(result.crossDistrict).toEqual([
       {
@@ -178,7 +213,7 @@ describe("runSupersedeElection", () => {
     const sameDistrict = buildClient(happyResponses());
     const sameResult = await runSupersedeElection(
       { query: sameDistrict.query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
     );
     expect(sameResult.crossDistrict).toBeUndefined();
 
@@ -195,7 +230,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: crossState.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
       )
     ).rejects.toThrow(/different states/);
 
@@ -209,7 +244,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: crossDate.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
       )
     ).rejects.toThrow(/different date/);
   });
@@ -231,7 +266,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: unrelated.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false, allowCrossDistrict: true }
       )
     ).rejects.toThrow(/do not describe the same body/);
 
@@ -244,7 +279,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: wrongRaceType.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/different race type/);
 
@@ -256,7 +291,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: wrongStage.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/different stage/);
   });
@@ -268,7 +303,7 @@ describe("runSupersedeElection", () => {
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
     );
 
     expect(result.deletedElectionId).toBe(RETIRED);
@@ -287,7 +322,7 @@ describe("runSupersedeElection", () => {
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
     );
 
     expect(result.cascadeDeletes).toEqual([{ table: "manual_research_deferrals", rows: 2 }]);
@@ -301,7 +336,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: stillBlocked.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/candidate_elections\.election_id \(1\)/);
   });
@@ -313,7 +348,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: missingRetired.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A], dryRun: false }
       )
     ).rejects.toThrow(/Election not found/);
 
@@ -323,7 +358,7 @@ describe("runSupersedeElection", () => {
     await expect(
       runSupersedeElection(
         { query: missingSurvivor.query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
       )
     ).rejects.toThrow(/Superseding election not found: 44444444/);
   });
@@ -331,18 +366,18 @@ describe("runSupersedeElection", () => {
   it("rejects empty, duplicate, and self-referencing superseded-by lists before touching the database", async () => {
     const { query } = buildClient({});
     await expect(
-      runSupersedeElection({ query }, { electionId: RETIRED, supersededByIds: [], dryRun: false })
+      runSupersedeElection({ query }, { electionId: RETIRED, reason: REASON, supersededByIds: [], dryRun: false })
     ).rejects.toThrow(/at least one replacement/);
     await expect(
       runSupersedeElection(
         { query },
-        { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_A], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_A], dryRun: false }
       )
     ).rejects.toThrow(/duplicate election ids/);
     await expect(
       runSupersedeElection(
         { query },
-        { electionId: RETIRED, supersededByIds: [RETIRED], dryRun: false }
+        { electionId: RETIRED, reason: REASON, supersededByIds: [RETIRED], dryRun: false }
       )
     ).rejects.toThrow(/must not include the election being retired/);
     expect(query).not.toHaveBeenCalled();
@@ -364,7 +399,7 @@ describe("runSupersedeElection", () => {
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
     );
 
     expect(result.supersededBy[0]).toMatchObject({ electionId: SURVIVOR_A, sourcesAppended: 1 });
@@ -407,7 +442,7 @@ describe("runSupersedeElection", () => {
 
     const result = await runSupersedeElection(
       { query },
-      { electionId: RETIRED, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A, SURVIVOR_B], dryRun: false }
     );
 
     expect(result.supersededBy[0]).toMatchObject({ electionId: SURVIVOR_A, sourcesAppended: 0 });

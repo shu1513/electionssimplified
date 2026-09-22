@@ -32,6 +32,13 @@ import {
   type OfficeMatchResult,
 } from "../elections/officeMatcher.js";
 import { createDistrictNewElectionNotificationEvents } from "../users/districtNotificationEvents.js";
+import {
+  describeRetiredElectionIdentity,
+  findRetiredElectionIdentities,
+  isReinstateRetiredApproved,
+  markRetiredElectionIdentityReinstated,
+  type RetiredIdentityMatch,
+} from "../elections/retiredElectionIdentities.js";
 
 const JUDICIAL_JUSTICE_OF_THE_PEACE_STATES = new Set(["tx", "texas", "la", "louisiana"]);
 
@@ -64,6 +71,18 @@ type WriteResult = {
   wrote: boolean;
   ballotMeasureElectionIds: string[];
   officeElectionIds: string[];
+  /** Entries skipped because their identity sits in retired_election_identities. */
+  skippedRetiredCount: number;
+};
+
+type WriteOptions = {
+  /**
+   * True only for a manual-research staging row stamped by
+   * manual:elections:inject --reinstate-retired. Together with the payload's
+   * reinstate_retired flag and review_reason it lets a retired identity be
+   * written again and closes the ledger row.
+   */
+  reinstateRetiredApproved: boolean;
 };
 
 type UnresolvedOfficeEntry = {
@@ -376,7 +395,8 @@ async function writeElectionsForDistrict(
   ingestKey: string,
   payload: ElectionEnrichedPayload,
   familySeedUrls: Partial<Record<ElectionContestScope, string[]>>,
-  runId: string | null
+  runId: string | null,
+  writeOptions: WriteOptions = { reinstateRetiredApproved: false }
 ): Promise<WriteResult> {
   // Checked before the transaction opens so the payload parks as failed rather
   // than half-writing a district that no reader will ever reach.
@@ -421,7 +441,7 @@ async function writeElectionsForDistrict(
     );
     if (statusUpdate.rowCount !== 1) {
       await client.query("ROLLBACK");
-      return { wrote: false, ballotMeasureElectionIds: [], officeElectionIds: [] };
+      return { wrote: false, ballotMeasureElectionIds: [], officeElectionIds: [], skippedRetiredCount: 0 };
     }
 
     await client.query(
@@ -457,6 +477,37 @@ async function writeElectionsForDistrict(
     const unresolvedOffices: UnresolvedOfficeEntry[] = [];
     const officeLessShellElectionIds: string[] = [];
 
+    // Retired-identity gate. A contest that manual:elections:retire-spurious
+    // or manual:elections:supersede deleted leaves its identity in
+    // retired_election_identities; any later payload carrying the same
+    // (title key, date) for this district — a manual re-inject of the old
+    // file, or the AI rollover rediscovering the same seat — must not write
+    // it back silently. The entry is skipped and the reason lands on the
+    // staging row. The one way through is a manual inject staged with
+    // --reinstate-retired, whose payload also says reinstate_retired: true
+    // and carries a review_reason; that writes the contest and closes the
+    // ledger row.
+    const retiredMatches = await findRetiredElectionIdentities(client, payload.district_id, payload.entries);
+    const reinstating =
+      writeOptions.reinstateRetiredApproved &&
+      payload.reinstate_retired === true &&
+      typeof payload.review_reason === "string" &&
+      payload.review_reason.trim().length > 0;
+    const blockedEntryIndexes = new Set<number>();
+    const blockedReasons: string[] = [];
+    const reinstateByEntryIndex = new Map<number, RetiredIdentityMatch>();
+    for (const match of retiredMatches) {
+      const entry = payload.entries[match.entryIndex]!;
+      if (reinstating) {
+        reinstateByEntryIndex.set(match.entryIndex, match);
+        continue;
+      }
+      blockedEntryIndexes.add(match.entryIndex);
+      blockedReasons.push(
+        `${JSON.stringify(entry.official_ballot_title)} ${entry.election_date}: ${describeRetiredElectionIdentity(match)}`
+      );
+    }
+
     // Resolve every office before inserting any election. An entry the matcher
     // cannot place is written as an office-less shell and reported, not thrown:
     // aborting the payload took down every other contest in the district (one
@@ -467,8 +518,8 @@ async function writeElectionsForDistrict(
     // `manual:elections:repair-office-ids` backfills office_id once a matcher
     // or catalog fix lands, and the roster handoff below skips these ids so no
     // downstream stage starts work it cannot finish.
-    for (const entry of payload.entries) {
-      if (entry.race_type !== "office") {
+    for (const [entryIndex, entry] of payload.entries.entries()) {
+      if (entry.race_type !== "office" || blockedEntryIndexes.has(entryIndex)) {
         matchedOfficeIds.push(null);
         continue;
       }
@@ -545,6 +596,9 @@ async function writeElectionsForDistrict(
     }
 
     for (const [entryIndex, entry] of payload.entries.entries()) {
+      if (blockedEntryIndexes.has(entryIndex)) {
+        continue;
+      }
       const matchedOfficeId = matchedOfficeIds[entryIndex] ?? null;
       const upsertResult = await client.query<{
         id: string;
@@ -614,6 +668,14 @@ async function writeElectionsForDistrict(
       if (row?.inserted) {
         insertedElectionIds.push(row.id);
       }
+      const reinstated = reinstateByEntryIndex.get(entryIndex);
+      if (row && reinstated) {
+        await markRetiredElectionIdentityReinstated(client, reinstated.row.id, row.id, payload.review_reason!);
+        console.warn(
+          `elections writer reinstated retired contest ingest_key=${ingestKey} election_id=${row.id} ` +
+            `ledger_id=${reinstated.row.id} title=${JSON.stringify(entry.official_ballot_title)} date=${entry.election_date}`
+        );
+      }
       if (row?.race_type === "ballot_measure") {
         ballotMeasureElectionIds.push(row.id);
       } else if (row?.race_type === "office") {
@@ -652,15 +714,30 @@ async function writeElectionsForDistrict(
 
     // The staging row stays `written` — the district was researched and its
     // resolvable contests are in — but the reason field carries every title the
-    // matcher could not place, so a partial write is never silently complete.
+    // matcher could not place and every contest the retired-identity gate
+    // skipped, so a partial write is never silently complete.
+    const stagingReasons: string[] = [];
+    if (blockedReasons.length > 0) {
+      const reason =
+        `writer skipped ${blockedReasons.length} retired contest(s) for district_id=${payload.district_id} ` +
+        `(reinstate with manual:elections:inject --reinstate-retired): ${blockedReasons.join("; ")}`;
+      stagingReasons.push(reason);
+      console.warn(`elections writer skipped retired contests ingest_key=${ingestKey}: ${reason}`);
+    }
     if (unresolvedOffices.length > 0) {
-      const reason = toReason(
-        describeUnresolvedOffices({
-          districtId: payload.district_id,
-          scope: payload.district_type,
-          unresolved: unresolvedOffices,
-        })
+      const reason = describeUnresolvedOffices({
+        districtId: payload.district_id,
+        scope: payload.district_type,
+        unresolved: unresolvedOffices,
+      });
+      stagingReasons.push(reason);
+      console.warn(
+        `elections writer wrote office-less shells ingest_key=${ingestKey} ` +
+          `shells=${officeLessShellElectionIds.length} ` +
+          `(repair with: npm run manual:elections:repair-office-ids): ${toReason(reason)}`
       );
+    }
+    if (stagingReasons.length > 0) {
       await client.query(
         `
           UPDATE staging_items
@@ -669,12 +746,7 @@ async function writeElectionsForDistrict(
           WHERE ingest_key = $1
             AND item_type = $3
         `,
-        [ingestKey, reason, STAGING_ITEM_TYPE_ELECTION]
-      );
-      console.warn(
-        `elections writer wrote office-less shells ingest_key=${ingestKey} ` +
-          `shells=${officeLessShellElectionIds.length} ` +
-          `(repair with: npm run manual:elections:repair-office-ids): ${reason}`
+        [ingestKey, toReason(stagingReasons.join(" | ")), STAGING_ITEM_TYPE_ELECTION]
       );
     }
 
@@ -813,6 +885,7 @@ async function writeElectionsForDistrict(
       wrote: true,
       ballotMeasureElectionIds,
       officeElectionIds,
+      skippedRetiredCount: blockedReasons.length,
     };
   } catch (error) {
     await client.query("ROLLBACK");
@@ -883,7 +956,8 @@ export async function runElectionsWriter(options: WriterOptions = {}): Promise<v
                 ingestKey,
                 parsed.payload,
                 familySeedUrls,
-                row.run_id
+                row.run_id,
+                { reinstateRetiredApproved: isReinstateRetiredApproved(row.ai_raw_debug) }
               );
               if (!writeResult.wrote) {
                 const latestRow = await getStagingRow(pool, ingestKey);

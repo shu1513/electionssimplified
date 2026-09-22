@@ -34,6 +34,12 @@
 //   told about the fake race — preserve or export it deliberately first;
 // - local-database guard (ALLOW_REMOTE_DB_WRITES=1 covers the deliberate
 //   production repair pass), row lock, single transaction, --dry-run.
+//
+// The delete leaves a tombstone: the same transaction inserts the contest's
+// identity (district, title key, date) into retired_election_identities with
+// the reason and the no-contest source. The elections writer skips any later
+// payload entry that matches it, so a rediscovery cannot write the invented
+// race back. See src/pipeline/elections/retiredElectionIdentities.ts.
 import { pathToFileURL } from "node:url";
 
 import { Pool } from "pg";
@@ -42,6 +48,10 @@ import { loadProjectEnv } from "../config/env.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 import { listElectionFkReferences } from "./supersedeManualElection.js";
+import {
+  findStagingIngestKeysForIdentity,
+  insertRetiredElectionIdentity,
+} from "../pipeline/elections/retiredElectionIdentities.js";
 
 type QueryResultLike<T> = { rows: T[] };
 
@@ -67,12 +77,22 @@ export type RetireSpuriousElectionResult = {
   /** Allowlisted bookkeeping rows that go with the election via cascade. */
   cascadeDeletes: { table: string; rows: number; note?: string }[];
   referencingTablesChecked: number;
+  /** The tombstone written alongside the delete (ledgerId is null on a dry run). */
+  retiredIdentity: {
+    ledgerId: string | null;
+    officialBallotTitleKey: string;
+    /** 'written' staging rows whose payload still carries this contest. */
+    stagingIngestKeys: string[];
+  };
 };
 
 type ElectionRow = {
   id: string;
+  district_id: string;
   election_date: string;
   official_ballot_title: string;
+  official_ballot_title_key: string;
+  race_type: string | null;
   district_name: string;
   district_state: string;
 };
@@ -138,7 +158,8 @@ export async function runRetireSpuriousElection(
   try {
     const lockedResult = await client.query<ElectionRow>(
       `
-        SELECT e.id, e.election_date::text, e.official_ballot_title,
+        SELECT e.id, e.district_id, e.election_date::text, e.official_ballot_title,
+               e.official_ballot_title_key, e.race_type,
                d.name AS district_name, d.state AS district_state
         FROM public.elections e
         JOIN public.districts d ON d.id = e.district_id
@@ -216,7 +237,29 @@ export async function runRetireSpuriousElection(
       );
     }
 
+    // Tombstone first, delete second, one transaction: a retired identity
+    // is never left without its ledger row.
+    const stagingIngestKeys = await findStagingIngestKeysForIdentity(
+      client,
+      retired.district_id,
+      retired.official_ballot_title_key,
+      retired.election_date
+    );
+    let ledgerId: string | null = null;
     if (!dryRun) {
+      const ledger = await insertRetiredElectionIdentity(client, {
+        districtId: retired.district_id,
+        electionDate: retired.election_date,
+        officialBallotTitle: retired.official_ballot_title,
+        officialBallotTitleKey: retired.official_ballot_title_key,
+        raceType: retired.race_type,
+        electionId,
+        action: "retired_spurious",
+        reason: options.reason,
+        sourceUrl: options.noContestSource,
+        stagingIngestKey: stagingIngestKeys[0] ?? null,
+      });
+      ledgerId = ledger.id;
       await client.query(`DELETE FROM public.elections WHERE id = $1::uuid`, [electionId]);
       await client.query("COMMIT");
     } else {
@@ -233,6 +276,11 @@ export async function runRetireSpuriousElection(
       noContestSource: options.noContestSource,
       cascadeDeletes,
       referencingTablesChecked: references.length,
+      retiredIdentity: {
+        ledgerId,
+        officialBallotTitleKey: retired.official_ballot_title_key,
+        stagingIngestKeys,
+      },
     };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);

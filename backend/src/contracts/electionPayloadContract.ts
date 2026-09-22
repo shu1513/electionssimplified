@@ -465,6 +465,22 @@ export function parseCanonicalElectionPayload(payload: unknown): ParseResult {
     return review;
   }
 
+  // Reinstating a retired contest is a deliberate, sourced decision: the
+  // flag is boolean-only and must travel with a review_reason.
+  let reinstateRetired = false;
+  if (input.reinstate_retired !== undefined) {
+    if (typeof input.reinstate_retired !== "boolean") {
+      return { ok: false, reason: "payload.reinstate_retired must be boolean when present" };
+    }
+    reinstateRetired = input.reinstate_retired;
+  }
+  if (reinstateRetired && !review.review_reason) {
+    return {
+      ok: false,
+      reason: "payload.reinstate_retired requires a non-empty review_reason citing the source that shows the contest is real",
+    };
+  }
+
   return {
     ok: true,
     payload: {
@@ -475,6 +491,7 @@ export function parseCanonicalElectionPayload(payload: unknown): ParseResult {
       entries,
       ...(review.review_decision ? { review_decision: review.review_decision } : {}),
       ...(review.review_reason ? { review_reason: review.review_reason } : {}),
+      ...(reinstateRetired ? { reinstate_retired: true } : {}),
     },
   };
 }

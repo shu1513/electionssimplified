@@ -10,11 +10,16 @@ const BASE_OPTIONS = {
   noContestSource: "https://en.wikipedia.org/wiki/2026_United_States_Senate_elections",
 };
 
+const DISTRICT = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+
 function electionRow() {
   return {
     id: SPURIOUS,
+    district_id: DISTRICT,
     election_date: "2026-11-03",
     official_ballot_title: "United States Senator",
+    official_ballot_title_key: "united states senator",
+    race_type: "office",
     district_name: "California",
     district_state: "CA",
   };
@@ -62,6 +67,15 @@ function happyResponses(overrides: Partial<Record<string, unknown[][]>> = {}) {
     // generic count, then the notified_at IS NOT NULL follow-up
     "count(*)::text AS n FROM public.user_district_notification_events": [[{ n: "1" }], [{ n: "0" }]],
     "count(*)::text AS n FROM public.user_election_follows": [[{ n: "0" }]],
+    "FROM public.staging_items": [
+      [
+        {
+          ingest_key: "manual:elections:ca:2026",
+          entries: [{ official_ballot_title: "United States Senator", election_date: "2026-11-03" }],
+        },
+      ],
+    ],
+    "INSERT INTO public.retired_election_identities": [[{ id: "ledger-1" }]],
     ...overrides,
   };
 }
@@ -88,6 +102,37 @@ describe("runRetireSpuriousElection", () => {
     expect(calls.at(-1)?.text).toBe("COMMIT");
   });
 
+  it("writes the tombstone in the same transaction, before the delete", async () => {
+    const { query, calls } = buildClient(happyResponses());
+
+    const result = await runRetireSpuriousElection({ query }, { ...BASE_OPTIONS, dryRun: false });
+
+    const ledgerIndex = calls.findIndex((call) => call.text.includes("INSERT INTO public.retired_election_identities"));
+    const deleteIndex = calls.findIndex((call) => call.text.includes("DELETE FROM public.elections"));
+    const beginIndex = calls.findIndex((call) => call.text === "BEGIN");
+    expect(ledgerIndex).toBeGreaterThan(beginIndex);
+    expect(ledgerIndex).toBeLessThan(deleteIndex);
+    expect(calls[ledgerIndex]?.values).toEqual([
+      DISTRICT,
+      "2026-11-03",
+      "united states senator",
+      "United States Senator",
+      "office",
+      SPURIOUS,
+      "retired_spurious",
+      BASE_OPTIONS.reason,
+      BASE_OPTIONS.noContestSource,
+      [],
+      "manual:elections:ca:2026",
+      null,
+    ]);
+    expect(result.retiredIdentity).toEqual({
+      ledgerId: "ledger-1",
+      officialBallotTitleKey: "united states senator",
+      stagingIngestKeys: ["manual:elections:ca:2026"],
+    });
+  });
+
   it("dry-run reports the plan and rolls back without deleting", async () => {
     const { query, calls } = buildClient(happyResponses());
 
@@ -96,6 +141,9 @@ describe("runRetireSpuriousElection", () => {
     expect(result.dryRun).toBe(true);
     expect(result.cascadeDeletes).toHaveLength(4);
     expect(calls.some((call) => call.text.startsWith("DELETE"))).toBe(false);
+    expect(calls.some((call) => call.text.includes("INSERT INTO public.retired_election_identities"))).toBe(false);
+    expect(result.retiredIdentity.ledgerId).toBeNull();
+    expect(result.retiredIdentity.stagingIngestKeys).toEqual(["manual:elections:ca:2026"]);
     expect(calls.at(-1)?.text).toBe("ROLLBACK");
   });
 

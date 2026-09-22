@@ -19,6 +19,8 @@ import {
 } from "../contracts/electionPayloadContract.js";
 
 import { assertKnownCliFlags } from "./manualCliFlags.js";
+import { REINSTATE_RETIRED_APPROVED_FLAG } from "../pipeline/elections/retiredElectionIdentities.js";
+
 function readFlag(name: string): string | null {
   const index = process.argv.indexOf(name);
   if (index >= 0) {
@@ -52,7 +54,7 @@ function toReason(error: unknown): string {
 function usage(): string {
   return [
     "Usage:",
-    "  npm run manual:elections:inject -- --file payload.json [--ingest-key key] [--run-id id] [--review-approve] [--historical] [--dry-run]",
+    "  npm run manual:elections:inject -- --file payload.json [--ingest-key key] [--run-id id] [--review-approve] [--historical] [--reinstate-retired] [--dry-run]",
     "",
     "Payload must match ElectionEnrichedPayload and will be staged for the existing elections validator.",
     "",
@@ -68,6 +70,10 @@ function usage(): string {
     "for every entry in the payload. Its default ingest key is namespaced by the earliest entry's",
     "election year (manual:elections:<district>:historical:<year>) so a historical import never",
     "overwrites the district's current-year staging row.",
+    "--reinstate-retired writes a contest that manual:elections:retire-spurious or",
+    "manual:elections:supersede retired (the writer otherwise skips it and records why). The",
+    "payload must carry reinstate_retired: true and a review_reason citing the source that shows",
+    "the contest is real; the matching ledger rows are closed when the contest is written.",
   ].join("\n");
 }
 
@@ -124,6 +130,36 @@ export function resolveHistoricalImportDebugJson(
   return JSON.stringify({
     historical_import_approved: true,
     historical_import_approved_at: new Date().toISOString(),
+  });
+}
+
+// A retired identity is skipped by the writer unless the staging row carries
+// this marker (manual rows only). The CLI flag and the payload field must
+// agree, so a file that still says reinstate_retired: true cannot reinstate
+// by accident on a routine re-inject.
+export function resolveReinstateRetiredDebugJson(
+  payload: { reinstate_retired?: boolean; review_reason?: string },
+  reinstateRetired: boolean
+): string | null {
+  if (!reinstateRetired) {
+    if (payload.reinstate_retired === true) {
+      throw new Error(
+        `The payload carries reinstate_retired: true; re-run with --reinstate-retired to confirm the reinstatement, or remove the field.\n${usage()}`
+      );
+    }
+    return null;
+  }
+  if (payload.reinstate_retired !== true) {
+    throw new Error(`--reinstate-retired requires the payload to carry reinstate_retired: true.\n${usage()}`);
+  }
+  if (!payload.review_reason?.trim()) {
+    throw new Error(
+      `--reinstate-retired requires a non-empty payload review_reason citing the source that shows the contest is real.\n${usage()}`
+    );
+  }
+  return JSON.stringify({
+    [REINSTATE_RETIRED_APPROVED_FLAG]: true,
+    reinstate_retired_approved_at: new Date().toISOString(),
   });
 }
 
@@ -275,7 +311,15 @@ export async function stageManualElectionPayload(
 }
 
 async function main(): Promise<void> {
-  assertKnownCliFlags("manual:elections:inject", process.argv.slice(2), [{ name: "--file", value: "space" }, { name: "--ingest-key", value: "space" }, { name: "--run-id", value: "space" }, { name: "--review-approve", value: "none" }, { name: "--historical", value: "none" }, { name: "--dry-run", value: "none" }]);
+  assertKnownCliFlags("manual:elections:inject", process.argv.slice(2), [
+    { name: "--file", value: "space" },
+    { name: "--ingest-key", value: "space" },
+    { name: "--run-id", value: "space" },
+    { name: "--review-approve", value: "none" },
+    { name: "--historical", value: "none" },
+    { name: "--reinstate-retired", value: "none" },
+    { name: "--dry-run", value: "none" },
+  ]);
   loadProjectEnv();
 
   const file = readFlag("--file");
@@ -292,8 +336,10 @@ async function main(): Promise<void> {
   const dryRun = hasFlag("--dry-run");
   const reviewApprove = hasFlag("--review-approve");
   const historical = hasFlag("--historical");
+  const reinstateRetired = hasFlag("--reinstate-retired");
   const failureDebugJson = resolveReviewApproveFailureDebugJson(parsed.payload, reviewApprove);
   const historicalImportDebugJson = resolveHistoricalImportDebugJson(parsed.payload, historical);
+  const reinstateRetiredDebugJson = resolveReinstateRetiredDebugJson(parsed.payload, reinstateRetired);
   const ingestKey =
     readFlag("--ingest-key") ??
     (historical
@@ -307,6 +353,7 @@ async function main(): Promise<void> {
     ...(familySourceUrls ? { family_source_urls: familySourceUrls } : {}),
     ...(reviewApprove ? { manual_review_approved: true } : {}),
     ...(historicalImportDebugJson ? JSON.parse(historicalImportDebugJson) : {}),
+    ...(reinstateRetiredDebugJson ? JSON.parse(reinstateRetiredDebugJson) : {}),
   };
 
   if (dryRun) {
@@ -321,6 +368,7 @@ async function main(): Promise<void> {
           familySourceUrlFamilies: familySourceUrls ? Object.keys(familySourceUrls) : [],
           reviewApprove,
           historical,
+          reinstateRetired,
         },
         null,
         2
@@ -359,6 +407,7 @@ async function main(): Promise<void> {
           familySourceUrlFamilies: familySourceUrls ? Object.keys(familySourceUrls) : [],
           reviewApprove,
           historical,
+          reinstateRetired,
           // Targeted mode is the manual-run default: bare --once consumes the
           // shared stream and starves on stale local-Redis backlog (live, many
           // runs followed this output verbatim into unrelated queued work).
