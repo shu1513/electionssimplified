@@ -29,7 +29,7 @@ describe("EmbedHomePage", () => {
       "Uncover who your candidates really are by their track records"
     );
     expect(screen.getByText("Factual, nonpartisan, AI-assisted research with linked sources")).toBeInTheDocument();
-    const field = screen.getByLabelText("Enter address to see which elections you can vote in:");
+    const field = screen.getByLabelText("Enter address to see your elections and candidates:");
     expect(field).not.toHaveFocus();
     // No big wordmark in a publisher's article: one small credit at the
     // bottom, which is also the way to the site, in a new tab.

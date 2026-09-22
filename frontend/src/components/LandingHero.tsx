@@ -53,7 +53,7 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
       <div className={`mx-auto max-w-2xl px-4 pt-[13px] box:pt-3 ${framed ? "pb-8" : "pb-3 sm:pb-[59px]"}`}>
         <AddressSearchForm
           variant="landing"
-          label="Enter address to see which elections you can vote in:"
+          label="Enter address to see your elections and candidates:"
           grabFocus={!framed}
         />
       </div>
