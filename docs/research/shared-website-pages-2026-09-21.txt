@@ -1,0 +1,47 @@
+# Pages that list many people and were stored as candidate websites on two or
+# more rows (local audit 2026-09-21) but whose URL shape does not reveal it.
+# Input for: npm run manual:candidates:clear-shared-websites -- --urls-file docs/research/shared-website-pages-2026-09-21.txt
+https://msa.maryland.gov/msa/mdmanual/36loc/bcity/html/bcityj.html
+https://arcounties.org/counties/columbia
+https://www.arcounties.org/counties/columbia
+https://grantpsb.org/3608-2
+https://kydlgweb.ky.gov/Cities/16_CityView.cfm?City_ID=351
+https://kydlgweb.ky.gov/Cities/16_CityView.cfm?City_ID=66
+https://sussexcountyde.gov/sites/default/files/PDFs/FY2023_ACFR.pdf
+https://www.3rdcc.org/divisions/civil
+https://www.3rdcc.org/divisions/criminal
+https://www.3rdcc.org/departments---divisions/divisions/criminal
+https://www.3rdcc.org/divisions/family-domestic
+https://www.voteloraincountyohio.gov/_files/ugd/2568d0_226506d5c2cf4ea583201f12fb5efbf0.pdf
+https://elections.scottcountyiowa.gov/elected_officials/county
+https://ftcsc.org
+https://mgaleg.maryland.gov/mgawebsite/Members/Index/house
+https://www.unioncountyncelections.gov/node/1100
+https://card.txcourts.gov/ajrdata.aspx
+https://clarendonsoilandwater.com/index.php/about-us
+https://lookup.boe.ohio.gov/vtrapp/jefferson/cnm.aspx?prsid=036___1&task=voter
+https://www.aitkincountyswcd.org/about
+https://www.bankscountyga.org/DocumentCenter/View/915/MAY-19-2026-REPUBLICAN-BALLOT
+https://www.chowancounty-nc.gov/index.asp?SEC=A0602267-5599-4BE3-9101-D1120C305EA9
+https://www.co.cooke.tx.us/page/cooke.CommCourt
+https://www.co.hardeman.tx.us/page/hardeman.Commishioners
+https://www.dnr.sc.gov/conservation/districtsdnr/darlington.html
+https://www.dnr.sc.gov/conservation/districtsdnr/newberry.html
+https://www.henryk12.net/article/2633485
+https://www.houstoncountyga.gov/commissioner/contact-information.cms
+https://www.inglewoodusd.com/apps/pages/index.jsp?uREC_ID=4454986&type=d&pREC_ID=1624713
+https://www.lccitycourt.org
+https://www.leg.state.nv.us/App/Legislator/A/assembly/current
+https://www.louisianajudiciary.com
+https://www.revenue.alabama.gov/property-tax/county-offices-appraisal-assessment-records
+https://www.scottswcd.org/district-business
+https://www.sos.state.tx.us/elections/voter/cclerks.shtml
+https://www.sos.alabama.gov/sites/default/files/sample-ballots/2026/pri/Cullman%20-%20Rep.pdf
+https://www.swrsd.org
+https://www.trschools.com/administration/meetboarded
+https://www.uniontwpschool.org/apps/pages/index.jsp?pREC_ID=2445579&type=d&uREC_ID=3775583
+https://www.woodcliff-lake.com/apps/pages/index.jsp?pREC_ID=1092499&termREC_ID=&type=d&uREC_ID=566934
+# Party or organisation candidate lists (not one person's site)
+https://www.madcodemsil.com/about-1
+https://www.iapn.org
+https://denverforall.org/am/tools/candidate-tracker

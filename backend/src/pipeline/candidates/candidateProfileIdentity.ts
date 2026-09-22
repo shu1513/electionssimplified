@@ -28,6 +28,9 @@ export type ExistingCandidateRow = {
   id: string;
   first_name: string;
   last_name: string;
+  // Present on rows loaded by the identity pool queries; older callers and
+  // tests may omit it, so the name comparison falls back to first + last.
+  display_name?: string | null;
   date_of_birth: string | null;
   twitter_handle: string | null;
   linkedin_url: string | null;
@@ -187,7 +190,7 @@ export function mergeProfileSourceLists(
   return merged;
 }
 
-function websiteUrlKey(url: string): string {
+export function websiteUrlKey(url: string): string {
   return normalizeOptionalUrl(url) ?? url.toLowerCase();
 }
 
@@ -318,10 +321,274 @@ function haveSameNormalizedIdentifierSet(
   return true;
 }
 
-export function hasAtLeastOneHardIdentifier(profile: CandidateProfilePayload): boolean {
+// Words that mark a page listing MANY people rather than one person's own
+// site: an elected-officials directory, an election results page, a court or
+// board roster. Matched as whole words of the last meaningful path segment
+// (plus the query string), so a legislator's own member page under
+// ".../Members/Details/<slug>" is not caught while ".../Members/Index" is.
+const SHARED_PAGE_WHOLE_WORDS = new Set([
+  "alderman",
+  "aldermen",
+  "ballot",
+  "ballots",
+  "bench",
+  "biographies",
+  "board",
+  "boe",
+  "commission",
+  "council",
+  "court",
+  "courts",
+  "department",
+  "departments",
+  "election",
+  "elections",
+  "government",
+  "guide",
+  "justice",
+  "leadership",
+  "legislators",
+  "list",
+  "officeholders",
+  "qualifying",
+  "results",
+  "selectmen",
+  "staff",
+  "supervisors",
+  "tracker",
+  "trustees",
+]);
+// Longer tokens that identify a listing even when glued to other words
+// ("CandidateFilingResults", "JudicialDirectory", "countyfilings").
+// "members" (not "member": a legislator's own page is ".../Member?district="),
+// "officials" (not "official": ".../official-biography" is one person's page).
+const SHARED_PAGE_SUBSTRINGS = [
+  "candidate",
+  "commissioner",
+  "constable",
+  "directory",
+  "elected",
+  "filings",
+  "judges",
+  "judicial",
+  "judiciary",
+  "justices",
+  "magistrate",
+  "members",
+  "officials",
+  "roster",
+];
+// Segments that only point at a document inside a folder; the folder name
+// carries the meaning ("elections_administration/index.php").
+const SHARED_PAGE_INDEX_SEGMENTS = new Set(["index", "default", "page", "pages", "view", "home"]);
+const GOVERNMENT_HOST_PATTERN = /(\.gov|\.mil|\.us|\.k12\.[a-z]{2})$/i;
+
+function sharedPageSegmentWords(segment: string): string[] {
+  let decoded = segment;
+  try {
+    decoded = decodeURIComponent(segment);
+  } catch {
+    // keep the raw segment
+  }
+  return decoded
+    .toLowerCase()
+    .replace(/\.(html?|aspx?|php|jsp|pdf|shtml|cfm|cms)$/i, "")
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 0);
+}
+
+function wordsMarkSharedPage(words: readonly string[]): boolean {
+  return words.some(
+    (word) =>
+      SHARED_PAGE_WHOLE_WORDS.has(word) || SHARED_PAGE_SUBSTRINGS.some((token) => word.includes(token))
+  );
+}
+
+/**
+ * A page that lists many people — a county officials directory, an election
+ * results page, a court or board roster, a candidate list — is not one
+ * person's own website, so it must never identify a candidate row. On the
+ * local data 371 such URLs sat on two or more live rows each (a Tarrant
+ * County officials page on 39 rows; a Maryland primary results page on 22).
+ *
+ * The check reads the URL's shape only: the last meaningful path segment
+ * (skipping bare numbers, one-letter segments and index documents) plus the
+ * query string must carry a listing word, or the host must be a government
+ * domain with no path at all. Personal campaign sites have neither. A
+ * listing page with an opaque path (".../bcityj.html") slips through here
+ * and is caught by the stored-holder check instead (assessWebsiteIdentifier).
+ */
+export function isSharedPageWebsiteUrl(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return false;
+  }
+  const segments = parsed.pathname.split("/").filter((segment) => segment.length > 0);
+  if (segments.length === 0) {
+    return GOVERNMENT_HOST_PATTERN.test(parsed.hostname);
+  }
+  for (let index = segments.length - 1; index >= 0; index -= 1) {
+    const words = sharedPageSegmentWords(segments[index]!);
+    const meaningful = words.filter((word) => !/^\d+$/.test(word) && word.length > 1);
+    if (meaningful.length === 0) {
+      continue;
+    }
+    if (meaningful.length === 1 && SHARED_PAGE_INDEX_SEGMENTS.has(meaningful[0]!)) {
+      continue;
+    }
+    if (wordsMarkSharedPage(words)) {
+      return true;
+    }
+    break;
+  }
+  const queryWords: string[] = [];
+  for (const [key, value] of parsed.searchParams) {
+    queryWords.push(...sharedPageSegmentWords(key), ...sharedPageSegmentWords(value));
+  }
+  return wordsMarkSharedPage(queryWords);
+}
+
+function rowWebsiteKeys(row: Pick<ExistingCandidateRow, "official_website_url" | "former_website_urls">): string[] {
+  const keys: string[] = [];
+  if (row.official_website_url) {
+    keys.push(websiteUrlKey(row.official_website_url));
+  }
+  for (const formerUrl of parseOptionalStringArray(row.former_website_urls)) {
+    keys.push(websiteUrlKey(formerUrl));
+  }
+  return keys;
+}
+
+function rowHasSameNormalizedName(profile: CandidateProfilePayload, row: ExistingCandidateRow): boolean {
+  if (isExactNameMatch(profile, row)) {
+    return true;
+  }
+  const rowDisplayName = row.display_name?.trim();
+  return Boolean(
+    rowDisplayName && normalizeCandidateName(rowDisplayName) === normalizeCandidateName(profile.display_name)
+  );
+}
+
+export type WebsiteIdentifierAssessment = {
+  url: string | null;
+  usable: boolean;
+  reason: "shared_page" | "held_by_other_candidate" | null;
+  // Live rows under a different normalized name that already carry the URL
+  // (current or former). Empty unless reason is held_by_other_candidate.
+  holders: { id: string; displayName: string }[];
+};
+
+/**
+ * Decides whether the payload's official_website_url may act as a hard
+ * identifier. It may not when (a) it matches a shared-page pattern
+ * (isSharedPageWebsiteUrl) or (b) a live row under a DIFFERENT normalized
+ * name already stores it as its current or former website — a URL two
+ * people share cannot single out either of them. `rows` is the identity
+ * pool, which loadNameRelatedCandidates widens to include every holder of
+ * the incoming URL for exactly this check.
+ */
+export function assessWebsiteIdentifier(
+  profile: CandidateProfilePayload,
+  rows: readonly ExistingCandidateRow[]
+): WebsiteIdentifierAssessment {
+  const url = profile.official_website_url?.trim() || null;
+  const incomingKey = url ? normalizeOptionalUrl(url) : null;
+  if (!url || !incomingKey) {
+    return { url, usable: false, reason: null, holders: [] };
+  }
+  if (isSharedPageWebsiteUrl(url)) {
+    return { url, usable: false, reason: "shared_page", holders: [] };
+  }
+  const holders = rows
+    .filter((row) => rowWebsiteKeys(row).includes(incomingKey) && !rowHasSameNormalizedName(profile, row))
+    .map((row) => ({ id: row.id, displayName: row.display_name?.trim() || `${row.first_name} ${row.last_name}` }));
+  if (holders.length > 0) {
+    return { url, usable: false, reason: "held_by_other_candidate", holders };
+  }
+  return { url, usable: true, reason: null, holders: [] };
+}
+
+export function describeUnusableWebsiteIdentifier(assessment: WebsiteIdentifierAssessment): string | null {
+  if (assessment.usable || !assessment.reason) {
+    return null;
+  }
+  const detail =
+    assessment.reason === "shared_page"
+      ? "it looks like a page that lists many people (an officials directory, election results, a court or board roster)"
+      : `it is already stored on ${assessment.holders.length} other candidate row(s) under a different name: ${assessment.holders
+          .slice(0, 5)
+          .map((holder) => `${holder.displayName} (${holder.id})`)
+          .join(", ")}${assessment.holders.length > 5 ? ", ..." : ""}`;
+  return `official_website_url ${assessment.url} cannot serve as a hard identifier: ${detail}. Use the candidate's own site, a filing id (roster fec_ids or state_filing_ids), or pass --allow-no-hard-identifier deliberately.`;
+}
+
+/**
+ * Loads the identity pool for the payload and runs assessWebsiteIdentifier
+ * against it — the read-only form the manual writers use to refuse a write
+ * before opening a transaction.
+ */
+export async function assessWebsiteIdentifierAgainstDatabase(
+  client: Pick<PoolClient, "query">,
+  profile: CandidateProfilePayload,
+  scope: { state: string; allowCrossStateHardIdentifierMatch?: boolean }
+): Promise<WebsiteIdentifierAssessment> {
+  const rows = scope.allowCrossStateHardIdentifierMatch
+    ? await loadNameRelatedCandidatesAcrossStates(client, profile)
+    : await loadNameRelatedCandidates(client, profile, scope.state);
+  return assessWebsiteIdentifier(profile, rows);
+}
+
+/**
+ * Removes every website (current or former) that `shouldStrip` flags from a
+ * stored row, using the same URL keys the merge path uses. Nothing is
+ * archived: a shared page never identified the person, so keeping it in
+ * former_website_urls would let it keep matching. Serves the batch cleanup
+ * script (manual:candidates:clear-shared-websites).
+ */
+export function stripWebsiteUrlsFromCandidate(input: {
+  storedWebsite: string | null | undefined;
+  storedFormerWebsites: readonly string[];
+  shouldStrip: (url: string) => boolean;
+}): { website: string | null; formerWebsites: string[]; strippedUrls: string[]; changed: boolean } {
+  const stored = input.storedWebsite?.trim() || null;
+  const storedFormer = dedupeWebsiteUrlList(input.storedFormerWebsites);
+  const strippedUrls: string[] = [];
+  let website = stored;
+  if (stored && input.shouldStrip(stored)) {
+    strippedUrls.push(stored);
+    website = null;
+  }
+  const formerWebsites = storedFormer.filter((url) => {
+    if (input.shouldStrip(url)) {
+      strippedUrls.push(url);
+      return false;
+    }
+    return true;
+  });
+  const changed =
+    website !== stored ||
+    formerWebsites.length !== storedFormer.length ||
+    formerWebsites.length !== input.storedFormerWebsites.length;
+  return { website, formerWebsites: withoutWebsiteUrl(formerWebsites, website), strippedUrls, changed };
+}
+
+export function hasAtLeastOneHardIdentifier(
+  profile: CandidateProfilePayload,
+  options: { websiteCountsAsIdentifier?: boolean } = {}
+): boolean {
   const hasFec = (profile.fec_ids?.length ?? 0) > 0;
   const hasStateFiling = (profile.state_filing_ids?.length ?? 0) > 0;
-  const hasOfficialWebsite = Boolean(normalizeOptionalUrl(profile.official_website_url));
+  const website = profile.official_website_url?.trim() || null;
+  // Default: a website counts unless its shape says it lists many people.
+  // Callers that consulted the database pass the assessed answer instead.
+  const websiteCounts =
+    options.websiteCountsAsIdentifier ?? Boolean(website && !isSharedPageWebsiteUrl(website));
+  const hasOfficialWebsite = websiteCounts && Boolean(normalizeOptionalUrl(website));
   return Boolean(
     profile.date_of_birth ||
       profile.twitter_handle ||
@@ -411,7 +678,11 @@ export function matchesByRegistryIdentifier(
   return row.state === scope.state && matchesStateFilingId(profile, row);
 }
 
-export function matchesByHardIdentifier(profile: CandidateProfilePayload, row: ExistingCandidateRow): boolean {
+export function matchesByHardIdentifier(
+  profile: CandidateProfilePayload,
+  row: ExistingCandidateRow,
+  options: { websiteCountsAsIdentifier?: boolean } = {}
+): boolean {
   // Exact-name rows keep the historical rule: any hard identifier, with no
   // state scoping on filing ids and no personal-profile check on LinkedIn.
   if (matchesLinkedInUrl(profile, row) || matchesFecId(profile, row) || matchesStateFilingId(profile, row)) {
@@ -434,9 +705,14 @@ export function matchesByHardIdentifier(profile: CandidateProfilePayload, row: E
     }
   }
 
-  const incomingWebsite = profile.official_website_url
-    ? normalizeOptionalUrl(profile.official_website_url)
-    : null;
+  // A shared page (officials directory, results page, court roster) never
+  // identifies one person; findOrCreateCandidateFromProfile also switches the
+  // website off when another candidate under a different name holds it.
+  const websiteCounts =
+    options.websiteCountsAsIdentifier ??
+    Boolean(profile.official_website_url && !isSharedPageWebsiteUrl(profile.official_website_url));
+  const incomingWebsite =
+    websiteCounts && profile.official_website_url ? normalizeOptionalUrl(profile.official_website_url) : null;
   if (incomingWebsite) {
     if (
       row.official_website_url &&
@@ -474,6 +750,7 @@ const IDENTITY_POOL_COLUMNS = `
         id,
         first_name,
         last_name,
+        display_name,
         date_of_birth::text AS date_of_birth,
         twitter_handle,
         linkedin_url,
@@ -502,7 +779,27 @@ const IDENTITY_POOL_COLUMNS = `
  * (matchesByRegistryIdentifier); the weak identifiers keep requiring the
  * exact name. lower() on both sides defeats the plain last_name index, as
  * the exact-name query already did; the table is ~20k rows.
+ *
+ * The pool also holds every live row that stores the payload's website
+ * (current or former, compared case-insensitively without a trailing slash)
+ * whatever its name: assessWebsiteIdentifier needs those rows to tell a
+ * personal site from a page several people share. They never match on the
+ * website themselves — the exact-name rule above still applies.
  */
+const IDENTITY_POOL_WEBSITE_CLAUSE = (param: string) => `
+          OR lower(rtrim(official_website_url, '/')) = lower(rtrim(${param}::text, '/'))
+          OR EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements_text(
+              CASE WHEN jsonb_typeof(former_website_urls) = 'array' THEN former_website_urls ELSE '[]'::jsonb END
+            ) AS former(url)
+            WHERE lower(rtrim(former.url, '/')) = lower(rtrim(${param}::text, '/'))
+          )`;
+
+function identityPoolWebsiteParam(profile: CandidateProfilePayload): string | null {
+  return profile.official_website_url ? normalizeOptionalUrl(profile.official_website_url) : null;
+}
+
 export async function loadNameRelatedCandidates(
   client: Pick<PoolClient, "query">,
   profile: CandidateProfilePayload,
@@ -514,10 +811,10 @@ export async function loadNameRelatedCandidates(
         AND (
           lower(first_name) = lower($1)
           OR lower(last_name) = lower($2)
-          OR lower(trim(display_name)) = lower(trim($4))
+          OR lower(trim(display_name)) = lower(trim($4))${IDENTITY_POOL_WEBSITE_CLAUSE("$5")}
         )
     `,
-    [profile.first_name, profile.last_name, state, profile.display_name]
+    [profile.first_name, profile.last_name, state, profile.display_name, identityPoolWebsiteParam(profile)]
   );
 
   return result.rows;
@@ -532,10 +829,10 @@ export async function loadNameRelatedCandidatesAcrossStates(
         AND (
           lower(first_name) = lower($1)
           OR lower(last_name) = lower($2)
-          OR lower(trim(display_name)) = lower(trim($3))
+          OR lower(trim(display_name)) = lower(trim($3))${IDENTITY_POOL_WEBSITE_CLAUSE("$4")}
         )
     `,
-    [profile.first_name, profile.last_name, profile.display_name]
+    [profile.first_name, profile.last_name, profile.display_name, identityPoolWebsiteParam(profile)]
   );
 
   return result.rows;
@@ -903,14 +1200,22 @@ export async function findOrCreateCandidateFromProfile(
     ? await loadNameRelatedCandidatesAcrossStates(input.client, input.profile)
     : await loadNameRelatedCandidates(input.client, input.profile, input.state);
 
-  if (hasAtLeastOneHardIdentifier(input.profile)) {
+  // A website only identifies a person when it is their own site: a shared
+  // page, or a URL another candidate under a different name already holds,
+  // is switched off for both the identifier gate and the match below. The
+  // manual writers refuse such a payload up front unless the operator passed
+  // --allow-no-hard-identifier; here the write simply proceeds as if the
+  // payload carried no website (linked-election match or insert).
+  const websiteCountsAsIdentifier = assessWebsiteIdentifier(input.profile, existingCandidates).usable;
+
+  if (hasAtLeastOneHardIdentifier(input.profile, { websiteCountsAsIdentifier })) {
     // Exact-name rows match on any hard identifier (unchanged). Rows that
     // only share a name part or the display name must match on a registry
     // identifier — a shared campaign site or birth date across different
     // names is more often two people than one (see matchesByRegistryIdentifier).
     const matched = existingCandidates.filter((row) =>
       isExactNameMatch(input.profile, row)
-        ? matchesByHardIdentifier(input.profile, row)
+        ? matchesByHardIdentifier(input.profile, row, { websiteCountsAsIdentifier })
         : matchesByRegistryIdentifier(input.profile, row, { state: input.state })
     );
     if (matched.length === 1) {
