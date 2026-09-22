@@ -3,15 +3,20 @@ import { describe, expect, it, vi } from "vitest";
 import {
   AmbiguousCandidateIdentityError,
   assertMergedOfficeRoutingConsistent,
+  assessWebsiteIdentifier,
+  describeUnusableWebsiteIdentifier,
   findOrCreateCandidateFromProfile,
+  hasAtLeastOneHardIdentifier,
   isExactNameMatch,
   isPersonalLinkedInProfileUrl,
+  isSharedPageWebsiteUrl,
   matchesByHardIdentifier,
   matchesByRegistryIdentifier,
   mergeIdentifierLists,
   mergeProfileSourceLists,
   resolveStoredCandidateParty,
   resolveWebsiteRotationOnMerge,
+  stripWebsiteUrlsFromCandidate,
   unionFormerWebsiteUrls,
 } from "../../src/pipeline/candidates/candidateProfileIdentity.js";
 import type { CandidateProfilePayload } from "../../src/contracts/candidateProfilePayloadContract.js";
@@ -443,7 +448,7 @@ describe("findOrCreateCandidateFromProfile", () => {
 
     expect(result).toEqual({ candidateId: "candidate-home-state", matchedExisting: true });
     expect(String(query.mock.calls[1]?.[0])).not.toContain("AND state = $3");
-    expect(query.mock.calls[1]?.[1]).toEqual(["Jane", "Candidate", "Jane Candidate"]);
+    expect(query.mock.calls[1]?.[1]).toEqual(["Jane", "Candidate", "Jane Candidate", null]);
     expect(query.mock.calls.some((call) => String(call[0]).includes("INSERT INTO public.candidates"))).toBe(false);
   });
 
@@ -462,7 +467,7 @@ describe("findOrCreateCandidateFromProfile", () => {
 
     expect(result).toEqual({ candidateId: "candidate-new-us", matchedExisting: false });
     expect(String(query.mock.calls[1]?.[0])).toContain("AND state = $3");
-    expect(query.mock.calls[1]?.[1]).toEqual(["Jane", "Candidate", "US", "Jane Candidate"]);
+    expect(query.mock.calls[1]?.[1]).toEqual(["Jane", "Candidate", "US", "Jane Candidate", null]);
     expect(query.mock.calls.some((call) => String(call[0]).includes("INSERT INTO public.candidates"))).toBe(true);
   });
 });
@@ -1203,7 +1208,8 @@ describe("name-variant identity (stored name parts differ from the payload's)", 
     expect(poolSql).toContain("OR lower(last_name) = lower($2)");
     expect(poolSql).toContain("OR lower(trim(display_name)) = lower(trim($4))");
     expect(poolSql).toContain("AND state = $3");
-    expect(query.mock.calls[1]?.[1]).toEqual(["Christopher", "Venable", "MI", "Chris Venable"]);
+    expect(poolSql).toContain("lower(rtrim(official_website_url, '/')) = lower(rtrim($5::text, '/'))");
+    expect(query.mock.calls[1]?.[1]).toEqual(["Christopher", "Venable", "MI", "Chris Venable", null]);
   });
 
   it("matches a same-last-name row on a shared state filing id and does not insert", async () => {
@@ -1412,5 +1418,215 @@ describe("name-variant identity (stored name parts differ from the payload's)", 
     });
 
     expect(result).toEqual({ candidateId: "candidate-new", matchedExisting: false });
+  });
+});
+
+describe("shared-page websites are not hard identifiers", () => {
+  const sharedPages = [
+    "https://www.tarrantcountytx.gov/en/county/about-tarrant/elected-county-officials.html",
+    "https://votetravis.gov/candidates-office-holders/elected-officials",
+    "https://elections.maryland.gov/elections/2026/primary_results/gen_results_2026_by_county_13_P.html",
+    "https://www.popecountyar.gov/justices-of-peace",
+    "https://www.mncourts.gov/About-The-Courts/Overview/JudicialDirectory.aspx?d=9",
+    "https://www.co.panola.tx.us/Directory.aspx",
+    "https://www.dcboe.org/elections/2026-elections",
+    "https://www.co.live-oak.tx.us/page/liveoak.Elected%20Officials",
+    "https://www.co.newton.tx.us/upload/page/3518/docs/Elected%20Officials%20and%20Terms%20Updated%2011%202025.pdf",
+    "https://web.sos.ky.gov/CandidateFilings/countyfilings.aspx?id=8",
+    "https://www.lakecountyil.gov/2336/Board-Members",
+    "https://www.co.montague.tx.us/page/montague.Commissioners.Court",
+    "https://www.ppsb.org/apps/pages/index.jsp?pREC_ID=staff&type=d&uREC_ID=169137",
+    "https://www.wyoleg.gov/Legislators/2026/H",
+    "https://hoodcounty.texas.gov/departments/elections_administration/index.php",
+    "https://www.wfyi.org/education/2026-09-11/voter-guide-msd-wayne-township-school-board-2026",
+    "https://candidates.sos.mn.gov/CandidateFilingResults.aspx?candidateid=0&county=23",
+  ];
+  const ownSites = [
+    "https://patriciaforphoenix.com",
+    "https://www.jenniferbalkcom.com/",
+    "https://carver.vote",
+    "https://mgaleg.maryland.gov/mgawebsite/Members/Details/arentz01",
+    "https://wapp.capitol.tn.gov/apps/LegislatorInfo/Member?district=H86&ga=114",
+    "https://www.senate.mn.gov/members/member_bio.html?mem_id=1234",
+    "https://www.legis.iowa.gov/legislators/legislator?personID=123",
+    "https://clyburn.house.gov/about/official-biography",
+    "https://clyburn.house.gov",
+    "https://www.schumer.senate.gov/",
+    "https://burke4congress.us",
+    // A bare shared root is not visible from the URL alone; the stored-holder check catches it.
+    "https://www.nacogdochesco.gov",
+    "https://janedoe.com/about",
+    "https://www.facebook.com/janeforjudge",
+  ];
+
+  it("recognizes officials directories, results pages, court and board rosters", () => {
+    for (const url of sharedPages) {
+      expect(isSharedPageWebsiteUrl(url), url).toBe(true);
+    }
+  });
+
+  it("leaves personal campaign sites, a member's own bare host, and a legislator's member page alone", () => {
+    for (const url of ownSites) {
+      expect(isSharedPageWebsiteUrl(url), url).toBe(false);
+    }
+    expect(isSharedPageWebsiteUrl("not a url")).toBe(false);
+  });
+
+  it("hasAtLeastOneHardIdentifier ignores a shared-page website by default", () => {
+    expect(hasAtLeastOneHardIdentifier(profile({ official_website_url: sharedPages[0] }))).toBe(false);
+    expect(hasAtLeastOneHardIdentifier(profile({ official_website_url: ownSites[0] }))).toBe(true);
+    expect(
+      hasAtLeastOneHardIdentifier(profile({ official_website_url: ownSites[0] }), { websiteCountsAsIdentifier: false })
+    ).toBe(false);
+    expect(
+      hasAtLeastOneHardIdentifier(profile({ official_website_url: sharedPages[0], state_filing_ids: ["123"] }))
+    ).toBe(true);
+  });
+
+  const row = {
+    id: "candidate-existing",
+    first_name: "Jane",
+    last_name: "Candidate",
+    display_name: "Jane Candidate",
+    date_of_birth: null,
+    twitter_handle: null,
+    linkedin_url: null,
+    official_website_url: sharedPages[0]!,
+    former_website_urls: null as unknown,
+    fec_ids: null,
+    state_filing_ids: null,
+    current_office: null,
+    state: "TX",
+  };
+
+  it("matchesByHardIdentifier does not match an exact-name row on a shared page", () => {
+    expect(matchesByHardIdentifier(profile({ official_website_url: sharedPages[0] }), row)).toBe(false);
+    expect(
+      matchesByHardIdentifier(profile({ official_website_url: "https://jane.example" }), {
+        ...row,
+        official_website_url: "https://jane.example",
+      })
+    ).toBe(true);
+    expect(
+      matchesByHardIdentifier(
+        profile({ official_website_url: "https://jane.example" }),
+        { ...row, official_website_url: "https://jane.example" },
+        { websiteCountsAsIdentifier: false }
+      )
+    ).toBe(false);
+  });
+
+  it("assessWebsiteIdentifier refuses a URL another candidate under a different name holds", () => {
+    const other = { ...row, id: "candidate-other", first_name: "Bob", last_name: "Other", display_name: "Bob Other", official_website_url: "https://ticket.example" };
+    const assessment = assessWebsiteIdentifier(profile({ official_website_url: "https://ticket.example/" }), [other]);
+    expect(assessment).toEqual({
+      url: "https://ticket.example/",
+      usable: false,
+      reason: "held_by_other_candidate",
+      holders: [{ id: "candidate-other", displayName: "Bob Other" }],
+    });
+    expect(describeUnusableWebsiteIdentifier(assessment)).toContain("Bob Other (candidate-other)");
+    expect(describeUnusableWebsiteIdentifier(assessment)).toContain("--allow-no-hard-identifier");
+  });
+
+  it("assessWebsiteIdentifier also reads former websites and ignores same-name holders", () => {
+    const formerHolder = { ...row, id: "candidate-other", display_name: "Bob Other", first_name: "Bob", last_name: "Other", official_website_url: null, former_website_urls: ["https://ticket.example"] };
+    expect(assessWebsiteIdentifier(profile({ official_website_url: "https://ticket.example" }), [formerHolder]).reason).toBe(
+      "held_by_other_candidate"
+    );
+    const sameName = { ...row, id: "candidate-same", display_name: "Jane Candidate", official_website_url: "https://jane.example" };
+    expect(assessWebsiteIdentifier(profile({ official_website_url: "https://jane.example" }), [sameName])).toEqual({
+      url: "https://jane.example",
+      usable: true,
+      reason: null,
+      holders: [],
+    });
+    // Same person under a name variant (punctuation, ordering) is not "another candidate".
+    const variant = { ...row, id: "candidate-variant", first_name: "Jane", last_name: "Candidate Jr.", display_name: "Jane Candidate, Jr.", official_website_url: "https://jane.example" };
+    expect(assessWebsiteIdentifier(profile({ display_name: "Jane Candidate Jr", official_website_url: "https://jane.example" }), [variant]).usable).toBe(true);
+    expect(assessWebsiteIdentifier(profile({ official_website_url: sharedPages[0] }), []).reason).toBe("shared_page");
+    expect(assessWebsiteIdentifier(profile(), []).reason).toBeNull();
+    expect(describeUnusableWebsiteIdentifier(assessWebsiteIdentifier(profile(), []))).toBeNull();
+  });
+
+  it("findOrCreateCandidateFromProfile inserts instead of matching an exact-name row on a shared page", async () => {
+    const query = identityQueryMock()
+      // pool: the exact-name row and 38 others all hold the county page
+      .mockResolvedValueOnce({
+        rows: [row, { ...row, id: "candidate-other", first_name: "Bob", last_name: "Other", display_name: "Bob Other" }],
+      })
+      .mockResolvedValueOnce({ rows: [{ id: "candidate-new" }], rowCount: 1 });
+
+    const result = await findOrCreateCandidateFromProfile({
+      client: { query } as never,
+      profile: profile({ official_website_url: sharedPages[0] }),
+      state: "TX",
+      rosterParty: "Republican",
+      includeParty: true,
+    });
+
+    expect(result).toEqual({ candidateId: "candidate-new", matchedExisting: false });
+    expect(query.mock.calls[1]?.[1]?.[4]).toBe(sharedPages[0]);
+  });
+
+  it("findOrCreateCandidateFromProfile does not match on a personal site another candidate holds", async () => {
+    const query = identityQueryMock()
+      .mockResolvedValueOnce({
+        rows: [
+          { ...row, official_website_url: "https://ticket.example" },
+          { ...row, id: "candidate-lead", first_name: "Bob", last_name: "Lead", display_name: "Bob Lead", official_website_url: "https://ticket.example" },
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [{ id: "candidate-new" }], rowCount: 1 });
+
+    const result = await findOrCreateCandidateFromProfile({
+      client: { query } as never,
+      profile: profile({ official_website_url: "https://ticket.example" }),
+      state: "TX",
+      rosterParty: "Republican",
+      includeParty: true,
+    });
+
+    expect(result).toEqual({ candidateId: "candidate-new", matchedExisting: false });
+  });
+
+  it("findOrCreateCandidateFromProfile still matches an exact-name row on a personal site nobody else holds", async () => {
+    const query = identityQueryMock()
+      .mockResolvedValueOnce({ rows: [{ ...row, official_website_url: "https://jane.example" }] })
+      .mockResolvedValueOnce({
+        rows: [{ fec_ids: null, state_filing_ids: null, current_office: null, official_website_url: "https://jane.example", former_website_urls: null }],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 });
+
+    const result = await findOrCreateCandidateFromProfile({
+      client: { query } as never,
+      profile: profile({ official_website_url: "https://jane.example" }),
+      state: "TX",
+      rosterParty: "Republican",
+      includeParty: true,
+    });
+
+    expect(result).toEqual({ candidateId: "candidate-existing", matchedExisting: true });
+  });
+
+  it("stripWebsiteUrlsFromCandidate removes flagged current and former websites without archiving", () => {
+    const result = stripWebsiteUrlsFromCandidate({
+      storedWebsite: sharedPages[0],
+      storedFormerWebsites: ["https://jane2024.example", sharedPages[1]!, "https://jane2024.example/"],
+      shouldStrip: isSharedPageWebsiteUrl,
+    });
+    expect(result).toEqual({
+      website: null,
+      formerWebsites: ["https://jane2024.example"],
+      strippedUrls: [sharedPages[0], sharedPages[1]],
+      changed: true,
+    });
+    const untouched = stripWebsiteUrlsFromCandidate({
+      storedWebsite: "https://jane.example",
+      storedFormerWebsites: ["https://jane2024.example"],
+      shouldStrip: isSharedPageWebsiteUrl,
+    });
+    expect(untouched.changed).toBe(false);
+    expect(untouched.website).toBe("https://jane.example");
   });
 });

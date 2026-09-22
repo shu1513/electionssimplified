@@ -28,6 +28,8 @@ import {
   type CandidateProfileLinkedElectionContext,
 } from "../pipeline/enrichers/candidateProfileEnricher.js";
 import {
+  assessWebsiteIdentifierAgainstDatabase,
+  describeUnusableWebsiteIdentifier,
   findOrCreateCandidateFromProfile,
   hasAtLeastOneHardIdentifier,
   OVERWRITABLE_PROFILE_FIELDS,
@@ -752,10 +754,18 @@ async function main(): Promise<void> {
     }
 
     const manualKey = `manual:candidate-profile:${electionId}:${profile.display_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
-    if (!hasFlag("--allow-no-hard-identifier") && !hasAtLeastOneHardIdentifier(profile)) {
-      const gaps = buildProfileValidationGaps({
-        reason: "Candidate profile has no hard identifier.",
-      });
+    // A website identifies a person only when it is their own site. A page
+    // that lists many people, or a URL another candidate under a different
+    // name already stores, is not counted — and a payload that carried
+    // nothing else is refused with the reason.
+    const websiteIdentifier = await assessWebsiteIdentifierAgainstDatabase(pool, profile, { state: election.state });
+    const websiteIdentifierProblem = describeUnusableWebsiteIdentifier(websiteIdentifier);
+    const hasHardIdentifier = hasAtLeastOneHardIdentifier(profile, {
+      websiteCountsAsIdentifier: websiteIdentifier.usable,
+    });
+    if (!hasFlag("--allow-no-hard-identifier") && !hasHardIdentifier) {
+      const reason = websiteIdentifierProblem ?? "Candidate profile has no hard identifier.";
+      const gaps = buildProfileValidationGaps({ reason });
       await writeProfileRepairReport({
         reportFile: repairReportFile,
         manualKey,
@@ -765,8 +775,12 @@ async function main(): Promise<void> {
         gaps,
       });
       throw new Error(
-        "Candidate profile has no hard identifier. Add official_website_url, roster FEC/state filing ID, DOB, Twitter, LinkedIn, or pass --allow-no-hard-identifier deliberately."
+        websiteIdentifierProblem ??
+          "Candidate profile has no hard identifier. Add official_website_url (the candidate's own site), roster FEC/state filing ID, DOB, Twitter, LinkedIn, or pass --allow-no-hard-identifier deliberately."
       );
+    }
+    if (websiteIdentifierProblem) {
+      console.warn(`${websiteIdentifierProblem} The write continues on the other identifiers; the website will not match any existing row.`);
     }
 
     const sourcedParty = rosterHints?.party ?? validatedProfile.profile.party;
@@ -822,7 +836,8 @@ async function main(): Promise<void> {
             ...(noPublicInfoSummary
               ? { noPublicInfoSummary: true, noPublicInfoNextStep: noPublicInfoNextStep(election, "<candidateId>") }
               : {}),
-            hasHardIdentifier: hasAtLeastOneHardIdentifier(profile),
+            hasHardIdentifier,
+            websiteIdentifier,
             emitRecordDraft,
             emitFinanceSync,
             state: election.state,

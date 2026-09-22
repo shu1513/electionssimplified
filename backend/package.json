@@ -111,6 +111,7 @@
     "manual:candidates:merge": "tsx src/scripts/mergeManualCandidates.ts",
     "manual:candidates:rename": "tsx src/scripts/renameManualCandidate.ts",
     "manual:candidates:canonicalize-parties": "tsx src/scripts/canonicalizeCandidateParties.ts",
+    "manual:candidates:clear-shared-websites": "tsx src/scripts/clearSharedWebsitePages.ts",
     "manual:election-results:due": "tsx src/scripts/manualElectionResults.ts due",
     "manual:election-results:context": "tsx src/scripts/manualElectionResults.ts context",
     "manual:election-results:write": "tsx src/scripts/manualElectionResults.ts write",
