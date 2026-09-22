@@ -100,11 +100,14 @@ function stageRow(payload: unknown, status = "validated", aiRawDebug: unknown = 
     .mockResolvedValue({ rowCount: 1, rows: [] });
 }
 
-function mockClient(ledgerRows: unknown[]) {
+function mockClient(ledgerRows: unknown[], liveRows: unknown[] = []) {
   const upserts: unknown[][] = [];
   clientQueryMock.mockImplementation(async (sql: string, values?: unknown[]) => {
     if (sql.includes("FROM public.retired_election_identities")) {
       return { rowCount: ledgerRows.length, rows: ledgerRows };
+    }
+    if (sql.includes("FROM public.elections") && sql.includes("election_date = ANY")) {
+      return { rowCount: liveRows.length, rows: liveRows };
     }
     if (sql.includes("FROM public.office_title_aliases")) {
       return { rowCount: 0, rows: [] };
@@ -190,6 +193,26 @@ describe("elections writer retired-identity gate", () => {
 
     expect(upserts).toHaveLength(1);
     expect(String(stagingReasonUpdate()?.[1])).toContain('near-duplicate of retired title "US Senator"');
+  });
+
+  it("supersede U.S. Senate by US Senate, then update the survivor: written, not blocked", async () => {
+    stageRow(basePayload({ entries: [entry("Governor"), entry("US Senate")] }));
+    const { upserts } = mockClient(
+      [
+        ledgerRow({
+          official_ballot_title_key: "u s senate",
+          official_ballot_title: "U.S. Senate",
+          action: "superseded",
+          superseded_by_election_ids: [SURVIVOR],
+        }),
+      ],
+      [{ election_date: "2099-11-03", official_ballot_title_key: "us senate" }]
+    );
+
+    await runElectionsWriter({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(upserts).toHaveLength(2);
+    expect(String(stagingReasonUpdate()?.[1] ?? "")).not.toContain("retired contest");
   });
 
   it("writes a genuinely different contest on the same date untouched", async () => {

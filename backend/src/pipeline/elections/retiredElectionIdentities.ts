@@ -117,6 +117,13 @@ export type RetiredIdentityMatch = {
 /**
  * Open ledger rows that match payload entries for one district. Exact key
  * match first, then the compact-key match; each entry matches at most once.
+ *
+ * The ledger guards creation only. An entry whose exact identity is already
+ * a live elections row is an update to a contest the operator kept, so it is
+ * never reported — otherwise superseding "U.S. Senate" in favour of "US
+ * Senate" would block every later update to the survivor through the
+ * compact-key match, and reinstating one spelling would leave the other
+ * spelling's tombstone blocking the contest it just wrote back.
  */
 export async function findRetiredElectionIdentities(
   client: RetiredIdentityClient,
@@ -143,9 +150,32 @@ export async function findRetiredElectionIdentities(
     return [];
   }
 
+  const live = await client.query<{ election_date: string; official_ballot_title_key: string }>(
+    `
+      SELECT election_date::text AS election_date, official_ballot_title_key
+      FROM public.elections
+      WHERE district_id = $1::uuid
+        AND election_date = ANY($2::date[])
+    `,
+    [districtId, dates]
+  );
+  const liveIdentities = new Set(live.rows.map((row) => `${row.election_date}|${row.official_ballot_title_key}`));
+
   const matches: RetiredIdentityMatch[] = [];
   for (const [entryIndex, entry] of entries.entries()) {
     const key = normalizeElectionTitleKey(entry.official_ballot_title);
+    if (liveIdentities.has(`${entry.election_date}|${key}`)) {
+      // A live row with an open tombstone for the same exact key can only
+      // come from a write that bypassed the writer; say so, but never block
+      // the update.
+      if (rows.some((row) => row.election_date === entry.election_date && row.official_ballot_title_key === key)) {
+        console.warn(
+          `retired-election ledger: open tombstone for a live contest district_id=${districtId} ` +
+            `date=${entry.election_date} title_key=${JSON.stringify(key)}; the update proceeds`
+        );
+      }
+      continue;
+    }
     const exact = rows.find(
       (row) => row.election_date === entry.election_date && row.official_ballot_title_key === key
     );

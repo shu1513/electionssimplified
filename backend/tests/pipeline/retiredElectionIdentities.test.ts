@@ -32,10 +32,11 @@ function ledgerRow(overrides: Partial<RetiredElectionIdentityRow> = {}): Retired
   };
 }
 
-function client(rows: unknown[] = []) {
+function client(rows: unknown[] = [], liveRows: unknown[] = []) {
   const calls: { text: string; values: unknown[] }[] = [];
   const query = vi.fn(async (text: string, values?: unknown[]) => {
     calls.push({ text, values: values ?? [] });
+    if (text.includes("FROM public.elections")) return { rows: liveRows, rowCount: liveRows.length };
     return { rows, rowCount: rows.length };
   });
   return { query, calls };
@@ -69,6 +70,38 @@ describe("findRetiredElectionIdentities", () => {
       { official_ballot_title: "City Council Seat 4", election_date: "2026-11-03" },
       { official_ballot_title: "City Council Seat 3", election_date: "2027-11-02" },
       { official_ballot_title: "Mayor", election_date: "2026-11-03" },
+    ]);
+    expect(matches).toEqual([]);
+  });
+
+  it("never blocks an update to a live contest, even through the compact key", async () => {
+    // "U.S. Senate" was superseded in favour of "US Senate": the survivor's
+    // own updates must keep flowing, and only the retired spelling is held.
+    const db = client(
+      [
+        ledgerRow({
+          official_ballot_title_key: "u s senate",
+          official_ballot_title: "U.S. Senate",
+          action: "superseded",
+          superseded_by_election_ids: ["33333333-3333-3333-3333-333333333333"],
+        }),
+      ],
+      [{ election_date: "2026-11-03", official_ballot_title_key: "us senate" }]
+    );
+    const matches = await findRetiredElectionIdentities({ query: db.query }, DISTRICT, [
+      { official_ballot_title: "US Senate", election_date: "2026-11-03" },
+      { official_ballot_title: "U.S. Senate", election_date: "2026-11-03" },
+    ]);
+    expect(matches.map((match) => [match.entryIndex, match.matchedBy])).toEqual([[1, "title_key"]]);
+  });
+
+  it("after reinstating one spelling, the other spelling's tombstone no longer blocks the live contest", async () => {
+    const db = client(
+      [ledgerRow({ official_ballot_title_key: "u s senate", official_ballot_title: "U.S. Senate" })],
+      [{ election_date: "2026-11-03", official_ballot_title_key: "us senate" }]
+    );
+    const matches = await findRetiredElectionIdentities({ query: db.query }, DISTRICT, [
+      { official_ballot_title: "US Senate", election_date: "2026-11-03" },
     ]);
     expect(matches).toEqual([]);
   });
