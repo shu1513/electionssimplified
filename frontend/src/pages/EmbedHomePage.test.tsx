@@ -26,7 +26,7 @@ describe("EmbedHomePage", () => {
   it("opens the box on the site's landing page without taking focus from the host page", async () => {
     renderHome();
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent(
-      "Uncover who your candidates really are in the upcoming elections"
+      "Uncover who your candidates really are by their track records"
     );
     expect(screen.getByText("Factual, nonpartisan, AI-assisted research with linked sources")).toBeInTheDocument();
     const field = screen.getByLabelText("Enter address to see which elections you can vote in:");
