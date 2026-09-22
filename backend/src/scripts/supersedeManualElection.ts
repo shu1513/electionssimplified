@@ -36,6 +36,13 @@
 // enrichers re-read the election row by id at execution time, and the
 // zero-reference guard means a shell with any polled results cannot be
 // deleted in the first place.
+//
+// The delete leaves a tombstone: the same transaction inserts the shell's
+// identity (district, title key, date) into retired_election_identities with
+// the reason and the replacement ids. The elections writer skips any later
+// payload entry that matches it and points the operator at the replacements,
+// so a rediscovery cannot recreate the shell.
+// See src/pipeline/elections/retiredElectionIdentities.ts.
 import { pathToFileURL } from "node:url";
 
 import { Pool } from "pg";
@@ -44,6 +51,10 @@ import { loadProjectEnv } from "../config/env.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 import { assertSiblingDistricts, electionStagesConflict } from "./moveManualCandidateElectionLink.js";
+import {
+  findStagingIngestKeysForIdentity,
+  insertRetiredElectionIdentity,
+} from "../pipeline/elections/retiredElectionIdentities.js";
 
 type QueryResultLike<T> = { rows: T[] };
 
@@ -54,6 +65,8 @@ export type SupersedeElectionClient = {
 export type SupersedeElectionOptions = {
   electionId: string;
   supersededByIds: string[];
+  /** Recorded on the tombstone; the writer shows it when it skips the identity. */
+  reason: string;
   dryRun: boolean;
   /**
    * Relaxes ONLY the same-district guard, for the sibling-district duplicate:
@@ -77,6 +90,13 @@ export type SupersedeElectionResult = {
   referencingTablesChecked: number;
   /** Present only when --allow-cross-district actually crossed districts. */
   crossDistrict?: { electionId: string; fromDistrict: string; toDistrict: string }[];
+  /** The tombstone written alongside the delete (ledgerId is null on a dry run). */
+  retiredIdentity: {
+    ledgerId: string | null;
+    officialBallotTitleKey: string;
+    /** 'written' staging rows whose payload still carries this shell. */
+    stagingIngestKeys: string[];
+  };
 };
 
 type ElectionRow = {
@@ -84,6 +104,7 @@ type ElectionRow = {
   district_id: string;
   election_date: string;
   official_ballot_title: string;
+  official_ballot_title_key: string;
   race_type: string | null;
   election_stage: string | null;
   sources: unknown;
@@ -181,7 +202,8 @@ export async function runSupersedeElection(
   try {
     const lockedResult = await client.query<ElectionRow>(
       `
-        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage, sources
+        SELECT id, district_id, election_date::text, official_ballot_title, official_ballot_title_key,
+               race_type, election_stage, sources
         FROM public.elections
         WHERE id = $1::uuid
         FOR UPDATE
@@ -193,7 +215,8 @@ export async function runSupersedeElection(
 
     const survivorsResult = await client.query<ElectionRow>(
       `
-        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage, sources
+        SELECT id, district_id, election_date::text, official_ballot_title, official_ballot_title_key,
+               race_type, election_stage, sources
         FROM public.elections
         WHERE id = ANY($1::uuid[])
         FOR UPDATE
@@ -302,7 +325,30 @@ export async function runSupersedeElection(
       });
     }
 
+    // Tombstone first, delete second, one transaction: a superseded identity
+    // is never left without its ledger row pointing at the survivors.
+    const stagingIngestKeys = await findStagingIngestKeysForIdentity(
+      client,
+      retired.district_id,
+      retired.official_ballot_title_key,
+      retired.election_date
+    );
+    let ledgerId: string | null = null;
     if (!dryRun) {
+      const ledger = await insertRetiredElectionIdentity(client, {
+        districtId: retired.district_id,
+        electionDate: retired.election_date,
+        officialBallotTitle: retired.official_ballot_title,
+        officialBallotTitleKey: retired.official_ballot_title_key,
+        raceType: retired.race_type,
+        electionId,
+        action: "superseded",
+        reason: options.reason,
+        sourceUrl: retiredSources[0] ?? null,
+        supersededByElectionIds: supersededByIds,
+        stagingIngestKey: stagingIngestKeys[0] ?? null,
+      });
+      ledgerId = ledger.id;
       await client.query(`DELETE FROM public.elections WHERE id = $1::uuid`, [electionId]);
       await client.query("COMMIT");
     } else {
@@ -317,6 +363,11 @@ export async function runSupersedeElection(
       cascadeDeletes,
       referencingTablesChecked: references.length,
       ...(crossDistrictSurvivors.length > 0 ? { crossDistrict: crossDistrictSurvivors } : {}),
+      retiredIdentity: {
+        ledgerId,
+        officialBallotTitleKey: retired.official_ballot_title_key,
+        stagingIngestKeys,
+      },
     };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -357,7 +408,13 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
   try {
-    const result = await runSupersedeElection(client, { electionId, supersededByIds, dryRun, allowCrossDistrict });
+    const result = await runSupersedeElection(client, {
+      electionId,
+      supersededByIds,
+      reason,
+      dryRun,
+      allowCrossDistrict,
+    });
     console.log(JSON.stringify({ ...result, reason }, null, 2));
   } finally {
     client.release();

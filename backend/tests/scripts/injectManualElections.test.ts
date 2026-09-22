@@ -4,6 +4,7 @@ import {
   extractFamilySourceUrls,
   historicalDefaultIngestKey,
   resolveHistoricalImportDebugJson,
+  resolveReinstateRetiredDebugJson,
   resolveReviewApproveFailureDebugJson,
   stageManualElectionPayload,
 } from "../../src/scripts/injectManualElections.js";
@@ -154,5 +155,33 @@ describe("stageManualElectionPayload", () => {
     expect(result).toEqual({ staged: true, redisMessageId: "123-0" });
     expect(xAdd).toHaveBeenCalledTimes(1);
     expect(query.mock.calls[0]?.[1]?.[9]).toBe(true);
+  });
+});
+
+describe("resolveReinstateRetiredDebugJson", () => {
+  it("returns null when neither the flag nor the payload field is set", () => {
+    expect(resolveReinstateRetiredDebugJson({}, false)).toBeNull();
+    expect(resolveReinstateRetiredDebugJson({ review_reason: "ok" }, false)).toBeNull();
+  });
+
+  it("refuses a payload that carries reinstate_retired without the CLI flag", () => {
+    expect(() => resolveReinstateRetiredDebugJson({ reinstate_retired: true, review_reason: "ok" }, false)).toThrow(
+      /re-run with --reinstate-retired/
+    );
+  });
+
+  it("requires the payload field and a review_reason when the flag is passed", () => {
+    expect(() => resolveReinstateRetiredDebugJson({}, true)).toThrow(/reinstate_retired: true/);
+    expect(() => resolveReinstateRetiredDebugJson({ reinstate_retired: true }, true)).toThrow(/review_reason/);
+  });
+
+  it("stamps the approval marker the writer looks for", () => {
+    const json = resolveReinstateRetiredDebugJson(
+      { reinstate_retired: true, review_reason: "County clerk's certified ballot lists the race." },
+      true
+    );
+    const parsed = JSON.parse(json!) as Record<string, unknown>;
+    expect(parsed.reinstate_retired_approved).toBe(true);
+    expect(typeof parsed.reinstate_retired_approved_at).toBe("string");
   });
 });

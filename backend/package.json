@@ -107,6 +107,7 @@
     "manual:candidate-elections:unlink": "tsx src/scripts/unlinkManualCandidateElection.ts",
     "manual:elections:supersede": "tsx src/scripts/supersedeManualElection.ts",
     "manual:elections:retire-spurious": "tsx src/scripts/retireSpuriousManualElection.ts",
+    "manual:elections:backfill-retired-ledger": "tsx src/scripts/backfillRetiredElectionIdentities.ts",
     "manual:elections:missing-generals": "tsx src/scripts/listMissingGeneralElections.ts",
     "manual:candidates:merge": "tsx src/scripts/mergeManualCandidates.ts",
     "manual:candidates:rename": "tsx src/scripts/renameManualCandidate.ts",

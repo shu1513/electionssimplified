@@ -58,6 +58,13 @@ export type ElectionEnrichedPayload = {
   entries: ElectionEntryPayload[];
   review_decision?: "approve" | "reject";
   review_reason?: string;
+  /**
+   * Manual payloads only: write entries whose identity sits in the
+   * retired_election_identities ledger and close those ledger rows. Requires
+   * review_reason, and the injector's --reinstate-retired flag stamps the
+   * staging row before the writer honors it.
+   */
+  reinstate_retired?: boolean;
 };
 
 export type ElectionDraftPayload = {

@@ -821,3 +821,49 @@ describe("parseAiElectionEntriesPayload", () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe("parseCanonicalElectionPayload reinstate_retired", () => {
+  const base = {
+    district_id: "d-1",
+    district_name: "Vermont",
+    district_type: "statewide",
+    state: "VT",
+    entries: [
+      {
+        official_ballot_title: "Governor",
+        election_date: "2026-11-03",
+        race_type: "office",
+        discovery_contest_family: "non_judicial_office",
+        sources: ["https://example.org/election"],
+      },
+    ],
+  };
+
+  it("accepts the flag with a review_reason and keeps it on the payload", () => {
+    const result = parseCanonicalElectionPayload({
+      ...base,
+      reinstate_retired: true,
+      review_reason: "Certified ballot lists the race.",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.payload.reinstate_retired).toBe(true);
+      expect(result.payload.review_reason).toBe("Certified ballot lists the race.");
+    }
+  });
+
+  it("drops a false flag and rejects a non-boolean one", () => {
+    const off = parseCanonicalElectionPayload({ ...base, reinstate_retired: false });
+    expect(off.ok).toBe(true);
+    if (off.ok) expect("reinstate_retired" in off.payload).toBe(false);
+
+    const bad = parseCanonicalElectionPayload({ ...base, reinstate_retired: "yes" });
+    expect(bad).toEqual({ ok: false, reason: "payload.reinstate_retired must be boolean when present" });
+  });
+
+  it("rejects the flag without a review_reason", () => {
+    const result = parseCanonicalElectionPayload({ ...base, reinstate_retired: true });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toContain("reinstate_retired requires a non-empty review_reason");
+  });
+});
