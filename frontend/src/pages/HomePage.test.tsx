@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PRE_SEARCH_AGREEMENT_PARAGRAPHS, TERMS_VERSION } from "@voteapp/api-client";
 import { HomePage } from "./HomePage";
 
-const ADDRESS_LABEL = "Enter address to see which elections you can vote in:";
+const ADDRESS_LABEL = "Enter address to see your elections and candidates:";
 const STORAGE_KEY = "voteapp_terms_acceptance";
 const NINETY_DAYS_MS = 90 * 24 * 60 * 60 * 1000;
 
@@ -83,7 +83,7 @@ describe("HomePage pre-search clickwrap", () => {
     // is the first thing on the page and its sole h1.
     expect(screen.queryByText("Elections Simplified")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /^Uncover who your candidates really are in the upcoming elections$/
+      /^Uncover who your candidates really are by their track records$/
     );
   });
 

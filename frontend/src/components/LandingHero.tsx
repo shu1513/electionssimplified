@@ -38,7 +38,7 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
             a page heading; text-balance stops the centred wrap from ragging
             into a one-word last line. */}
         <h1 className="text-balance text-[clamp(1.4375rem,1.1875rem+1.25vw,2.1875rem)] font-bold leading-[1.2]">
-          Uncover who your candidates really are in the upcoming elections
+          Uncover who your candidates really are by their track records
         </h1>
         {/* What the service is, where a first-time visitor actually looks.
             Centred with the rest of the masthead — one alignment axis for
@@ -53,7 +53,7 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
       <div className={`mx-auto max-w-2xl px-4 pt-[13px] box:pt-3 ${framed ? "pb-8" : "pb-3 sm:pb-[59px]"}`}>
         <AddressSearchForm
           variant="landing"
-          label="Enter address to see which elections you can vote in:"
+          label="Enter address to see your elections and candidates:"
           grabFocus={!framed}
         />
       </div>
