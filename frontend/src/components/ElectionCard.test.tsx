@@ -851,7 +851,7 @@ describe("ElectionCard result chip", () => {
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const sections = screen.getAllByRole("button", { expanded: true });
-    expect(sections.map((button) => button.textContent)).toEqual(["Federal(1)", "State(2)", "County(1)", "City(1)"]);
+    expect(sections.map((button) => button.textContent)).toEqual(["Federal: Alaska(1)", "State(2)", "County: Alaska(1)", "City(1)"]);
     // No Presidential section: none on this ballot. School boards read as City.
     expect(screen.queryByText(/Presidential/)).not.toBeInTheDocument();
     expect(screen.getByText("School Board")).toBeInTheDocument();
@@ -862,6 +862,58 @@ describe("ElectionCard result chip", () => {
     expect(screen.queryByText("Governor")).not.toBeInTheDocument();
     expect(screen.queryByText("Proposition 4")).not.toBeInTheDocument();
     expect(screen.getByText("County Sheriff")).toBeInTheDocument();
+  });
+
+  it.each(["district_size", "district_size_smallest"] as const)(
+    "shows shared city/county/state names once under %s", (sort) => {
+      const districts = [
+        { id: "city", name: "San Francisco city, California", district_type: "place", state: "CA" },
+        { id: "county", name: "San Francisco County, California", district_type: "county", state: "CA" },
+        { id: "state", name: "California", district_type: "statewide", state: "CA" },
+      ];
+      const elections = districts.flatMap((district) => [1, 2].map((n) => electionSummary({
+        id: `${district.id}-${n}`, district, office: null, race_type: "ballot_measure",
+        official_ballot_title: `${district.id} measure ${n}`,
+      })));
+      renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort={sort} /> }], "/");
+      for (const label of ["City: San Francisco", "County: San Francisco", "State: California"]) {
+        expect(screen.getByRole("button", { name: `${label}(2)` })).toHaveAttribute("aria-expanded", "true");
+      }
+      for (const district of districts) expect(screen.queryByText(district.name)).not.toBeInTheDocument();
+      expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(6);
+    }
+  );
+
+  it("preserves numbered districts under shared state and federal headings", () => {
+    const statewide = { id: "ca", name: "California", state: "CA", district_type: "statewide" };
+    const race = (id: string, district: ElectionSummary["district"], scope: string, family?: string) =>
+      electionSummary({ id, district, official_ballot_title: id,
+        office: { id: `o-${id}`, scope, canonical_name: id, summary: "" },
+        discovery_contest_family: family ?? "non_judicial_office" });
+    const elections = [
+      race("Senator", statewide, "statewide", "us_senate"),
+      race("Representative", { ...statewide, id: "house", district_type: "us_house", name: "Congressional District 11 (2024); California" }, "us_house"),
+      race("Governor", statewide, "statewide"),
+      race("Assembly", { ...statewide, id: "assembly", district_type: "state_lower", name: "Assembly District 17 (2024); California" }, "state_lower"),
+    ];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
+    expect(screen.getByRole("button", { name: "Federal: California(2)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "State: California(2)" })).toBeInTheDocument();
+    expect(screen.queryByText("California")).not.toBeInTheDocument();
+    expect(screen.getByText("Congressional District 11; California")).toBeInTheDocument();
+    expect(screen.getByText("Assembly District 17; California")).toBeInTheDocument();
+  });
+
+  it("preserves different city and school district locations within one level", () => {
+    const districts = [
+      { id: "sf", name: "San Francisco city, California", state: "CA", district_type: "place" },
+      { id: "oak", name: "Oakland city, California", state: "CA", district_type: "place" },
+      { id: "school", name: "San Francisco Unified School District, California", state: "CA", district_type: "school_unified" },
+    ];
+    const elections = districts.map((district) => electionSummary({ id: district.id, district, office: null, race_type: "ballot_measure" }));
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
+    expect(screen.getByRole("button", { name: "City(3)" })).toBeInTheDocument();
+    for (const district of districts) expect(screen.getByText(district.name)).toBeInTheDocument();
   });
 
   it("renders the date groups flat under every other sort", () => {
@@ -881,6 +933,7 @@ describe("ElectionCard result chip", () => {
     );
     expect(screen.queryByRole("button", { expanded: true })).not.toBeInTheDocument();
     expect(screen.getByText("Mayor")).toBeInTheDocument();
+    expect(screen.getAllByText(DISTRICT.name)).toHaveLength(2);
   });
 
   it("leaves ordinary races unflagged, including on a backend that predates the field", () => {
@@ -1167,6 +1220,6 @@ describe("vote-power sections", () => {
     expect(screen.queryByRole("button", { name: /Average/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /County/ })).not.toBeInTheDocument();
     expect(screen.getAllByText("My vote power: Average")).toHaveLength(10);
-    if (sort !== "my_areas") expect(screen.getByRole("button", { name: "State(10)" })).toBeInTheDocument();
+    if (sort !== "my_areas") expect(screen.getByRole("button", { name: "State: Alaska(10)" })).toBeInTheDocument();
   });
 });

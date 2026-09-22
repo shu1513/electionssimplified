@@ -133,6 +133,37 @@ function splitLevelRuns(elections: ElectionSummary[]): { level: BallotLevel; ele
   return runs;
 }
 
+// Move location context into the heading only when it covers the cards.
+// State/federal sections can mix statewide and legislative districts: the
+// statewide name covers only the statewide cards, never a numbered district.
+function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
+  const label = ballotLevelLabel(level);
+  const districts = [...new Map(elections.map(({ district }) => [district.id, district])).values()];
+  const statewide = districts.filter((district) => district.district_type === "statewide");
+  let district: ElectionSummary["district"] | undefined;
+  if (level === "state" || level === "federal") {
+    if (statewide.length === 1 && districts.every((item) => item.state === statewide[0].state)) {
+      district = statewide[0];
+    }
+  } else if (districts.length === 1 && (
+    (level === "city" && districts[0].district_type === "place") ||
+    (level === "county" && districts[0].district_type === "county")
+  )) {
+    district = districts[0];
+  }
+  if (!district) return { label, districtId: undefined };
+  let name = formatDistrictName(district.name);
+  if (level === "city" || level === "county") {
+    // Local names arrive as "San Francisco city, California" or
+    // "Travis County, Texas". The heading already supplies the place type.
+    name = name.split(",")[0].trim();
+    name = level === "city"
+      ? name.replace(/ city$/, "").replace(/^City of /, "")
+      : name.replace(/ County$/, "").replace(/^County of /, "");
+  }
+  return { label: `${label}: ${name}`, districtId: district.id };
+}
+
 // Visible bands, highest first. The two lowest ratings share one label.
 const VOTE_POWER_GROUPS = ["very_high", "high", "above_average", "medium", "low", "unknown"] as const;
 
@@ -418,7 +449,7 @@ export function ElectionList({
     positionById.set(election.id, positionById.size + 1);
   }
   const levelSections = sort === "district_size" || sort === "district_size_smallest";
-  const renderCards = (cards: ElectionSummary[], showVotePower = true) =>
+  const renderCards = (cards: ElectionSummary[], showVotePower = true, headingDistrictId?: string) =>
     splitSeatRuns(cards).map((run) => (
       <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
         {run.elections.map((election) => (
@@ -428,6 +459,7 @@ export function ElectionList({
             savedAreaWeights={savedAreaWeights}
             myChoice={choicesByElectionId?.get(election.id)}
             showVotePower={showVotePower}
+            showDistrict={election.district.id !== headingDistrictId}
             navState={navState}
             position={positionById.get(election.id) ?? 1}
           />
@@ -447,17 +479,20 @@ export function ElectionList({
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
             <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
-              {splitLevelRuns(group.contested).map((run) => (
-                <ElectionSection
-                  key={`${sort}-${run.level}-${run.elections[0].id}`}
-                  label={ballotLevelLabel(run.level)}
-                  count={run.elections.length}
-                  open={isSectionOpen(`${group.date}:level:${run.level}`)}
-                  onOpenChange={(open) => setSectionOpen(`${group.date}:level:${run.level}`, open)}
-                >
-                  {renderCards(run.elections)}
-                </ElectionSection>
-              ))}
+              {splitLevelRuns(group.contested).map((run) => {
+                const location = levelLocation(run.level, run.elections);
+                return (
+                  <ElectionSection
+                    key={`${sort}-${run.level}-${run.elections[0].id}`}
+                    label={location.label}
+                    count={run.elections.length}
+                    open={isSectionOpen(`${group.date}:level:${run.level}`)}
+                    onOpenChange={(open) => setSectionOpen(`${group.date}:level:${run.level}`, open)}
+                  >
+                    {renderCards(run.elections, true, location.districtId)}
+                  </ElectionSection>
+                );
+              })}
             </div>
           ) : votePowerDates.has(group.date) ? (
             <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
@@ -546,6 +581,7 @@ function ElectionCard({
   position,
   showDate = false,
   showVotePower = true,
+  showDistrict = true,
 }: {
   election: ElectionSummary;
   savedAreaWeights?: Map<string, ResearchAreaWeight>;
@@ -564,6 +600,8 @@ function ElectionCard({
   showDate?: boolean;
   /** The vote-power section heading supplies this label for grouped cards. */
   showVotePower?: boolean;
+  /** False only when a district-size section heading supplies this location. */
+  showDistrict?: boolean;
 }) {
   // Saved matches lead (in the user's rank order), unsaved follow in public-
   // salience order — see splitResearchAreasBySaved. The chips that survive
@@ -643,13 +681,13 @@ function ElectionCard({
           ) : null}
         </span>
       </div>
-      {/* Always show the district: ballot titles are often generic ("Mayor",
-          "Governor", "State Representative"), and the district name is what
-          tells the voter WHERE the race is. */}
-      <p className="mt-0.5 text-sm text-ink-soft">
-        {formatDistrictName(election.district.name)}
-        {showDate ? <> · {formatElectionDate(election.election_date)}</> : null}
-      </p>
+      {/* Keep the location unless the district-size heading supplies it. */}
+      {showDistrict || showDate ? (
+        <p className="mt-0.5 text-sm text-ink-soft">
+          {showDistrict ? formatDistrictName(election.district.name) : null}
+          {showDate ? <>{showDistrict ? " · " : ""}{formatElectionDate(election.election_date)}</> : null}
+        </p>
+      ) : null}
       {hasSignalChips ? (
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {choiceLabel ? (
