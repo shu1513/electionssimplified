@@ -48,7 +48,7 @@ export default function EmbedGuidePage() {
           like the tool to show:
         </p>
         <CopyableCode code={SNIPPET} label="Copy the line" />
-        <p>This is what will show up on your website:</p>
+        <p>This box will show up on your website at the location of your choice:</p>
         <iframe
           src="/embed"
           title="The Elections Simplified tool, as it appears on your website"
