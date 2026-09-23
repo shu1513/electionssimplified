@@ -36,6 +36,10 @@ export type OfficeRepairClient = Pick<PoolClient, "query">;
 
 export type OfficeRepairOptions = {
   dryRun: boolean;
+  // When set, only these shells are examined and repaired — for a caller that
+  // wants to fix a known list without backfilling every other stranded shell
+  // the current matcher happens to resolve. Empty or omitted = all shells.
+  electionIds?: readonly string[];
 };
 
 type StrandedElectionRow = {
@@ -96,6 +100,7 @@ export async function runElectionOfficeIdRepair(
   client: OfficeRepairClient,
   options: OfficeRepairOptions
 ): Promise<OfficeRepairSummary> {
+  const electionIds = options.electionIds ?? [];
   await client.query("BEGIN");
   try {
     const stranded = await client.query<StrandedElectionRow>(
@@ -112,9 +117,11 @@ export async function runElectionOfficeIdRepair(
         WHERE e.office_id IS NULL
           AND e.race_type = 'office'
           AND e.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+          AND (cardinality($1::uuid[]) = 0 OR e.id = ANY ($1::uuid[]))
         ORDER BY d.district_type, d.state, d.name, e.official_ballot_title
         FOR UPDATE OF e
-      `
+      `,
+      [electionIds]
     );
 
     const officeNames = await client.query<OfficeNameRow>(
@@ -246,7 +253,9 @@ function usage(): string {
     "and backfill the ones the current catalog/matcher can resolve.",
     "",
     "Usage:",
-    "  npm run manual:elections:repair-office-ids -- [--dry-run]",
+    "  npm run manual:elections:repair-office-ids -- [--dry-run] [--election-id <uuid> ...]",
+    "",
+    "--election-id (repeatable) limits the repair to the named shells.",
   ].join("\n");
 }
 
@@ -256,20 +265,38 @@ function requireEnv(name: string): string {
   return value;
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function readElectionIds(argv: readonly string[]): string[] {
+  const ids: string[] = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    if (argv[index] !== "--election-id") continue;
+    const value = argv[index + 1];
+    if (value === undefined || !UUID_PATTERN.test(value)) {
+      throw new Error(`--election-id needs an election UUID (got ${JSON.stringify(value ?? "")}).\n${usage()}`);
+    }
+    ids.push(value.toLowerCase());
+    index += 1;
+  }
+  return [...new Set(ids)];
+}
+
 async function main(): Promise<void> {
   assertKnownCliFlags("manual:elections:repair-office-ids", process.argv.slice(2), [
     { name: "--dry-run", value: "none" },
+    { name: "--election-id", value: "space" },
   ]);
   loadProjectEnv();
 
   const dryRun = process.argv.includes("--dry-run");
+  const electionIds = readElectionIds(process.argv.slice(2));
   const databaseUrl = requireEnv("DATABASE_URL");
   requireLocalDatabaseTarget(databaseUrl);
   const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
 
   try {
-    const summary = await runElectionOfficeIdRepair(client, { dryRun });
+    const summary = await runElectionOfficeIdRepair(client, { dryRun, electionIds });
 
     for (const match of summary.repaired) {
       console.log(

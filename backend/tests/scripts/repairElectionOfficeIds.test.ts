@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  readElectionIds,
   runElectionOfficeIdRepair,
   type OfficeRepairClient,
 } from "../../src/scripts/repairElectionOfficeIds.js";
@@ -191,5 +192,38 @@ describe("runElectionOfficeIdRepair", () => {
 
     expect(summary.repaired).toHaveLength(1);
     expect(summary.aliasRowsInserted).toBe(0);
+  });
+});
+
+describe("repair-office-ids --election-id filter", () => {
+  it("passes the named ids to the stranded-shell SELECT, and an empty list when none are named", async () => {
+    const targeted = fakeClient({ stranded: [] });
+    await runElectionOfficeIdRepair(targeted.client, {
+      dryRun: true,
+      electionIds: ["10000000-0000-4000-8000-000000000001"],
+    });
+    const targetedSelect = targeted.statements.find((statement) => statement.text.includes("FOR UPDATE OF e"));
+    expect(targetedSelect?.text).toContain("e.id = ANY ($1::uuid[])");
+    expect(targetedSelect?.values).toEqual([["10000000-0000-4000-8000-000000000001"]]);
+
+    const all = fakeClient({ stranded: [] });
+    await runElectionOfficeIdRepair(all.client, { dryRun: true });
+    const allSelect = all.statements.find((statement) => statement.text.includes("FOR UPDATE OF e"));
+    expect(allSelect?.values).toEqual([[]]);
+  });
+
+  it("reads repeated --election-id values, dedupes them, and rejects a non-UUID", () => {
+    expect(
+      readElectionIds([
+        "--dry-run",
+        "--election-id",
+        "10000000-0000-4000-8000-00000000000A",
+        "--election-id",
+        "10000000-0000-4000-8000-00000000000a",
+      ])
+    ).toEqual(["10000000-0000-4000-8000-00000000000a"]);
+    expect(readElectionIds(["--dry-run"])).toEqual([]);
+    expect(() => readElectionIds(["--election-id", "not-a-uuid"])).toThrow(/needs an election UUID/);
+    expect(() => readElectionIds(["--election-id"])).toThrow(/needs an election UUID/);
   });
 });
