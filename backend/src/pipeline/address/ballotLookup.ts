@@ -29,6 +29,7 @@ import {
   calculateVotePower,
   explainVotePower,
   formatRatingDate,
+  isUncontestedOfficeRace,
   ratingOutletDisplay,
   type VotePowerCurrentRating,
   type VotePowerExplanation,
@@ -1902,12 +1903,18 @@ export async function lookupBallotSummariesByDistrictIds(
     const candidateCount = candidateCountsByElection.get(row.election_id) ?? 0;
     const historicalCompetitiveness = historicalCompetitivenessByElection.get(row.election_id) ?? null;
     const currentRatingRecord = currentRatingByElection.get(row.election_id) ?? null;
-    // Uncontested races (exactly one candidate) grade decisiveness "none"
-    // regardless of any label, so a rating there did NOT drive the grade —
-    // and the payload contract says the field exists only when it did. A
-    // "Currently a toss-up" chip beside an unopposed race would contradict.
+    // Uncontested races (no more candidates than seats) grade decisiveness
+    // "none" regardless of any label, so a rating there did NOT drive the
+    // grade — and the payload contract says the field exists only when it
+    // did. A "Currently a toss-up" chip beside an unopposed race would
+    // contradict.
+    const uncontested = isUncontestedOfficeRace({
+      raceType: row.race_type,
+      candidateCount,
+      seatsToFill: row.seats_to_fill,
+    });
     const currentCompetitiveness =
-      currentRatingRecord && candidateCount !== 1 ? toCurrentCompetitiveness(currentRatingRecord) : null;
+      currentRatingRecord && !uncontested ? toCurrentCompetitiveness(currentRatingRecord) : null;
 
     return {
       id: row.election_id,
@@ -1945,6 +1952,7 @@ export async function lookupBallotSummariesByDistrictIds(
         raceType: row.race_type,
         officialBallotTitle: row.official_ballot_title,
         candidateCount,
+        seatsToFill: row.seats_to_fill,
         representationPowerScore: district.representation_power_score,
         // A fresh, confident current rating outranks historic margins.
         competitivenessLabel:
@@ -2220,16 +2228,22 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
   // ordered test mock keeps its slot.
   const currentRatingByElection = await loadCurrentCompetitivenessByElection(db, electionRows);
   const currentRatingRecord = currentRatingByElection.get(detail.id) ?? null;
-  // Same uncontested gate as the summary list: one candidate grades "none"
-  // whatever the label, so the rating did not drive the grade and the
-  // payload contract keeps the field null.
+  // Same uncontested gate as the summary list: a roster that fits the seats
+  // grades "none" whatever the label, so the rating did not drive the grade
+  // and the payload contract keeps the field null.
+  const uncontested = isUncontestedOfficeRace({
+    raceType: detail.race_type,
+    candidateCount: detail.candidates.length,
+    seatsToFill: detail.seats_to_fill,
+  });
   const currentCompetitiveness =
-    currentRatingRecord && detail.candidates.length !== 1 ? toCurrentCompetitiveness(currentRatingRecord) : null;
+    currentRatingRecord && !uncontested ? toCurrentCompetitiveness(currentRatingRecord) : null;
 
   const votePowerInput = {
     raceType: detail.race_type,
     officialBallotTitle: detail.official_ballot_title,
     candidateCount: detail.candidates.length,
+    seatsToFill: detail.seats_to_fill,
     representationPowerScore: detail.district.representation_power_score,
     // A fresh, confident current rating outranks historic margins.
     competitivenessLabel:

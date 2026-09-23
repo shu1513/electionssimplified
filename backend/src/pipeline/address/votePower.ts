@@ -56,6 +56,10 @@ export type VotePowerFactor =
 export type VotePowerInput = {
   raceType: ElectionRaceType;
   candidateCount: number;
+  // Seats this race fills (elections.seats_to_fill). A race is uncontested
+  // when every candidate on the ballot wins a seat — three candidates for
+  // three seats is as decided as one for one. null/absent means one seat.
+  seatsToFill?: number | null;
   // Only read to recognise a judicial retention race (see VotePowerLabel);
   // optional so the many direct unit-test calls need not carry a title.
   officialBallotTitle?: string | null;
@@ -185,13 +189,37 @@ export function representationLevelFromScore(value: number | null | undefined): 
   return "low";
 }
 
+// Seats the race fills, for the uncontested rule: a missing or nonsense
+// seats_to_fill means one seat, so a lone candidate still reads uncontested.
+export function effectiveSeatsToFill(seatsToFill: number | null | undefined): number {
+  if (typeof seatsToFill !== "number" || !Number.isFinite(seatsToFill) || seatsToFill < 1) {
+    return 1;
+  }
+  return Math.floor(seatsToFill);
+}
+
+// An office race where no candidate can lose: at most as many known
+// candidates as seats. Zero candidates never counts — an empty roster may
+// simply not have loaded yet. Ballot measures have no roster to judge.
+export function isUncontestedOfficeRace(input: {
+  raceType: ElectionRaceType;
+  candidateCount: number;
+  seatsToFill?: number | null;
+}): boolean {
+  return (
+    input.raceType === "office" &&
+    input.candidateCount >= 1 &&
+    input.candidateCount <= effectiveSeatsToFill(input.seatsToFill)
+  );
+}
+
 export function decisivenessLevelFromContest(input: {
   raceType: ElectionRaceType;
   candidateCount: number;
+  seatsToFill?: number | null;
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
 }): VotePowerDecisivenessLevel {
-  // Only exactly one known candidate is uncontested; zero can mean the roster has not loaded yet.
-  if (input.raceType === "office" && input.candidateCount === 1) {
+  if (isUncontestedOfficeRace(input)) {
     return "none";
   }
 
@@ -432,7 +460,7 @@ function howCalculated(raceType: ElectionRaceType): string {
   if (raceType === "ballot_measure") {
     return `What determines the vote power rating for ballot measures:\n\n${representation}\n\nYou have more power in ballot measures because you vote directly on the policy.`;
   }
-  return `What determines the vote power rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates.`;
+  return `What determines the vote power rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus whether more candidates are running than there are seats.`;
 }
 
 function capitalize(text: string): string {
@@ -683,6 +711,8 @@ function currentRatingPart(input: {
 
 function decisivenessPart(input: {
   decisivenessLevel: VotePowerDecisivenessLevel;
+  candidateCount: number;
+  seatsToFill: number | null | undefined;
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
   currentRating: VotePowerCurrentRating | null;
   marginPercent: number | null;
@@ -691,6 +721,18 @@ function decisivenessPart(input: {
   staleAfterRedistricting: boolean;
 }): VotePowerExplanationPart {
   if (input.decisivenessLevel === "none") {
+    const seats = effectiveSeatsToFill(input.seatsToFill);
+    // A multi-seat race is uncontested when the roster fits the seats: name
+    // both numbers, or "only 1 candidate" would misdescribe a 3-for-3 race.
+    if (seats > 1) {
+      return {
+        title: "Decisiveness",
+        grade: "None",
+        stat: `${input.candidateCount} candidate${input.candidateCount === 1 ? "" : "s"} for ${seats} seats`,
+        detail: "Every candidate on the ballot wins a seat, so votes can't change the outcome.",
+        formula: null,
+      };
+    }
     return {
       title: "Decisiveness",
       grade: "None",
@@ -879,6 +921,8 @@ export function explainVotePower(input: VotePowerExplanationContext, result: Vot
     parts.push(
       decisivenessPart({
         decisivenessLevel: result.decisiveness_level,
+        candidateCount: input.candidateCount,
+        seatsToFill: input.seatsToFill,
         competitivenessLabel: input.competitivenessLabel,
         currentRating: input.currentRating ?? null,
         marginPercent: input.marginPercent ?? null,
