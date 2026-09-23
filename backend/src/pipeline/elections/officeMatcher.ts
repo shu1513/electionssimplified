@@ -202,6 +202,14 @@ function normalizeMatcherText(value: string): string {
     // seat designator is gone, so every such seat wrote a NULL-office shell.
     // Same treatment as "councilmember" above.
     .replace(/\bcouncill?ors?\b/g, "council member")
+    // Maui County titles each council seat by its residency area after a dash
+    // ("Maui County Councilmember - Lanai", "... - Makawao-Haiku-Paia"; all
+    // nine seats live). The area names the seat, not the office; left in, it
+    // sits in the key as a stray word and every seat wrote a NULL-office
+    // shell. Runs before the punctuation fold, which would erase the dash
+    // that marks the seat. A leadership word in the tail (chair, president,
+    // vice) names a different post, so that form is left alone.
+    .replace(/\bcouncil member\s+[-–—]\s+(?!.*\b(?:chair|chairman|chairperson|chairwoman|president|vice)\b)[a-z0-9 .'’-]+$/, "council member")
     // California-style county ballots title the supervisor seat by its
     // governing body ("MEMBER, BOARD OF SUPERVISORS DISTRICT NO. 5", San
     // Diego live); the catalog keys on "County Supervisor", and the body
@@ -413,18 +421,40 @@ function singularizeCommissionerBodyForms(value: string): string {
 const FIRE_DISTRICT_SEAT_KEY_PATTERN =
   /^(?:[a-z0-9]+ ){0,4}fire (?:(?:control|rescue|protection|suppression|and rescue) )?district(?: (?:board member|board|commission|commissioner))?$/;
 const FIRE_DISTRICT_OFFICE_KEY = "fire control district commissioner";
-// Roles a fire district elects or appoints that are NOT its board seat. The
-// anchor above already excludes them when they trail the district phrase; this
-// also covers the comma form ("Treasurer, Smithtown Fire District"), whose
-// leading role word the anchor's name prefix would otherwise absorb.
+// Roles a fire district or utility board elects or appoints that are NOT its
+// board seat. The anchor above already excludes them when they trail the
+// district phrase; this also covers the comma form ("Treasurer, Smithtown Fire
+// District", "Superintendent, Water and Sewer Commission"), whose leading role
+// word the anchor's name prefix would otherwise absorb. "Director" is left
+// out on purpose: in many special districts it IS the board seat ("Soil and
+// Water Conservation Director", Goochland County VA live).
 const FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN =
-  /\b(?:treasurer|secretary|clerk|chief|marshal|collector|assessor|auditor|attorney)\b/;
+  /\b(?:treasurer|secretary|clerk|chief|marshal|collector|assessor|auditor|attorney|superintendent|manager)\b/;
 
 function mapFireDistrictBodyForms(value: string): string {
   if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(value)) {
     return value;
   }
   return FIRE_DISTRICT_SEAT_KEY_PATTERN.test(value) ? FIRE_DISTRICT_OFFICE_KEY : value;
+}
+
+// A water and sewer utility board titles its seats by the body's own name
+// ("Brunswick-Glynn County Joint Water & Sewer Commissioner, At Large Post 2",
+// Glynn County GA live). Like a fire district, the body's name is not the
+// districts row's name, so the jurisdiction strip leaves part of it behind
+// ("brunswick county joint") and no fixed alias can cover every utility. Fold
+// the whole remaining key onto the catalog office. Same exactness rules as the
+// fire fold: anchored to the whole key, run after the seat strip, and skipped
+// when the key still names a non-board role.
+const WATER_SEWER_SEAT_KEY_PATTERN =
+  /^(?:[a-z0-9]+ ){0,4}water (?:and )?sewer (?:commission|commissioner|authority|board)(?: member)?$/;
+const WATER_SEWER_OFFICE_KEY = "water and sewer commissioner";
+
+function mapWaterSewerBodyForms(value: string): string {
+  if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(value)) {
+    return value;
+  }
+  return WATER_SEWER_SEAT_KEY_PATTERN.test(value) ? WATER_SEWER_OFFICE_KEY : value;
 }
 
 // What a numbered/lettered seat designator can look like once normalized:
@@ -556,7 +586,7 @@ function stripSeatSuffixes(value: string): string {
     // ward NUMBER followed by a "dist" marker, this one needs an ordinal in
     // front of the ward word, so neither can consume the other's target.
     .replace(
-      /\b\d+(?:st|nd|rd|th) (?:ward|zone|seat|part|(?:justice )?(?:precinct|prec))\b/g,
+      /\b\d+(?:st|nd|rd|th) (?:ward|zone|seat|post|part|(?:justice )?(?:precinct|prec))\b/g,
       " "
     )
     // Ward/Zone/Seat/Part and (justice) precinct forms are the same numbered
@@ -567,10 +597,12 @@ function stripSeatSuffixes(value: string): string {
     // precinct, so the "justice" that introduces it goes with the number;
     // "Justice of the Peace, Prec. 2" keeps its office words because there
     // the number follows bare "prec"). Lettered seats ("Commission Seat A",
-    // Utah live) are the same designator.
+    // Utah live) are the same designator. Georgia numbers at-large seats by
+    // "Post" ("Joint Water & Sewer Commissioner, At Large Post 2", Glynn
+    // County live).
     .replace(
       new RegExp(
-        String.raw`\b(?:ward|zone|seat|part|(?:justice )?(?:precinct|prec)) (?:no )?${SEAT_DESIGNATOR}\b`,
+        String.raw`\b(?:ward|zone|seat|post|part|(?:justice )?(?:precinct|prec)) (?:no )?${SEAT_DESIGNATOR}\b`,
         "g"
       ),
       " "
@@ -597,7 +629,7 @@ function stripSeatSuffixes(value: string): string {
     // Howard County MD live) — leading connector only, so office names that
     // merely contain "for" are untouched.
     .replace(/^for /, "");
-  return mapFireDistrictBodyForms(withoutSeat);
+  return mapWaterSewerBodyForms(mapFireDistrictBodyForms(withoutSeat));
 }
 
 // The jurisdiction strip deliberately keeps the generic civic word so
@@ -616,6 +648,43 @@ function stripLeadingGenericCivicWords(value: string): string {
     start += 1;
   }
   return tokens.slice(start).join(" ");
+}
+
+// A directional registry or seat district trailing the office ("Register of
+// Deeds, Northern District" — Aroostook County ME keeps two registries, both
+// elected, live). It names which seat, never the office.
+const TRAILING_COMPASS_DISTRICT_PATTERN =
+  /\s+(?:north|south|east|west|northern|southern|eastern|western|central|middle)\s+district$/;
+
+// Last-chance alias keys for titles whose key keeps a trailing seat or
+// jurisdiction word. The comma form "<Office>, <Name> County" ("State's
+// Attorney, Washington County" MD, "Property Valuation Administrator, Boone
+// County" KY, "Register of Deeds, Penobscot County" ME, all live) loses the
+// name to the jurisdiction strip but keeps the civic word at the END of the
+// key ("state s attorney county"), which no bare-office alias carries. The
+// civic word is dropped only when the title itself ends with the district's
+// own "<name> county" phrase, so a title whose civic word belongs to the
+// office is never touched. Used for exact alias lookups only — the token
+// scorer still sees the unchanged key — and only multi-word keys are tried,
+// the same rule as the civic-word-free lookup.
+function trailingSeatFreeAliasKeys(input: OfficeMatchInput, titleMatcherKey: string): string[] {
+  let key = titleMatcherKey;
+  const core = districtNameCore(input.districtName);
+  if (core.length >= 2) {
+    const endsWithDistrictPhrase = new RegExp(
+      `\\b${escapeRegExp(core)} (?:${GENERIC_DISTRICT_SUFFIX_PATTERN})$`
+    ).test(normalizeMatcherText(input.officialBallotTitle));
+    if (endsWithDistrictPhrase) {
+      key = key.replace(new RegExp(` (?:${GENERIC_DISTRICT_SUFFIX_PATTERN})$`), "");
+    }
+  }
+  key = key.replace(TRAILING_COMPASS_DISTRICT_PATTERN, "").trim();
+  if (key === titleMatcherKey) {
+    return [];
+  }
+  return [key, stripLeadingGenericCivicWords(key)].filter(
+    (candidate, index, all) => candidate.includes(" ") && all.indexOf(candidate) === index
+  );
 }
 
 function toMatcherTokens(value: string): string[] {
@@ -941,13 +1010,15 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
-  // The fold above refuses to rewrite a non-board fire-district role, but bare
-  // token overlap can still carry one in on its own: "Fire District Clerk"
-  // shares two of three tokens with this office and scores 0.571, just over the
-  // floor. A district's treasurer/clerk/secretary is a different job, and the
+  // The folds above refuse to rewrite a non-board fire-district or water and
+  // sewer role, but bare token overlap can still carry one in on its own:
+  // "Fire District Clerk" and "Treasurer, Water and Sewer Commission" each
+  // share enough tokens with the board office to score 0.571, just over the
+  // floor. A body's treasurer/clerk/secretary is a different job, and the
   // catalog has no office for it — no match is the honest answer.
   if (
-    office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY &&
+    (office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY ||
+      office.canonicalMatcherKey === WATER_SEWER_OFFICE_KEY) &&
     FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(titleMatcherKey)
   ) {
     return 0;
@@ -1196,6 +1267,14 @@ export class OfficeMatcher {
       const civicWordFreeKey = stripLeadingGenericCivicWords(titleMatcherKey);
       if (civicWordFreeKey !== titleMatcherKey && civicWordFreeKey.includes(" ")) {
         exactOfficeId = aliases.get(civicWordFreeKey);
+      }
+    }
+    if (!exactOfficeId && titleMatcherKey.length > 0) {
+      for (const fallbackKey of trailingSeatFreeAliasKeys(input, titleMatcherKey)) {
+        exactOfficeId = aliases.get(fallbackKey);
+        if (exactOfficeId) {
+          break;
+        }
       }
     }
     if (exactOfficeId && input.discoveryContestFamily === "non_judicial_office") {

@@ -3180,6 +3180,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- the assessor-class offices, the district's charge lands on the tax bill
     -- but the board does not value or administer property.
     ('county', 'Community Development District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure']::text[]),
+    -- Water and sewer utility board: sets its own rates (both spending slugs),
+    -- builds and runs the pipes and plants (public_infrastructure), and keeps
+    -- drinking water safe and sewage treated (environment_and_public_health).
+    ('county', 'Water and Sewer Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),

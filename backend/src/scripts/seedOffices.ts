@@ -541,6 +541,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "county",
+    canonicalName: "Water and Sewer Commissioner",
+    summary: [
+      "Setting the water and sewer rates you pay",
+      "Deciding which pipes, pumps, and treatment plants get built or fixed",
+      "Picking the utility's director",
+    ].join("\n"),
+  },
+  {
+    scope: "county",
     canonicalName: "Collector of Revenue",
     summary: [
       "Collecting property and earnings taxes",
@@ -1924,6 +1933,33 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "county",
     officeCanonicalName: "County Assessor",
     aliasText: "County Property Valuation Administrator",
+  },
+  {
+    // Alabama county commissions elect their presiding member countywide
+    // ("Chairman, St. Clair County Commission", "President, DeKalb County
+    // Commission", live). The seat votes on commission business like the
+    // others, so it is the member office — the same call as the learned
+    // "county commissioner chairman" / "county commissioner president" forms.
+    // These are the matcher keys left after the county name is stripped.
+    scope: "county",
+    officeCanonicalName: "County Commissioner",
+    aliasText: "Chairman County Commission",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "County Commissioner",
+    aliasText: "Chair County Commission",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "County Commissioner",
+    aliasText: "President County Commission",
+  },
+  {
+    // The key every water and sewer utility seat folds to in the matcher.
+    scope: "county",
+    officeCanonicalName: "Water and Sewer Commissioner",
+    aliasText: "Water and Sewer Commissioner",
   },
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").

@@ -2934,6 +2934,7 @@ describe("OfficeMatcher", () => {
       "Smithtown Fire District Secretary",
       "Fire District Clerk",
       "Treasurer, Smithtown Fire District",
+      "Superintendent, Smithtown Fire District",
     ];
     for (const title of titles) {
       const result = await matcher.resolve({
@@ -3657,6 +3658,116 @@ describe("OfficeMatcher", () => {
         });
         expect(result.officeId, JSON.stringify(title)).toBe("office-commissioner");
       }
+    });
+  });
+
+  describe("NULL-office repairs from the Nov 2026 records sweep", () => {
+    const aliasRow = (officeId: string, aliasText: string) => ({
+      office_id: officeId,
+      normalized_alias: normalizeElectionTitleKey(aliasText),
+    });
+    const makeMatcher = () =>
+      new OfficeMatcher(
+        createMatcherDataClient({
+          aliasesByScope: {
+            county: [
+              aliasRow("office-county-supervisor", "County Council Member"),
+              aliasRow("office-district-attorney", "State's Attorney"),
+              aliasRow("office-clerk-of-court", "Register of Wills"),
+              aliasRow("office-county-recorder", "Register of Deeds"),
+              aliasRow("office-county-assessor", "Property Valuation Administrator"),
+              aliasRow("office-county-commissioner", "Chairman County Commission"),
+              aliasRow("office-county-commissioner", "President County Commission"),
+              aliasRow("office-water-sewer", "Water and Sewer Commissioner"),
+            ],
+          },
+          officesByScope: {
+            county: [
+              { id: "office-county-supervisor", canonical_name: "County Supervisor" },
+              { id: "office-county-commissioner", canonical_name: "County Commissioner" },
+              { id: "office-county-executive", canonical_name: "County Executive" },
+              { id: "office-district-attorney", canonical_name: "District Attorney" },
+              { id: "office-clerk-of-court", canonical_name: "Clerk of Court" },
+              { id: "office-county-recorder", canonical_name: "County Recorder" },
+              { id: "office-county-assessor", canonical_name: "County Assessor" },
+              { id: "office-county-treasurer", canonical_name: "County Treasurer" },
+              { id: "office-water-sewer", canonical_name: "Water and Sewer Commissioner" },
+            ],
+          },
+        }) as never
+      );
+
+    it("resolves the live titles that wrote NULL-office shells", async () => {
+      const matcher = makeMatcher();
+      const cases: Array<[string, string, string, string]> = [
+        ["Maui County, Hawaii", "HI", "Maui County Councilmember - Lanai", "office-county-supervisor"],
+        ["Maui County, Hawaii", "HI", "Maui County Councilmember - Makawao-Haiku-Paia", "office-county-supervisor"],
+        ["Maui County, Hawaii", "HI", "Maui County Councilmember - West Maui", "office-county-supervisor"],
+        ["Washington County, Maryland", "MD", "State's Attorney, Washington County", "office-district-attorney"],
+        ["Washington County, Maryland", "MD", "Register of Wills, Washington County", "office-clerk-of-court"],
+        ["Penobscot County, Maine", "ME", "Register of Deeds, Penobscot County", "office-county-recorder"],
+        ["Aroostook County, Maine", "ME", "Register of Deeds, Northern District", "office-county-recorder"],
+        ["Aroostook County, Maine", "ME", "Register of Deeds, Southern District", "office-county-recorder"],
+        ["Boone County, Kentucky", "KY", "Property Valuation Administrator, Boone County", "office-county-assessor"],
+        ["St. Clair County, Alabama", "AL", "Chairman, St. Clair County Commission", "office-county-commissioner"],
+        ["DeKalb County, Alabama", "AL", "President, DeKalb County Commission", "office-county-commissioner"],
+        [
+          "Glynn County, Georgia",
+          "GA",
+          "Brunswick-Glynn County Joint Water & Sewer Commissioner, At Large Post 2",
+          "office-water-sewer",
+        ],
+      ];
+      for (const [districtName, state, officialBallotTitle, expected] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).toBe(expected);
+      }
+    });
+
+    it("leaves leadership dash seats and non-board utility roles unmatched", async () => {
+      const matcher = makeMatcher();
+      // The short utility forms matter: the long Brunswick-Glynn name alone
+      // pulls the token score under the floor, so only the bare ones prove the
+      // scoring guard.
+      for (const officialBallotTitle of [
+        "Maui County Councilmember - Chair",
+        "Treasurer, Brunswick-Glynn County Joint Water & Sewer Commission",
+        "Treasurer, Water and Sewer Commission",
+        "Water and Sewer Board Clerk",
+        "Water and Sewer Commission Secretary",
+        "Superintendent, Water and Sewer Commission",
+        "General Manager, Water and Sewer Commission",
+      ]) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName: officialBallotTitle.startsWith("Maui") ? "Maui County, Hawaii" : "Glynn County, Georgia",
+          state: officialBallotTitle.startsWith("Maui") ? "HI" : "GA",
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).not.toBe("office-county-supervisor");
+        expect(result.officeId, officialBallotTitle).not.toBe("office-water-sewer");
+      }
+    });
+
+    it("drops a trailing civic word only when the title ends with the district's own name", async () => {
+      const matcher = makeMatcher();
+      // "Register of Wills, Frederick County" filed on the Washington County row
+      // is not this county's jurisdiction phrase, so the fallback must not fire.
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName: "Washington County, Maryland",
+        state: "MD",
+        officialBallotTitle: "Register of Wills, Frederick County",
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.method).not.toBe("alias_exact");
     });
   });
 });
