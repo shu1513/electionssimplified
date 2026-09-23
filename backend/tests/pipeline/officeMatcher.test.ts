@@ -3731,9 +3731,15 @@ describe("OfficeMatcher", () => {
 
     it("leaves leadership dash seats and non-board utility roles unmatched", async () => {
       const matcher = makeMatcher();
+      // The short utility forms matter: the long Brunswick-Glynn name alone
+      // pulls the token score under the floor, so only the bare ones prove the
+      // scoring guard.
       for (const officialBallotTitle of [
         "Maui County Councilmember - Chair",
         "Treasurer, Brunswick-Glynn County Joint Water & Sewer Commission",
+        "Treasurer, Water and Sewer Commission",
+        "Water and Sewer Board Clerk",
+        "Water and Sewer Commission Secretary",
       ]) {
         const result = await matcher.resolve({
           scope: "county",

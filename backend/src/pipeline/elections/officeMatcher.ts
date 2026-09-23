@@ -1007,13 +1007,15 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
-  // The fold above refuses to rewrite a non-board fire-district role, but bare
-  // token overlap can still carry one in on its own: "Fire District Clerk"
-  // shares two of three tokens with this office and scores 0.571, just over the
-  // floor. A district's treasurer/clerk/secretary is a different job, and the
+  // The folds above refuse to rewrite a non-board fire-district or water and
+  // sewer role, but bare token overlap can still carry one in on its own:
+  // "Fire District Clerk" and "Treasurer, Water and Sewer Commission" each
+  // share enough tokens with the board office to score 0.571, just over the
+  // floor. A body's treasurer/clerk/secretary is a different job, and the
   // catalog has no office for it — no match is the honest answer.
   if (
-    office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY &&
+    (office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY ||
+      office.canonicalMatcherKey === WATER_SEWER_OFFICE_KEY) &&
     FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(titleMatcherKey)
   ) {
     return 0;
