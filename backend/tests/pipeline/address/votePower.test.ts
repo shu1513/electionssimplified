@@ -655,6 +655,44 @@ describe("explainVotePower", () => {
     expect(explanation.result).toBe("High representation + an uncontested race → My vote power: Below average.");
   });
 
+  it("names the field beside the grade for a contested multi-seat race", () => {
+    const graded = explain({
+      raceType: "office",
+      candidateCount: 5,
+      seatsToFill: 2,
+      representationPowerScore: 90,
+      competitivenessLabel: "competitive",
+      marginPercent: 9.2,
+      marginElectionYears: [2024],
+    });
+    expect(graded.parts[1]?.grade).toBe("Average");
+    expect(graded.parts[1]?.stat).toBe("9.2-point margin in 2024 · 5 candidates for 2 seats");
+
+    const unknown = explain({
+      raceType: "office",
+      candidateCount: 5,
+      seatsToFill: 2,
+      representationPowerScore: 90,
+      competitivenessLabel: null,
+      marginPercent: null,
+      marginElectionYears: null,
+    });
+    expect(unknown.parts[1]?.grade).toBe("Unknown");
+    expect(unknown.parts[1]?.stat).toBe("5 candidates for 2 seats");
+
+    // Single-seat races keep the bare margin stat.
+    const single = explain({
+      raceType: "office",
+      candidateCount: 2,
+      seatsToFill: 1,
+      representationPowerScore: 90,
+      competitivenessLabel: "competitive",
+      marginPercent: 9.2,
+      marginElectionYears: [2024],
+    });
+    expect(single.parts[1]?.stat).toBe("9.2-point margin in 2024");
+  });
+
   it("qualifies decisiveness when the historical results predate redistricting", () => {
     const explanation = explain({
       raceType: "office",

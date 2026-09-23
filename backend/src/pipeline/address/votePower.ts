@@ -720,8 +720,8 @@ function decisivenessPart(input: {
   marginContests: { marginPercent: number; electionYear: number; weight: number }[] | null;
   staleAfterRedistricting: boolean;
 }): VotePowerExplanationPart {
+  const seats = effectiveSeatsToFill(input.seatsToFill);
   if (input.decisivenessLevel === "none") {
-    const seats = effectiveSeatsToFill(input.seatsToFill);
     // A multi-seat race is uncontested when the roster fits the seats: name
     // both numbers, or "only 1 candidate" would misdescribe a 3-for-3 race.
     if (seats > 1) {
@@ -741,11 +741,14 @@ function decisivenessPart(input: {
       formula: null,
     };
   }
+  // A contested multi-seat race names its field beside the grade, so the
+  // reader sees why "vote for three" with five names is still a contest.
+  const seatNote = seats > 1 ? `${input.candidateCount} candidates for ${seats} seats` : null;
   if (input.decisivenessLevel === "unknown") {
     return {
       title: "Decisiveness",
       grade: "Unknown",
-      stat: null,
+      stat: seatNote,
       detail: "No analyst ratings or past results for this contest yet.",
       formula: null,
     };
@@ -755,11 +758,12 @@ function decisivenessPart(input: {
   // the label (uncontested and unknown returned above) — historic margin
   // copy would misattribute the source.
   if (input.currentRating && input.competitivenessLabel != null) {
-    return currentRatingPart({
+    const part = currentRatingPart({
       decisivenessLevel: input.decisivenessLevel,
       competitivenessLabel: input.competitivenessLabel,
       currentRating: input.currentRating,
     });
+    return seatNote ? { ...part, stat: `${part.stat} · ${seatNote}` } : part;
   }
 
   const detailByLevel: Record<"low" | "medium" | "high", string> = {
@@ -776,7 +780,7 @@ function decisivenessPart(input: {
   return {
     title: "Decisiveness",
     grade: capitalize(levelDisplayWord(input.decisivenessLevel)),
-    stat: marginStat(input.marginPercent, input.marginElectionYears),
+    stat: joinStat(marginStat(input.marginPercent, input.marginElectionYears), seatNote),
     detail: `${detailByLevel[input.decisivenessLevel]}${staleSuffix}`,
     formula: decisivenessFormula({
       decisivenessLevel: input.decisivenessLevel,
@@ -797,6 +801,15 @@ function formatYearList(years: number[]): string {
     return `${years[0]} and ${years[1]}`;
   }
   return `${years.slice(0, -1).join(", ")}, and ${years[years.length - 1]}`;
+}
+
+// "9.2-point margin in 2024 · 5 candidates for 2 seats"; either half alone
+// when the other is missing.
+function joinStat(left: string | null, right: string | null): string | null {
+  if (left && right) {
+    return `${left} · ${right}`;
+  }
+  return left ?? right;
 }
 
 // A multi-year margin is a weighted blend; pinning it on the single latest
