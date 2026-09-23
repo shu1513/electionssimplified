@@ -225,5 +225,12 @@ describe("repair-office-ids --election-id filter", () => {
     expect(readElectionIds(["--dry-run"])).toEqual([]);
     expect(() => readElectionIds(["--election-id", "not-a-uuid"])).toThrow(/needs an election UUID/);
     expect(() => readElectionIds(["--election-id"])).toThrow(/needs an election UUID/);
+    expect(() =>
+      readElectionIds([
+        "--election-id",
+        "10000000-0000-4000-8000-000000000001",
+        "10000000-0000-4000-8000-000000000002",
+      ])
+    ).toThrow(/repeat --election-id/);
   });
 });

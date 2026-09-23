@@ -270,7 +270,13 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 export function readElectionIds(argv: readonly string[]): string[] {
   const ids: string[] = [];
   for (let index = 0; index < argv.length; index += 1) {
-    if (argv[index] !== "--election-id") continue;
+    const token = argv[index]!;
+    // A bare value is never valid here: "--election-id a b" would otherwise
+    // repair only "a" and silently drop "b".
+    if (token !== "--" && !token.startsWith("-")) {
+      throw new Error(`Unexpected argument ${JSON.stringify(token)}; repeat --election-id for each id.\n${usage()}`);
+    }
+    if (token !== "--election-id") continue;
     const value = argv[index + 1];
     if (value === undefined || !UUID_PATTERN.test(value)) {
       throw new Error(`--election-id needs an election UUID (got ${JSON.stringify(value ?? "")}).\n${usage()}`);
