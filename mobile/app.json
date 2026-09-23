@@ -8,7 +8,6 @@
     "scheme": "voteapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.electionssimplified.voteapp",
       "supportsTablet": false,
       "infoPlist": {

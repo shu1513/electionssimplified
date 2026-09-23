@@ -72,10 +72,10 @@ production crash reports will arrive minified.
 
 Both files are served by the web frontend and need real values before launch:
 
-- `frontend/src/routes/apple-app-site-association.ts` — replace `TEAMID` with
-  the Apple Team ID. Served as `application/json` at
+- `frontend/src/routes/apple-app-site-association.ts` — carries the Apple
+  Team ID `TAS7R47WJY` (developer.apple.com → Membership details). Served as
+  `application/json` at
   `https://electionssimplified.com/.well-known/apple-app-site-association`.
-  **[todo: Team ID]**
 - `frontend/public/.well-known/assetlinks.json` — replace the placeholder
   fingerprint with the SHA-256 of the Play signing certificate. After the
   first production build, `npx eas-cli credentials -p android` prints it (or
