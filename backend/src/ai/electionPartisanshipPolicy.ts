@@ -135,6 +135,19 @@ const STATE_JUDICIAL_BALLOT_POLICY = new Map<string, StateJudicialBallotPolicy>(
     fallback: "nonpartisan",
     titleRules: [{ pattern: /\borphans[’']?\s+court\b/i, mode: "partisan" }],
   }],
+  // Maine elects exactly one bench: the county judge of probate. The governor
+  // appoints every other Maine judge, so none of them reach a ballot. Probate
+  // judges are elected "as is provided respecting county commissioners"
+  // (4 M.R.S. § 301), which means party primaries and a party label in
+  // November. The Secretary of State's 2026 general candidate list shows a
+  // party for every probate candidate. Without this entry the unmapped-state
+  // default forced all seven November 2026 probate contests nonpartisan, and
+  // the roster writer then rejected the nominee's party (Knox County, live
+  // 2026-09-22).
+  ["ME", {
+    fallback: "nonpartisan",
+    titleRules: [{ pattern: /\bprobate\b/i, mode: "partisan" }],
+  }],
   // Partisan election in most circuits; the supreme court, court of appeals,
   // and the six Nonpartisan Court Plan circuits appear as retention questions.
   ["MO", { fallback: "partisan" }],
