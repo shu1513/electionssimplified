@@ -61,6 +61,11 @@ export default function EmbedGuidePage() {
           Now visitors to your website can use it to see their elections and the
           candidates, while staying on your website the whole time.
         </p>
+        <p>
+          A one-line credit, &quot;Ballot lookup by Elections Simplified&quot;,
+          appears under the box and links to our site. If your page cannot show
+          it, add <code>data-credit=&quot;none&quot;</code> to the line.
+        </p>
 
         <h2 className="pt-2 text-heading font-semibold">Changing the size</h2>
         <p>

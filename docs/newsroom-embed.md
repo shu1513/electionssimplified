@@ -35,6 +35,10 @@ To choose the size yourself, add either or both of the size settings:
   240-pixel box.
 - `data-publisher="your-code"` is the code we give your newsroom. It lets us
   count how many readers reached the site from your page. It is optional.
+- A one-line credit, "Ballot lookup by Elections Simplified", appears under
+  the box as a plain link to our home page; it opens in a new tab, so your
+  readers keep your page. `data-credit="none"` hides it, for pages that
+  cannot show it.
 
 If your publishing system strips `<script>` tags, use the iframe form:
 
@@ -71,7 +75,12 @@ may be reused freely with attribution.
   since content fitted to the old width would leave the box half empty or
   too short. Nothing the reader does inside the box resizes it. The page scrolls inside the frame,
   so the host page's layout never changes. The message is honoured only
-  from our origin and from that iframe's own window.
+  from our origin and from that iframe's own window. Under the frame the
+  script adds the credit line as a plain `<p>` with a link to our home page
+  (carrying `?src=<publisher code>` when one is set). It lives in the host
+  page, not in the frame, so readers see the source without opening the box
+  and search engines read it as an ordinary link; content inside an iframe
+  counts for neither. `data-credit="none"` skips it.
 - `/embed` is `frontend/src/pages/EmbedHomePage.tsx`: the site's landing
   page (`components/LandingHero.tsx`, shared with the home page) outside the
   App layout, with no loader, so one cached copy serves everyone. Framed,
