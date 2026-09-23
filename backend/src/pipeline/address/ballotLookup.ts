@@ -1724,12 +1724,25 @@ export async function lookupBallotSummariesByDistrictIds(
         -- uncontested rule reads this so it never calls that race decided.
         -- The linked count field stays as is. typeof-guarded like the
         -- roster-status query: one malformed row degrades to 0, never 500s.
+        -- A withdrawal marks the link but leaves the staged name, so each
+        -- withdrawn link comes off the staged size; a withdrawn candidate
+        -- who was never staged under-counts by one, which only falls back
+        -- toward the linked count.
         (
-          SELECT CASE
-            WHEN jsonb_typeof(s.payload->'candidates') = 'array'
-              THEN jsonb_array_length(s.payload->'candidates')
-            ELSE 0
-          END
+          SELECT GREATEST(
+            0,
+            CASE
+              WHEN jsonb_typeof(s.payload->'candidates') = 'array'
+                THEN jsonb_array_length(s.payload->'candidates')
+              ELSE 0
+            END
+            - (
+              SELECT count(*)::int
+              FROM public.candidate_elections AS withdrawn
+              WHERE withdrawn.election_id = e.id
+                AND withdrawn.status = 'withdrawn'
+            )
+          )
           FROM public.staging_items AS s
           WHERE s.item_type = 'candidate_roster'
             AND s.ingest_key = 'candidate_roster:' || e.id::text
@@ -2150,12 +2163,25 @@ async function loadElectionRowById(db: Queryable, electionId: string): Promise<E
         -- uncontested rule reads this so it never calls that race decided.
         -- The linked count field stays as is. typeof-guarded like the
         -- roster-status query: one malformed row degrades to 0, never 500s.
+        -- A withdrawal marks the link but leaves the staged name, so each
+        -- withdrawn link comes off the staged size; a withdrawn candidate
+        -- who was never staged under-counts by one, which only falls back
+        -- toward the linked count.
         (
-          SELECT CASE
-            WHEN jsonb_typeof(s.payload->'candidates') = 'array'
-              THEN jsonb_array_length(s.payload->'candidates')
-            ELSE 0
-          END
+          SELECT GREATEST(
+            0,
+            CASE
+              WHEN jsonb_typeof(s.payload->'candidates') = 'array'
+                THEN jsonb_array_length(s.payload->'candidates')
+              ELSE 0
+            END
+            - (
+              SELECT count(*)::int
+              FROM public.candidate_elections AS withdrawn
+              WHERE withdrawn.election_id = e.id
+                AND withdrawn.status = 'withdrawn'
+            )
+          )
           FROM public.staging_items AS s
           WHERE s.item_type = 'candidate_roster'
             AND s.ingest_key = 'candidate_roster:' || e.id::text

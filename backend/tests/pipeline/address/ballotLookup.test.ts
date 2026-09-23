@@ -2436,7 +2436,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -2545,7 +2545,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -2605,7 +2605,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -10239,7 +10239,7 @@ describe("current race rating read path", () => {
       if (text.includes("public.historical_contest_margins")) {
         return Promise.resolve({ rows: [marginRow()] });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -10293,5 +10293,48 @@ describe("current race rating read path", () => {
     expect(detail?.vote_power.explanation.how).toContain("past results or current analyst ratings");
     // Both payload objects ride along, mirroring the summary list.
     expect(detail?.historical_competitiveness?.competitiveness_label).toBe("competitive");
+  });
+  it("keeps the detail contested while its staged roster is larger than its links", async () => {
+    // Same partial-fanout guard as the summary list: one link written, a
+    // second name still staged, so the race is not read as uncontested.
+    const query = vi.fn().mockImplementation((sql: string) => {
+      const text = String(sql);
+      if (text.includes("public.current_race_ratings")) {
+        return Promise.resolve({ rows: [ratingRow()] });
+      }
+      if (text.includes("public.historical_contest_margins")) {
+        return Promise.resolve({ rows: [marginRow()] });
+      }
+      if (text.includes("ce.id AS candidate_election_id")) {
+        return Promise.resolve({
+          rows: [
+            {
+              election_id: ratedElectionId,
+              candidate_election_id: "f1f1f1f1-f1f1-4f1f-8f1f-f1f1f1f1f1f1",
+              candidate_id: "f2f2f2f2-f2f2-4f2f-8f2f-f2f2f2f2f2f2",
+              display_name: "Alex Incumbent",
+              party: "Democratic",
+              is_incumbent: true,
+              status: "declared",
+              summary: null,
+              current_office: null,
+              state: "CA",
+              fec_ids: [],
+              state_filing_ids: [],
+            },
+          ],
+        });
+      }
+      if (text.includes("FROM public.elections")) {
+        return Promise.resolve({ rows: [summaryElectionRow({ staged_roster_size: 2 })] });
+      }
+      return Promise.resolve({ rows: [] });
+    });
+
+    const detail = await lookupElectionDetailById({ query }, ratedElectionId);
+
+    expect(detail?.candidates).toHaveLength(1);
+    expect(detail?.current_competitiveness?.competitiveness_label).toBe("toss_up");
+    expect(detail?.vote_power.decisiveness_level).toBe("high");
   });
 });
