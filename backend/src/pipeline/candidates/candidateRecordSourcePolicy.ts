@@ -444,6 +444,26 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19980202071300/http://www.kold.com/",
     ],
   },
+  "havasunews.com": {
+    addedOn: "2026-09-22",
+    listingPath: "owner_directed",
+    rationale:
+      "Today's News-Herald is Lake Havasu City's daily paper, formed in 1995 from Wick Communications' Daily Herald merger, with a named newsroom (editor, reporters, copy editors on its masthead); the site has been live since 1998. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-22.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/Wick_Communications",
+      "https://web.archive.org/web/19981206231812/http://www.havasunews.com/",
+    ],
+  },
+  "liherald.com": {
+    addedOn: "2026-09-22",
+    listingPath: "owner_directed",
+    rationale:
+      "Herald Community Newspapers (Richner Communications) publishes the Long Island Herald weekly chain, including the Nassau Herald, from Garden City, NY, with named editors, reporters and columnists on bylines; the site has been live since 1998. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-22.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/Nassau_Herald",
+      "https://web.archive.org/web/19981202155806/http://www.liherald.com/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
