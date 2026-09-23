@@ -464,6 +464,36 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19981202155806/http://www.liherald.com/",
     ],
   },
+  "linknky.com": {
+    addedOn: "2026-09-23",
+    listingPath: "owner_directed",
+    rationale:
+      "LINK nky is Northern Kentucky's digital newsroom, run by Covington-based LINK Media, formed in October 2021 by acquiring The River City News and Fort Thomas Matters and later Cincinnati CityBeat, with named editors and reporters on its team page; the site has been live since 2021. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-23.",
+    evidence: [
+      "https://www.wvxu.org/media/2025-12-10/link-nky-buys-citybeat",
+      "https://web.archive.org/web/20211027194716/https://www.linknky.com/",
+    ],
+  },
+  "marshallnewsmessenger.com": {
+    addedOn: "2026-09-23",
+    listingPath: "owner_directed",
+    rationale:
+      "The Marshall News Messenger is the daily paper of Marshall, Texas, owned by M. Roberts Media (publisher of the Longview News-Journal and Tyler Morning Telegraph), with a named regional editor and newsroom; the site has been live since 2001. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-23.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/The_Marshall_News_Messenger",
+      "https://web.archive.org/web/20011130132901/http://www.marshallnewsmessenger.com:80/",
+    ],
+  },
+  "houmatoday.com": {
+    addedOn: "2026-09-23",
+    listingPath: "owner_directed",
+    rationale:
+      "The Houma Courier, founded in 1878, is Terrebonne Parish's daily paper, now part of Gannett's USA TODAY Network, with named local reporters on bylines; its Houma Today site has been live since 1999. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-23.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/The_Houma_Courier",
+      "https://web.archive.org/web/19991010073107/http://houmatoday.com:80/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
