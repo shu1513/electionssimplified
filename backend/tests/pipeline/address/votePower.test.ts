@@ -61,6 +61,32 @@ describe("decisivenessLevelFromContest", () => {
     );
   });
 
+  it("treats a multi-seat office race as uncontested when the roster fits the seats", () => {
+    // Three candidates for three seats: every one of them wins.
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 3, seatsToFill: 3, competitivenessLabel: "toss_up" })
+    ).toBe("none");
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 2, seatsToFill: 3, competitivenessLabel: "safe" })
+    ).toBe("none");
+    // One more candidate than seats: somebody loses, so the label grades.
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 4, seatsToFill: 3, competitivenessLabel: "safe" })
+    ).toBe("low");
+  });
+
+  it("reads a missing or nonsense seats_to_fill as one seat", () => {
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 1, seatsToFill: null, competitivenessLabel: "toss_up" })
+    ).toBe("none");
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 2, seatsToFill: 0, competitivenessLabel: "toss_up" })
+    ).toBe("high");
+    expect(
+      decisivenessLevelFromContest({ raceType: "office", candidateCount: 2, seatsToFill: 1, competitivenessLabel: "toss_up" })
+    ).toBe("high");
+  });
+
   it("does not treat zero-candidate office races as uncontested because rosters may be unloaded", () => {
     expect(
       decisivenessLevelFromContest({
@@ -441,7 +467,7 @@ describe("explainVotePower", () => {
     // The how copy explains the displayed label (grade combination), never
     // the internal 45/55 sorting-score formula.
     expect(explanation.how).toBe(
-      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
+      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus whether more candidates are running than there are seats."
     );
     expect(explanation.parts).toEqual([
       {
@@ -606,6 +632,65 @@ describe("explainVotePower", () => {
       formula: null,
     });
     expect(explanation.result).toBe("High representation + an uncontested race → My vote power: Below average.");
+  });
+
+  it("explains a multi-seat uncontested race with both counts", () => {
+    const explanation = explain({
+      raceType: "office",
+      candidateCount: 3,
+      seatsToFill: 3,
+      representationPowerScore: 90,
+      competitivenessLabel: "toss_up",
+      marginPercent: 3.25,
+      marginElectionYears: [2022],
+    });
+
+    expect(explanation.parts[1]).toEqual({
+      title: "Decisiveness",
+      grade: "None",
+      stat: "3 candidates for 3 seats",
+      detail: "Every candidate on the ballot wins a seat, so votes can't change the outcome.",
+      formula: null,
+    });
+    expect(explanation.result).toBe("High representation + an uncontested race → My vote power: Below average.");
+  });
+
+  it("names the field beside the grade for a contested multi-seat race", () => {
+    const graded = explain({
+      raceType: "office",
+      candidateCount: 5,
+      seatsToFill: 2,
+      representationPowerScore: 90,
+      competitivenessLabel: "competitive",
+      marginPercent: 9.2,
+      marginElectionYears: [2024],
+    });
+    expect(graded.parts[1]?.grade).toBe("Average");
+    expect(graded.parts[1]?.stat).toBe("9.2-point margin in 2024 · 5 candidates for 2 seats");
+
+    const unknown = explain({
+      raceType: "office",
+      candidateCount: 5,
+      seatsToFill: 2,
+      representationPowerScore: 90,
+      competitivenessLabel: null,
+      marginPercent: null,
+      marginElectionYears: null,
+    });
+    expect(unknown.parts[1]?.grade).toBe("Unknown");
+    expect(unknown.parts[1]?.stat).toBe("5 candidates for 2 seats");
+
+    // Single-seat races keep the bare margin stat.
+    const single = explain({
+      raceType: "office",
+      candidateCount: 2,
+      seatsToFill: 1,
+      representationPowerScore: 90,
+      competitivenessLabel: "competitive",
+      marginPercent: 9.2,
+      marginElectionYears: [2024],
+    });
+    expect(single.parts[1]?.stat).toBe("9.2-point margin in 2024");
   });
 
   it("qualifies decisiveness when the historical results predate redistricting", () => {
@@ -827,7 +912,7 @@ describe("explainVotePower with a current race rating", () => {
     });
 
     expect(explanation.how).toBe(
-      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates."
+      "What determines the vote power rating:\n\nRepresentation: how much weight one vote carries here compared with a statewide vote — the smaller the district, the more each vote counts.\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus whether more candidates are running than there are seats."
     );
     expect(explanation.parts[1]).toEqual({
       title: "Decisiveness",

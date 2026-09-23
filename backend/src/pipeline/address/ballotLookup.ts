@@ -29,6 +29,7 @@ import {
   calculateVotePower,
   explainVotePower,
   formatRatingDate,
+  isUncontestedOfficeRace,
   ratingOutletDisplay,
   type VotePowerCurrentRating,
   type VotePowerExplanation,
@@ -150,6 +151,8 @@ export type BallotLookupHistoricalCompetitivenessContest = {
   competitiveness_label: HistoricalContestCompetitivenessLabel;
   stale_after_redistricting: boolean;
   weight?: number;
+  // 1 = 1st vs 2nd place; N = the margin that decided the last of N seats.
+  seats_ranked?: number;
 };
 
 export type BallotLookupHistoricalCompetitiveness = {
@@ -412,6 +415,9 @@ type ElectionRow = {
   election_stage: ElectionStage | null;
   is_partisan: boolean | null;
   seats_to_fill: number | null;
+  // Roster size promised by the candidate_roster staging row (see the
+  // query comment); absent on older row shapes and test fixtures.
+  staged_roster_size?: number | null;
   discovery_contest_family: ElectionContestFamily | null;
   sources: unknown;
   office_id?: string | null;
@@ -790,6 +796,7 @@ function toHistoricalCompetitiveness(
       competitiveness_label: contest.competitiveness_label,
       stale_after_redistricting: contest.stale_after_redistricting,
       weight: contest.weight,
+      seats_ranked: contest.seats_ranked,
     })),
   };
 }
@@ -1010,6 +1017,7 @@ async function loadHistoricalCompetitivenessByElection(
       stateFips: row.state_fips,
       currentElectionYear: electionYear(row.election_date),
       maxElectionYear: priorElectionYear(row.election_date),
+      seatsToFill: row.seats_to_fill,
     }))
   );
 
@@ -1714,6 +1722,36 @@ export async function lookupBallotSummariesByDistrictIds(
         e.election_stage,
         e.is_partisan,
         e.seats_to_fill,
+        -- Roster size the staging row promises (validated or written). Links
+        -- appear one per profile write, so between the first and last write
+        -- a contested race can show fewer links than seats; the vote-power
+        -- uncontested rule reads this so it never calls that race decided.
+        -- The linked count field stays as is. typeof-guarded like the
+        -- roster-status query: one malformed row degrades to 0, never 500s.
+        -- A withdrawal marks the link but leaves the staged name, so each
+        -- withdrawn link comes off the staged size; a withdrawn candidate
+        -- who was never staged under-counts by one, which only falls back
+        -- toward the linked count.
+        (
+          SELECT GREATEST(
+            0,
+            CASE
+              WHEN jsonb_typeof(s.payload->'candidates') = 'array'
+                THEN jsonb_array_length(s.payload->'candidates')
+              ELSE 0
+            END
+            - (
+              SELECT count(*)::int
+              FROM public.candidate_elections AS withdrawn
+              WHERE withdrawn.election_id = e.id
+                AND withdrawn.status = 'withdrawn'
+            )
+          )
+          FROM public.staging_items AS s
+          WHERE s.item_type = 'candidate_roster'
+            AND s.ingest_key = 'candidate_roster:' || e.id::text
+            AND s.status IN ('validated', 'written')
+        ) AS staged_roster_size,
         e.discovery_contest_family,
         e.sources,
         office.id AS office_id,
@@ -1902,12 +1940,21 @@ export async function lookupBallotSummariesByDistrictIds(
     const candidateCount = candidateCountsByElection.get(row.election_id) ?? 0;
     const historicalCompetitiveness = historicalCompetitivenessByElection.get(row.election_id) ?? null;
     const currentRatingRecord = currentRatingByElection.get(row.election_id) ?? null;
-    // Uncontested races (exactly one candidate) grade decisiveness "none"
-    // regardless of any label, so a rating there did NOT drive the grade —
-    // and the payload contract says the field exists only when it did. A
-    // "Currently a toss-up" chip beside an unopposed race would contradict.
+    // Uncontested races (no more candidates than seats) grade decisiveness
+    // "none" regardless of any label, so a rating there did NOT drive the
+    // grade — and the payload contract says the field exists only when it
+    // did. A "Currently a toss-up" chip beside an unopposed race would
+    // contradict.
+    // Linked count or the staged roster size, whichever is larger: a roster
+    // mid-fanout has fewer links than names, and must not read as decided.
+    const rosterCandidateCount = Math.max(candidateCount, row.staged_roster_size ?? 0);
+    const uncontested = isUncontestedOfficeRace({
+      raceType: row.race_type,
+      candidateCount: rosterCandidateCount,
+      seatsToFill: row.seats_to_fill,
+    });
     const currentCompetitiveness =
-      currentRatingRecord && candidateCount !== 1 ? toCurrentCompetitiveness(currentRatingRecord) : null;
+      currentRatingRecord && !uncontested ? toCurrentCompetitiveness(currentRatingRecord) : null;
 
     return {
       id: row.election_id,
@@ -1944,7 +1991,8 @@ export async function lookupBallotSummariesByDistrictIds(
       vote_power: calculateVotePower({
         raceType: row.race_type,
         officialBallotTitle: row.official_ballot_title,
-        candidateCount,
+        candidateCount: rosterCandidateCount,
+        seatsToFill: row.seats_to_fill,
         representationPowerScore: district.representation_power_score,
         // A fresh, confident current rating outranks historic margins.
         competitivenessLabel:
@@ -2113,6 +2161,36 @@ async function loadElectionRowById(db: Queryable, electionId: string): Promise<E
         e.election_stage,
         e.is_partisan,
         e.seats_to_fill,
+        -- Roster size the staging row promises (validated or written). Links
+        -- appear one per profile write, so between the first and last write
+        -- a contested race can show fewer links than seats; the vote-power
+        -- uncontested rule reads this so it never calls that race decided.
+        -- The linked count field stays as is. typeof-guarded like the
+        -- roster-status query: one malformed row degrades to 0, never 500s.
+        -- A withdrawal marks the link but leaves the staged name, so each
+        -- withdrawn link comes off the staged size; a withdrawn candidate
+        -- who was never staged under-counts by one, which only falls back
+        -- toward the linked count.
+        (
+          SELECT GREATEST(
+            0,
+            CASE
+              WHEN jsonb_typeof(s.payload->'candidates') = 'array'
+                THEN jsonb_array_length(s.payload->'candidates')
+              ELSE 0
+            END
+            - (
+              SELECT count(*)::int
+              FROM public.candidate_elections AS withdrawn
+              WHERE withdrawn.election_id = e.id
+                AND withdrawn.status = 'withdrawn'
+            )
+          )
+          FROM public.staging_items AS s
+          WHERE s.item_type = 'candidate_roster'
+            AND s.ingest_key = 'candidate_roster:' || e.id::text
+            AND s.status IN ('validated', 'written')
+        ) AS staged_roster_size,
         e.discovery_contest_family,
         e.sources,
         office.id AS office_id,
@@ -2220,16 +2298,24 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
   // ordered test mock keeps its slot.
   const currentRatingByElection = await loadCurrentCompetitivenessByElection(db, electionRows);
   const currentRatingRecord = currentRatingByElection.get(detail.id) ?? null;
-  // Same uncontested gate as the summary list: one candidate grades "none"
-  // whatever the label, so the rating did not drive the grade and the
-  // payload contract keeps the field null.
+  // Same uncontested gate as the summary list: a roster that fits the seats
+  // grades "none" whatever the label, so the rating did not drive the grade
+  // and the payload contract keeps the field null.
+  // Same larger-of rule as the summary list (see staged_roster_size).
+  const rosterCandidateCount = Math.max(detail.candidates.length, electionRow?.staged_roster_size ?? 0);
+  const uncontested = isUncontestedOfficeRace({
+    raceType: detail.race_type,
+    candidateCount: rosterCandidateCount,
+    seatsToFill: detail.seats_to_fill,
+  });
   const currentCompetitiveness =
-    currentRatingRecord && detail.candidates.length !== 1 ? toCurrentCompetitiveness(currentRatingRecord) : null;
+    currentRatingRecord && !uncontested ? toCurrentCompetitiveness(currentRatingRecord) : null;
 
   const votePowerInput = {
     raceType: detail.race_type,
     officialBallotTitle: detail.official_ballot_title,
-    candidateCount: detail.candidates.length,
+    candidateCount: rosterCandidateCount,
+    seatsToFill: detail.seats_to_fill,
     representationPowerScore: detail.district.representation_power_score,
     // A fresh, confident current rating outranks historic margins.
     competitivenessLabel:
@@ -2260,6 +2346,7 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
             electionYear: contest.election_year,
             weight: contest.weight ?? 1,
           })) ?? null,
+        marginSeatsRanked: historicalCompetitiveness?.contests_used?.[0]?.seats_ranked ?? null,
       };
   return {
     ...detail,

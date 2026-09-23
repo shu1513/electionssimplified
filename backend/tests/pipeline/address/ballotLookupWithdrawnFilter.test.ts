@@ -57,9 +57,16 @@ describe("withdrawn-candidate filtering", () => {
 
     await lookupElectionDetailById({ query } as never, electionId);
 
-    const candidateSql = calls.find((sql) => sql.includes("FROM public.candidate_elections AS ce"));
+    const candidateSql = calls.find((sql) => sql.includes("ce.id AS candidate_election_id"));
     expect(candidateSql).toBeDefined();
     expect(candidateSql).toContain("ce.status <> 'withdrawn'");
+
+    // The staged roster size the uncontested rule reads takes withdrawn
+    // links off, or a withdrawn name still in the staged payload would keep
+    // a decided race looking contested.
+    const stagedSql = calls.find((sql) => sql.includes("AS staged_roster_size"));
+    expect(stagedSql).toBeDefined();
+    expect(stagedSql).toContain("withdrawn.status = 'withdrawn'");
   });
 
   it("excludes withdrawn links from the ballot summary candidate count", async () => {
@@ -80,5 +87,9 @@ describe("withdrawn-candidate filtering", () => {
     const countSql = calls.find((sql) => sql.includes("candidate_count"));
     expect(countSql).toBeDefined();
     expect(countSql).toContain("ce.status <> 'withdrawn'");
+
+    const stagedSql = calls.find((sql) => sql.includes("AS staged_roster_size"));
+    expect(stagedSql).toBeDefined();
+    expect(stagedSql).toContain("withdrawn.status = 'withdrawn'");
   });
 });

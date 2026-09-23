@@ -56,6 +56,10 @@ export type VotePowerFactor =
 export type VotePowerInput = {
   raceType: ElectionRaceType;
   candidateCount: number;
+  // Seats this race fills (elections.seats_to_fill). A race is uncontested
+  // when every candidate on the ballot wins a seat — three candidates for
+  // three seats is as decided as one for one. null/absent means one seat.
+  seatsToFill?: number | null;
   // Only read to recognise a judicial retention race (see VotePowerLabel);
   // optional so the many direct unit-test calls need not carry a title.
   officialBallotTitle?: string | null;
@@ -135,6 +139,9 @@ export type VotePowerExplanationContext = VotePowerInput & {
   // Per-contest inputs behind a weighted multi-year margin, so the formula
   // can show the actual blend arithmetic.
   marginContests?: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  // Above 1, the margins are the ones that decided the last of N seats
+  // (Nth vs (N+1)th place), not 1st vs 2nd — the formula says so.
+  marginSeatsRanked?: number | null;
 };
 
 const LABELS: readonly GradedVotePowerLabel[] = [
@@ -185,13 +192,37 @@ export function representationLevelFromScore(value: number | null | undefined): 
   return "low";
 }
 
+// Seats the race fills, for the uncontested rule: a missing or nonsense
+// seats_to_fill means one seat, so a lone candidate still reads uncontested.
+export function effectiveSeatsToFill(seatsToFill: number | null | undefined): number {
+  if (typeof seatsToFill !== "number" || !Number.isFinite(seatsToFill) || seatsToFill < 1) {
+    return 1;
+  }
+  return Math.floor(seatsToFill);
+}
+
+// An office race where no candidate can lose: at most as many known
+// candidates as seats. Zero candidates never counts — an empty roster may
+// simply not have loaded yet. Ballot measures have no roster to judge.
+export function isUncontestedOfficeRace(input: {
+  raceType: ElectionRaceType;
+  candidateCount: number;
+  seatsToFill?: number | null;
+}): boolean {
+  return (
+    input.raceType === "office" &&
+    input.candidateCount >= 1 &&
+    input.candidateCount <= effectiveSeatsToFill(input.seatsToFill)
+  );
+}
+
 export function decisivenessLevelFromContest(input: {
   raceType: ElectionRaceType;
   candidateCount: number;
+  seatsToFill?: number | null;
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
 }): VotePowerDecisivenessLevel {
-  // Only exactly one known candidate is uncontested; zero can mean the roster has not loaded yet.
-  if (input.raceType === "office" && input.candidateCount === 1) {
+  if (isUncontestedOfficeRace(input)) {
     return "none";
   }
 
@@ -432,7 +463,7 @@ function howCalculated(raceType: ElectionRaceType): string {
   if (raceType === "ballot_measure") {
     return `What determines the vote power rating for ballot measures:\n\n${representation}\n\nYou have more power in ballot measures because you vote directly on the policy.`;
   }
-  return `What determines the vote power rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus the number of candidates.`;
+  return `What determines the vote power rating:\n\n${representation}\n\nDecisiveness: how likely this race is to be close, based on past results or current analyst ratings, plus whether more candidates are running than there are seats.`;
 }
 
 function capitalize(text: string): string {
@@ -557,23 +588,46 @@ const MARGIN_GRADE_SCALE =
 
 // The margin-to-grade pipeline with this contest's real numbers (see
 // classifyHistoricalContestMargin — this string must match its cutoffs).
+// 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", 12 -> "12th".
+function ordinal(value: number): string {
+  const mod100 = value % 100;
+  if (mod100 >= 11 && mod100 <= 13) {
+    return `${value}th`;
+  }
+  switch (value % 10) {
+    case 1:
+      return `${value}st`;
+    case 2:
+      return `${value}nd`;
+    case 3:
+      return `${value}rd`;
+    default:
+      return `${value}th`;
+  }
+}
+
 function decisivenessFormula(input: {
   decisivenessLevel: "low" | "medium" | "high";
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
   marginPercent: number | null;
   marginContests: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  marginSeatsRanked: number | null;
 }): string | null {
   if (input.marginPercent === null || input.competitivenessLabel == null) {
     return null;
   }
   const labelText = input.competitivenessLabel === "toss_up" ? "toss-up" : input.competitivenessLabel.replace(/_/g, " ");
   const contests = input.marginContests ?? [];
+  // A multi-seat margin is the gap that decided the last seat; the plain
+  // word "margin" would read as the winner's lead.
+  const seats = input.marginSeatsRanked ?? 1;
+  const marginWord = seats > 1 ? `margin (${ordinal(seats)} vs ${ordinal(seats + 1)} place, the last of ${seats} seats)` : "margin";
   const marginExpression =
     contests.length > 1
-      ? `margin = ${contests
+      ? `${marginWord} = ${contests
           .map((contest) => `${formatWeight(contest.weight)} × ${formatMarginPoints(contest.marginPercent)} (${contest.electionYear})`)
           .join(" + ")} = ${formatMarginPoints(input.marginPercent)} points`
-      : `margin = ${formatMarginPoints(input.marginPercent)} points`;
+      : `${marginWord} = ${formatMarginPoints(input.marginPercent)} points`;
   return `${marginExpression} → "${labelText}" → grade ${levelDisplayWord(input.decisivenessLevel)} (${MARGIN_GRADE_SCALE})`;
 }
 
@@ -683,14 +737,29 @@ function currentRatingPart(input: {
 
 function decisivenessPart(input: {
   decisivenessLevel: VotePowerDecisivenessLevel;
+  candidateCount: number;
+  seatsToFill: number | null | undefined;
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
   currentRating: VotePowerCurrentRating | null;
   marginPercent: number | null;
   marginElectionYears: number[] | null;
   marginContests: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  marginSeatsRanked: number | null;
   staleAfterRedistricting: boolean;
 }): VotePowerExplanationPart {
+  const seats = effectiveSeatsToFill(input.seatsToFill);
   if (input.decisivenessLevel === "none") {
+    // A multi-seat race is uncontested when the roster fits the seats: name
+    // both numbers, or "only 1 candidate" would misdescribe a 3-for-3 race.
+    if (seats > 1) {
+      return {
+        title: "Decisiveness",
+        grade: "None",
+        stat: `${input.candidateCount} candidate${input.candidateCount === 1 ? "" : "s"} for ${seats} seats`,
+        detail: "Every candidate on the ballot wins a seat, so votes can't change the outcome.",
+        formula: null,
+      };
+    }
     return {
       title: "Decisiveness",
       grade: "None",
@@ -699,11 +768,14 @@ function decisivenessPart(input: {
       formula: null,
     };
   }
+  // A contested multi-seat race names its field beside the grade, so the
+  // reader sees why "vote for three" with five names is still a contest.
+  const seatNote = seats > 1 ? `${input.candidateCount} candidates for ${seats} seats` : null;
   if (input.decisivenessLevel === "unknown") {
     return {
       title: "Decisiveness",
       grade: "Unknown",
-      stat: null,
+      stat: seatNote,
       detail: "No analyst ratings or past results for this contest yet.",
       formula: null,
     };
@@ -713,11 +785,12 @@ function decisivenessPart(input: {
   // the label (uncontested and unknown returned above) — historic margin
   // copy would misattribute the source.
   if (input.currentRating && input.competitivenessLabel != null) {
-    return currentRatingPart({
+    const part = currentRatingPart({
       decisivenessLevel: input.decisivenessLevel,
       competitivenessLabel: input.competitivenessLabel,
       currentRating: input.currentRating,
     });
+    return seatNote ? { ...part, stat: `${part.stat} · ${seatNote}` } : part;
   }
 
   const detailByLevel: Record<"low" | "medium" | "high", string> = {
@@ -734,13 +807,14 @@ function decisivenessPart(input: {
   return {
     title: "Decisiveness",
     grade: capitalize(levelDisplayWord(input.decisivenessLevel)),
-    stat: marginStat(input.marginPercent, input.marginElectionYears),
+    stat: joinStat(marginStat(input.marginPercent, input.marginElectionYears), seatNote),
     detail: `${detailByLevel[input.decisivenessLevel]}${staleSuffix}`,
     formula: decisivenessFormula({
       decisivenessLevel: input.decisivenessLevel,
       competitivenessLabel: input.competitivenessLabel,
       marginPercent: input.marginPercent,
       marginContests: input.marginContests,
+      marginSeatsRanked: input.marginSeatsRanked,
     }),
   };
 }
@@ -755,6 +829,15 @@ function formatYearList(years: number[]): string {
     return `${years[0]} and ${years[1]}`;
   }
   return `${years.slice(0, -1).join(", ")}, and ${years[years.length - 1]}`;
+}
+
+// "9.2-point margin in 2024 · 5 candidates for 2 seats"; either half alone
+// when the other is missing.
+function joinStat(left: string | null, right: string | null): string | null {
+  if (left && right) {
+    return `${left} · ${right}`;
+  }
+  return left ?? right;
 }
 
 // A multi-year margin is a weighted blend; pinning it on the single latest
@@ -879,11 +962,14 @@ export function explainVotePower(input: VotePowerExplanationContext, result: Vot
     parts.push(
       decisivenessPart({
         decisivenessLevel: result.decisiveness_level,
+        candidateCount: input.candidateCount,
+        seatsToFill: input.seatsToFill,
         competitivenessLabel: input.competitivenessLabel,
         currentRating: input.currentRating ?? null,
         marginPercent: input.marginPercent ?? null,
         marginElectionYears: input.marginElectionYears ?? null,
         marginContests: input.marginContests ?? null,
+        marginSeatsRanked: input.marginSeatsRanked ?? null,
         staleAfterRedistricting: input.staleAfterRedistricting === true,
       })
     );

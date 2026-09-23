@@ -2436,7 +2436,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -2545,7 +2545,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -2605,7 +2605,7 @@ describe("lookupElectionDetailById", () => {
           ],
         });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -10071,7 +10071,11 @@ describe("current race rating read path", () => {
     };
   }
 
-  function summaryQueryMock(options: { rating: Record<string, unknown> | null; candidateCount?: number }) {
+  function summaryQueryMock(options: {
+    rating: Record<string, unknown> | null;
+    candidateCount?: number;
+    stagedRosterSize?: number;
+  }) {
     return vi.fn().mockImplementation((sql: string) => {
       const text = String(sql);
       if (text.includes("public.current_race_ratings")) {
@@ -10086,11 +10090,25 @@ describe("current race rating read path", () => {
         });
       }
       if (text.includes("FROM public.elections")) {
-        return Promise.resolve({ rows: [summaryElectionRow()] });
+        return Promise.resolve({ rows: [summaryElectionRow({ staged_roster_size: options.stagedRosterSize ?? null })] });
       }
       return Promise.resolve({ rows: [] });
     });
   }
+
+  it("keeps a race contested while its staged roster is larger than its links", async () => {
+    // Links appear one per profile write, so a two-name roster shows one
+    // link mid-fanout. The staged roster size says the second candidate is
+    // coming, so the race is not read as uncontested meanwhile.
+    const query = summaryQueryMock({ rating: ratingRow(), candidateCount: 1, stagedRosterSize: 2 });
+
+    const result = await lookupBallotSummariesByDistrictIds({ query }, [ratedDistrictId]);
+    const election = result.elections[0]!;
+
+    expect(election.candidate_count).toBe(1);
+    expect(election.vote_power.decisiveness_level).toBe("high");
+    expect(election.current_competitiveness?.competitiveness_label).toBe("toss_up");
+  });
 
   it("prefers a fresh, confident current rating over historic margins and attaches both payloads", async () => {
     const query = summaryQueryMock({ rating: ratingRow() });
@@ -10221,7 +10239,7 @@ describe("current race rating read path", () => {
       if (text.includes("public.historical_contest_margins")) {
         return Promise.resolve({ rows: [marginRow()] });
       }
-      if (text.includes("public.candidate_elections")) {
+      if (text.includes("ce.id AS candidate_election_id")) {
         return Promise.resolve({
           rows: [
             {
@@ -10275,5 +10293,108 @@ describe("current race rating read path", () => {
     expect(detail?.vote_power.explanation.how).toContain("past results or current analyst ratings");
     // Both payload objects ride along, mirroring the summary list.
     expect(detail?.historical_competitiveness?.competitiveness_label).toBe("competitive");
+  });
+  it("grades a two-seat race on the margin that decided its last seat", async () => {
+    // Stored pair (1st vs 2nd) says competitive at 9.8 points, but both of
+    // those lines won. The seat-deciding gap is 2nd vs 3rd: 27.45 points,
+    // safe, so decisiveness grades low and the copy names the seat.
+    const candidate = (suffix: string, name: string) => ({
+      election_id: ratedElectionId,
+      candidate_election_id: `f${suffix}f${suffix}f${suffix}f${suffix}-f${suffix}f${suffix}-4f${suffix}f-8f${suffix}f-f${suffix}f${suffix}f${suffix}f${suffix}f${suffix}f${suffix}`,
+      candidate_id: `e${suffix}e${suffix}e${suffix}e${suffix}-e${suffix}e${suffix}-4e${suffix}e-8e${suffix}e-e${suffix}e${suffix}e${suffix}e${suffix}e${suffix}e${suffix}`,
+      display_name: name,
+      party: "Republican",
+      is_incumbent: false,
+      status: "declared",
+      summary: null,
+      current_office: null,
+      state: "CA",
+      fec_ids: [],
+      state_filing_ids: [],
+    });
+    const query = vi.fn().mockImplementation((sql: string) => {
+      const text = String(sql);
+      if (text.includes("public.current_race_ratings")) {
+        return Promise.resolve({ rows: [] });
+      }
+      if (text.includes("public.historical_contest_margins")) {
+        return Promise.resolve({
+          rows: [
+            {
+              ...marginRow(),
+              winner_votes: "50",
+              runner_up_votes: "40",
+              total_votes: "102",
+              margin_percent: "9.80",
+              candidate_lines: [
+                { votes: 50, party: "REPUBLICAN" },
+                { votes: 40, party: "REPUBLICAN" },
+                { votes: 12, party: "DEMOCRAT" },
+              ],
+            },
+          ],
+        });
+      }
+      if (text.includes("ce.id AS candidate_election_id")) {
+        return Promise.resolve({ rows: [candidate("1", "Ann One"), candidate("2", "Bo Two"), candidate("3", "Cy Three")] });
+      }
+      if (text.includes("FROM public.elections")) {
+        return Promise.resolve({ rows: [summaryElectionRow({ seats_to_fill: 2 })] });
+      }
+      return Promise.resolve({ rows: [] });
+    });
+
+    const detail = await lookupElectionDetailById({ query }, ratedElectionId);
+
+    expect(detail?.historical_competitiveness?.margin_percent).toBe(27.45);
+    expect(detail?.historical_competitiveness?.contests_used?.[0]?.seats_ranked).toBe(2);
+    expect(detail?.vote_power.decisiveness_level).toBe("low");
+    const decisiveness = detail?.vote_power.explanation.parts.find((part) => part.title === "Decisiveness");
+    expect(decisiveness?.stat).toBe("27.45-point margin in 2024 · 3 candidates for 2 seats");
+    expect(decisiveness?.formula).toContain("margin (2nd vs 3rd place, the last of 2 seats) = 27.45 points");
+  });
+
+  it("keeps the detail contested while its staged roster is larger than its links", async () => {
+    // Same partial-fanout guard as the summary list: one link written, a
+    // second name still staged, so the race is not read as uncontested.
+    const query = vi.fn().mockImplementation((sql: string) => {
+      const text = String(sql);
+      if (text.includes("public.current_race_ratings")) {
+        return Promise.resolve({ rows: [ratingRow()] });
+      }
+      if (text.includes("public.historical_contest_margins")) {
+        return Promise.resolve({ rows: [marginRow()] });
+      }
+      if (text.includes("ce.id AS candidate_election_id")) {
+        return Promise.resolve({
+          rows: [
+            {
+              election_id: ratedElectionId,
+              candidate_election_id: "f1f1f1f1-f1f1-4f1f-8f1f-f1f1f1f1f1f1",
+              candidate_id: "f2f2f2f2-f2f2-4f2f-8f2f-f2f2f2f2f2f2",
+              display_name: "Alex Incumbent",
+              party: "Democratic",
+              is_incumbent: true,
+              status: "declared",
+              summary: null,
+              current_office: null,
+              state: "CA",
+              fec_ids: [],
+              state_filing_ids: [],
+            },
+          ],
+        });
+      }
+      if (text.includes("FROM public.elections")) {
+        return Promise.resolve({ rows: [summaryElectionRow({ staged_roster_size: 2 })] });
+      }
+      return Promise.resolve({ rows: [] });
+    });
+
+    const detail = await lookupElectionDetailById({ query }, ratedElectionId);
+
+    expect(detail?.candidates).toHaveLength(1);
+    expect(detail?.current_competitiveness?.competitiveness_label).toBe("toss_up");
+    expect(detail?.vote_power.decisiveness_level).toBe("high");
   });
 });

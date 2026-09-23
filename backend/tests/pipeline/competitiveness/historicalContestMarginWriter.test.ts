@@ -25,6 +25,10 @@ function record(overrides: Partial<HistoricalContestMarginRecord> = {}): Histori
     margin_percent: 9.2,
     competitiveness_label: "competitive",
     stale_after_redistricting: false,
+    candidate_lines: [
+      { votes: 109_200, party: "DEMOCRAT" },
+      { votes: 90_800, party: "REPUBLICAN" },
+    ],
     ...overrides,
   };
 }
@@ -76,6 +80,7 @@ describe("historicalContestMarginWriter", () => {
       "competitive",
       false,
       "2026-06-14T12:00:00.000Z",
+      '[{"votes":109200,"party":"DEMOCRAT"},{"votes":90800,"party":"REPUBLICAN"}]',
     ]);
   });
 

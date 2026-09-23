@@ -26,6 +26,13 @@ export type MedslHistoricalContestCandidateRow = {
   special?: string | null;
 };
 
+// One candidate's total in a past contest; the record keeps every line so a
+// multi-seat lookup can re-rank (see candidate_lines below).
+export type HistoricalContestCandidateLine = {
+  votes: number;
+  party: string | null;
+};
+
 export type HistoricalContestMarginRecord = {
   source: string;
   source_url: string | null;
@@ -45,6 +52,9 @@ export type HistoricalContestMarginRecord = {
   margin_percent: number;
   competitiveness_label: HistoricalContestCompetitivenessLabel;
   stale_after_redistricting: boolean;
+  // Every candidate line sorted by votes descending. winner/runner-up above
+  // are lines [0] and [1]; a multi-seat lookup reads [seats - 1] and [seats].
+  candidate_lines: HistoricalContestCandidateLine[];
 };
 
 export type HistoricalContestNormalizationSkippedRow = {
@@ -410,6 +420,7 @@ function contestToRecord(contest: ContestAccumulator): HistoricalContestMarginRe
     margin_percent: margin.marginPercent,
     competitiveness_label: margin.competitivenessLabel,
     stale_after_redistricting: contest.staleAfterRedistricting,
+    candidate_lines: sortedCandidates.map((candidate) => ({ votes: candidate.votes, party: candidate.party })),
   };
 }
 

@@ -52,8 +52,36 @@ describe("historicalContestNormalizer", () => {
         margin_percent: 9.2,
         competitiveness_label: "competitive",
         stale_after_redistricting: false,
+        candidate_lines: [
+          { votes: 109_200, party: "DEMOCRAT" },
+          { votes: 90_800, party: "REPUBLICAN" },
+          { votes: 0, party: "OTHER" },
+        ],
       },
     ]);
+  });
+
+  it("keeps every candidate line sorted by votes so a multi-seat lookup can re-rank", () => {
+    // A two-seat district: the top two both won, so the seat-deciding
+    // margin is line [1] vs line [2], which only the full list can give.
+    const result = normalizeMedslHistoricalContestMargins({
+      source: "MIT_2024",
+      rows: [
+        row({ office: "STATE HOUSE", district: "47", candidate: "A", candidatevotes: 40, totalvotes: 100, party_simplified: "REPUBLICAN" }),
+        row({ office: "STATE HOUSE", district: "47", candidate: "B", candidatevotes: 20, totalvotes: 100, party_simplified: "DEMOCRAT" }),
+        row({ office: "STATE HOUSE", district: "47", candidate: "C", candidatevotes: 30, totalvotes: 100, party_simplified: "REPUBLICAN" }),
+        row({ office: "STATE HOUSE", district: "47", candidate: "D", candidatevotes: 10, totalvotes: 100, party_simplified: "DEMOCRAT" }),
+      ],
+    });
+
+    expect(result.records[0]?.candidate_lines).toEqual([
+      { votes: 40, party: "REPUBLICAN" },
+      { votes: 30, party: "REPUBLICAN" },
+      { votes: 20, party: "DEMOCRAT" },
+      { votes: 10, party: "DEMOCRAT" },
+    ]);
+    // The stored pair is still the single-seat reading (1st vs 2nd).
+    expect(result.records[0]).toMatchObject({ winner_votes: 40, runner_up_votes: 30, margin_percent: 10 });
   });
 
   it("aggregates fusion-voting party lines by candidate name before calculating margins", () => {

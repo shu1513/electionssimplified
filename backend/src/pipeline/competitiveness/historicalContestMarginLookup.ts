@@ -2,9 +2,11 @@ import type { Pool, PoolClient, QueryResultRow } from "pg";
 
 import type { ElectionDistrictType } from "../../types/election.js";
 import {
+  calculateHistoricalContestMargin,
   classifyHistoricalContestMargin,
   roundHistoricalContestMarginPercent,
 } from "./competitivenessLabels.js";
+import type { HistoricalContestCandidateLine } from "./historicalContestNormalizer.js";
 import {
   buildHistoricalContestLookupKey,
   type HistoricalContestLookupKey,
@@ -24,6 +26,9 @@ export type HistoricalContestMarginLookupInput = {
   stateFips: string;
   currentElectionYear?: number | null;
   maxElectionYear?: number | null;
+  // Seats the current election fills. Above one, each matched row is
+  // re-ranked so the margin is the one that decided the last seat.
+  seatsToFill?: number | null;
 };
 
 export type HistoricalContestMarginLookupRecord = {
@@ -48,6 +53,12 @@ export type HistoricalContestMarginLookupRecord = {
   competitiveness_label: HistoricalContestCompetitivenessLabel;
   stale_after_redistricting: boolean;
   imported_at: string;
+  // Every candidate line sorted by votes descending; null on rows imported
+  // before migration 299.
+  candidate_lines: HistoricalContestCandidateLine[] | null;
+  // Which seat the margin fields describe: 1 = 1st vs 2nd place (the stored
+  // pair), N = Nth vs (N+1)th after re-ranking for an N-seat election.
+  seats_ranked: number;
 };
 
 export type HistoricalContestWeightedMarginContest = HistoricalContestMarginLookupRecord & {
@@ -102,6 +113,7 @@ type HistoricalContestMarginLookupRow = QueryResultRow & {
   competitiveness_label: HistoricalContestCompetitivenessLabel;
   stale_after_redistricting: boolean;
   imported_at: string;
+  candidate_lines?: unknown;
 };
 
 function parseInteger(value: number | string | null): number | null {
@@ -118,6 +130,65 @@ function parseNumber(value: number | string): number {
     throw new Error(`Invalid historical contest numeric value: ${value}`);
   }
   return parsed;
+}
+
+// jsonb arrives parsed; anything but an array of {votes, party} objects
+// (a hand-edited row) degrades to null, never a thrown ballot request.
+function parseCandidateLines(value: unknown): HistoricalContestCandidateLine[] | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  const lines: HistoricalContestCandidateLine[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "object" || entry === null) {
+      return null;
+    }
+    const votes = (entry as { votes?: unknown }).votes;
+    const party = (entry as { party?: unknown }).party;
+    if (typeof votes !== "number" || !Number.isSafeInteger(votes) || votes < 0) {
+      return null;
+    }
+    lines.push({ votes, party: typeof party === "string" && party ? party : null });
+  }
+  return lines;
+}
+
+// A "vote for N" election: the stored 1st-vs-2nd pair are both winners, so
+// the margin that decided the last seat is line [N-1] vs line [N]. Rows
+// without candidate lines (pre-migration-299 imports) keep the stored pair.
+// Fewer lines than seats means nobody lost: the last line vs zero, which
+// grades safe — the same reading the single-seat path gives an unopposed
+// contest.
+export function rerankHistoricalContestMarginForSeats(
+  record: HistoricalContestMarginLookupRecord,
+  seatsToFill: number | null | undefined
+): HistoricalContestMarginLookupRecord {
+  const seats =
+    typeof seatsToFill === "number" && Number.isInteger(seatsToFill) && seatsToFill > 1 ? seatsToFill : 1;
+  const lines = record.candidate_lines;
+  if (seats === 1 || !lines || lines.length === 0) {
+    return record;
+  }
+  const lastWinner = lines[Math.min(seats, lines.length) - 1]!;
+  const firstLoser = lines[seats] ?? { votes: 0, party: null };
+  const margin = calculateHistoricalContestMargin({
+    winnerVotes: lastWinner.votes,
+    runnerUpVotes: firstLoser.votes,
+    totalVotes: record.total_votes,
+  });
+  if (!margin) {
+    return record;
+  }
+  return {
+    ...record,
+    winner_party: lastWinner.party,
+    runner_up_party: firstLoser.party,
+    winner_votes: lastWinner.votes,
+    runner_up_votes: firstLoser.votes,
+    margin_percent: margin.marginPercent,
+    competitiveness_label: margin.competitivenessLabel,
+    seats_ranked: seats,
+  };
 }
 
 function tryBuildLookupKey(input: HistoricalContestMarginLookupInput): HistoricalContestLookupKey | null {
@@ -210,6 +281,8 @@ function mapRow(row: HistoricalContestMarginLookupRow): HistoricalContestMarginL
     competitiveness_label: row.competitiveness_label,
     stale_after_redistricting: row.stale_after_redistricting,
     imported_at: row.imported_at,
+    candidate_lines: parseCandidateLines(row.candidate_lines),
+    seats_ranked: 1,
   };
 }
 
@@ -283,6 +356,7 @@ export async function lookupHistoricalContestMarginRows(
   if (keys.length === 0) {
     return new Map();
   }
+  const seatsByLookupId = new Map(inputs.map((input) => [input.lookupId.trim(), input.seatsToFill ?? null]));
 
   const result = await db.query<HistoricalContestMarginLookupRow>(
     `
@@ -324,6 +398,7 @@ export async function lookupHistoricalContestMarginRows(
           hcm.competitiveness_label,
           hcm.stale_after_redistricting,
           hcm.imported_at::text AS imported_at,
+          hcm.candidate_lines,
           ROW_NUMBER() OVER (
             PARTITION BY key.lookup_id
             ORDER BY hcm.election_year DESC, hcm.imported_at DESC, hcm.id
@@ -364,7 +439,8 @@ export async function lookupHistoricalContestMarginRows(
         margin_percent,
         competitiveness_label,
         stale_after_redistricting,
-        imported_at
+        imported_at,
+        candidate_lines
       FROM ranked_margins
       WHERE row_rank <= $2
       ORDER BY lookup_id, row_rank
@@ -374,7 +450,7 @@ export async function lookupHistoricalContestMarginRows(
 
   const rowsByLookupId = new Map<string, HistoricalContestMarginLookupRecord[]>();
   for (const row of result.rows) {
-    const mappedRow = mapRow(row);
+    const mappedRow = rerankHistoricalContestMarginForSeats(mapRow(row), seatsByLookupId.get(row.lookup_id));
     rowsByLookupId.set(mappedRow.lookup_id, [...(rowsByLookupId.get(mappedRow.lookup_id) ?? []), mappedRow]);
   }
   return rowsByLookupId;
