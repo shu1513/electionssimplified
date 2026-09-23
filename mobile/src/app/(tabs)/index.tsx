@@ -271,8 +271,7 @@ export default function HomeScreen() {
             steps below the old 3xl: at phone width a full sentence set that
             large ran six lines and pushed the address field off the fold. */}
         <Text className="text-xl font-bold text-ink">
-          See how much power your vote has and who the candidates really are by their track records
-          instead of their marketing.
+          Uncover who your candidates really are by their track records
         </Text>
         {/* What the service is, where a first-time visitor looks — same line
             the web hero carries. */}
