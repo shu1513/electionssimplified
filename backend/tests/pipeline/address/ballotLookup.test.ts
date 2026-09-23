@@ -10071,7 +10071,11 @@ describe("current race rating read path", () => {
     };
   }
 
-  function summaryQueryMock(options: { rating: Record<string, unknown> | null; candidateCount?: number }) {
+  function summaryQueryMock(options: {
+    rating: Record<string, unknown> | null;
+    candidateCount?: number;
+    stagedRosterSize?: number;
+  }) {
     return vi.fn().mockImplementation((sql: string) => {
       const text = String(sql);
       if (text.includes("public.current_race_ratings")) {
@@ -10086,11 +10090,25 @@ describe("current race rating read path", () => {
         });
       }
       if (text.includes("FROM public.elections")) {
-        return Promise.resolve({ rows: [summaryElectionRow()] });
+        return Promise.resolve({ rows: [summaryElectionRow({ staged_roster_size: options.stagedRosterSize ?? null })] });
       }
       return Promise.resolve({ rows: [] });
     });
   }
+
+  it("keeps a race contested while its staged roster is larger than its links", async () => {
+    // Links appear one per profile write, so a two-name roster shows one
+    // link mid-fanout. The staged roster size says the second candidate is
+    // coming, so the race is not read as uncontested meanwhile.
+    const query = summaryQueryMock({ rating: ratingRow(), candidateCount: 1, stagedRosterSize: 2 });
+
+    const result = await lookupBallotSummariesByDistrictIds({ query }, [ratedDistrictId]);
+    const election = result.elections[0]!;
+
+    expect(election.candidate_count).toBe(1);
+    expect(election.vote_power.decisiveness_level).toBe("high");
+    expect(election.current_competitiveness?.competitiveness_label).toBe("toss_up");
+  });
 
   it("prefers a fresh, confident current rating over historic margins and attaches both payloads", async () => {
     const query = summaryQueryMock({ rating: ratingRow() });
