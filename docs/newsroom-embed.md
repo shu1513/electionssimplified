@@ -36,8 +36,9 @@ To choose the size yourself, add either or both of the size settings:
 - `data-publisher="your-code"` is the code we give your newsroom. It lets us
   count how many readers reached the site from your page. It is optional.
 - A one-line credit, "Ballot lookup by Elections Simplified", appears under
-  the box as a plain link to our home page. `data-credit="none"` hides it,
-  for pages that cannot show it.
+  the box as a plain link to our home page; it opens in a new tab, so your
+  readers keep your page. `data-credit="none"` hides it, for pages that
+  cannot show it.
 
 If your publishing system strips `<script>` tags, use the iframe form:
 

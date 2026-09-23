@@ -33,7 +33,9 @@ describe("embed.js", () => {
     expect(credit.textContent).toBe("Ballot lookup by Elections Simplified");
     const link = credit.querySelector("a");
     expect(link?.getAttribute("href")).toBe("https://electionssimplified.com/?src=daily-planet");
-    expect(link?.getAttribute("rel")).toBeNull();
+    // A new tab keeps the reader on the article; no nofollow, the link is meant to count.
+    expect(link?.getAttribute("target")).toBe("_blank");
+    expect(link?.getAttribute("rel")).toBe("noopener");
   });
 
   it("links the credit to the bare home page when there is no publisher code", () => {

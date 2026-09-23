@@ -95,6 +95,9 @@
     var creditLink = document.createElement("a");
     creditLink.href = origin + "/" + (publisher && CODE.test(publisher) && publisher.length <= MAX_CODE_LENGTH ? "?src=" + publisher : "");
     creditLink.textContent = "Elections Simplified";
+    // Like every link inside the box: a new tab, so the article stays.
+    creditLink.target = "_blank";
+    creditLink.rel = "noopener";
     creditLink.style.color = "inherit";
     creditLink.style.textDecoration = "underline";
     credit.appendChild(document.createTextNode("Ballot lookup by "));
