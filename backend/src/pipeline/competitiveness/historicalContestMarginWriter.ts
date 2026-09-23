@@ -30,6 +30,7 @@ function recordValues(record: HistoricalContestMarginRecord, importedAt: Date): 
     record.competitiveness_label,
     record.stale_after_redistricting,
     importedAt.toISOString(),
+    JSON.stringify(record.candidate_lines),
   ];
 }
 
@@ -59,7 +60,8 @@ async function upsertHistoricalContestMargin(
         margin_percent,
         competitiveness_label,
         stale_after_redistricting,
-        imported_at
+        imported_at,
+        candidate_lines
       )
       VALUES (
         $1,
@@ -80,7 +82,8 @@ async function upsertHistoricalContestMargin(
         $16,
         $17,
         $18,
-        $19::timestamptz
+        $19::timestamptz,
+        $20::jsonb
       )
       ON CONFLICT (source, election_year, state, office_type, district_type, district_key)
       DO UPDATE SET
@@ -97,6 +100,7 @@ async function upsertHistoricalContestMargin(
         competitiveness_label = EXCLUDED.competitiveness_label,
         stale_after_redistricting = EXCLUDED.stale_after_redistricting,
         imported_at = EXCLUDED.imported_at,
+        candidate_lines = EXCLUDED.candidate_lines,
         updated_at = now()
     `,
     recordValues(record, importedAt)

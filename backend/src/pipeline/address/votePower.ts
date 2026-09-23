@@ -139,6 +139,9 @@ export type VotePowerExplanationContext = VotePowerInput & {
   // Per-contest inputs behind a weighted multi-year margin, so the formula
   // can show the actual blend arithmetic.
   marginContests?: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  // Above 1, the margins are the ones that decided the last of N seats
+  // (Nth vs (N+1)th place), not 1st vs 2nd — the formula says so.
+  marginSeatsRanked?: number | null;
 };
 
 const LABELS: readonly GradedVotePowerLabel[] = [
@@ -585,23 +588,46 @@ const MARGIN_GRADE_SCALE =
 
 // The margin-to-grade pipeline with this contest's real numbers (see
 // classifyHistoricalContestMargin — this string must match its cutoffs).
+// 1 -> "1st", 2 -> "2nd", 3 -> "3rd", 4 -> "4th", 12 -> "12th".
+function ordinal(value: number): string {
+  const mod100 = value % 100;
+  if (mod100 >= 11 && mod100 <= 13) {
+    return `${value}th`;
+  }
+  switch (value % 10) {
+    case 1:
+      return `${value}st`;
+    case 2:
+      return `${value}nd`;
+    case 3:
+      return `${value}rd`;
+    default:
+      return `${value}th`;
+  }
+}
+
 function decisivenessFormula(input: {
   decisivenessLevel: "low" | "medium" | "high";
   competitivenessLabel: HistoricalContestCompetitivenessLabel | null | undefined;
   marginPercent: number | null;
   marginContests: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  marginSeatsRanked: number | null;
 }): string | null {
   if (input.marginPercent === null || input.competitivenessLabel == null) {
     return null;
   }
   const labelText = input.competitivenessLabel === "toss_up" ? "toss-up" : input.competitivenessLabel.replace(/_/g, " ");
   const contests = input.marginContests ?? [];
+  // A multi-seat margin is the gap that decided the last seat; the plain
+  // word "margin" would read as the winner's lead.
+  const seats = input.marginSeatsRanked ?? 1;
+  const marginWord = seats > 1 ? `margin (${ordinal(seats)} vs ${ordinal(seats + 1)} place, the last of ${seats} seats)` : "margin";
   const marginExpression =
     contests.length > 1
-      ? `margin = ${contests
+      ? `${marginWord} = ${contests
           .map((contest) => `${formatWeight(contest.weight)} × ${formatMarginPoints(contest.marginPercent)} (${contest.electionYear})`)
           .join(" + ")} = ${formatMarginPoints(input.marginPercent)} points`
-      : `margin = ${formatMarginPoints(input.marginPercent)} points`;
+      : `${marginWord} = ${formatMarginPoints(input.marginPercent)} points`;
   return `${marginExpression} → "${labelText}" → grade ${levelDisplayWord(input.decisivenessLevel)} (${MARGIN_GRADE_SCALE})`;
 }
 
@@ -718,6 +744,7 @@ function decisivenessPart(input: {
   marginPercent: number | null;
   marginElectionYears: number[] | null;
   marginContests: { marginPercent: number; electionYear: number; weight: number }[] | null;
+  marginSeatsRanked: number | null;
   staleAfterRedistricting: boolean;
 }): VotePowerExplanationPart {
   const seats = effectiveSeatsToFill(input.seatsToFill);
@@ -787,6 +814,7 @@ function decisivenessPart(input: {
       competitivenessLabel: input.competitivenessLabel,
       marginPercent: input.marginPercent,
       marginContests: input.marginContests,
+      marginSeatsRanked: input.marginSeatsRanked,
     }),
   };
 }
@@ -941,6 +969,7 @@ export function explainVotePower(input: VotePowerExplanationContext, result: Vot
         marginPercent: input.marginPercent ?? null,
         marginElectionYears: input.marginElectionYears ?? null,
         marginContests: input.marginContests ?? null,
+        marginSeatsRanked: input.marginSeatsRanked ?? null,
         staleAfterRedistricting: input.staleAfterRedistricting === true,
       })
     );

@@ -151,6 +151,8 @@ export type BallotLookupHistoricalCompetitivenessContest = {
   competitiveness_label: HistoricalContestCompetitivenessLabel;
   stale_after_redistricting: boolean;
   weight?: number;
+  // 1 = 1st vs 2nd place; N = the margin that decided the last of N seats.
+  seats_ranked?: number;
 };
 
 export type BallotLookupHistoricalCompetitiveness = {
@@ -794,6 +796,7 @@ function toHistoricalCompetitiveness(
       competitiveness_label: contest.competitiveness_label,
       stale_after_redistricting: contest.stale_after_redistricting,
       weight: contest.weight,
+      seats_ranked: contest.seats_ranked,
     })),
   };
 }
@@ -1014,6 +1017,7 @@ async function loadHistoricalCompetitivenessByElection(
       stateFips: row.state_fips,
       currentElectionYear: electionYear(row.election_date),
       maxElectionYear: priorElectionYear(row.election_date),
+      seatsToFill: row.seats_to_fill,
     }))
   );
 
@@ -2342,6 +2346,7 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
             electionYear: contest.election_year,
             weight: contest.weight ?? 1,
           })) ?? null,
+        marginSeatsRanked: historicalCompetitiveness?.contests_used?.[0]?.seats_ranked ?? null,
       };
   return {
     ...detail,

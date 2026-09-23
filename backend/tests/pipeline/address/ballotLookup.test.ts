@@ -10294,6 +10294,66 @@ describe("current race rating read path", () => {
     // Both payload objects ride along, mirroring the summary list.
     expect(detail?.historical_competitiveness?.competitiveness_label).toBe("competitive");
   });
+  it("grades a two-seat race on the margin that decided its last seat", async () => {
+    // Stored pair (1st vs 2nd) says competitive at 9.8 points, but both of
+    // those lines won. The seat-deciding gap is 2nd vs 3rd: 27.45 points,
+    // safe, so decisiveness grades low and the copy names the seat.
+    const candidate = (suffix: string, name: string) => ({
+      election_id: ratedElectionId,
+      candidate_election_id: `f${suffix}f${suffix}f${suffix}f${suffix}-f${suffix}f${suffix}-4f${suffix}f-8f${suffix}f-f${suffix}f${suffix}f${suffix}f${suffix}f${suffix}f${suffix}`,
+      candidate_id: `e${suffix}e${suffix}e${suffix}e${suffix}-e${suffix}e${suffix}-4e${suffix}e-8e${suffix}e-e${suffix}e${suffix}e${suffix}e${suffix}e${suffix}e${suffix}`,
+      display_name: name,
+      party: "Republican",
+      is_incumbent: false,
+      status: "declared",
+      summary: null,
+      current_office: null,
+      state: "CA",
+      fec_ids: [],
+      state_filing_ids: [],
+    });
+    const query = vi.fn().mockImplementation((sql: string) => {
+      const text = String(sql);
+      if (text.includes("public.current_race_ratings")) {
+        return Promise.resolve({ rows: [] });
+      }
+      if (text.includes("public.historical_contest_margins")) {
+        return Promise.resolve({
+          rows: [
+            {
+              ...marginRow(),
+              winner_votes: "50",
+              runner_up_votes: "40",
+              total_votes: "102",
+              margin_percent: "9.80",
+              candidate_lines: [
+                { votes: 50, party: "REPUBLICAN" },
+                { votes: 40, party: "REPUBLICAN" },
+                { votes: 12, party: "DEMOCRAT" },
+              ],
+            },
+          ],
+        });
+      }
+      if (text.includes("ce.id AS candidate_election_id")) {
+        return Promise.resolve({ rows: [candidate("1", "Ann One"), candidate("2", "Bo Two"), candidate("3", "Cy Three")] });
+      }
+      if (text.includes("FROM public.elections")) {
+        return Promise.resolve({ rows: [summaryElectionRow({ seats_to_fill: 2 })] });
+      }
+      return Promise.resolve({ rows: [] });
+    });
+
+    const detail = await lookupElectionDetailById({ query }, ratedElectionId);
+
+    expect(detail?.historical_competitiveness?.margin_percent).toBe(27.45);
+    expect(detail?.historical_competitiveness?.contests_used?.[0]?.seats_ranked).toBe(2);
+    expect(detail?.vote_power.decisiveness_level).toBe("low");
+    const decisiveness = detail?.vote_power.explanation.parts.find((part) => part.title === "Decisiveness");
+    expect(decisiveness?.stat).toBe("27.45-point margin in 2024 · 3 candidates for 2 seats");
+    expect(decisiveness?.formula).toContain("margin (2nd vs 3rd place, the last of 2 seats) = 27.45 points");
+  });
+
   it("keeps the detail contested while its staged roster is larger than its links", async () => {
     // Same partial-fanout guard as the summary list: one link written, a
     // second name still staged, so the race is not read as uncontested.

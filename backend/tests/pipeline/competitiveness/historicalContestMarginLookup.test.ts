@@ -6,6 +6,7 @@ import {
   HISTORICAL_CONTEST_WEIGHTED_MARGIN_WEIGHTS,
   lookupHistoricalContestMarginRows,
   lookupHistoricalContestMargins,
+  rerankHistoricalContestMarginForSeats,
   type HistoricalContestMarginLookupRecord,
 } from "../../../src/pipeline/competitiveness/historicalContestMarginLookup.js";
 
@@ -34,6 +35,8 @@ function marginRow(
     competitiveness_label: "safe",
     stale_after_redistricting: false,
     imported_at: "2026-06-14 12:00:00+00",
+    candidate_lines: null,
+    seats_ranked: 1,
     ...overrides,
   };
 }
@@ -393,6 +396,103 @@ describe("historicalContestMarginLookup", () => {
       competitiveness_label: "competitive",
       stale_after_redistricting: false,
       imported_at: "2026-06-14 12:00:00+00",
+      candidate_lines: null,
+      seats_ranked: 1,
+    });
+  });
+
+  it("re-ranks a matched row for a multi-seat election so the margin is the last seat's", async () => {
+    // Two seats: lines [0] and [1] both won. The stored 1st-vs-2nd pair says
+    // "competitive" (50-40 of 102 = 9.8 points); the seat-deciding 2nd-vs-3rd
+    // gap is 40-12 = 27.45 points, "safe".
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          lookup_id: "nd-house-47",
+          source: "MIT_2024",
+          source_url: null,
+          election_year: 2024,
+          state: "ND",
+          state_fips: "38",
+          office_type: "STATE_HOUSE",
+          district_type: "state_lower",
+          district_key: "38047",
+          mit_office: "STATE HOUSE",
+          mit_district: "047",
+          winner_party: "REPUBLICAN",
+          runner_up_party: "REPUBLICAN",
+          winner_votes: "50",
+          runner_up_votes: "40",
+          total_votes: "102",
+          margin_percent: "9.80",
+          competitiveness_label: "competitive",
+          stale_after_redistricting: false,
+          imported_at: "2026-06-14 12:00:00+00",
+          candidate_lines: [
+            { votes: 50, party: "REPUBLICAN" },
+            { votes: 40, party: "REPUBLICAN" },
+            { votes: 12, party: "DEMOCRAT" },
+          ],
+        },
+      ],
+    });
+
+    const result = await lookupHistoricalContestMarginRows({ query } as never, [
+      {
+        lookupId: "nd-house-47",
+        officeCanonicalName: "State Lower Chamber Legislator",
+        districtType: "state_lower",
+        geoidCompact: "38047",
+        stateFips: "38",
+        seatsToFill: 2,
+      },
+    ]);
+
+    expect(result.get("nd-house-47")?.[0]).toMatchObject({
+      winner_party: "REPUBLICAN",
+      runner_up_party: "DEMOCRAT",
+      winner_votes: 40,
+      runner_up_votes: 12,
+      margin_percent: 27.45,
+      competitiveness_label: "safe",
+      seats_ranked: 2,
+    });
+  });
+
+  it("keeps the stored pair when the row has no candidate lines or the election fills one seat", () => {
+    const legacy = marginRow({ candidate_lines: null });
+    expect(rerankHistoricalContestMarginForSeats(legacy, 2)).toBe(legacy);
+
+    const withLines = marginRow({
+      candidate_lines: [
+        { votes: 600, party: "DEMOCRAT" },
+        { votes: 400, party: "REPUBLICAN" },
+      ],
+    });
+    expect(rerankHistoricalContestMarginForSeats(withLines, 1)).toBe(withLines);
+    expect(rerankHistoricalContestMarginForSeats(withLines, null)).toBe(withLines);
+  });
+
+  it("grades a past multi-seat contest with no loser as safe", () => {
+    // Two candidates for two seats: the last winner is measured against
+    // zero, the same reading the single-seat path gives an unopposed race.
+    const record = rerankHistoricalContestMarginForSeats(
+      marginRow({
+        candidate_lines: [
+          { votes: 600, party: "DEMOCRAT" },
+          { votes: 400, party: "REPUBLICAN" },
+        ],
+      }),
+      2
+    );
+    expect(record).toMatchObject({
+      winner_votes: 400,
+      runner_up_votes: 0,
+      runner_up_party: null,
+      margin_percent: 40,
+      competitiveness_label: "safe",
+      seats_ranked: 2,
     });
   });
 
