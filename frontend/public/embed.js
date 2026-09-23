@@ -7,6 +7,8 @@
  * The box opens on the site's landing page: an address search that gives
  * the reader their own ballot, inside the box. Optional:
  *   data-publisher="your-code"  counts readers who came from your page
+ *   data-credit="none"          hides the one-line "Ballot lookup by
+ *                               Elections Simplified" credit under the box
  *
  * Optional size, in pixels: data-max-width (240-2000) is the widest the box may
  * be; without it the box fills its container. It always shrinks to fit a
@@ -75,6 +77,30 @@
   var maxHeight = fixedHeight ? Math.round(height) : DEFAULT_HEIGHT;
   frame.style.height = maxHeight + "px";
   script.parentNode.insertBefore(frame, script.nextSibling);
+
+  // A one-line credit under the box, as a plain link in the host page rather
+  // than inside the frame: it names the source to readers who never open the
+  // box and is the only part of the embed a search engine reads as a link.
+  // Publishers who cannot show it add data-credit="none".
+  if (script.getAttribute("data-credit") !== "none") {
+    var credit = document.createElement("p");
+    credit.style.margin = "6px 0 0";
+    credit.style.fontSize = "12px";
+    credit.style.lineHeight = "1.4";
+    credit.style.color = "#555555";
+    credit.style.fontFamily = "system-ui, -apple-system, sans-serif";
+    if (frame.style.maxWidth) {
+      credit.style.maxWidth = frame.style.maxWidth;
+    }
+    var creditLink = document.createElement("a");
+    creditLink.href = origin + "/" + (publisher && CODE.test(publisher) && publisher.length <= MAX_CODE_LENGTH ? "?src=" + publisher : "");
+    creditLink.textContent = "Elections Simplified";
+    creditLink.style.color = "inherit";
+    creditLink.style.textDecoration = "underline";
+    credit.appendChild(document.createTextNode("Ballot lookup by "));
+    credit.appendChild(creditLink);
+    frame.parentNode.insertBefore(credit, frame.nextSibling);
+  }
   if (fixedHeight) {
     // The publisher chose the height; nothing to fit.
     return;
