@@ -228,6 +228,33 @@ describe("electionPartisanshipPolicy", () => {
     expect(resolved).toBe(true);
   });
 
+  it("keeps Maine judges of probate partisan and every other Maine judge nonpartisan", () => {
+    const draft = {
+      district_id: "d-me",
+      district_name: "Knox County, Maine",
+      district_type: "county",
+      state: "ME",
+    };
+    for (const title of [
+      "Knox County Judge of Probate",
+      "Judge of Probate",
+      "Judge of Probate, Penobscot County",
+    ]) {
+      expect(
+        resolveElectionIsPartisan({ draft, contestFamily: "judicial_office", raceType: "office", officialBallotTitle: title, aiValue: false })
+      ).toBe(true);
+    }
+    expect(
+      resolveElectionIsPartisan({
+        draft,
+        contestFamily: "judicial_office",
+        raceType: "office",
+        officialBallotTitle: "Justice of the Maine Superior Court",
+        aiValue: true,
+      })
+    ).toBe(false);
+  });
+
   it("keeps Maryland Orphans' Court judges partisan and every other Maryland bench nonpartisan", () => {
     const draft = {
       district_id: "d-md",
