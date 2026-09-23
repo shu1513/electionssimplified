@@ -421,12 +421,15 @@ function singularizeCommissionerBodyForms(value: string): string {
 const FIRE_DISTRICT_SEAT_KEY_PATTERN =
   /^(?:[a-z0-9]+ ){0,4}fire (?:(?:control|rescue|protection|suppression|and rescue) )?district(?: (?:board member|board|commission|commissioner))?$/;
 const FIRE_DISTRICT_OFFICE_KEY = "fire control district commissioner";
-// Roles a fire district elects or appoints that are NOT its board seat. The
-// anchor above already excludes them when they trail the district phrase; this
-// also covers the comma form ("Treasurer, Smithtown Fire District"), whose
-// leading role word the anchor's name prefix would otherwise absorb.
+// Roles a fire district or utility board elects or appoints that are NOT its
+// board seat. The anchor above already excludes them when they trail the
+// district phrase; this also covers the comma form ("Treasurer, Smithtown Fire
+// District", "Superintendent, Water and Sewer Commission"), whose leading role
+// word the anchor's name prefix would otherwise absorb. "Director" is left
+// out on purpose: in many special districts it IS the board seat ("Soil and
+// Water Conservation Director", Goochland County VA live).
 const FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN =
-  /\b(?:treasurer|secretary|clerk|chief|marshal|collector|assessor|auditor|attorney)\b/;
+  /\b(?:treasurer|secretary|clerk|chief|marshal|collector|assessor|auditor|attorney|superintendent|manager)\b/;
 
 function mapFireDistrictBodyForms(value: string): string {
   if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(value)) {

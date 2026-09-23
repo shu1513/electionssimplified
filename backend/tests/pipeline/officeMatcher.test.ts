@@ -2934,6 +2934,7 @@ describe("OfficeMatcher", () => {
       "Smithtown Fire District Secretary",
       "Fire District Clerk",
       "Treasurer, Smithtown Fire District",
+      "Superintendent, Smithtown Fire District",
     ];
     for (const title of titles) {
       const result = await matcher.resolve({
@@ -3740,6 +3741,8 @@ describe("OfficeMatcher", () => {
         "Treasurer, Water and Sewer Commission",
         "Water and Sewer Board Clerk",
         "Water and Sewer Commission Secretary",
+        "Superintendent, Water and Sewer Commission",
+        "General Manager, Water and Sewer Commission",
       ]) {
         const result = await matcher.resolve({
           scope: "county",
