@@ -321,11 +321,21 @@ export function App() {
             of the shrink-0 logo painting over it. ml-auto keeps the wrapped
             nav right-aligned. */}
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4">
-          {/* text-base below sm: the smaller logo is what buys the header
-              its single line at 375px (measured: the text-xl wordmark alone
-              is 185px of a 343px row). */}
-          <Link to="/" className="shrink-0 text-base font-extrabold tracking-tight text-rausch sm:text-xl">
-            {APP_NAME}
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-[5px] text-base font-extrabold tracking-tight text-rausch sm:text-xl"
+          >
+            {/* Trim the image's side padding so the gap measures from the visible ballot. */}
+            <span className="relative h-9 w-[22px] -translate-y-1.5 shrink-0 overflow-hidden sm:h-11 sm:w-[27px] sm:-translate-y-2">
+              <img
+                src="/ballot-logo.png"
+                alt=""
+                width={44}
+                height={44}
+                className="absolute -left-[7px] top-0 h-9 w-9 max-w-none sm:-left-[8.5px] sm:h-11 sm:w-11"
+              />
+            </span>
+            <span>{APP_NAME}</span>
           </Link>
           {/* min-w-0 (not shrink-0): the nav must be squeezable so the guest
               span's flex-wrap can still break links onto an extra line as a
