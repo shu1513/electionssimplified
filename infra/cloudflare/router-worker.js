@@ -232,6 +232,32 @@ export function hasSessionCookie(cookieHeader) {
   return new RegExp(`(?:^|;\\s*)${SESSION_COOKIE_NAME}=`).test(cookieHeader);
 }
 
+// Static files are identical for every visitor, cookie or not, so they get
+// a wider edge policy than pages. Two kinds:
+//   - /assets/<name>-<hash>.<ext>: the build stamps a content hash into the
+//     filename (Vite/rolldown), so a URL can never point at different bytes;
+//     origin already sends max-age=1y immutable, the edge just mirrors it.
+//     Without this every first visit fetched ~500 KB of JS/CSS from Render.
+//   - Root icons and share images (/favicon.ico, /ballot-logo.png,
+//     /og-card.jpg ...): origin serves them with max-age=0. Changes ride on
+//     a ?v= query (frontend/src/root.tsx, pageMeta.ts), which is part of the
+//     cache key, so an hour of caching is safe and covers a plain rename too.
+export const ASSET_CACHE_TTL_SECONDS = 31536000;
+export const ROOT_FILE_CACHE_TTL_SECONDS = 3600;
+const HASHED_ASSET_PATH = /^\/assets\/[^/]+-[A-Za-z0-9_-]{8}\.[a-z0-9]+$/;
+const ROOT_FILE_PATH = /^\/[a-z0-9-]+\.(?:png|jpg|ico|svg|webp)$/;
+
+/** Cache-Control for a static file, shared by browser and edge, or null. */
+export function staticCacheControl(pathname) {
+  if (HASHED_ASSET_PATH.test(pathname)) {
+    return `public, max-age=${ASSET_CACHE_TTL_SECONDS}, immutable`;
+  }
+  if (ROOT_FILE_PATH.test(pathname)) {
+    return `public, max-age=${ROOT_FILE_CACHE_TTL_SECONDS}`;
+  }
+  return null;
+}
+
 // RFC 1123 label: 1-63 chars, alphanumeric at both ends, alphanumeric or
 // hyphen inside. Deliberately stricter than the URL parser, which (with the
 // non-strict IDNA browsers use) happily accepts ".", "foo..bar",
@@ -352,12 +378,17 @@ export default {
     // verification (the zone's own cf-cache-status always reads DYNAMIC for
     // Worker responses). Served stale worst case: 60s — fine for pages that
     // change via research imports, not user actions.
-    if (
+    // Static files (see staticCacheControl) skip the path allowlist and the
+    // cookie gate: a logged-in visitor's JS bundle is the same bytes, and
+    // the shared Cache-Control is stamped on the served copy too so the
+    // browser holds it as long as the edge does.
+    const staticControl = request.method === "GET" && !apiBound ? staticCacheControl(url.pathname) : null;
+    const pageEligible =
       request.method === "GET" &&
       !apiBound &&
       isCacheablePublicPage(url.pathname) &&
-      !hasSessionCookie(request.headers.get("Cookie"))
-    ) {
+      !hasSessionCookie(request.headers.get("Cookie"));
+    if (staticControl || pageEligible) {
       const cache = caches.default;
       const cached = await cache.match(request.url);
       if (cached) {
@@ -369,7 +400,10 @@ export default {
       if (upstreamResponse.status === 200 && !upstreamResponse.headers.has("Set-Cookie")) {
         const copy = upstreamResponse.clone();
         const stored = new Response(copy.body, copy);
-        stored.headers.set("Cache-Control", `public, max-age=0, s-maxage=${EDGE_CACHE_TTL_SECONDS}`);
+        stored.headers.set(
+          "Cache-Control",
+          staticControl ?? `public, max-age=0, s-maxage=${EDGE_CACHE_TTL_SECONDS}`
+        );
         // A failed put (e.g. a Vary: * response) must never break serving;
         // the next request just misses again.
         const storing = cache.put(request.url, stored).catch(() => {});
@@ -381,6 +415,9 @@ export default {
       }
       const response = withSecurityHeaders(upstreamResponse, url.pathname);
       response.headers.set("X-Voteapp-Edge-Cache", "MISS");
+      if (staticControl && upstreamResponse.status === 200) {
+        response.headers.set("Cache-Control", staticControl);
+      }
       return response;
     }
     return withSecurityHeaders(await fetch(upstreamRequest), url.pathname);

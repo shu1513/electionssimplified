@@ -2,14 +2,17 @@ import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it } from "node:test";
 
 import worker, {
+  ASSET_CACHE_TTL_SECONDS,
   CLIENT_IP_HEADER,
   EDGE_CACHE_TTL_SECONDS,
+  ROOT_FILE_CACHE_TTL_SECONDS,
   SESSION_COOKIE_NAME,
   hasSessionCookie,
   isApiPath,
   isCacheablePublicPage,
   isFrameablePath,
   resolveUpstreamHost,
+  staticCacheControl,
   withSecurityHeaders,
 } from "./router-worker.js";
 
@@ -402,6 +405,76 @@ describe("edge cache", () => {
       assert.equal(response.headers.get("x-voteapp-edge-cache"), null);
     }
     assert.equal(calls.length, 5);
+  });
+});
+
+describe("staticCacheControl", () => {
+  it("marks hashed build assets immutable for a year", () => {
+    for (const path of ["/assets/entry.client-Cf5aF4Cg.js", "/assets/root-BJo8eCSe.css", "/assets/RouteError-DJEVEI-1.js"]) {
+      assert.equal(staticCacheControl(path), `public, max-age=${ASSET_CACHE_TTL_SECONDS}, immutable`, path);
+    }
+  });
+
+  it("caches root icons and share images for an hour", () => {
+    for (const path of ["/favicon.ico", "/favicon-32.png", "/apple-touch-icon.png", "/ballot-logo.png", "/og-card.jpg"]) {
+      assert.equal(staticCacheControl(path), `public, max-age=${ROOT_FILE_CACHE_TTL_SECONDS}`, path);
+    }
+  });
+
+  it("leaves pages, API paths, and unhashed asset names alone", () => {
+    for (const path of ["/", "/elections/x", "/api/elections", "/assets/entry.client.js", "/assets/nested/x-Cf5aF4Cg.js", "/robots.txt", "/sitemap.xml", "/me/picks.png"]) {
+      assert.equal(staticCacheControl(path), null, path);
+    }
+  });
+});
+
+describe("static edge cache", () => {
+  it("serves hashed assets from cache even for logged-in visitors", async () => {
+    const calls = stubFetch();
+    const url = "https://electionssimplified.com/assets/entry.client-Cf5aF4Cg.js";
+
+    const first = await worker.fetch(new Request(url), ENV);
+    const second = await worker.fetch(
+      new Request(url, { headers: { cookie: `${SESSION_COOKIE_NAME}=session-value` } }),
+      ENV
+    );
+
+    assert.equal(first.headers.get("x-voteapp-edge-cache"), "MISS");
+    assert.equal(second.headers.get("x-voteapp-edge-cache"), "HIT");
+    assert.equal(calls.length, 1);
+    // Browser and edge share the same year-long immutable policy.
+    const expected = `public, max-age=${ASSET_CACHE_TTL_SECONDS}, immutable`;
+    assert.equal(first.headers.get("cache-control"), expected);
+    assert.equal(second.headers.get("cache-control"), expected);
+  });
+
+  it("caches root icons for an hour, keyed by the version query", async () => {
+    const calls = stubFetch();
+
+    const first = await worker.fetch(new Request("https://electionssimplified.com/favicon.ico?v=2"), ENV);
+    const second = await worker.fetch(new Request("https://electionssimplified.com/favicon.ico?v=2"), ENV);
+    const bumped = await worker.fetch(new Request("https://electionssimplified.com/favicon.ico?v=3"), ENV);
+
+    assert.equal(first.headers.get("cache-control"), `public, max-age=${ROOT_FILE_CACHE_TTL_SECONDS}`);
+    assert.equal(second.headers.get("x-voteapp-edge-cache"), "HIT");
+    assert.equal(bumped.headers.get("x-voteapp-edge-cache"), "MISS");
+    assert.equal(calls.length, 2);
+  });
+
+  it("never stores or relabels a missing asset", async () => {
+    let originHits = 0;
+    globalThis.fetch = async () => {
+      originHits += 1;
+      return new Response("not found", { status: 404 });
+    };
+    const url = "https://electionssimplified.com/assets/gone-Cf5aF4Cg.js";
+
+    const first = await worker.fetch(new Request(url), ENV);
+    const second = await worker.fetch(new Request(url), ENV);
+
+    assert.equal(first.headers.get("cache-control"), null);
+    assert.equal(second.headers.get("x-voteapp-edge-cache"), "MISS");
+    assert.equal(originHits, 2);
   });
 });
 
