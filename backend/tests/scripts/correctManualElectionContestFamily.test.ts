@@ -11,11 +11,13 @@ const JUDGE_OFFICE_ID = "20000000-0000-4000-8000-000000000001";
 const OTHER_OFFICE_ID = "20000000-0000-4000-8000-000000000002";
 const JP_OFFICE_ID = "20000000-0000-4000-8000-000000000003";
 const COMMISSIONER_OFFICE_ID = "20000000-0000-4000-8000-000000000004";
+const EXECUTIVE_OFFICE_ID = "20000000-0000-4000-8000-000000000005";
 const OFFICES = [
   { id: JUDGE_OFFICE_ID, canonical_name: "County Level Judge" },
   { id: OTHER_OFFICE_ID, canonical_name: "County Recorder" },
   { id: JP_OFFICE_ID, canonical_name: "Justice of the Peace" },
   { id: COMMISSIONER_OFFICE_ID, canonical_name: "County Commissioner" },
+  { id: EXECUTIVE_OFFICE_ID, canonical_name: "County Executive" },
 ];
 const SOURCE_URL = "https://nmcourts.gov/courts-by-county/";
 
@@ -235,6 +237,56 @@ describe("runElectionContestFamilyCorrection", () => {
       "non_judicial_office",
       COMMISSIONER_OFFICE_ID,
     ]);
+    expect(statements.at(-1)?.text).toBe("COMMIT");
+  });
+
+  it("replaces County Executive when a New York County Court judge is corrected to judicial", async () => {
+    // Texas/Kentucky/Arkansas teach "county judge" -> County Executive, so a
+    // New York "Allegany County Judge" filed as non-judicial landed there.
+    const { client, statements } = fakeClient(
+      electionRow({
+        official_ballot_title: "Allegany County Judge",
+        office_id: EXECUTIVE_OFFICE_ID,
+        district_name: "Allegany County, New York",
+        state: "NY",
+      }),
+      { aliasOfficeId: EXECUTIVE_OFFICE_ID, aliasKey: "county judge" }
+    );
+
+    const result = await runElectionContestFamilyCorrection(client, options());
+
+    expect(result).toMatchObject({
+      officeId: JUDGE_OFFICE_ID,
+      officeBackfilled: false,
+      officeReplaced: true,
+    });
+    expect(updateStatement(statements)?.values?.slice(0, 3)).toEqual([
+      ELECTION_ID,
+      "judicial_office",
+      JUDGE_OFFICE_ID,
+    ]);
+    expect(statements.at(-1)?.text).toBe("COMMIT");
+  });
+
+  it("replaces County Executive on an already-judicial row whose office was never re-resolved", async () => {
+    const { client, statements } = fakeClient(
+      electionRow({
+        official_ballot_title: "Bosque County 220th District Judge",
+        discovery_contest_family: "judicial_office",
+        office_id: EXECUTIVE_OFFICE_ID,
+        district_name: "Bosque County, Texas",
+        state: "TX",
+      })
+    );
+
+    const result = await runElectionContestFamilyCorrection(client, options());
+
+    expect(result).toMatchObject({
+      alreadyCorrected: true,
+      officeId: JUDGE_OFFICE_ID,
+      officeReplaced: true,
+    });
+    expect(updateStatement(statements)?.values?.[2]).toBe(JUDGE_OFFICE_ID);
     expect(statements.at(-1)?.text).toBe("COMMIT");
   });
 

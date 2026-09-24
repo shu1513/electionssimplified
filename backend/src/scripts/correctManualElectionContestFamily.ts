@@ -20,6 +20,7 @@ import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 
 const OFFICE_CONTEST_FAMILIES = ["non_judicial_office", "judicial_office"] as const;
+const COUNTY_EXECUTIVE_CANONICAL_NAME = "County Executive";
 type OfficeContestFamily = (typeof OFFICE_CONTEST_FAMILIES)[number];
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -207,8 +208,12 @@ export async function runElectionContestFamilyCorrection(
     }
     // A judge office stored on an election being corrected to non-judicial is
     // the same classification error (309 Arkansas quorum-court seats sat on the
-    // judicial Justice of the Peace office), so it is replaced. Any other stored
-    // office that differs from the match is a real conflict.
+    // judicial Justice of the Peace office), so it is replaced. The mirror case
+    // is County Executive under a judge family: the Texas/Kentucky/Arkansas
+    // executive owns the "county judge" alias, so a New York County Court judge
+    // ("Allegany County Judge") or a Texas district judge could land there
+    // before the family was set right. Any other stored office that differs
+    // from the match is a real conflict.
     let officeReplaced = false;
     if (row.office_id && row.office_id !== match.officeId) {
       const storedOffice = await client.query<ResolvedOfficeRow>(
@@ -220,7 +225,11 @@ export async function runElectionContestFamilyCorrection(
         [row.office_id]
       );
       const storedCanonicalName = storedOffice.rows[0]?.canonical_name;
-      if (!storedCanonicalName || familyIsJudicial || !isJudicialOfficeCanonicalName(storedCanonicalName)) {
+      const judgeOnCountyExecutive =
+        familyIsJudicial && storedCanonicalName === COUNTY_EXECUTIVE_CANONICAL_NAME;
+      const nonJudgeOnJudgeOffice =
+        !familyIsJudicial && storedCanonicalName !== undefined && isJudicialOfficeCanonicalName(storedCanonicalName);
+      if (!judgeOnCountyExecutive && !nonJudgeOnJudgeOffice) {
         throw new Error(
           `Election ${electionId} already references office ${row.office_id}, but corrected family resolves ${match.officeId}; refusing correction`
         );
