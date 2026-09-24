@@ -6,6 +6,9 @@
 // against the system roots, instead of disabling verification (same approach
 // as alabamaFcpaTls.ts and northDakotaCfrsClient.ts).
 
+import { readFileSync } from "node:fs";
+import tls from "node:tls";
+
 // Go Daddy Secure Certificate Authority - G2: issuer of the *.cga.ct.gov leaf
 // (Connecticut General Assembly). Downloaded 2026-09-24 from GoDaddy's official
 // repository (https://certs.godaddy.com/repository/gdig2.crt.pem), chains to
@@ -43,6 +46,49 @@ LXY2JtwE65/3YR8V3Idv7kaWKK2hJn0KCacuBKONvPi8BDAB
 -----END CERTIFICATE-----
 `;
 
+/**
+ * The CA set Node trusts by default: the bundled roots plus anything the
+ * process was started with in NODE_EXTRA_CA_CERTS. `tls.rootCertificates`
+ * alone omits the extra file, and undici's `connect.ca` REPLACES the default
+ * store, so building on the bundled roots alone would silently discard a
+ * custom CA (TLS inspection, a corporate proxy) for the listed hosts only.
+ * Node >= 24 reports the effective set directly; older versions get the same
+ * answer by reading the file Node itself loads at startup. Read once.
+ */
+let cachedDefaultCaCertificates: readonly string[] | null = null;
+
+export function defaultCaCertificates(): readonly string[] {
+  if (cachedDefaultCaCertificates) {
+    return cachedDefaultCaCertificates;
+  }
+  const getCACertificates = (
+    tls as unknown as { getCACertificates?: (type: "default") => string[] }
+  ).getCACertificates;
+  if (typeof getCACertificates === "function") {
+    cachedDefaultCaCertificates = getCACertificates.call(tls, "default");
+    return cachedDefaultCaCertificates;
+  }
+  const extra: string[] = [];
+  const extraFile = process.env.NODE_EXTRA_CA_CERTS?.trim();
+  if (extraFile) {
+    try {
+      const pemBlocks = readFileSync(extraFile, "utf8").match(
+        /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g
+      );
+      extra.push(...(pemBlocks ?? []));
+    } catch {
+      // Node ignores an unreadable NODE_EXTRA_CA_CERTS file too (it warns
+      // once at startup); trusting the bundled roots is the same outcome.
+    }
+  }
+  cachedDefaultCaCertificates = [...tls.rootCertificates, ...extra];
+  return cachedDefaultCaCertificates;
+}
+
+export function resetDefaultCaCertificatesForTests(): void {
+  cachedDefaultCaCertificates = null;
+}
+
 type KnownIncompleteChainHost = {
   // Matches the hostname itself and any subdomain of it.
   hostSuffix: string;
@@ -58,8 +104,8 @@ const KNOWN_INCOMPLETE_CHAIN_HOSTS: readonly KnownIncompleteChainHost[] = [
 
 /**
  * Extra CA certificates to trust for `hostname`, or null when the host is not
- * on the known-incomplete-chain list. Callers must add these ON TOP of the
- * system roots: undici's `connect.ca` replaces the default store.
+ * on the known-incomplete-chain list. Callers must add these ON TOP of
+ * `defaultCaCertificates()`: undici's `connect.ca` replaces the default store.
  */
 export function extraCaCertificatesForHost(hostname: string): readonly string[] | null {
   const host = hostname.trim().toLowerCase().replace(/\.$/, "");

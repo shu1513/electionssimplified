@@ -22,9 +22,15 @@ vi.mock("undici", () => ({
   },
 }));
 
+import { rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import tls from "node:tls";
 import {
+  defaultCaCertificates,
   extraCaCertificatesForHost,
   GODADDY_SECURE_CA_G2_PEM,
+  resetDefaultCaCertificatesForTests,
 } from "../../src/ai/knownIncompleteChainHosts.js";
 import {
   classifyCitationVerificationFailure,
@@ -84,6 +90,37 @@ describe("extraCaCertificatesForHost", () => {
     expect(extraCaCertificatesForHost("notcga.ct.gov")).toBeNull();
     expect(extraCaCertificatesForHost("cga.ct.gov.example.com")).toBeNull();
     expect(extraCaCertificatesForHost("example.com")).toBeNull();
+  });
+});
+
+describe("defaultCaCertificates", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    resetDefaultCaCertificatesForTests();
+  });
+
+  it("keeps a NODE_EXTRA_CA_CERTS certificate in the default trust set", () => {
+    const extraFile = join(tmpdir(), `extra-ca-${process.pid}.pem`);
+    writeFileSync(extraFile, `${GODADDY_SECURE_CA_G2_PEM}\n`);
+    try {
+      vi.stubEnv("NODE_EXTRA_CA_CERTS", extraFile);
+      resetDefaultCaCertificatesForTests();
+      const certificates = defaultCaCertificates();
+      expect(certificates.length).toBeGreaterThan(50);
+      // Node >= 24 reports NODE_EXTRA_CA_CERTS only when it was set at startup,
+      // so compare the fallback path's behaviour where the env var is read live.
+      if (typeof (tls as { getCACertificates?: unknown }).getCACertificates !== "function") {
+        expect(certificates.some((pem) => pem.trim() === GODADDY_SECURE_CA_G2_PEM.trim())).toBe(true);
+      }
+    } finally {
+      rmSync(extraFile, { force: true });
+    }
+  });
+
+  it("falls back to the bundled roots when no extra file is set", () => {
+    vi.stubEnv("NODE_EXTRA_CA_CERTS", "");
+    resetDefaultCaCertificatesForTests();
+    expect(defaultCaCertificates().length).toBeGreaterThan(50);
   });
 });
 
