@@ -117,6 +117,30 @@ describe("defaultCaCertificates", () => {
     }
   });
 
+  it("keeps a legacy X509 CERTIFICATE block and skips a TRUSTED CERTIFICATE block, like Node", () => {
+    const legacyLabel = GODADDY_SECURE_CA_G2_PEM.replace("BEGIN CERTIFICATE", "BEGIN X509 CERTIFICATE").replace(
+      "END CERTIFICATE",
+      "END X509 CERTIFICATE"
+    );
+    const trustedLabel = GODADDY_SECURE_CA_G2_PEM.replace("BEGIN CERTIFICATE", "BEGIN TRUSTED CERTIFICATE").replace(
+      "END CERTIFICATE",
+      "END TRUSTED CERTIFICATE"
+    );
+    const extraFile = join(tmpdir(), `extra-ca-labels-${process.pid}.pem`);
+    writeFileSync(extraFile, `${legacyLabel}\n${trustedLabel}\n`);
+    try {
+      vi.stubEnv("NODE_EXTRA_CA_CERTS", extraFile);
+      resetDefaultCaCertificatesForTests();
+      const certificates = defaultCaCertificates();
+      if (typeof (tls as { getCACertificates?: unknown }).getCACertificates !== "function") {
+        expect(certificates.filter((pem) => pem.includes("X509 CERTIFICATE"))).toHaveLength(1);
+        expect(certificates.some((pem) => pem.includes("TRUSTED CERTIFICATE"))).toBe(false);
+      }
+    } finally {
+      rmSync(extraFile, { force: true });
+    }
+  });
+
   it("falls back to the bundled roots when no extra file is set", () => {
     vi.stubEnv("NODE_EXTRA_CA_CERTS", "");
     resetDefaultCaCertificatesForTests();

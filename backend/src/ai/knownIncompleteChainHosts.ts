@@ -72,8 +72,11 @@ export function defaultCaCertificates(): readonly string[] {
   const extraFile = process.env.NODE_EXTRA_CA_CERTS?.trim();
   if (extraFile) {
     try {
+      // Node loads CERTIFICATE and the legacy X509 CERTIFICATE label from this
+      // file and ignores TRUSTED CERTIFICATE (verified on Node 23.9 against a
+      // live host), so match exactly those two.
       const pemBlocks = readFileSync(extraFile, "utf8").match(
-        /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g
+        /-----BEGIN (CERTIFICATE|X509 CERTIFICATE)-----[\s\S]*?-----END \1-----/g
       );
       extra.push(...(pemBlocks ?? []));
     } catch {
