@@ -17,6 +17,12 @@ export default [
     route("draft", "pages/DraftPage.tsx"),
     route("elections/:electionId", "pages/ElectionPage.tsx"),
     route("candidates/:candidateId", "pages/CandidatePage.tsx"),
+    // Browse catalog: the crawlable path state → district → race → candidate
+    // (docs: the detail pages link only their neighbours). Edge-cached:
+    // keep infra/cloudflare/router-worker.js's allowlist in step.
+    route("browse", "pages/BrowseStatesPage.tsx"),
+    route("browse/:state", "pages/BrowseStatePage.tsx"),
+    route("districts/:districtId", "pages/DistrictPage.tsx"),
     route("mission", "pages/MissionPage.tsx"),
     route("embed-instructions", "pages/EmbedGuidePage.tsx"),
     route("support", "pages/SupportPage.tsx"),

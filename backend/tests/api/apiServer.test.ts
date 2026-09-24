@@ -471,6 +471,43 @@ describe("createApiApp", () => {
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 
+  it("serves one sitemap child file by part and page", async () => {
+    const resolveAddress = vi.fn();
+    const getSitemapXml = vi.fn().mockResolvedValue('<?xml version="1.0" encoding="UTF-8"?><urlset></urlset>');
+
+    const response = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=elections&page=2",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("application/xml");
+    expect(getSitemapXml).toHaveBeenCalledWith({ part: "elections", page: 2 });
+  });
+
+  it("answers 404 for a sitemap child file that does not exist", async () => {
+    const resolveAddress = vi.fn();
+    // Past the last page: the generator says no such file.
+    const getSitemapXml = vi.fn().mockResolvedValue(null);
+
+    const pastTheEnd = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=elections&page=99",
+    });
+    expect(pastTheEnd.statusCode).toBe(404);
+    expect(pastTheEnd.body).toEqual({ error: { code: "not_found", message: "No such sitemap file" } });
+    expect(getSitemapXml).toHaveBeenCalledWith({ part: "elections", page: 99 });
+
+    // An unknown part never reaches the generator.
+    getSitemapXml.mockClear();
+    const unknownPart = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=users",
+    });
+    expect(unknownPart.statusCode).toBe(404);
+    expect(getSitemapXml).not.toHaveBeenCalled();
+  });
+
   it("keeps sitemap dark when it is not configured", async () => {
     const resolveAddress = vi.fn();
 
@@ -1448,6 +1485,84 @@ describe("createApiApp", () => {
     // The parser uppercases before the lookup so callers can pass either case.
     expect(getStateVotingResources).toHaveBeenCalledWith("WA");
     expect(resolveAddress).not.toHaveBeenCalled();
+  });
+
+  describe("browse catalog", () => {
+    const browse = () => ({
+      resolveAddress: vi.fn(),
+      listBrowseStates: vi.fn().mockResolvedValue({ states: [{ state: "KY", name: "Kentucky", district_count: 2, upcoming_election_count: 5 }] }),
+      getBrowseState: vi.fn().mockResolvedValue({ state: "KY", name: "Kentucky", districts: [] }),
+      getBrowseDistrict: vi.fn().mockResolvedValue({
+        district: { id: "dddddddd-1111-4111-8111-111111111111", name: "Simpson County, Kentucky", district_type: "county", state: "KY", state_name: "Kentucky" },
+        elections: [],
+      }),
+    });
+
+    it("lists states with a shared-cache header", async () => {
+      const options = browse();
+      const response = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["cache-control"]).toBe("public, max-age=3600");
+      expect(response.body).toEqual({ states: [{ state: "KY", name: "Kentucky", district_count: 2, upcoming_election_count: 5 }] });
+      expect(options.resolveAddress).not.toHaveBeenCalled();
+    });
+
+    it("serves one state's districts, upper-casing the code", async () => {
+      const options = browse();
+      const response = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/ky" });
+
+      expect(response.statusCode).toBe(200);
+      expect(options.getBrowseState).toHaveBeenCalledWith("KY");
+      expect(response.body).toEqual({ state: "KY", name: "Kentucky", districts: [] });
+    });
+
+    it("answers 404 for a state with nothing researched and 400 for a malformed code", async () => {
+      const options = browse();
+      options.getBrowseState.mockResolvedValue(null);
+      const missing = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/pr" });
+      expect(missing.statusCode).toBe(404);
+
+      const malformed = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/kentucky" });
+      expect(malformed.statusCode).toBe(400);
+      expect(options.getBrowseState).toHaveBeenCalledTimes(1);
+    });
+
+    it("serves one district's elections and 404s an unknown district", async () => {
+      const options = browse();
+      const found = await invokeExpressApp(createApiApp(options), {
+        method: "GET",
+        path: "/api/browse/districts/dddddddd-1111-4111-8111-111111111111",
+      });
+      expect(found.statusCode).toBe(200);
+      expect(found.headers["cache-control"]).toBe("public, max-age=3600");
+      expect(options.getBrowseDistrict).toHaveBeenCalledWith("dddddddd-1111-4111-8111-111111111111");
+
+      options.getBrowseDistrict.mockResolvedValue(null);
+      const missing = await invokeExpressApp(createApiApp(options), {
+        method: "GET",
+        path: "/api/browse/districts/dddddddd-1111-4111-8111-111111111112",
+      });
+      expect(missing.statusCode).toBe(404);
+
+      const malformed = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/districts/not-a-uuid" });
+      expect(malformed.statusCode).toBe(400);
+    });
+
+    it("rejects non-GET methods and reports an unconfigured catalog", async () => {
+      const options = browse();
+      const post = await invokeExpressApp(createApiApp(options), {
+        method: "POST",
+        path: "/api/browse/states",
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      });
+      expect(post.statusCode).toBe(405);
+      expect(post.headers.allow).toBe("GET");
+
+      const dark = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn() }), { method: "GET", path: "/api/browse/states" });
+      expect(dark.statusCode).toBe(500);
+    });
   });
 
   it("rejects a malformed state-resources state parameter", async () => {

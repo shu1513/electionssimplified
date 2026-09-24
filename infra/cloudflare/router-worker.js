@@ -198,11 +198,14 @@ export function withSecurityHeaders(response, pathname = "") {
 export const SESSION_COOKIE_NAME = "voteapp_auth_session";
 export const EDGE_CACHE_TTL_SECONDS = 60;
 
-const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
-// Exactly one path segment, mirroring the declared routes /elections/:id and
-// /candidates/:id (frontend/src/routes.ts). Nested paths like
-// /elections/x/junk render the 404 catch-all and must stay cache-ineligible.
-const CACHEABLE_DETAIL_PATH = /^\/(?:elections|candidates)\/[^/]+$/;
+const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/browse", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
+// Exactly one path segment, mirroring the declared routes /elections/:id,
+// /candidates/:id and /districts/:id (frontend/src/routes.ts). Nested paths
+// like /elections/x/junk render the 404 catch-all and must stay
+// cache-ineligible.
+const CACHEABLE_DETAIL_PATH = /^\/(?:elections|candidates|districts)\/[^/]+$/;
+// /browse/:state — the state's district list; two letters, nothing nested.
+const CACHEABLE_BROWSE_STATE_PATH = /^\/browse\/[a-z]{2}$/;
 // The newsroom box's front page: anonymous and publisher-neutral (the
 // publisher code rides in the URL fragment, which never reaches the edge),
 // so one cached copy serves every newsroom.
@@ -215,7 +218,10 @@ export function isCacheablePublicPage(pathname) {
   // and stays uncached.
   const normalized = pathname.toLowerCase().replace(/\/+$/, "") || "/";
   return (
-    CACHEABLE_EXACT_PATHS.has(normalized) || CACHEABLE_DETAIL_PATH.test(normalized) || CACHEABLE_EMBED_PATH.test(normalized)
+    CACHEABLE_EXACT_PATHS.has(normalized) ||
+    CACHEABLE_DETAIL_PATH.test(normalized) ||
+    CACHEABLE_BROWSE_STATE_PATH.test(normalized) ||
+    CACHEABLE_EMBED_PATH.test(normalized)
   );
 }
 

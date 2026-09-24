@@ -132,8 +132,11 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
     const isNotFound = isRouteErrorResponse(error) && error.status === 404;
     return [{ title: isNotFound ? `Not found · ${APP_NAME}` : `Something went wrong · ${APP_NAME}` }];
   }
+  // District and date in the title, not just the ballot title: thousands of
+  // races share one ("State Representative" alone is ~2,300 pages), and a
+  // search engine treats identical titles as one page competing with itself.
   return pageMeta({
-    title: `${data.official_ballot_title} · ${APP_NAME}`,
+    title: `${data.official_ballot_title} — ${formatDistrictName(data.district.name)} (${formatElectionDate(data.election_date)}) · ${APP_NAME}`,
     // No "campaign finance" here: this page stopped rendering finance
     // (it lives on candidate profiles now), and a search preview must not
     // promise content the page doesn't have.
@@ -590,7 +593,14 @@ export function ElectionPage() {
             visitor needs to see WHERE the race is — the list card shows the
             same line for the same reason. The sub-district caveat below also
             refers to "the district above". */}
-        <p className="mt-1 text-sm text-ink-soft">{formatDistrictName(data.district.name)}</p>
+        {/* A link, not just a label: the district page lists every race
+            here, which is also the crawl path back up the browse catalog
+            (district → state → all states). */}
+        <p className="mt-1 text-sm text-ink-soft">
+          <Link to={`/districts/${data.district.id}`} className="underline hover:text-ink">
+            {formatDistrictName(data.district.name)}
+          </Link>
+        </p>
         {/* Header strip: label-over-value columns split by a hairline — the
             vote-power verdict first, then one date column whose value carries
             the stage ("General election") so "General" can't read as a

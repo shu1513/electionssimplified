@@ -7,6 +7,10 @@ import { meta as homeMeta } from "../pages/HomePage";
 import { meta as ballotMeta } from "../pages/BallotPage";
 import { meta as draftMeta } from "../pages/DraftPage";
 import { loader as notFoundLoader, meta as notFoundMeta } from "../pages/NotFoundPage";
+import { meta as electionMeta } from "../pages/ElectionPage";
+import { meta as browseMeta } from "../pages/BrowseStatesPage";
+import { candidateTitleText, meta as candidateMeta } from "../pages/CandidatePage";
+import { candidateDetail, candidateElection, electionDetail } from "../test/fixtures";
 import { DEFAULT_DESCRIPTION, pageMeta, SITE_ORIGIN } from "./pageMeta";
 
 type Descriptor = Record<string, unknown>;
@@ -30,6 +34,7 @@ const ROUTE_METAS: Array<[string, Descriptor[]]> = [
   ["ballot", (ballotMeta as unknown as () => Descriptor[])()],
   ["draft", (draftMeta as unknown as () => Descriptor[])()],
   ["not-found", (notFoundMeta as unknown as () => Descriptor[])()],
+  ["browse", (browseMeta as unknown as () => Descriptor[])()],
 ];
 
 function canonical(descriptors: Descriptor[]): string | undefined {
@@ -49,6 +54,46 @@ describe("canonical links", () => {
     expect(canonical((ballotMeta as unknown as () => Descriptor[])())).toBeUndefined();
     expect(canonical((draftMeta as unknown as () => Descriptor[])())).toBeUndefined();
     expect(byProperty((ballotMeta as unknown as () => Descriptor[])(), "og:url")).toBeUndefined();
+  });
+});
+
+// Detail pages number in the tens of thousands and their ballot titles and
+// names repeat ("State Representative" alone is ~2,300 races), so the
+// <title> carries what makes each page distinct: district and date for a
+// race, office (or race entered) and state for a candidate.
+describe("detail-page titles are unique per page", () => {
+  const metaArgs = (data: unknown, pathname: string) =>
+    ({ data, error: undefined, location: { pathname }, params: {}, matches: [] }) as never;
+
+  it("names the district and date on an election", () => {
+    const descriptors = (electionMeta as unknown as (args: unknown) => Descriptor[])(
+      metaArgs(electionDetail({ official_ballot_title: "State Representative", election_date: "2026-11-03" }), "/elections/e-1")
+    );
+    expect(descriptors.find((entry) => typeof entry.title === "string")?.title).toBe(
+      "State Representative — Alaska (November 3, 2026) · Elections Simplified"
+    );
+    expect(canonical(descriptors)).toBe(`${SITE_ORIGIN}/elections/e-1`);
+  });
+
+  it("names the office held and state on a candidate", () => {
+    const descriptors = (candidateMeta as unknown as (args: unknown) => Descriptor[])(
+      metaArgs(candidateDetail({ current_office: "Member, Anchorage Assembly" }), "/candidates/c-1")
+    );
+    expect(descriptors.find((entry) => typeof entry.title === "string")?.title).toBe(
+      "Jordan Voter — Member, Anchorage Assembly, AK · Elections Simplified"
+    );
+  });
+
+  it("falls back to the newest race entered, then to the name alone", () => {
+    const { candidate } = candidateDetail({
+      elections: [
+        candidateElection({ official_ballot_title: "Mayor", election_date: "2024-11-05" }),
+        candidateElection({ official_ballot_title: "Governor", election_date: "2026-11-03" }),
+      ],
+    });
+    expect(candidateTitleText(candidate)).toBe("Jordan Voter — Candidate for Governor, AK");
+    expect(candidateTitleText({ ...candidate, elections: [] })).toBe("Jordan Voter — AK");
+    expect(candidateTitleText({ ...candidate, elections: [], state: "" })).toBe("Jordan Voter");
   });
 });
 

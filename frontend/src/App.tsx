@@ -382,6 +382,12 @@ export function App() {
           <Link to="/mission" className="underline hover:text-ink">
             Mission
           </Link>
+          {/* The one site-wide link into the browse catalog (state →
+              district → race): every page, and so every crawler, can reach
+              every race from here without an address. */}
+          <Link to="/browse" className="underline hover:text-ink">
+            Browse by state
+          </Link>
           <Link to="/terms" className="underline hover:text-ink">
             Terms of Use
           </Link>

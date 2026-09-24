@@ -247,6 +247,10 @@ describe("isCacheablePublicPage", () => {
     "/privacy",
     "/elections/abc123",
     "/candidates/abc123",
+    "/districts/abc123",
+    "/browse",
+    "/browse/ky",
+    "/Browse/KY/",
     "/embed",
     "/Embed/",
     // React Router renders these variants too — same normalization rules
@@ -284,6 +288,11 @@ describe("isCacheablePublicPage", () => {
     // declared routes are exactly /elections/:id and /candidates/:id.
     "/elections/x/junk",
     "/candidates/x/settings",
+    "/districts",
+    "/districts/x/junk",
+    // /browse/:state is two letters; anything else is the catch-all.
+    "/browse/kentucky",
+    "/browse/ky/junk",
   ];
   for (const path of uncacheable) {
     it(`does not cache ${path}`, () => {

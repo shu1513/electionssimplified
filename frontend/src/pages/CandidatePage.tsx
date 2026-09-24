@@ -168,6 +168,22 @@ function candidateShareText(candidate: { display_name: string; party: string; st
   return context ? `${candidate.display_name} (${context})` : candidate.display_name;
 }
 
+// The <title>: name plus the office held (or, failing that, the race most
+// recently entered) and state. Names repeat across the site (hundreds of
+// candidates share theirs with someone else), and a search engine treats
+// identical titles as one page competing with itself. Exported for tests.
+export function candidateTitleText(candidate: {
+  display_name: string;
+  state: string;
+  current_office: string | null;
+  elections: readonly { official_ballot_title: string; election_date: string }[];
+}): string {
+  const latest = [...candidate.elections].sort((a, b) => b.election_date.localeCompare(a.election_date))[0];
+  const role = candidate.current_office?.trim() || (latest ? `Candidate for ${latest.official_ballot_title}` : "");
+  const context = [role, candidate.state].filter(Boolean).join(", ");
+  return context ? `${candidate.display_name} — ${context}` : candidate.display_name;
+}
+
 // One election list, rendered once for the races still ahead and once for
 // the finished ones. Only the heading differs.
 function ElectionHistorySection({
@@ -218,7 +234,7 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
   }
   const candidate = data.candidate;
   return pageMeta({
-    title: `${candidate.display_name} · ${APP_NAME}`,
+    title: `${candidateTitleText(candidate)} · ${APP_NAME}`,
     description: `${candidateShareText(candidate)} — issue-tagged records with sources, election history, and campaign finance.`,
     path: location.pathname,
   });

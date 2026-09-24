@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { track } from "../lib/usage";
 
 /** Not-found body for detail-route ErrorBoundaries (loader threw 404). */
-export function NotFoundNotice({ subject }: { subject: "Election" | "Candidate" | "Pick card" }) {
+export function NotFoundNotice({ subject }: { subject: "Election" | "Candidate" | "Pick card" | "State" | "District" }) {
   useEffect(() => {
     track("error_shown", { category: "not_found" });
   }, []);
