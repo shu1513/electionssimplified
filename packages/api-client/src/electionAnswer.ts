@@ -35,7 +35,11 @@ export type ElectionAnswerInput = {
   candidates: readonly ElectionAnswerCandidate[];
   ballot_measure: { summary: string | null; result: "passed" | "failed" | null } | null;
   results: readonly { outcome: string; result_status: string; winners: readonly { candidate_name?: string; party?: string }[] }[];
-  vote_power: { label: string };
+  // decisiveness_level "none" is the backend's uncontested verdict. It is
+  // computed from the larger of the linked roster and the staged roster
+  // size, so it stays right while profiles are still being written and
+  // the page shows fewer candidates than the race actually has.
+  vote_power: { label: string; decisiveness_level: string };
   /** Present when either competitiveness chip would render. */
   competitiveness_label?: string | null;
 };
@@ -88,15 +92,17 @@ function rosterSentences(input: ElectionAnswerInput): string[] {
     sentences.push(`Voters decide yes or no on keeping ${joinNames(active.map(candidateLabel))} in office.`);
     return sentences;
   }
-  if (active.length === 1 && seats === 1) {
+  // Only the backend's verdict may call a race decided (see the type note):
+  // a roster that merely LOOKS short here may still be filling in.
+  const uncontested = input.vote_power.decisiveness_level === "none";
+  const count = active.length === 1 ? "1 candidate is" : `${active.length} candidates are`;
+  if (uncontested && active.length === 1 && seats === 1) {
     sentences.push(`One candidate is on the ballot, ${candidateLabel(active[0]!)}, so the race is uncontested.`);
-  } else if (active.length <= seats) {
-    sentences.push(
-      `${active.length} candidates are running for ${seats} seats, ${joinNames(active.map(candidateLabel))}, so every candidate wins a seat.`
-    );
+  } else if (uncontested && active.length <= seats) {
+    sentences.push(`${count} running for ${seats} seats, ${joinNames(active.map(candidateLabel))}, so every candidate wins a seat.`);
   } else {
     const seatNote = seats > 1 ? ` for ${seats} seats` : "";
-    sentences.push(`${active.length} candidates are running${seatNote}: ${joinNames(active.map(candidateLabel))}.`);
+    sentences.push(`${count} running${seatNote}: ${joinNames(active.map(candidateLabel))}.`);
   }
   const incumbents = active.filter((candidate) => candidate.is_incumbent);
   if (incumbents.length === 1) {

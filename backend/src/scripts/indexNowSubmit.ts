@@ -38,8 +38,12 @@ export function parseIndexNowArgs(argv: readonly string[]): IndexNowArgs {
       args.dryRun = true;
     } else if (arg === "--since") {
       const value = argv[index + 1];
-      if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        throw new Error("--since needs a YYYY-MM-DD date");
+      // Shape AND calendar validity: "2026-99-99" matches the shape but
+      // parses to NaN, which would silently select every dated URL; a
+      // "2026-02-30" parses but rolls over to March, so it must round-trip.
+      const parsed = value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00Z`) : null;
+      if (!parsed || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
+        throw new Error("--since needs a real YYYY-MM-DD date");
       }
       args.since = value;
       index += 1;

@@ -51,7 +51,7 @@ crawlers fetch pages, not that file.
    After each research promotion to prod, submit only what changed:
 
    ```bash
-   npm run indexnow:submit -- --since 2026-10-01
+   INDEXNOW_KEY=<key> SITE_ORIGIN=https://electionssimplified.com DATABASE_URL=<prod-url> npm run indexnow:submit -- --since 2026-10-01
    ```
 
    HTTP 200/202 = accepted. 403 = key file mismatch. 429 = wait and rerun.

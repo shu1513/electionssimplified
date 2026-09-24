@@ -612,7 +612,8 @@ export function ElectionPage() {
                     .filter((candidate) => candidate.status !== "withdrawn")
                     .map((candidate) => ({
                       "@type": "Person",
-                      "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
+                      // #person: the profile page's Person node, not its WebPage.
+                      "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}#person`,
                       name: candidate.display_name,
                       url: `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
                     })),

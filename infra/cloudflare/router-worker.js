@@ -49,9 +49,16 @@ export function isApiPath(pathname) {
 
 /** The path recorded in a crawler log line: never a share-link token. */
 export function crawlerLogPath(pathname) {
-  // /picks/<token>: the token IS the authorization for a voter's shared
-  // picks, so it must never land in persisted logs.
-  return /^\/picks\/[^/]+/i.test(pathname) ? "/picks/:token" : pathname;
+  // /picks/<token> and its API twin /api/pick-cards/<token>[/og-image.png]:
+  // the token IS the authorization for a voter's shared picks, so it must
+  // never land in persisted logs.
+  if (/^\/picks\/[^/]+/i.test(pathname)) {
+    return "/picks/:token";
+  }
+  if (/^\/api\/pick-cards\/[^/]+/i.test(pathname)) {
+    return "/api/pick-cards/:token";
+  }
+  return pathname;
 }
 
 // ------------------------------------------------------------- crawlers ----

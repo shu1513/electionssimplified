@@ -18,10 +18,12 @@ function race(overrides: Partial<ElectionAnswerInput> = {}): ElectionAnswerInput
     ],
     ballot_measure: null,
     results: [],
-    vote_power: { label: "high" },
+    vote_power: { label: "high", decisiveness_level: "high" },
     ...overrides,
   };
 }
+
+const UNCONTESTED = { label: "low", decisiveness_level: "none" };
 
 describe("electionAnswerText", () => {
   it("states the race, place, date, roster with parties, incumbent, and vote power in plain sentences", () => {
@@ -64,10 +66,11 @@ describe("electionAnswerText", () => {
   });
 
   it("calls a one-candidate, one-seat race uncontested and a roster that fits the seats all winners", () => {
-    const solo = race({ candidates: [{ display_name: "Jordan Voter", party: "Democratic", is_incumbent: false, status: "declared" }] });
+    const solo = race({ vote_power: UNCONTESTED, candidates: [{ display_name: "Jordan Voter", party: "Democratic", is_incumbent: false, status: "declared" }] });
     expect(electionAnswerText(solo, TODAY)).toContain("One candidate is on the ballot, Jordan Voter (Democratic), so the race is uncontested.");
 
     const fits = race({
+      vote_power: UNCONTESTED,
       seats_to_fill: 3,
       candidates: [
         { display_name: "A One", party: "Nonpartisan", is_incumbent: false, status: "declared" },
@@ -78,6 +81,22 @@ describe("electionAnswerText", () => {
     expect(electionAnswerText(fits, TODAY)).toContain("3 candidates are running for 3 seats, A One, B Two, and C Three, so every candidate wins a seat.");
   });
 
+  it("never calls a race decided on the page's roster alone: the backend verdict decides", () => {
+    // One linked profile so far, but the staged roster promises more, so
+    // the backend did not grade the race uncontested — neither do we.
+    const filling = race({ candidates: [{ display_name: "Jordan Voter", party: "Democratic", is_incumbent: false, status: "declared" }] });
+    expect(electionAnswerText(filling, TODAY)).toContain("1 candidate is running: Jordan Voter (Democratic).");
+    expect(electionAnswerText(filling, TODAY)).not.toContain("uncontested");
+
+    // One candidate, three seats, backend says uncontested: singular grammar.
+    const soloMultiSeat = race({
+      vote_power: UNCONTESTED,
+      seats_to_fill: 3,
+      candidates: [{ display_name: "Jordan Voter", party: "Democratic", is_incumbent: false, status: "declared" }],
+    });
+    expect(electionAnswerText(soloMultiSeat, TODAY)).toContain("1 candidate is running for 3 seats, Jordan Voter (Democratic), so every candidate wins a seat.");
+  });
+
   it("describes a ballot measure with its summary and outcome, and never mentions candidates", () => {
     const measure = race({
       race_type: "ballot_measure",
@@ -86,7 +105,7 @@ describe("electionAnswerText", () => {
       candidates: [],
       ballot_measure: { summary: "Adds a two percent sales tax for road repair.", result: "passed" },
       election_date: "2024-11-05",
-      vote_power: { label: "medium" },
+      vote_power: { label: "medium", decisiveness_level: "unknown" },
     });
     expect(electionAnswerText(measure, TODAY)).toBe(
       "Proposition 1 was a ballot measure in Kentucky on the November 5, 2024 ballot. Adds a two percent sales tax for road repair. It passed."
@@ -97,7 +116,7 @@ describe("electionAnswerText", () => {
     const retention = race({
       official_ballot_title: "Shall Judge Alex Bench be retained in office?",
       candidates: [{ display_name: "Alex Bench", party: "Nonpartisan", is_incumbent: true, status: "declared" }],
-      vote_power: { label: "retention" },
+      vote_power: { label: "retention", decisiveness_level: "unknown" },
     });
     expect(electionAnswerText(retention, TODAY)).toContain("Voters decide yes or no on keeping Alex Bench in office.");
     expect(electionAnswerText(retention, TODAY)).not.toContain("uncontested");
@@ -105,7 +124,7 @@ describe("electionAnswerText", () => {
   });
 
   it("says nothing about the roster when no candidates are known yet", () => {
-    expect(electionAnswerText(race({ candidates: [], vote_power: { label: "unknown" } }), TODAY)).toBe(
+    expect(electionAnswerText(race({ candidates: [], vote_power: { label: "unknown", decisiveness_level: "unknown" } }), TODAY)).toBe(
       "The Governor general election in Kentucky is on November 3, 2026."
     );
   });

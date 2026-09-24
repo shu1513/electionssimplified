@@ -9,6 +9,8 @@ describe("indexnow submit", () => {
     expect(() => parseIndexNowArgs([])).toThrow(/exactly one/);
     expect(() => parseIndexNowArgs(["--all", "--since", "2026-09-20"])).toThrow(/exactly one/);
     expect(() => parseIndexNowArgs(["--since", "yesterday"])).toThrow(/YYYY-MM-DD/);
+    expect(() => parseIndexNowArgs(["--since", "2026-99-99"])).toThrow(/YYYY-MM-DD/);
+    expect(() => parseIndexNowArgs(["--since", "2026-02-30"])).toThrow(/YYYY-MM-DD/);
     expect(() => parseIndexNowArgs(["--bogus"])).toThrow(/Unknown argument/);
   });
 

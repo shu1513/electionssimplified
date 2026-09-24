@@ -675,6 +675,8 @@ describe("security headers", () => {
   it("redacts share-link tokens from the crawler log path", () => {
     assert.equal(crawlerLogPath("/picks/abc123TOKEN"), "/picks/:token");
     assert.equal(crawlerLogPath("/PICKS/abc123TOKEN/"), "/picks/:token");
+    assert.equal(crawlerLogPath("/api/pick-cards/abc123TOKEN"), "/api/pick-cards/:token");
+    assert.equal(crawlerLogPath("/api/pick-cards/abc123TOKEN/og-image.png"), "/api/pick-cards/:token");
     assert.equal(crawlerLogPath("/elections/e-1"), "/elections/e-1");
     assert.equal(crawlerLogPath("/picks"), "/picks");
   });

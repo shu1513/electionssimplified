@@ -48,7 +48,7 @@ describe("CandidatePage structured data", () => {
     const person = JSON.parse(script!.textContent ?? "{}");
     expect(person).toMatchObject({
       "@type": "Person",
-      "@id": "https://electionssimplified.com/candidates/c-1",
+      "@id": "https://electionssimplified.com/candidates/c-1#person",
       name: "Jordan Voter",
       jobTitle: "State Senator",
       url: "https://jordan.example",
@@ -56,6 +56,8 @@ describe("CandidatePage structured data", () => {
       affiliation: { "@type": "Organization", name: "Democratic" },
       dateModified: "2026-06-01T00:00:00.000Z",
       mainEntityOfPage: "https://electionssimplified.com/candidates/c-1",
+      // The page node keeps the bare URL; the Person is a distinct node.
+      subjectOf: { "@type": "WebPage", "@id": "https://electionssimplified.com/candidates/c-1" },
     });
     // The filing PDF is a source, not an identity, so it stays out of sameAs.
     expect(person.sameAs).toEqual(["https://jordan.example", "https://x.com/jordanvoter", "https://ballotpedia.org/Jordan_Voter"]);

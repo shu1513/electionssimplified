@@ -204,8 +204,12 @@ export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapPa
     ),
   ]);
 
+  // /stats is computed from every election row, so it is "modified" whenever
+  // the newest election is; the other static pages change only with a deploy
+  // and carry no lastmod. (Elections are ordered newest-first.)
+  const statsLastmod = elections.rows[0]?.lastmod ?? null;
   return {
-    pages: SITEMAP_STATIC_PATHS.map((path) => ({ path })),
+    pages: SITEMAP_STATIC_PATHS.map((path) => (path === "/stats" && statsLastmod ? { path, lastmod: statsLastmod } : { path })),
     browse: [{ path: "/browse" }, ...browse.rows.map((row) => ({ path: row.path, lastmod: row.lastmod }))],
     elections: elections.rows.map((row) => ({ path: row.path, lastmod: row.lastmod })),
     candidates: candidates.rows.map((row) => ({ path: row.path, lastmod: row.lastmod })),

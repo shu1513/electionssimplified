@@ -559,8 +559,10 @@ export function CandidatePage() {
           data={{
             "@type": "Person",
             // Same @id the election page's performer list points at, so an
-            // engine merges the two into one entity.
-            "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
+            // engine merges the two into one entity. The #person fragment
+            // keeps the Person distinct from the WebPage node below, which
+            // owns the bare page URL — JSON-LD merges anything sharing an @id.
+            "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}#person`,
             name: candidate.display_name,
             ...(candidate.current_office ? { jobTitle: candidate.current_office } : {}),
             ...(candidate.official_website_url ? { url: candidate.official_website_url } : {}),
