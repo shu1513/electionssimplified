@@ -1,0 +1,261 @@
+{
+ "judgments": [
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 312,
+   "measure_id": "H R 9340",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 9340, the Ratepayer Protection Act. It would require state regulators to consider making big data centers pay the full cost of grid upgrades built for them. It passed the House 417-3.",
+   "nay_description": "Voted against passing H.R. 9340, the Ratepayer Protection Act. It would require state regulators to consider making big data centers pay the full cost of grid upgrades built for them. It passed the House 417-3.",
+   "labels": [
+    {
+     "slug": "cost_of_living_reduction",
+     "yea": "for",
+     "nay": null
+    },
+    {
+     "slug": "corporate_accountability",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 313,
+   "measure_id": "H R 9497",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 9497, the Water Resources Development Act of 2026. It would authorize Army Corps of Engineers projects for ports, waterways, flood protection and ecosystem restoration nationwide. It passed the House 415-9.",
+   "nay_description": "Voted against passing H.R. 9497, the Water Resources Development Act of 2026. It would authorize Army Corps of Engineers projects for ports, waterways, flood protection and ecosystem restoration nationwide. It passed the House 415-9.",
+   "labels": [
+    {
+     "slug": "public_infrastructure",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 308,
+   "measure_id": "H R 5334",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to send H.R. 5334, the Sanctioning Russia and Iran Act, to the President. It imposed sanctions on Russia, extended Iran sanctions to 2031, and let the President put tariffs up to 100% on buyers of Russian energy. The House agreed 262-159, and it became law on September 18, 2026.",
+   "nay_description": "Voted against sending H.R. 5334, the Sanctioning Russia and Iran Act, to the President. It imposed sanctions on Russia, extended Iran sanctions to 2031, and let the President put tariffs up to 100% on buyers of Russian energy. The House agreed 262-159, and it became law on September 18, 2026.",
+   "labels": [
+    {
+     "slug": "general",
+     "yea": null,
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 310,
+   "measure_id": "H R 10326",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 10326, the PROOF Act. It would require states to give the Justice Department records it requests to investigate fraud in Medicaid, SNAP, welfare and other federal programs. It passed the House 217-207.",
+   "nay_description": "Voted against passing H.R. 10326, the PROOF Act. It would require states to give the Justice Department records it requests to investigate fraud in Medicaid, SNAP, welfare and other federal programs. It passed the House 217-207.",
+   "labels": [
+    {
+     "slug": "anti_corruption",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 309,
+   "measure_id": "H R 9576",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 9576, which would write the Justice Department's new National Fraud Enforcement Division into law. The division, set up in April 2026, investigates fraud against taxpayer-funded programs. It passed the House 352-72.",
+   "nay_description": "Voted against passing H.R. 9576, which would write the Justice Department's new National Fraud Enforcement Division into law. The division, set up in April 2026, investigates fraud against taxpayer-funded programs. It passed the House 352-72.",
+   "labels": [
+    {
+     "slug": "anti_corruption",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 306,
+   "measure_id": "H J RES 210",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.J.Res. 210, which would revoke EPA's approval of California's rule requiring more ocean-going ships to cut engine pollution while docked. It passed the House 216-211.",
+   "nay_description": "Voted against passing H.J.Res. 210, which would revoke EPA's approval of California's rule requiring more ocean-going ships to cut engine pollution while docked. It passed the House 216-211.",
+   "labels": [
+    {
+     "slug": "environment_and_public_health",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 311,
+   "measure_id": "H J RES 213",
+   "vote_date": "2026-09-16",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.J.Res. 213, which would revoke EPA's approval of California's stricter engine pollution rules for tugboats, ferries, fishing boats and harbor craft. It passed the House 214-208.",
+   "nay_description": "Voted against passing H.J.Res. 213, which would revoke EPA's approval of California's stricter engine pollution rules for tugboats, ferries, fishing boats and harbor craft. It passed the House 214-208.",
+   "labels": [
+    {
+     "slug": "environment_and_public_health",
+     "yea": "against",
+     "nay": "for"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 304,
+   "measure_id": "H R 2140",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 2140, the Diesel Emissions Reduction Act, which would extend EPA grants through 2029 for replacing or cleaning up old diesel engines. It passed the House 343-79.",
+   "nay_description": "Voted against passing H.R. 2140, the Diesel Emissions Reduction Act, which would extend EPA grants through 2029 for replacing or cleaning up old diesel engines. It passed the House 343-79.",
+   "labels": [
+    {
+     "slug": "environment_and_public_health",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 305,
+   "measure_id": "H R 9500",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 9500, the Tax Relief for Fraud Victims Act. It would let scam victims deduct the stolen money on their federal taxes again and waive the 10% penalty on related early retirement withdrawals. It passed the House 408-17.",
+   "nay_description": "Voted against passing H.R. 9500, the Tax Relief for Fraud Victims Act. It would let scam victims deduct the stolen money on their federal taxes again and waive the 10% penalty on related early retirement withdrawals. It passed the House 408-17.",
+   "labels": [
+    {
+     "slug": "personal_income_tax_reduction",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 301,
+   "measure_id": "H R 2978",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 2978, the GUARD Act, which would let police spend federal grants investigating elder financial fraud and crypto 'pig butchering' scams. It passed the House 414-7.",
+   "nay_description": "Voted against passing H.R. 2978, the GUARD Act, which would let police spend federal grants investigating elder financial fraud and crypto 'pig butchering' scams. It passed the House 414-7.",
+   "labels": [
+    {
+     "slug": "public_safety_and_crime_control",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 296,
+   "measure_id": "H R 4219",
+   "vote_date": "2026-09-14",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 4219, which would write the Fish and Wildlife Service's invasive species strike teams for national wildlife refuges into law. It passed the House 371-33.",
+   "nay_description": "Voted against passing H.R. 4219, which would write the Fish and Wildlife Service's invasive species strike teams for national wildlife refuges into law. It passed the House 371-33.",
+   "labels": [
+    {
+     "slug": "environment_and_public_health",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 297,
+   "measure_id": "H R 3276",
+   "vote_date": "2026-09-14",
+   "review_status": "approved",
+   "yea_description": "Voted to pass H.R. 3276, which would write the Urban Bird Treaty Program into law, funding grants for groups that protect birds in cities. It passed the House 345-60.",
+   "nay_description": "Voted against passing H.R. 3276, which would write the Urban Bird Treaty Program into law, funding grants for groups that protect birds in cities. It passed the House 345-60.",
+   "labels": [
+    {
+     "slug": "environment_and_public_health",
+     "yea": "for",
+     "nay": null
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 307,
+   "measure_id": "H CON RES 93",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted for H.Con.Res. 93, directing the President to pull U.S. forces out of hostilities against Iran unless Congress declares war or authorizes force. Forces needed to stop an imminent attack were exempt. It passed the House 220-204.",
+   "nay_description": "Voted against H.Con.Res. 93, directing the President to pull U.S. forces out of hostilities against Iran unless Congress declares war or authorizes force. Forces needed to stop an imminent attack were exempt. It passed the House 220-204.",
+   "labels": [
+    {
+     "slug": "peaceful_foreign_policy",
+     "yea": "for",
+     "nay": "against"
+    }
+   ]
+  },
+  {
+   "chamber": "house",
+   "congress": 119,
+   "session": 2,
+   "roll": 298,
+   "measure_id": "H RES 1486",
+   "vote_date": "2026-09-15",
+   "review_status": "approved",
+   "yea_description": "Voted to set aside H.Res. 1486, a resolution to impeach President Trump over ICE and Border Patrol actions, which killed it. The House set it aside 232-147.",
+   "nay_description": "Voted against setting aside H.Res. 1486, a resolution to impeach President Trump over ICE and Border Patrol actions, which would have kept it alive. The House set it aside 232-147.",
+   "labels": [
+    {
+     "slug": "general",
+     "yea": null,
+     "nay": null
+    }
+   ]
+  }
+ ]
+}
