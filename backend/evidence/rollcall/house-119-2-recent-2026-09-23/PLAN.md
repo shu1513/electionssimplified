@@ -45,6 +45,12 @@ a concurrent resolution) and enter through `FEDERAL_HAND_ADDED_ROLLS` in
   labelled area (the two California waiver repeals, the Iran war powers
   resolution). H.R. 5334 stays `general`: many no votes objected to the
   tariff authority it gives the President, not to the sanctions.
+- Roll 308's Clerk `vote-desc` still reads "An Act ... to allow early childhood
+  educators to take the educator expense deduction": that is the title of the
+  text the House first passed, which the Senate amendment replaced with the
+  Sanctioning Russia and Iran Act (the educator deduction survives as one
+  section). The question was concurrence in that Senate amendment, and
+  Congress.gov titles H.R. 5334 as the sanctions act, Public Law 119-111.
 - Every sentence passes the roll-call length gate enforced by `rollcall:judge`.
 
 ## Commands
