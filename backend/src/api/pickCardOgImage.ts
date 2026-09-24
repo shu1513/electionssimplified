@@ -6,7 +6,7 @@ import { renderAsync } from "@resvg/resvg-js";
 // The per-share link-preview image for /picks/<token>. Scrapers (iMessage,
 // WhatsApp, Facebook, X) show the og:image far larger than the title text, so
 // a share only *feels* personal if the picture itself carries the owner's
-// name. This renders the same layout as the static frontend/public/og-card.png
+// name. This renders the same layout as the static frontend/public/og-card.jpg
 // (white card, rausch top bar, brand label, bold dark headline) with a
 // per-share headline: "See Shu's picks for Nov 3, 2026 Elections".
 //
