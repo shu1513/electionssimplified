@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { INDEXNOW_KEY_PATH } from "../api/apiValidation.js";
+import { INDEXNOW_PUBLIC_KEY_PATH } from "../api/apiValidation.js";
 import { listSiteSitemapUrls, normalizeSiteOrigin } from "../pipeline/sitemap/siteSitemap.js";
 
 /**
@@ -15,9 +15,10 @@ import { listSiteSitemapUrls, normalizeSiteOrigin } from "../pipeline/sitemap/si
  *   npm run indexnow:submit -- --all                    # every sitemap URL
  *   npm run indexnow:submit -- --since 2026-09-20 --dry-run
  *
- * The key must match what GET /api/indexnow-key.txt serves on the live host
- * (same INDEXNOW_KEY env on the API service): IndexNow fetches that URL to
- * prove the submitter owns the host. Batches of 10,000 URLs per request,
+ * The key must match what https://<host>/indexnow-key.txt serves (the edge
+ * Worker maps it onto GET /api/indexnow-key.txt; same INDEXNOW_KEY env on
+ * the API service): IndexNow fetches that URL to prove the submitter owns
+ * the host, and the root location is what lets it vouch for every page. Batches of 10,000 URLs per request,
  * the protocol's cap. A 200/202 means accepted; 422 means a URL is not on
  * the host; 403 means the key file did not match; 429 means slow down.
  */
@@ -82,7 +83,9 @@ export function buildIndexNowPayload(input: { siteOrigin: string; key: string; u
   return {
     host: new URL(origin).host,
     key: input.key,
-    keyLocation: `${origin}${INDEXNOW_KEY_PATH}`,
+    // Root, not /api/: a key file only vouches for URLs under its own
+    // directory, and every page we submit lives at the root.
+    keyLocation: `${origin}${INDEXNOW_PUBLIC_KEY_PATH}`,
     urlList: [...input.urlList],
   };
 }

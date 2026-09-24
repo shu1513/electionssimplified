@@ -77,7 +77,8 @@ services:
       # shields the custom header from direct *.onrender.com spoofing).
       - key: EDGE_SHARED_SECRET
         sync: false
-      # IndexNow ownership key, served at /api/indexnow-key.txt and used by
+      # IndexNow ownership key, served at /indexnow-key.txt (via the Worker →
+      # /api/indexnow-key.txt) and used by
       # `npm run indexnow:submit` (docs/answer-engines.md). Optional: unset
       # answers 404 there. Not a secret in the security sense (the file is
       # public by design), but set in the dashboard so it never lands in git.

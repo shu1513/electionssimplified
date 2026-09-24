@@ -107,16 +107,32 @@ function rosterSentences(input: ElectionAnswerInput): string[] {
   return sentences;
 }
 
+// Only decided outcomes name anyone. A too-close or unknown row may still
+// carry a recorded leader in `winners`, and calling that person the winner
+// would decide a race the officials have not (same rule as resultBadges).
+// "advanced" and "runoff" are decided but are not wins: say what happened.
 function resultSentence(input: ElectionAnswerInput): string | null {
   const current = input.results[0];
   if (!current || current.winners.length === 0) {
     return null;
   }
-  const names = current.winners.map((winner) =>
-    winner.party ? `${winner.candidate_name ?? "Unknown"} (${winner.party})` : (winner.candidate_name ?? "Unknown")
+  const names = joinNames(
+    current.winners.map((winner) =>
+      winner.party ? `${winner.candidate_name ?? "Unknown"} (${winner.party})` : (winner.candidate_name ?? "Unknown")
+    )
   );
+  const plural = current.winners.length > 1;
   const status = current.result_status === "certified" ? "Certified result" : "Unofficial result";
-  return `${status}: ${names.length === 1 ? "the winner is" : "the winners are"} ${joinNames(names)}.`;
+  switch (current.outcome) {
+    case "won":
+      return `${status}: ${plural ? "the winners are" : "the winner is"} ${names}.`;
+    case "advanced":
+      return `${status}: ${names} advanced to the next round.`;
+    case "runoff":
+      return `${status}: ${names} ${plural ? "go" : "goes"} to a runoff.`;
+    default:
+      return null;
+  }
 }
 
 function measureSentences(input: ElectionAnswerInput): string[] {

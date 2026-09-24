@@ -92,7 +92,8 @@ export function StatsPage() {
         <p className="mt-2 text-body text-ink">{answer}</p>
         <p className="mt-2 text-sm text-ink-soft">
           Counts cover elections dated today or later. A race is uncontested when every candidate on the ballot
-          wins a seat. Free to reuse with credit to {APP_NAME} and a link to this page; the numbers are also
+          wins a seat; judicial retention questions count as elections but as neither contested nor uncontested.
+          Free to reuse with credit to {APP_NAME} and a link to this page; the numbers are also
           available as JSON at <code>/api/stats</code>. How the data is gathered:{" "}
           <Link to="/methodology" className="underline hover:text-ink">
             methodology

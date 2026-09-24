@@ -2,24 +2,47 @@ import { describe, expect, it, vi } from "vitest";
 
 import { createCachedSiteStats, getSiteStats } from "../../src/api/siteStats.js";
 
+const AGGREGATES = {
+  rows: [
+    { state: "KY", districts: "12", upcoming_elections: "40", upcoming_measures: "3", next_election_date: "2026-11-03" },
+    { state: "AK", districts: "2", upcoming_elections: "4", upcoming_measures: "1", next_election_date: "2026-10-06" },
+    { state: "ZZ", districts: "1", upcoming_elections: "1", upcoming_measures: "0", next_election_date: null },
+  ],
+};
+
+const OFFICE_RACES = {
+  rows: [
+    // Contested: more candidates than seats.
+    { state: "KY", official_ballot_title: "Governor", seats_to_fill: null, active_count: "3" },
+    { state: "KY", official_ballot_title: "City Council", seats_to_fill: 3, active_count: "4" },
+    // Uncontested: every candidate wins a seat.
+    { state: "KY", official_ballot_title: "County Clerk", seats_to_fill: null, active_count: "1" },
+    { state: "KY", official_ballot_title: "School Board", seats_to_fill: 2, active_count: "2" },
+    // A retention question is a yes/no vote on one judge: neither.
+    { state: "KY", official_ballot_title: "Shall Judge Alex Bench be retained in office?", seats_to_fill: null, active_count: "1" },
+    // No known candidates: neither.
+    { state: "KY", official_ballot_title: "Constable", seats_to_fill: null, active_count: "0" },
+    { state: "AK", official_ballot_title: "Mayor", seats_to_fill: null, active_count: "2" },
+  ],
+};
+
+const PARTIES = {
+  rows: [
+    { state: "KY", democratic: "30", republican: "35", other: "5" },
+    // AK has no party row at all: counts read as zero, never NaN.
+  ],
+};
+
+const RECORDS = { rows: [{ candidate_records: "12345" }] };
+
 describe("site stats", () => {
-  it("joins per-state election and party counts, totals them, and drops codes it cannot name", async () => {
+  it("classifies office races with the vote-power rules, joins party counts, totals, and drops unnamed codes", async () => {
     const query = vi
       .fn()
-      .mockResolvedValueOnce({
-        rows: [
-          { state: "KY", districts: "12", upcoming_elections: "40", upcoming_contested: "25", upcoming_uncontested: "10", upcoming_measures: "3", next_election_date: "2026-11-03" },
-          { state: "AK", districts: "2", upcoming_elections: "4", upcoming_contested: "3", upcoming_uncontested: "0", upcoming_measures: "1", next_election_date: "2026-10-06" },
-          { state: "ZZ", districts: "1", upcoming_elections: "1", upcoming_contested: "1", upcoming_uncontested: "0", upcoming_measures: "0", next_election_date: null },
-        ],
-      })
-      .mockResolvedValueOnce({
-        rows: [
-          { state: "KY", democratic: "30", republican: "35", other: "5" },
-          // AK has no party row at all: counts read as zero, never NaN.
-        ],
-      })
-      .mockResolvedValueOnce({ rows: [{ candidate_records: "12345" }] });
+      .mockResolvedValueOnce(AGGREGATES)
+      .mockResolvedValueOnce(OFFICE_RACES)
+      .mockResolvedValueOnce(PARTIES)
+      .mockResolvedValueOnce(RECORDS);
 
     const result = await getSiteStats({ query }, () => new Date("2026-09-24T18:00:00Z"));
 
@@ -30,8 +53,8 @@ describe("site stats", () => {
         name: "Kentucky",
         districts: 12,
         upcoming_elections: 40,
-        upcoming_contested: 25,
-        upcoming_uncontested: 10,
+        upcoming_contested: 2,
+        upcoming_uncontested: 2,
         upcoming_measures: 3,
         upcoming_candidates: 70,
         upcoming_democratic: 30,
@@ -44,7 +67,7 @@ describe("site stats", () => {
         name: "Alaska",
         districts: 2,
         upcoming_elections: 4,
-        upcoming_contested: 3,
+        upcoming_contested: 1,
         upcoming_uncontested: 0,
         upcoming_measures: 1,
         upcoming_candidates: 0,
@@ -58,8 +81,8 @@ describe("site stats", () => {
       states: 2,
       districts: 14,
       upcoming_elections: 44,
-      upcoming_contested: 28,
-      upcoming_uncontested: 10,
+      upcoming_contested: 3,
+      upcoming_uncontested: 2,
       upcoming_measures: 4,
       upcoming_candidates: 70,
       upcoming_democratic: 30,
@@ -68,13 +91,12 @@ describe("site stats", () => {
       next_election_date: "2026-10-06",
       candidate_records: 12345,
     });
-    // Uncontested follows the vote-power rule: candidates <= seats, seats defaulting to 1.
-    expect(query.mock.calls[0]?.[0]).toContain("roster.active_count <= GREATEST(COALESCE(e.seats_to_fill, 1), 1)");
-    // Withdrawn candidacies never count as running.
+    // Withdrawn candidacies never count as running, in either query.
     expect(query.mock.calls[1]?.[0]).toContain("ce.status <> 'withdrawn'");
+    expect(query.mock.calls[2]?.[0]).toContain("ce.status <> 'withdrawn'");
   });
 
-  it("caches the result for the TTL, shares one in-flight load, and serves stale on a failed refresh", async () => {
+  it("caches for the TTL, shares one in-flight load, and serves stale to every waiter when a refresh fails", async () => {
     const empty = { rows: [] };
     const query = vi.fn().mockResolvedValue(empty);
     let clock = new Date("2026-09-24T00:00:00Z").getTime();
@@ -82,15 +104,19 @@ describe("site stats", () => {
 
     const [first, second] = await Promise.all([cached(), cached()]);
     expect(first).toBe(second);
-    // Three queries for one load, not six.
-    expect(query).toHaveBeenCalledTimes(3);
+    // Four queries for one load, not eight.
+    expect(query).toHaveBeenCalledTimes(4);
 
     clock += 500;
     await cached();
-    expect(query).toHaveBeenCalledTimes(3);
+    expect(query).toHaveBeenCalledTimes(4);
 
+    // Past the TTL the refresh fails: both concurrent callers get the last
+    // good result, not only the one that started the refresh.
     clock += 1000;
-    query.mockRejectedValueOnce(new Error("db down"));
-    expect(await cached()).toBe(first);
+    query.mockRejectedValue(new Error("db down"));
+    const [staleA, staleB] = await Promise.all([cached(), cached()]);
+    expect(staleA).toBe(first);
+    expect(staleB).toBe(first);
   });
 });

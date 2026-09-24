@@ -1,5 +1,7 @@
 import type { Pool, PoolClient } from "pg";
+import { isJudicialRetentionTitle } from "../ai/electionPartisanshipPolicy.js";
 import { STATE_NAME_BY_ABBREVIATION } from "../constants/usStates.js";
+import { effectiveSeatsToFill, isUncontestedOfficeRace } from "../pipeline/address/votePower.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -12,11 +14,13 @@ type Queryable = Pick<Pool | PoolClient, "query">;
  * Simplified, N races are uncontested"). Anonymous, identical for everyone,
  * and cached like the browse catalog.
  *
- * "Upcoming" = election_date today or later. A race is uncontested when
- * every non-withdrawn candidate wins a seat (the vote-power rule in
- * votePower.ts: candidates <= seats, seats defaulting to 1); a race with no
- * known candidates is neither contested nor uncontested and is counted only
- * in the election total.
+ * "Upcoming" = election_date today or later. Contested / uncontested use
+ * the vote-power rules (votePower.ts): a race is uncontested when every
+ * non-withdrawn candidate wins a seat (candidates <= seats, seats
+ * defaulting to 1), contested when there are more candidates than seats.
+ * A judicial retention question (one judge, yes/no) is neither — the judge
+ * can lose — so it counts as an election only, exactly as vote power gives
+ * it no contested rating. A race with no known candidates is also neither.
  */
 
 export type SiteStatsCounts = {
@@ -50,10 +54,15 @@ type StateRow = {
   state: string;
   districts: string | number;
   upcoming_elections: string | number;
-  upcoming_contested: string | number;
-  upcoming_uncontested: string | number;
   upcoming_measures: string | number;
   next_election_date: string | null;
+};
+
+type OfficeRaceRow = {
+  state: string;
+  official_ballot_title: string;
+  seats_to_fill: number | null;
+  active_count: string | number;
 };
 
 type PartyRow = {
@@ -74,11 +83,11 @@ const REPUBLICAN_LABELS = ["republican", "registered republican", "rep", "republ
 export const DEFAULT_SITE_STATS_CACHE_TTL_MS = 60 * 60 * 1000;
 
 /**
- * getSiteStats behind an in-process cache, like the sitemap: the three
- * queries walk every election row with a per-row roster subquery, so a
- * crawler (or a bot) hitting /api/stats past the 60s edge cache must not
- * re-run them each time. One DB pass per TTL; concurrent misses share one
- * in-flight load; a failed refresh serves the last good result.
+ * getSiteStats behind an in-process cache, like the sitemap: the queries
+ * walk every election row, so a crawler (or a bot) hitting /api/stats past
+ * the 60s edge cache must not re-run them each time. One DB pass per TTL;
+ * concurrent misses share one in-flight load; a failed refresh serves the
+ * last good result to every waiter, not only the one that started it.
  */
 export function createCachedSiteStats(options: { db: Queryable; ttlMs?: number; now?: () => Date }): () => Promise<SiteStatsResult> {
   const ttlMs = options.ttlMs ?? DEFAULT_SITE_STATS_CACHE_TTL_MS;
@@ -86,35 +95,48 @@ export function createCachedSiteStats(options: { db: Queryable; ttlMs?: number; 
   let cached: SiteStatsResult | null = null;
   let cachedUntil = 0;
   let inFlight: Promise<SiteStatsResult> | null = null;
-  return async () => {
-    const currentTime = now().getTime();
-    if (cached && currentTime < cachedUntil) {
-      return cached;
+  return () => {
+    if (cached && now().getTime() < cachedUntil) {
+      return Promise.resolve(cached);
     }
-    if (inFlight) {
-      return inFlight;
+    if (!inFlight) {
+      inFlight = (async () => {
+        try {
+          const result = await getSiteStats(options.db, now);
+          cached = result;
+          cachedUntil = now().getTime() + ttlMs;
+          return result;
+        } catch (error) {
+          if (cached) {
+            return cached;
+          }
+          throw error;
+        } finally {
+          inFlight = null;
+        }
+      })();
     }
-    inFlight = (async () => {
-      const result = await getSiteStats(options.db, now);
-      cached = result;
-      cachedUntil = now().getTime() + ttlMs;
-      return result;
-    })();
-    try {
-      return await inFlight;
-    } catch (error) {
-      if (cached) {
-        return cached;
-      }
-      throw error;
-    } finally {
-      inFlight = null;
-    }
+    return inFlight;
   };
 }
 
+// Contested/uncontested per office race, in TypeScript rather than SQL so
+// the seat rule and the retention exception are the vote-power code itself,
+// not a second copy of it. One row per upcoming office race (~30k): fine
+// for an hourly pass.
+function classifyOfficeRace(row: OfficeRaceRow): "contested" | "uncontested" | null {
+  if (isJudicialRetentionTitle(row.official_ballot_title)) {
+    return null;
+  }
+  const candidateCount = Number(row.active_count);
+  if (isUncontestedOfficeRace({ raceType: "office", candidateCount, seatsToFill: row.seats_to_fill })) {
+    return "uncontested";
+  }
+  return candidateCount > effectiveSeatsToFill(row.seats_to_fill) ? "contested" : null;
+}
+
 export async function getSiteStats(db: Queryable, now: () => Date = () => new Date()): Promise<SiteStatsResult> {
-  const [electionResult, partyResult, recordsResult] = await Promise.all([
+  const [electionResult, officeResult, partyResult, recordsResult] = await Promise.all([
     db.query<StateRow>(
       `
         SELECT
@@ -122,33 +144,34 @@ export async function getSiteStats(db: Queryable, now: () => Date = () => new Da
           COUNT(DISTINCT d.id) AS districts,
           COUNT(e.id) FILTER (WHERE e.election_date >= CURRENT_DATE) AS upcoming_elections,
           COUNT(e.id) FILTER (
-            WHERE e.election_date >= CURRENT_DATE
-              AND e.race_type = 'office'
-              AND roster.active_count > GREATEST(COALESCE(e.seats_to_fill, 1), 1)
-          ) AS upcoming_contested,
-          COUNT(e.id) FILTER (
-            WHERE e.election_date >= CURRENT_DATE
-              AND e.race_type = 'office'
-              AND roster.active_count >= 1
-              AND roster.active_count <= GREATEST(COALESCE(e.seats_to_fill, 1), 1)
-          ) AS upcoming_uncontested,
-          COUNT(e.id) FILTER (
             WHERE e.election_date >= CURRENT_DATE AND e.race_type = 'ballot_measure'
           ) AS upcoming_measures,
           (MIN(e.election_date) FILTER (WHERE e.election_date >= CURRENT_DATE))::text AS next_election_date
         FROM public.districts d
         JOIN public.elections e ON e.district_id = d.id
-        LEFT JOIN LATERAL (
-          SELECT COUNT(*)::int AS active_count
-          FROM public.candidate_elections ce
-          JOIN public.candidates c ON c.id = ce.candidate_id
-          WHERE ce.election_id = e.id
-            AND ce.status <> 'withdrawn'
-            AND c.deleted_at IS NULL
-            AND c.merged_into_candidate_id IS NULL
-        ) roster ON TRUE
         GROUP BY d.state
         ORDER BY d.state ASC
+      `
+    ),
+    db.query<OfficeRaceRow>(
+      `
+        SELECT
+          d.state,
+          e.official_ballot_title,
+          e.seats_to_fill,
+          (
+            SELECT COUNT(*)::int
+            FROM public.candidate_elections ce
+            JOIN public.candidates c ON c.id = ce.candidate_id
+            WHERE ce.election_id = e.id
+              AND ce.status <> 'withdrawn'
+              AND c.deleted_at IS NULL
+              AND c.merged_into_candidate_id IS NULL
+          ) AS active_count
+        FROM public.elections e
+        JOIN public.districts d ON d.id = e.district_id
+        WHERE e.election_date >= CURRENT_DATE
+          AND e.race_type = 'office'
       `
     ),
     db.query<PartyRow>(
@@ -183,6 +206,17 @@ export async function getSiteStats(db: Queryable, now: () => Date = () => new Da
     db.query<RecordsRow>(`SELECT COUNT(*) AS candidate_records FROM public.candidate_records`),
   ]);
 
+  const contestedByState = new Map<string, { contested: number; uncontested: number }>();
+  for (const row of officeResult.rows) {
+    const kind = classifyOfficeRace(row);
+    if (!kind) {
+      continue;
+    }
+    const counts = contestedByState.get(row.state) ?? { contested: 0, uncontested: 0 };
+    counts[kind] += 1;
+    contestedByState.set(row.state, counts);
+  }
+
   const partyByState = new Map(partyResult.rows.map((row) => [row.state, row]));
   const states: SiteStatsState[] = [];
   for (const row of electionResult.rows) {
@@ -192,6 +226,7 @@ export async function getSiteStats(db: Queryable, now: () => Date = () => new Da
       continue;
     }
     const party = partyByState.get(row.state);
+    const contested = contestedByState.get(row.state) ?? { contested: 0, uncontested: 0 };
     const democratic = Number(party?.democratic ?? 0);
     const republican = Number(party?.republican ?? 0);
     const other = Number(party?.other ?? 0);
@@ -200,8 +235,8 @@ export async function getSiteStats(db: Queryable, now: () => Date = () => new Da
       name,
       districts: Number(row.districts),
       upcoming_elections: Number(row.upcoming_elections),
-      upcoming_contested: Number(row.upcoming_contested),
-      upcoming_uncontested: Number(row.upcoming_uncontested),
+      upcoming_contested: contested.contested,
+      upcoming_uncontested: contested.uncontested,
       upcoming_measures: Number(row.upcoming_measures),
       upcoming_candidates: democratic + republican + other,
       upcoming_democratic: democratic,

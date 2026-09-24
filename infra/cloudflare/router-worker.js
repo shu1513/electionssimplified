@@ -36,8 +36,22 @@
  * them, and note direct *.onrender.com responses bypass this stamping.
  */
 
+// IndexNow ownership proof. The protocol scopes a key file to the directory
+// it lives in (a key under /api/ could only vouch for /api/* URLs), so the
+// public path is at the root and the Worker maps it onto the API route that
+// serves the key from env (backend INDEXNOW_KEY_PATH).
+export const INDEXNOW_PUBLIC_PATH = "/indexnow-key.txt";
+export const INDEXNOW_API_PATH = "/api/indexnow-key.txt";
+
 export function isApiPath(pathname) {
-  return pathname === "/sitemap.xml" || pathname === "/api" || pathname.startsWith("/api/");
+  return pathname === "/sitemap.xml" || pathname === INDEXNOW_PUBLIC_PATH || pathname === "/api" || pathname.startsWith("/api/");
+}
+
+/** The path recorded in a crawler log line: never a share-link token. */
+export function crawlerLogPath(pathname) {
+  // /picks/<token>: the token IS the authorization for a voter's shared
+  // picks, so it must never land in persisted logs.
+  return /^\/picks\/[^/]+/i.test(pathname) ? "/picks/:token" : pathname;
 }
 
 // ------------------------------------------------------------- crawlers ----
@@ -358,11 +372,12 @@ export default {
     const upstreamHost = apiBound ? apiHost : ssrHost;
 
     // One log line per crawler hit (see CRAWLER_TOKENS). Path only — no
-    // query string, cookie, or IP — so the stream never holds a token or a
-    // reader's identity. Filter the Workers Logs view on `event:crawler`.
+    // query string, cookie, or IP, and share-link tokens redacted
+    // (crawlerLogPath) — so the stream never holds a token or a reader's
+    // identity. Filter the Workers Logs view on `event:crawler`.
     const crawler = classifyCrawler(request.headers.get("User-Agent"));
     if (crawler) {
-      console.log(JSON.stringify({ event: "crawler", crawler, method: request.method, path: url.pathname }));
+      console.log(JSON.stringify({ event: "crawler", crawler, method: request.method, path: crawlerLogPath(url.pathname) }));
     }
     // The Worker owns both the apex and its www variant; an origin equal to
     // either would send traffic back into hostnames this Worker serves (or
@@ -379,6 +394,9 @@ export default {
     url.hostname = upstreamHost;
     url.protocol = "https:";
     url.port = "";
+    if (url.pathname === INDEXNOW_PUBLIC_PATH) {
+      url.pathname = INDEXNOW_API_PATH;
+    }
 
     // Re-wrap so method, headers, and body stream pass through; fetch()
     // rewrites the Host header to the new hostname automatically.

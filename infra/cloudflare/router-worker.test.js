@@ -8,6 +8,7 @@ import worker, {
   ROOT_FILE_CACHE_TTL_SECONDS,
   SESSION_COOKIE_NAME,
   classifyCrawler,
+  crawlerLogPath,
   hasSessionCookie,
   isApiPath,
   isCacheablePublicPage,
@@ -669,6 +670,22 @@ describe("security headers", () => {
     // Neither the query string nor the cookie reaches the log.
     assert.ok(!lines[0].includes("utm_source"));
     assert.ok(!lines[0].includes("secret"));
+  });
+
+  it("redacts share-link tokens from the crawler log path", () => {
+    assert.equal(crawlerLogPath("/picks/abc123TOKEN"), "/picks/:token");
+    assert.equal(crawlerLogPath("/PICKS/abc123TOKEN/"), "/picks/:token");
+    assert.equal(crawlerLogPath("/elections/e-1"), "/elections/e-1");
+    assert.equal(crawlerLogPath("/picks"), "/picks");
+  });
+
+  it("serves the IndexNow key from the site root by mapping it onto the API route", async () => {
+    const calls = stubFetch();
+    await worker.fetch(new Request("https://electionssimplified.com/indexnow-key.txt"), ENV);
+    assert.equal(calls.length, 1);
+    assert.equal(new URL(calls[0].url).hostname, ENV.API_ORIGIN);
+    assert.equal(new URL(calls[0].url).pathname, "/api/indexnow-key.txt");
+    assert.equal(isApiPath("/indexnow-key.txt"), true);
   });
 
   it("withSecurityHeaders copies immutable-header responses instead of mutating", () => {

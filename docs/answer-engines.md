@@ -23,7 +23,7 @@ crawlers fetch pages, not that file.
 | State hub answer paragraph | `stateAnswerText` in `BrowseStatePage.tsx` |
 | `/methodology`: who, sources, checks, formulas, corrections | `frontend/src/pages/MethodologyPage.tsx` (prerendered) |
 | `/stats` + `/api/stats`: coverage numbers per state, `Dataset` JSON-LD | `backend/src/api/siteStats.ts`, `frontend/src/pages/StatsPage.tsx` |
-| IndexNow key file + submit script | `GET /api/indexnow-key.txt`, `npm run indexnow:submit` |
+| IndexNow key file + submit script | `/indexnow-key.txt` at the root (Worker maps it onto `GET /api/indexnow-key.txt`), `npm run indexnow:submit` |
 
 ## Operator steps (one-time)
 
@@ -38,8 +38,10 @@ crawlers fetch pages, not that file.
    Verify from outside: `curl -A "Mozilla/5.0 (compatible; GPTBot/1.2)" -sI https://electionssimplified.com/ | head -1` must be `HTTP/2 200`.
 3. **IndexNow.** Generate a key (32+ hex chars, e.g. `openssl rand -hex 16`).
    Set `INDEXNOW_KEY` on the API service (Render dashboard; `render.yaml`
-   declares it `sync: false`) and redeploy. Check
-   `https://electionssimplified.com/api/indexnow-key.txt` returns the key.
+   declares it `sync: false`) and redeploy the API and the Worker. Check
+   `https://electionssimplified.com/indexnow-key.txt` returns the key (the
+   key must sit at the root: IndexNow only lets a key vouch for URLs under
+   the directory it lives in).
    Then from `backend/`:
 
    ```bash

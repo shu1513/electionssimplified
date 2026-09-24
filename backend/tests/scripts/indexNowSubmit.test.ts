@@ -32,11 +32,11 @@ describe("indexnow submit", () => {
     ]);
   });
 
-  it("builds the protocol payload with the key file on the API path", () => {
+  it("builds the protocol payload with the key file at the site root", () => {
     expect(buildIndexNowPayload({ siteOrigin: "https://electionssimplified.com/", key: "abc123", urlList: ["https://electionssimplified.com/stats"] })).toEqual({
       host: "electionssimplified.com",
       key: "abc123",
-      keyLocation: "https://electionssimplified.com/api/indexnow-key.txt",
+      keyLocation: "https://electionssimplified.com/indexnow-key.txt",
       urlList: ["https://electionssimplified.com/stats"],
     });
   });

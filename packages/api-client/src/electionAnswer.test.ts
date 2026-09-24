@@ -45,6 +45,24 @@ describe("electionAnswerText", () => {
     expect(text).toContain("Certified result: the winner is Riley Runner (Republican).");
   });
 
+  it("names nobody for an undecided outcome and says advanced or runoff instead of winner", () => {
+    const winners = [{ candidate_name: "Riley Runner", party: "Republican" }];
+    const past = { election_date: "2024-11-05" };
+    // A too-close row can carry a recorded leader; that is not a winner.
+    expect(
+      electionAnswerText(race({ ...past, results: [{ outcome: "too_close", result_status: "unofficial", winners }] }), TODAY)
+    ).not.toMatch(/result:|winner/);
+    expect(
+      electionAnswerText(race({ ...past, results: [{ outcome: "advanced", result_status: "certified", winners }] }), TODAY)
+    ).toContain("Certified result: Riley Runner (Republican) advanced to the next round.");
+    expect(
+      electionAnswerText(
+        race({ ...past, results: [{ outcome: "runoff", result_status: "unofficial", winners: [...winners, { candidate_name: "Jordan Voter", party: "Democratic" }] }] }),
+        TODAY
+      )
+    ).toContain("Unofficial result: Riley Runner (Republican) and Jordan Voter (Democratic) go to a runoff.");
+  });
+
   it("calls a one-candidate, one-seat race uncontested and a roster that fits the seats all winners", () => {
     const solo = race({ candidates: [{ display_name: "Jordan Voter", party: "Democratic", is_incumbent: false, status: "declared" }] });
     expect(electionAnswerText(solo, TODAY)).toContain("One candidate is on the ballot, Jordan Voter (Democratic), so the race is uncontested.");
