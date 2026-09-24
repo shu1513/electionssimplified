@@ -61,6 +61,7 @@ export default function EmbedGuidePage() {
           Now visitors to your website can use it to see their elections and the
           candidates, while staying on your website the whole time.
         </p>
+        <p>(After the voting season, you can remove it at your leisure)</p>
         <p>
           A one-line credit, &quot;Ballot lookup by Elections Simplified&quot;,
           appears under the box and links to our site. If your page cannot show
