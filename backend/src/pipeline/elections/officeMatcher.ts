@@ -532,7 +532,14 @@ function stripSeatSuffixes(value: string): string {
     // names it. The ward number goes with the generic ward rule below.
     .replace(/(?<=\bconstable )justice of the peace\b/g, " ")
     .replace(/\boffice (?:no )?\d+\b/g, " ")
-    .replace(/\bposition (?:no )?\d+\b/g, " ")
+    // Oregon titles a council seat by ward AND lettered position ("City of
+    // Hillsboro Council Member, Ward 1, Position A", live: three NULL-office
+    // shells at ambiguous 0.571). The ward number went with the generic ward
+    // rule below, but the position rule accepted digits only, so the stray
+    // "position a" tokens survived. Arkansas uses the numbered form ("City
+    // Council Member, Ward 2, Position 1", Fayetteville). A position is the
+    // same seat designator as Place and Seat, letter or number.
+    .replace(new RegExp(String.raw`\bposition (?:no )?${SEAT_DESIGNATOR}\b`, "g"), " ")
     // Texas titles at-large council seats by "Place" ("City of Amarillo
     // Councilmember, Place 1" through "Place 4", live: all four wrote
     // NULL-office shells at ambiguous 0.571 because the surviving "place 1"
