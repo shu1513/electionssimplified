@@ -26,3 +26,11 @@ routes = [
   { pattern = "electionssimplified.com/*", zone_name = "electionssimplified.com" },
   { pattern = "www.electionssimplified.com/*", zone_name = "electionssimplified.com" },
 ]
+
+# Workers Logs: keeps the Worker's console.log lines (the `event:crawler`
+# line per search/AI bot hit — see classifyCrawler in router-worker.js) for
+# the free tier's retention window, viewable under the Worker's Logs tab.
+# Sampled at 100% because crawler traffic is a small fraction of requests.
+[observability]
+enabled = true
+head_sampling_rate = 1

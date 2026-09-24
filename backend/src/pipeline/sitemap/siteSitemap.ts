@@ -8,7 +8,7 @@ const BROWSE_STATE_CODES = Object.keys(STATE_NAME_BY_ABBREVIATION);
 
 export const DEFAULT_SITE_SITEMAP_CACHE_TTL_MS = 60 * 60 * 1000;
 
-export const SITEMAP_STATIC_PATHS = ["/", "/mission", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"] as const;
+export const SITEMAP_STATIC_PATHS = ["/", "/mission", "/methodology", "/stats", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"] as const;
 
 // The sitemap protocol caps one file at 50,000 URLs (and 50 MB); the site
 // passed that in 2026-09 (~55k election + candidate pages), and Search

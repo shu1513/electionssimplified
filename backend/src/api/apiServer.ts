@@ -111,6 +111,8 @@ import {
   BROWSE_STATES_PATH,
   RESEARCH_AREAS_PATH,
   SITE_SITEMAP_PATH,
+  SITE_STATS_PATH,
+  INDEXNOW_KEY_PATH,
   STATE_RESOURCES_PATH,
 } from "./apiValidation.js";
 import { parseBearerAuthorizationValue } from "../auth/authBearer.js";
@@ -166,6 +168,8 @@ const BROWSE_CACHE_CONTROL = "public, max-age=3600";
 function isKnownApiPath(pathname: string): boolean {
   return (
     pathname === API_HEALTH_PATH ||
+    pathname === SITE_STATS_PATH ||
+    pathname === INDEXNOW_KEY_PATH ||
     pathname === ADDRESS_AUTOCOMPLETE_PATH ||
     pathname === ADDRESS_AUTOCOMPLETE_RETRIEVE_PATH ||
     pathname === ADDRESS_RESOLVE_PATH ||
@@ -769,6 +773,47 @@ async function dispatchApiRequest(
       response,
       toJsonResponse(200, result, { ...corsHeaders, "cache-control": STATE_RESOURCES_CACHE_CONTROL })
     );
+    return;
+  }
+
+  if (url.pathname === SITE_STATS_PATH) {
+    if (request.method !== "GET") {
+      sendApiResponse(
+        response,
+        toErrorResponse(405, "method_not_allowed", "Use GET /api/stats", { ...corsHeaders, allow: "GET" })
+      );
+      return;
+    }
+    if (!options.getSiteStats) {
+      sendApiResponse(response, toErrorResponse(500, "internal_error", "Site statistics are not configured", corsHeaders));
+      return;
+    }
+    // Same shared-cache policy as the browse catalog: anonymous, and the
+    // numbers move only as research lands.
+    const result = await options.getSiteStats();
+    sendApiResponse(response, toJsonResponse(200, result, { ...corsHeaders, "cache-control": BROWSE_CACHE_CONTROL }));
+    return;
+  }
+
+  if (url.pathname === INDEXNOW_KEY_PATH) {
+    if (request.method !== "GET") {
+      sendApiResponse(
+        response,
+        toErrorResponse(405, "method_not_allowed", "Use GET /api/indexnow-key.txt", { ...corsHeaders, allow: "GET" })
+      );
+      return;
+    }
+    if (!options.indexNowKey) {
+      sendApiResponse(response, toErrorResponse(404, "not_found", "IndexNow is not configured", corsHeaders));
+      return;
+    }
+    // IndexNow verifies ownership by fetching this URL and comparing the
+    // body to the submitted key; the body must be the bare key.
+    sendApiResponse(response, {
+      statusCode: 200,
+      headers: { ...corsHeaders, "content-type": "text/plain; charset=utf-8", "cache-control": BROWSE_CACHE_CONTROL },
+      body: options.indexNowKey,
+    });
     return;
   }
 

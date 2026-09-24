@@ -43,6 +43,7 @@ deploy needs beyond `git pull`. Database migrations are covered separately in
 | `AUTH_SESSION_COOKIE_DOMAIN` | only for the subdomain split (e.g. `.electionssimplified.com`) |
 | `AUTH_PUBLIC_BASE_URL` | the FRONTEND origin — email links land on `/verify-email`, `/reset-password`, `/verify-email-change` |
 | `SITE_ORIGIN` | the canonical PUBLIC frontend origin used in `/sitemap.xml` URLs, e.g. `https://electionssimplified.com`; must match `frontend/public/robots.txt` |
+| `INDEXNOW_KEY` | optional; the IndexNow key served at `/api/indexnow-key.txt` and used by `npm run indexnow:submit` (Bing/Copilot/ChatGPT-search indexing). Unset = 404 there and no submissions. See `docs/answer-engines.md` |
 | `AUTH_MAILER` | unset (defaults to `ses`); `console` is dev-only |
 | `AUTH_FROM_EMAIL` / `AUTH_SES_REGION` | verified SES identity + region (today: electionssimplified.com in us-east-2) |
 | `GOOGLE_PLACES_API_KEY` | address autocomplete + resolve |

@@ -1,20 +1,64 @@
 # Elections Simplified — independent, nonpartisan, AI-assisted election research.
 # All crawlers welcome, including AI assistants; content carries its own
-# sourcing and disclaimer lines.
+# sourcing and disclaimer lines. Every page is server-rendered, so no bot
+# needs JavaScript to read it.
 
 User-agent: *
 Allow: /
 
+# Search engines. Bing's index also feeds ChatGPT search and Microsoft
+# Copilot, so Bingbot matters as much as Googlebot here.
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# OpenAI: GPTBot trains models; OAI-SearchBot indexes for ChatGPT search;
+# ChatGPT-User fetches pages a user asks about.
 User-agent: GPTBot
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic: ClaudeBot trains; Claude-SearchBot indexes for search;
+# Claude-User fetches pages on a user's behalf.
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Perplexity, Google AI (Gemini / AI Overviews), Apple, Meta, Amazon, Common Crawl.
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: Perplexity-User
+Allow: /
+
 User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
 Allow: /
 
 # Update the host if the app ships on a subdomain (e.g. app.electionssimplified.com).

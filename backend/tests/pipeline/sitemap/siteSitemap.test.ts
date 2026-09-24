@@ -103,6 +103,8 @@ describe("site sitemap", () => {
     expect(urls).toEqual([
       { path: "/" },
       { path: "/mission" },
+      { path: "/methodology" },
+      { path: "/stats" },
       { path: "/support" },
       { path: "/support/member" },
       { path: "/support/once" },

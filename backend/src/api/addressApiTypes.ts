@@ -7,6 +7,7 @@ import type {
 import type { UserBallotPreferences } from "../pipeline/users/userBallotPreferences.js";
 import type { SitemapSelection } from "../pipeline/sitemap/siteSitemap.js";
 import type { BrowseDistrictResult, BrowseStateResult, BrowseStatesResult } from "./browseCatalog.js";
+import type { SiteStatsResult } from "./siteStats.js";
 import type { UserEmailPreferences } from "../pipeline/users/userEmailPreferences.js";
 import type { RegisterUserPushTokenInput } from "../pipeline/users/userPushTokens.js";
 import type { CreatedContentReport, ContentReportInput } from "../pipeline/reports/contentReports.js";
@@ -164,6 +165,12 @@ export type AddressApiServerOptions = {
   /** GET /sitemap.xml — the sitemap index; ?part=…&page=… — one child
    * file. null = the child does not exist (404). */
   getSitemapXml?: (selection?: SitemapSelection | null) => Promise<string | null>;
+  /** GET /api/stats — coverage statistics (siteStats.ts). */
+  getSiteStats?: () => Promise<SiteStatsResult>;
+  /** GET /api/indexnow-key.txt — the IndexNow key (INDEXNOW_KEY), served
+   * as text/plain so search engines can verify URL submissions. Unset =
+   * 404, which is IndexNow's "not participating". */
+  indexNowKey?: string;
   listAuthenticatedCandidateFollows?: (userId: string) => Promise<AuthenticatedCandidateFollowsResult>;
   setAuthenticatedCandidateFollow?: (
     userId: string,

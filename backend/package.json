@@ -220,6 +220,7 @@
     "chatbot:reindex": "tsx src/scripts/chatbotReindex.ts",
     "chatbot:report": "tsx src/scripts/chatbotReport.ts",
     "usage:report": "tsx src/scripts/usageReport.ts",
+    "indexnow:submit": "tsx src/scripts/indexNowSubmit.ts",
     "chatbot:eval": "tsx src/scripts/chatbotEval.ts",
     "db:migrate": "tsx src/scripts/dbMigrate.ts",
     "db:migrate:status": "tsx src/scripts/dbMigrate.ts --status",

@@ -24,6 +24,12 @@ export default [
     route("browse/:state", "pages/BrowseStatePage.tsx"),
     route("districts/:districtId", "pages/DistrictPage.tsx"),
     route("mission", "pages/MissionPage.tsx"),
+    // Who we are, where the data comes from, how the ratings work, how to
+    // report an error — the page engines read before citing the site.
+    // Prerendered (react-router.config.ts) and edge-cached.
+    route("methodology", "pages/MethodologyPage.tsx"),
+    // Coverage statistics per state (backend siteStats.ts). Edge-cached.
+    route("stats", "pages/StatsPage.tsx"),
     route("embed-instructions", "pages/EmbedGuidePage.tsx"),
     route("support", "pages/SupportPage.tsx"),
     route("support/member", "pages/SupportMemberPage.tsx"),

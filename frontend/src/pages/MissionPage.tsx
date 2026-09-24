@@ -98,6 +98,14 @@ export default function MissionPage() {
           .
         </p>
         <p>
+          The full method — where each kind of data comes from, how records are checked, and how the
+          vote-power and competitiveness ratings are calculated — is on the{" "}
+          <Link to="/methodology" className="font-semibold underline hover:text-ink">
+            How it works
+          </Link>{" "}
+          page.
+        </p>
+        <p>
           To keep this operation high quality and keep up with the newest elections, it takes
           tremendous effort from our staff and costs a considerable amount of AI tokens.
         </p>

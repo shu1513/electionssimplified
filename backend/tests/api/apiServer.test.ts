@@ -1487,6 +1487,29 @@ describe("createApiApp", () => {
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 
+  describe("site stats and IndexNow key", () => {
+    it("serves the coverage statistics with the browse cache header", async () => {
+      const stats = { as_of: "2026-09-24", totals: { states: 0 }, states: [] };
+      const getSiteStats = vi.fn().mockResolvedValue(stats);
+      const response = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), getSiteStats }), { method: "GET", path: "/api/stats" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["cache-control"]).toBe("public, max-age=3600");
+      expect(response.body).toEqual(stats);
+      expect(getSiteStats).toHaveBeenCalledOnce();
+    });
+
+    it("serves the IndexNow key as plain text and 404s when unset", async () => {
+      const served = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), indexNowKey: "abc123" }), { method: "GET", path: "/api/indexnow-key.txt" });
+      expect(served.statusCode).toBe(200);
+      expect(served.headers["content-type"]).toContain("text/plain");
+      expect(served.rawBody).toBe("abc123");
+
+      const unset = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn() }), { method: "GET", path: "/api/indexnow-key.txt" });
+      expect(unset.statusCode).toBe(404);
+    });
+  });
+
   describe("browse catalog", () => {
     const browse = () => ({
       resolveAddress: vi.fn(),

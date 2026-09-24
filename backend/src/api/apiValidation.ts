@@ -177,6 +177,12 @@ export const BROWSE_STATES_PATH = "/api/browse/states";
 export const BROWSE_STATE_PATH_PREFIX = "/api/browse/states/";
 export const BROWSE_DISTRICT_PATH_PREFIX = "/api/browse/districts/";
 export const SITE_SITEMAP_PATH = "/sitemap.xml";
+// Coverage statistics (siteStats.ts) behind /stats.
+export const SITE_STATS_PATH = "/api/stats";
+// IndexNow ownership proof: the file whose body is the key. The protocol
+// lets the key file live at any URL on the host (keyLocation), so it is
+// served here from env instead of committed to frontend/public.
+export const INDEXNOW_KEY_PATH = "/api/indexnow-key.txt";
 export const MAX_ADDRESS_REQUEST_BODY_BYTES = 16 * 1024;
 export const MAX_BALLOT_DISTRICT_IDS = 50;
 

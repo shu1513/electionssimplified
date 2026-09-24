@@ -29,6 +29,8 @@ import { ReportContentButton } from "../components/ReportContentButton";
 import { ShareButton } from "../components/ShareButton";
 import {
   deriveCandidateResultBadges,
+  electionAnswerSnippet,
+  electionAnswerText,
   formatDistrictName,
   formatElectionDate,
   formatOutcome,
@@ -37,7 +39,8 @@ import {
 } from "@voteapp/api-client";
 import { loadFromApi } from "../lib/loadFromApi";
 import { useHydrated } from "../lib/useHydrated";
-import { pageMeta } from "../lib/pageMeta";
+import { pageMeta, SITE_ORIGIN } from "../lib/pageMeta";
+import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { AREA_TEXT_CLASS, SAVED_AREA_TEXT_CLASS } from "../components/ElectionCard";
 import { CappedInlineList } from "../components/CappedInlineList";
@@ -137,10 +140,12 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
   // search engine treats identical titles as one page competing with itself.
   return pageMeta({
     title: `${data.official_ballot_title} — ${formatDistrictName(data.district.name)} (${formatElectionDate(data.election_date)}) · ${APP_NAME}`,
-    // No "campaign finance" here: this page stopped rendering finance
-    // (it lives on candidate profiles now), and a search preview must not
-    // promise content the page doesn't have.
-    description: `${data.official_ballot_title} — ${formatDistrictName(data.district.name)} election on ${data.election_date}: candidates and issue research.`,
+    // The opening sentences of the page's own answer paragraph, so the
+    // search snippet says what the page says (race, place, date, who is
+    // running). No "campaign finance": this page stopped rendering finance
+    // (it lives on candidate profiles now), and a preview must not promise
+    // content the page doesn't have.
+    description: electionAnswerSnippet(data, usLatestLocalDate()),
     path: location.pathname,
   });
 };
@@ -190,6 +195,10 @@ export function ElectionPage() {
 
   const data = useLoaderData<typeof loader>();
   const competitiveness = competitivenessChip(data);
+  // The one-paragraph answer (electionAnswerText): opens the page, feeds the
+  // Event JSON-LD description, and its first sentences are the meta
+  // description — one text, three readers.
+  const answerText = electionAnswerText(data, usLatestLocalDate());
   // The ⓘ next to "Retention race": the one-line explanation is a tap
   // target, not a title tooltip (touch never sees tooltips). Component
   // state, so it closes again on a sibling walk to the next race.
@@ -576,8 +585,14 @@ export function ElectionPage() {
         <JsonLdScript
           data={{
             "@type": "Event",
+            "@id": `${SITE_ORIGIN}/elections/${data.id}`,
+            url: `${SITE_ORIGIN}/elections/${data.id}`,
             name: data.official_ballot_title,
+            // The same paragraph the page opens with, so an engine reading
+            // the markup and one reading the text get one story.
+            description: answerText,
             startDate: data.election_date,
+            eventStatus: "https://schema.org/EventScheduled",
             // Place, not AdministrativeArea: Google's Event validator only
             // accepts Place (with a postal address) or VirtualLocation.
             location: {
@@ -585,6 +600,24 @@ export function ElectionPage() {
               name: formatDistrictName(data.district.name),
               address: { "@type": "PostalAddress", addressRegion: data.district.state, addressCountry: "US" },
             },
+            // Freshness is a citation signal: the row's last research write.
+            ...(data.updated_at ? { dateModified: data.updated_at } : {}),
+            // Who stands behind the page (the root layout's Organization).
+            organizer: { "@id": ORGANIZATION_ID },
+            ...(data.race_type === "office" && data.candidates.length > 0
+              ? {
+                  // The roster as linked Person entities, each pointing at
+                  // its profile page — the page's Person block completes it.
+                  performer: data.candidates
+                    .filter((candidate) => candidate.status !== "withdrawn")
+                    .map((candidate) => ({
+                      "@type": "Person",
+                      "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
+                      name: candidate.display_name,
+                      url: `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
+                    })),
+                }
+              : {}),
           }}
         />
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -683,6 +716,11 @@ export function ElectionPage() {
             </p>
           </div>
         </div>
+        {/* The answer paragraph: what, where, when, who, and who won — the
+            whole race in one self-contained passage a reader (or an answer
+            engine) can take on its own. Every fact repeats a card below;
+            the point is having them in one place, in sentences. */}
+        <p className="mt-3 text-body text-ink">{answerText}</p>
         {/* The detail page has room for the whole caveat, where the ballot card
             only has room to flag it. Same rule as ElectionCard: name the seat's
             area, say plainly that we cannot match an address to it, and never
@@ -758,7 +796,11 @@ export function ElectionPage() {
         {showOfficeInfo ? (
           // Duties first, then which issues the election touches.
           <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
-            <h2 ref={officeRef} className="text-heading font-semibold">About this office</h2>
+            {/* Section headings are the questions people type — an answer
+                engine matches a heading to a query and lifts what sits under
+                it, so "What does this office do?" earns the section a place
+                that "About this office" never would. */}
+            <h2 ref={officeRef} className="text-heading font-semibold">What does this office do?</h2>
             {officeBullets.length > 0 ? (
               <ul className="mt-2 list-disc space-y-1 pl-5 text-body text-ink">
                 {officeBullets.map((line, i) => (
@@ -798,7 +840,7 @@ export function ElectionPage() {
           <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
             {/* nudge-deep green (user decision 2026-09-11) — not party blue
                 on a nonpartisan measure. */}
-            <h2 ref={measureSummaryRef} className="text-heading font-semibold text-nudge-deep">Ballot Measure</h2>
+            <h2 ref={measureSummaryRef} className="text-heading font-semibold text-nudge-deep">What does this measure do?</h2>
             {measure.research_area_tags.length > 0 ? (
               // Comma-separated colored text, not boxed chips (boxes read as
               // buttons). Tags group by stance under a leading verb
@@ -908,7 +950,7 @@ export function ElectionPage() {
             {measure.funding ? <MeasureFundingSection funding={measure.funding} homeState={data.district.state} /> : null}
             {measure.results.length > 0 ? (
               <div className="mt-3">
-                <h3 className="text-subheading font-semibold">Results</h3>
+                <h3 className="text-subheading font-semibold">Did it pass?</h3>
                 {hasCertifiedRow(measure.results) ? null : (
                   <p className="mt-1 text-xs text-ink-soft">
                     Unofficial until certified by the relevant election authority.
@@ -977,7 +1019,7 @@ export function ElectionPage() {
         ) : data.candidates.length > 0 || (showChoiceControls && hasStrandedPicks) ? (
           <section className="mt-[29px] box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 ref={candidatesRef} className="text-heading font-semibold">Candidates</h2>
+              <h2 ref={candidatesRef} className="text-heading font-semibold">Who is running?</h2>
               {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
                 <span className="text-xs text-ink-soft">
                   This election fills {data.seats_to_fill} seats — pick up to {data.seats_to_fill} candidates.
@@ -1261,7 +1303,7 @@ export function ElectionPage() {
           // Empty office roster: say WHY instead of hiding the section (roster
           // awaiting certification, profiles being prepared, or unavailable).
           <section className="mt-[29px] box:mt-[18px]">
-            <h2 className="text-heading font-semibold">Candidates</h2>
+            <h2 className="text-heading font-semibold">Who is running?</h2>
             <p className="mt-3 rounded-xl border border-line bg-surface p-4 box:p-[11px] text-sm text-ink-soft">
               {formatRosterStatus(data.candidate_roster_status).long}
             </p>
@@ -1270,7 +1312,7 @@ export function ElectionPage() {
 
         {data.results.length > 0 ? (
           <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
-            <h2 ref={resultsRef} className="text-heading font-semibold">Results</h2>
+            <h2 ref={resultsRef} className="text-heading font-semibold">Who won?</h2>
             {hasCertifiedRow(data.results) ? null : (
               <p className="mt-1 text-xs text-ink-soft">
                 Unofficial until certified by the relevant election authority.
@@ -1310,6 +1352,14 @@ export function ElectionPage() {
             pages of one site (index + detail), and a heading plus a line per
             URL read as the same source printed twice. */}
         <SourceFootnote urls={electionOnlySources} className="mt-[29px] box:mt-[18px]" />
+        {/* Visible freshness, same as the candidate page's "Profile last
+            researched" line: engines weigh a dated page over an undated
+            one, and a reader deserves to know how old the roster is. */}
+        {data.updated_at ? (
+          <p className="mt-[29px] box:mt-[18px] text-xs text-ink-soft">
+            Last updated {formatElectionDate(data.updated_at.slice(0, 10))}.
+          </p>
+        ) : null}
 
         {/* Last on purpose: reporting is a reaction to reading the page, not a
             headline action worth space above the candidates. Skipped when the

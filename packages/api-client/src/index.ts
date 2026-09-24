@@ -10,6 +10,7 @@ export * from "./autoPick";
 export * from "./ballotFilters";
 export * from "./ballotLevel";
 export * from "./brand";
+export * from "./electionAnswer";
 export * from "./chatbot";
 export * from "./client";
 export * from "./finance";

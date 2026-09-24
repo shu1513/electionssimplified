@@ -551,6 +551,9 @@ export type ElectionDetail = {
   /** See CurrentCompetitiveness: replaces the historic chip when present. */
   current_competitiveness?: CurrentCompetitiveness | null;
   vote_power: VotePower;
+  /** ISO timestamp of the election row's last write (roster, results, or
+   * measure research). Optional: a not-yet-redeployed backend omits it. */
+  updated_at?: string | null;
 };
 
 export type CandidateSearchMatch = {
@@ -923,6 +926,30 @@ export type BrowseElection = {
 export type BrowseDistrictResponse = {
   district: { id: string; name: string; district_type: string; state: string; state_name: string };
   elections: BrowseElection[];
+};
+
+// Coverage statistics (backend siteStats.ts): GET /api/stats, rendered on
+// /stats. "Upcoming" = election date today or later.
+export type SiteStatsCounts = {
+  districts: number;
+  upcoming_elections: number;
+  upcoming_contested: number;
+  upcoming_uncontested: number;
+  upcoming_measures: number;
+  upcoming_candidates: number;
+  upcoming_democratic: number;
+  upcoming_republican: number;
+  upcoming_other: number;
+  next_election_date: string | null;
+};
+
+export type SiteStatsState = SiteStatsCounts & { state: string; name: string };
+
+export type SiteStatsResponse = {
+  /** YYYY-MM-DD the numbers were computed. */
+  as_of: string;
+  totals: SiteStatsCounts & { states: number; candidate_records: number };
+  states: SiteStatsState[];
 };
 
 export type ContentReportEntityType = "candidate" | "candidate_record" | "election" | "ballot_measure";

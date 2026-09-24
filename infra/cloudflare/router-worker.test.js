@@ -7,6 +7,7 @@ import worker, {
   EDGE_CACHE_TTL_SECONDS,
   ROOT_FILE_CACHE_TTL_SECONDS,
   SESSION_COOKIE_NAME,
+  classifyCrawler,
   hasSessionCookie,
   isApiPath,
   isCacheablePublicPage,
@@ -631,6 +632,43 @@ describe("security headers", () => {
     assert.ok(csp.startsWith(upstreamCsp + ", default-src 'self';"), csp);
     // Every other baseline header is still overwritten by the edge value.
     assert.equal(stamped.headers.get("x-frame-options"), "DENY");
+  });
+
+  it("classifyCrawler names the documented search and AI crawler tokens and nothing else", () => {
+    assert.equal(classifyCrawler("Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.2; +https://openai.com/gptbot)"), "openai");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; OAI-SearchBot/1.0; +https://openai.com/searchbot)"), "openai");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)"), "anthropic");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; Claude-SearchBot/1.0; +https://www.anthropic.com/claude-searchbot)"), "anthropic");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)"), "perplexity");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)"), "bing");
+    assert.equal(classifyCrawler("Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"), "google");
+    // A browser, an empty header, and a missing header are all "not a crawler".
+    assert.equal(classifyCrawler("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36"), null);
+    assert.equal(classifyCrawler(""), null);
+    assert.equal(classifyCrawler(null), null);
+  });
+
+  it("logs one structured line per crawler hit with the path only", async () => {
+    stubFetch();
+    const lines = [];
+    const realLog = console.log;
+    console.log = (line) => lines.push(line);
+    try {
+      await worker.fetch(
+        new Request("https://electionssimplified.com/elections/e-1?utm_source=chatgpt.com", {
+          headers: { "User-Agent": "Mozilla/5.0 (compatible; ClaudeBot/1.0; +claudebot@anthropic.com)", Cookie: `${SESSION_COOKIE_NAME}=secret` },
+        }),
+        ENV
+      );
+      await worker.fetch(new Request("https://electionssimplified.com/", { headers: { "User-Agent": "Mozilla/5.0 Chrome/128.0" } }), ENV);
+    } finally {
+      console.log = realLog;
+    }
+    assert.equal(lines.length, 1);
+    assert.deepEqual(JSON.parse(lines[0]), { event: "crawler", crawler: "anthropic", method: "GET", path: "/elections/e-1" });
+    // Neither the query string nor the cookie reaches the log.
+    assert.ok(!lines[0].includes("utm_source"));
+    assert.ok(!lines[0].includes("secret"));
   });
 
   it("withSecurityHeaders copies immutable-header responses instead of mutating", () => {

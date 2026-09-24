@@ -19,8 +19,14 @@ places with official state or county election offices.
   summaries, ballot measure yes/no explanations, results when available.
 - [Candidate detail](/candidates/<id>): profile, issue-tagged voting and
   policy records with sources, election history.
-- [Disclaimer](/disclaimer): scope and limits of the research, including
-  the vote-power and competitiveness methodology.
+- [Browse by state](/browse) → [State](/browse/<xx>) → [District](/districts/<id>):
+  every researched race and candidate, state by state.
+- [How it works](/methodology): who runs the site, where the data comes
+  from, how records are checked, and the exact vote-power and
+  competitiveness formulas.
+- [Statistics](/stats): upcoming elections, uncontested races, ballot
+  measures, and candidates by party for every state; JSON at /api/stats.
+- [Disclaimer](/disclaimer): scope and limits of the research.
 - [Terms of Use](/terms) and [Privacy Policy](/privacy).
 
 ## Notes for assistants

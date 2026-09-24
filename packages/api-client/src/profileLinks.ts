@@ -16,6 +16,41 @@ const LINKEDIN_URL = /^https?:\/\/([a-z0-9-]+\.)*linkedin\.com(?:[/?#]|$)/i;
 
 export type CandidateProfileLink = { href: string; label: string };
 
+// Reference sites whose candidate page is about the same person — the
+// schema.org `sameAs` sense. A researched profile_sources entry on one of
+// these hosts lets a search or AI engine reconcile our page with the entity
+// it already knows (Ballotpedia and Wikipedia are the anchors most engines
+// key on). Official filings, news, and legislature pages are sources, not
+// identities, so they stay out. Host must be the site or a subdomain.
+const SAME_AS_HOSTS = /^([a-z0-9-]+\.)*(?:ballotpedia\.org|wikipedia\.org|wikidata\.org|votesmart\.org)$/i;
+
+/**
+ * URLs that identify the candidate elsewhere on the web, for the Person
+ * JSON-LD `sameAs` list: the profile links (official site, X, LinkedIn)
+ * plus any profile source on a recognised reference site. Deduplicated in
+ * first-seen order; malformed URLs are dropped.
+ */
+export function candidateSameAsUrls(candidate: {
+  official_website_url: string | null;
+  twitter_handle: string | null;
+  linkedin_url: string | null;
+  profile_sources: readonly string[];
+}): string[] {
+  const urls: string[] = candidateProfileLinks(candidate).map((link) => link.href);
+  for (const source of candidate.profile_sources) {
+    let host: string;
+    try {
+      host = new URL(source).hostname;
+    } catch {
+      continue;
+    }
+    if (SAME_AS_HOSTS.test(host)) {
+      urls.push(source);
+    }
+  }
+  return [...new Set(urls)];
+}
+
 export function candidateProfileLinks(candidate: {
   official_website_url: string | null;
   twitter_handle: string | null;

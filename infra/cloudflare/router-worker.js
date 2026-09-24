@@ -40,6 +40,40 @@ export function isApiPath(pathname) {
   return pathname === "/sitemap.xml" || pathname === "/api" || pathname.startsWith("/api/");
 }
 
+// ------------------------------------------------------------- crawlers ----
+// Search and AI crawlers we want to see in the Workers Logs stream
+// (wrangler.toml [observability]): one structured line per hit answers
+// "is ChatGPT / Claude / Perplexity actually reading us, and which pages?"
+// — the coverage question behind answer-engine optimization. robots.txt
+// welcomes all of them; this is the read-side check that they come.
+// Matched on the User-Agent token each vendor documents; order matters only
+// where a token could appear in two rows (none today).
+const CRAWLER_TOKENS = [
+  ["openai", /\b(?:GPTBot|OAI-SearchBot|ChatGPT-User)\b/i],
+  ["anthropic", /\b(?:ClaudeBot|Claude-SearchBot|Claude-User|anthropic-ai)\b/i],
+  ["perplexity", /\b(?:PerplexityBot|Perplexity-User)\b/i],
+  ["google", /\b(?:Googlebot|Google-Extended|GoogleOther)\b/i],
+  ["bing", /\bbingbot\b/i],
+  ["apple", /\bApplebot\b/i],
+  ["meta", /\b(?:meta-externalagent|FacebookBot)\b/i],
+  ["amazon", /\bAmazonbot\b/i],
+  ["commoncrawl", /\bCCBot\b/i],
+  ["duckduckgo", /\bDuckDuckBot\b/i],
+];
+
+/** The vendor name for a known search/AI crawler User-Agent, else null. */
+export function classifyCrawler(userAgent) {
+  if (!userAgent) {
+    return null;
+  }
+  for (const [name, pattern] of CRAWLER_TOKENS) {
+    if (pattern.test(userAgent)) {
+      return name;
+    }
+  }
+  return null;
+}
+
 // Custom (non-reserved) client-IP header both servers trust via
 // ADDRESS_API_TRUSTED_CLIENT_IP_HEADER — see the module comment for why the
 // reserved CF-Connecting-IP cannot be used past this hop. Cloudflare only
@@ -198,7 +232,7 @@ export function withSecurityHeaders(response, pathname = "") {
 export const SESSION_COOKIE_NAME = "voteapp_auth_session";
 export const EDGE_CACHE_TTL_SECONDS = 60;
 
-const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/browse", "/mission", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
+const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/browse", "/mission", "/methodology", "/stats", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
 // Exactly one path segment, mirroring the declared routes /elections/:id,
 // /candidates/:id and /districts/:id (frontend/src/routes.ts). Nested paths
 // like /elections/x/junk render the 404 catch-all and must stay
@@ -322,6 +356,14 @@ export default {
 
     const apiBound = isApiPath(url.pathname);
     const upstreamHost = apiBound ? apiHost : ssrHost;
+
+    // One log line per crawler hit (see CRAWLER_TOKENS). Path only — no
+    // query string, cookie, or IP — so the stream never holds a token or a
+    // reader's identity. Filter the Workers Logs view on `event:crawler`.
+    const crawler = classifyCrawler(request.headers.get("User-Agent"));
+    if (crawler) {
+      console.log(JSON.stringify({ event: "crawler", crawler, method: request.method, path: url.pathname }));
+    }
     // The Worker owns both the apex and its www variant; an origin equal to
     // either would send traffic back into hostnames this Worker serves (or
     // their placeholder DNS records) instead of a real upstream.

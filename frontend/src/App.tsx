@@ -388,6 +388,15 @@ export function App() {
           <Link to="/browse" className="underline hover:text-ink">
             Browse by state
           </Link>
+          {/* How the data is gathered and the ratings computed, and the
+              coverage numbers: linked site-wide so every page (and crawler)
+              is one hop from the method behind it. */}
+          <Link to="/methodology" className="underline hover:text-ink">
+            How it works
+          </Link>
+          <Link to="/stats" className="underline hover:text-ink">
+            Statistics
+          </Link>
           <Link to="/terms" className="underline hover:text-ink">
             Terms of Use
           </Link>
