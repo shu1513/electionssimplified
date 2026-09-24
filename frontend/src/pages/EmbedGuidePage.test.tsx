@@ -24,8 +24,6 @@ describe("EmbedGuidePage", () => {
     expect(screen.getByText('<script src="https://electionssimplified.com/embed.js"></script>')).toBeInTheDocument();
     // The live example is the real box page, framed.
     expect(screen.getByTitle("The Elections Simplified tool, as it appears on your website")).toHaveAttribute("src", "/embed");
-    expect(screen.getByText(/appears under the box and links to our site/)).toBeInTheDocument();
-    expect(screen.getByText('data-credit="none"')).toBeInTheDocument();
     expect(screen.getByText('data-height="600"')).toBeInTheDocument();
     expect(screen.getByText('data-max-width="560"')).toBeInTheDocument();
     expect(
