@@ -62,6 +62,8 @@ export const FEDERAL_HAND_ADDED_ROLLS: Readonly<Record<string, string>> = {
   "senate:118-2:293": "S.J.Res. 113, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
   "senate:119-1:166": "S.J.Res. 26, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
   "senate:119-1:454": "S.J.Res. 41, motion to discharge; the only Senate vote on blocking this arms sale to Israel",
+  "house:119-2:298": "H.Res. 1486, motion to table; the only House vote on the September 2026 impeachment resolution",
+  "house:119-2:307": "H.Con.Res. 93, war-powers resolution on Iran; the only House vote on it",
 };
 
 function normalizeQuestion(question: string): string {

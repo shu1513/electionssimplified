@@ -1,0 +1,60 @@
+{
+  "runId": "rollcall-fetch-house-119-2-20260924T044727Z",
+  "importerVersion": "rollcall-fetch-v1",
+  "chamber": "house",
+  "congress": 119,
+  "session": 2,
+  "dryRun": false,
+  "startedAt": "2026-09-24T04:47:27.809Z",
+  "finishedAt": "2026-09-24T04:47:28.846Z",
+  "evidenceDir": "evidence/rollcall/house-119-2-recent-2026-09-23",
+  "requestedRolls": 2,
+  "floorVotes": 2,
+  "counts": {
+    "updated": 2
+  },
+  "rows": [
+    {
+      "chamber": "house",
+      "congress": 119,
+      "session": 2,
+      "roll": 298,
+      "machineUrl": "https://clerk.house.gov/evs/2026/roll298.xml",
+      "outcome": "updated",
+      "evidenceFile": "house-119-2-roll00298.xml",
+      "voteDate": "2026-09-15",
+      "measureId": "H RES 1486",
+      "question": "On Motion to Table",
+      "result": "Passed",
+      "yeas": 232,
+      "nays": 147,
+      "memberVoteCount": 433,
+      "isFloorVote": true,
+      "questionClass": "hand_add",
+      "classificationReason": "kept:hand_add",
+      "judgmentCleared": false,
+      "error": null
+    },
+    {
+      "chamber": "house",
+      "congress": 119,
+      "session": 2,
+      "roll": 307,
+      "machineUrl": "https://clerk.house.gov/evs/2026/roll307.xml",
+      "outcome": "updated",
+      "evidenceFile": "house-119-2-roll00307.xml",
+      "voteDate": "2026-09-15",
+      "measureId": "H CON RES 93",
+      "question": "On Agreeing to the Resolution",
+      "result": "Passed",
+      "yeas": 220,
+      "nays": 204,
+      "memberVoteCount": 433,
+      "isFloorVote": true,
+      "questionClass": "hand_add",
+      "classificationReason": "kept:hand_add",
+      "judgmentCleared": false,
+      "error": null
+    }
+  ]
+}
