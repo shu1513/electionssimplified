@@ -58,6 +58,12 @@ describe("MissionPage", () => {
     // without a verified session.
     expect(screen.queryByRole("button", { name: "Support monthly" })).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    // The page doubles as the app stores' support URL, so a contact address
+    // must be reachable from it.
+    expect(screen.getByRole("link", { name: "contact@electionssimplified.com" })).toHaveAttribute(
+      "href",
+      "mailto:contact@electionssimplified.com"
+    );
   });
 
   it("points website owners to the instructions page", async () => {

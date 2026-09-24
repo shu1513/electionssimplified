@@ -4,6 +4,7 @@ import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
+import { CONTACT_EMAIL } from "../lib/embedPublisher";
 import { pageMeta } from "../lib/pageMeta";
 
 export const meta: MetaFunction = () =>
@@ -160,6 +161,17 @@ export default function MissionPage() {
           <Link to="/embed-instructions" className="font-semibold underline hover:text-ink">
             here
           </Link>
+          .
+        </p>
+
+        {/* This page is the app stores' support URL, so it has to offer a way
+            to reach a person. */}
+        <h2 className="pt-2 text-heading font-semibold">Contact</h2>
+        <p>
+          Questions or problems with the site or the app? Email{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline hover:text-ink">
+            {CONTACT_EMAIL}
+          </a>
           .
         </p>
       </section>

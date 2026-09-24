@@ -22,6 +22,22 @@
         "EXPO_PUBLIC_DEPLOY_ENV": "production",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
+    },
+    "simulator": {
+      "extends": "production",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "ios": {
+        "simulator": true
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleTeamId": "TAS7R47WJY",
+        "ascAppId": "6815421619"
+      }
     }
   }
 }

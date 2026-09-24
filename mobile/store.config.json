@@ -1,0 +1,61 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 Elections Simplified Inc.",
+    "categories": [
+      "NEWS",
+      "REFERENCE"
+    ],
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "NONE",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false
+    },
+    "info": {
+      "en-US": {
+        "title": "Elections Simplified",
+        "subtitle": "Your ballot, understood",
+        "description": "Elections Simplified shows you the full ballot for your address — every race, every candidate, every ballot measure — and explains it in plain language.\n\nFor each candidate you get a short, neutral summary plus a record of what they have actually done: votes cast, bills sponsored, positions taken, and campaign finance where it is public. No spin, no ads, no political organization behind it. Elections Simplified is independent and ad-free.\n\n- Enter your address once and see the races you can vote in.\n- Read plain-language candidate profiles and records.\n- Mark your picks race by race and keep a private ballot draft.\n- Follow candidates and get a notification when their record changes.\n- Share a pick card with friends — only if you choose to.\n\nYour picks are private. We never sell data, show ads, or share your choices with campaigns.",
+        "keywords": [
+          "election",
+          "ballot",
+          "vote",
+          "candidates",
+          "voter guide",
+          "midterm",
+          "2026",
+          "local elections",
+          "sample ballot",
+          "voting"
+        ],
+        "releaseNotes": "First release. Your ballot, candidate records, picks, and follows — now on your phone.",
+        "privacyPolicyUrl": "https://electionssimplified.com/privacy",
+        "supportUrl": "https://electionssimplified.com/mission",
+        "marketingUrl": "https://electionssimplified.com"
+      }
+    },
+    "review": {
+      "firstName": "Shu",
+      "lastName": "Yang",
+      "email": "contact@electionssimplified.com",
+      "phone": "+1 213 679 2101",
+      "demoRequired": false,
+      "notes": "Elections Simplified is an independent voter-information app. Browsing works without an account: enter any U.S. address (for example, 1600 Pennsylvania Ave NW, Washington, DC 20500) to see a ballot, then open any race or candidate. Signed-in features (picks, follows, notifications) are optional; an account can be created in-app with any email address (verification email arrives within a minute). Notifications are sent when a followed candidate's record changes; this can take days, so there may be none during review. The app makes no purchases; support payments happen on the website only."
+    },
+    "release": {
+      "automaticRelease": true,
+      "phasedRelease": false
+    }
+  }
+}
