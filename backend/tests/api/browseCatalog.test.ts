@@ -110,6 +110,12 @@ describe("browse catalog", () => {
     expect(query.mock.calls[1]?.[0]).toContain("c.merged_into_candidate_id IS NULL");
   });
 
+  it("404s a district in a state it cannot name, without querying its elections", async () => {
+    const query = vi.fn().mockResolvedValueOnce({ rows: [{ id: "d", name: "San Juan", district_type: "place", state: "PR" }] });
+    expect(await getBrowseDistrict({ query }, "dddddddd-1111-4111-8111-111111111111")).toBeNull();
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
   it("404s an unknown district and a district with no elections", async () => {
     const unknown = vi.fn().mockResolvedValueOnce({ rows: [] });
     expect(await getBrowseDistrict({ query: unknown }, "dddddddd-1111-4111-8111-111111111111")).toBeNull();

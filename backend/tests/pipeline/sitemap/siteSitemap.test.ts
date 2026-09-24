@@ -122,8 +122,14 @@ describe("site sitemap", () => {
       },
     ]);
     expect(db.query).toHaveBeenCalledTimes(3);
-    // Browse pages exist only for districts holding an election.
+    // Browse pages exist only for named states and districts holding an
+    // election — the same rules the catalog serves by, so nothing listed 404s.
     expect(db.query.mock.calls[0]?.[0]).toContain("JOIN public.elections e ON e.district_id = d.id");
+    expect(db.query.mock.calls[0]?.[0]).toContain("WHERE d.state = ANY($1)");
+    const stateCodes = db.query.mock.calls[0]?.[1]?.[0] as string[];
+    expect(stateCodes).toHaveLength(51);
+    expect(stateCodes).toContain("DC");
+    expect(stateCodes).not.toContain("PR");
     expect(db.query.mock.calls[2]?.[0]).toContain("deleted_at IS NULL");
     expect(db.query.mock.calls[2]?.[0]).toContain("merged_into_candidate_id IS NULL");
   });

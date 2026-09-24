@@ -1,6 +1,10 @@
 import type { Pool, PoolClient } from "pg";
+import { STATE_NAME_BY_ABBREVIATION } from "../../constants/usStates.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
+
+/** The 50 states + DC: the only codes the browse catalog gives a page. */
+const BROWSE_STATE_CODES = Object.keys(STATE_NAME_BY_ABBREVIATION);
 
 export const DEFAULT_SITE_SITEMAP_CACHE_TTL_MS = 60 * 60 * 1000;
 
@@ -147,8 +151,9 @@ export type SiteSitemapParts = Record<SitemapPart, SiteSitemapUrl[]>;
 
 export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapParts> {
   const [browse, elections, candidates] = await Promise.all([
-    // Same "has at least one election" rule as the browse catalog itself,
-    // so no listed page answers 404. State pages first, then districts.
+    // Same rules as the browse catalog itself (browseCatalog.ts) — a named
+    // state, and at least one election — so no listed page answers 404.
+    // State pages first, then districts.
     db.query<SitemapRow>(
       `
         SELECT path, lastmod
@@ -160,6 +165,7 @@ export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapPa
             d.state AS sort_key
           FROM public.districts d
           JOIN public.elections e ON e.district_id = d.id
+          WHERE d.state = ANY($1)
           GROUP BY d.state
           UNION ALL
           SELECT
@@ -169,10 +175,12 @@ export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapPa
             d.id::text AS sort_key
           FROM public.districts d
           JOIN public.elections e ON e.district_id = d.id
+          WHERE d.state = ANY($1)
           GROUP BY d.id
         ) pages
         ORDER BY ordering ASC, sort_key ASC
-      `
+      `,
+      [BROWSE_STATE_CODES]
     ),
     db.query<SitemapRow>(
       `

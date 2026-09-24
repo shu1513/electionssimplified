@@ -175,7 +175,10 @@ export async function getBrowseDistrict(db: Queryable, districtId: string): Prom
     [districtId]
   );
   const header = district.rows[0];
-  if (!header) {
+  // A district in a state we cannot name would breadcrumb to a state page
+  // that 404s; the catalog covers the 50 states + DC, same as the sitemap.
+  const stateName = header ? STATE_NAME_BY_ABBREVIATION[header.state] : undefined;
+  if (!header || !stateName) {
     return null;
   }
   const elections = await db.query<ElectionRow>(
@@ -218,7 +221,7 @@ export async function getBrowseDistrict(db: Queryable, districtId: string): Prom
       name: header.name,
       district_type: header.district_type,
       state: header.state,
-      state_name: STATE_NAME_BY_ABBREVIATION[header.state] ?? header.state,
+      state_name: stateName,
     },
     elections: elections.rows.map((row) => ({
       id: row.id,
