@@ -504,6 +504,16 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19980117132540/http://kplctv.com:80/",
     ],
   },
+  "wvpublic.org": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "West Virginia Public Broadcasting is the state's public television and radio network (a PBS and NPR member, on air since 1969, owned by the West Virginia Educational Broadcasting Authority), with named reporters on story bylines; wvpublic.org has been live since 2013. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/West_Virginia_Public_Broadcasting",
+      "https://web.archive.org/web/20131007152935/http://wvpublic.org/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
