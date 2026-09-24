@@ -494,6 +494,16 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19991010073107/http://houmatoday.com:80/",
     ],
   },
+  "kplctv.com": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "KPLC is Lake Charles' NBC affiliate, on air since 1954 and owned by Gray Media, with a named local newsroom (news director and general manager on its contact page); the site has been live since 1998 — the same accountability profile as listed Gray affiliate kold.com. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/KPLC",
+      "https://web.archive.org/web/19980117132540/http://kplctv.com:80/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
