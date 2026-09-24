@@ -159,14 +159,46 @@ export async function getSiteStats(db: Queryable, now: () => Date = () => new Da
           d.state,
           e.official_ballot_title,
           e.seats_to_fill,
-          (
-            SELECT COUNT(*)::int
-            FROM public.candidate_elections ce
-            JOIN public.candidates c ON c.id = ce.candidate_id
-            WHERE ce.election_id = e.id
-              AND ce.status <> 'withdrawn'
-              AND c.deleted_at IS NULL
-              AND c.merged_into_candidate_id IS NULL
+          -- Same effective roster size as the election detail (ballotLookup
+          -- loadElectionRowById): the larger of the linked profiles and the
+          -- roster the staging row promises, minus withdrawals. Profiles
+          -- link one per write, so between the first and last write a
+          -- contested race shows fewer links than it has candidates —
+          -- counting links alone would call it uncontested for an hour.
+          GREATEST(
+            (
+              SELECT COUNT(*)::int
+              FROM public.candidate_elections ce
+              JOIN public.candidates c ON c.id = ce.candidate_id
+              WHERE ce.election_id = e.id
+                AND ce.status <> 'withdrawn'
+                AND c.deleted_at IS NULL
+                AND c.merged_into_candidate_id IS NULL
+            ),
+            COALESCE(
+              (
+                SELECT GREATEST(
+                  0,
+                  CASE
+                    WHEN jsonb_typeof(s.payload->'candidates') = 'array'
+                      THEN jsonb_array_length(s.payload->'candidates')
+                    ELSE 0
+                  END
+                  - (
+                    SELECT count(*)::int
+                    FROM public.candidate_elections AS withdrawn
+                    WHERE withdrawn.election_id = e.id
+                      AND withdrawn.status = 'withdrawn'
+                  )
+                )
+                FROM public.staging_items AS s
+                WHERE s.item_type = 'candidate_roster'
+                  AND s.ingest_key = 'candidate_roster:' || e.id::text
+                  AND s.status IN ('validated', 'written')
+                LIMIT 1
+              ),
+              0
+            )
           ) AS active_count
         FROM public.elections e
         JOIN public.districts d ON d.id = e.district_id

@@ -93,6 +93,10 @@ describe("site stats", () => {
     });
     // Withdrawn candidacies never count as running, in either query.
     expect(query.mock.calls[1]?.[0]).toContain("ce.status <> 'withdrawn'");
+    // The roster size is the larger of linked profiles and the staged
+    // roster, as on the election page — never links alone.
+    expect(query.mock.calls[1]?.[0]).toContain("s.item_type = 'candidate_roster'");
+    expect(query.mock.calls[1]?.[0]).toMatch(/GREATEST\(\s*\(\s*SELECT COUNT\(\*\)::int/);
     expect(query.mock.calls[2]?.[0]).toContain("ce.status <> 'withdrawn'");
   });
 

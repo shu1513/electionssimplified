@@ -24,27 +24,63 @@ export type CandidateProfileLink = { href: string; label: string };
 // identities, so they stay out. Host must be the site or a subdomain.
 const SAME_AS_HOSTS = /^([a-z0-9-]+\.)*(?:ballotpedia\.org|wikipedia\.org|wikidata\.org|votesmart\.org)$/i;
 
+// Generational suffixes that are not the surname.
+const NAME_SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
+
+/**
+ * The candidate's surname as lower-case letters, for matching a reference
+ * page's title: nicknames in quotes and generational suffixes are dropped
+ * ('Michael "Dr. Mike" Katz Jr.' → "katz"). null when nothing usable.
+ */
+export function candidateSurname(displayName: string): string | null {
+  const tokens = displayName
+    .replace(/["“”][^"“”]*["“”]/g, " ")
+    .split(/\s+/)
+    .map((token) => token.toLowerCase().replace(/[^a-z\-]/g, "").replace(/-/g, " ").trim())
+    .filter((token) => token !== "" && !NAME_SUFFIXES.has(token));
+  return tokens.length > 0 ? tokens[tokens.length - 1]! : null;
+}
+
+/** The URL path as lower-case words: "/Jordan_Voter_(politician)" → "jordan voter politician". */
+function pathWords(url: URL): string {
+  let path: string;
+  try {
+    path = decodeURIComponent(url.pathname);
+  } catch {
+    path = url.pathname;
+  }
+  return path.toLowerCase().replace(/[^a-z]+/g, " ").trim();
+}
+
 /**
  * URLs that identify the candidate elsewhere on the web, for the Person
  * JSON-LD `sameAs` list: the profile links (official site, X, LinkedIn)
- * plus any profile source on a recognised reference site. Deduplicated in
- * first-seen order; malformed URLs are dropped.
+ * plus profile sources on a recognised reference site whose page is about
+ * this person. profile_sources mostly hold evidence pages — a state's
+ * "House elections, 2026" overview, a county page — and citing those as
+ * the candidate's identity would tell engines the wrong entity; only ~1 in
+ * 5 reference-site sources actually names the person. So the page title
+ * (the URL path) must contain the candidate's surname as a whole word.
+ * Deduplicated in first-seen order; malformed URLs are dropped.
  */
 export function candidateSameAsUrls(candidate: {
+  display_name: string;
   official_website_url: string | null;
   twitter_handle: string | null;
   linkedin_url: string | null;
   profile_sources: readonly string[];
 }): string[] {
   const urls: string[] = candidateProfileLinks(candidate).map((link) => link.href);
+  const surname = candidateSurname(candidate.display_name);
+  const namesPerson = surname ? new RegExp(`(^| )${surname}( |$)`) : null;
   for (const source of candidate.profile_sources) {
-    let host: string;
+    let url: URL;
     try {
-      host = new URL(source).hostname;
+      url = new URL(source);
     } catch {
       continue;
     }
-    if (SAME_AS_HOSTS.test(host)) {
+    if (SAME_AS_HOSTS.test(url.hostname) && namesPerson?.test(pathWords(url))) {
       urls.push(source);
     }
   }
