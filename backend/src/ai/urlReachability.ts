@@ -4,6 +4,7 @@ import { isIP, type LookupFunction } from "node:net";
 import ipaddr from "ipaddr.js";
 import { Agent } from "undici";
 import { normalizeHttpUrl } from "../utils/normalizeHttpUrl.js";
+import { defaultCaCertificates, extraCaCertificatesForHost } from "./knownIncompleteChainHosts.js";
 
 type UrlReachabilityOptions = {
   timeoutMs?: number;
@@ -454,8 +455,18 @@ async function fetchPinnedUrl(
   method: "HEAD" | "GET",
   timeoutMs: number
 ): Promise<HopResponse> {
+  // Hosts on the known-incomplete-chain list get Node's default trust set
+  // (bundled roots + NODE_EXTRA_CA_CERTS) plus their missing intermediate;
+  // `connect.ca` replaces the default store, so the defaults must be
+  // re-included. Verification itself is never relaxed.
+  const extraCaCertificates = extraCaCertificatesForHost(target.hostname);
   const dispatcher = new Agent({
-    connect: { lookup: createPinnedLookup(target) },
+    connect: {
+      lookup: createPinnedLookup(target),
+      ...(extraCaCertificates
+        ? { ca: [...defaultCaCertificates(), ...extraCaCertificates] }
+        : {}),
+    },
     autoSelectFamily:
       target.addresses.some((address) => address.family === 4) &&
       target.addresses.some((address) => address.family === 6),

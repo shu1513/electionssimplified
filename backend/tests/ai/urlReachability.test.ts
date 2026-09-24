@@ -22,6 +22,16 @@ vi.mock("undici", () => ({
   },
 }));
 
+import { rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import tls from "node:tls";
+import {
+  defaultCaCertificates,
+  extraCaCertificatesForHost,
+  GODADDY_SECURE_CA_G2_PEM,
+  resetDefaultCaCertificatesForTests,
+} from "../../src/ai/knownIncompleteChainHosts.js";
 import {
   classifyCitationVerificationFailure,
   decodeLatin1MisreadHeader,
@@ -67,6 +77,74 @@ describe("urlReachability", () => {
       false
     );
     expect(isTlsCertificateReachabilityFailure("unable to verify hostname")).toBe(false);
+  });
+});
+
+describe("extraCaCertificatesForHost", () => {
+  it("matches the listed host and its subdomains, case-insensitively", () => {
+    expect(extraCaCertificatesForHost("cga.ct.gov")).toEqual([GODADDY_SECURE_CA_G2_PEM]);
+    expect(extraCaCertificatesForHost("WWW.CGA.CT.GOV.")).toEqual([GODADDY_SECURE_CA_G2_PEM]);
+  });
+
+  it("never matches a lookalike host", () => {
+    expect(extraCaCertificatesForHost("notcga.ct.gov")).toBeNull();
+    expect(extraCaCertificatesForHost("cga.ct.gov.example.com")).toBeNull();
+    expect(extraCaCertificatesForHost("example.com")).toBeNull();
+  });
+});
+
+describe("defaultCaCertificates", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    resetDefaultCaCertificatesForTests();
+  });
+
+  it("keeps a NODE_EXTRA_CA_CERTS certificate in the default trust set", () => {
+    const extraFile = join(tmpdir(), `extra-ca-${process.pid}.pem`);
+    writeFileSync(extraFile, `${GODADDY_SECURE_CA_G2_PEM}\n`);
+    try {
+      vi.stubEnv("NODE_EXTRA_CA_CERTS", extraFile);
+      resetDefaultCaCertificatesForTests();
+      const certificates = defaultCaCertificates();
+      expect(certificates.length).toBeGreaterThan(50);
+      // Node >= 24 reports NODE_EXTRA_CA_CERTS only when it was set at startup,
+      // so compare the fallback path's behaviour where the env var is read live.
+      if (typeof (tls as { getCACertificates?: unknown }).getCACertificates !== "function") {
+        expect(certificates.some((pem) => pem.trim() === GODADDY_SECURE_CA_G2_PEM.trim())).toBe(true);
+      }
+    } finally {
+      rmSync(extraFile, { force: true });
+    }
+  });
+
+  it("keeps a legacy X509 CERTIFICATE block and skips a TRUSTED CERTIFICATE block, like Node", () => {
+    const legacyLabel = GODADDY_SECURE_CA_G2_PEM.replace("BEGIN CERTIFICATE", "BEGIN X509 CERTIFICATE").replace(
+      "END CERTIFICATE",
+      "END X509 CERTIFICATE"
+    );
+    const trustedLabel = GODADDY_SECURE_CA_G2_PEM.replace("BEGIN CERTIFICATE", "BEGIN TRUSTED CERTIFICATE").replace(
+      "END CERTIFICATE",
+      "END TRUSTED CERTIFICATE"
+    );
+    const extraFile = join(tmpdir(), `extra-ca-labels-${process.pid}.pem`);
+    writeFileSync(extraFile, `${legacyLabel}\n${trustedLabel}\n`);
+    try {
+      vi.stubEnv("NODE_EXTRA_CA_CERTS", extraFile);
+      resetDefaultCaCertificatesForTests();
+      const certificates = defaultCaCertificates();
+      if (typeof (tls as { getCACertificates?: unknown }).getCACertificates !== "function") {
+        expect(certificates.filter((pem) => pem.includes("X509 CERTIFICATE"))).toHaveLength(1);
+        expect(certificates.some((pem) => pem.includes("TRUSTED CERTIFICATE"))).toBe(false);
+      }
+    } finally {
+      rmSync(extraFile, { force: true });
+    }
+  });
+
+  it("falls back to the bundled roots when no extra file is set", () => {
+    vi.stubEnv("NODE_EXTRA_CA_CERTS", "");
+    resetDefaultCaCertificatesForTests();
+    expect(defaultCaCertificates().length).toBeGreaterThan(50);
   });
 });
 
@@ -430,6 +508,32 @@ describe("verifyHttpUrlReachability HEAD->GET fallback", () => {
       ok: false,
       reason: "citation URL hostname resolves to a blocked/private IP",
     });
+  });
+
+  it("completes the certificate chain for hosts that omit their intermediate", async () => {
+    stubFetch(() => ({ status: 200 }));
+
+    const result = await verifyHttpUrlReachability("https://www.cga.ct.gov/2024/JUDdata/Tmy/test.PDF");
+
+    expect(result.ok).toBe(true);
+    const agentOptions = agentOptionsMock.mock.calls[0]?.[0] as {
+      connect?: { ca?: string[] };
+    };
+    const ca = agentOptions.connect?.ca;
+    expect(Array.isArray(ca)).toBe(true);
+    // System roots stay trusted (connect.ca replaces the default store).
+    expect(ca!.length).toBeGreaterThan(50);
+    expect(ca).toContain(GODADDY_SECURE_CA_G2_PEM);
+  });
+
+  it("leaves the default trust store alone for every other host", async () => {
+    stubFetch(() => ({ status: 200 }));
+
+    const result = await verifyHttpUrlReachability("https://pinned.example/source");
+
+    expect(result.ok).toBe(true);
+    const agentOptions = agentOptionsMock.mock.calls[0]?.[0] as { connect?: { ca?: string[] } };
+    expect(agentOptions.connect?.ca).toBeUndefined();
   });
 
   it("pins the connection lookup to the already-validated DNS answers", async () => {
