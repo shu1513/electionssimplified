@@ -8,6 +8,7 @@ import { meta as ballotMeta } from "../pages/BallotPage";
 import { meta as draftMeta } from "../pages/DraftPage";
 import { loader as notFoundLoader, meta as notFoundMeta } from "../pages/NotFoundPage";
 import { meta as electionMeta } from "../pages/ElectionPage";
+import { meta as browseMeta } from "../pages/BrowseStatesPage";
 import { candidateTitleText, meta as candidateMeta } from "../pages/CandidatePage";
 import { candidateDetail, candidateElection, electionDetail } from "../test/fixtures";
 import { DEFAULT_DESCRIPTION, pageMeta, SITE_ORIGIN } from "./pageMeta";
@@ -33,6 +34,7 @@ const ROUTE_METAS: Array<[string, Descriptor[]]> = [
   ["ballot", (ballotMeta as unknown as () => Descriptor[])()],
   ["draft", (draftMeta as unknown as () => Descriptor[])()],
   ["not-found", (notFoundMeta as unknown as () => Descriptor[])()],
+  ["browse", (browseMeta as unknown as () => Descriptor[])()],
 ];
 
 function canonical(descriptors: Descriptor[]): string | undefined {

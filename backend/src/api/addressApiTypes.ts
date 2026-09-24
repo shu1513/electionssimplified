@@ -6,6 +6,7 @@ import type {
 } from "../pipeline/address/ballotElectionOrdering.js";
 import type { UserBallotPreferences } from "../pipeline/users/userBallotPreferences.js";
 import type { SitemapSelection } from "../pipeline/sitemap/siteSitemap.js";
+import type { BrowseDistrictResult, BrowseStateResult, BrowseStatesResult } from "./browseCatalog.js";
 import type { UserEmailPreferences } from "../pipeline/users/userEmailPreferences.js";
 import type { RegisterUserPushTokenInput } from "../pipeline/users/userPushTokens.js";
 import type { CreatedContentReport, ContentReportInput } from "../pipeline/reports/contentReports.js";
@@ -155,6 +156,11 @@ export type AddressApiServerOptions = {
   /** GET /api/state-resources?state=CA — public official how-to-vote links
    * for one state. null = state not in state_resources (404). */
   getStateVotingResources?: (stateAbbreviation: string) => Promise<StateVotingResourcesResult | null>;
+  /** GET /api/browse/states, /api/browse/states/:state, /api/browse/districts/:id
+   * — the public browse catalog (browseCatalog.ts). null = 404. */
+  listBrowseStates?: () => Promise<BrowseStatesResult>;
+  getBrowseState?: (state: string) => Promise<BrowseStateResult | null>;
+  getBrowseDistrict?: (districtId: string) => Promise<BrowseDistrictResult | null>;
   /** GET /sitemap.xml — the sitemap index; ?part=…&page=… — one child
    * file. null = the child does not exist (404). */
   getSitemapXml?: (selection?: SitemapSelection | null) => Promise<string | null>;

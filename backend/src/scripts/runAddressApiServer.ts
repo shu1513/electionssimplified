@@ -98,6 +98,7 @@ import {
   lookupPublicPickCard,
 } from "../pipeline/users/userPickCardShares.js";
 import { getStateVotingResources } from "../api/stateVotingResources.js";
+import { getBrowseDistrict, getBrowseState, listBrowseStates } from "../api/browseCatalog.js";
 import { initializeUserDistricts } from "../pipeline/users/userDistrictInitializer.js";
 import { listUserDistrictIds } from "../pipeline/users/userDistrictReader.js";
 import { replaceUserDistricts } from "../pipeline/users/userDistrictReplacer.js";
@@ -811,6 +812,9 @@ async function main(): Promise<void> {
     checkDatabaseHealth: createApiDbPoolHealthCheck(pool),
     listResearchAreas: () => listSelectableResearchAreas(pool),
     getStateVotingResources: (stateAbbreviation) => getStateVotingResources(pool, stateAbbreviation),
+    listBrowseStates: () => listBrowseStates(pool),
+    getBrowseState: (state) => getBrowseState(pool, state),
+    getBrowseDistrict: (districtId) => getBrowseDistrict(pool, districtId),
     listAuthenticatedCandidateFollows: (userId) => listUserCandidateFollows(pool, userId),
     setAuthenticatedCandidateFollow: (userId, input) => setUserCandidateFollow(pool, userId, input),
     listAuthenticatedElectionChoices: (userId) => listUserElectionChoices(pool, userId),

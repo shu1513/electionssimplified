@@ -103,7 +103,12 @@ import {
   parseInitializeUserDistrictsBodyValue,
   parseResearchAreaPreferencesBodyValue,
   parseStateResourcesState,
+  isBrowseDistrictPath,
+  isBrowseStatePath,
+  parseBrowseDistrictId,
+  parseBrowseState,
   API_HEALTH_PATH,
+  BROWSE_STATES_PATH,
   RESEARCH_AREAS_PATH,
   SITE_SITEMAP_PATH,
   STATE_RESOURCES_PATH,
@@ -153,6 +158,10 @@ type ExpressBodyParserError = Error & {
 const SITE_SITEMAP_CACHE_CONTROL = "public, max-age=3600";
 const PICK_CARD_OG_IMAGE_CACHE_CONTROL = "public, max-age=86400";
 const STATE_RESOURCES_CACHE_CONTROL = "public, max-age=3600";
+// The browse catalog is anonymous and changes only as research lands;
+// an hour of shared caching keeps a crawler walking every state and
+// district page off the database.
+const BROWSE_CACHE_CONTROL = "public, max-age=3600";
 
 function isKnownApiPath(pathname: string): boolean {
   return (
@@ -202,6 +211,9 @@ function isKnownApiPath(pathname: string): boolean {
     pathname === ME_RESEARCH_AREA_PREFERENCES_PATH ||
     pathname === RESEARCH_AREAS_PATH ||
     pathname === STATE_RESOURCES_PATH ||
+    pathname === BROWSE_STATES_PATH ||
+    isBrowseStatePath(pathname) ||
+    isBrowseDistrictPath(pathname) ||
     pathname === SITE_SITEMAP_PATH ||
     // Listed explicitly even though the loose candidate-detail prefix also
     // matches it today: recognition of the search route must not depend on
@@ -757,6 +769,42 @@ async function dispatchApiRequest(
       response,
       toJsonResponse(200, result, { ...corsHeaders, "cache-control": STATE_RESOURCES_CACHE_CONTROL })
     );
+    return;
+  }
+
+  if (url.pathname === BROWSE_STATES_PATH || isBrowseStatePath(url.pathname) || isBrowseDistrictPath(url.pathname)) {
+    if (request.method !== "GET") {
+      sendApiResponse(
+        response,
+        toErrorResponse(405, "method_not_allowed", "Use GET /api/browse/states, /api/browse/states/:state or /api/browse/districts/:district_id", {
+          ...corsHeaders,
+          allow: "GET",
+        })
+      );
+      return;
+    }
+    if (!options.listBrowseStates || !options.getBrowseState || !options.getBrowseDistrict) {
+      sendApiResponse(response, toErrorResponse(500, "internal_error", "Browse catalog is not configured", corsHeaders));
+      return;
+    }
+
+    let result: unknown;
+    let notFound: string;
+    if (url.pathname === BROWSE_STATES_PATH) {
+      result = await options.listBrowseStates();
+      notFound = "";
+    } else if (isBrowseStatePath(url.pathname)) {
+      result = await options.getBrowseState(parseBrowseState(url));
+      notFound = "No elections researched for that state";
+    } else {
+      result = await options.getBrowseDistrict(parseBrowseDistrictId(url));
+      notFound = "District not found";
+    }
+    if (!result) {
+      sendApiResponse(response, toErrorResponse(404, "not_found", notFound, corsHeaders));
+      return;
+    }
+    sendApiResponse(response, toJsonResponse(200, result, { ...corsHeaders, "cache-control": BROWSE_CACHE_CONTROL }));
     return;
   }
 

@@ -16,6 +16,12 @@ function createDbMock() {
     .fn()
     .mockResolvedValueOnce({
       rows: [
+        { path: "/browse/ak", lastmod: "2026-07-01T12:34:56.000Z" },
+        { path: "/districts/dddddddd-1111-4111-8111-111111111111", lastmod: "2026-07-01T12:34:56.000Z" },
+      ],
+    })
+    .mockResolvedValueOnce({
+      rows: [
         {
           path: "/elections/11111111-1111-4111-8111-111111111111",
           lastmod: new Date("2026-07-01T12:34:56.000Z"),
@@ -89,7 +95,7 @@ describe("site sitemap", () => {
     expect(parseSitemapSelection(new URLSearchParams("page=1"))).toBeUndefined();
   });
 
-  it("lists static URLs followed by election and active candidate URLs", async () => {
+  it("lists static, browse, election and active candidate URLs in that order", async () => {
     const db = createDbMock();
 
     const urls = await listSiteSitemapUrls(db);
@@ -103,6 +109,9 @@ describe("site sitemap", () => {
       { path: "/disclaimer" },
       { path: "/terms" },
       { path: "/privacy" },
+      { path: "/browse" },
+      { path: "/browse/ak", lastmod: "2026-07-01T12:34:56.000Z" },
+      { path: "/districts/dddddddd-1111-4111-8111-111111111111", lastmod: "2026-07-01T12:34:56.000Z" },
       {
         path: "/elections/11111111-1111-4111-8111-111111111111",
         lastmod: new Date("2026-07-01T12:34:56.000Z"),
@@ -112,9 +121,11 @@ describe("site sitemap", () => {
         lastmod: "2026-07-02T00:00:00.000Z",
       },
     ]);
-    expect(db.query).toHaveBeenCalledTimes(2);
-    expect(db.query.mock.calls[1]?.[0]).toContain("deleted_at IS NULL");
-    expect(db.query.mock.calls[1]?.[0]).toContain("merged_into_candidate_id IS NULL");
+    expect(db.query).toHaveBeenCalledTimes(3);
+    // Browse pages exist only for districts holding an election.
+    expect(db.query.mock.calls[0]?.[0]).toContain("JOIN public.elections e ON e.district_id = d.id");
+    expect(db.query.mock.calls[2]?.[0]).toContain("deleted_at IS NULL");
+    expect(db.query.mock.calls[2]?.[0]).toContain("merged_into_candidate_id IS NULL");
   });
 
   it("splits each part into pages and lists every page in the index", () => {
@@ -124,13 +135,14 @@ describe("site sitemap", () => {
     }));
     const files = buildSitemapFiles({
       siteOrigin: "https://example.test",
-      parts: { pages: [{ path: "/" }], elections, candidates: [] },
+      parts: { pages: [{ path: "/" }], browse: [{ path: "/browse" }], elections, candidates: [] },
       pageSize: 2,
     });
 
-    // 1 page of static paths, 3 of elections, 1 (empty) of candidates.
+    // 1 page of static paths, 1 of browse, 3 of elections, 1 (empty) of candidates.
     expect([...files.children.keys()]).toEqual([
       "/sitemap.xml?part=pages&page=1",
+      "/sitemap.xml?part=browse&page=1",
       "/sitemap.xml?part=elections&page=1",
       "/sitemap.xml?part=elections&page=2",
       "/sitemap.xml?part=elections&page=3",
@@ -150,7 +162,7 @@ describe("site sitemap", () => {
   });
 
   it("rejects a page size the sitemap protocol would not accept", () => {
-    const parts = { pages: [], elections: [], candidates: [] };
+    const parts = { pages: [], browse: [], elections: [], candidates: [] };
     expect(() => buildSitemapFiles({ siteOrigin: "https://example.test", parts, pageSize: 50_001 })).toThrow(/50,000/);
     expect(() => buildSitemapFiles({ siteOrigin: "https://example.test", parts, pageSize: 0 })).toThrow(/50,000/);
   });
@@ -167,10 +179,15 @@ describe("site sitemap", () => {
     expect(elections).toContain("<loc>https://example.test/elections/11111111-1111-4111-8111-111111111111</loc>");
     expect(elections).not.toContain("/candidates/");
 
+    const browse = await getSitemapXml({ part: "browse", page: 1 });
+    expect(browse).toContain("<loc>https://example.test/browse</loc>");
+    expect(browse).toContain("<loc>https://example.test/browse/ak</loc>");
+    expect(browse).toContain("<loc>https://example.test/districts/dddddddd-1111-4111-8111-111111111111</loc>");
+
     // Past the last page: no such file.
     expect(await getSitemapXml({ part: "elections", page: 2 })).toBeNull();
     // One DB snapshot served all of the above.
-    expect(db.query).toHaveBeenCalledTimes(2);
+    expect(db.query).toHaveBeenCalledTimes(3);
   });
 
   it("caches generated XML for the configured TTL", async () => {
@@ -188,12 +205,13 @@ describe("site sitemap", () => {
     now += 60_001;
     db.query
       .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] });
     const third = await getSitemapXml();
 
     expect(first).toBe(second);
     expect(third).not.toBe(first);
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(6);
   });
 
   it("serves stale cached XML when a refresh fails", async () => {
@@ -210,10 +228,11 @@ describe("site sitemap", () => {
     now += 60_001;
     db.query
       .mockRejectedValueOnce(new Error("database unavailable"))
+      .mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [] });
     const second = await getSitemapXml();
 
     expect(second).toBe(first);
-    expect(db.query).toHaveBeenCalledTimes(4);
+    expect(db.query).toHaveBeenCalledTimes(6);
   });
 });

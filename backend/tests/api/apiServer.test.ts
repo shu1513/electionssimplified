@@ -1487,6 +1487,84 @@ describe("createApiApp", () => {
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 
+  describe("browse catalog", () => {
+    const browse = () => ({
+      resolveAddress: vi.fn(),
+      listBrowseStates: vi.fn().mockResolvedValue({ states: [{ state: "KY", name: "Kentucky", district_count: 2, upcoming_election_count: 5 }] }),
+      getBrowseState: vi.fn().mockResolvedValue({ state: "KY", name: "Kentucky", districts: [] }),
+      getBrowseDistrict: vi.fn().mockResolvedValue({
+        district: { id: "dddddddd-1111-4111-8111-111111111111", name: "Simpson County, Kentucky", district_type: "county", state: "KY", state_name: "Kentucky" },
+        elections: [],
+      }),
+    });
+
+    it("lists states with a shared-cache header", async () => {
+      const options = browse();
+      const response = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.headers["cache-control"]).toBe("public, max-age=3600");
+      expect(response.body).toEqual({ states: [{ state: "KY", name: "Kentucky", district_count: 2, upcoming_election_count: 5 }] });
+      expect(options.resolveAddress).not.toHaveBeenCalled();
+    });
+
+    it("serves one state's districts, upper-casing the code", async () => {
+      const options = browse();
+      const response = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/ky" });
+
+      expect(response.statusCode).toBe(200);
+      expect(options.getBrowseState).toHaveBeenCalledWith("KY");
+      expect(response.body).toEqual({ state: "KY", name: "Kentucky", districts: [] });
+    });
+
+    it("answers 404 for a state with nothing researched and 400 for a malformed code", async () => {
+      const options = browse();
+      options.getBrowseState.mockResolvedValue(null);
+      const missing = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/pr" });
+      expect(missing.statusCode).toBe(404);
+
+      const malformed = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/states/kentucky" });
+      expect(malformed.statusCode).toBe(400);
+      expect(options.getBrowseState).toHaveBeenCalledTimes(1);
+    });
+
+    it("serves one district's elections and 404s an unknown district", async () => {
+      const options = browse();
+      const found = await invokeExpressApp(createApiApp(options), {
+        method: "GET",
+        path: "/api/browse/districts/dddddddd-1111-4111-8111-111111111111",
+      });
+      expect(found.statusCode).toBe(200);
+      expect(found.headers["cache-control"]).toBe("public, max-age=3600");
+      expect(options.getBrowseDistrict).toHaveBeenCalledWith("dddddddd-1111-4111-8111-111111111111");
+
+      options.getBrowseDistrict.mockResolvedValue(null);
+      const missing = await invokeExpressApp(createApiApp(options), {
+        method: "GET",
+        path: "/api/browse/districts/dddddddd-1111-4111-8111-111111111112",
+      });
+      expect(missing.statusCode).toBe(404);
+
+      const malformed = await invokeExpressApp(createApiApp(options), { method: "GET", path: "/api/browse/districts/not-a-uuid" });
+      expect(malformed.statusCode).toBe(400);
+    });
+
+    it("rejects non-GET methods and reports an unconfigured catalog", async () => {
+      const options = browse();
+      const post = await invokeExpressApp(createApiApp(options), {
+        method: "POST",
+        path: "/api/browse/states",
+        body: JSON.stringify({}),
+        headers: { "content-type": "application/json" },
+      });
+      expect(post.statusCode).toBe(405);
+      expect(post.headers.allow).toBe("GET");
+
+      const dark = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn() }), { method: "GET", path: "/api/browse/states" });
+      expect(dark.statusCode).toBe(500);
+    });
+  });
+
   it("rejects a malformed state-resources state parameter", async () => {
     const resolveAddress = vi.fn();
     const getStateVotingResources = vi.fn();

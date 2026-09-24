@@ -172,6 +172,10 @@ export function parseEmailUnsubscribeFormBody(body: unknown): { isForm: boolean;
 export const API_HEALTH_PATH = "/api/healthz";
 export const RESEARCH_AREAS_PATH = "/api/research-areas";
 export const STATE_RESOURCES_PATH = "/api/state-resources";
+// Browse catalog (state → district → race), see browseCatalog.ts.
+export const BROWSE_STATES_PATH = "/api/browse/states";
+export const BROWSE_STATE_PATH_PREFIX = "/api/browse/states/";
+export const BROWSE_DISTRICT_PATH_PREFIX = "/api/browse/districts/";
 export const SITE_SITEMAP_PATH = "/sitemap.xml";
 export const MAX_ADDRESS_REQUEST_BODY_BYTES = 16 * 1024;
 export const MAX_BALLOT_DISTRICT_IDS = 50;
@@ -1479,6 +1483,34 @@ export function parseAutoPicksClearQuery(url: URL): string | undefined {
     return undefined;
   }
   return assertValidElectionDate(electionDate.trim());
+}
+
+export function isBrowseStatePath(pathname: string): boolean {
+  return pathname.startsWith(BROWSE_STATE_PATH_PREFIX);
+}
+
+export function isBrowseDistrictPath(pathname: string): boolean {
+  return pathname.startsWith(BROWSE_DISTRICT_PATH_PREFIX);
+}
+
+/** The two-letter code off /api/browse/states/:state, upper-cased. */
+export function parseBrowseState(url: URL): string {
+  const state = url.pathname.slice(BROWSE_STATE_PATH_PREFIX.length).trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(state)) {
+    throw new RequestValidationError("Browse state path must be /api/browse/states/:state (two letters)");
+  }
+  return state;
+}
+
+export function parseBrowseDistrictId(url: URL): string {
+  const districtId = url.pathname.slice(BROWSE_DISTRICT_PATH_PREFIX.length).trim();
+  if (districtId.length === 0 || districtId.includes("/")) {
+    throw new RequestValidationError("Browse district path must be /api/browse/districts/:district_id");
+  }
+  if (!isUuid(districtId)) {
+    throw new RequestValidationError(`Browse district path contains invalid UUID: ${districtId}`);
+  }
+  return districtId;
 }
 
 export function parseElectionId(url: URL): string {

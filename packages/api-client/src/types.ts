@@ -878,6 +878,53 @@ export type CandidateDetail = {
   };
 };
 
+// Browse catalog (backend browseCatalog.ts): the state → district → race
+// pages. Only districts with at least one election appear.
+export type BrowseState = {
+  state: string;
+  name: string;
+  district_count: number;
+  upcoming_election_count: number;
+};
+
+export type BrowseStatesResponse = { states: BrowseState[] };
+
+export type BrowseDistrictSummary = {
+  id: string;
+  name: string;
+  district_type: string;
+  election_count: number;
+  upcoming_election_count: number;
+  next_election_date: string | null;
+};
+
+export type BrowseStateResponse = {
+  state: string;
+  name: string;
+  districts: BrowseDistrictSummary[];
+};
+
+export type BrowseElectionCandidate = {
+  candidate_id: string;
+  display_name: string;
+  party: string;
+  status: string;
+};
+
+export type BrowseElection = {
+  id: string;
+  official_ballot_title: string;
+  election_date: string;
+  election_stage: string | null;
+  race_type: string;
+  candidates: BrowseElectionCandidate[];
+};
+
+export type BrowseDistrictResponse = {
+  district: { id: string; name: string; district_type: string; state: string; state_name: string };
+  elections: BrowseElection[];
+};
+
 export type ContentReportEntityType = "candidate" | "candidate_record" | "election" | "ballot_measure";
 
 export type CreateContentReportResponse = {

@@ -15,7 +15,9 @@ export const SITEMAP_STATIC_PATHS = ["/", "/mission", "/support", "/support/memb
 // edge Worker's exact-path routing (isApiPath) and robots.txt need no change.
 export const SITEMAP_PAGE_SIZE = 25_000;
 
-export const SITEMAP_PARTS = ["pages", "elections", "candidates"] as const;
+// "browse" = the state and district catalog pages (browseCatalog.ts), the
+// crawl path from the home page down to every race.
+export const SITEMAP_PARTS = ["pages", "browse", "elections", "candidates"] as const;
 export type SitemapPart = (typeof SITEMAP_PARTS)[number];
 
 export type SitemapSelection = { part: SitemapPart; page: number };
@@ -144,7 +146,34 @@ export function buildSitemapIndexXml(input: { siteOrigin: string; sitemaps: read
 export type SiteSitemapParts = Record<SitemapPart, SiteSitemapUrl[]>;
 
 export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapParts> {
-  const [elections, candidates] = await Promise.all([
+  const [browse, elections, candidates] = await Promise.all([
+    // Same "has at least one election" rule as the browse catalog itself,
+    // so no listed page answers 404. State pages first, then districts.
+    db.query<SitemapRow>(
+      `
+        SELECT path, lastmod
+        FROM (
+          SELECT
+            ('/browse/' || lower(d.state)) AS path,
+            MAX(e.updated_at) AS lastmod,
+            0 AS ordering,
+            d.state AS sort_key
+          FROM public.districts d
+          JOIN public.elections e ON e.district_id = d.id
+          GROUP BY d.state
+          UNION ALL
+          SELECT
+            ('/districts/' || d.id::text) AS path,
+            MAX(e.updated_at) AS lastmod,
+            1 AS ordering,
+            d.id::text AS sort_key
+          FROM public.districts d
+          JOIN public.elections e ON e.district_id = d.id
+          GROUP BY d.id
+        ) pages
+        ORDER BY ordering ASC, sort_key ASC
+      `
+    ),
     db.query<SitemapRow>(
       `
         SELECT
@@ -169,6 +198,7 @@ export async function listSiteSitemapParts(db: Queryable): Promise<SiteSitemapPa
 
   return {
     pages: SITEMAP_STATIC_PATHS.map((path) => ({ path })),
+    browse: [{ path: "/browse" }, ...browse.rows.map((row) => ({ path: row.path, lastmod: row.lastmod }))],
     elections: elections.rows.map((row) => ({ path: row.path, lastmod: row.lastmod })),
     candidates: candidates.rows.map((row) => ({ path: row.path, lastmod: row.lastmod })),
   };
