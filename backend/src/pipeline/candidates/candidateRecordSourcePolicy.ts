@@ -514,6 +514,16 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/20131007152935/http://wvpublic.org/",
     ],
   },
+  "wvva.com": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "WVVA is Bluefield's NBC affiliate, on air since 1955 and owned by Gray Media, with named reporters on story bylines; the site has been live since 1998 — the same accountability profile as listed Gray affiliates kold.com and kplctv.com. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/WVVA",
+      "https://web.archive.org/web/19980629012715/http://www.wvva.com/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
