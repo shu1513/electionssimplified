@@ -11,8 +11,11 @@ export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token")?.trim() ?? "";
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   // Prerendered page: rescue input typed or autofilled before hydration.
   useAdoptPreHydrationValue("reset-password", setPassword);
+  useAdoptPreHydrationValue("reset-confirm-password", setConfirmPassword);
 
   const reset = useMutation({
     mutationFn: () =>
@@ -21,6 +24,13 @@ export function ResetPasswordPage() {
         body: { token, password },
       }),
   });
+
+  // Same rule as sign-up: a typo here locks the reader out until they request
+  // another link, so the password is typed twice. The mismatch message waits
+  // until both fields have input.
+  const passwordsMismatch =
+    password.length > 0 && confirmPassword.length > 0 && password !== confirmPassword;
+  const canSubmit = password.length > 0 && password === confirmPassword && !reset.isPending;
 
   if (!token) {
     return (
@@ -64,19 +74,28 @@ export function ResetPasswordPage() {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (password.length > 0 && !reset.isPending) {
+          if (canSubmit) {
             reset.mutate();
           }
         }}
         className="mt-6 space-y-4"
       >
         <div>
-          <label htmlFor="reset-password" className="block text-sm font-medium text-ink">
-            New password
-          </label>
+          <div className="flex items-baseline justify-between">
+            <label htmlFor="reset-password" className="block text-sm font-medium text-ink">
+              New password
+            </label>
+            <button
+              type="button"
+              onClick={() => setShowPassword((value) => !value)}
+              className="text-xs text-ink-soft underline hover:text-ink"
+            >
+              {showPassword ? "Hide password" : "Show password"}
+            </button>
+          </div>
           <input
             id="reset-password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
             minLength={12}
             value={password}
@@ -86,9 +105,26 @@ export function ResetPasswordPage() {
           />
           <p className="mt-1 text-xs text-ink-soft">At least 12 characters.</p>
         </div>
+        <div>
+          <label htmlFor="reset-confirm-password" className="block text-sm font-medium text-ink">
+            Confirm password
+          </label>
+          <input
+            id="reset-confirm-password"
+            type={showPassword ? "text" : "password"}
+            required
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            autoComplete="new-password"
+            className="mt-1 w-full rounded-md border border-line px-3 py-3 shadow-sm focus:border-ink focus:outline-none"
+          />
+          {passwordsMismatch ? (
+            <p className="mt-1 text-xs text-red-700">Passwords don't match.</p>
+          ) : null}
+        </div>
         <button
           type="submit"
-          disabled={password.length === 0 || reset.isPending}
+          disabled={!canSubmit}
           className="w-full rounded-md bg-rausch px-4 py-3 font-semibold text-white transition hover:bg-rausch-dark disabled:cursor-not-allowed disabled:bg-line"
         >
           {reset.isPending ? "Saving…" : "Set new password"}

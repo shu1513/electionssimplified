@@ -21,6 +21,7 @@ export default function ResetPasswordScreen() {
   const [token, setToken] = useState(paramToken);
   const [lastParamToken, setLastParamToken] = useState(paramToken);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // A deep link can update the param while this screen stays mounted;
   // sync it into state then — but never clobber a pasted code
@@ -48,7 +49,16 @@ export default function ResetPasswordScreen() {
     },
   });
 
-  const canSubmit = token.trim().length > 0 && password.length > 0 && !reset.isPending;
+  // Same rule as the web page and sign-up: a typo here locks the reader out
+  // until they request another link, so the password is typed twice. The
+  // mismatch hint waits until both fields have input.
+  const passwordsMismatch =
+    password.length > 0 && confirmPassword.length > 0 && password !== confirmPassword;
+  const canSubmit =
+    token.trim().length > 0 &&
+    password.length > 0 &&
+    password === confirmPassword &&
+    !reset.isPending;
 
   if (reset.isSuccess) {
     return (
@@ -92,6 +102,14 @@ export default function ResetPasswordScreen() {
             hint="At least 12 characters."
             value={password}
             onChangeText={setPassword}
+            autoComplete="new-password"
+            secureTextEntry
+          />
+          <LabeledInput
+            label="Confirm password"
+            hint={passwordsMismatch ? "Passwords don't match." : undefined}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
             autoComplete="new-password"
             secureTextEntry
           />
