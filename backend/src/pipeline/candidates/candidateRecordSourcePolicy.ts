@@ -526,6 +526,37 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19980629012715/http://www.wvva.com/",
     ],
   },
+  "wbko.com": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "WBKO is Bowling Green's ABC affiliate, on air since 1962 and owned by Gray Media since 2002, with a named local newsroom; the site has been live since 1998 — the same accountability profile as listed Gray affiliates kold.com, kplctv.com and wvva.com. Listed via the OWNER-DIRECTED path: the repo owner directed a deep review and listing of legitimate outlets on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/WBKO",
+      "https://publicfiles.fcc.gov/tv-profile/WBKO",
+      "https://web.archive.org/web/19981205192407/http://www.wbko.com:80/",
+    ],
+  },
+  "wbiw.com": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "WBIW is Bedford, Indiana's FCC-licensed news-talk AM station, on air since 1948 and owned by Ad-Venture Media, with a named news director and a daily local news operation; the site has been live since 1998. Listed via the OWNER-DIRECTED path: the repo owner directed a deep review and listing of legitimate outlets on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/WBIW",
+      "https://web.archive.org/web/19980115091519/http://wbiw.com:80/",
+    ],
+  },
+  "wenatcheeworld.com": {
+    addedOn: "2026-09-24",
+    listingPath: "owner_directed",
+    rationale:
+      "The Wenatchee World is the daily newspaper of Wenatchee, Washington, published since 1905, with named editors and reporters on story bylines; the site has been live since 1999. Listed via the OWNER-DIRECTED path: the repo owner directed a deep review and listing of legitimate outlets on 2026-09-24.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/The_Wenatchee_World",
+      "https://web.archive.org/web/19990508094955/http://www.wenatcheeworld.com:80/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
