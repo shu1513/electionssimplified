@@ -471,6 +471,43 @@ describe("createApiApp", () => {
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 
+  it("serves one sitemap child file by part and page", async () => {
+    const resolveAddress = vi.fn();
+    const getSitemapXml = vi.fn().mockResolvedValue('<?xml version="1.0" encoding="UTF-8"?><urlset></urlset>');
+
+    const response = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=elections&page=2",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("application/xml");
+    expect(getSitemapXml).toHaveBeenCalledWith({ part: "elections", page: 2 });
+  });
+
+  it("answers 404 for a sitemap child file that does not exist", async () => {
+    const resolveAddress = vi.fn();
+    // Past the last page: the generator says no such file.
+    const getSitemapXml = vi.fn().mockResolvedValue(null);
+
+    const pastTheEnd = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=elections&page=99",
+    });
+    expect(pastTheEnd.statusCode).toBe(404);
+    expect(pastTheEnd.body).toEqual({ error: { code: "not_found", message: "No such sitemap file" } });
+    expect(getSitemapXml).toHaveBeenCalledWith({ part: "elections", page: 99 });
+
+    // An unknown part never reaches the generator.
+    getSitemapXml.mockClear();
+    const unknownPart = await invokeExpressApp(createApiApp({ resolveAddress, getSitemapXml }), {
+      method: "GET",
+      path: "/sitemap.xml?part=users",
+    });
+    expect(unknownPart.statusCode).toBe(404);
+    expect(getSitemapXml).not.toHaveBeenCalled();
+  });
+
   it("keeps sitemap dark when it is not configured", async () => {
     const resolveAddress = vi.fn();
 

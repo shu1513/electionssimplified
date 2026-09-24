@@ -1,10 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  buildSitemapFiles,
+  buildSitemapIndexXml,
   buildSiteSitemapXml,
   createCachedSiteSitemap,
   listSiteSitemapUrls,
   normalizeSiteOrigin,
+  parseSitemapSelection,
+  SITEMAP_PAGE_SIZE,
 } from "../../../src/pipeline/sitemap/siteSitemap.js";
 
 function createDbMock() {
@@ -41,6 +45,10 @@ describe("site sitemap", () => {
     expect(() => normalizeSiteOrigin("not a url")).toThrow(/absolute http\(s\) URL/);
   });
 
+  it("keeps the page size inside the sitemap protocol's 50,000-URL cap", () => {
+    expect(SITEMAP_PAGE_SIZE).toBeLessThanOrEqual(50_000);
+  });
+
   it("builds XML with escaped absolute URLs and lastmod values", () => {
     const xml = buildSiteSitemapXml({
       siteOrigin: "https://example.test",
@@ -55,6 +63,30 @@ describe("site sitemap", () => {
     expect(xml).toContain("<loc>https://example.test/</loc>");
     expect(xml).toContain("<lastmod>2026-07-01T12:34:56.000Z</lastmod>");
     expect(xml).toContain("<loc>https://example.test/search?q=one&amp;two</loc>");
+  });
+
+  it("builds a sitemap index with escaped child URLs", () => {
+    const xml = buildSitemapIndexXml({
+      siteOrigin: "https://example.test",
+      sitemaps: [{ path: "/sitemap.xml?part=elections&page=1", lastmod: "2026-07-01T12:34:56Z" }],
+    });
+
+    expect(xml).toContain('<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(xml).toContain("<sitemap><loc>https://example.test/sitemap.xml?part=elections&amp;page=1</loc>");
+    expect(xml).toContain("<lastmod>2026-07-01T12:34:56.000Z</lastmod></sitemap>");
+    expect(xml).not.toContain("<urlset");
+  });
+
+  it("parses the child-file selection off the query string", () => {
+    expect(parseSitemapSelection(new URLSearchParams(""))).toBeNull();
+    expect(parseSitemapSelection(new URLSearchParams("part=elections&page=2"))).toEqual({ part: "elections", page: 2 });
+    expect(parseSitemapSelection(new URLSearchParams("part=pages"))).toEqual({ part: "pages", page: 1 });
+    // Unknown part, or a page that is not a positive integer: no such file.
+    expect(parseSitemapSelection(new URLSearchParams("part=users"))).toBeUndefined();
+    expect(parseSitemapSelection(new URLSearchParams("part=elections&page=0"))).toBeUndefined();
+    expect(parseSitemapSelection(new URLSearchParams("part=elections&page=1.5"))).toBeUndefined();
+    expect(parseSitemapSelection(new URLSearchParams("part=elections&page=-1"))).toBeUndefined();
+    expect(parseSitemapSelection(new URLSearchParams("page=1"))).toBeUndefined();
   });
 
   it("lists static URLs followed by election and active candidate URLs", async () => {
@@ -83,6 +115,62 @@ describe("site sitemap", () => {
     expect(db.query).toHaveBeenCalledTimes(2);
     expect(db.query.mock.calls[1]?.[0]).toContain("deleted_at IS NULL");
     expect(db.query.mock.calls[1]?.[0]).toContain("merged_into_candidate_id IS NULL");
+  });
+
+  it("splits each part into pages and lists every page in the index", () => {
+    const elections = Array.from({ length: 5 }, (_, i) => ({
+      path: `/elections/${i}`,
+      lastmod: `2026-07-0${i + 1}T00:00:00.000Z`,
+    }));
+    const files = buildSitemapFiles({
+      siteOrigin: "https://example.test",
+      parts: { pages: [{ path: "/" }], elections, candidates: [] },
+      pageSize: 2,
+    });
+
+    // 1 page of static paths, 3 of elections, 1 (empty) of candidates.
+    expect([...files.children.keys()]).toEqual([
+      "/sitemap.xml?part=pages&page=1",
+      "/sitemap.xml?part=elections&page=1",
+      "/sitemap.xml?part=elections&page=2",
+      "/sitemap.xml?part=elections&page=3",
+      "/sitemap.xml?part=candidates&page=1",
+    ]);
+    for (const path of files.children.keys()) {
+      expect(files.index).toContain(`<loc>https://example.test${path.replace("&", "&amp;")}</loc>`);
+    }
+    const lastPage = files.children.get("/sitemap.xml?part=elections&page=3") ?? "";
+    expect(lastPage).toContain("<loc>https://example.test/elections/4</loc>");
+    expect(lastPage).not.toContain("/elections/3</loc>");
+    // The index carries each page's newest lastmod.
+    expect(files.index).toContain(
+      "<loc>https://example.test/sitemap.xml?part=elections&amp;page=1</loc><lastmod>2026-07-02T00:00:00.000Z</lastmod>"
+    );
+    expect(files.children.get("/sitemap.xml?part=candidates&page=1")).toContain("<urlset");
+  });
+
+  it("rejects a page size the sitemap protocol would not accept", () => {
+    const parts = { pages: [], elections: [], candidates: [] };
+    expect(() => buildSitemapFiles({ siteOrigin: "https://example.test", parts, pageSize: 50_001 })).toThrow(/50,000/);
+    expect(() => buildSitemapFiles({ siteOrigin: "https://example.test", parts, pageSize: 0 })).toThrow(/50,000/);
+  });
+
+  it("serves the index without a selection and child files with one", async () => {
+    const db = createDbMock();
+    const getSitemapXml = createCachedSiteSitemap({ db, siteOrigin: "https://example.test" });
+
+    const index = await getSitemapXml();
+    expect(index).toContain("<sitemapindex");
+    expect(index).toContain("https://example.test/sitemap.xml?part=candidates&amp;page=1");
+
+    const elections = await getSitemapXml({ part: "elections", page: 1 });
+    expect(elections).toContain("<loc>https://example.test/elections/11111111-1111-4111-8111-111111111111</loc>");
+    expect(elections).not.toContain("/candidates/");
+
+    // Past the last page: no such file.
+    expect(await getSitemapXml({ part: "elections", page: 2 })).toBeNull();
+    // One DB snapshot served all of the above.
+    expect(db.query).toHaveBeenCalledTimes(2);
   });
 
   it("caches generated XML for the configured TTL", async () => {

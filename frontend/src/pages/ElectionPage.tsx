@@ -132,8 +132,11 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
     const isNotFound = isRouteErrorResponse(error) && error.status === 404;
     return [{ title: isNotFound ? `Not found · ${APP_NAME}` : `Something went wrong · ${APP_NAME}` }];
   }
+  // District and date in the title, not just the ballot title: thousands of
+  // races share one ("State Representative" alone is ~2,300 pages), and a
+  // search engine treats identical titles as one page competing with itself.
   return pageMeta({
-    title: `${data.official_ballot_title} · ${APP_NAME}`,
+    title: `${data.official_ballot_title} — ${formatDistrictName(data.district.name)} (${formatElectionDate(data.election_date)}) · ${APP_NAME}`,
     // No "campaign finance" here: this page stopped rendering finance
     // (it lives on candidate profiles now), and a search preview must not
     // promise content the page doesn't have.

@@ -130,6 +130,7 @@ import {
 import { renderPickCardOgImage } from "./pickCardOgImage.js";
 import { CURRENT_TERMS_VERSION, isAcceptableTermsVersion } from "../constants/legal.js";
 import { parseUsageEventsBodyValue } from "../usage/events.js";
+import { parseSitemapSelection } from "../pipeline/sitemap/siteSitemap.js";
 import {
   buildEmailSettingsUrl,
   EMAIL_UNSUBSCRIBE_PAGE_CSP,
@@ -683,7 +684,13 @@ async function dispatchApiRequest(
       return;
     }
 
-    const sitemapXml = await options.getSitemapXml();
+    // undefined = a part/page that can never exist; null = the index.
+    const selection = parseSitemapSelection(url.searchParams);
+    const sitemapXml = selection === undefined ? null : await options.getSitemapXml(selection);
+    if (sitemapXml === null) {
+      sendApiResponse(response, toErrorResponse(404, "not_found", "No such sitemap file", corsHeaders));
+      return;
+    }
     sendApiResponse(
       response,
       toXmlResponse(200, sitemapXml, { ...corsHeaders, "cache-control": SITE_SITEMAP_CACHE_CONTROL })
