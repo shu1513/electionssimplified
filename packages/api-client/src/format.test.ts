@@ -137,6 +137,22 @@ describe("formatDistrictName", () => {
     // A parenthetical that is not a year must survive.
     expect(formatDistrictName("Ward 3 (at-large); Ohio")).toBe("Ward 3 (at-large); Ohio");
   });
+
+  it("strips the Congress vintage on U.S. House districts", () => {
+    expect(formatDistrictName("Congressional District 1 (119th Congress), Kentucky")).toBe(
+      "Congressional District 1, Kentucky"
+    );
+    expect(formatDistrictName("Congressional District 22 (120th Congress), Texas")).toBe(
+      "Congressional District 22, Texas"
+    );
+    expect(formatDistrictName("Congressional District (at Large) (119th Congress), Alaska")).toBe(
+      "Congressional District (at Large), Alaska"
+    );
+    // County disambiguators on places are identity, not vintage.
+    expect(formatDistrictName("Franklin city (Simpson County), Kentucky")).toBe(
+      "Franklin city (Simpson County), Kentucky"
+    );
+  });
 });
 
 describe("formatSourceHost", () => {

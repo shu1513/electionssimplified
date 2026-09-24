@@ -578,7 +578,13 @@ export function ElectionPage() {
             "@type": "Event",
             name: data.official_ballot_title,
             startDate: data.election_date,
-            location: { "@type": "AdministrativeArea", name: formatDistrictName(data.district.name) },
+            // Place, not AdministrativeArea: Google's Event validator only
+            // accepts Place (with a postal address) or VirtualLocation.
+            location: {
+              "@type": "Place",
+              name: formatDistrictName(data.district.name),
+              address: { "@type": "PostalAddress", addressRegion: data.district.state, addressCountry: "US" },
+            },
           }}
         />
         <div className="flex flex-wrap items-center justify-between gap-3">

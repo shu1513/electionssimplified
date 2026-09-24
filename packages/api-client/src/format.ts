@@ -55,7 +55,9 @@ export function formatDistrictType(districtType: string): string {
  * everywhere; the stored name keeps the vintage for research bookkeeping.
  */
 export function formatDistrictName(name: string): string {
-  return name.replace(/ \((?:19|20)\d{2}\)/g, "");
+  // Two vintage spellings: "(2024)" on legislative districts and
+  // "(119th Congress)" on U.S. House districts.
+  return name.replace(/ \((?:(?:19|20)\d{2}|\d+(?:st|nd|rd|th) Congress)\)/g, "");
 }
 
 export function formatSourceHost(url: string): string {
