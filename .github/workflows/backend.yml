@@ -95,6 +95,13 @@ jobs:
         env:
           DATABASE_URL: postgresql://voteapp:voteapp@localhost:5432/voteapp
 
+      # Missing-generals contest-key pairing is regex SQL; only Postgres shows
+      # which title pairs it actually matches.
+      - name: Missing-generals contest-key pairing
+        run: npx vitest run tests/scripts/listMissingGeneralElectionsContestKey.db.test.ts
+        env:
+          DATABASE_URL: postgresql://voteapp:voteapp@localhost:5432/voteapp
+
       # The append-only guard on user_terms_acceptances has to reject direct
       # writes while still allowing the cascade from account deletion. That
       # distinction is Postgres behaviour, not something the SQL text shows.

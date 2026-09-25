@@ -49,6 +49,17 @@ import { assertKnownCliFlags } from "./manualCliFlags.js";
 // primary set is what closes that hole. Any later same-contest election
 // counts — general, runoff, or unstaged — because the report's question is
 // "does the next round exist at all", not "is its stage labeled correctly".
+//
+// Third rule, for titles that name the same seat differently across rounds
+// (verified live 2026-09-24: Pima "Constable, Justice Prec. 2" vs
+// "Constable, Justice Prec. 2, Pima County, Arizona"; "Cape Coral City
+// Council District 6" vs "City of Cape Coral City Council District 6";
+// Canyon County "County Commissioner District 1" vs "Commissioner District
+// 1"): both title keys are reduced to a contest key by stripping the
+// district's own name / state as a suffix and a leading "City of <name>",
+// "<name>" or "County" prefix. Equal contest keys vouch only when the key
+// carries a seat token (district/precinct/position number) — so they still
+// tell sibling seats apart — and the offices don't disagree.
 
 type Queryable = Pick<Pool, "query">;
 
@@ -81,6 +92,50 @@ export type MissingGeneralElectionsInput = {
   /** Optional district filter (the demand ledger scopes to one ballot). */
   districtIds?: readonly string[];
 };
+
+// Matches a normalized district name's trailing jurisdiction word ("cape
+// coral city" -> "cape coral"), so a title can drop the bare place name.
+const JURISDICTION_WORD_PATTERN = "(city|town|village|borough|county|parish|township|municipality|cdp)";
+
+function normalizedTextSql(expr: string): string {
+  return `btrim(regexp_replace(lower(coalesce(${expr}, '')), '[^a-z0-9]+', ' ', 'g'))`;
+}
+
+/**
+ * SQL expression reducing a title key to its contest key: the district's own
+ * name / state stripped as a suffix, then a leading "City of <name>" /
+ * "<name>" / "County" prefix. `titleKeyExpr` must already be a normalized
+ * official_ballot_title_key (lowercase, single spaces); `districtNameExpr` is
+ * the raw districts.name ("Pima County, Arizona"), normalized here the same
+ * way so it is safe to splice into a regex (only [a-z0-9 ] remain).
+ * Every strip needs a non-empty remainder, so a title that IS the district
+ * name is left whole. Exported for the Postgres-backed test.
+ */
+export function contestKeySql(titleKeyExpr: string, districtNameExpr: string): string {
+  const fullName = normalizedTextSql(districtNameExpr);
+  const baseName = normalizedTextSql(`split_part(${districtNameExpr}, ',', 1)`);
+  const stateName = normalizedTextSql(`nullif(split_part(${districtNameExpr}, ',', 2), '')`);
+  const bareName = `regexp_replace(${baseName}, ' ${JURISDICTION_WORD_PATTERN}$', '')`;
+  const stripSuffix = (expr: string, name: string) =>
+    `CASE WHEN ${name} <> '' AND ${expr} LIKE '_% ' || ${name} THEN left(${expr}, length(${expr}) - length(${name}) - 1) ELSE ${expr} END`;
+  const withoutSuffix = stripSuffix(stripSuffix(stripSuffix(titleKeyExpr, fullName), baseName), stateName);
+  const withoutPlacePrefix = `regexp_replace(${withoutSuffix}, '^(${JURISDICTION_WORD_PATTERN} of )?' || ${bareName} || ' (?=.)', '')`;
+  return `regexp_replace(${withoutPlacePrefix}, '^county (?=.)', '')`;
+}
+
+// A contest key vouches only when it names a seat: a district, precinct,
+// ward, position or seat number. Without one, sibling seats could collapse.
+const SEAT_TOKEN_PATTERN = "\\m[0-9]+[a-z]?\\M";
+
+/**
+ * SQL predicate: the two title keys name the same seat once the district's
+ * own name is stripped (see contestKeySql), and that key carries a seat
+ * token. Exported for the Postgres-backed test.
+ */
+export function sameSeatContestKeySql(primaryKeyExpr: string, laterKeyExpr: string, districtNameExpr: string): string {
+  const primaryContestKey = contestKeySql(primaryKeyExpr, districtNameExpr);
+  return `(${contestKeySql(laterKeyExpr, districtNameExpr)} = ${primaryContestKey} AND ${primaryContestKey} ~ '${SEAT_TOKEN_PATTERN}')`;
+}
 
 const MISSING_GENERALS_SQL = `
   SELECT
@@ -151,6 +206,14 @@ const MISSING_GENERALS_SQL = `
           -- disagree — different contests sharing a title.
           OR (
             g.official_ballot_title_key = e.official_ballot_title_key
+            AND (e.office_id IS NULL OR g.office_id IS NULL OR g.office_id = e.office_id)
+          )
+          -- Contest-key identity: the same seat titled with and without the
+          -- district's name ("..., Pima County, Arizona", "City of Cape
+          -- Coral ...", "County Commissioner ..."). Needs a seat token so
+          -- sibling seats stay apart, and offices must not disagree.
+          OR (
+            ${sameSeatContestKeySql("e.official_ballot_title_key", "g.official_ballot_title_key", "d.name")}
             AND (e.office_id IS NULL OR g.office_id IS NULL OR g.office_id = e.office_id)
           )
         )
