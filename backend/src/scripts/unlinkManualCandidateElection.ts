@@ -17,18 +17,41 @@
 //   links etc., discovered dynamically from the catalog): those rows assert
 //   the pairing was real, so a "research error" delete under them is
 //   contradictory — resolve them first;
+// - no rows FK onto the link itself: user_election_choices (a user's saved
+//   pick, ON DELETE CASCADE), manual candidate-finance filing targets (ON
+//   DELETE RESTRICT, refused here with a readable message instead of the
+//   generic FK error) and any id-keyed child table the catalog lists
+//   (fl_candidate_finance_outside_group_links cascades) — the same guards
+//   manual:candidate-elections:move applies before its duplicate-merge
+//   delete, since the election-scoped scan above cannot see them;
 // - unsent notification events for the pair are deleted in the same
 //   transaction (an unsent "on the ballot" line for a link that never should
 //   have existed is wrong); sent ones cannot be recalled;
 // - local-database guard, single transaction, --dry-run (executes everything
 //   and rolls back, so the reported counts are real).
+//
+// --result-status-error: the certified-results writer marks EVERY non-winner
+// link on an election 'lost' (projectCertifiedOfficeResultIfEligible), so a
+// research-error link on a combined-party primary shell comes out 'lost' even
+// though the candidate was never on that ballot — live 2026-09-24: an
+// Independent general-election candidate for Massachusetts Governor, linked
+// to the Sept 1, 2026 primary by mistake, was marked 'lost' by the official
+// primary result. The status is the writer's projection of our own error,
+// not recorded history, so the operator may assert that with this mode and a
+// --source-url for the official results. It applies to 'lost' only:
+// 'won'/'advanced' name the candidate in a result row, and 'withdrawn' is an
+// evidence-backed manual record — none of those can be a mis-projection.
 import { pathToFileURL } from "node:url";
 
 import { Pool } from "pg";
 
 import { loadProjectEnv } from "../config/env.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
-import { listCandidateScopedElectionFkTables } from "./moveManualCandidateElectionLink.js";
+import {
+  isManualCandidateFinanceTargetFkReference,
+  listCandidateElectionLinkFkReferences,
+  listCandidateScopedElectionFkTables,
+} from "./moveManualCandidateElectionLink.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 
 type QueryResultLike<T> = { rows: T[]; rowCount?: number | null };
@@ -41,6 +64,10 @@ export type UnlinkCandidateElectionOptions = {
   candidateId: string;
   electionId: string;
   dryRun: boolean;
+  // Set when the operator asserts the results writer mis-assigned a 'lost'
+  // status to a candidate who was never on this ballot; sourceUrl is the
+  // official results page that omits the candidate.
+  resultStatusError?: { sourceUrl: string } | null;
 };
 
 export type UnlinkCandidateElectionResult = {
@@ -51,6 +78,7 @@ export type UnlinkCandidateElectionResult = {
   electionTitle: string;
   linkStatus: string;
   staleNotificationEventsDeleted: number;
+  resultStatusError: { sourceUrl: string } | null;
 };
 
 type LinkRow = {
@@ -71,6 +99,14 @@ function usage(): string {
     "",
     "Usage:",
     "  npm run manual:candidate-elections:unlink -- --candidate-id uuid --election-id uuid --reason text [--dry-run]",
+    "  npm run manual:candidate-elections:unlink -- --candidate-id uuid --election-id uuid --reason text \\",
+    "      --result-status-error --source-url https://... [--dry-run]",
+    "",
+    "--result-status-error removes a link the certified-results writer marked",
+    "'lost' although the candidate was never on that ballot (e.g. an",
+    "Independent linked to a party primary); --source-url must be the official",
+    "results page that omits the candidate. 'won', 'advanced' and 'withdrawn'",
+    "links are still refused.",
     "",
     "For a candidate who actually dropped out, use",
     "manual:candidate-elections:withdraw instead — it keeps the row as history",
@@ -100,6 +136,96 @@ function requireEnv(name: string): string {
   return value;
 }
 
+// Rows that reference the link itself rather than the (candidate, election)
+// pair. The election-scoped scan in the caller cannot see them, and the
+// delete would either cascade them away silently (user picks, Florida
+// outside-group links) or fail with PostgreSQL's generic FK error (manual
+// finance filing targets). Mirrors the guards manual:candidate-elections:move
+// runs before its duplicate-merge delete.
+async function assertNoLinkScopedRows(
+  client: UnlinkCandidateElectionClient,
+  input: { candidateId: string; electionId: string; linkId: string }
+): Promise<void> {
+  const manualFinanceTargets = await client.query<{ n: string }>(
+    `
+      SELECT count(*)::text AS n
+      FROM public.manual_candidate_finance_filing_targets
+      WHERE candidate_id = $1::uuid AND election_id = $2::uuid
+    `,
+    [input.candidateId, input.electionId]
+  );
+  const manualFinanceTargetCount = Number(manualFinanceTargets.rows[0]?.n ?? "0");
+  if (manualFinanceTargetCount > 0) {
+    throw new Error(
+      `${manualFinanceTargetCount} manual candidate-finance filing target row(s) reference ` +
+        `${input.candidateId}/${input.electionId}; deleting this candidacy would make their immutable ` +
+        "payload identity disagree with the derived target. Resolve those filings explicitly " +
+        "(user decision), then re-run."
+    );
+  }
+
+  // A pick is the user's decision about THIS race; the choice FK is ON
+  // DELETE CASCADE, so the unlink would erase it without a trace.
+  const choiceCount = await client.query<{ n: string }>(
+    `
+      SELECT count(*)::text AS n
+      FROM public.user_election_choices
+      WHERE candidate_id = $1::uuid AND election_id = $2::uuid
+    `,
+    [input.candidateId, input.electionId]
+  );
+  const choices = Number(choiceCount.rows[0]?.n ?? "0");
+  if (choices > 0) {
+    throw new Error(
+      `${choices} user_election_choices row(s) name this candidacy; an unlink would silently delete users' ` +
+        "planned votes. Resolve those rows first (user decision), then re-run."
+    );
+  }
+
+  // The choices FK is composite onto (candidate_id, election_id) and was
+  // counted above; the filing-targets FK likewise. Every other FK onto
+  // candidate_elections must be a single column onto id for the id-keyed
+  // count below to mean anything; any other shape is refused, not guessed.
+  const linkFkReferences = (await listCandidateElectionLinkFkReferences(client)).filter(
+    (ref) =>
+      ref.constraintName !== "fk_user_election_choices_candidacy" &&
+      !isManualCandidateFinanceTargetFkReference(ref)
+  );
+  const unsupported = [
+    ...new Set(
+      linkFkReferences
+        .filter((ref) => ref.columnCount !== 1 || ref.referencedColumn !== "id")
+        .map((ref) => `${ref.table}.${ref.constraintName}`)
+    ),
+  ];
+  if (unsupported.length > 0) {
+    throw new Error(
+      `Foreign keys onto candidate_elections whose shape this guard cannot check ` +
+        `(composite, or not referencing id): ${unsupported.join(", ")}. ` +
+        "Refusing the unlink; extend the guard before deleting under such constraints."
+    );
+  }
+  const cascading: string[] = [];
+  const counted = new Set<string>();
+  for (const { table, column } of linkFkReferences) {
+    const key = `${table}.${column}`;
+    if (counted.has(key)) continue;
+    counted.add(key);
+    const countResult = await client.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM ${table} WHERE ${column} = $1::uuid`,
+      [input.linkId]
+    );
+    const n = Number(countResult.rows[0]?.n ?? "0");
+    if (n > 0) cascading.push(`${key} (${n})`);
+  }
+  if (cascading.length > 0) {
+    throw new Error(
+      `Link ${input.linkId} is referenced by rows the delete would cascade away: ${cascading.join(", ")}. ` +
+        "Resolve those rows first (user decision), then re-run."
+    );
+  }
+}
+
 export async function runUnlinkCandidateElection(
   client: UnlinkCandidateElectionClient,
   options: UnlinkCandidateElectionOptions
@@ -109,6 +235,10 @@ export async function runUnlinkCandidateElection(
   const candidateId = options.candidateId.toLowerCase();
   const electionId = options.electionId.toLowerCase();
   const { dryRun } = options;
+  const resultStatusError = options.resultStatusError ?? null;
+  if (resultStatusError && new URL(resultStatusError.sourceUrl).protocol !== "https:") {
+    throw new Error("--source-url must use HTTPS");
+  }
 
   await client.query("BEGIN");
   try {
@@ -132,10 +262,29 @@ export async function runUnlinkCandidateElection(
     // and result statuses are settled outcomes. Deleting such a link as a
     // "research error" is a compound mess that needs a user decision, not a
     // silent wrapper path.
-    if (link.status !== "declared") {
+    if (resultStatusError) {
+      // 'lost' is the only status the results writer assigns without naming
+      // the candidate; anything else is either a result row's own assertion
+      // or a manual record, and cannot be a mis-projection of this kind.
+      if (link.status === "declared") {
+        throw new Error(
+          `Link ${link.id} has status 'declared'; --result-status-error only applies to a 'lost' link — drop the flag and re-run.`
+        );
+      }
+      if (link.status !== "lost") {
+        throw new Error(
+          `Link ${link.id} has status '${link.status}', which names the candidate in a result or manual record; ` +
+            "--result-status-error only covers a 'lost' status the results writer assigned to a non-winner. Refusing."
+        );
+      }
+    } else if (link.status !== "declared") {
       throw new Error(
         `Link ${link.id} has status '${link.status}', which asserts recorded history; refusing a ` +
-          "research-error unlink. If that status itself is wrong, resolve it first (user decision), then re-run."
+          "research-error unlink. If that status itself is wrong, resolve it first (user decision), then re-run." +
+          (link.status === "lost"
+            ? " If the results writer marked a candidate 'lost' who was never on this ballot, re-run with " +
+              "--result-status-error --source-url <official results>."
+            : "")
       );
     }
 
@@ -188,6 +337,45 @@ export async function runUnlinkCandidateElection(
       );
     }
 
+    // A 'lost' status the writer assigned is only plausible when a result
+    // row it could have projected from exists for this election: a certified
+    // pass, certified official matched result with a projectable outcome
+    // (won/advanced/runoff — winnerStatusForOutcome) and every winner linked
+    // (canProjectOfficeRow in electionResultWriter). An election-night,
+    // unmatched, too_close or unknown row never reaches the projection, so
+    // it must not authorize this mode. Source authority ("verified") is not persisted on the row
+    // and cannot be re-checked here.
+    if (resultStatusError) {
+      const projectedResult = await client.query<{ id: string }>(
+        `
+          SELECT r.id
+          FROM public.election_results r
+          WHERE r.election_id = $1::uuid
+            AND r.pass_type = 'certified'
+            AND r.result_status = 'certified'
+            AND r.source_type = 'official'
+            AND r.match_status = 'matched'
+            AND r.outcome IN ('won', 'advanced', 'runoff')
+            AND jsonb_typeof(r.winners) = 'array'
+            AND jsonb_array_length(r.winners) > 0
+            AND NOT EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(r.winners) AS w
+              WHERE coalesce(w->>'candidate_election_id', '') = ''
+            )
+          LIMIT 1
+        `,
+        [electionId]
+      );
+      if (!projectedResult.rows[0]) {
+        throw new Error(
+          `Election ${electionId} has no certified official matched election_results row with linked winners, ` +
+            "so the results writer cannot have set this link 'lost'; refusing --result-status-error — " +
+            "resolve the status by hand (user decision)."
+        );
+      }
+    }
+
     // Election-scoped candidate rows (state finance links etc.) assert the
     // pairing was real; deleting the link as a "research error" under them is
     // contradictory. Identifiers come from the catalog, not user input.
@@ -213,6 +401,8 @@ export async function runUnlinkCandidateElection(
           "Resolve those rows first (user decision), then re-run."
       );
     }
+
+    await assertNoLinkScopedRows(client, { candidateId, electionId, linkId: link.id });
 
     // A link that never should have existed must not leave "on the ballot"
     // (or withdrawal) lines in anyone's digest. Sent events cannot be
@@ -242,6 +432,7 @@ export async function runUnlinkCandidateElection(
       electionTitle: election.official_ballot_title,
       linkStatus: link.status,
       staleNotificationEventsDeleted: staleEvents.rowCount ?? 0,
+      resultStatusError,
     };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -255,6 +446,8 @@ async function main(): Promise<void> {
     { name: "--election-id", value: "space" },
     { name: "--reason", value: "space" },
     { name: "--dry-run", value: "none" },
+    { name: "--result-status-error", value: "none" },
+    { name: "--source-url", value: "space" },
   ]);
   loadProjectEnv();
 
@@ -262,6 +455,14 @@ async function main(): Promise<void> {
   const electionId = requireFlag("--election-id");
   const reason = requireFlag("--reason");
   const dryRun = process.argv.includes("--dry-run");
+  const resultStatusErrorFlag = process.argv.includes("--result-status-error");
+  const sourceUrl = readFlag("--source-url");
+  if (resultStatusErrorFlag && !sourceUrl) {
+    throw new Error(`--result-status-error requires --source-url (the official results page).\n${usage()}`);
+  }
+  if (sourceUrl && !resultStatusErrorFlag) {
+    throw new Error(`--source-url only applies with --result-status-error.\n${usage()}`);
+  }
 
   for (const [name, value] of [
     ["--candidate-id", candidateId],
@@ -272,13 +473,21 @@ async function main(): Promise<void> {
   if (reason.length < 20) {
     throw new Error("--reason must explain the research error in at least 20 characters");
   }
+  if (sourceUrl && new URL(sourceUrl).protocol !== "https:") {
+    throw new Error("--source-url must use HTTPS");
+  }
 
   const databaseUrl = requireEnv("DATABASE_URL");
   requireLocalDatabaseTarget(databaseUrl);
   const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
   try {
-    const result = await runUnlinkCandidateElection(client, { candidateId, electionId, dryRun });
+    const result = await runUnlinkCandidateElection(client, {
+      candidateId,
+      electionId,
+      dryRun,
+      resultStatusError: sourceUrl ? { sourceUrl } : null,
+    });
     console.log(JSON.stringify({ ...result, reason }, null, 2));
   } finally {
     client.release();

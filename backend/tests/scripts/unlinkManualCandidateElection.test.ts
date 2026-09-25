@@ -11,8 +11,10 @@ function linkRow(overrides: Partial<Record<string, unknown>> = {}) {
 }
 
 // Query order: BEGIN, lock link, load election, persisted-results guard,
-// FK-table catalog scan, (per-table counts), stale event delete, link delete,
-// COMMIT/ROLLBACK.
+// (--result-status-error: projected-result corroboration), FK-table catalog
+// scan, (per-table counts), manual finance-target count, user-choice count,
+// link-FK catalog scan, (per-table id-keyed counts), stale event delete,
+// link delete, COMMIT/ROLLBACK.
 function buildClient(responses: Record<string, { rows: unknown[]; rowCount?: number }[]>) {
   const calls: { text: string; values: unknown[] }[] = [];
   const queue = { ...responses };
@@ -160,6 +162,87 @@ describe("runUnlinkCandidateElection", () => {
     expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
   });
 
+  it("refuses when a user's saved pick names the candidacy", async () => {
+    const { query, calls } = buildClient(
+      happyResponses({ "FROM public.user_election_choices": [{ rows: [{ n: "1" }] }] })
+    );
+
+    await expect(
+      runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+    ).rejects.toThrow(/1 user_election_choices row\(s\) name this candidacy/);
+    expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+  });
+
+  it("refuses when manual finance filing targets reference the candidacy", async () => {
+    const { query, calls } = buildClient(
+      happyResponses({ "FROM public.manual_candidate_finance_filing_targets": [{ rows: [{ n: "2" }] }] })
+    );
+
+    await expect(
+      runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+    ).rejects.toThrow(/2 manual candidate-finance filing target row\(s\)/);
+    expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+  });
+
+  it("refuses when rows keyed on the link id would cascade away", async () => {
+    // fl_candidate_finance_outside_group_links references candidate_elections(id)
+    // ON DELETE CASCADE and is invisible to the election-scoped scan.
+    const { query, calls } = buildClient(
+      happyResponses({
+        "confrelid = 'public.candidate_elections'::regclass": [
+          {
+            rows: [
+              {
+                constraint_name: "fl_outside_group_links_candidate_election_fk",
+                table_name: "public.fl_candidate_finance_outside_group_links",
+                column_name: "candidate_election_id",
+                referenced_column: "id",
+                column_count: 1,
+              },
+            ],
+          },
+        ],
+        "count(*)::text AS n FROM public.fl_candidate_finance_outside_group_links": [{ rows: [{ n: "3" }] }],
+      })
+    );
+
+    await expect(
+      runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+    ).rejects.toThrow(
+      /referenced by rows the delete would cascade away: public.fl_candidate_finance_outside_group_links.candidate_election_id \(3\)/
+    );
+    const count = calls.find((call) =>
+      call.text.includes("count(*)::text AS n FROM public.fl_candidate_finance_outside_group_links")
+    );
+    expect(count?.values).toEqual([LINK_ID]);
+    expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+  });
+
+  it("refuses a link-id FK whose shape the id-keyed count cannot check", async () => {
+    const { query, calls } = buildClient(
+      happyResponses({
+        "confrelid = 'public.candidate_elections'::regclass": [
+          {
+            rows: [
+              {
+                constraint_name: "some_composite_fk",
+                table_name: "public.some_table",
+                column_name: "candidate_id",
+                referenced_column: "candidate_id",
+                column_count: 2,
+              },
+            ],
+          },
+        ],
+      })
+    );
+
+    await expect(
+      runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+    ).rejects.toThrow(/whose shape this guard cannot check .*public.some_table.some_composite_fk/);
+    expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+  });
+
   it("does not let the follow-notification events table trip the conflict scan", async () => {
     // The events table matches the scan's shape (FK to elections +
     // candidate_id column), but the wrapper handles it explicitly: unsent
@@ -207,5 +290,142 @@ describe("runUnlinkCandidateElection", () => {
 
     const lock = calls.find((call) => call.text.includes("WHERE candidate_id"));
     expect(lock?.values).toEqual([CANDIDATE_ID, ELECTION_ID]);
+  });
+
+  describe("--result-status-error", () => {
+    const SOURCE_URL = "https://electionstats.example.gov/elections/view/1";
+    // Fresh objects per call: the mock client shifts responses off these
+    // arrays, so a shared constant would be consumed by the first test.
+    const lostLink = () => ({
+      "FROM public.candidate_elections\n        WHERE candidate_id": [{ rows: [linkRow({ status: "lost" })] }],
+    });
+    const projectedResult = () => ({
+      "jsonb_array_length(r.winners)": [{ rows: [{ id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" }] }],
+    });
+
+    it("points a plain unlink of a 'lost' link at the mode", async () => {
+      const { query, calls } = buildClient(happyResponses(lostLink()));
+
+      await expect(
+        runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+      ).rejects.toThrow(/status 'lost'.*re-run with --result-status-error --source-url/s);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+
+    it("unlinks a 'lost' link when a result row with winners exists and none names the candidate", async () => {
+      const { query, calls } = buildClient(happyResponses({ ...lostLink(), ...projectedResult() }));
+
+      const result = await runUnlinkCandidateElection(
+        { query },
+        {
+          candidateId: CANDIDATE_ID,
+          electionId: ELECTION_ID,
+          dryRun: false,
+          resultStatusError: { sourceUrl: SOURCE_URL },
+        }
+      );
+
+      expect(result).toMatchObject({
+        action: "unlinked",
+        linkStatus: "lost",
+        resultStatusError: { sourceUrl: SOURCE_URL },
+      });
+      // The winner-reference guard still runs: the mode never bypasses it.
+      const winnerGuard = calls.find((call) => call.text.includes("jsonb_array_elements(r.winners)"));
+      expect(winnerGuard?.values).toEqual([ELECTION_ID, LINK_ID, CANDIDATE_ID]);
+      // Only a row the writer could have projected from corroborates the
+      // mode: an election-night or unmatched row never sets 'lost'.
+      const corroboration = calls.find((call) => call.text.includes("jsonb_array_length(r.winners)"));
+      expect(corroboration?.values).toEqual([ELECTION_ID]);
+      for (const clause of [
+        "r.pass_type = 'certified'",
+        "r.result_status = 'certified'",
+        "r.source_type = 'official'",
+        "r.match_status = 'matched'",
+        "r.outcome IN ('won', 'advanced', 'runoff')",
+        "coalesce(w->>'candidate_election_id', '') = ''",
+      ]) {
+        expect(corroboration?.text).toContain(clause);
+      }
+      const linkDelete = calls.find((call) => call.text.includes("DELETE FROM public.candidate_elections"));
+      expect(linkDelete?.values).toEqual([LINK_ID]);
+      expect(calls.at(-1)?.text).toBe("COMMIT");
+    });
+
+    it("still refuses when a persisted result names the candidate as a winner", async () => {
+      const { query, calls } = buildClient(
+        happyResponses({
+          ...lostLink(),
+          ...projectedResult(),
+          "FROM public.election_results": [{ rows: [{ id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" }] }],
+        })
+      );
+
+      await expect(
+        runUnlinkCandidateElection(
+          { query },
+          { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false, resultStatusError: { sourceUrl: SOURCE_URL } }
+        )
+      ).rejects.toThrow(/winners reference this candidate/);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+
+    it("refuses when no result row with winners exists for the election", async () => {
+      const { query, calls } = buildClient(happyResponses(lostLink()));
+
+      await expect(
+        runUnlinkCandidateElection(
+          { query },
+          { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false, resultStatusError: { sourceUrl: SOURCE_URL } }
+        )
+      ).rejects.toThrow(/no certified official matched election_results row with linked winners/);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+
+    it.each(["won", "advanced", "withdrawn"])("refuses a '%s' link", async (status) => {
+      const { query, calls } = buildClient(
+        happyResponses({
+          "FROM public.candidate_elections\n        WHERE candidate_id": [{ rows: [linkRow({ status })] }],
+          ...projectedResult(),
+        })
+      );
+
+      await expect(
+        runUnlinkCandidateElection(
+          { query },
+          { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false, resultStatusError: { sourceUrl: SOURCE_URL } }
+        )
+      ).rejects.toThrow(new RegExp(`status '${status}'.*only covers a 'lost' status`, "s"));
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+
+    it("refuses the mode on a 'declared' link so the flag is never a habit", async () => {
+      const { query, calls } = buildClient(happyResponses(projectedResult()));
+
+      await expect(
+        runUnlinkCandidateElection(
+          { query },
+          { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false, resultStatusError: { sourceUrl: SOURCE_URL } }
+        )
+      ).rejects.toThrow(/only applies to a 'lost' link — drop the flag/);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+
+    it("refuses a non-HTTPS source url before touching the database", async () => {
+      const { query, calls } = buildClient(happyResponses({ ...lostLink(), ...projectedResult() }));
+
+      await expect(
+        runUnlinkCandidateElection(
+          { query },
+          {
+            candidateId: CANDIDATE_ID,
+            electionId: ELECTION_ID,
+            dryRun: false,
+            resultStatusError: { sourceUrl: "http://electionstats.example.gov/elections/view/1" },
+          }
+        )
+      ).rejects.toThrow(/--source-url must use HTTPS/);
+      expect(calls).toHaveLength(0);
+    });
   });
 });
