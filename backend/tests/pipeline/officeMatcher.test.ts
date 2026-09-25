@@ -501,6 +501,47 @@ describe("OfficeMatcher", () => {
     expect(result.aliasMemoryKey).toBe("council member");
   });
 
+  it("strips a 'Ward N, Position <letter or number>' seat so the title hits the place council alias (Hillsboro OR, Fayetteville AR)", async () => {
+    // "City of Hillsboro Council Member, Ward 1, Position A" (and Wards 2-3)
+    // wrote NULL-office shells (live, 2026-09-24 city-coverage run): the ward
+    // number was stripped but the position rule accepted digits only, so
+    // "position a" survived and left the title tied between City and Town
+    // Council Member at ambiguous 0.571.
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        place: [{ office_id: "office-city-council-member", normalized_alias: "council member" }],
+      },
+      officesByScope: {
+        place: [
+          { id: "office-city-council-member", canonical_name: "City Council Member" },
+          { id: "office-town-council-member", canonical_name: "Town Council Member" },
+          { id: "office-place-level-judge", canonical_name: "Place Level Judge" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const cases: Array<[string, string, string, string]> = [
+      ["City of Hillsboro Council Member, Ward 1, Position A", "Hillsboro city, Oregon", "OR", "council member"],
+      ["City of Hillsboro Council Member, Ward 2, Position A", "Hillsboro city, Oregon", "OR", "council member"],
+      ["City of Hillsboro Council Member, Ward 3, Position A", "Hillsboro city, Oregon", "OR", "council member"],
+      ["City Council Member, Ward 2, Position 1", "Fayetteville city, Arkansas", "AR", "city council member"],
+    ];
+    for (const [title, districtName, state, aliasMemoryKey] of cases) {
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName,
+        state,
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-city-council-member");
+      expect(result.method, title).toBe("alias_exact");
+      expect(result.confidence, title).toBe(1);
+      expect(result.aliasMemoryKey, title).toBe(aliasMemoryKey);
+    }
+  });
+
   it("folds 'Councilor-at-Large (To Fill Vacancy)' to the place council alias (Syracuse)", async () => {
     // Onondaga County's certified list titles the seat "COUNCILOR - AT -
     // LARGE (TO FILL VACANCY)". The one-word "councilor" shared no token with
