@@ -22,6 +22,18 @@
 //   have existed is wrong); sent ones cannot be recalled;
 // - local-database guard, single transaction, --dry-run (executes everything
 //   and rolls back, so the reported counts are real).
+//
+// --result-status-error: the certified-results writer marks EVERY non-winner
+// link on an election 'lost' (projectCertifiedOfficeResultIfEligible), so a
+// research-error link on a combined-party primary shell comes out 'lost' even
+// though the candidate was never on that ballot — live 2026-09-24: an
+// Independent general-election candidate for Massachusetts Governor, linked
+// to the Sept 1, 2026 primary by mistake, was marked 'lost' by the official
+// primary result. The status is the writer's projection of our own error,
+// not recorded history, so the operator may assert that with this mode and a
+// --source-url for the official results. It applies to 'lost' only:
+// 'won'/'advanced' name the candidate in a result row, and 'withdrawn' is an
+// evidence-backed manual record — none of those can be a mis-projection.
 import { pathToFileURL } from "node:url";
 
 import { Pool } from "pg";
@@ -41,6 +53,10 @@ export type UnlinkCandidateElectionOptions = {
   candidateId: string;
   electionId: string;
   dryRun: boolean;
+  // Set when the operator asserts the results writer mis-assigned a 'lost'
+  // status to a candidate who was never on this ballot; sourceUrl is the
+  // official results page that omits the candidate.
+  resultStatusError?: { sourceUrl: string } | null;
 };
 
 export type UnlinkCandidateElectionResult = {
@@ -51,6 +67,7 @@ export type UnlinkCandidateElectionResult = {
   electionTitle: string;
   linkStatus: string;
   staleNotificationEventsDeleted: number;
+  resultStatusError: { sourceUrl: string } | null;
 };
 
 type LinkRow = {
@@ -71,6 +88,14 @@ function usage(): string {
     "",
     "Usage:",
     "  npm run manual:candidate-elections:unlink -- --candidate-id uuid --election-id uuid --reason text [--dry-run]",
+    "  npm run manual:candidate-elections:unlink -- --candidate-id uuid --election-id uuid --reason text \\",
+    "      --result-status-error --source-url https://... [--dry-run]",
+    "",
+    "--result-status-error removes a link the certified-results writer marked",
+    "'lost' although the candidate was never on that ballot (e.g. an",
+    "Independent linked to a party primary); --source-url must be the official",
+    "results page that omits the candidate. 'won', 'advanced' and 'withdrawn'",
+    "links are still refused.",
     "",
     "For a candidate who actually dropped out, use",
     "manual:candidate-elections:withdraw instead — it keeps the row as history",
@@ -109,6 +134,10 @@ export async function runUnlinkCandidateElection(
   const candidateId = options.candidateId.toLowerCase();
   const electionId = options.electionId.toLowerCase();
   const { dryRun } = options;
+  const resultStatusError = options.resultStatusError ?? null;
+  if (resultStatusError && new URL(resultStatusError.sourceUrl).protocol !== "https:") {
+    throw new Error("--source-url must use HTTPS");
+  }
 
   await client.query("BEGIN");
   try {
@@ -132,10 +161,29 @@ export async function runUnlinkCandidateElection(
     // and result statuses are settled outcomes. Deleting such a link as a
     // "research error" is a compound mess that needs a user decision, not a
     // silent wrapper path.
-    if (link.status !== "declared") {
+    if (resultStatusError) {
+      // 'lost' is the only status the results writer assigns without naming
+      // the candidate; anything else is either a result row's own assertion
+      // or a manual record, and cannot be a mis-projection of this kind.
+      if (link.status === "declared") {
+        throw new Error(
+          `Link ${link.id} has status 'declared'; --result-status-error only applies to a 'lost' link — drop the flag and re-run.`
+        );
+      }
+      if (link.status !== "lost") {
+        throw new Error(
+          `Link ${link.id} has status '${link.status}', which names the candidate in a result or manual record; ` +
+            "--result-status-error only covers a 'lost' status the results writer assigned to a non-winner. Refusing."
+        );
+      }
+    } else if (link.status !== "declared") {
       throw new Error(
         `Link ${link.id} has status '${link.status}', which asserts recorded history; refusing a ` +
-          "research-error unlink. If that status itself is wrong, resolve it first (user decision), then re-run."
+          "research-error unlink. If that status itself is wrong, resolve it first (user decision), then re-run." +
+          (link.status === "lost"
+            ? " If the results writer marked a candidate 'lost' who was never on this ballot, re-run with " +
+              "--result-status-error --source-url <official results>."
+            : "")
       );
     }
 
@@ -186,6 +234,30 @@ export async function runUnlinkCandidateElection(
         `Election ${electionId} has persisted election_results rows whose winners reference ` +
           "this candidate; refusing unlink — resolve the result rows first (user decision), then re-run."
       );
+    }
+
+    // A 'lost' status the writer assigned is only plausible when a result
+    // row with winners exists for this election: the projection runs from
+    // such a row. Without one the status came from somewhere else and the
+    // operator's assertion does not describe what happened.
+    if (resultStatusError) {
+      const projectedResult = await client.query<{ id: string }>(
+        `
+          SELECT r.id
+          FROM public.election_results r
+          WHERE r.election_id = $1::uuid
+            AND jsonb_typeof(r.winners) = 'array'
+            AND jsonb_array_length(r.winners) > 0
+          LIMIT 1
+        `,
+        [electionId]
+      );
+      if (!projectedResult.rows[0]) {
+        throw new Error(
+          `Election ${electionId} has no persisted election_results row with winners, so the results writer ` +
+            "cannot have set this link 'lost'; refusing --result-status-error — resolve the status by hand (user decision)."
+        );
+      }
     }
 
     // Election-scoped candidate rows (state finance links etc.) assert the
@@ -242,6 +314,7 @@ export async function runUnlinkCandidateElection(
       electionTitle: election.official_ballot_title,
       linkStatus: link.status,
       staleNotificationEventsDeleted: staleEvents.rowCount ?? 0,
+      resultStatusError,
     };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -255,6 +328,8 @@ async function main(): Promise<void> {
     { name: "--election-id", value: "space" },
     { name: "--reason", value: "space" },
     { name: "--dry-run", value: "none" },
+    { name: "--result-status-error", value: "none" },
+    { name: "--source-url", value: "space" },
   ]);
   loadProjectEnv();
 
@@ -262,6 +337,14 @@ async function main(): Promise<void> {
   const electionId = requireFlag("--election-id");
   const reason = requireFlag("--reason");
   const dryRun = process.argv.includes("--dry-run");
+  const resultStatusErrorFlag = process.argv.includes("--result-status-error");
+  const sourceUrl = readFlag("--source-url");
+  if (resultStatusErrorFlag && !sourceUrl) {
+    throw new Error(`--result-status-error requires --source-url (the official results page).\n${usage()}`);
+  }
+  if (sourceUrl && !resultStatusErrorFlag) {
+    throw new Error(`--source-url only applies with --result-status-error.\n${usage()}`);
+  }
 
   for (const [name, value] of [
     ["--candidate-id", candidateId],
@@ -272,13 +355,21 @@ async function main(): Promise<void> {
   if (reason.length < 20) {
     throw new Error("--reason must explain the research error in at least 20 characters");
   }
+  if (sourceUrl && new URL(sourceUrl).protocol !== "https:") {
+    throw new Error("--source-url must use HTTPS");
+  }
 
   const databaseUrl = requireEnv("DATABASE_URL");
   requireLocalDatabaseTarget(databaseUrl);
   const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
   try {
-    const result = await runUnlinkCandidateElection(client, { candidateId, electionId, dryRun });
+    const result = await runUnlinkCandidateElection(client, {
+      candidateId,
+      electionId,
+      dryRun,
+      resultStatusError: sourceUrl ? { sourceUrl } : null,
+    });
     console.log(JSON.stringify({ ...result, reason }, null, 2));
   } finally {
     client.release();
