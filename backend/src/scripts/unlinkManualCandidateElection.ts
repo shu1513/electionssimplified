@@ -17,6 +17,13 @@
 //   links etc., discovered dynamically from the catalog): those rows assert
 //   the pairing was real, so a "research error" delete under them is
 //   contradictory — resolve them first;
+// - no rows FK onto the link itself: user_election_choices (a user's saved
+//   pick, ON DELETE CASCADE), manual candidate-finance filing targets (ON
+//   DELETE RESTRICT, refused here with a readable message instead of the
+//   generic FK error) and any id-keyed child table the catalog lists
+//   (fl_candidate_finance_outside_group_links cascades) — the same guards
+//   manual:candidate-elections:move applies before its duplicate-merge
+//   delete, since the election-scoped scan above cannot see them;
 // - unsent notification events for the pair are deleted in the same
 //   transaction (an unsent "on the ballot" line for a link that never should
 //   have existed is wrong); sent ones cannot be recalled;
@@ -40,7 +47,11 @@ import { Pool } from "pg";
 
 import { loadProjectEnv } from "../config/env.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
-import { listCandidateScopedElectionFkTables } from "./moveManualCandidateElectionLink.js";
+import {
+  isManualCandidateFinanceTargetFkReference,
+  listCandidateElectionLinkFkReferences,
+  listCandidateScopedElectionFkTables,
+} from "./moveManualCandidateElectionLink.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 
 type QueryResultLike<T> = { rows: T[]; rowCount?: number | null };
@@ -123,6 +134,96 @@ function requireEnv(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) throw new Error(`${name} is required for manual candidate-election unlink`);
   return value;
+}
+
+// Rows that reference the link itself rather than the (candidate, election)
+// pair. The election-scoped scan in the caller cannot see them, and the
+// delete would either cascade them away silently (user picks, Florida
+// outside-group links) or fail with PostgreSQL's generic FK error (manual
+// finance filing targets). Mirrors the guards manual:candidate-elections:move
+// runs before its duplicate-merge delete.
+async function assertNoLinkScopedRows(
+  client: UnlinkCandidateElectionClient,
+  input: { candidateId: string; electionId: string; linkId: string }
+): Promise<void> {
+  const manualFinanceTargets = await client.query<{ n: string }>(
+    `
+      SELECT count(*)::text AS n
+      FROM public.manual_candidate_finance_filing_targets
+      WHERE candidate_id = $1::uuid AND election_id = $2::uuid
+    `,
+    [input.candidateId, input.electionId]
+  );
+  const manualFinanceTargetCount = Number(manualFinanceTargets.rows[0]?.n ?? "0");
+  if (manualFinanceTargetCount > 0) {
+    throw new Error(
+      `${manualFinanceTargetCount} manual candidate-finance filing target row(s) reference ` +
+        `${input.candidateId}/${input.electionId}; deleting this candidacy would make their immutable ` +
+        "payload identity disagree with the derived target. Resolve those filings explicitly " +
+        "(user decision), then re-run."
+    );
+  }
+
+  // A pick is the user's decision about THIS race; the choice FK is ON
+  // DELETE CASCADE, so the unlink would erase it without a trace.
+  const choiceCount = await client.query<{ n: string }>(
+    `
+      SELECT count(*)::text AS n
+      FROM public.user_election_choices
+      WHERE candidate_id = $1::uuid AND election_id = $2::uuid
+    `,
+    [input.candidateId, input.electionId]
+  );
+  const choices = Number(choiceCount.rows[0]?.n ?? "0");
+  if (choices > 0) {
+    throw new Error(
+      `${choices} user_election_choices row(s) name this candidacy; an unlink would silently delete users' ` +
+        "planned votes. Resolve those rows first (user decision), then re-run."
+    );
+  }
+
+  // The choices FK is composite onto (candidate_id, election_id) and was
+  // counted above; the filing-targets FK likewise. Every other FK onto
+  // candidate_elections must be a single column onto id for the id-keyed
+  // count below to mean anything; any other shape is refused, not guessed.
+  const linkFkReferences = (await listCandidateElectionLinkFkReferences(client)).filter(
+    (ref) =>
+      ref.constraintName !== "fk_user_election_choices_candidacy" &&
+      !isManualCandidateFinanceTargetFkReference(ref)
+  );
+  const unsupported = [
+    ...new Set(
+      linkFkReferences
+        .filter((ref) => ref.columnCount !== 1 || ref.referencedColumn !== "id")
+        .map((ref) => `${ref.table}.${ref.constraintName}`)
+    ),
+  ];
+  if (unsupported.length > 0) {
+    throw new Error(
+      `Foreign keys onto candidate_elections whose shape this guard cannot check ` +
+        `(composite, or not referencing id): ${unsupported.join(", ")}. ` +
+        "Refusing the unlink; extend the guard before deleting under such constraints."
+    );
+  }
+  const cascading: string[] = [];
+  const counted = new Set<string>();
+  for (const { table, column } of linkFkReferences) {
+    const key = `${table}.${column}`;
+    if (counted.has(key)) continue;
+    counted.add(key);
+    const countResult = await client.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM ${table} WHERE ${column} = $1::uuid`,
+      [input.linkId]
+    );
+    const n = Number(countResult.rows[0]?.n ?? "0");
+    if (n > 0) cascading.push(`${key} (${n})`);
+  }
+  if (cascading.length > 0) {
+    throw new Error(
+      `Link ${input.linkId} is referenced by rows the delete would cascade away: ${cascading.join(", ")}. ` +
+        "Resolve those rows first (user decision), then re-run."
+    );
+  }
 }
 
 export async function runUnlinkCandidateElection(
@@ -237,25 +338,38 @@ export async function runUnlinkCandidateElection(
     }
 
     // A 'lost' status the writer assigned is only plausible when a result
-    // row with winners exists for this election: the projection runs from
-    // such a row. Without one the status came from somewhere else and the
-    // operator's assertion does not describe what happened.
+    // row it could have projected from exists for this election: a certified
+    // pass, certified official matched result with every winner linked
+    // (canProjectOfficeRow in electionResultWriter). An election-night or
+    // unmatched row never reaches the projection, so it must not authorize
+    // this mode. Source authority ("verified") is not persisted on the row
+    // and cannot be re-checked here.
     if (resultStatusError) {
       const projectedResult = await client.query<{ id: string }>(
         `
           SELECT r.id
           FROM public.election_results r
           WHERE r.election_id = $1::uuid
+            AND r.pass_type = 'certified'
+            AND r.result_status = 'certified'
+            AND r.source_type = 'official'
+            AND r.match_status = 'matched'
             AND jsonb_typeof(r.winners) = 'array'
             AND jsonb_array_length(r.winners) > 0
+            AND NOT EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(r.winners) AS w
+              WHERE coalesce(w->>'candidate_election_id', '') = ''
+            )
           LIMIT 1
         `,
         [electionId]
       );
       if (!projectedResult.rows[0]) {
         throw new Error(
-          `Election ${electionId} has no persisted election_results row with winners, so the results writer ` +
-            "cannot have set this link 'lost'; refusing --result-status-error — resolve the status by hand (user decision)."
+          `Election ${electionId} has no certified official matched election_results row with linked winners, ` +
+            "so the results writer cannot have set this link 'lost'; refusing --result-status-error — " +
+            "resolve the status by hand (user decision)."
         );
       }
     }
@@ -285,6 +399,8 @@ export async function runUnlinkCandidateElection(
           "Resolve those rows first (user decision), then re-run."
       );
     }
+
+    await assertNoLinkScopedRows(client, { candidateId, electionId, linkId: link.id });
 
     // A link that never should have existed must not leave "on the ballot"
     // (or withdrawal) lines in anyone's digest. Sent events cannot be
