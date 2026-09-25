@@ -45,6 +45,24 @@ Other notes:
 - The county office matcher maps them to the generic `County Level Judge` office. There is no appellate office in the catalog.
 - The county validator soft-failed the titles because they lack a county word. They went in with `--review-approve`.
 
+## Candidate records and labels
+
+Each candidate got one records pass and one label pass, with a per-question search log saved as sweep evidence.
+
+| Candidate | Records | Labels | Notes |
+| --- | --- | --- | --- |
+| Amy Lockhart | 20 | 22 | County commission votes from Legistar minutes (2023–2025), school board votes from 2012–2018 minutes, 2026 endorsements |
+| Charline Santos | 2 | 2, all neutral | Real estate license (2025) and one 2026 public comment |
+| John M. Harris | 3 | 3, all neutral | Chief judge election, appointment, one 2024 panel ruling |
+| Scott Makar | 5 | 5, all neutral | Three U.S. Supreme Court arguments, appointment, 2014 dissent |
+| F. Rand Wallis | 1 | 1, all neutral | 2013 appointment |
+
+Access gaps:
+
+- The county clerk's minutes archive for 2018–2022 (`webapps.seminoleclerk.org`) no longer resolves. Legistar has no minutes before 2023. Lockhart's 2018–2022 commission votes are not covered.
+- Legistar's vote records stop at November 2025, so her 2026 votes are not covered.
+- The Florida Bar retention poll ended in 2023, so the judges have no Bar rating for 2026.
+
 ## Not written, on purpose
 
 These were not written: Oviedo Council Groups 2, 3 and 4 (unopposed), County Commissioner District 2 (unopposed), 18th Circuit judge groups and school board (decided August 18), Soil and Water Conservation District and Dovera CDD seats (no qualified candidates on the Supervisor of Elections list).
