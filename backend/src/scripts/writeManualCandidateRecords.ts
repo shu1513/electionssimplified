@@ -402,8 +402,16 @@ export function validateSinceDateAgainstCheckpoint(
 
 export type DeltaZeroRecordConfirmationDecision =
   | { action: "leave" }
-  | { action: "refresh" }
+  | { action: "refresh"; contextType: SweepConfirmationContextType; contextId: string }
   | { action: "error"; reason: string };
+
+type SweepConfirmationContextType = "election" | "presidential_cycle";
+
+export type PriorSweepConfirmation = {
+  contextType: SweepConfirmationContextType;
+  contextId: string;
+  confirmedGapIds: readonly string[];
+};
 
 /**
  * A zero-record DELTA write asserts only "no new records in the window", so
@@ -426,18 +434,36 @@ export type DeltaZeroRecordConfirmationDecision =
  *    a message that says so instead of "the sweep was never closed".
  *  - candidate has zero records and no such confirmation → the full-history
  *    question was never evidence-closed; a windowed pass cannot close it.
+ *
+ * Confirmations are read across ALL of the candidate's contexts, not just
+ * the election being written: records are candidate-wide, so a
+ * no_records_found sweep closed under the primary still covers the general
+ * (the audit reads the newest no_records_found row the same way). The row
+ * refreshed is the current context's own row when it claims
+ * no_records_found, else the newest row that does (priorConfirmations must
+ * be ordered newest confirmed_at first).
  */
 export function decideDeltaZeroRecordConfirmation(input: {
   existingRecordCount: number;
-  priorConfirmedGapIds: readonly string[] | null;
+  currentContext: { contextType: SweepConfirmationContextType; contextId: string };
+  priorConfirmations: readonly PriorSweepConfirmation[];
 }): DeltaZeroRecordConfirmationDecision {
   if (input.existingRecordCount > 0) {
     return { action: "leave" };
   }
-  if (input.priorConfirmedGapIds?.includes(NO_RECORDS_FOUND_GAP_ID)) {
-    return { action: "refresh" };
+  const noRecordsRows = input.priorConfirmations.filter((row) =>
+    row.confirmedGapIds.includes(NO_RECORDS_FOUND_GAP_ID)
+  );
+  if (noRecordsRows.length > 0) {
+    const target =
+      noRecordsRows.find(
+        (row) =>
+          row.contextType === input.currentContext.contextType &&
+          row.contextId === input.currentContext.contextId
+      ) ?? noRecordsRows[0]!;
+    return { action: "refresh", contextType: target.contextType, contextId: target.contextId };
   }
-  if (input.priorConfirmedGapIds !== null) {
+  if (input.priorConfirmations.length > 0) {
     // A confirmation exists but never claimed no_records_found (an
     // empty-claim-set or only_general_labels row) — both imply records
     // existed when it was written, yet the candidate now has zero stored
@@ -1076,19 +1102,29 @@ async function main(): Promise<void> {
           `SELECT count(*)::text AS record_count FROM public.candidate_records WHERE candidate_id = $1 AND retired_at IS NULL`,
           [candidateId]
         );
-        const priorConfirmation = await client.query<{ confirmed_gap_ids: string[] | null }>(
+        // Every context, not just this election: see
+        // decideDeltaZeroRecordConfirmation.
+        const priorConfirmations = await client.query<{
+          context_type: SweepConfirmationContextType;
+          context_id: string;
+          confirmed_gap_ids: string[] | null;
+        }>(
           `
-            SELECT confirmed_gap_ids
+            SELECT context_type, context_id::text AS context_id, confirmed_gap_ids
             FROM public.candidate_record_sweep_confirmations
             WHERE candidate_id = $1
-              AND context_type = 'election'
-              AND context_id = $2
+            ORDER BY confirmed_at DESC, context_type, context_id
           `,
-          [candidateId, electionId]
+          [candidateId]
         );
         const decision = decideDeltaZeroRecordConfirmation({
           existingRecordCount: Number(existingRecords.rows[0]?.record_count ?? "0"),
-          priorConfirmedGapIds: priorConfirmation.rows[0]?.confirmed_gap_ids ?? null,
+          currentContext: { contextType: "election", contextId: electionId },
+          priorConfirmations: priorConfirmations.rows.map((row) => ({
+            contextType: row.context_type,
+            contextId: row.context_id,
+            confirmedGapIds: row.confirmed_gap_ids ?? [],
+          })),
         });
         if (decision.action === "error") {
           throw new Error(decision.reason);
@@ -1096,8 +1132,8 @@ async function main(): Promise<void> {
         if (decision.action === "refresh") {
           await refreshSweepConfirmationTimestamp(client, {
             candidateId,
-            contextType: "election",
-            contextId: electionId,
+            contextType: decision.contextType,
+            contextId: decision.contextId,
           });
         }
       } else if (sweepEvidenceEntries) {

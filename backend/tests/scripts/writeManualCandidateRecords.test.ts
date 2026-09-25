@@ -252,14 +252,26 @@ describe("writeManualCandidateRecords delta (--since-date) helpers", () => {
     expect(outOfWindow[0]!.record.description).toBe("before window");
   });
 
+  const deltaContext = { contextType: "election" as const, contextId: "general-election" };
+  const confirmation = (contextId: string, confirmedGapIds: string[]) => ({
+    contextType: "election" as const,
+    contextId,
+    confirmedGapIds,
+  });
+
   it("decideDeltaZeroRecordConfirmation leaves the confirmation alone when the candidate has records", () => {
     expect(
-      decideDeltaZeroRecordConfirmation({ existingRecordCount: 4, priorConfirmedGapIds: null })
+      decideDeltaZeroRecordConfirmation({
+        existingRecordCount: 4,
+        currentContext: deltaContext,
+        priorConfirmations: [],
+      })
     ).toEqual({ action: "leave" });
     expect(
       decideDeltaZeroRecordConfirmation({
         existingRecordCount: 4,
-        priorConfirmedGapIds: ["candidate_records.no_records_found"],
+        currentContext: deltaContext,
+        priorConfirmations: [confirmation("general-election", ["candidate_records.no_records_found"])],
       })
     ).toEqual({ action: "leave" });
   });
@@ -268,9 +280,46 @@ describe("writeManualCandidateRecords delta (--since-date) helpers", () => {
     expect(
       decideDeltaZeroRecordConfirmation({
         existingRecordCount: 0,
-        priorConfirmedGapIds: ["candidate_records.no_records_found"],
+        currentContext: deltaContext,
+        priorConfirmations: [confirmation("general-election", ["candidate_records.no_records_found"])],
       })
-    ).toEqual({ action: "refresh" });
+    ).toEqual({ action: "refresh", contextType: "election", contextId: "general-election" });
+  });
+
+  it("decideDeltaZeroRecordConfirmation accepts a no_records_found confirmation stored under another election (primary → general)", () => {
+    expect(
+      decideDeltaZeroRecordConfirmation({
+        existingRecordCount: 0,
+        currentContext: deltaContext,
+        priorConfirmations: [confirmation("primary-election", ["candidate_records.no_records_found"])],
+      })
+    ).toEqual({ action: "refresh", contextType: "election", contextId: "primary-election" });
+  });
+
+  it("decideDeltaZeroRecordConfirmation refreshes the current context's row first, else the newest no_records_found row", () => {
+    // priorConfirmations arrive newest confirmed_at first.
+    expect(
+      decideDeltaZeroRecordConfirmation({
+        existingRecordCount: 0,
+        currentContext: deltaContext,
+        priorConfirmations: [
+          confirmation("other-election", ["candidate_records.no_records_found"]),
+          confirmation("general-election", ["candidate_records.no_records_found"]),
+        ],
+      })
+    ).toEqual({ action: "refresh", contextType: "election", contextId: "general-election" });
+
+    expect(
+      decideDeltaZeroRecordConfirmation({
+        existingRecordCount: 0,
+        currentContext: deltaContext,
+        priorConfirmations: [
+          confirmation("general-election", []),
+          confirmation("newer-primary", ["candidate_records.no_records_found"]),
+          confirmation("older-primary", ["candidate_records.no_records_found"]),
+        ],
+      })
+    ).toEqual({ action: "refresh", contextType: "election", contextId: "newer-primary" });
   });
 
   it("validateSinceDateAgainstCheckpoint allows windows starting at or before the checkpoint", () => {
@@ -291,7 +340,8 @@ describe("writeManualCandidateRecords delta (--since-date) helpers", () => {
   it("decideDeltaZeroRecordConfirmation refuses to close a never-confirmed full-history question from a windowed pass", () => {
     const noPrior = decideDeltaZeroRecordConfirmation({
       existingRecordCount: 0,
-      priorConfirmedGapIds: null,
+      currentContext: deltaContext,
+      priorConfirmations: [],
     });
     expect(noPrior.action).toBe("error");
     if (noPrior.action === "error") {
@@ -301,7 +351,8 @@ describe("writeManualCandidateRecords delta (--since-date) helpers", () => {
 
     const wrongPrior = decideDeltaZeroRecordConfirmation({
       existingRecordCount: 0,
-      priorConfirmedGapIds: ["candidate_records.only_general_labels"],
+      currentContext: deltaContext,
+      priorConfirmations: [confirmation("primary-election", ["candidate_records.only_general_labels"])],
     });
     expect(wrongPrior.action).toBe("error");
   });
@@ -311,10 +362,11 @@ describe("writeManualCandidateRecords delta (--since-date) helpers", () => {
     // both imply records existed when the confirmation was written; zero
     // stored records now means they were removed externally — the error
     // must say that, not "the sweep was never closed".
-    for (const priorConfirmedGapIds of [[], ["candidate_records.only_general_labels"]]) {
+    for (const priorConfirmedGapIds of [[] as string[], ["candidate_records.only_general_labels"]]) {
       const decision = decideDeltaZeroRecordConfirmation({
         existingRecordCount: 0,
-        priorConfirmedGapIds,
+        currentContext: deltaContext,
+        priorConfirmations: [confirmation("primary-election", priorConfirmedGapIds)],
       });
       expect(decision.action).toBe("error");
       if (decision.action === "error") {
