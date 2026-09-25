@@ -342,6 +342,7 @@ describe("runUnlinkCandidateElection", () => {
         "r.result_status = 'certified'",
         "r.source_type = 'official'",
         "r.match_status = 'matched'",
+        "r.outcome IN ('won', 'advanced', 'runoff')",
         "coalesce(w->>'candidate_election_id', '') = ''",
       ]) {
         expect(corroboration?.text).toContain(clause);

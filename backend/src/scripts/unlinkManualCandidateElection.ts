@@ -339,10 +339,11 @@ export async function runUnlinkCandidateElection(
 
     // A 'lost' status the writer assigned is only plausible when a result
     // row it could have projected from exists for this election: a certified
-    // pass, certified official matched result with every winner linked
-    // (canProjectOfficeRow in electionResultWriter). An election-night or
-    // unmatched row never reaches the projection, so it must not authorize
-    // this mode. Source authority ("verified") is not persisted on the row
+    // pass, certified official matched result with a projectable outcome
+    // (won/advanced/runoff — winnerStatusForOutcome) and every winner linked
+    // (canProjectOfficeRow in electionResultWriter). An election-night,
+    // unmatched, too_close or unknown row never reaches the projection, so
+    // it must not authorize this mode. Source authority ("verified") is not persisted on the row
     // and cannot be re-checked here.
     if (resultStatusError) {
       const projectedResult = await client.query<{ id: string }>(
@@ -354,6 +355,7 @@ export async function runUnlinkCandidateElection(
             AND r.result_status = 'certified'
             AND r.source_type = 'official'
             AND r.match_status = 'matched'
+            AND r.outcome IN ('won', 'advanced', 'runoff')
             AND jsonb_typeof(r.winners) = 'array'
             AND jsonb_array_length(r.winners) > 0
             AND NOT EXISTS (
