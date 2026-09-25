@@ -32,12 +32,12 @@ Ordinance 1770 changes two windows from 60–90 days to 90–120 days: special e
 
 ## Model choice for the appeals-court retention rows
 
-The first plan was one row per judge under each of the 20 counties in the Fifth District. It was not used, for two reasons:
+The first plan was one row per judge under each of the 14 counties in the Fifth District (Fourth, Fifth, Seventh and Eighteenth circuits). It was not used, for two reasons:
 
-- The candidate page lists every election link (`frontend/src/pages/CandidatePage.tsx`, `lookupCandidateElections` in `backend/src/pipeline/candidates/candidateDetailReader.ts`). Each judge would show the same contest 20 times.
-- The candidate page makes one finance request per upcoming election link, so each judge page would make 20.
+- The candidate page lists every election link (`frontend/src/pages/CandidatePage.tsx`, `lookupCandidateElections` in `backend/src/pipeline/candidates/candidateDetailReader.ts`). Each judge would show the same contest 14 times.
+- The candidate page makes one finance request per upcoming election link, so each judge page would make 14.
 
-The rows sit under Seminole County only. Voters in the other 19 counties do not see these questions yet. A proper fix needs either an appellate-district type or grouping of same-title links on the candidate page.
+The rows sit under Seminole County only. Voters in the other 13 counties do not see these questions yet. A proper fix needs either an appellate-district type or grouping of same-title links on the candidate page.
 
 Other notes:
 
