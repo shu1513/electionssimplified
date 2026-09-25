@@ -99,6 +99,7 @@ import {
 } from "../pipeline/users/userPickCardShares.js";
 import { getStateVotingResources } from "../api/stateVotingResources.js";
 import { getBrowseDistrict, getBrowseState, listBrowseStates } from "../api/browseCatalog.js";
+import { createCachedSiteStats } from "../api/siteStats.js";
 import { initializeUserDistricts } from "../pipeline/users/userDistrictInitializer.js";
 import { listUserDistrictIds } from "../pipeline/users/userDistrictReader.js";
 import { replaceUserDistricts } from "../pipeline/users/userDistrictReplacer.js";
@@ -815,6 +816,11 @@ async function main(): Promise<void> {
     listBrowseStates: () => listBrowseStates(pool),
     getBrowseState: (state) => getBrowseState(pool, state),
     getBrowseDistrict: (districtId) => getBrowseDistrict(pool, districtId),
+    // One DB pass per hour however often /api/stats is hit (siteStats.ts).
+    getSiteStats: createCachedSiteStats({ db: pool }),
+    // Unset = /api/indexnow-key.txt answers 404 and the submit script refuses
+    // to run; see docs/answer-engines.md for the setup.
+    indexNowKey: readOptionalEnv("INDEXNOW_KEY") ?? undefined,
     listAuthenticatedCandidateFollows: (userId) => listUserCandidateFollows(pool, userId),
     setAuthenticatedCandidateFollow: (userId, input) => setUserCandidateFollow(pool, userId, input),
     listAuthenticatedElectionChoices: (userId) => listUserElectionChoices(pool, userId),

@@ -312,6 +312,10 @@ export type BallotLookupElection = {
   // The detail payload carries the explanation; the ballot summary list
   // (BallotLookupElectionSummary) deliberately does not.
   vote_power: VotePowerResult & { explanation: VotePowerExplanation };
+  // elections.updated_at as an ISO string: the "last updated" date the
+  // detail page shows and puts in its Event JSON-LD (dateModified). Only the
+  // detail lookup selects it, hence optional on the shared shape.
+  updated_at?: string | null;
 };
 
 type BallotLookupElectionBase = Omit<
@@ -430,6 +434,8 @@ type ElectionRow = {
 type ElectionDetailRow = ElectionRow & {
   office_summary?: string | null;
   scope_state_population?: string | number | null;
+  // ISO text (the query casts); absent on older row shapes and test fixtures.
+  updated_at?: string | null;
 };
 
 type ElectionSummaryRow = ElectionRow & {
@@ -2147,6 +2153,9 @@ async function loadElectionRowById(db: Queryable, electionId: string): Promise<E
     `
       SELECT
         e.id AS election_id,
+        -- The row's last write, for the page's "last updated" line and its
+        -- Event JSON-LD dateModified (same column the sitemap's lastmod uses).
+        to_char(e.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS updated_at,
         d.id AS district_id,
         d.district_type,
         d.geoid_compact,
@@ -2356,6 +2365,7 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
     research_areas: mergeResearchAreaSummaries(officeResearchAreaRows, measureResearchAreaRows),
     historical_competitiveness: historicalCompetitiveness,
     current_competitiveness: currentCompetitiveness,
+    updated_at: electionRow?.updated_at ?? null,
     vote_power: {
       ...votePower,
       explanation: explainVotePower(

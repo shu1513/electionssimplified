@@ -5,6 +5,7 @@ import { isServer, MutationCache, QueryCache, QueryClient, QueryClientProvider }
 import "./index.css";
 import { APP_NAME, ApiError } from "@voteapp/api-client";
 import { RouteError } from "./components/RouteError";
+import { SiteJsonLd } from "./components/SiteJsonLd";
 import { captureMonitoredError } from "./lib/errorMonitoring";
 import { pageMeta } from "./lib/pageMeta";
 
@@ -82,6 +83,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <Meta />
         <Links />
+        {/* Publisher identity on every page (Organization + WebSite); the
+            per-page Person/Event blocks reference it by @id. */}
+        <SiteJsonLd />
       </head>
       <body>
         <Providers>{children}</Providers>

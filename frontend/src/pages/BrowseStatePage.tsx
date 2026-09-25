@@ -22,10 +22,34 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
   }
   return pageMeta({
     title: `${data.name} elections by district · ${APP_NAME}`,
-    description: `${data.districts.length.toLocaleString("en-US")} ${data.name} districts with researched races: statewide, congressional, legislative, county, city, and school board elections.`,
+    // The page's own opening sentence, so the search snippet and the page
+    // agree on the numbers.
+    description: stateAnswerText(data),
     path: location.pathname,
   });
 };
+
+/**
+ * The one-paragraph answer to "what elections are coming up in {state}?":
+ * counts and the next election day, derived from the district list the
+ * page already has. Sentences, not a stat strip, because that is the unit
+ * an answer engine lifts.
+ */
+export function stateAnswerText(data: BrowseStateResponse): string {
+  const upcoming = data.districts.reduce((sum, district) => sum + district.upcoming_election_count, 0);
+  const past = data.districts.reduce((sum, district) => sum + district.election_count - district.upcoming_election_count, 0);
+  const nextDate = data.districts
+    .map((district) => district.next_election_date)
+    .filter((date): date is string => date !== null)
+    .sort()[0];
+  const districts = `${data.districts.length.toLocaleString("en-US")} ${data.districts.length === 1 ? "district" : "districts"}`;
+  const levels = "statewide, congressional, state legislative, county, city, and school board";
+  if (upcoming === 0) {
+    return `${APP_NAME} has researched ${past.toLocaleString("en-US")} past ${past === 1 ? "election" : "elections"} across ${districts} in ${data.name}, with no upcoming election on file yet. Coverage spans ${levels} races.`;
+  }
+  const next = nextDate ? ` The next election day is ${formatElectionDate(nextDate)}.` : "";
+  return `${APP_NAME} tracks ${upcoming.toLocaleString("en-US")} upcoming ${upcoming === 1 ? "election" : "elections"} across ${districts} in ${data.name}, covering ${levels} races.${next} Each district page lists its races, the candidates, and their records.`;
+}
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -79,6 +103,7 @@ export function BrowseStatePage() {
       />
       <div>
         <h1 className="text-title font-bold">{data.name} elections</h1>
+        <p className="mt-2 text-body text-ink">{stateAnswerText(data)}</p>
         <p className="mt-1 text-sm text-ink-soft">
           Districts with researched races, from statewide down to school boards. Pick one to see its elections and candidates.
         </p>

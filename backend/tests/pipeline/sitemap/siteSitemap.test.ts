@@ -103,6 +103,9 @@ describe("site sitemap", () => {
     expect(urls).toEqual([
       { path: "/" },
       { path: "/mission" },
+      { path: "/methodology" },
+      // /stats is derived from every election, so it is as fresh as the newest one.
+      { path: "/stats", lastmod: new Date("2026-07-01T12:34:56.000Z") },
       { path: "/support" },
       { path: "/support/member" },
       { path: "/support/once" },

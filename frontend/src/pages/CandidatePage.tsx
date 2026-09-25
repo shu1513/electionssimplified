@@ -34,11 +34,12 @@ import { TrackRecordSection, type RecordView } from "../components/TrackRecordSe
 import { ReportContentButton } from "../components/ReportContentButton";
 import { formatDistrictName, formatElectionDate, isJudicialRetentionTitle } from "@voteapp/api-client";
 import { loadFromApi } from "../lib/loadFromApi";
-import { pageMeta } from "../lib/pageMeta";
+import { pageMeta, SITE_ORIGIN } from "../lib/pageMeta";
+import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { useHydrated } from "../lib/useHydrated";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { partyColorClass, profilePartyLabel } from "@voteapp/api-client";
-import { candidateProfileLinks } from "@voteapp/api-client";
+import { candidateProfileLinks, candidateSameAsUrls } from "@voteapp/api-client";
 import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
@@ -276,6 +277,7 @@ export function CandidatePage() {
   const ongoingFinance = detail.ongoing_finance ?? {};
   const isFollowing = (follows ?? []).some((follow) => follow.candidate_id === candidate.candidate_id);
   const profileLinks = candidateProfileLinks(candidate);
+  const sameAs = candidateSameAsUrls(candidate);
   const today = usLatestLocalDate();
   const ongoingElections = candidate.elections.filter((election) => election.election_date >= today);
   // The history list splits on the same date boundary: "is in" would misread
@@ -556,9 +558,27 @@ export function CandidatePage() {
         <JsonLdScript
           data={{
             "@type": "Person",
+            // Same @id the election page's performer list points at, so an
+            // engine merges the two into one entity. The #person fragment
+            // keeps the Person distinct from the WebPage node below, which
+            // owns the bare page URL — JSON-LD merges anything sharing an @id.
+            "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}#person`,
             name: candidate.display_name,
             ...(candidate.current_office ? { jobTitle: candidate.current_office } : {}),
             ...(candidate.official_website_url ? { url: candidate.official_website_url } : {}),
+            ...(candidate.summary ? { description: candidate.summary } : {}),
+            // Party as an affiliation, not a bare string: engines read the
+            // Organization name; "Nonpartisan"/unknown rows carry none.
+            ...(profilePartyLabel(candidate.party)
+              ? { affiliation: { "@type": "Organization", name: profilePartyLabel(candidate.party) } }
+              : {}),
+            // Ballotpedia / Wikipedia / official / social URLs — how an
+            // engine connects this page to the person it already knows.
+            ...(sameAs.length > 0 ? { sameAs } : {}),
+            // Freshness: the profile's last research pass.
+            ...(candidate.last_researched ? { dateModified: candidate.last_researched } : {}),
+            mainEntityOfPage: `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`,
+            subjectOf: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`, publisher: { "@id": ORGANIZATION_ID } },
           }}
         />
         <div className="flex flex-wrap items-center justify-between gap-3">

@@ -120,7 +120,7 @@ describe("ElectionPage", () => {
     expect(screen.queryByRole("button", { name: /follow/i })).not.toBeInTheDocument();
     // The report button sits at the end of the page, after the candidates.
     const reportButton = screen.getByRole("button", { name: "Report an issue with election" });
-    const candidatesHeading = screen.getByRole("heading", { name: "Candidates" });
+    const candidatesHeading = screen.getByRole("heading", { name: "Who is running?" });
     expect(candidatesHeading.compareDocumentPosition(reportButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -251,7 +251,8 @@ describe("ElectionPage", () => {
     renderElection(() => electionDetail({ seats_to_fill: 3 }));
 
     expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    expect(screen.getByText(/3 seats/)).toBeInTheDocument();
+    // Header strip and the answer paragraph both name the seat count.
+    expect(screen.getAllByText(/3 seats/).length).toBeGreaterThan(0);
   });
 
   it("shows no seat count when seats_to_fill is absent or 1", async () => {
@@ -285,7 +286,7 @@ describe("ElectionPage", () => {
     // Default fixture: two Independent candidates — one "other" bucket.
     renderElection(() => electionDetail());
 
-    await screen.findByRole("heading", { name: "Candidates" });
+    await screen.findByRole("heading", { name: "Who is running?" });
     expect(screen.queryByRole("group", { name: "Filter candidates by party" })).not.toBeInTheDocument();
   });
 
@@ -481,7 +482,7 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "Candidates" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Who is running?" })).toBeInTheDocument();
     expect(
       screen.getByText(
         "We haven't found a final candidate list from election officials for this race yet. We'll check again after August 27, 2026."
@@ -494,7 +495,7 @@ describe("ElectionPage", () => {
     renderElection(() => electionDetail({ candidates: [], candidate_roster_status: null }));
 
     expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Candidates" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Who is running?" })).not.toBeInTheDocument();
   });
 
   it("falls back to generic copy for an unknown roster status reason", async () => {
@@ -871,7 +872,7 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "About this office" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "What does this office do?" })).toBeInTheDocument();
     // Every summary line is a bullet; no hook paragraph, no label.
     const bullets = screen.getAllByRole("listitem").map((li) => li.textContent);
     expect(bullets).toEqual(["Signing or vetoing bills that become state law", "Deciding how much money goes to schools"]);
@@ -943,7 +944,7 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "About this office" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "What does this office do?" })).toBeInTheDocument();
     const bullets = screen.getAllByRole("listitem").map((li) => li.textContent);
     expect(bullets).toEqual([
       "Your state representative writes state laws.",
@@ -1062,7 +1063,7 @@ describe("ElectionPage", () => {
     // One question about one person: the judge inline (name as the section
     // heading, site, summary, records) instead of a "Candidates" list that
     // only linked to the profile.
-    expect(screen.queryByRole("heading", { name: "Candidates" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Who is running?" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Jordan Voter" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Official site" })).toHaveAttribute("href", "https://judge.example.gov");
     expect(screen.getByText("A candidate summary.")).toBeInTheDocument();
@@ -1431,8 +1432,8 @@ describe("ElectionPage", () => {
       })
     );
 
-    await screen.findByRole("heading", { name: "Ballot Measure" });
-    expect(screen.queryByText("About this office")).not.toBeInTheDocument();
+    await screen.findByRole("heading", { name: "What does this measure do?" });
+    expect(screen.queryByText("What does this office do?")).not.toBeInTheDocument();
     expect(screen.queryByText("Affects:")).not.toBeInTheDocument();
   });
 
