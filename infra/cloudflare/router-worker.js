@@ -251,7 +251,15 @@ export function withSecurityHeaders(response, pathname = "") {
 // logged-in user's request is never even cache-eligible, so a response
 // generated for one can never be stored.
 export const SESSION_COOKIE_NAME = "voteapp_auth_session";
-export const EDGE_CACHE_TTL_SECONDS = 60;
+// 6 hours (2026-09-26, was 60s): crawlers fetch each of the ~69k public pages
+// once and rarely return within a minute, so a 60s copy almost never served a
+// second visitor and nearly every bot hit reached Render, pushing the Hobby
+// plan toward its 5 GB/month bandwidth cap. Six hours lets overlapping
+// crawlers (Googlebot, Bingbot, AI-search bots) share one origin fetch. Data
+// changes only on manual deploys/promotions; purge the zone cache
+// ("Purge Everything") after one instead of waiting for expiry, and drop this
+// back to minutes for election-results week.
+export const EDGE_CACHE_TTL_SECONDS = 6 * 60 * 60;
 
 const CACHEABLE_EXACT_PATHS = new Set(["/", "/ballot", "/browse", "/mission", "/methodology", "/stats", "/embed-instructions", "/support", "/support/member", "/support/once", "/disclaimer", "/terms", "/privacy"]);
 // Exactly one path segment, mirroring the declared routes /elections/:id,
