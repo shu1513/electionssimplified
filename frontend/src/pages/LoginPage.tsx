@@ -12,7 +12,12 @@ import { postLoginDestination } from "../lib/postLoginDestination";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { trackSettled } from "../lib/usage";
 
-export const meta: MetaFunction = () => [{ title: `Log in · ${APP_NAME}` }];
+export const meta: MetaFunction = () => [
+  { title: `Log in · ${APP_NAME}` },
+  // Account pages carry no search value; without this Google indexes
+  // every ?next= variant as a duplicate.
+  { name: "robots", content: "noindex" },
+];
 
 export function LoginPage() {
   useDocumentTitle("Log in");

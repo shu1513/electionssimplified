@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
+import type { MetaFunction } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@voteapp/api-client";
+import { APP_NAME, apiRequest } from "@voteapp/api-client";
 import { ErrorNotice } from "../components/Status";
 import { useAdoptPreHydrationValue } from "../lib/preHydrationInput";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
+
+export const meta: MetaFunction = () => [
+  { title: `Choose a new password · ${APP_NAME}` },
+  // Account pages carry no search value, and a token URL must never be
+  // indexed.
+  { name: "robots", content: "noindex" },
+];
 
 export function ResetPasswordPage() {
   useDocumentTitle("Choose a new password");

@@ -14,7 +14,12 @@ import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { postLoginDestination } from "../lib/postLoginDestination";
 import { trackSettled } from "../lib/usage";
 
-export const meta: MetaFunction = () => [{ title: `Create your account · ${APP_NAME}` }];
+export const meta: MetaFunction = () => [
+  { title: `Create your account · ${APP_NAME}` },
+  // Account pages carry no search value; without this Google indexes
+  // every ?next= variant as a duplicate.
+  { name: "robots", content: "noindex" },
+];
 
 export function RegisterPage() {
   useDocumentTitle("Create your account");

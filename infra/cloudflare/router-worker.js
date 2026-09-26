@@ -227,7 +227,7 @@ export function withSecurityHeaders(response, pathname = "") {
 // anonymous by design (personalization happens client-side after hydration
 // — see frontend/src/pages/CandidatePage.tsx), so their HTML is identical
 // for every visitor and safe to share from cache. The origin can't declare
-// this itself: react-router-serve serves prerendered HTML with max-age=0
+// this itself: frontend/server.js serves prerendered HTML with max-age=0
 // and SSR responses with no Cache-Control at all, so the Worker owns the
 // policy. Mechanism notes, learned the hard way:
 //   - Zone Cache Rules never apply: Workers run before the zone cache, and

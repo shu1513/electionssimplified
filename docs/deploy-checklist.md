@@ -7,8 +7,8 @@ deploy needs beyond `git pull`. Database migrations are covered separately in
 ## Topology
 
 - **SSR server (frontend)**: `cd frontend && npm run build` then
-  `npm run start` (`react-router-serve ./build/server/index.js`, a
-  long-running Node process, default port 3000). It server-renders
+  `npm run start` (`node server.js`, a long-running Node process, default
+  port 3000; it serves prerendered routes at their slash-less URL). It server-renders
   election/candidate pages for crawlers, serves the prerendered static
   routes and client assets from `build/client/`, and needs only
   `API_INTERNAL_URL` — no DB, no Redis, no secrets. There is no static-host
