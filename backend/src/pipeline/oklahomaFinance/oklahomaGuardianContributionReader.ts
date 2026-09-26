@@ -174,6 +174,11 @@ async function readEntryDataOffset(zipPath: string, entry: InternalZipEntry): Pr
   return entry.localHeaderOffset + 30 + fileNameLength + extraFieldLength;
 }
 
+// A closing quote is only a closing quote when the field actually ends there.
+function isQuotedFieldTerminator(next: string | undefined): boolean {
+  return next === undefined || next === "," || next === "\n" || next === "\r";
+}
+
 function parseCsvRows(csv: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -186,11 +191,18 @@ function parseCsvRows(csv: string): string[][] {
 
     if (inQuotes) {
       if (char === '"' && next === '"') {
+        // `""` is an escaped quote, except when the field ends right after it:
+        // Guardian writes nicknames as `"COLATA "JODY""` without doubling the
+        // inner quotes, so `""` + terminator is one literal quote + the close.
         field += '"';
         index += 1;
-      } else if (char === '"') {
+        if (isQuotedFieldTerminator(csv[index + 1])) {
+          inQuotes = false;
+        }
+      } else if (char === '"' && isQuotedFieldTerminator(next)) {
         inQuotes = false;
       } else {
+        // A quote that does not end the field is literal (same nickname case).
         field += char;
       }
       continue;
@@ -313,6 +325,9 @@ async function streamOklahomaGuardianContributionRows(input: {
     let field = "";
     let inQuotes = false;
     let pendingQuoteInQuotedField = false;
+    // A `""` pair ended the chunk; whether it also closed the field depends
+    // on the next chunk's first character.
+    let pendingDoubledQuote = false;
     let headerIndexes: Record<(typeof OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS)[number], number> | null = null;
     let settled = false;
 
@@ -377,7 +392,19 @@ async function streamOklahomaGuardianContributionRows(input: {
         if (text[0] === '"') {
           field += '"';
           index = 1;
+          if (text[1] === undefined && !isFinal) {
+            pendingDoubledQuote = true;
+          } else if (isQuotedFieldTerminator(text[1])) {
+            inQuotes = false;
+          }
+        } else if (isQuotedFieldTerminator(text[0])) {
+          inQuotes = false;
         } else {
+          field += '"';
+        }
+      } else if (pendingDoubledQuote) {
+        pendingDoubledQuote = false;
+        if (isQuotedFieldTerminator(text[0])) {
           inQuotes = false;
         }
       }
@@ -388,13 +415,22 @@ async function streamOklahomaGuardianContributionRows(input: {
 
         if (inQuotes) {
           if (char === '"' && next === '"') {
+            // Same `""` rule as parseCsvRows: escaped quote unless the field
+            // ends right after it (Guardian's undoubled nickname quotes).
+            const after = text[index + 2];
             field += '"';
             index += 1;
+            if (after === undefined && !isFinal) {
+              pendingDoubledQuote = true;
+            } else if (isQuotedFieldTerminator(after)) {
+              inQuotes = false;
+            }
           } else if (char === '"' && next === undefined && !isFinal) {
             pendingQuoteInQuotedField = true;
-          } else if (char === '"') {
+          } else if (char === '"' && isQuotedFieldTerminator(next)) {
             inQuotes = false;
           } else {
+            // A quote that does not end the field is literal.
             field += char;
           }
           continue;
@@ -423,8 +459,9 @@ async function streamOklahomaGuardianContributionRows(input: {
         field += char;
       }
 
-      if (isFinal && pendingQuoteInQuotedField) {
+      if (isFinal && (pendingQuoteInQuotedField || pendingDoubledQuote)) {
         pendingQuoteInQuotedField = false;
+        pendingDoubledQuote = false;
         inQuotes = false;
       }
     };

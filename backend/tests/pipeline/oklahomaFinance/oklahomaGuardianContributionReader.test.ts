@@ -142,6 +142,49 @@ describe("Oklahoma Guardian contribution reader", () => {
     ]);
   });
 
+  it("keeps undoubled inner quotes literal instead of ending the field early", () => {
+    // Guardian's 2026 extract carries `"COLATA "JODY""` — an unescaped
+    // nickname inside a quoted field (observed 2026-09-25).
+    const header = OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.join(",");
+    const cells = OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.map((column) => {
+      if (column === "Receipt ID") return '"2501123"';
+      if (column === "Org ID") return '"11808"';
+      if (column === "First Name") return '"COLATA "JODY""';
+      if (column === "Candidate Name") return '"CYNDI MUNSON"';
+      return '""';
+    });
+    const rows = parseOklahomaGuardianContributionCsv(`${header}\n${cells.join(",")}\n`);
+    expect(rows).toEqual([
+      expect.objectContaining({
+        "Receipt ID": "2501123",
+        "First Name": 'COLATA "JODY"',
+        "Candidate Name": "CYNDI MUNSON",
+      }),
+    ]);
+  });
+
+  it("streams rows with undoubled inner quotes", async () => {
+    const header = OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.join(",");
+    const cells = OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.map((column) => {
+      if (column === "Receipt ID") return '"2501123"';
+      if (column === "Org ID") return '"11808"';
+      if (column === "First Name") return '"COLATA "JODY""';
+      if (column === "Candidate Name") return '"CYNDI MUNSON"';
+      return '""';
+    });
+    const zipPath = await writeFixtureZip([
+      {
+        fileName: "2026_ContributionLoanExtract.csv",
+        compressionMethod: 8,
+        content: `${header}\n${cells.join(",")}\n`,
+      },
+    ]);
+
+    await expect(readOklahomaGuardianContributionRows({ zipPath, year: 2026 })).resolves.toEqual([
+      expect.objectContaining({ "Receipt ID": "2501123", "First Name": 'COLATA "JODY"' }),
+    ]);
+  });
+
   it("reads deflated contribution rows from the expected yearly CSV entry", async () => {
     const zipPath = await writeFixtureZip([
       {
