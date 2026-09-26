@@ -334,7 +334,7 @@ describe("edge cache", () => {
     assert.equal(calls.length, 1);
     assert.equal(await second.text(), "upstream ok");
     // Stored copy carries the shared-cache TTL; max-age=0 keeps browsers
-    // revalidating so only Cloudflare's edge holds the page for 60s.
+    // revalidating so only Cloudflare's edge holds the page for EDGE_CACHE_TTL_SECONDS.
     assert.equal(second.headers.get("cache-control"), `public, max-age=0, s-maxage=${EDGE_CACHE_TTL_SECONDS}`);
     // Cached responses are stamped like any other.
     assert.equal(second.headers.get("x-frame-options"), "DENY");
