@@ -18,13 +18,14 @@ describe("SiteJsonLd", () => {
       url: "https://electionssimplified.com/",
       logo: "https://electionssimplified.com/ballot-logo.png",
       email: "contact@electionssimplified.com",
-      sameAs: ["https://github.com/shu1513/electionssimplified", "https://www.wikidata.org/wiki/Q141564135"],
+      sameAs: ["https://github.com/shu1513/electionssimplified"],
       publishingPrinciples: "https://electionssimplified.com/methodology",
       correctionsPolicy: "https://electionssimplified.com/methodology#corrections",
     });
     expect(website).toMatchObject({
       "@type": "WebSite",
       "@id": WEBSITE_ID,
+      sameAs: ["https://www.wikidata.org/wiki/Q141564135"],
       publisher: { "@id": ORGANIZATION_ID },
     });
   });
