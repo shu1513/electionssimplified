@@ -25,6 +25,7 @@ describe("SiteJsonLd", () => {
     expect(website).toMatchObject({
       "@type": "WebSite",
       "@id": WEBSITE_ID,
+      sameAs: ["https://www.wikidata.org/wiki/Q141564135"],
       publisher: { "@id": ORGANIZATION_ID },
     });
   });

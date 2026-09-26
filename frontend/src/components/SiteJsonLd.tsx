@@ -8,6 +8,9 @@ import { JsonLdScript } from "./JsonLdScript";
 // engines read to learn who stands behind every page on the site.
 export const ORGANIZATION_LEGAL_NAME = "Elections Simplified Inc.";
 export const SOURCE_REPOSITORY_URL = "https://github.com/shu1513/electionssimplified";
+// Wikidata item for the website (instance of "website", created 2026-09-26).
+// It describes the site, not the company, so it belongs on the WebSite node.
+export const WIKIDATA_URL = "https://www.wikidata.org/wiki/Q141564135";
 
 // Stable @id anchors so the per-page Person/Event blocks can point at the
 // publisher without repeating it, and so an engine merging many pages
@@ -55,6 +58,7 @@ export function SiteJsonLd() {
             name: APP_NAME,
             url: `${SITE_ORIGIN}/`,
             description: DEFAULT_DESCRIPTION,
+            sameAs: [WIKIDATA_URL],
             inLanguage: "en-US",
             publisher: { "@id": ORGANIZATION_ID },
           },
