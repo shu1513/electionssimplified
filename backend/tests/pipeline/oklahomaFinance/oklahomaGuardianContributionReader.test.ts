@@ -167,18 +167,32 @@ describe("Oklahoma Guardian contribution reader", () => {
       // its mid-field state into the rest of the input.
       contributionRow({ "Receipt ID": "3", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Employer: "Acme, Inc.", Description: "PIZZA\nFOR VOLUNTEERS" }),
       rawCells({ "Receipt ID": "2501123", "Org ID": "11808", "First Name": 'COLATA "JODY"', "Candidate Name": "CYNDI MUNSON" }),
-      contributionRow({ "Receipt ID": "4", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Occupation: "TEACHER" }),
+      // A valid escaped quote before a comma while tolerant mode is on must
+      // keep its standard meaning.
+      contributionRow({ "Receipt ID": "4", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Employer: 'ACME "NORTH", INC', Occupation: "TEACHER" }),
     ].join("\n");
     const expected = [
       expect.objectContaining({ "Receipt ID": "2552500", "Middle Name": 'JAMES "JIM\'', "Candidate Name": "JASON LOWE" }),
       expect.objectContaining({ "Receipt ID": "3", Employer: "Acme, Inc.", Description: "PIZZA\nFOR VOLUNTEERS" }),
       expect.objectContaining({ "Receipt ID": "2501123", "First Name": 'COLATA "JODY"', "Candidate Name": "CYNDI MUNSON" }),
-      expect.objectContaining({ "Receipt ID": "4", Occupation: "TEACHER" }),
+      expect.objectContaining({ "Receipt ID": "4", Employer: 'ACME "NORTH", INC', Occupation: "TEACHER" }),
     ];
     expect(parseOklahomaGuardianContributionCsv(csv)).toEqual(expected);
 
     const zipPath = await writeFixtureZip([{ fileName: "2026_ContributionLoanExtract.csv", compressionMethod: 8, content: csv }]);
     await expect(readOklahomaGuardianContributionRows({ zipPath, year: 2026 })).resolves.toEqual(expected);
+  });
+
+  it("fails a recovered row whose width still does not match the header", async () => {
+    const jimRow = OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.map((column) =>
+      column === "Middle Name" ? '"JAMES "JIM\'"' : column === "Receipt ID" ? '"1"' : '""'
+    ).join(",");
+    const shortRow = '"2","11808","Monetary"';
+    const csv = `${OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.join(",")}\n${jimRow}\n${shortRow}\n`;
+    expect(() => parseOklahomaGuardianContributionCsv(csv)).toThrow(/has 3 cells, expected 23/);
+
+    const zipPath = await writeFixtureZip([{ fileName: "2026_ContributionLoanExtract.csv", compressionMethod: 8, content: csv }]);
+    await expect(readOklahomaGuardianContributionRows({ zipPath, year: 2026 })).rejects.toThrow(/has 3 cells, expected 23/);
   });
 
   it("still fails a quoted field that never closes", async () => {

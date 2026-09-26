@@ -197,14 +197,16 @@ type CsvTextParse = {
 };
 
 // In tolerant mode, does the field close right after a `""` pair? Guardian's
-// `"COLATA "JODY""` ends a field with `""` + the next quoted field. `after`
-// undefined means the text ended: closed at end of input, unknown (stay
-// open) at a chunk boundary.
+// `"COLATA "JODY""` ends a field with `""` + the next quoted field. Only a
+// line end or the start of the next quoted field counts: Guardian quotes
+// every field, so `""` + bare comma is still an escaped quote inside a field
+// that continues (`"ACME ""NORTH"", INC"`). `after` undefined means the text
+// ended: closed at end of input, unknown (stay open) at a chunk boundary.
 function tolerantDoubledQuoteCloses(after: string | undefined, afterNext: string | undefined, atEnd: boolean): boolean {
   if (after === undefined) {
     return atEnd;
   }
-  return isFieldTerminator(after) || (after === "," && afterNext === '"');
+  return after === "\n" || after === "\r" || (after === "," && afterNext === '"');
 }
 
 // Standard RFC-4180 parsing; `tolerant` is the recovery mode used from the
@@ -305,11 +307,22 @@ function parseCsvRows(csv: string): string[][] {
     const keep = firstBadIndex >= 0 ? firstBadIndex : parsed.rows.length;
     const recoverFrom = firstBadIndex >= 0 ? parsed.spans[firstBadIndex]![0] : parsed.tailStart;
     const recovered = parseCsvText(csv.slice(recoverFrom), true);
-    rows = [...parsed.rows.slice(0, keep), ...recovered.rows];
-    pushCsvTail(rows, recovered.tail);
+    const recoveredRows = [...recovered.rows];
+    pushCsvTail(recoveredRows, recovered.tail);
+    // Tolerant mode is a heuristic; a recovered row that still does not fit
+    // the header fails the file (same rule as the streaming reader).
+    const badRecovered = recoveredRows.find((cells) => cells.length !== expectedCellCount && !isBlankCsvRow(cells));
+    if (badRecovered) {
+      throw new Error(csvRowWidthError(badRecovered.length, expectedCellCount ?? 0));
+    }
+    rows = [...parsed.rows.slice(0, keep), ...recoveredRows];
   }
 
   return rows.filter((cells) => !isBlankCsvRow(cells));
+}
+
+function csvRowWidthError(actual: number, expected: number): string {
+  return `Oklahoma Guardian contribution CSV row has ${actual} cells, expected ${expected}`;
 }
 
 function normalizeCsvHeader(value: string): string {
@@ -448,6 +461,14 @@ async function streamOklahomaGuardianContributionRows(input: {
       }
     };
 
+    // Rows produced by tolerant recovery must still fit the header.
+    const consumeRecoveredRow = (cells: string[]): void => {
+      if (headerCellCount !== null && cells.length !== headerCellCount && !isBlankCsvRow(cells)) {
+        throw new Error(csvRowWidthError(cells.length, headerCellCount));
+      }
+      consumeCompletedRow(cells);
+    };
+
     const finishCurrentRow = (): void => {
       row.push(field);
       const cells = row;
@@ -457,16 +478,14 @@ async function streamOklahomaGuardianContributionRows(input: {
       rawRow = "";
       if (headerCellCount !== null && cells.length !== headerCellCount && !isBlankCsvRow(cells)) {
         if (tolerant) {
-          throw new Error(
-            `Oklahoma Guardian contribution CSV row has ${cells.length} cells, expected ${headerCellCount}`
-          );
+          throw new Error(csvRowWidthError(cells.length, headerCellCount));
         }
         // Re-parse this row in tolerant mode and continue the stream from
         // wherever that reading leaves off (it may end mid-field).
         tolerant = true;
         const recovered = parseCsvText(raw, true);
         for (const recoveredCells of recovered.rows) {
-          consumeCompletedRow(recoveredCells);
+          consumeRecoveredRow(recoveredCells);
         }
         row = recovered.tail.row;
         field = recovered.tail.field;
@@ -574,7 +593,7 @@ async function streamOklahomaGuardianContributionRows(input: {
           const recovered = parseCsvText(rawRow, true);
           rawRow = "";
           for (const recoveredCells of recovered.rows) {
-            consumeCompletedRow(recoveredCells);
+            consumeRecoveredRow(recoveredCells);
           }
           if (recovered.tail.inQuotes) {
             throw new Error(UNTERMINATED_QUOTE_ERROR);
