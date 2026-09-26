@@ -180,22 +180,42 @@ function isFieldTerminator(char: string | undefined): boolean {
   return char === undefined || char === "," || char === "\n" || char === "\r";
 }
 
-type CsvTextParse = {
-  rows: string[][];
-  // [start, end) offset of each row in the input text.
-  spans: Array<[number, number]>;
-  // Text from the start of the last row when the input ended inside quotes.
-  unterminated: string | null;
+type CsvParseTail = {
+  row: string[];
+  field: string;
+  inQuotes: boolean;
 };
 
-// Standard RFC-4180 parsing; `tolerant` is the recovery mode for one row the
-// standard pass could not split. Guardian exports leave inner quotes
-// undoubled (`"JAMES "JIM'"`, `"COLATA "JODY""`), which flips the quote state
-// and swallows every following row into one field. In tolerant mode a quote
-// inside a quoted field is literal unless the field ends there, and `""`
-// closes the field when the next quoted field starts right after it. Only
-// malformed rows go through tolerant mode, so valid `""` escapes before a
-// comma (`"ACME ""NORTH"", INC"`) keep their standard meaning.
+type CsvTextParse = {
+  rows: string[][];
+  // [start, end) offset of each completed row in the input text.
+  spans: Array<[number, number]>;
+  // Parser state for the row still open when the text ended.
+  tail: CsvParseTail;
+  // Offset where that open row starts.
+  tailStart: number;
+};
+
+// In tolerant mode, does the field close right after a `""` pair? Guardian's
+// `"COLATA "JODY""` ends a field with `""` + the next quoted field. `after`
+// undefined means the text ended: closed at end of input, unknown (stay
+// open) at a chunk boundary.
+function tolerantDoubledQuoteCloses(after: string | undefined, afterNext: string | undefined, atEnd: boolean): boolean {
+  if (after === undefined) {
+    return atEnd;
+  }
+  return isFieldTerminator(after) || (after === "," && afterNext === '"');
+}
+
+// Standard RFC-4180 parsing; `tolerant` is the recovery mode used from the
+// first row the standard pass could not split. Guardian exports leave inner
+// quotes undoubled (`"JAMES "JIM'"`, `"COLATA "JODY""`), which flips the
+// quote state and mis-splits every later row, so recovery has to run from
+// the defect to the end of the input. In tolerant mode a quote inside a
+// quoted field is literal unless the field ends there, and `""` closes the
+// field when the next quoted field starts right after it. Rows before the
+// first defect never see tolerant mode, so valid `""` escapes before a comma
+// (`"ACME ""NORTH"", INC"`) keep their standard meaning there.
 function parseCsvText(csv: string, tolerant: boolean): CsvTextParse {
   const rows: string[][] = [];
   const spans: Array<[number, number]> = [];
@@ -212,8 +232,7 @@ function parseCsvText(csv: string, tolerant: boolean): CsvTextParse {
       if (char === '"' && next === '"') {
         field += '"';
         index += 1;
-        const after = csv[index + 1];
-        if (tolerant && (isFieldTerminator(after) || (after === "," && csv[index + 2] === '"'))) {
+        if (tolerant && tolerantDoubledQuoteCloses(csv[index + 1], csv[index + 2], true)) {
           inQuotes = false;
         }
       } else if (char === '"' && (!tolerant || isFieldTerminator(next))) {
@@ -252,46 +271,45 @@ function parseCsvText(csv: string, tolerant: boolean): CsvTextParse {
     field += char;
   }
 
-  if (inQuotes) {
-    return { rows, spans, unterminated: csv.slice(rowStart) };
-  }
-
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-    spans.push([rowStart, csv.length]);
-  }
-
-  return { rows, spans, unterminated: null };
+  return { rows, spans, tail: { row, field, inQuotes }, tailStart: rowStart };
 }
 
-// Re-parses one malformed row's text in tolerant mode; a row that still
-// cannot close its quotes is a real defect and fails the file.
-function recoverCsvRows(text: string): string[][] {
-  const recovered = parseCsvText(text, true);
-  if (recovered.unterminated !== null) {
+// Closes out the row left open at end of input: still inside quotes is a
+// real defect and fails the file; otherwise it is the last row.
+function pushCsvTail(rows: string[][], tail: CsvParseTail): void {
+  if (tail.inQuotes) {
     throw new Error(UNTERMINATED_QUOTE_ERROR);
   }
-  return recovered.rows;
+  if (tail.field.length > 0 || tail.row.length > 0) {
+    rows.push([...tail.row, tail.field]);
+  }
+}
+
+function isBlankCsvRow(cells: readonly string[]): boolean {
+  return !cells.some((cell) => cell.trim().length > 0);
 }
 
 function parseCsvRows(csv: string): string[][] {
   const parsed = parseCsvText(csv, false);
   const expectedCellCount = parsed.rows[0]?.length;
-  const rows: string[][] = [];
-  parsed.rows.forEach((cells, index) => {
-    if (index > 0 && cells.length !== expectedCellCount) {
-      const [start, end] = parsed.spans[index]!;
-      rows.push(...recoverCsvRows(csv.slice(start, end)));
-    } else {
-      rows.push(cells);
-    }
-  });
-  if (parsed.unterminated !== null) {
-    rows.push(...recoverCsvRows(parsed.unterminated));
+  const firstBadIndex = parsed.rows.findIndex(
+    (cells, index) => index > 0 && cells.length !== expectedCellCount && !isBlankCsvRow(cells)
+  );
+
+  let rows: string[][];
+  if (firstBadIndex < 0 && !parsed.tail.inQuotes) {
+    rows = parsed.rows;
+    pushCsvTail(rows, parsed.tail);
+  } else {
+    // Re-parse from the first defect to the end of input in tolerant mode.
+    const keep = firstBadIndex >= 0 ? firstBadIndex : parsed.rows.length;
+    const recoverFrom = firstBadIndex >= 0 ? parsed.spans[firstBadIndex]![0] : parsed.tailStart;
+    const recovered = parseCsvText(csv.slice(recoverFrom), true);
+    rows = [...parsed.rows.slice(0, keep), ...recovered.rows];
+    pushCsvTail(rows, recovered.tail);
   }
 
-  return rows.filter((cells) => cells.some((cell) => cell.trim().length > 0));
+  return rows.filter((cells) => !isBlankCsvRow(cells));
 }
 
 function normalizeCsvHeader(value: string): string {
@@ -374,8 +392,10 @@ async function streamOklahomaGuardianContributionRows(input: {
     let inQuotes = false;
     let pendingQuoteInQuotedField = false;
     // Raw text of the row being assembled, kept so a row the standard parse
-    // cannot split (see parseCsvText) can be re-parsed in tolerant mode.
+    // cannot split (see parseCsvText) can be re-parsed in tolerant mode;
+    // from that row on the stream stays in tolerant mode.
     let rawRow = "";
+    let tolerant = false;
     let headerCellCount: number | null = null;
     let headerIndexes: Record<(typeof OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS)[number], number> | null = null;
     let settled = false;
@@ -435,10 +455,22 @@ async function streamOklahomaGuardianContributionRows(input: {
       row = [];
       field = "";
       rawRow = "";
-      if (headerCellCount !== null && cells.length !== headerCellCount) {
-        for (const recovered of recoverCsvRows(raw)) {
-          consumeCompletedRow(recovered);
+      if (headerCellCount !== null && cells.length !== headerCellCount && !isBlankCsvRow(cells)) {
+        if (tolerant) {
+          throw new Error(
+            `Oklahoma Guardian contribution CSV row has ${cells.length} cells, expected ${headerCellCount}`
+          );
         }
+        // Re-parse this row in tolerant mode and continue the stream from
+        // wherever that reading leaves off (it may end mid-field).
+        tolerant = true;
+        const recovered = parseCsvText(raw, true);
+        for (const recoveredCells of recovered.rows) {
+          consumeCompletedRow(recoveredCells);
+        }
+        row = recovered.tail.row;
+        field = recovered.tail.field;
+        inQuotes = recovered.tail.inQuotes;
         return;
       }
       consumeCompletedRow(cells);
@@ -452,8 +484,13 @@ async function streamOklahomaGuardianContributionRows(input: {
           field += '"';
           rawRow += '"';
           index = 1;
-        } else {
+          if (tolerant && tolerantDoubledQuoteCloses(text[1], text[2], isFinal)) {
+            inQuotes = false;
+          }
+        } else if (!tolerant || isFieldTerminator(text[0])) {
           inQuotes = false;
+        } else {
+          field += '"';
         }
       }
 
@@ -467,9 +504,12 @@ async function streamOklahomaGuardianContributionRows(input: {
             field += '"';
             rawRow += '"';
             index += 1;
+            if (tolerant && tolerantDoubledQuoteCloses(text[index + 1], text[index + 2], isFinal)) {
+              inQuotes = false;
+            }
           } else if (char === '"' && next === undefined && !isFinal) {
             pendingQuoteInQuotedField = true;
-          } else if (char === '"') {
+          } else if (char === '"' && (!tolerant || isFieldTerminator(next))) {
             inQuotes = false;
           } else {
             field += char;
@@ -525,15 +565,25 @@ async function streamOklahomaGuardianContributionRows(input: {
       try {
         processText(decoder.end(), true);
         if (inQuotes) {
-          // The standard parse ran off the end inside a quote: recover the
-          // open row in tolerant mode or fail the file.
-          const raw = rawRow;
-          row = [];
-          field = "";
+          // The parse ran off the end inside a quote: recover the open row in
+          // tolerant mode, or fail the file if that mode is already on.
+          if (tolerant) {
+            throw new Error(UNTERMINATED_QUOTE_ERROR);
+          }
+          tolerant = true;
+          const recovered = parseCsvText(rawRow, true);
           rawRow = "";
+          for (const recoveredCells of recovered.rows) {
+            consumeCompletedRow(recoveredCells);
+          }
+          if (recovered.tail.inQuotes) {
+            throw new Error(UNTERMINATED_QUOTE_ERROR);
+          }
+          row = recovered.tail.row;
+          field = recovered.tail.field;
           inQuotes = false;
-          for (const recovered of recoverCsvRows(raw)) {
-            consumeCompletedRow(recovered);
+          if (field.length > 0 || row.length > 0) {
+            finishCurrentRow();
           }
         } else if (field.length > 0 || row.length > 0) {
           finishCurrentRow();

@@ -162,13 +162,18 @@ describe("Oklahoma Guardian contribution reader", () => {
     const csv = [
       OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS.join(","),
       rawCells({ "Receipt ID": "2552500", "Org ID": "12403", "Middle Name": 'JAMES "JIM\'', "Candidate Name": "JASON LOWE" }),
+      // A multi-line quoted field while the standard parse is still flipped:
+      // it ends the mis-split row inside this field, so recovery must carry
+      // its mid-field state into the rest of the input.
+      contributionRow({ "Receipt ID": "3", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Employer: "Acme, Inc.", Description: "PIZZA\nFOR VOLUNTEERS" }),
       rawCells({ "Receipt ID": "2501123", "Org ID": "11808", "First Name": 'COLATA "JODY"', "Candidate Name": "CYNDI MUNSON" }),
-      contributionRow({ "Receipt ID": "3", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Employer: "Acme, Inc." }),
+      contributionRow({ "Receipt ID": "4", "Org ID": "11808", "Candidate Name": "CYNDI MUNSON", Occupation: "TEACHER" }),
     ].join("\n");
     const expected = [
       expect.objectContaining({ "Receipt ID": "2552500", "Middle Name": 'JAMES "JIM\'', "Candidate Name": "JASON LOWE" }),
+      expect.objectContaining({ "Receipt ID": "3", Employer: "Acme, Inc.", Description: "PIZZA\nFOR VOLUNTEERS" }),
       expect.objectContaining({ "Receipt ID": "2501123", "First Name": 'COLATA "JODY"', "Candidate Name": "CYNDI MUNSON" }),
-      expect.objectContaining({ "Receipt ID": "3", Employer: "Acme, Inc." }),
+      expect.objectContaining({ "Receipt ID": "4", Occupation: "TEACHER" }),
     ];
     expect(parseOklahomaGuardianContributionCsv(csv)).toEqual(expected);
 
