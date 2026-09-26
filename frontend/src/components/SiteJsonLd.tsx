@@ -8,6 +8,9 @@ import { JsonLdScript } from "./JsonLdScript";
 // engines read to learn who stands behind every page on the site.
 export const ORGANIZATION_LEGAL_NAME = "Elections Simplified Inc.";
 export const SOURCE_REPOSITORY_URL = "https://github.com/shu1513/electionssimplified";
+// Wikidata item for the site (created 2026-09-26). Listed in sameAs so search
+// and answer engines can tie the Organization here to that entity.
+export const WIKIDATA_URL = "https://www.wikidata.org/wiki/Q141564135";
 
 // Stable @id anchors so the per-page Person/Event blocks can point at the
 // publisher without repeating it, and so an engine merging many pages
@@ -44,7 +47,7 @@ export function SiteJsonLd() {
             },
             // The open-source repository is the site's one public profile
             // today; add social profile URLs here as they exist.
-            sameAs: [SOURCE_REPOSITORY_URL],
+            sameAs: [SOURCE_REPOSITORY_URL, WIKIDATA_URL],
             // Where the method and the correction path are spelled out.
             publishingPrinciples: `${SITE_ORIGIN}/methodology`,
             correctionsPolicy: `${SITE_ORIGIN}/methodology#corrections`,
