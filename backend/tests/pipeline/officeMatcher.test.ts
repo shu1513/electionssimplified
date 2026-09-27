@@ -83,6 +83,50 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("ignores office words inside a retention nominee's name (Boulder County Court)", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [
+          { id: "office-county-judge", canonical_name: "County Level Judge" },
+          { id: "office-county-commissioner", canonical_name: "County Commissioner" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Boulder County, Colorado",
+      state: "CO",
+      officialBallotTitle:
+        "Shall Judge Elizabeth House Moulton Brodsky of the Boulder County Court be retained in office?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).toBe("office-county-judge");
+  });
+
+  it("still rejects a non-judicial office word outside the nominee's name", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [{ id: "office-county-judge", canonical_name: "County Level Judge" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Orleans Parish, Louisiana",
+      state: "LA",
+      officialBallotTitle: "Shall Constable Jane House of the First City Court be retained?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).not.toBe("office-county-judge");
+  });
+
   it("keeps a Texas justice of the peace on the judicial JP office", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: { county: [] },
