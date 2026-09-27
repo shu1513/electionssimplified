@@ -3184,6 +3184,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- builds and runs the pipes and plants (public_infrastructure), and keeps
     -- drinking water safe and sewage treated (environment_and_public_health).
     ('county', 'Water and Sewer Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- Community college board: sets the college's tax and tuition (both
+    -- spending slugs) and oversees what and how the college teaches
+    -- (public_education_quality), like a state board of regents.
+    ('county', 'Community College Trustee', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),

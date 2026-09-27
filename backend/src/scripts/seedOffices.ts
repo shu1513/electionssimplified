@@ -550,6 +550,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "county",
+    canonicalName: "Community College Trustee",
+    summary: [
+      "Setting the college's property tax and tuition",
+      "Approving the college budget and building plans",
+      "Picking the college president",
+    ].join("\n"),
+  },
+  {
+    scope: "county",
     canonicalName: "Collector of Revenue",
     summary: [
       "Collecting property and earnings taxes",
@@ -889,6 +898,24 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "statewide",
     officeCanonicalName: "State Board of Regents Member",
     aliasText: "Member of the Board of Regents",
+  },
+  {
+    // Michigan's three statewide-elected university boards (official 2026
+    // candidate listing): each board sets tuition and picks the president,
+    // the same job as a state board of regents.
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Regent of the University of Michigan",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Trustee of Michigan State University",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Governor of Wayne State University",
   },
   {
     scope: "statewide",
@@ -1960,6 +1987,26 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "county",
     officeCanonicalName: "Water and Sewer Commissioner",
     aliasText: "Water and Sewer Commissioner",
+  },
+  {
+    // Michigan community college boards are elected on the county ballot.
+    // "Community College Board of Trustees Member" is the key left after the
+    // county name is stripped ("Washtenaw Community College ..."); Grand
+    // Rapids Community College does not share Kent County's name, so it
+    // needs its own key.
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Trustee",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Board of Trustees Member",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Grand Rapids Community College Board of Trustees Member",
   },
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").
