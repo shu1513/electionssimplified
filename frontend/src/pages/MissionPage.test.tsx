@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import MissionPage from "./MissionPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
@@ -47,10 +48,10 @@ describe("MissionPage", () => {
     expect(await screen.findByRole("heading", { name: "Mission" })).toBeInTheDocument();
     // Payment moved to /support; the pitch buttons link there for everyone.
     expect(screen.getByRole("link", { name: "See how to become an honorary member" })).toHaveAttribute("href", "/support/member");
-    expect(screen.getByRole("link", { name: "See how to contribute" })).toHaveAttribute(
-      "href",
-      "/support/once"
-    );
+    // Way 2 asks for a share, not money: the one-time option lives on
+    // /support/member, so this page no longer links /support/once.
+    expect(screen.queryByRole("link", { name: "See how to contribute" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Share" })).toBeInTheDocument();
     // The support pages handle auth gating, so the page carries no login line.
     expect(screen.queryByRole("link", { name: "Log in" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "sign up" })).not.toBeInTheDocument();
@@ -64,6 +65,16 @@ describe("MissionPage", () => {
       "href",
       "mailto:contact@electionssimplified.com"
     );
+  });
+
+  it("shares the site root from the share ask", async () => {
+    stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
+    renderMission();
+
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: "Share" }));
+    expect(screen.getByText("https://electionssimplified.com/")).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "Copy link" })).toBeInTheDocument();
   });
 
   it("points website owners to the instructions page", async () => {

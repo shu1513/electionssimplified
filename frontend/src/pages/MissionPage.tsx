@@ -2,6 +2,7 @@ import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import { APP_NAME, useMe } from "@voteapp/api-client";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
+import { ShareButton } from "../components/ShareButton";
 import { MembershipThanks } from "../components/SupportCheckout";
 import { VerifyPrompt } from "../components/VerifyPrompt";
 import { CONTACT_EMAIL } from "../lib/embedPublisher";
@@ -15,18 +16,17 @@ export const meta: MetaFunction = () =>
   });
 
 // Distinct colors per ask (user decision): green for membership (same green
-// as the /me/membership "Become an honorary member" button), purple for the
-// one-time contribution (purple-700, picked from a shade lineup). Rausch
-// stays reserved for sign-up/login buttons.
-const ctaBase = "inline-block rounded-lg px-4 py-2 text-sm font-semibold text-white transition";
-const memberCtaClass = `${ctaBase} bg-green-700 hover:bg-green-800`;
-const onceCtaClass = `${ctaBase} bg-purple-700 hover:bg-purple-800`;
+// as the /me/membership "Become an honorary member" button), Amazon orange
+// for the share ask (ShareButton's cta look). Rausch stays reserved for
+// sign-up/login buttons.
+const memberCtaClass =
+  "inline-block rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800";
 
 // Public mission page: the pitch reads without an account. Payment moved to
-// the kind-specific pages /support/member and /support/once; the buttons here
-// just link there, so guests can click too and those pages handle auth gating.
-// An existing member sees a compact thanks + Manage membership link at the
-// bottom (MembershipThanks); management lives on /me/membership.
+// /support/member (the one-time option is offered on that page); the button
+// here just links there, so guests can click too and that page handles auth
+// gating. An existing member sees a compact thanks + Manage membership link
+// at the bottom (MembershipThanks); management lives on /me/membership.
 export default function MissionPage() {
   const { me } = useMe();
 
@@ -127,13 +127,18 @@ export default function MissionPage() {
             </p>
           </li>
           <li>
-            <span className="font-semibold">Make a one-time contribution</span>
-            <p className="mt-1">If you want to make a one-time contribution to help us.</p>
-            <p className="mt-2">
-              <Link to="/support/once" className={onceCtaClass}>
-                See how to contribute
-              </Link>
+            <span className="font-semibold">Share {APP_NAME} with friends</span>
+            <p className="mt-1">
+              We have a very small marketing budget so it would help us a lot if you share our
+              website.
             </p>
+            <div className="mt-2">
+              <ShareButton
+                path="/"
+                shareText={`${APP_NAME}: what the candidates on your ballot have actually done`}
+                cta
+              />
+            </div>
           </li>
           <li>
             <span className="font-semibold">Subscribe to our emails</span>

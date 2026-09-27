@@ -203,7 +203,7 @@ page: `summary`, `stance`, `finance`, `track_record`, `pick_card`.
 | `autopick_attempt` / `autopick_result` | `AutoPickControl` (scope `election`), `AutoPickFillControl` (scope `date`) | `scope`, `races_bucket`, `prompted_rank_issues` (attempt); `outcome` (`picked\|no_pick\|mixed\|error`), `reason?` (AutoPickReason), `error_category?` (result) |
 | `address_nudge_click` | `AddressNudge` link | `route` already says where |
 | `post_pick_click` | `PostPickActions` | `target` (`back\|draft`) |
-| `share_open` | `ShareButton` opened (not proof of sharing) | `subject` (`election\|candidate\|picks`) |
+| `share_open` | `ShareButton` opened (not proof of sharing) | `subject` (`election\|candidate\|picks\|site`) |
 
 ### Guests, accounts, follow, chat (PR 2/3)
 
