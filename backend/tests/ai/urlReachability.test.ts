@@ -28,6 +28,7 @@ import { join } from "node:path";
 import tls from "node:tls";
 import {
   defaultCaCertificates,
+  ENTRUST_DV_TLS_ISSUING_RSA_CA_2_PEM,
   extraCaCertificatesForHost,
   GODADDY_SECURE_CA_G2_PEM,
   resetDefaultCaCertificatesForTests,
@@ -84,11 +85,14 @@ describe("extraCaCertificatesForHost", () => {
   it("matches the listed host and its subdomains, case-insensitively", () => {
     expect(extraCaCertificatesForHost("cga.ct.gov")).toEqual([GODADDY_SECURE_CA_G2_PEM]);
     expect(extraCaCertificatesForHost("WWW.CGA.CT.GOV.")).toEqual([GODADDY_SECURE_CA_G2_PEM]);
+    expect(extraCaCertificatesForHost("candidates.wvsos.gov")).toEqual([ENTRUST_DV_TLS_ISSUING_RSA_CA_2_PEM]);
   });
 
   it("never matches a lookalike host", () => {
     expect(extraCaCertificatesForHost("notcga.ct.gov")).toBeNull();
     expect(extraCaCertificatesForHost("cga.ct.gov.example.com")).toBeNull();
+    expect(extraCaCertificatesForHost("wvsos.gov")).toBeNull();
+    expect(extraCaCertificatesForHost("notcandidates.wvsos.gov")).toBeNull();
     expect(extraCaCertificatesForHost("example.com")).toBeNull();
   });
 });
@@ -524,6 +528,20 @@ describe("verifyHttpUrlReachability HEAD->GET fallback", () => {
     // System roots stay trusted (connect.ca replaces the default store).
     expect(ca!.length).toBeGreaterThan(50);
     expect(ca).toContain(GODADDY_SECURE_CA_G2_PEM);
+  });
+
+  it("completes the chain for candidates.wvsos.gov", async () => {
+    stubFetch(() => ({ status: 200 }));
+
+    const result = await verifyHttpUrlReachability("https://candidates.wvsos.gov/CandidateDetails/1");
+
+    expect(result.ok).toBe(true);
+    const agentOptions = agentOptionsMock.mock.calls[0]?.[0] as {
+      connect?: { ca?: string[] };
+    };
+    const ca = agentOptions.connect?.ca;
+    expect(ca!.length).toBeGreaterThan(50);
+    expect(ca).toContain(ENTRUST_DV_TLS_ISSUING_RSA_CA_2_PEM);
   });
 
   it("leaves the default trust store alone for every other host", async () => {
