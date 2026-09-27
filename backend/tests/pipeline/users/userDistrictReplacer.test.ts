@@ -168,6 +168,46 @@ describe("replaceUserDistricts", () => {
     expect(client.release).toHaveBeenCalledOnce();
   });
 
+  it("never saves a narrow district from a submitted district ID", async () => {
+    const { db, client } = createMockDb();
+    client.query
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ id: userId }] })
+      .mockResolvedValueOnce({ rows: [
+        { id: districtIdA, district_type: "county" },
+        { id: districtIdB, district_type: "local_special" },
+      ] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await expect(replaceUserDistricts(db, userId, [districtIdA, districtIdB])).rejects.toSatisfy((error) => {
+      expectReplacerError(error, "unknown_district_ids");
+      return true;
+    });
+    expect((client.query.mock.calls[3]?.[0])).toBe("ROLLBACK");
+    expect(client.query.mock.calls.some((call) => String(call[0]).includes("DELETE FROM public.user_districts"))).toBe(false);
+  });
+
+  it("saves a narrow district only with the server resolver's explicit proof set", async () => {
+    const { db, client } = createMockDb();
+    client.query
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ id: userId }] })
+      .mockResolvedValueOnce({ rows: [
+        { id: districtIdA, district_type: "county" },
+        { id: districtIdB, district_type: "local_special" },
+      ] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await expect(replaceUserDistricts(db, userId, [districtIdA, districtIdB], {
+      verifiedLocalSpecialDistrictIds: [districtIdB],
+    })).resolves.toEqual({ districtCount: 2 });
+    expect(client.query.mock.calls[4]?.[1]).toEqual([
+      userId, [districtIdA, districtIdB], ["county", "local_special"],
+    ]);
+  });
+
   it("rolls back if inserting replacement districts fails", async () => {
     const { db, client } = createMockDb();
     client.query

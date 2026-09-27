@@ -908,7 +908,8 @@ async function main(): Promise<void> {
             }
             return result;
           },
-          replaceUserDistricts: (inputUserId, districtIds) => replaceUserDistricts(pool, inputUserId, districtIds),
+          replaceUserDistricts: (inputUserId, districtIds, verifiedLocalSelection) =>
+            replaceUserDistricts(pool, inputUserId, districtIds, verifiedLocalSelection),
           lookupBallotSummariesByDistrictIds: (districtIds) =>
             lookupBallotSummariesByDistrictIds(pool, districtIds),
         },

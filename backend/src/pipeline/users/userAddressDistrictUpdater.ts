@@ -1,7 +1,7 @@
 import type { BallotSummaryResult } from "../address/ballotLookup.js";
 import { warningAffectsSupportedDistrict } from "../address/addressDistrictResolver.js";
 import type { AddressResolutionResult } from "../address/addressResolverService.js";
-import type { ReplaceUserDistrictsResult } from "./userDistrictReplacer.js";
+import type { ReplaceUserDistrictsResult, VerifiedLocalDistrictSelection } from "./userDistrictReplacer.js";
 
 export type AuthenticatedAddressDistrictUpdateResult = BallotSummaryResult & {
   matched_address: string;
@@ -12,7 +12,7 @@ export type AuthenticatedAddressDistrictUpdateResult = BallotSummaryResult & {
 
 export type AuthenticatedAddressDistrictUpdaterDependencies = {
   resolveAddressToDistricts: (address: string) => Promise<AddressResolutionResult>;
-  replaceUserDistricts: (userId: string, districtIds: readonly string[]) => Promise<ReplaceUserDistrictsResult>;
+  replaceUserDistricts: (userId: string, districtIds: readonly string[], verifiedLocalSelection?: VerifiedLocalDistrictSelection) => Promise<ReplaceUserDistrictsResult>;
   lookupBallotSummariesByDistrictIds: (districtIds: readonly string[]) => Promise<BallotSummaryResult>;
 };
 
@@ -66,7 +66,26 @@ export async function updateAuthenticatedAddressDistricts(
     );
   }
 
-  await dependencies.replaceUserDistricts(userId, districtIds);
+  const localDistricts = resolved.districts.filter((district) => district.district_type === "local_special");
+  const verifiedLocalDistricts = localDistricts.filter((district) =>
+    resolved.scope === "exact" && resolved.district_keys.some((key) =>
+      key.district_type === "local_special" && key.geoid_compact === district.geoid_compact &&
+      key.source === "verified_polygon"
+    )
+  );
+  if (verifiedLocalDistricts.length !== localDistricts.length) {
+    throw new AuthenticatedAddressDistrictUpdateError(
+      "partial_district_resolution",
+      "Narrow district eligibility could not be verified for this address"
+    );
+  }
+  if (verifiedLocalDistricts.length > 0) {
+    await dependencies.replaceUserDistricts(userId, districtIds, {
+      verifiedLocalSpecialDistrictIds: verifiedLocalDistricts.map((district) => district.id),
+    });
+  } else {
+    await dependencies.replaceUserDistricts(userId, districtIds);
+  }
   const ballot = await dependencies.lookupBallotSummariesByDistrictIds(districtIds);
   return {
     matched_address: resolved.matched_address,

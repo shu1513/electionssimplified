@@ -164,4 +164,22 @@ describe("initializeUserDistricts", () => {
     expect(client.query.mock.calls[5]?.[0]).toBe("ROLLBACK");
     expect(client.release).toHaveBeenCalledOnce();
   });
+
+  it("keeps submitted narrow district IDs out of guest draft initialization", async () => {
+    const { db, client } = createMockDb();
+    client.query
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ id: userId }] })
+      .mockResolvedValueOnce({ rows: [{ district_count: 0 }] })
+      .mockResolvedValueOnce({ rows: [{ found_count: 1, inserted_count: 1 }] })
+      .mockResolvedValueOnce({ rows: [{ id: districtIdA }] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await expect(initializeUserDistricts(db, userId, [districtIdA, districtIdB])).rejects.toSatisfy((error) => {
+      expectInitializerError(error, "unknown_district_ids");
+      return true;
+    });
+    expect(client.query.mock.calls[3]?.[0]).toContain("d.district_type <> 'local_special'");
+    expect(client.query.mock.calls[5]?.[0]).toBe("ROLLBACK");
+  });
 });

@@ -31,6 +31,53 @@ const resolvedAddress: AddressResolutionResult = {
 };
 
 describe("updateAuthenticatedAddressDistricts", () => {
+  it("passes a polygon-verified narrow district through the internal save path", async () => {
+    const localId = "33333333-3333-4333-8333-333333333333";
+    const local = {
+      id: localId, district_type: "local_special" as const, geoid_compact: "OH:CARROLL:FOX",
+      name: "Fox Township", state: "OH", state_fips: "39", population: 1000,
+      representation_power_score: null,
+    };
+    const resolved = {
+      ...resolvedAddress,
+      scope: "exact" as const,
+      districts: [...resolvedAddress.districts, local],
+      district_keys: [{
+        district_type: "local_special" as const, geoid_compact: local.geoid_compact,
+        source: "verified_polygon" as const, layer_name: "reviewed_local_boundary",
+      }],
+    };
+    const replaceUserDistricts = vi.fn().mockResolvedValue({ districtCount: 2 });
+    const lookupBallotSummariesByDistrictIds = vi.fn().mockResolvedValue({
+      district_ids: [districtId, localId], districts: resolved.districts, elections: [],
+    });
+    await updateAuthenticatedAddressDistricts({
+      resolveAddressToDistricts: vi.fn().mockResolvedValue(resolved),
+      replaceUserDistricts,
+      lookupBallotSummariesByDistrictIds,
+    }, userId, "100 Main St, Carrollton, OH");
+    expect(replaceUserDistricts).toHaveBeenCalledWith(userId, [districtId, localId], {
+      verifiedLocalSpecialDistrictIds: [localId],
+    });
+  });
+
+  it("refuses a narrow district without polygon verification", async () => {
+    const local = {
+      id: "33333333-3333-4333-8333-333333333333", district_type: "local_special" as const,
+      geoid_compact: "OH:CARROLL:FOX", name: "Fox Township", state: "OH", state_fips: "39",
+      population: 1000, representation_power_score: null,
+    };
+    const replaceUserDistricts = vi.fn();
+    await expect(updateAuthenticatedAddressDistricts({
+      resolveAddressToDistricts: vi.fn().mockResolvedValue({
+        ...resolvedAddress, scope: "exact", districts: [...resolvedAddress.districts, local],
+      }),
+      replaceUserDistricts,
+      lookupBallotSummariesByDistrictIds: vi.fn(),
+    }, userId, "100 Main St, Carrollton, OH")).rejects.toMatchObject({ code: "partial_district_resolution" });
+    expect(replaceUserDistricts).not.toHaveBeenCalled();
+  });
+
   it("resolves an address, replaces saved districts, and returns the updated ballot", async () => {
     const resolveAddressToDistricts = vi.fn().mockResolvedValue(resolvedAddress);
     const replaceUserDistricts = vi.fn().mockResolvedValue({ districtCount: 1 });

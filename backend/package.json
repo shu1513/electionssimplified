@@ -12,6 +12,7 @@
     "state-resources:retry": "tsx src/scripts/retryStateResources.ts",
     "state-resources:health": "tsx src/scripts/stateResourcesHealth.ts",
     "districts:load": "tsx src/scripts/loadDistricts.ts",
+    "manual:local-boundary:import": "tsx src/scripts/importReviewedCarrollBoundary.ts",
     "districts:load:all": "tsx src/scripts/loadAllDistricts.ts",
     "districts:recompute-representation": "tsx src/scripts/recomputeRepresentationPowerScores.ts",
     "competitiveness:import": "tsx src/scripts/importHistoricalContestMargins.ts",

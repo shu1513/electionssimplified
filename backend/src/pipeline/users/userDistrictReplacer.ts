@@ -12,6 +12,12 @@ export type ReplaceUserDistrictsResult = {
   districtCount: number;
 };
 
+// Only the server's exact-address resolver may provide this proof set. The
+// public guest-draft initializer has no equivalent capability.
+export type VerifiedLocalDistrictSelection = {
+  verifiedLocalSpecialDistrictIds: readonly string[];
+};
+
 export type ReplaceUserDistrictsErrorCode =
   | "invalid_user_id"
   | "invalid_district_ids"
@@ -86,7 +92,8 @@ async function rollbackQuietly(client: TransactionClient): Promise<void> {
 export async function replaceUserDistricts(
   db: TransactionalDb,
   userId: string,
-  districtIds: readonly string[]
+  districtIds: readonly string[],
+  verifiedLocalSelection?: VerifiedLocalDistrictSelection
 ): Promise<ReplaceUserDistrictsResult> {
   const normalizedUserId = normalizeUserId(userId);
   const normalizedDistrictIds = normalizeDistrictIds(districtIds);
@@ -131,6 +138,20 @@ export async function replaceUserDistricts(
         "unknown_district_ids",
         `Unknown district IDs: ${unknownDistrictIds.join(", ")}`,
         { unknownDistrictIds }
+      );
+    }
+
+    const verifiedLocalIds = new Set(
+      verifiedLocalSelection?.verifiedLocalSpecialDistrictIds.map((id) => id.toLowerCase()) ?? []
+    );
+    const unverifiedLocalIds = found.rows
+      .filter((row) => row.district_type === "local_special" && !verifiedLocalIds.has(row.id.toLowerCase()))
+      .map((row) => row.id);
+    if (unverifiedLocalIds.length > 0) {
+      throw new ReplaceUserDistrictsError(
+        "unknown_district_ids",
+        "Narrow districts require exact-address verification",
+        { unknownDistrictIds: unverifiedLocalIds }
       );
     }
 

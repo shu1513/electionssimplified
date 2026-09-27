@@ -8,11 +8,12 @@ export const ADDRESS_DISTRICT_TYPES = [
   "school_unified",
   "school_secondary",
   "school_elementary",
+  "local_special",
 ] as const;
 
 export type AddressDistrictType = (typeof ADDRESS_DISTRICT_TYPES)[number];
 
-export type AddressDistrictKeyResolutionSource = "mtfcc" | "layer_name";
+export type AddressDistrictKeyResolutionSource = "mtfcc" | "layer_name" | "verified_polygon";
 
 export type AddressDistrictKey = {
   district_type: AddressDistrictType;

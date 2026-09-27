@@ -29,6 +29,7 @@ import {
   type AddressResolvedDistrict,
   lookupAddressDistricts,
 } from "./addressDistrictLookup.js";
+import { lookupLocalSpecialDistrictKeys } from "./localSpecialDistrictEligibility.js";
 import {
   applyUsHouse2026Redistricting,
   locateCensusBlockInteriorPoint,
@@ -40,6 +41,21 @@ import {
 import { STATE_FIPS_BY_ABBREVIATION, STATE_NAME_BY_FIPS } from "../../constants/usStates.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
+
+// The Carroll, Ohio geometry is the only candidate with an official GIS
+// source under review. Expand this gate after another state's electorate
+// geometry is verified; boundary rows alone never activate a state.
+const LOCAL_SPECIAL_STATE_FIPS = new Set(["39"]);
+
+async function addVerifiedLocalDistrictKeys(
+  db: Queryable,
+  keys: readonly AddressDistrictKey[],
+  coordinates: CensusAddressCoordinates
+): Promise<AddressDistrictKey[]> {
+  const stateFips = keys.find((key) => key.district_type === "statewide")?.geoid_compact;
+  if (!stateFips || !LOCAL_SPECIAL_STATE_FIPS.has(stateFips)) return [...keys];
+  return [...keys, ...await lookupLocalSpecialDistrictKeys(db, stateFips, coordinates)];
+}
 
 // A coarse (ZIP or region) input the exact pipeline cannot serve. Distinct
 // codes because each needs different user copy
@@ -385,13 +401,14 @@ export async function resolveAddressToDistricts(
       // coordinates, or a Census data gap) — let the address-string path
       // below try, and fail with its clearer not_found if it also misses.
       if (keyResolution.district_keys.length > 0) {
-        const districtLookup = await lookupAddressDistricts(db, keyResolution.district_keys);
+        const districtKeys = await addVerifiedLocalDistrictKeys(db, keyResolution.district_keys, options.coordinates);
+        const districtLookup = await lookupAddressDistricts(db, districtKeys);
         return {
           matched_address: address.trim(),
           coordinates: options.coordinates,
           scope: "exact",
           address_match_count: 1,
-          district_keys: keyResolution.district_keys,
+          district_keys: districtKeys,
           districts: districtLookup.districts,
           missing_district_keys: districtLookup.missing_district_keys,
           warnings: keyResolution.warnings,
@@ -455,14 +472,18 @@ export async function resolveAddressToDistricts(
         return value;
       })();
 
-  const districtLookup = await lookupAddressDistricts(db, resolved.district_keys);
+  // Overlay is deliberately outside the geocoder cache. Review changes to a
+  // local voting boundary take effect without waiting for a cached address
+  // key set to expire, and no additional address leaves this resolver.
+  const districtKeys = await addVerifiedLocalDistrictKeys(db, resolved.district_keys, resolved.coordinates);
+  const districtLookup = await lookupAddressDistricts(db, districtKeys);
 
   return {
     matched_address: resolved.matched_address,
     coordinates: resolved.coordinates,
     scope: "exact",
     address_match_count: resolved.address_match_count,
-    district_keys: resolved.district_keys,
+    district_keys: districtKeys,
     districts: districtLookup.districts,
     missing_district_keys: districtLookup.missing_district_keys,
     warnings: resolved.warnings,

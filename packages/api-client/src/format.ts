@@ -41,6 +41,7 @@ const DISTRICT_TYPE_LABELS: Record<string, string> = {
   school_unified: "School district",
   school_elementary: "Elementary school district",
   school_secondary: "Secondary school district",
+  local_special: "Special district",
 };
 
 export function formatDistrictType(districtType: string): string {

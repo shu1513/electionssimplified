@@ -155,6 +155,7 @@ export async function initializeUserDistricts(
           FROM requested
           JOIN public.districts AS d
             ON d.id = requested.district_id
+           AND d.district_type <> 'local_special'
         ),
         inserted AS (
           INSERT INTO public.user_districts (user_id, district_id, district_type)
@@ -177,6 +178,7 @@ export async function initializeUserDistricts(
           SELECT id
           FROM public.districts
           WHERE id = ANY($1::uuid[])
+            AND district_type <> 'local_special'
         `,
         [normalizedDistrictIds]
       );
