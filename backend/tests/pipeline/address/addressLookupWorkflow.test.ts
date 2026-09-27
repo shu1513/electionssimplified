@@ -129,6 +129,10 @@ describe("address lookup workflow", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["statewide", "us_house", "state_upper", "state_lower", "county", "place", "school_unified"],
       ["06", "0638", "06022", "06048", "06037", "0603666", "0603690"],
+      // The base House district is also checked as a building block of
+      // districts Census does not publish (district_components).
+      ["state_lower"],
+      ["06048"],
     ]);
     expect(result.matched_address).toBe(BALDWIN_PARK_MATCHED_ADDRESS);
     expect(result.district_keys.map(({ district_type, geoid_compact }) => ({ district_type, geoid_compact }))).toEqual(

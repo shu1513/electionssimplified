@@ -3,6 +3,9 @@ export const ADDRESS_DISTRICT_TYPES = [
   "us_house",
   "state_upper",
   "state_lower",
+  // No Census layer carries these; they come back from the district lookup
+  // through district_components, never from a geocoder key.
+  "state_executive_council",
   "county",
   "place",
   "school_unified",
@@ -30,9 +33,25 @@ export type AddressDistrictResolverWarning = {
   reason: string;
 };
 
+// Census units that are not districts themselves but are building blocks of
+// districts Census does not publish (district_components). New Hampshire's
+// Executive Council districts are whole towns, which Census calls county
+// subdivisions.
+export type AddressComponentType = "county_subdivision";
+
+export type AddressComponentKey = {
+  component_type: AddressComponentType;
+  geoid: string;
+};
+
 export type AddressDistrictResolution = {
   district_keys: AddressDistrictKey[];
+  component_keys: AddressComponentKey[];
   warnings: AddressDistrictResolverWarning[];
+};
+
+export const CENSUS_MTFCC_TO_COMPONENT_TYPE: Readonly<Record<string, AddressComponentType>> = {
+  G4040: "county_subdivision",
 };
 
 export const CENSUS_MTFCC_TO_DISTRICT_TYPE: Readonly<Record<string, AddressDistrictType>> = {
@@ -103,6 +122,10 @@ export function districtTypeFromLayerName(layerName: string): AddressDistrictTyp
   return null;
 }
 
+function componentTypeFromLayerName(layerName: string): AddressComponentType | undefined {
+  return layerName.trim().toLowerCase() === "county subdivisions" ? "county_subdivision" : undefined;
+}
+
 function sortDistrictKeys(keys: AddressDistrictKey[]): AddressDistrictKey[] {
   return [...keys].sort((left, right) => {
     const leftOrder = DISTRICT_TYPE_ORDER.get(left.district_type) ?? Number.MAX_SAFE_INTEGER;
@@ -133,10 +156,12 @@ export function warningAffectsSupportedDistrict(warning: AddressDistrictResolver
 export function resolveAddressDistrictKeysFromGeographies(geographies: unknown): AddressDistrictResolution {
   const warnings: AddressDistrictResolverWarning[] = [];
   const deduped = new Map<string, AddressDistrictKey>();
+  const componentKeys = new Map<string, AddressComponentKey>();
 
   if (!isRecord(geographies)) {
     return {
       district_keys: [],
+      component_keys: [],
       warnings: [{ layer_name: "", reason: "geographies must be an object" }],
     };
   }
@@ -158,6 +183,16 @@ export function resolveAddressDistrictKeysFromGeographies(geographies: unknown):
       const mtfcc = readNonEmptyString(rawFeature, "MTFCC");
       const mtfccDistrictType = districtTypeFromMtfcc(mtfcc);
       const name = readNonEmptyString(rawFeature, "NAME") ?? undefined;
+
+      const componentType = mtfcc
+        ? CENSUS_MTFCC_TO_COMPONENT_TYPE[mtfcc.toUpperCase()]
+        : componentTypeFromLayerName(layerName);
+      if (componentType) {
+        if (geoid) {
+          componentKeys.set(`${componentType}::${geoid}`, { component_type: componentType, geoid });
+        }
+        continue;
+      }
 
       if (!geoid) {
         warnings.push({ layer_name: layerName, mtfcc: mtfcc ?? undefined, reason: "geography feature is missing GEOID" });
@@ -195,6 +230,7 @@ export function resolveAddressDistrictKeysFromGeographies(geographies: unknown):
 
   return {
     district_keys: sortDistrictKeys([...deduped.values()]),
+    component_keys: [...componentKeys.values()].sort((left, right) => left.geoid.localeCompare(right.geoid)),
     warnings,
   };
 }

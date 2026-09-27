@@ -317,7 +317,7 @@ export async function applyUsHouse2026Redistricting(
   // Keep the resolver's ordering (statewide, us_house, state_upper, ...):
   // the stale key is swapped in place rather than appended.
   return {
+    ...resolution,
     district_keys: resolution.district_keys.map((key) => (key === staleKey ? replacement : key)),
-    warnings: resolution.warnings,
   };
 }

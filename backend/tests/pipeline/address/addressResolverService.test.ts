@@ -130,6 +130,7 @@ describe("resolveAddressToDistricts", () => {
               name: "Los Angeles County",
             },
           ],
+          component_keys: [],
           warnings: [],
           cached_at: "2026-06-08T00:00:00.000Z",
         })
@@ -199,7 +200,7 @@ describe("resolveAddressToDistricts", () => {
     });
 
     expect(geocodeAddress).toHaveBeenCalledOnce();
-    expect(cache.set).toHaveBeenCalledWith(expect.stringMatching(/^address_lookup:v3:[a-f0-9]{64}$/), expect.any(String), {
+    expect(cache.set).toHaveBeenCalledWith(expect.stringMatching(/^address_lookup:v4:[a-f0-9]{64}$/), expect.any(String), {
       EX: 123,
     });
     const cachedPayload = JSON.parse(String(cache.set.mock.calls[0]?.[1]));

@@ -39,6 +39,7 @@ export function ballotLevel(
     case "statewide":
     case "state_upper":
     case "state_lower":
+    case "state_executive_council":
       return "state";
     case "county":
       return "county";

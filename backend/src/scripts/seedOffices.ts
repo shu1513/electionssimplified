@@ -244,6 +244,19 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // New Hampshire's five Executive Councilors (RSA 662:2) vote on the
+    // governor's nominations, state contracts, and pardons (N.H. Const. Part
+    // II, Arts. 46-47, 52). Massachusetts' Governor's Council does the same
+    // nominations and pardons work. Districts: migration 302.
+    scope: "state_executive_council",
+    canonicalName: "Executive Councilor",
+    summary: [
+      "Approving or rejecting the judges and officials the governor picks",
+      "Approving or rejecting state contracts and spending",
+      "Approving or rejecting pardons",
+    ].join("\n"),
+  },
+  {
     // The District of Columbia elects a member of its State Board of Education
     // from each Council ward (DC Code § 38-2651), on the ward ballot the
     // matcher already routes to state_upper for the Council seat. The board
@@ -1114,6 +1127,21 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "state_upper",
     officeCanonicalName: "State Senator",
     aliasText: "Member of the State Senate",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Executive Councilor",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Executive Councillor",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Governor's Councillor",
   },
   {
     scope: "state_lower",

@@ -148,6 +148,14 @@ const STATE_LOWER_STRICT_MARKERS = [
   /\blower chamber\b/,
 ];
 
+// New Hampshire "Executive Councilor"; Massachusetts "Councillor" on its
+// Governor's Council ballot.
+const EXECUTIVE_COUNCIL_MARKERS = [
+  /\bexecutive council(?:or|lor)?\b/,
+  /\bgovernor['’]?s council(?:or|lor)?\b/,
+  /\bcouncil(?:or|lor)\b/,
+];
+
 const STATE_LOWER_MARKERS = [
   ...STATE_LOWER_STRICT_MARKERS,
   /\brepresentative in the general assembly\b/,
@@ -284,6 +292,13 @@ function isHardScopeMismatch(
   }
 
   if (
+    districtType === "state_executive_council" &&
+    (usSenate || usHouse || stateSenate || stateHouse || countyLike || cityLike || schoolLike)
+  ) {
+    return "state_executive_council scope contains clearly non-council race";
+  }
+
+  if (
     districtType.startsWith("school_") &&
     (usSenate ||
       usHouse ||
@@ -346,6 +361,10 @@ function isSoftScopeAmbiguous(
 
   if (districtType === "state_lower" && !hasAny(text, STATE_LOWER_MARKERS)) {
     return "state_lower entry lacks clear state_lower markers";
+  }
+
+  if (districtType === "state_executive_council" && !hasAny(text, EXECUTIVE_COUNCIL_MARKERS)) {
+    return "state_executive_council entry lacks clear council markers";
   }
 
   if (districtType === "county") {
