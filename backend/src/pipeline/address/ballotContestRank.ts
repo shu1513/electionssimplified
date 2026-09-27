@@ -1,3 +1,4 @@
+import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import type { BallotLookupElectionSummary } from "./ballotLookup.js";
 
 // ---------------------------------------------------------------------------
@@ -79,7 +80,10 @@ export function stateBaselineContestRank(
       }
       return judicial ? 82 + courtOffset : 30;
     case "us_house":
-      return 20;
+      // Colorado's congressional-district regent and State Board of
+      // Education seats print after the statewide offices and before the
+      // legislature, not with the House seat.
+      return isCongressionalDistrictBoardOfficeName(election.office?.canonical_name) ? 35 : 20;
     case "state_upper":
       return judicial ? 84 + courtOffset : 40;
     case "state_lower":

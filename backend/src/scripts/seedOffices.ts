@@ -235,6 +235,28 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Colorado elects the University of Colorado Board of Regents and the
+    // State Board of Education one member per congressional district (Colo.
+    // Const. art. IX §§ 1 and 12), on the us_house row's ballot. Same jobs as
+    // the statewide boards, so the same bullets (migration 302).
+    scope: "us_house",
+    canonicalName: "State Board of Regents Member",
+    summary: [
+      "Setting tuition at state universities",
+      "Approving university budgets",
+      "Picking university presidents",
+    ].join("\n"),
+  },
+  {
+    scope: "us_house",
+    canonicalName: "State Board of Education Member",
+    summary: [
+      "Setting what students must learn in each grade",
+      "Setting graduation requirements",
+      "Overseeing the state education department",
+    ].join("\n"),
+  },
+  {
     scope: "state_upper",
     canonicalName: "State Senator",
     summary: [
