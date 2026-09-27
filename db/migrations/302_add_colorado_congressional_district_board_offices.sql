@@ -2,7 +2,7 @@
 -- a catalog home at that scope.
 --
 -- The University of Colorado Board of Regents has one member per
--- congressional district plus two at large (Colo. Const. art. IX § 12), and
+-- congressional district plus one at large (Colo. Const. art. IX § 12), and
 -- the State Board of Education has one member per congressional district
 -- (art. IX § 1). The Secretary of State's 2026 general election candidate
 -- list (certified 2026-09-04) carries three district regent seats (CD 2, 6,
