@@ -385,7 +385,11 @@ export async function resolveAddressToDistricts(
       // coordinates, or a Census data gap) — let the address-string path
       // below try, and fail with its clearer not_found if it also misses.
       if (keyResolution.district_keys.length > 0) {
-        const districtLookup = await lookupAddressDistricts(db, keyResolution.district_keys);
+        const districtLookup = await lookupAddressDistricts(
+          db,
+          keyResolution.district_keys,
+          keyResolution.component_keys
+        );
         return {
           matched_address: address.trim(),
           coordinates: options.coordinates,
@@ -442,6 +446,7 @@ export async function resolveAddressToDistricts(
           coordinates: geocoded.coordinates,
           address_match_count: geocoded.address_match_count,
           district_keys: keyResolution.district_keys,
+          component_keys: keyResolution.component_keys,
           warnings: keyResolution.warnings,
         };
         if (options.cache) {
@@ -455,7 +460,7 @@ export async function resolveAddressToDistricts(
         return value;
       })();
 
-  const districtLookup = await lookupAddressDistricts(db, resolved.district_keys);
+  const districtLookup = await lookupAddressDistricts(db, resolved.district_keys, resolved.component_keys);
 
   return {
     matched_address: resolved.matched_address,

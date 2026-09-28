@@ -48,6 +48,7 @@ const US_SENATE_CANONICAL_NAME = "United States Senator";
 const US_HOUSE_CANONICAL_NAME = "United States Representative";
 const STATE_UPPER_CANONICAL_NAME = "State Senator";
 const STATE_LOWER_CANONICAL_NAME = "State Lower Chamber Legislator";
+const EXECUTIVE_COUNCILOR_CANONICAL_NAME = "Executive Councilor";
 const STATE_BOARD_OF_EDUCATION_CANONICAL_NAME = "State Board of Education Member";
 const SCHOOL_BOARD_CANONICAL_NAME = "School Board Member";
 const STATE_LEVEL_JUDGE_CANONICAL_NAME = "State Level Judge";
@@ -1465,6 +1466,19 @@ export class OfficeMatcher {
     if (input.scope === "state_lower") {
       const match = toSingleScopeOfficeMatch(
         findSingleScopeOffice(offices, STATE_LOWER_CANONICAL_NAME),
+        normalizedAlias,
+        titleMatcherKey
+      );
+      if (match) {
+        return match;
+      }
+    }
+
+    // A council district elects one kind of seat, so every title on it is
+    // the councilor seat.
+    if (input.scope === "state_executive_council") {
+      const match = toSingleScopeOfficeMatch(
+        findSingleScopeOffice(offices, EXECUTIVE_COUNCILOR_CANONICAL_NAME),
         normalizedAlias,
         titleMatcherKey
       );

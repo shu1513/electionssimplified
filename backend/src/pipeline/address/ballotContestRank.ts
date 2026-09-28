@@ -88,6 +88,10 @@ export function stateBaselineContestRank(
       return judicial ? 84 + courtOffset : 40;
     case "state_lower":
       return judicial ? 85 + courtOffset : 50;
+    case "state_executive_council":
+      // New Hampshire prints Executive Councilor after Governor and before
+      // State Senator.
+      return 35;
     case "county":
       return judicial ? 86 + courtOffset : 60;
     case "place":
