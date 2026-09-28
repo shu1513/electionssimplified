@@ -416,6 +416,14 @@ function isSoftScopeAmbiguous(
       // has no judicial-circuit district type. A circuit-judge contest found
       // on a county ballot therefore belongs to that county discovery pass.
       /\bcircuit judge\b/,
+      // Community college boards are elected on the county ballot and the app
+      // has no community-college district type, so a county row is their home
+      // (Community College Trustee is a county office). Michigan titles name
+      // the college, not the county ("Washtenaw Community College Board of
+      // Trustees Member", "Grand Rapids Community College ..."), so without
+      // this marker every manual import parked pending until a review-approve
+      // re-inject, even though the office matcher resolves the title.
+      /\bcommunity college\b/,
       /\brecorder\b/,
       /\bcoroner\b/,
       /\bregister of deeds\b/,
