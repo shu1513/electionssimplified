@@ -237,7 +237,13 @@ const MAX_AUTOCOMPLETE_SESSION_TOKEN_LENGTH = 128;
 const MAX_AUTOCOMPLETE_PLACE_ID_LENGTH = 512;
 const AUTOCOMPLETE_TOKEN_PATTERN = /^[A-Za-z0-9_-]+$/;
 
-export type AuthenticatedAddressPayload = AddressResolvePayload;
+export type AuthenticatedAddressPayload = AddressResolvePayload & {
+  /** Client-supplied coordinates from a completed autocomplete selection —
+   * the same optional field the public resolve takes, so a saved address
+   * the Census geocoder cannot match (new subdivisions, venues) still
+   * resolves through the coordinate-first path. */
+  coordinates?: { lat: number; lng: number };
+};
 
 // Practical per-field ceilings so oversized junk is refused at the door
 // instead of leaning on the 16 KB body limit: 254 is the longest address
@@ -498,7 +504,9 @@ export function parseAddressPayload(rawBody: string): AddressResolvePayload {
 }
 
 export function parseAuthenticatedAddressBodyValue(parsed: unknown): AuthenticatedAddressPayload {
-  return parseAddressBodyValue(parsed);
+  const { address } = parseAddressBodyValue(parsed);
+  const coordinates = parseOptionalCoordinatesField(parsed);
+  return { address, ...(coordinates ? { coordinates } : {}) };
 }
 
 function assertNoUnknownFields(record: Record<string, unknown>, allowedFields: readonly string[]): void {

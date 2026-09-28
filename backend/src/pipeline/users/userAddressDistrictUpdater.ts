@@ -11,7 +11,10 @@ export type AuthenticatedAddressDistrictUpdateResult = BallotSummaryResult & {
 };
 
 export type AuthenticatedAddressDistrictUpdaterDependencies = {
-  resolveAddressToDistricts: (address: string) => Promise<AddressResolutionResult>;
+  resolveAddressToDistricts: (
+    address: string,
+    coordinates?: { lat: number; lng: number }
+  ) => Promise<AddressResolutionResult>;
   replaceUserDistricts: (userId: string, districtIds: readonly string[]) => Promise<ReplaceUserDistrictsResult>;
   lookupBallotSummariesByDistrictIds: (districtIds: readonly string[]) => Promise<BallotSummaryResult>;
 };
@@ -31,9 +34,13 @@ export class AuthenticatedAddressDistrictUpdateError extends Error {
 export async function updateAuthenticatedAddressDistricts(
   dependencies: AuthenticatedAddressDistrictUpdaterDependencies,
   userId: string,
-  address: string
+  address: string,
+  // From the client's autocomplete selection, when there was one: lets the
+  // resolver take the coordinate-first path for addresses the Census
+  // geocoder has no street range for, exactly like the anonymous search.
+  coordinates?: { lat: number; lng: number }
 ): Promise<AuthenticatedAddressDistrictUpdateResult> {
-  const resolved = await dependencies.resolveAddressToDistricts(address);
+  const resolved = await dependencies.resolveAddressToDistricts(address, coordinates);
 
   // Nothing usable resolved: the address is outside supported coverage
   // (e.g. territories — the district loaders cover 50 states + DC while the

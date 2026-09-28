@@ -274,6 +274,60 @@ describe("SettingsPage", () => {
     expect(await screen.findByText("Saved ballot placeholder")).toBeInTheDocument();
   });
 
+  it("sends the picked suggestion's coordinates with the address save", async () => {
+    const user = userEvent.setup();
+    const suggestion = {
+      place_id: "place-herriman",
+      description: "13822 S Scenic Canyon Cove, Herriman, UT 84096, USA",
+      main_text: "13822 S Scenic Canyon Cove",
+      secondary_text: "Herriman, UT 84096, USA",
+    };
+    const fetchMock = stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
+      "/api/me/membership": { body: { enabled: false } },
+      "/api/research-areas": { body: { research_areas: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/address/autocomplete": { body: { suggestions: [suggestion] } },
+      "/api/address/autocomplete/retrieve": {
+        body: {
+          address: "13822 S Scenic Canyon Cove, Herriman, UT 84096, USA",
+          location: { lat: 40.4886, lng: -111.9945 },
+          granularity: "address",
+          postal_code: "84096",
+          state: "UT",
+          locality: "Herriman",
+        },
+      },
+      "/api/me/address": {
+        body: { ...ballotSummary([]), matched_address: "13822 S SCENIC CANYON CV, HERRIMAN, UT", address_match_count: 1 },
+      },
+    });
+    renderSettings();
+
+    await user.type(await screen.findByLabelText("New address"), "13822 S Scenic");
+    await user.click(await screen.findByRole("option", { name: /Scenic Canyon/ }));
+    await waitFor(() => {
+      expect(screen.getByLabelText("New address")).toHaveValue(
+        "13822 S Scenic Canyon Cove, Herriman, UT 84096, USA"
+      );
+    });
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Save address" })).toBeEnabled());
+    await user.click(screen.getByRole("button", { name: "Save address" }));
+
+    expect(await screen.findByText("Saved ballot placeholder")).toBeInTheDocument();
+    // The Census geocoder has no street range for a new subdivision; the
+    // coordinates let the backend take the same coordinate-first path the
+    // landing page search uses.
+    const putCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/api/me/address"));
+    const body = JSON.parse((putCall?.[1] as { body: string }).body) as Record<string, unknown>;
+    expect(body).toEqual({
+      address: "13822 S Scenic Canyon Cove, Herriman, UT 84096, USA",
+      coordinates: { lat: 40.4886, lng: -111.9945 },
+    });
+  });
+
   it("shows all four email toggles with the saved values for verified users", async () => {
     stubApiRoutes({
       "/api/me": { body: ME_VERIFIED },

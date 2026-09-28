@@ -891,7 +891,7 @@ async function main(): Promise<void> {
     listAuthenticatedResearchAreaPreferences: (userId) => listUserResearchAreaPreferences(pool, userId),
     replaceAuthenticatedResearchAreaPreferences: (userId, preferences) =>
       replaceUserResearchAreaPreferences(pool, userId, preferences),
-    updateAuthenticatedAddressDistricts: (userId, address) =>
+    updateAuthenticatedAddressDistricts: (userId, address, coordinates) =>
       updateAuthenticatedAddressDistricts(
         {
           // Unlike the anonymous resolve handler, this path has no
@@ -899,8 +899,8 @@ async function main(): Promise<void> {
           // into is an expected error that never reaches Sentry — so log the
           // missing keys and warnings here or operators would have nothing
           // to repair the districts data from.
-          resolveAddressToDistricts: async (inputAddress) => {
-            const result = await resolveAddressWithAutoResearch(inputAddress, "me_address_update");
+          resolveAddressToDistricts: async (inputAddress, inputCoordinates) => {
+            const result = await resolveAddressWithAutoResearch(inputAddress, "me_address_update", inputCoordinates);
             try {
               logAddressResolutionDiagnostics(toAddressResolutionDiagnostics(result), "me_address_update");
             } catch {
@@ -913,7 +913,8 @@ async function main(): Promise<void> {
             lookupBallotSummariesByDistrictIds(pool, districtIds),
         },
         userId,
-        address
+        address,
+        coordinates
       ),
     initializeUserDistricts: ({ userId, districtIds }) => initializeUserDistricts(pool, userId, districtIds),
     resolveAddress: (address, coordinates, allowPartial, regionState, regionLocality) =>

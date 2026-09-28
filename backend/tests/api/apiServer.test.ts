@@ -2121,7 +2121,10 @@ describe("createApiApp", () => {
       {
         method: "PUT",
         path: "/api/me/address",
-        body: JSON.stringify({ address: "  123 Main St Denver CO 80203  " }),
+        body: JSON.stringify({
+          address: "  123 Main St Denver CO 80203  ",
+          coordinates: { lat: 39.7392, lng: -104.9903 },
+        }),
         headers: { "content-type": "application/json", "x-user-id": "99999999-9999-4999-8999-999999999999" },
       }
     );
@@ -2137,9 +2140,11 @@ describe("createApiApp", () => {
       headers: expect.objectContaining({ "x-user-id": "99999999-9999-4999-8999-999999999999" }),
     });
     expect(lookupAuthenticatedUserEmailVerified).toHaveBeenCalledWith("99999999-9999-4999-8999-999999999999");
+    // The autocomplete coordinates ride along, same as the public resolve.
     expect(updateAuthenticatedAddressDistricts).toHaveBeenCalledWith(
       "99999999-9999-4999-8999-999999999999",
-      "123 Main St Denver CO 80203"
+      "123 Main St Denver CO 80203",
+      { lat: 39.7392, lng: -104.9903 }
     );
     expect(resolveAddress).not.toHaveBeenCalled();
   });
@@ -2365,7 +2370,8 @@ describe("createApiApp", () => {
     });
     expect(updateAuthenticatedAddressDistricts).toHaveBeenCalledWith(
       "99999999-9999-4999-8999-999999999999",
-      "123 Main St Denver CO 80203"
+      "123 Main St Denver CO 80203",
+      undefined
     );
     expect(resolveAddress).not.toHaveBeenCalled();
   });

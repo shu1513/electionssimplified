@@ -181,6 +181,22 @@ describe("authenticated address API contract constants", () => {
     const address = "a".repeat(MAX_ADDRESS_INPUT_LENGTH);
     expect(parseAuthenticatedAddressBodyValue({ address })).toEqual({ address });
   });
+
+  it("passes through optional coordinates like the public resolve", () => {
+    expect(
+      parseAuthenticatedAddressBodyValue({
+        address: "13822 S Scenic Canyon Cove, Herriman, UT 84096",
+        coordinates: { lat: 40.4886, lng: -111.9945 },
+      })
+    ).toEqual({
+      address: "13822 S Scenic Canyon Cove, Herriman, UT 84096",
+      coordinates: { lat: 40.4886, lng: -111.9945 },
+    });
+    expect(parseAuthenticatedAddressBodyValue({ address: "x", coordinates: null })).toEqual({ address: "x" });
+    expect(() => parseAuthenticatedAddressBodyValue({ address: "x", coordinates: { lat: 91, lng: 0 } })).toThrow(
+      "coordinates must carry lat in [-90, 90] and lng in [-180, 180]"
+    );
+  });
 });
 
 describe("candidate follow API contract constants", () => {

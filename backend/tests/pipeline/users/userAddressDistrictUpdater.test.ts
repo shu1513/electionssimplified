@@ -53,9 +53,32 @@ describe("updateAuthenticatedAddressDistricts", () => {
       districts: resolvedAddress.districts,
       elections: [],
     });
-    expect(resolveAddressToDistricts).toHaveBeenCalledWith("123 Main St Denver CO 80203");
+    expect(resolveAddressToDistricts).toHaveBeenCalledWith("123 Main St Denver CO 80203", undefined);
     expect(replaceUserDistricts).toHaveBeenCalledWith(userId, [districtId]);
     expect(lookupBallotSummariesByDistrictIds).toHaveBeenCalledWith([districtId]);
+  });
+
+  it("forwards autocomplete coordinates to the resolver", async () => {
+    const resolveAddressToDistricts = vi.fn().mockResolvedValue(resolvedAddress);
+    const replaceUserDistricts = vi.fn().mockResolvedValue({ districtCount: 1 });
+    const lookupBallotSummariesByDistrictIds = vi.fn().mockResolvedValue({
+      district_ids: [districtId],
+      districts: resolvedAddress.districts,
+      elections: [],
+    });
+
+    await updateAuthenticatedAddressDistricts(
+      { resolveAddressToDistricts, replaceUserDistricts, lookupBallotSummariesByDistrictIds },
+      userId,
+      "13822 S Scenic Canyon Cove, Herriman, UT 84096",
+      { lat: 40.4886, lng: -111.9945 }
+    );
+
+    expect(resolveAddressToDistricts).toHaveBeenCalledWith("13822 S Scenic Canyon Cove, Herriman, UT 84096", {
+      lat: 40.4886,
+      lng: -111.9945,
+    });
+    expect(replaceUserDistricts).toHaveBeenCalledWith(userId, [districtId]);
   });
 
   it("refuses a partial resolution instead of replacing saved districts with the subset", async () => {

@@ -286,7 +286,11 @@ export type AddressApiServerOptions = {
     userId: string,
     preferences: readonly UserResearchAreaPreferenceInput[]
   ) => Promise<AuthenticatedResearchAreaPreferencesResult>;
-  updateAuthenticatedAddressDistricts?: (userId: string, address: string) => Promise<AuthenticatedAddressUpdateResult>;
+  updateAuthenticatedAddressDistricts?: (
+    userId: string,
+    address: string,
+    coordinates?: { lat: number; lng: number }
+  ) => Promise<AuthenticatedAddressUpdateResult>;
   /** GET /api/me/districts — the saved-address district ids alone, without
    * the full ballot payload (docs/plans/pick-district-gate.md). Empty means
    * no saved address. */
