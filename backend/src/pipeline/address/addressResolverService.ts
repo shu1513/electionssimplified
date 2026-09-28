@@ -42,18 +42,16 @@ import { STATE_FIPS_BY_ABBREVIATION, STATE_NAME_BY_FIPS } from "../../constants/
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
-// The Carroll, Ohio geometry is the only candidate with an official GIS
-// source under review. Expand this gate after another state's electorate
-// geometry is verified; boundary rows alone never activate a state.
-const LOCAL_SPECIAL_STATE_FIPS = new Set(["39"]);
-
+// A local_special boundary takes part in address resolution as soon as its
+// review_status is 'verified'; the importer's review gates are the only
+// switch (see local_special_boundaries in migration 300).
 async function addVerifiedLocalDistrictKeys(
   db: Queryable,
   keys: readonly AddressDistrictKey[],
   coordinates: CensusAddressCoordinates
 ): Promise<AddressDistrictKey[]> {
   const stateFips = keys.find((key) => key.district_type === "statewide")?.geoid_compact;
-  if (!stateFips || !LOCAL_SPECIAL_STATE_FIPS.has(stateFips)) return [...keys];
+  if (!stateFips) return [...keys];
   return [...keys, ...await lookupLocalSpecialDistrictKeys(db, stateFips, coordinates)];
 }
 
