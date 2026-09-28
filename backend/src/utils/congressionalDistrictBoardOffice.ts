@@ -4,7 +4,7 @@
 // of the University of Colorado - Congressional District 2", "State Board of
 // Education Member - Congressional District 1", county sample ballots, live).
 // Those contests hang off the us_house district row, and each resolves to a
-// us_house-scoped board office (migration 302) instead of the House seat.
+// us_house-scoped board office (migration 304) instead of the House seat.
 //
 // Colorado only: no other state elects either board from a congressional
 // district, so the same title on another state's us_house row is a

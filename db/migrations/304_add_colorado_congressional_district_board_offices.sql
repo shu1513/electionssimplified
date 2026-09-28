@@ -54,7 +54,7 @@ ON CONFLICT (scope, canonical_name) DO NOTHING;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.research_areas) THEN
-    RAISE NOTICE 'migration 302: research_areas is empty (fresh install); the new offices'' research areas will come from the seed layer';
+    RAISE NOTICE 'migration 304: research_areas is empty (fresh install); the new offices'' research areas will come from the seed layer';
   END IF;
 END
 $$;

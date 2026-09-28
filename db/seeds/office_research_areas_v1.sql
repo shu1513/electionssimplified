@@ -3277,7 +3277,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- statewide board's set, since it is the same policy job at ward scope.
     ('state_upper', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     -- Colorado's congressional-district regent and State Board of Education
-    -- seats (migration 302): the statewide boards' sets, same jobs.
+    -- seats (migration 304): the statewide boards' sets, same jobs.
     ('us_house', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('us_house', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'Attorney General', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'gun_control', 'healthcare_affordability', 'immigration', 'labor_rights', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
