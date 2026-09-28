@@ -207,6 +207,15 @@ describe("degenerate holes", () => {
       .toEqual({ type: "MultiPolygon", coordinates: [[outer]] });
   });
 
+  it("drops a zero-area piece of a multi-part boundary but never the last piece", () => {
+    const sliver = [[5, 5], [5.0000001, 5], [5, 5.0000001], [5, 5]];
+    expect(dropDegenerateHoles({ type: "MultiPolygon", coordinates: [[outer, realHole], [sliver]] }))
+      .toEqual({ type: "MultiPolygon", coordinates: [[outer, realHole]] });
+    const onlySliver = { type: "MultiPolygon", coordinates: [[sliver]] };
+    expect(dropDegenerateHoles(onlySliver)).toEqual(onlySliver);
+    expect(isValidLocalBoundaryGeometry(onlySliver)).toBe(false);
+  });
+
   it("keeps a self-crossing hole whose signed area happens to be zero", () => {
     const bowtie = [[1, 1], [3, 3], [3, 1], [1, 3], [1, 1]];
     const geometry = { type: "Polygon", coordinates: [outer, bowtie] };

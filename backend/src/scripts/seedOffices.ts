@@ -915,6 +915,69 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    scope: "local_special",
+    canonicalName: "Public Service Commissioner",
+    summary: [
+      "Setting rates and service rules for phone, pipeline, and other regulated companies",
+      "Approving routes for major pipelines and power lines",
+      "Hearing complaints from customers about regulated services",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "State Board of Regents Member",
+    summary: [
+      "Setting tuition and approving the university's yearly budget",
+      "Hiring and overseeing the university president",
+      "Approving new degree programs, campuses, and buildings",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Natural Resources District Director",
+    summary: [
+      "Planning flood control, soil conservation, and groundwater protection",
+      "Setting the district's property tax rate and yearly budget",
+      "Approving dams, trails, and other district projects",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Public Power District Director",
+    summary: [
+      "Setting electric rates for homes and businesses",
+      "Deciding which power plants to build, run, or close",
+      "Approving the utility's budget and borrowing",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Utility District Director",
+    summary: [
+      "Overseeing the district's water and natural gas service",
+      "Setting water and gas rates",
+      "Approving the budget and borrowing for pipes and treatment plants",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Learning Community Council Member",
+    summary: [
+      "Running early childhood and family programs across member school districts",
+      "Setting the council's property tax rate and yearly budget",
+      "Reviewing plans to help students from low-income families",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Educational Service Unit Board Member",
+    summary: [
+      "Overseeing shared services such as special education, teacher training, and technology for member schools",
+      "Setting the unit's property tax rate and yearly budget",
+      "Hiring and overseeing the unit's administrator",
+    ].join("\n"),
+  },
+  {
     scope: "place",
     canonicalName: "Municipal Constable",
     summary: [
@@ -1995,6 +2058,97 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     "Director, Regional Transportation District",
     "Transit Board Director",
     "Transit Board Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Transit District Director",
+    aliasText,
+  })),
+  ...[
+    "Public Service Commissioner",
+    "Public Service Commission",
+    "Member, Public Service Commission",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Public Service Commissioner",
+    aliasText,
+  })),
+  ...[
+    "State Board of Regents Member",
+    "Board of Regents",
+    "University Regent",
+    "Member, Board of Regents",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText,
+  })),
+  ...[
+    "Natural Resources District Director",
+    "Natural Resources District Board of Directors",
+    "Director, Natural Resources District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Natural Resources District Director",
+    aliasText,
+  })),
+  ...[
+    "Public Power District Director",
+    "Public Power District Board of Directors",
+    "Director, Public Power District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Public Power District Director",
+    aliasText,
+  })),
+  ...[
+    "Utility District Director",
+    "Metropolitan Utilities District Director",
+    "Metropolitan Utilities District Board of Directors",
+    "Director, Metropolitan Utilities District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Utility District Director",
+    aliasText,
+  })),
+  ...[
+    "Learning Community Council Member",
+    "Learning Community Coordinating Council",
+    "Coordinating Council, Learning Community",
+    "Learning Community Coordinating Council Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Learning Community Council Member",
+    aliasText,
+  })),
+  ...[
+    "Educational Service Unit Board Member",
+    "Educational Service Unit Board",
+    "Board Member, Educational Service Unit",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Educational Service Unit Board Member",
+    aliasText,
+  })),
+  ...[
+    "Judge of the Court of Appeals",
+    "Court of Appeals Judge",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Court of Appeals Justice",
+    aliasText,
+  })),
+  ...[
+    "Community College Board of Governors",
+    "Board of Governors, Community College",
+    "Metropolitan Community College Board of Governors",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Community College Trustee",
+    aliasText,
+  })),
+  ...[
+    "Transit Authority Director",
+    "Transit Authority Board of Directors",
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Transit District Director",

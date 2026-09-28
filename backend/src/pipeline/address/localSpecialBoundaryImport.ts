@@ -239,16 +239,23 @@ function isDegenerateRing(ring: unknown): boolean {
 
 /** Official layers sometimes carry a hole with no area (a digitizing slip:
  * three copies of one point). It removes nothing from the district, but the
- * boundary check rejects zero-area rings, so drop such holes. Only provably
- * degenerate rings go; any other malformed hole stays and fails the boundary
- * check. Outer rings are never touched. */
+ * boundary check rejects zero-area rings, so drop such holes. A multi-part
+ * layer can carry the same slip as a whole piece (Douglas County's MUD
+ * Subdivision 4 has a three-point sliver); a piece with no area adds no
+ * territory, so it goes too while at least one real piece remains. Only
+ * provably degenerate rings go; any other malformed ring stays and fails the
+ * boundary check. A single polygon's outer ring is never touched. */
 export function dropDegenerateHoles(geometry: unknown): unknown {
   if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
   const clean = (polygon: unknown) => Array.isArray(polygon)
     ? polygon.filter((ring, index) => index === 0 || !isDegenerateRing(ring))
     : polygon;
   if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
-  if (geometry.type === "MultiPolygon") return { ...geometry, coordinates: geometry.coordinates.map(clean) };
+  if (geometry.type === "MultiPolygon") {
+    const pieces = geometry.coordinates.map(clean);
+    const real = pieces.filter((polygon) => !Array.isArray(polygon) || !isDegenerateRing(polygon[0]));
+    return { ...geometry, coordinates: real.length > 0 ? real : pieces };
+  }
   return geometry;
 }
 
