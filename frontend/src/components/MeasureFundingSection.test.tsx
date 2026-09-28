@@ -91,12 +91,18 @@ describe("MeasureFundingSection", () => {
     expect(within(opposing).queryByRole("listitem")).not.toBeInTheDocument();
   });
 
-  it("collapses to one line when neither side has donors", () => {
+  it("shows one plain line, with nothing to click, when neither side has donors", () => {
     const empty = funding();
-    render(<MeasureFundingSection funding={{ ...empty, support: empty.oppose }} homeState="CA" />);
+    const { container } = render(
+      <MeasureFundingSection funding={{ ...empty, support: empty.oppose }} homeState="CA" />
+    );
 
-    expect(screen.getByText("No large donors reported for or against this measure.")).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Largest donors supporting" })).not.toBeInTheDocument();
+    expect(screen.getByText("No financial records found for this ballot measure.")).toBeInTheDocument();
+    // No disclosure toggle: opening it would reveal nothing.
+    expect(container.querySelector("details")).toBeNull();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Filings as of/)).not.toBeInTheDocument();
   });
 
   it("dates the numbers and links every filing page from both sides", () => {
