@@ -906,16 +906,6 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
-    // Nevada regents are elected by their own district map (migration 310).
-    scope: "local_special",
-    canonicalName: "State Board of Regents Member",
-    summary: [
-      "Setting tuition at state universities",
-      "Approving university budgets",
-      "Picking university presidents",
-    ].join("\n"),
-  },
-  {
     scope: "local_special",
     canonicalName: "Transit District Director",
     summary: [
@@ -2049,16 +2039,6 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Library District Trustee",
-    aliasText,
-  })),
-  ...[
-    "State Board of Regents Member",
-    "Board of Regents",
-    "Member, Board of Regents",
-    "Regent",
-  ].map((aliasText): SeedOfficeAlias => ({
-    scope: "local_special",
-    officeCanonicalName: "State Board of Regents Member",
     aliasText,
   })),
   ...[
