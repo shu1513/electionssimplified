@@ -147,6 +147,14 @@ describe("stateBaselineContestRank", () => {
     ).toBe(stateBaselineContestRank(input({ office_scope: "county" })));
   });
 
+  it("ranks Colorado's congressional-district board seats after statewide offices, not with the House seat", () => {
+    const board = input({ office_scope: "us_house" });
+    board.office = { ...board.office!, canonical_name: "State Board of Regents Member" };
+    const rank = stateBaselineContestRank(board);
+    expect(rank).toBeGreaterThan(stateBaselineContestRank(input({ office_scope: "statewide" })));
+    expect(rank).toBeLessThan(stateBaselineContestRank(input({ office_scope: "state_upper" })));
+  });
+
   it("falls back to the district type when the office is unresolved", () => {
     expect(stateBaselineContestRank(input({ office_scope: null, district_type: "us_house" }))).toBe(
       stateBaselineContestRank(input({ office_scope: "us_house" }))

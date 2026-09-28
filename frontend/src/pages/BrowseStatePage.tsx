@@ -61,7 +61,7 @@ export function ErrorBoundary() {
 
 // Top of the ballot first; anything the backend adds later lands at the end
 // under its raw label rather than vanishing.
-const LEVEL_ORDER = ["statewide", "us_house", "state_upper", "state_lower", "county", "place", "school_unified", "school_elementary", "school_secondary"];
+const LEVEL_ORDER = ["statewide", "us_house", "state_executive_council", "state_upper", "state_lower", "county", "place", "school_unified", "school_elementary", "school_secondary", "local_special"];
 
 export function groupDistrictsByLevel(districts: readonly BrowseDistrictSummary[]): Array<[string, BrowseDistrictSummary[]]> {
   const groups = new Map<string, BrowseDistrictSummary[]>();

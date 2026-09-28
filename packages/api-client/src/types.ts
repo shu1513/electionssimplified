@@ -8,7 +8,7 @@ export type ResolvedDistrict = {
   geoid_compact: string;
   name: string;
   state: string;
-  population: number;
+  population: number | null;
   representation_power_score: number | null;
 };
 

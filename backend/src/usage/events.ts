@@ -306,7 +306,7 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
   },
   address_nudge_click: { required: {} },
   post_pick_click: { required: { target: oneOf("back", "draft") } },
-  share_open: { required: { subject: oneOf("election", "candidate", "picks") } },
+  share_open: { required: { subject: oneOf("election", "candidate", "picks", "site") } },
   draft_review: {
     required: { pick_count_bucket: oneOf(...COUNT_BUCKETS), view: oneOf("list", "ballot"), store: oneOf("account", "draft") },
   },

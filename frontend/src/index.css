@@ -89,6 +89,11 @@
   --color-autopick-dark: #fa8900;
   --color-autopick-ink: #0f1111;
   --color-autopick-border: #c45500;
+  /* The mission page's "Share" ask (ShareButton cta): Amazon's logo orange,
+     a touch deeper than the Buy Now button above. Near-black ink on it:
+     8.6:1. Same dark-orange border as autopick to draw the boundary. */
+  --color-share: #ff9900;
+  --color-share-hover: #f08c00;
   /* Guest conversion nudge ("Enter your address to see if this race is on
      your ballot"). Light green tint so the callout pops against white cards
      without competing with pick yellow, autopick teal, or party colors.

@@ -11,6 +11,7 @@ import {
   type ManualResearchDemandStage,
   type ResearchGap,
 } from "../pipeline/address/manualResearchDemand.js";
+import { pointInVerifiedLocalBoundary } from "../pipeline/address/localSpecialDistrictEligibility.js";
 import { US_HOUSE_2026_REDRAWN_STATE_FIPS } from "../pipeline/address/usHouse2026Redistricting.js";
 import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { usLatestLocalDateIso } from "../utils/usLocalDate.js";
@@ -55,7 +56,8 @@ type DistrictType =
   | "state_lower"
   | "school_unified"
   | "school_secondary"
-  | "school_elementary";
+  | "school_elementary"
+  | "local_special";
 
 // Layer ids are the "BAS 2026" group on each TIGERweb service: 119th
 // Congress + 2024 state legislative districts, matching districts.geoid_compact.
@@ -298,7 +300,46 @@ export function samplePoints(polygon: EsriPolygon): Array<[number, number]> {
   return points;
 }
 
-async function buildCity(city: CityRow, stateFips: string): Promise<CityDistrictMap> {
+type LocalBoundaryRow = { geoid_compact: string; name: string; geometry: unknown; exclusion_geometry: unknown };
+
+// Reviewed special-district boundaries (transit, rail, tax districts) are not
+// in TIGERweb. Score them against the same sample points, with the address
+// resolver's own inside test, so the report sees the contests voters get.
+async function loadLocalBoundaries(db: Queryable, stateFips: string): Promise<LocalBoundaryRow[]> {
+  const result = await db.query<LocalBoundaryRow>(
+    `SELECT district.geoid_compact, district.name, boundary.geometry, boundary.exclusion_geometry
+     FROM public.local_special_boundaries AS boundary
+     JOIN public.districts AS district ON district.id = boundary.district_id
+     WHERE district.state_fips = $1 AND district.district_type = 'local_special'
+       AND boundary.review_status = 'verified'
+     ORDER BY district.geoid_compact`,
+    [stateFips]
+  );
+  return result.rows;
+}
+
+export function localSpecialOverlaps(points: Array<[number, number]>, boundaries: LocalBoundaryRow[]): MappedDistrict[] {
+  if (points.length === 0) {
+    return [];
+  }
+  return boundaries.flatMap((boundary) => {
+    const hits = points.reduce(
+      (count, [lng, lat]) =>
+        count + (pointInVerifiedLocalBoundary({ lng, lat }, boundary.geometry, boundary.exclusion_geometry) ? 1 : 0),
+      0
+    );
+    return hits === 0
+      ? []
+      : [{
+          district_type: "local_special" as const,
+          geoid_compact: boundary.geoid_compact,
+          name: boundary.name,
+          city_share: Number((hits / points.length).toFixed(4)),
+        }];
+  });
+}
+
+async function buildCity(city: CityRow, stateFips: string, localBoundaries: LocalBoundaryRow[] = []): Promise<CityDistrictMap> {
   const found = await findCityPolygon(city, stateFips);
   const districts: MappedDistrict[] = [{ district_type: "statewide", geoid_compact: stateFips, name: city.state, city_share: 1 }];
   const base = { ...city, built_at: new Date().toISOString() };
@@ -348,6 +389,7 @@ async function buildCity(city: CityRow, stateFips: string): Promise<CityDistrict
       });
     }
   }
+  districts.push(...localSpecialOverlaps(points, localBoundaries));
   return {
     ...base,
     place_geoid: found.feature.attributes.GEOID,
@@ -396,6 +438,7 @@ async function runBuildMap(db: Queryable, argv: readonly string[]): Promise<void
       throw new Error(`No statewide district row for ${city.state}; cannot resolve ${cityKey(city)}`);
     }
   }
+  const localBoundariesByFips = new Map<string, Promise<LocalBoundaryRow[]>>();
   let built = 0;
   let next = 0;
   const worker = async (): Promise<void> => {
@@ -403,7 +446,11 @@ async function runBuildMap(db: Queryable, argv: readonly string[]): Promise<void
       const city = pending[next];
       next += 1;
       const key = cityKey(city);
-      const entry = await buildCity(city, stateFips.get(city.state) as string);
+      const fips = stateFips.get(city.state) as string;
+      if (!localBoundariesByFips.has(fips)) {
+        localBoundariesByFips.set(fips, loadLocalBoundaries(db, fips));
+      }
+      const entry = await buildCity(city, fips, await localBoundariesByFips.get(fips));
       map.set(key, entry);
       writeMap(map);
       built += 1;

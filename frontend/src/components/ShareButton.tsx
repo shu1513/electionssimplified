@@ -42,6 +42,10 @@ type ShareButtonProps = {
    * screen reader's button list needs the date to tell them apart. Should
    * start with "Share" so voice control still matches the visible text. */
   ariaLabel?: string;
+  /** Call-to-action styling (Amazon logo orange, the share tokens)
+   * for the one place sharing is the ask itself: the mission page's "share
+   * the site" item. Wins over `affirmative`. */
+  cta?: boolean;
 };
 
 // Transient copy-outcome message lifetime.
@@ -51,9 +55,11 @@ const BUTTON_CLASS =
   "rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink transition hover:border-ink";
 const AFFIRMATIVE_BUTTON_CLASS =
   "rounded-lg border border-green-700 bg-green-50 px-3 py-1.5 text-sm font-medium text-ink transition hover:border-green-800";
+const CTA_BUTTON_CLASS =
+  "rounded-lg border border-autopick-border bg-share px-4 py-2 text-sm font-semibold text-autopick-ink transition hover:bg-share-hover";
 const ITEM_CLASS = "block px-4 py-2 text-sm text-ink data-[focus]:bg-surface";
 
-export function ShareButton({ path, shareText, affirmative = false, ariaLabel }: ShareButtonProps) {
+export function ShareButton({ path, shareText, affirmative = false, ariaLabel, cta = false }: ShareButtonProps) {
   const url = `${SITE_ORIGIN}${path}`;
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [copyStatus, setCopyStatus] = useState<"copied" | "failed" | null>(null);
@@ -94,9 +100,10 @@ export function ShareButton({ path, shareText, affirmative = false, ariaLabel }:
     copiedTimer.current = setTimeout(() => setCopyStatus(null), COPIED_MS);
   }
 
-  const buttonClass = affirmative ? AFFIRMATIVE_BUTTON_CLASS : BUTTON_CLASS;
+  const buttonClass = cta ? CTA_BUTTON_CLASS : affirmative ? AFFIRMATIVE_BUTTON_CLASS : BUTTON_CLASS;
   // share_open = the control was opened, not proof anything was shared.
-  const shareSubject = path.startsWith("/elections/") ? "election" : path.startsWith("/candidates/") ? "candidate" : "picks";
+  const shareSubject =
+    path === "/" ? "site" : path.startsWith("/elections/") ? "election" : path.startsWith("/candidates/") ? "candidate" : "picks";
   const onShareOpen = () => track("share_open", { subject: shareSubject });
 
   // No sharing from inside the newsroom embed.
@@ -136,9 +143,14 @@ export function ShareButton({ path, shareText, affirmative = false, ariaLabel }:
       {/* anchor (not absolute right-0): floating positioning keeps the panel
           inside the viewport, flipping/shifting when the button sits near a
           screen edge — right-0 clipped half the panel off-screen when the
-          button rendered on the left side of the page. */}
+          button rendered on the left side of the page. The panel is wider
+          than the button, so it lines up with the button edge nearest the
+          page edge: the detail/picks buttons sit at the right (end), the
+          cta at the left of a paragraph (start). A start-aligned panel on
+          the right-side buttons got shifted back on screen and matched
+          neither edge. */}
       <MenuItems
-        anchor="bottom end"
+        anchor={cta ? "bottom start" : "bottom end"}
         className="z-20 w-64 rounded-xl border border-line bg-surface py-1 shadow-lg focus:outline-none [--anchor-gap:8px]"
       >
         {/* The link itself, first: "Share" that never shows the URL reads as

@@ -18,11 +18,16 @@ export type ElectionDistrictType =
   | "us_house"
   | "state_upper"
   | "state_lower"
+  // A council elected by district that approves the governor's appointments
+  // (New Hampshire's Executive Council). Census has no layer for it; rows
+  // are built from towns in district_components.
+  | "state_executive_council"
   | "county"
   | "place"
   | "school_elementary"
   | "school_secondary"
-  | "school_unified";
+  | "school_unified"
+  | "local_special";
 
 export type OfficeScope = ElectionDistrictType | "presidential";
 

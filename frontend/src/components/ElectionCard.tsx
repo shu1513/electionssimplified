@@ -121,7 +121,8 @@ function splitLevelRuns(elections: ElectionSummary[]): { level: BallotLevel; ele
     const level = ballotLevel(
       election.office?.scope,
       election.district.district_type,
-      election.discovery_contest_family
+      election.discovery_contest_family,
+      election.office?.canonical_name
     );
     const lastRun = runs[runs.length - 1];
     if (lastRun && lastRun.level === level) {
