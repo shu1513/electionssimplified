@@ -10,8 +10,8 @@ Francisco and Oakland:
 
 | Body | Seats on the Nov 2026 ballot (examples) | Electorate |
 | --- | --- | --- |
-| BART Board of Directors | District 4, District 8 | 9 districts across 4 counties |
-| AC Transit Board | Wards 3, 4, 5 | 5 wards + at-large, parts of 2 counties |
+| BART Board of Directors | District 4, District 8 | 9 districts across 3 counties (Alameda, Contra Costa, San Francisco) |
+| AC Transit Board | Wards 3, 4, 5, 7 | 7 wards (2023 Plan Jade), parts of 2 counties |
 | EBMUD Board | Wards 3, 7 | 7 wards, parts of 2 counties |
 | East Bay Regional Park District Board | Wards 3, 5 | 7 wards, 2 counties |
 | Peralta Community College District | Trustee Area 5 | 7 trustee areas inside Alameda County |
@@ -26,7 +26,7 @@ Two facts drive the design:
 2. Attaching a ward seat to a larger district (the county, or the statewide
    row) shows it to every resident of that larger area. The
    sub-jurisdiction seat badge (`subDistrictSeat.ts`) softens this for county
-   supervisor seats, but a statewide BOE seat or a four-county BART seat is
+   supervisor seats, but a statewide BOE seat or a three-county BART seat is
    too far off to badge.
 
 ## Proposal
@@ -51,9 +51,10 @@ Key format for `geoid_compact`: `<STATE>:<AGENCY>:<SEAT>`, for example
 `CA:BART:4`, `CA:EBMUD:W7`, `CA:PERALTA:TA5`, `CA:BOE:2`. These are our own
 keys; no federal GEOID exists for these areas.
 
-Each body that has both ward seats and at-large seats (AC Transit) gets one
-row per ward plus one row for the whole agency area. The at-large seat
-attaches to the agency-wide row.
+No body here needs an agency-wide row. AC Transit's two at-large seats end
+with the November 2026 election (Ordinance 20, adopted December 13, 2023),
+which completes its move from five wards plus at-large to seven wards. The
+old five-ward map must not be used.
 
 ### 2. Offices
 
@@ -84,8 +85,9 @@ marked `verified` take part in address lookup.
 Sources, in order of preference (each to be confirmed during review):
 
 1. The agency's own adopted redistricting map (shapefile or GeoJSON). BART,
-   AC Transit, EBMUD, EBRPD, and Peralta all redrew in 2021–2022 and
-   published the adopted maps.
+   EBMUD, EBRPD, and Peralta redrew in 2021–2022; AC Transit adopted its
+   seven-ward Plan Jade map in December 2023. Use that map, not the pre-2024
+   five-ward map.
 2. The county registrar's district layers, which assign every precinct to
    each district on the ballot.
 3. For BOE, the 2021 California Citizens Redistricting Commission final
@@ -112,9 +114,13 @@ After the geocoder returns coordinates and its district keys:
 4. Add the matching keys to `district_keys` and `user_districts` like any
    other type.
 
-Stored user district sets need a refresh when new geometry lands, since
-existing users were resolved before it existed. The existing
-address-update path can re-run for affected states.
+Saved users are not refreshed automatically. The app stores district IDs
+only, never the address or its coordinates, so the backend has nothing to
+re-resolve when new geometry lands. A saved user sees the new seats after
+re-entering an address; new users get them at once. This is the same
+limitation the 120th-Congress House override accepted
+(`usHouse2026Redistricting.ts`). No address re-entry flow is part of this
+plan.
 
 ### 5. Research pipeline
 
