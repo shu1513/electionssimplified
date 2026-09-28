@@ -3403,6 +3403,50 @@ describe("OfficeMatcher", () => {
     });
   });
 
+  it("maps an elected city auditor to City Auditor, not Municipal Controller", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        place: [
+          { office_id: "office-city-auditor", normalized_alias: normalizeElectionTitleKey("City Auditor") },
+          { office_id: "office-city-auditor", normalized_alias: normalizeElectionTitleKey("Auditor") },
+          { office_id: "office-municipal-controller", normalized_alias: normalizeElectionTitleKey("City Controller") },
+        ],
+      },
+      officesByScope: {
+        place: [
+          { id: "office-city-auditor", canonical_name: "City Auditor" },
+          { id: "office-municipal-controller", canonical_name: "Municipal Controller" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    for (const [title, districtName] of [
+      ["City Auditor, City of Oakland", "Oakland, California"],
+      ["City Auditor", "Berkeley, California"],
+      ["Auditor", "Berkeley, California"],
+    ] as const) {
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName,
+        state: "CA",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-city-auditor");
+      expect(result.method, title).not.toBe("none");
+    }
+
+    const controller = await matcher.resolve({
+      scope: "place",
+      districtName: "Los Angeles, California",
+      state: "CA",
+      officialBallotTitle: "City Controller",
+      discoveryContestFamily: "non_judicial_office",
+    });
+    expect(controller.officeId).toBe("office-municipal-controller");
+  });
+
   it("routes a Louisiana city marshal to its own office instead of the place judge", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {
