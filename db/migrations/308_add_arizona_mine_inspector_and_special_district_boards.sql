@@ -10,12 +10,12 @@
 --    joint technical education districts, e.g. East Valley Institute of
 --    Technology, EVIT) elect their boards by district on the county ballot.
 --
--- 3. Arizona aliases onto two county offices that other open changes also
---    add: "Community College Trustee" (Maricopa County Community College
---    District board) and "County Hospital Trustee" (Maricopa County Special
---    Health Care District board, which runs the county's public hospital
---    system). Both offices are inserted here with ON CONFLICT DO NOTHING and
---    the same summaries, so this migration works whichever change lands first.
+-- 3. Arizona aliases onto two county offices that earlier migrations created:
+--    "Community College Trustee" (migration 302; Maricopa County Community
+--    College District board) and "County Hospital Trustee" (migration
+--    305_add_county_hospital_trustee_and_extension_council_offices; Maricopa
+--    County Special Health Care District board, which runs the county's
+--    public hospital system).
 --
 -- The aliases are the matcher keys left after the county name and the
 -- trailing seat ("District 3", "At-Large") are stripped. Summaries match
@@ -41,20 +41,6 @@ Making sure closed and abandoned mines are sealed off'
     'Deciding which job-training programs students can take
 Approving the district''s budget and property tax
 Picking the district''s superintendent'
-  ),
-  (
-    'county',
-    'Community College Trustee',
-    'Setting the college''s property tax and tuition
-Approving the college budget and building plans
-Picking the college president'
-  ),
-  (
-    'county',
-    'County Hospital Trustee',
-    'Overseeing the county''s public hospital and its budget
-Hiring the hospital''s chief executive
-Setting how much property tax the hospital asks for'
   )
 ON CONFLICT (scope, canonical_name) DO NOTHING;
 
@@ -90,7 +76,7 @@ ON CONFLICT (scope, normalized_alias) DO NOTHING;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.research_areas) THEN
-    RAISE NOTICE 'migration 305: research_areas is empty (fresh install); research areas will come from the seed layer';
+    RAISE NOTICE 'migration 308: research_areas is empty (fresh install); research areas will come from the seed layer';
   END IF;
 END
 $$;
@@ -103,13 +89,7 @@ FROM (VALUES
           'labor_rights', 'public_safety_and_crime_control']::text[]),
         ('county', 'Career and Technical Education District Board Member', ARRAY[
           'government_efficiency', 'government_spending_reduction',
-          'public_education_quality']::text[]),
-        ('county', 'Community College Trustee', ARRAY[
-          'government_efficiency', 'government_spending_reduction',
-          'public_education_quality']::text[]),
-        ('county', 'County Hospital Trustee', ARRAY[
-          'environment_and_public_health', 'government_efficiency',
-          'government_spending_reduction', 'healthcare_affordability']::text[])
+          'public_education_quality']::text[])
      ) AS v(scope, canonical_name, slugs)
 JOIN public.offices o
   ON o.scope = v.scope

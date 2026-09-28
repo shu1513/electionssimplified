@@ -477,6 +477,14 @@ function isSoftScopeAmbiguous(
     if (stateCode === "AK") {
       countyMarkers.push(/\bborough\b/, /\bcensus area\b/);
     }
+    // Arizona career and technical education districts (EVIT, "... Institute
+    // of Technology") elect their governing boards on the county ballot, and
+    // their titles carry neither "county" nor the county's name. Plain
+    // "Governing Board Member" stays out: Arizona school boards use the same
+    // words and must keep soft-failing on a county row.
+    if (stateCode === "AZ") {
+      countyMarkers.push(/\binstitute of technology\b/, /\btechnical education district\b/);
+    }
     if (!hasAny(text, countyMarkers)) {
       return "county entry lacks clear county markers";
     }
