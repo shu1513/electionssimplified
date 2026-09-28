@@ -78,6 +78,13 @@ export function MeasureFundingSection({
   const [expanded, setExpanded] = useState(false);
   const sourceUrls = [...funding.support.source_urls, ...funding.oppose.source_urls];
   const filingsAsOf = `Filings as of ${formatElectionDate(funding.as_of)}`;
+  // Nothing reported on either side: one plain line, nothing to tap. A
+  // "Campaign finance" toggle that reveals only "no donors" invites a tap
+  // for nothing; saying nothing at all leaves the reader unsure whether
+  // anyone looked.
+  if (measureFundingIsEmpty(funding)) {
+    return <Text className="mt-3 text-sm text-ink-soft">No financial records found for this ballot measure.</Text>;
+  }
   return (
     <View className="mt-3">
       <Pressable
@@ -92,26 +99,22 @@ export function MeasureFundingSection({
       </Pressable>
       {expanded ? (
         <>
-          {measureFundingIsEmpty(funding) ? (
-            <Text className="mt-1 text-sm text-ink-soft">No large donors reported for or against this measure.</Text>
-          ) : (
-            <View className="mt-2 gap-3">
-              <FundingSide
-                heading="Largest donors supporting"
-                side={funding.support}
-                homeState={homeState}
-                boxClass="border-green-200 bg-green-50"
-                textClass="text-green-900"
-              />
-              <FundingSide
-                heading="Largest donors opposing"
-                side={funding.oppose}
-                homeState={homeState}
-                boxClass="border-red-200 bg-red-50"
-                textClass="text-red-900"
-              />
-            </View>
-          )}
+          <View className="mt-2 gap-3">
+            <FundingSide
+              heading="Largest donors supporting"
+              side={funding.support}
+              homeState={homeState}
+              boxClass="border-green-200 bg-green-50"
+              textClass="text-green-900"
+            />
+            <FundingSide
+              heading="Largest donors opposing"
+              side={funding.oppose}
+              homeState={homeState}
+              boxClass="border-red-200 bg-red-50"
+              textClass="text-red-900"
+            />
+          </View>
           {/* One line for the date and the sources, so it does not stack with
               the measure's own "Sources" line. Every filing page from both
               sides is kept. With no sources the date stands alone. */}

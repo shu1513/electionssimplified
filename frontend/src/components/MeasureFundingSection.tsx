@@ -68,6 +68,13 @@ export function MeasureFundingSection({
 }) {
   const sourceUrls = [...funding.support.source_urls, ...funding.oppose.source_urls];
   const filingsAsOf = `Filings as of ${formatElectionDate(funding.as_of)}`;
+  // Nothing reported on either side: one plain line, nothing to click. A
+  // "$ Campaign Finance Information" toggle that reveals only "no donors"
+  // invites a click for nothing; saying nothing at all leaves the reader
+  // unsure whether anyone looked.
+  if (measureFundingIsEmpty(funding)) {
+    return <p className="mt-3 text-sm text-ink-soft">No financial records found for this ballot measure.</p>;
+  }
   return (
     <section className="mt-3">
       {/* Same title, "$" mark, and collapsed-by-default disclosure as the
@@ -87,31 +94,26 @@ export function MeasureFundingSection({
           <span className="text-subheading font-semibold text-green-600" aria-hidden="true">$ </span>
           <span className="text-subheading font-semibold">Campaign Finance Information</span>
         </summary>
-        {measureFundingIsEmpty(funding) ? (
-          <p className="mt-1 text-sm text-ink-soft">No large donors reported for or against this measure.</p>
-        ) : (
-          <div className="mt-2 grid gap-3 sm:grid-cols-2">
-            <FundingSide
-              heading="Largest donors supporting"
-              side={funding.support}
-              homeState={homeState}
-              boxClass="border-green-200 bg-green-50"
-              textClass="text-green-900"
-            />
-            <FundingSide
-              heading="Largest donors opposing"
-              side={funding.oppose}
-              homeState={homeState}
-              boxClass="border-red-200 bg-red-50"
-              textClass="text-red-900"
-            />
-          </div>
-        )}
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <FundingSide
+            heading="Largest donors supporting"
+            side={funding.support}
+            homeState={homeState}
+            boxClass="border-green-200 bg-green-50"
+            textClass="text-green-900"
+          />
+          <FundingSide
+            heading="Largest donors opposing"
+            side={funding.oppose}
+            homeState={homeState}
+            boxClass="border-red-200 bg-red-50"
+            textClass="text-red-900"
+          />
+        </div>
         {/* One line for the date and the sources, so it does not stack with
             the measure's own "Sources" line below the section. Every filing
             page from both sides is kept: the footnote names each site once
-            and numbers its other pages. With no sources (nothing reported on
-            either side) the date stands alone. */}
+            and numbers its other pages. With no sources the date stands alone. */}
         {sourceUrls.length > 0 ? (
           <SourceFootnote urls={sourceUrls} lead={filingsAsOf} className="mt-1" />
         ) : (
