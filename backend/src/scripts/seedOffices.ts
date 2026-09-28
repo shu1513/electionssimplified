@@ -739,6 +739,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "place",
+    canonicalName: "City Auditor",
+    summary: [
+      "Checking whether city departments spend money the way the budget allows",
+      "Reviewing how well city programs work and reporting what should change",
+      "Taking reports of waste or fraud in city government, in some cities",
+    ].join("\n"),
+  },
+  {
+    scope: "place",
     canonicalName: "Municipal Constable",
     summary: [
       "Serving court papers and legal notices",
@@ -1680,6 +1689,31 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "place",
     officeCanonicalName: "Municipal Controller",
     aliasText: "City Controller",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "City Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Municipal Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Town Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Village Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Auditor",
   },
   {
     scope: "place",
