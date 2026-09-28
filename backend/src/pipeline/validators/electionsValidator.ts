@@ -485,6 +485,13 @@ function isSoftScopeAmbiguous(
     if (stateCode === "AZ") {
       countyMarkers.push(/\binstitute of technology\b/, /\btechnical education district\b/);
     }
+    // Texas appraisal districts are coextensive with their county, and the
+    // larger counties elect three board seats on the county ballot. The titles
+    // name the county without the word ("Travis Central Appraisal District
+    // Board of Directors, Place 1").
+    if (stateCode === "TX") {
+      countyMarkers.push(/\bappraisal district\b/);
+    }
     if (!hasAny(text, countyMarkers)) {
       return "county entry lacks clear county markers";
     }

@@ -1,10 +1,11 @@
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it, vi } from "vitest";
 
+import { isValidLocalBoundaryGeometry } from "../../../src/pipeline/address/localSpecialDistrictEligibility.js";
 import {
   fetchLocalBoundarySource,
   insertReviewedLocalBoundary,
-  dropZeroAreaHoles,
+  dropDegenerateHoles,
   kmlZipToFeatureCollection,
   parseLocalBoundaryImport,
 } from "../../../src/pipeline/address/localSpecialBoundaryImport.js";
@@ -179,19 +180,37 @@ describe("zipped KML boundary sources", () => {
     expect((source.geometry as { type: string }).type).toBe("MultiPolygon");
   });
 
+  it("reads coordinates tags that carry whitespace or attributes and refuses an unreadable hole", () => {
+    const withAttributes = kml.replace("<innerBoundaryIs><LinearRing><coordinates>", "<innerBoundaryIs><LinearRing><coordinates >");
+    const collection = kmlZipToFeatureCollection(zipSync({ "plan.kml": strToU8(withAttributes) }));
+    const five = collection.features[1] as { geometry: { coordinates: unknown[][] } };
+    expect(five.geometry.coordinates[0]).toHaveLength(2);
+
+    const unreadable = kml.replace("<innerBoundaryIs><LinearRing><coordinates>", "<innerBoundaryIs><LinearRing><coords>");
+    expect(() => kmlZipToFeatureCollection(zipSync({ "plan.kml": strToU8(unreadable) }))).toThrow(/innerBoundaryIs needs exactly one coordinates/);
+  });
+
   it("refuses a zip with no KML file", () => {
     expect(() => kmlZipToFeatureCollection(zipSync({ "readme.txt": strToU8("hi") }))).toThrow(/no \.kml file/);
   });
 });
 
-describe("zero-area holes", () => {
+describe("degenerate holes", () => {
+  const outer = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]];
+  const realHole = [[1, 1], [2, 1], [2, 2], [1, 1]];
+
   it("drops a hole with no area and keeps real holes and the outer ring", () => {
-    const outer = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]];
-    const realHole = [[1, 1], [2, 1], [2, 2], [1, 1]];
     const slip = [[3, 3], [3, 3], [3.0000001, 3], [3, 3]];
-    expect(dropZeroAreaHoles({ type: "Polygon", coordinates: [outer, realHole, slip] }))
+    expect(dropDegenerateHoles({ type: "Polygon", coordinates: [outer, realHole, slip] }))
       .toEqual({ type: "Polygon", coordinates: [outer, realHole] });
-    expect(dropZeroAreaHoles({ type: "MultiPolygon", coordinates: [[outer, slip]] }))
+    expect(dropDegenerateHoles({ type: "MultiPolygon", coordinates: [[outer, slip]] }))
       .toEqual({ type: "MultiPolygon", coordinates: [[outer]] });
+  });
+
+  it("keeps a self-crossing hole whose signed area happens to be zero", () => {
+    const bowtie = [[1, 1], [3, 3], [3, 1], [1, 3], [1, 1]];
+    const geometry = { type: "Polygon", coordinates: [outer, bowtie] };
+    expect(dropDegenerateHoles(geometry)).toEqual(geometry);
+    expect(isValidLocalBoundaryGeometry(geometry)).toBe(false);
   });
 });

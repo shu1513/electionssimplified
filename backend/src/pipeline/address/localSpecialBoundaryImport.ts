@@ -178,9 +178,15 @@ function parseKmlRing(text: string): number[][] {
   return ring;
 }
 
+/** One ring per boundary element. A boundary whose coordinates cannot be read
+ * is an error, never a silently missing hole. */
 function ringsIn(block: string, tag: "outerBoundaryIs" | "innerBoundaryIs"): number[][][] {
-  const pattern = new RegExp(`<${tag}>[\\s\\S]*?<coordinates>([\\s\\S]*?)</coordinates>[\\s\\S]*?</${tag}>`, "g");
-  return [...block.matchAll(pattern)].map((match) => parseKmlRing(match[1] as string));
+  const pattern = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)</${tag}>`, "g");
+  return [...block.matchAll(pattern)].map((boundary) => {
+    const coordinates = [...(boundary[1] as string).matchAll(/<coordinates\b[^>]*>([\s\S]*?)<\/coordinates>/g)];
+    if (coordinates.length !== 1) throw new Error(`KML ${tag} needs exactly one coordinates element`);
+    return parseKmlRing(coordinates[0]?.[1] as string);
+  });
 }
 
 /** Reads the first .kml file in a zip into a GeoJSON FeatureCollection: one
@@ -217,21 +223,29 @@ export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "Featur
   return { type: "FeatureCollection", features };
 }
 
-function ringTwiceArea(ring: unknown): number {
-  if (!Array.isArray(ring)) return 0;
+/** True when every point of the ring lies on one line (or all coincide), so
+ * the ring provably encloses nothing. A self-crossing ring can also sum to
+ * zero area without being empty; it is not degenerate and is left alone. */
+function isDegenerateRing(ring: unknown): boolean {
+  if (!Array.isArray(ring)) return false;
   const points = ring as number[][];
-  return points.slice(1).reduce((sum, point, index) =>
-    sum + (points[index]?.[0] ?? 0) * (point[1] ?? 0) - (point[0] ?? 0) * (points[index]?.[1] ?? 0), 0);
+  const [ox = 0, oy = 0] = points[0] ?? [];
+  const anchor = points.find((point) => point[0] !== ox || point[1] !== oy);
+  if (!anchor) return true;
+  const dx = (anchor[0] ?? 0) - ox;
+  const dy = (anchor[1] ?? 0) - oy;
+  return points.every((point) => Math.abs(((point[0] ?? 0) - ox) * dy - ((point[1] ?? 0) - oy) * dx) <= 1e-12);
 }
 
 /** Official layers sometimes carry a hole with no area (a digitizing slip:
  * three copies of one point). It removes nothing from the district, but the
- * boundary check rejects zero-area rings, so drop such holes. Outer rings are
- * never touched. */
-export function dropZeroAreaHoles(geometry: unknown): unknown {
+ * boundary check rejects zero-area rings, so drop such holes. Only provably
+ * degenerate rings go; any other malformed hole stays and fails the boundary
+ * check. Outer rings are never touched. */
+export function dropDegenerateHoles(geometry: unknown): unknown {
   if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
   const clean = (polygon: unknown) => Array.isArray(polygon)
-    ? polygon.filter((ring, index) => index === 0 || Math.abs(ringTwiceArea(ring)) > 1e-12)
+    ? polygon.filter((ring, index) => index === 0 || !isDegenerateRing(ring))
     : polygon;
   if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
   if (geometry.type === "MultiPolygon") return { ...geometry, coordinates: geometry.coordinates.map(clean) };
@@ -264,7 +278,7 @@ async function fetchSourceFeatures(
     throw new Error(`Official boundary source feature set is incomplete or duplicated (${spec.match.field}; missing: ${missing.join(", ") || "none"}): ${url}`);
   }
   for (const feature of features) {
-    feature.geometry = dropZeroAreaHoles(feature.geometry);
+    feature.geometry = dropDegenerateHoles(feature.geometry);
     if (!isValidLocalBoundaryGeometry(feature.geometry)) {
       throw new Error(`Official boundary source returned unusable geometry for ${spec.match.field}=${String((feature.properties as Record<string, unknown>)[spec.match.field])}`);
     }
