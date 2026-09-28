@@ -906,7 +906,7 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
-    // Nevada regents are elected by their own district map (migration 309).
+    // Nevada regents are elected by their own district map (migration 310).
     scope: "local_special",
     canonicalName: "State Board of Regents Member",
     summary: [
