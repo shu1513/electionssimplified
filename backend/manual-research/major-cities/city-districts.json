@@ -3801,7 +3801,7 @@
       "population_2025": 1002632,
       "lat": 30.3,
       "lon": -97.75,
-      "built_at": "2026-09-16T18:16:34.289Z",
+      "built_at": "2026-09-28T04:40:16.917Z",
       "place_geoid": "4805000",
       "place_layer": "place",
       "place_name": "Austin city",
@@ -4017,6 +4017,114 @@
           "geoid_compact": "4800008",
           "name": "Dripping Springs Independent School District",
           "city_share": 0.0006
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:ACC",
+          "name": "Austin Community College District (taxing district)",
+          "city_share": 0.9822
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:ACC:PFISD-ANNEX",
+          "name": "Pflugerville ISD territory outside the ACC taxing district",
+          "city_share": 0.0008
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:BSEACD:5",
+          "name": "Barton Springs Edwards Aquifer Conservation District, Director District 5",
+          "city_share": 0.0767
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:COA:3",
+          "name": "Texas Third Court of Appeals District",
+          "city_share": 1
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:DC:207",
+          "name": "207th Judicial District of Texas",
+          "city_share": 0.0184
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:DC:274",
+          "name": "274th Judicial District of Texas",
+          "city_share": 0.0184
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:ESD:TRAVIS-10",
+          "name": "Travis County Emergency Services District No. 10",
+          "city_share": 0.0033
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:ESD:TRAVIS-4",
+          "name": "Travis County Emergency Services District No. 4",
+          "city_share": 0.0273
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:ESD:TRAVIS-9",
+          "name": "Travis County Emergency Services District No. 9",
+          "city_share": 0.0056
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:LIB:EAST-TRAVIS-GATEWAY",
+          "name": "East Travis Gateway Library District",
+          "city_share": 0.0429
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:PILOT-KNOB-1",
+          "name": "Pilot Knob Municipal Utility District No. 1",
+          "city_share": 0.0017
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:PILOT-KNOB-2",
+          "name": "Pilot Knob Municipal Utility District No. 2",
+          "city_share": 0.0025
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:PILOT-KNOB-3",
+          "name": "Pilot Knob Municipal Utility District No. 3",
+          "city_share": 0.0033
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:PILOT-KNOB-4",
+          "name": "Pilot Knob Municipal Utility District No. 4",
+          "city_share": 0.0025
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:PILOT-KNOB-5",
+          "name": "Pilot Knob Municipal Utility District No. 5",
+          "city_share": 0.0017
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:SE-TRAVIS-1",
+          "name": "Southeast Travis County Municipal Utility District No. 1",
+          "city_share": 0.0008
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:MUD:SUNFIELD-2",
+          "name": "Sunfield Municipal Utility District No. 2",
+          "city_share": 0.0025
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "TX:SBOE:5",
+          "name": "Texas State Board of Education District 5",
+          "city_share": 0.9941
         }
       ]
     },

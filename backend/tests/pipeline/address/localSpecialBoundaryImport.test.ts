@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   fetchLocalBoundarySource,
   insertReviewedLocalBoundary,
+  dropZeroAreaHoles,
   kmlZipToFeatureCollection,
   parseLocalBoundaryImport,
 } from "../../../src/pipeline/address/localSpecialBoundaryImport.js";
@@ -180,5 +181,17 @@ describe("zipped KML boundary sources", () => {
 
   it("refuses a zip with no KML file", () => {
     expect(() => kmlZipToFeatureCollection(zipSync({ "readme.txt": strToU8("hi") }))).toThrow(/no \.kml file/);
+  });
+});
+
+describe("zero-area holes", () => {
+  it("drops a hole with no area and keeps real holes and the outer ring", () => {
+    const outer = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]];
+    const realHole = [[1, 1], [2, 1], [2, 2], [1, 1]];
+    const slip = [[3, 3], [3, 3], [3.0000001, 3], [3, 3]];
+    expect(dropZeroAreaHoles({ type: "Polygon", coordinates: [outer, realHole, slip] }))
+      .toEqual({ type: "Polygon", coordinates: [outer, realHole] });
+    expect(dropZeroAreaHoles({ type: "MultiPolygon", coordinates: [[outer, slip]] }))
+      .toEqual({ type: "MultiPolygon", coordinates: [[outer]] });
   });
 });

@@ -217,6 +217,27 @@ export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "Featur
   return { type: "FeatureCollection", features };
 }
 
+function ringTwiceArea(ring: unknown): number {
+  if (!Array.isArray(ring)) return 0;
+  const points = ring as number[][];
+  return points.slice(1).reduce((sum, point, index) =>
+    sum + (points[index]?.[0] ?? 0) * (point[1] ?? 0) - (point[0] ?? 0) * (points[index]?.[1] ?? 0), 0);
+}
+
+/** Official layers sometimes carry a hole with no area (a digitizing slip:
+ * three copies of one point). It removes nothing from the district, but the
+ * boundary check rejects zero-area rings, so drop such holes. Outer rings are
+ * never touched. */
+export function dropZeroAreaHoles(geometry: unknown): unknown {
+  if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
+  const clean = (polygon: unknown) => Array.isArray(polygon)
+    ? polygon.filter((ring, index) => index === 0 || Math.abs(ringTwiceArea(ring)) > 1e-12)
+    : polygon;
+  if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
+  if (geometry.type === "MultiPolygon") return { ...geometry, coordinates: geometry.coordinates.map(clean) };
+  return geometry;
+}
+
 async function fetchSourceFeatures(
   spec: BoundarySourceSpec,
   fetchImpl: FetchLike
@@ -243,6 +264,7 @@ async function fetchSourceFeatures(
     throw new Error(`Official boundary source feature set is incomplete or duplicated (${spec.match.field}; missing: ${missing.join(", ") || "none"}): ${url}`);
   }
   for (const feature of features) {
+    feature.geometry = dropZeroAreaHoles(feature.geometry);
     if (!isValidLocalBoundaryGeometry(feature.geometry)) {
       throw new Error(`Official boundary source returned unusable geometry for ${spec.match.field}=${String((feature.properties as Record<string, unknown>)[spec.match.field])}`);
     }
