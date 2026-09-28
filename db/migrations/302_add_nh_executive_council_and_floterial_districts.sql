@@ -56,12 +56,21 @@ BEGIN
       ('office_title_aliases', 'chk_office_title_aliases_scope', 'scope')
     ) AS v(table_name, constraint_name, column_name)
   LOOP
-    SELECT array_agg(match[1] ORDER BY ordinality)
+    -- The list is stored either as quoted items (IN ('a', 'b')) or, once a
+    -- migration has rebuilt it, as an array literal ('{a,b}'). Read both.
+    SELECT CASE
+             WHEN def ~ '''\{[a-z_,]+\}''' THEN
+               string_to_array(substring(def FROM '''\{([a-z_,]+)\}'''), ',')
+             ELSE
+               ARRAY(SELECT m[1] FROM regexp_matches(def, '''([a-z_]+)''', 'g') AS m)
+           END
     INTO allowed
-    FROM pg_constraint AS c,
-         regexp_matches(pg_get_constraintdef(c.oid), '''([a-z_]+)''', 'g') WITH ORDINALITY AS m(match, ordinality)
-    WHERE c.conname = target.constraint_name
-      AND c.conrelid = format('public.%I', target.table_name)::regclass;
+    FROM (
+      SELECT pg_get_constraintdef(c.oid) AS def
+      FROM pg_constraint AS c
+      WHERE c.conname = target.constraint_name
+        AND c.conrelid = format('public.%I', target.table_name)::regclass
+    ) AS constraint_def;
 
     IF allowed IS NULL OR NOT ('state_lower' = ANY (allowed)) THEN
       RAISE EXCEPTION 'migration 302: could not read the value list of %.%', target.table_name, target.constraint_name;
