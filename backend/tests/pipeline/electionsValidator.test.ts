@@ -2358,6 +2358,96 @@ describe("runElectionsValidator", () => {
     );
   });
 
+  it("accepts a statewide State Board of Education contest on the statewide row", async () => {
+    // Michigan elects two State Board of Education members statewide
+    // (official 2026 candidate listing, live).
+    const payload = {
+      district_id: "d-mi",
+      district_name: "Michigan",
+      district_type: "statewide",
+      state: "MI",
+      entries: [
+        {
+          official_ballot_title: "Member of the State Board of Education",
+          discovery_contest_family: "non_judicial_office",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_mi_sbe",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_VALIDATED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+      })
+    );
+  });
+
+  it("still hard-rejects a local school board title on the statewide row", async () => {
+    const payload = {
+      district_id: "d-mi",
+      district_name: "Michigan",
+      district_type: "statewide",
+      state: "MI",
+      entries: [
+        {
+          official_ballot_title: "Lansing School District Board of Education Member",
+          discovery_contest_family: "non_judicial_office",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_mi_school",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_REJECTED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+      })
+    );
+  });
+
   it("accepts state_lower entries with lower chamber alias titles", async () => {
     const payload = {
       district_id: "d-5",

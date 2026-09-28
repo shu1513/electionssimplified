@@ -261,10 +261,16 @@ function isHardScopeMismatch(
   // school rejection.
   const coloradoCongressionalBoard =
     districtType === "us_house" && congressionalDistrictBoardOfficeName(stateCode, scopeText) !== null;
+  // A state board of education is a statewide body (Michigan elects two
+  // members statewide every even year), so on a statewide row the phrase is
+  // not a sign of a local school-board race.
+  const statewideStateBoard =
+    districtType === "statewide" && /\bstate board of education\b/.test(scopeText);
   const schoolLike =
     entry.race_type === "office" &&
     !dcWardStateBoard &&
     !coloradoCongressionalBoard &&
+    !statewideStateBoard &&
     /\bschool board\b|\bschool district\b|\bboard of education\b/.test(scopeText);
   // Most large US school districts are named "* County School District" or
   // "* City Schools", so county/city tokens inside a clearly-school title are
