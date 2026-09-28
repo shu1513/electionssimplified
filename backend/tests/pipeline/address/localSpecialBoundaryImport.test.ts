@@ -216,6 +216,14 @@ describe("degenerate holes", () => {
     expect(isValidLocalBoundaryGeometry(onlySliver)).toBe(false);
   });
 
+  it("keeps a real ring whose first two vertices nearly coincide", () => {
+    const nearDuplicateStart = [[-96, 41], [-96 + 1e-11, 41], [-95.99, 41], [-95.99, 41.01], [-96, 41.01], [-96, 41]];
+    const geometry = { type: "MultiPolygon", coordinates: [[outer], [nearDuplicateStart]] };
+    expect(dropDegenerateHoles(geometry)).toEqual(geometry);
+    const withHole = { type: "Polygon", coordinates: [outer, nearDuplicateStart] };
+    expect(dropDegenerateHoles(withHole)).toEqual(withHole);
+  });
+
   it("keeps a self-crossing hole whose signed area happens to be zero", () => {
     const bowtie = [[1, 1], [3, 3], [3, 1], [1, 3], [1, 1]];
     const geometry = { type: "Polygon", coordinates: [outer, bowtie] };
