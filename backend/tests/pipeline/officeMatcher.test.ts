@@ -3641,6 +3641,31 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("keeps a non-judicial local_special entry out of the court offices", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: [{ office_id: "coa", normalized_alias: normalizeElectionTitleKey("Court of Appeals Judge") }],
+      },
+      officesByScope: {
+        local_special: [
+          { id: "coa", canonical_name: "Court of Appeals Justice" },
+          { id: "dj", canonical_name: "District Judge" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+    for (const title of ["Court of Appeals Judge", "District Court Judge, District 4"]) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName: "Omaha-area special district",
+        state: "NE",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBeNull();
+    }
+  });
+
   it("maps a countywide appraisal district board seat to Appraisal District Director", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {

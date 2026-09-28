@@ -67,6 +67,11 @@ const JUDGE_CANONICAL_NAMES = new Set([
   // contest family governs it exactly as it governs the trial-court offices:
   // a non-judicial entry never matches into it, by alias or by score.
   JUSTICE_OF_THE_PEACE_CANONICAL_NAME,
+  // The local_special catalog names its court seats after the court, so the
+  // alias guard, the scorer filter, and the contest-family repair need them
+  // listed here to treat them as judge offices.
+  "Court of Appeals Justice",
+  "District Judge",
 ]);
 
 export function isJudicialOfficeCanonicalName(canonicalName: string): boolean {
