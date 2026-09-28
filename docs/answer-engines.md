@@ -20,6 +20,8 @@ crawlers fetch pages, not that file.
 | Election `Event` JSON-LD with description, `dateModified`, candidates as `performer` | `frontend/src/pages/ElectionPage.tsx`; `updated_at` from `ballotLookup.ts` |
 | One-paragraph answer block opening each election page (also the meta description) | `electionAnswerText` in `packages/api-client/src/electionAnswer.ts` |
 | Question headings ("Who is running?", "Who won?", "What does this office do?") | `ElectionPage.tsx` |
+| `FAQPage` JSON-LD pairing those headings with the text under them | `electionAnswerFaq` in `packages/api-client/src/electionAnswer.ts`, rendered in `ElectionPage.tsx` |
+| One-paragraph answer block opening each candidate page (also the meta description) | `candidateAnswerText` in `packages/api-client/src/candidateAnswer.ts` |
 | State hub answer paragraph | `stateAnswerText` in `BrowseStatePage.tsx` |
 | `/methodology`: who, sources, checks, formulas, corrections | `frontend/src/pages/MethodologyPage.tsx` (prerendered) |
 | `/stats` + `/api/stats`: coverage numbers per state, `Dataset` JSON-LD | `backend/src/api/siteStats.ts`, `frontend/src/pages/StatsPage.tsx` |
@@ -35,7 +37,12 @@ crawlers fetch pages, not that file.
    confirm **"Block AI bots" / "AI Scrapers and Crawlers" is off** and Bot
    Fight Mode is not challenging verified bots. Either setting rejects
    GPTBot/ClaudeBot/PerplexityBot at the edge regardless of robots.txt.
-   Verify from outside: `curl -A "Mozilla/5.0 (compatible; GPTBot/1.2)" -sI https://electionssimplified.com/ | head -1` must be `HTTP/2 200`.
+   A `curl -A "GPTBot/1.2"` from your own machine is **not** a valid test:
+   Cloudflare's managed rules answer 403 ("Attention Required") to any
+   request that claims a verified crawler's user agent from an IP that
+   crawler does not own, and that is the right behavior (it stops
+   impersonators). The real crawlers come from their published IP ranges
+   and pass. Check the Worker's `event:crawler` log lines instead.
 3. **IndexNow.** Generate a key (32+ hex chars, e.g. `openssl rand -hex 16`).
    Set `INDEXNOW_KEY` on the API service (Render dashboard; `render.yaml`
    declares it `sync: false`) and redeploy the API and the Worker. Check

@@ -1,3 +1,4 @@
+import { answerSnippet } from "./answerSnippet";
 import { formatDistrictName, formatElectionDate, formatOutcome, formatVotePowerLabel } from "./format";
 import { profilePartyLabel } from "./partyLabel";
 import { isRetentionRace } from "./retention";
@@ -182,24 +183,53 @@ export function electionAnswerText(input: ElectionAnswerInput, today: string): s
 }
 
 /**
- * The search-snippet cut: whole sentences from the front of the paragraph,
- * up to roughly the length engines show before truncating. Never cuts a
- * sentence in half; a lone over-long first sentence stays whole.
+ * The search-snippet cut: whole sentences from the front of the paragraph
+ * (see answerSnippet).
  */
 export function electionAnswerSnippet(input: ElectionAnswerInput, today: string, maxLength = 200): string {
-  // Split only where end punctuation is followed by whitespace, so "$6.5
-  // million" or "St. Louis" inside a measure summary never breaks a sentence.
-  const sentences = electionAnswerText(input, today)
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence !== "");
-  let snippet = "";
-  for (const sentence of sentences) {
-    const next = snippet ? `${snippet} ${sentence}` : sentence;
-    if (snippet && next.length > maxLength) {
-      break;
+  return answerSnippet(electionAnswerText(input, today), maxLength);
+}
+
+export type ElectionFaqEntry = { question: string; answer: string };
+
+/**
+ * The page's question headings with the text that sits under each, for
+ * FAQPage JSON-LD. Every answer is a sentence the page already shows (the
+ * answer paragraph's roster and result sentences, the office bullets, the
+ * measure summary), so the markup never claims more than the page does.
+ * Entries with nothing to say are left out, as the headings are.
+ *
+ * `officeLines`: the "What does this office do?" bullets, which live on the
+ * office row rather than in the answer input.
+ */
+export function electionAnswerFaq(input: ElectionAnswerInput, officeLines: readonly string[] = []): ElectionFaqEntry[] {
+  const entries: ElectionFaqEntry[] = [];
+  if (input.race_type === "ballot_measure") {
+    const measure = measureSentences(input).join(" ");
+    if (measure) {
+      entries.push({ question: "What does this measure do?", answer: measure });
     }
-    snippet = next;
+    return entries;
   }
-  return snippet;
+  // The retention section is headed by the judge's name, not "Who is
+  // running?", so a retention race carries no roster question.
+  const roster = isRetentionRace(input) ? "" : rosterSentences(input).join(" ");
+  if (roster) {
+    entries.push({ question: "Who is running?", answer: roster });
+  }
+  // The office bullets are seeded without end punctuation ("Voting on how
+  // much you pay in state taxes"); joined into one answer they need a period
+  // each or they run together.
+  const office = officeLines
+    .map((line) => line.trim())
+    .filter((line) => line !== "")
+    .map((line) => (/[.!?]$/.test(line) ? line : `${line}.`));
+  if (office.length > 0) {
+    entries.push({ question: "What does this office do?", answer: office.join(" ") });
+  }
+  const result = resultSentence(input);
+  if (result) {
+    entries.push({ question: "Who won?", answer: result });
+  }
+  return entries;
 }

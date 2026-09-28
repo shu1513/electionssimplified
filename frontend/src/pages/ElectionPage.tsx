@@ -29,6 +29,7 @@ import { ReportContentButton } from "../components/ReportContentButton";
 import { ShareButton } from "../components/ShareButton";
 import {
   deriveCandidateResultBadges,
+  electionAnswerFaq,
   electionAnswerSnippet,
   electionAnswerText,
   formatDistrictName,
@@ -325,6 +326,10 @@ export function ElectionPage() {
   const researchAreas = data.research_areas ?? [];
   const orderedAreas = splitResearchAreasBySaved(researchAreas, weights);
   const showOfficeInfo = data.race_type !== "ballot_measure" && (office !== null || researchAreas.length > 0);
+  // The question headings below with what sits under them, as FAQPage
+  // markup: an engine answering "who is running for X" can lift the pair
+  // without parsing the page. Only sections the page renders get an entry.
+  const faqEntries = electionAnswerFaq(data, officeBullets);
   // Judicial retention: an office race the ballot asks as Yes/No. The judge
   // card gets no pick button; the answer lives in the sticky Yes/No pair
   // below, and auto pick leaves it open (reason "retention").
@@ -621,6 +626,20 @@ export function ElectionPage() {
               : {}),
           }}
         />
+        {faqEntries.length > 0 ? (
+          <JsonLdScript
+            data={{
+              "@type": "FAQPage",
+              // A distinct node: the Event above owns the bare page URL.
+              "@id": `${SITE_ORIGIN}/elections/${data.id}#faq`,
+              mainEntity: faqEntries.map((entry) => ({
+                "@type": "Question",
+                name: entry.question,
+                acceptedAnswer: { "@type": "Answer", text: entry.answer },
+              })),
+            }}
+          />
+        ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-title font-bold">{data.official_ballot_title}</h1>
           <ShareButton
