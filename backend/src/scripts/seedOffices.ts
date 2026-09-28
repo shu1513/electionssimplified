@@ -235,6 +235,28 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Colorado elects the University of Colorado Board of Regents and the
+    // State Board of Education one member per congressional district (Colo.
+    // Const. art. IX §§ 1 and 12), on the us_house row's ballot. Same jobs as
+    // the statewide boards, so the same bullets (migration 304).
+    scope: "us_house",
+    canonicalName: "State Board of Regents Member",
+    summary: [
+      "Setting tuition at state universities",
+      "Approving university budgets",
+      "Picking university presidents",
+    ].join("\n"),
+  },
+  {
+    scope: "us_house",
+    canonicalName: "State Board of Education Member",
+    summary: [
+      "Setting what students must learn in each grade",
+      "Setting graduation requirements",
+      "Overseeing the state education department",
+    ].join("\n"),
+  },
+  {
     scope: "state_upper",
     canonicalName: "State Senator",
     summary: [
@@ -563,6 +585,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "county",
+    canonicalName: "Community College Trustee",
+    summary: [
+      "Setting the college's property tax and tuition",
+      "Approving the college budget and building plans",
+      "Picking the college president",
+    ].join("\n"),
+  },
+  {
+    scope: "county",
     canonicalName: "Collector of Revenue",
     summary: [
       "Collecting property and earnings taxes",
@@ -752,6 +783,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "place",
+    canonicalName: "City Auditor",
+    summary: [
+      "Checking whether city departments spend money the way the budget allows",
+      "Reviewing how well city programs work and reporting what should change",
+      "Taking reports of waste or fraud in city government, in some cities",
+    ].join("\n"),
+  },
+  {
+    scope: "place",
     canonicalName: "Municipal Constable",
     summary: [
       "Serving court papers and legal notices",
@@ -902,6 +942,24 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "statewide",
     officeCanonicalName: "State Board of Regents Member",
     aliasText: "Member of the Board of Regents",
+  },
+  {
+    // Michigan's three statewide-elected university boards (official 2026
+    // candidate listing): each board sets tuition and picks the president,
+    // the same job as a state board of regents.
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Regent of the University of Michigan",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Trustee of Michigan State University",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Governor of Wayne State University",
   },
   {
     scope: "statewide",
@@ -1711,6 +1769,31 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   },
   {
     scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "City Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Municipal Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Town Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Village Auditor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Auditor",
+    aliasText: "Auditor",
+  },
+  {
+    scope: "place",
     officeCanonicalName: "Municipal Constable",
     aliasText: "Municipal Constable",
   },
@@ -1988,6 +2071,26 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "county",
     officeCanonicalName: "Water and Sewer Commissioner",
     aliasText: "Water and Sewer Commissioner",
+  },
+  {
+    // Michigan community college boards are elected on the county ballot.
+    // "Community College Board of Trustees Member" is the key left after the
+    // county name is stripped ("Washtenaw Community College ..."); Grand
+    // Rapids Community College does not share Kent County's name, so it
+    // needs its own key.
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Trustee",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Board of Trustees Member",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Grand Rapids Community College Board of Trustees Member",
   },
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").

@@ -3,6 +3,7 @@ import type { PoolClient } from "pg";
 import { getStateNameByAbbreviation } from "../../constants/usStates.js";
 import type { ElectionContestFamily, ElectionDistrictType } from "../../types/election.js";
 import { normalizeElectionTitleKey } from "../../utils/normalizeElectionTitleKey.js";
+import { congressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import { isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
 
 type OfficeAliasRow = {
@@ -751,11 +752,28 @@ function isUsSenateCompatibleTitle(titleMatcherKey: string): boolean {
   return !NON_US_SENATE_OFFICE_MARKERS.some((pattern) => pattern.test(titleMatcherKey));
 }
 
+// A retention question names the sitting judge ("Shall Judge Elizabeth House
+// Moulton Brodsky of the Boulder County Court be retained in office?", Boulder
+// County live). A word in the judge's own name must not count as an office
+// word: "house" there tripped the non-judicial markers and left the shell with
+// no office. Only the name between "shall judge|justice" and "of the"/"be" is
+// dropped, and only when the title carries a retention verb.
+function stripRetentionNomineeName(titleMatcherKey: string): string {
+  if (!/\bretain(?:ed|ing)?\b|\bretention\b/.test(titleMatcherKey)) {
+    return titleMatcherKey;
+  }
+  return titleMatcherKey.replace(
+    /\bshall ((?:chief |associate )?(?:judge|justice)) .+?(?= of the\b| be (?:retained|elected)\b)/,
+    "shall $1"
+  );
+}
+
 function isJudicialCompatibleTitle(titleMatcherKey: string): boolean {
   if (!JUDICIAL_TITLE_ALLOW_MARKERS.some((pattern) => pattern.test(titleMatcherKey))) {
     return false;
   }
-  return !NON_JUDICIAL_TITLE_MARKERS.some((pattern) => pattern.test(titleMatcherKey));
+  const officeWords = stripRetentionNomineeName(titleMatcherKey);
+  return !NON_JUDICIAL_TITLE_MARKERS.some((pattern) => pattern.test(officeWords));
 }
 
 // A justice of the peace is its own elected office, not a seat on the county
@@ -1255,6 +1273,32 @@ export class OfficeMatcher {
 
     if (isCombinedCountyDistrictClerkTitle(input)) {
       const office = findSingleScopeOffice(await this.loadOffices(input.scope), COUNTY_CLERK_CANONICAL_NAME);
+      if (office) {
+        return {
+          officeId: office.id,
+          method: "deterministic_fallback",
+          confidence: 1,
+          normalizedAlias,
+          aliasMemoryKey: titleMatcherKey,
+          shouldPersistAlias: false,
+        };
+      }
+    }
+
+    // Colorado elects its University of Colorado regents and State Board of
+    // Education members by congressional district, on the us_house row's
+    // ballot ("Regent of the University of Colorado - Congressional District
+    // 2"). Route them to their us_house-scoped board offices instead of the
+    // House seat every other us_house title takes. Ahead of every alias: the
+    // House route persists its aliases, so a database whose earlier runs
+    // learned one of these titles -> the House seat would otherwise return
+    // that alias first. State-scoped and never persisted; any other state's
+    // row keeps the House route.
+    if (input.scope === "us_house") {
+      const boardOfficeName = congressionalDistrictBoardOfficeName(input.state, titleMatcherKey);
+      const office = boardOfficeName
+        ? findSingleScopeOffice(await this.loadOffices(input.scope), boardOfficeName)
+        : undefined;
       if (office) {
         return {
           officeId: office.id,

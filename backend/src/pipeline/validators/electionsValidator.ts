@@ -17,6 +17,7 @@ import {
 import { parseCanonicalElectionPayload } from "../../contracts/electionPayloadContract.js";
 import type { ElectionDistrictType, ElectionEnrichedPayload, ElectionEntryPayload } from "../../types/election.js";
 import { filterPresidentialElectionEntries } from "../../utils/presidentialOffice.js";
+import { congressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import { isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
 import { isDcWardStateBoardOfEducationTitle } from "../elections/officeMatcher.js";
 
@@ -262,9 +263,22 @@ function isHardScopeMismatch(
   // to its own office. Any other state's row keeps the school rejection.
   const dcWardStateBoard =
     districtType === "state_upper" && isDcWardStateBoardOfEducationTitle(stateCode, scopeText);
+  // Colorado elects its State Board of Education (and CU regents) by
+  // congressional district, so that title belongs on a Colorado us_house
+  // row; the matcher routes it to its own office. Other states keep the
+  // school rejection.
+  const coloradoCongressionalBoard =
+    districtType === "us_house" && congressionalDistrictBoardOfficeName(stateCode, scopeText) !== null;
+  // A state board of education is a statewide body (Michigan elects two
+  // members statewide every even year), so on a statewide row the phrase is
+  // not a sign of a local school-board race.
+  const statewideStateBoard =
+    districtType === "statewide" && /\bstate board of education\b/.test(scopeText);
   const schoolLike =
     entry.race_type === "office" &&
     !dcWardStateBoard &&
+    !coloradoCongressionalBoard &&
+    !statewideStateBoard &&
     /\bschool board\b|\bschool district\b|\bboard of education\b/.test(scopeText);
   // Most large US school districts are named "* County School District" or
   // "* City Schools", so county/city tokens inside a clearly-school title are
