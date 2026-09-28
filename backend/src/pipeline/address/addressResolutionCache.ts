@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 
-import type { AddressDistrictKey, AddressDistrictResolverWarning } from "./addressDistrictResolver.js";
+import type {
+  AddressComponentKey,
+  AddressDistrictKey,
+  AddressDistrictResolverWarning,
+} from "./addressDistrictResolver.js";
 import type { CensusAddressCoordinates } from "./censusAddressGeocoder.js";
 
 // v2: the hashed key input gained the geocoder layers dimension. The version
@@ -10,7 +14,10 @@ import type { CensusAddressCoordinates } from "./censusAddressGeocoder.js";
 // the states redrawn for November 2026 (usHouse2026Redistricting.ts); v2
 // entries hold 119th-layer House keys that are wrong in those states, so
 // they must miss rather than age out over 14 days.
-export const ADDRESS_LOOKUP_CACHE_KEY_PREFIX = "address_lookup:v3:";
+// v4: entries carry component_keys (Census town codes) so districts built
+// from towns, like New Hampshire's Executive Council, resolve; v3 entries
+// lack them and would silently drop those races.
+export const ADDRESS_LOOKUP_CACHE_KEY_PREFIX = "address_lookup:v4:";
 export const DEFAULT_ADDRESS_LOOKUP_CACHE_TTL_SECONDS = 14 * 24 * 60 * 60;
 
 export type AddressLookupCacheClient = {
@@ -23,6 +30,7 @@ export type AddressLookupCacheValue = {
   coordinates: CensusAddressCoordinates;
   address_match_count: number;
   district_keys: AddressDistrictKey[];
+  component_keys: AddressComponentKey[];
   warnings: AddressDistrictResolverWarning[];
   cached_at: string;
 };
@@ -69,6 +77,7 @@ function isCachedValue(value: unknown): value is AddressLookupCacheValue {
     isCoordinates(value.coordinates) &&
     typeof value.address_match_count === "number" &&
     Array.isArray(value.district_keys) &&
+    Array.isArray(value.component_keys) &&
     Array.isArray(value.warnings) &&
     typeof value.cached_at === "string"
   );

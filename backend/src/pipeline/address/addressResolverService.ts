@@ -402,7 +402,7 @@ export async function resolveAddressToDistricts(
       // below try, and fail with its clearer not_found if it also misses.
       if (keyResolution.district_keys.length > 0) {
         const districtKeys = await addVerifiedLocalDistrictKeys(db, keyResolution.district_keys, options.coordinates);
-        const districtLookup = await lookupAddressDistricts(db, districtKeys);
+        const districtLookup = await lookupAddressDistricts(db, districtKeys, keyResolution.component_keys);
         return {
           matched_address: address.trim(),
           coordinates: options.coordinates,
@@ -459,6 +459,7 @@ export async function resolveAddressToDistricts(
           coordinates: geocoded.coordinates,
           address_match_count: geocoded.address_match_count,
           district_keys: keyResolution.district_keys,
+          component_keys: keyResolution.component_keys,
           warnings: keyResolution.warnings,
         };
         if (options.cache) {
@@ -476,7 +477,7 @@ export async function resolveAddressToDistricts(
   // local voting boundary take effect without waiting for a cached address
   // key set to expire, and no additional address leaves this resolver.
   const districtKeys = await addVerifiedLocalDistrictKeys(db, resolved.district_keys, resolved.coordinates);
-  const districtLookup = await lookupAddressDistricts(db, districtKeys);
+  const districtLookup = await lookupAddressDistricts(db, districtKeys, resolved.component_keys);
 
   return {
     matched_address: resolved.matched_address,

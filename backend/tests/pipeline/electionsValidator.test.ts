@@ -2176,6 +2176,144 @@ describe("runElectionsValidator", () => {
     expect(rejectedCall).toBeUndefined();
   });
 
+  it("accepts Colorado's congressional-district State Board of Education seat on a us_house row", async () => {
+    const payload = {
+      district_id: "d-co-1",
+      district_name: "Congressional District 1 (119th Congress), Colorado",
+      district_type: "us_house",
+      state: "CO",
+      entries: [
+        {
+          official_ballot_title: "State Board of Education Member - Congressional District 1",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_co_1",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_VALIDATED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+        item_type: STAGING_ITEM_TYPE_ELECTION,
+      })
+    );
+
+    const rejectedCall = redisXAddMock.mock.calls.find((call) => call[0] === STAGING_REJECTED_STREAM);
+    expect(rejectedCall).toBeUndefined();
+  });
+
+  it("accepts Colorado's congressional-district CU regent seat on a us_house row", async () => {
+    const payload = {
+      district_id: "d-co-2",
+      district_name: "Congressional District 2 (119th Congress), Colorado",
+      district_type: "us_house",
+      state: "CO",
+      entries: [
+        {
+          official_ballot_title: "Regent of the University of Colorado - Congressional District 2",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_co_2",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_VALIDATED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+        item_type: STAGING_ITEM_TYPE_ELECTION,
+      })
+    );
+
+    const rejectedCall = redisXAddMock.mock.calls.find((call) => call[0] === STAGING_REJECTED_STREAM);
+    expect(rejectedCall).toBeUndefined();
+  });
+
+  it("still hard-rejects a State Board of Education title on another state's us_house row", async () => {
+    const payload = {
+      district_id: "d-tx-3",
+      district_name: "Congressional District 3 (119th Congress), Texas",
+      district_type: "us_house",
+      state: "TX",
+      entries: [
+        {
+          official_ballot_title: "State Board of Education Member - Congressional District 3",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_tx_3",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_REJECTED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+        item_type: STAGING_ITEM_TYPE_ELECTION,
+      })
+    );
+  });
+
   it("still hard-rejects a State Board of Education title on another state's state_upper row", async () => {
     const payload = {
       district_id: "d-tx-5",
@@ -2216,6 +2354,96 @@ describe("runElectionsValidator", () => {
       expect.objectContaining({
         ingest_key: "elections:test:1",
         item_type: STAGING_ITEM_TYPE_ELECTION,
+      })
+    );
+  });
+
+  it("accepts a statewide State Board of Education contest on the statewide row", async () => {
+    // Michigan elects two State Board of Education members statewide
+    // (official 2026 candidate listing, live).
+    const payload = {
+      district_id: "d-mi",
+      district_name: "Michigan",
+      district_type: "statewide",
+      state: "MI",
+      entries: [
+        {
+          official_ballot_title: "Member of the State Board of Education",
+          discovery_contest_family: "non_judicial_office",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_mi_sbe",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_VALIDATED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
+      })
+    );
+  });
+
+  it("still hard-rejects a local school board title on the statewide row", async () => {
+    const payload = {
+      district_id: "d-mi",
+      district_name: "Michigan",
+      district_type: "statewide",
+      state: "MI",
+      entries: [
+        {
+          official_ballot_title: "Lansing School District Board of Education Member",
+          discovery_contest_family: "non_judicial_office",
+          election_date: "2099-11-03",
+          race_type: "office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:1",
+            payload,
+            status: "pending",
+            run_id: "run_mi_school",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    expect(redisXAddMock).toHaveBeenCalledWith(
+      STAGING_REJECTED_STREAM,
+      "*",
+      expect.objectContaining({
+        ingest_key: "elections:test:1",
       })
     );
   });
@@ -2846,5 +3074,76 @@ describe("runElectionsValidator", () => {
     await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
 
     expect(redisXAckMock).not.toHaveBeenCalled();
+  });
+
+  // Council districts research one combined pass, so the contract forbids a
+  // per-entry discovery_contest_family here.
+  function councilPayload(title: string) {
+    return {
+      district_id: "d-nh-ec-4",
+      district_name: "Executive Council District 4, New Hampshire",
+      district_type: "state_executive_council",
+      state: "NH",
+      entries: [
+        {
+          official_ballot_title: title,
+          election_date: "2099-11-03",
+          race_type: "office",
+          election_stage: "general",
+          is_partisan: true,
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+  }
+
+  function queueCouncilPayload(payload: ReturnType<typeof councilPayload>) {
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:nh-council",
+            payload,
+            status: "pending",
+            run_id: "run_nh_council",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+  }
+
+  it("hard-rejects a Governor race filed on an Executive Council district", async () => {
+    queueCouncilPayload(councilPayload("Governor"));
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const hardFailCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[1]?.[1] ?? "").includes("state_executive_council scope contains clearly non-council race")
+    );
+    expect(hardFailCall).toBeTruthy();
+    const updateValidatedCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[0]).includes("SET status = 'validated'")
+    );
+    expect(updateValidatedCall).toBeUndefined();
+  });
+
+  it("keeps a Governor's Councillor race on an Executive Council district", async () => {
+    queueCouncilPayload(councilPayload("Governor's Councillor, Eighth District"));
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const hardFailCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[1]?.[1] ?? "").includes("state_executive_council scope contains clearly non-council race")
+    );
+    expect(hardFailCall).toBeUndefined();
+    const softFailCall = poolQueryMock.mock.calls.find((call) => String(call[1]?.[1] ?? "").includes("soft_fail"));
+    expect(softFailCall).toBeUndefined();
+    const updateValidatedCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[0]).includes("SET status = 'validated'")
+    );
+    expect(updateValidatedCall).toBeTruthy();
   });
 });

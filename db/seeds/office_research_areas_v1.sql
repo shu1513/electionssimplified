@@ -3184,6 +3184,18 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- builds and runs the pipes and plants (public_infrastructure), and keeps
     -- drinking water safe and sewage treated (environment_and_public_health).
     ('county', 'Water and Sewer Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- County public hospital board: runs the hospital (healthcare_affordability,
+    -- environment_and_public_health) and asks for its own property tax levy
+    -- (both spending slugs).
+    ('county', 'County Hospital Trustee', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability']::text[]),
+    -- County extension council: runs farm, 4-H, and family education programs
+    -- (public_education_quality) and sets its own levy (both spending slugs).
+    -- The catalog has no agriculture area.
+    ('county', 'County Agricultural Extension Council Member', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    -- Community college board: sets the college's tax and tuition (both
+    -- spending slugs) and oversees what and how the college teaches
+    -- (public_education_quality), like a state board of regents.
+    ('county', 'Community College Trustee', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
@@ -3281,6 +3293,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- DC's ward-elected State Board of Education seat (migration 280): the
     -- statewide board's set, since it is the same policy job at ward scope.
     ('state_upper', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    -- Colorado's congressional-district regent and State Board of Education
+    -- seats (migration 304): the statewide boards' sets, same jobs.
+    ('us_house', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('us_house', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'Attorney General', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'gun_control', 'healthcare_affordability', 'immigration', 'labor_rights', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'Commissioner of Agriculture', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'foreign_trade', 'social_programs_and_welfare']::text[]),
     ('statewide', 'Commissioner of Insurance', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'healthcare_affordability', 'housing_affordability']::text[]),
@@ -3298,6 +3314,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('statewide', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'State Level Judge', ARRAY['civil_rights', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'State Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
+    -- Executive Councilor (NH; migration 306): votes on judges (impartiality,
+    -- legal_competence), state contracts (spending, efficiency, corruption;
+    -- NH family-planning contracts are its best-known votes), and pardons.
+    ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'Superintendent of Public Instruction', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]);
 
 -- Fail fast rather than silently mis-shaping an office. The reconcile below

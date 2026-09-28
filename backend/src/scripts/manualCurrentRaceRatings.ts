@@ -147,7 +147,9 @@ type DueScope = (typeof DUE_SCOPES)[number];
 // due list will require an explicit city manifest.
 const SCOPE_CONDITIONS: Record<Exclude<DueScope, "all">, string> = {
   senate: `(office.canonical_name = 'United States Senator' OR e.discovery_contest_family = 'us_senate')`,
-  house: `d.district_type = 'us_house'`,
+  // Colorado's regent and State Board of Education seats share the us_house
+  // row; they are not House races.
+  house: `(d.district_type = 'us_house' AND (office.canonical_name IS NULL OR office.canonical_name = 'United States Representative'))`,
   governor: `(office.canonical_name = 'Governor' OR (e.office_id IS NULL AND d.district_type = 'statewide' AND e.official_ballot_title IN ('Governor', 'Governor and Lieutenant Governor', 'Governor/Lt. Governor', 'Governor / Lt. Governor')))`,
 };
 

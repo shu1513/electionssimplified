@@ -17,6 +17,7 @@ import {
 import { parseCanonicalElectionPayload } from "../../contracts/electionPayloadContract.js";
 import type { ElectionDistrictType, ElectionEnrichedPayload, ElectionEntryPayload } from "../../types/election.js";
 import { filterPresidentialElectionEntries } from "../../utils/presidentialOffice.js";
+import { congressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import { isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
 import { isDcWardStateBoardOfEducationTitle } from "../elections/officeMatcher.js";
 
@@ -148,6 +149,14 @@ const STATE_LOWER_STRICT_MARKERS = [
   /\blower chamber\b/,
 ];
 
+// New Hampshire "Executive Councilor"; Massachusetts "Councillor" on its
+// Governor's Council ballot.
+const EXECUTIVE_COUNCIL_MARKERS = [
+  /\bexecutive council(?:or|lor)?\b/,
+  /\bgovernor['’]?s council(?:or|lor)?\b/,
+  /\bcouncil(?:or|lor)\b/,
+];
+
 const STATE_LOWER_MARKERS = [
   ...STATE_LOWER_STRICT_MARKERS,
   /\brepresentative in the general assembly\b/,
@@ -254,9 +263,22 @@ function isHardScopeMismatch(
   // to its own office. Any other state's row keeps the school rejection.
   const dcWardStateBoard =
     districtType === "state_upper" && isDcWardStateBoardOfEducationTitle(stateCode, scopeText);
+  // Colorado elects its State Board of Education (and CU regents) by
+  // congressional district, so that title belongs on a Colorado us_house
+  // row; the matcher routes it to its own office. Other states keep the
+  // school rejection.
+  const coloradoCongressionalBoard =
+    districtType === "us_house" && congressionalDistrictBoardOfficeName(stateCode, scopeText) !== null;
+  // A state board of education is a statewide body (Michigan elects two
+  // members statewide every even year), so on a statewide row the phrase is
+  // not a sign of a local school-board race.
+  const statewideStateBoard =
+    districtType === "statewide" && /\bstate board of education\b/.test(scopeText);
   const schoolLike =
     entry.race_type === "office" &&
     !dcWardStateBoard &&
+    !coloradoCongressionalBoard &&
+    !statewideStateBoard &&
     /\bschool board\b|\bschool district\b|\bboard of education\b/.test(scopeText);
   // Most large US school districts are named "* County School District" or
   // "* City Schools", so county/city tokens inside a clearly-school title are
@@ -281,6 +303,24 @@ function isHardScopeMismatch(
 
   if (districtType === "state_lower" && (usSenate || usHouse || stateSenate || countyLike || cityLike || schoolLike)) {
     return "state_lower scope contains clearly non-state_lower race";
+  }
+
+  // Massachusetts' "Governor's Councillor" names the council, not the
+  // governor. Any other governor-family title is a statewide race filed on
+  // the wrong row.
+  const executiveCouncilTitle = hasAny(scopeText, EXECUTIVE_COUNCIL_MARKERS);
+  if (
+    districtType === "state_executive_council" &&
+    (usSenate ||
+      usHouse ||
+      stateSenate ||
+      stateHouse ||
+      (governorLike && !executiveCouncilTitle) ||
+      countyLike ||
+      cityLike ||
+      schoolLike)
+  ) {
+    return "state_executive_council scope contains clearly non-council race";
   }
 
   if (
@@ -346,6 +386,10 @@ function isSoftScopeAmbiguous(
 
   if (districtType === "state_lower" && !hasAny(text, STATE_LOWER_MARKERS)) {
     return "state_lower entry lacks clear state_lower markers";
+  }
+
+  if (districtType === "state_executive_council" && !hasAny(text, EXECUTIVE_COUNCIL_MARKERS)) {
+    return "state_executive_council entry lacks clear council markers";
   }
 
   if (districtType === "county") {

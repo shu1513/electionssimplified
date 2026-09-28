@@ -235,12 +235,47 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Colorado elects the University of Colorado Board of Regents and the
+    // State Board of Education one member per congressional district (Colo.
+    // Const. art. IX §§ 1 and 12), on the us_house row's ballot. Same jobs as
+    // the statewide boards, so the same bullets (migration 304).
+    scope: "us_house",
+    canonicalName: "State Board of Regents Member",
+    summary: [
+      "Setting tuition at state universities",
+      "Approving university budgets",
+      "Picking university presidents",
+    ].join("\n"),
+  },
+  {
+    scope: "us_house",
+    canonicalName: "State Board of Education Member",
+    summary: [
+      "Setting what students must learn in each grade",
+      "Setting graduation requirements",
+      "Overseeing the state education department",
+    ].join("\n"),
+  },
+  {
     scope: "state_upper",
     canonicalName: "State Senator",
     summary: [
       "Voting on how much you pay in state taxes",
       "Voting on how much money your local public schools get",
       "Voting on which roads and highways get built or repaired",
+    ].join("\n"),
+  },
+  {
+    // New Hampshire's five Executive Councilors (RSA 662:2) vote on the
+    // governor's nominations, state contracts, and pardons (N.H. Const. Part
+    // II, Arts. 46-47, 52). Massachusetts' Governor's Council does the same
+    // nominations and pardons work. Districts: migration 306.
+    scope: "state_executive_council",
+    canonicalName: "Executive Councilor",
+    summary: [
+      "Approving or rejecting the judges and officials the governor picks",
+      "Approving or rejecting state contracts and spending",
+      "Approving or rejecting pardons",
     ].join("\n"),
   },
   {
@@ -546,6 +581,37 @@ const SEED_OFFICES: SeedOffice[] = [
       "Setting the water and sewer rates you pay",
       "Deciding which pipes, pumps, and treatment plants get built or fixed",
       "Picking the utility's director",
+    ].join("\n"),
+  },
+  {
+    // Elected board of a county-owned public hospital (Iowa Code chapter 347,
+    // e.g. Polk County's Broadlawns Medical Center).
+    scope: "county",
+    canonicalName: "County Hospital Trustee",
+    summary: [
+      "Overseeing the county's public hospital and its budget",
+      "Hiring the hospital's chief executive",
+      "Setting how much property tax the hospital asks for",
+    ].join("\n"),
+  },
+  {
+    // Elected county extension council (Iowa Code chapter 176A), which runs
+    // the county's farm, 4-H, and family education programs.
+    scope: "county",
+    canonicalName: "County Agricultural Extension Council Member",
+    summary: [
+      "Choosing which farm, 4-H, and family classes the county extension office offers",
+      "Setting the extension office's budget and property tax levy",
+      "Hiring the county extension staff",
+    ].join("\n"),
+  },
+  {
+    scope: "county",
+    canonicalName: "Community College Trustee",
+    summary: [
+      "Setting the college's property tax and tuition",
+      "Approving the college budget and building plans",
+      "Picking the college president",
     ].join("\n"),
   },
   {
@@ -909,6 +975,24 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     aliasText: "Member of the Board of Regents",
   },
   {
+    // Michigan's three statewide-elected university boards (official 2026
+    // candidate listing): each board sets tuition and picks the president,
+    // the same job as a state board of regents.
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Regent of the University of Michigan",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Trustee of Michigan State University",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Board of Regents Member",
+    aliasText: "Governor of Wayne State University",
+  },
+  {
     scope: "statewide",
     officeCanonicalName: "Superintendent of Public Instruction",
     aliasText: "State School Superintendent",
@@ -1132,6 +1216,21 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "state_upper",
     officeCanonicalName: "State Senator",
     aliasText: "Member of the State Senate",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Executive Councilor",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Executive Councillor",
+  },
+  {
+    scope: "state_executive_council",
+    officeCanonicalName: "Executive Councilor",
+    aliasText: "Governor's Councillor",
   },
   {
     scope: "state_lower",
@@ -2015,6 +2114,66 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "county",
     officeCanonicalName: "Water and Sewer Commissioner",
     aliasText: "Water and Sewer Commissioner",
+  },
+  // Iowa county ballots title the public hospital board many ways ("Keokuk
+  // County Public Hospital Trustees", "Davis County Hospital Board of
+  // Trustees", "Humboldt County Memorial Hospital Board of Trustees", "Palo
+  // Alto County Hospital District Trustee", all live). The matcher keeps
+  // plurals and the leading "county" word, so each form needs its own key.
+  // "Hospital Board" is the Kansas county form ("Kiowa County Hospital Board").
+  ...[
+    "County Hospital Trustee",
+    "County Hospital Trustees",
+    "Hospital Trustee",
+    "Hospital Trustees",
+    "Public Hospital Trustee",
+    "Public Hospital Trustees",
+    "Memorial Hospital Trustee",
+    "Memorial Hospital Trustees",
+    "Hospital Board of Trustees",
+    "Memorial Hospital Board of Trustees",
+    "Hospital Board",
+    "Hospital District Trustee",
+    "Hospital District Trustees",
+  ].map((aliasText) => ({
+    scope: "county" as const,
+    officeCanonicalName: "County Hospital Trustee",
+    aliasText,
+  })),
+  // Iowa extension council seats ("Marion County Agricultural Extension
+  // Council", "Worth County Agricultural Extension Council Member", live). The
+  // matcher already drops a trailing "to fill a vacancy".
+  ...[
+    "County Agricultural Extension Council Member",
+    "Agricultural Extension Council Member",
+    "Agricultural Extension Council Members",
+    "Agricultural Extension Council",
+    "Extension Council Member",
+    "Extension Council",
+  ].map((aliasText) => ({
+    scope: "county" as const,
+    officeCanonicalName: "County Agricultural Extension Council Member",
+    aliasText,
+  })),
+  {
+    // Michigan community college boards are elected on the county ballot.
+    // "Community College Board of Trustees Member" is the key left after the
+    // county name is stripped ("Washtenaw Community College ..."); Grand
+    // Rapids Community College does not share Kent County's name, so it
+    // needs its own key.
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Trustee",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College Board of Trustees Member",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Grand Rapids Community College Board of Trustees Member",
   },
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").

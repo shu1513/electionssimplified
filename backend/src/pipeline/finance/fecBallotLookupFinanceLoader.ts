@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCandidateFinanceEnabled } from "../../config/featureFlags.js";
 import type { ElectionContestFamily, ElectionDistrictType, ElectionRaceType } from "../../types/election.js";
+import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName } from "./pacInterestClassifier.js";
 import {
   addFinanceBreakdown,
@@ -167,7 +168,8 @@ function normalizeFecCandidateIdForFinance(value: string): string | null {
 // federal money would attach to an unrelated same-year race (and win the
 // merge, since FEC merges last). Mirrors the office gates in
 // candidateFinanceBatchSync. US House is identified structurally (us_house
-// districts hold nothing else). US Senate shares statewide districts with
+// districts hold nothing else except Colorado's congressional-district regent
+// and State Board of Education seats, which are excluded by office). US Senate shares statewide districts with
 // governors, so it needs identity metadata — and the two signals are not
 // equally trustworthy: office_canonical_name comes from the curated offices
 // table via write-time office matching, while discovery_contest_family is a
@@ -184,7 +186,7 @@ function isFecRequestableElection(row: ElectionRow, fecCandidateId: string): boo
     return false;
   }
   if (fecCandidateId.startsWith("H")) {
-    return row.district_type === "us_house";
+    return row.district_type === "us_house" && !isCongressionalDistrictBoardOfficeName(row.office_canonical_name);
   }
   if (fecCandidateId.startsWith("S")) {
     if (row.district_type !== "statewide") {
