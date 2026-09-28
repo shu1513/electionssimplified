@@ -155,6 +155,40 @@ function deepInsideUnion(point: Point, geometry: MultiPolygon): boolean {
   return true;
 }
 
+type BoundingBox = { minLon: number; minLat: number; maxLon: number; maxLat: number };
+
+type ParsedBoundary = {
+  geoid_compact: string;
+  geometry: MultiPolygon;
+  exclusions: MultiPolygon | null;
+  bbox: BoundingBox;
+};
+
+function boundingBox(geometry: MultiPolygon): BoundingBox {
+  const box = { minLon: Infinity, minLat: Infinity, maxLon: -Infinity, maxLat: -Infinity };
+  for (const polygon of geometry) {
+    for (const [lon, lat] of polygon[0]) {
+      if (lon < box.minLon) box.minLon = lon;
+      if (lon > box.maxLon) box.maxLon = lon;
+      if (lat < box.minLat) box.minLat = lat;
+      if (lat > box.maxLat) box.maxLat = lat;
+    }
+  }
+  return box;
+}
+
+function inBoundingBox(point: Point, box: BoundingBox): boolean {
+  return point[0] > box.minLon && point[0] < box.maxLon && point[1] > box.minLat && point[1] < box.maxLat;
+}
+
+function pointInParsedBoundary(point: Point, geometry: MultiPolygon, exclusions: MultiPolygon | null): boolean {
+  const inside = geometry.length === 1
+    ? classifyGeometry(point, geometry) === "inside"
+    : deepInsideUnion(point, geometry);
+  if (!inside) return false;
+  return !exclusions || classifyGeometry(point, exclusions) === "outside";
+}
+
 /** Only a strict interior point beyond the boundary buffer is eligible.
  * Exclusions remove incorporated areas or other electorates verified by the
  * same official source. Invalid geometry always fails closed. */
@@ -166,12 +200,54 @@ export function pointInVerifiedLocalBoundary(
   const geometry = parseGeometry(geometryValue);
   const exclusions = exclusionValue === null ? null : parseGeometry(exclusionValue);
   if (!geometry || (exclusionValue !== null && !exclusions)) return false;
-  const point: Point = [coordinates.lng, coordinates.lat];
-  const inside = geometry.length === 1
-    ? classifyGeometry(point, geometry) === "inside"
-    : deepInsideUnion(point, geometry);
-  if (!inside) return false;
-  return !exclusions || classifyGeometry(point, exclusions) === "outside";
+  return pointInParsedBoundary([coordinates.lng, coordinates.lat], geometry, exclusions);
+}
+
+// Boundaries change only through a reviewed import, so each process keeps a
+// state's parsed boundaries for a few minutes instead of re-reading and
+// re-parsing megabytes of jsonb on every address lookup.
+export const LOCAL_BOUNDARY_CACHE_TTL_MS = 5 * 60 * 1000;
+
+type CacheEntry = { expiresAt: number; boundaries: Promise<ParsedBoundary[]> };
+const boundaryCache = new Map<string, CacheEntry>();
+
+export function clearLocalSpecialBoundaryCache(): void {
+  boundaryCache.clear();
+}
+
+async function loadStateBoundaries(db: Queryable, stateFips: string): Promise<ParsedBoundary[]> {
+  const result = await db.query<BoundaryRow>(
+    `SELECT district.geoid_compact, boundary.geometry, boundary.exclusion_geometry
+     FROM public.local_special_boundaries AS boundary
+     JOIN public.districts AS district ON district.id = boundary.district_id
+     WHERE district.state_fips = $1 AND district.district_type = 'local_special'
+       AND boundary.review_status = 'verified'
+     ORDER BY district.geoid_compact`,
+    [stateFips]
+  );
+  const boundaries: ParsedBoundary[] = [];
+  for (const row of result.rows) {
+    // Invalid geometry is dropped here, so it can never be eligible.
+    const geometry = parseGeometry(row.geometry);
+    const exclusions = row.exclusion_geometry === null ? null : parseGeometry(row.exclusion_geometry);
+    if (!geometry || (row.exclusion_geometry !== null && !exclusions)) continue;
+    boundaries.push({ geoid_compact: row.geoid_compact, geometry, exclusions, bbox: boundingBox(geometry) });
+  }
+  return boundaries;
+}
+
+function cachedStateBoundaries(db: Queryable, stateFips: string): Promise<ParsedBoundary[]> {
+  const now = Date.now();
+  const cached = boundaryCache.get(stateFips);
+  if (cached && cached.expiresAt > now) return cached.boundaries;
+  const boundaries = loadStateBoundaries(db, stateFips);
+  const entry = { expiresAt: now + LOCAL_BOUNDARY_CACHE_TTL_MS, boundaries };
+  boundaryCache.set(stateFips, entry);
+  // Never cache a failed read; the next lookup retries.
+  boundaries.catch(() => {
+    if (boundaryCache.get(stateFips) === entry) boundaryCache.delete(stateFips);
+  });
+  return boundaries;
 }
 
 export async function lookupLocalSpecialDistrictKeys(
@@ -182,20 +258,14 @@ export async function lookupLocalSpecialDistrictKeys(
   if (!/^[0-9]{2}$/.test(stateFips) || !Number.isFinite(coordinates.lat) || !Number.isFinite(coordinates.lng)) {
     return [];
   }
-  const result = await db.query<BoundaryRow>(
-    `SELECT district.geoid_compact, boundary.geometry, boundary.exclusion_geometry
-     FROM public.local_special_boundaries AS boundary
-     JOIN public.districts AS district ON district.id = boundary.district_id
-     WHERE district.state_fips = $1 AND district.district_type = 'local_special'
-       AND boundary.review_status = 'verified'
-     ORDER BY district.geoid_compact`,
-    [stateFips]
-  );
-  return result.rows
-    .filter((row) => pointInVerifiedLocalBoundary(coordinates, row.geometry, row.exclusion_geometry))
-    .map((row) => ({
+  const point: Point = [coordinates.lng, coordinates.lat];
+  const boundaries = await cachedStateBoundaries(db, stateFips);
+  return boundaries
+    .filter((boundary) => inBoundingBox(point, boundary.bbox) &&
+      pointInParsedBoundary(point, boundary.geometry, boundary.exclusions))
+    .map((boundary) => ({
       district_type: "local_special",
-      geoid_compact: row.geoid_compact,
+      geoid_compact: boundary.geoid_compact,
       source: "verified_polygon",
       layer_name: "reviewed_local_boundary",
     }));
