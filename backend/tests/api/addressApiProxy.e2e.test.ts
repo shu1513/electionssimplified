@@ -373,7 +373,8 @@ describeE2e("address API auth proxy E2E", () => {
     });
     expect(updateAuthenticatedAddressDistricts).toHaveBeenCalledWith(
       authenticatedUserId,
-      "3921 Harlan Ave Baldwin Park CA 91706"
+      "3921 Harlan Ave Baldwin Park CA 91706",
+      undefined
     );
     expect(updateAuthenticatedAddressDistricts).not.toHaveBeenCalledWith(spoofedUserId, expect.anything());
     expect(resolveAddress).not.toHaveBeenCalled();

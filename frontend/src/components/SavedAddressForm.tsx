@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ADDRESS_FIELD_PRIVACY_NOTE, apiRequest } from "@voteapp/api-client";
-import type { BallotSummary } from "@voteapp/api-client";
+import type { AddressLocation, BallotSummary } from "@voteapp/api-client";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { ErrorNotice } from "./Status";
 
@@ -30,13 +30,30 @@ export type AddressSavedLocationState = { addressSaved: AddressSavedNoticeData }
 
 export function SavedAddressForm({ inputId, label }: { inputId: string; label: string }) {
   const [address, setAddress] = useState("");
+  // Coordinates for the CURRENT address value, present only right after a
+  // completed autocomplete selection. Any manual edit passes no location and
+  // clears them, so stale coordinates never ride along with a different
+  // address string. Sent with the PUT so an address the Census geocoder has
+  // no street range for (a new subdivision) still resolves — the same
+  // coordinate-first path the landing page search takes.
+  const [addressLocation, setAddressLocation] = useState<AddressLocation | null>(null);
+  // True while a picked suggestion's retrieve is in flight: the input already
+  // shows the description, but its coordinates have not landed, so a quick
+  // Enter would save the bare string and lose the coordinate path.
+  const [retrievePending, setRetrievePending] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const update = useMutation({
     mutationKey: ["put-address"],
-    mutationFn: (submitted: string) =>
-      apiRequest<AddressSaveResult>("/api/me/address", { method: "PUT", body: { address: submitted } }),
+    mutationFn: (submitted: { address: string; coordinates: AddressLocation | null }) =>
+      apiRequest<AddressSaveResult>("/api/me/address", {
+        method: "PUT",
+        body: {
+          address: submitted.address,
+          ...(submitted.coordinates ? { coordinates: submitted.coordinates } : {}),
+        },
+      }),
     onSuccess: (saved) => {
       // The PUT returns a plain district ballot, but GET /api/me/ballot
       // applies saved sort preferences and followed-candidate ordering —
@@ -61,13 +78,14 @@ export function SavedAddressForm({ inputId, label }: { inputId: string; label: s
   // older request to settle or the earlier address could win.
   const saving = useIsMutating({ mutationKey: ["put-address"] }) > 0;
 
-  function onAddressChange(next: string) {
+  function onAddressChange(next: string, location?: AddressLocation | null) {
     // Editing starts a new attempt: drop the previous save's error so it
     // cannot read as status for the address being typed.
     if (!update.isIdle && !update.isPending) {
       update.reset();
     }
     setAddress(next);
+    setAddressLocation(location ?? null);
   }
 
   return (
@@ -77,10 +95,10 @@ export function SavedAddressForm({ inputId, label }: { inputId: string; label: s
         // `saving` is from the last render; re-check the mutation cache so a
         // submit landing before the disabling re-render cannot start a
         // second overlapping PUT.
-        if (!address.trim() || queryClient.isMutating({ mutationKey: ["put-address"] }) > 0) {
+        if (!address.trim() || retrievePending || queryClient.isMutating({ mutationKey: ["put-address"] }) > 0) {
           return;
         }
-        update.mutate(address.trim());
+        update.mutate({ address: address.trim(), coordinates: addressLocation });
       }}
       className="mt-3 space-y-3"
     >
@@ -92,13 +110,14 @@ export function SavedAddressForm({ inputId, label }: { inputId: string; label: s
           inputId={inputId}
           value={address}
           onChange={onAddressChange}
+          onRetrievePendingChange={setRetrievePending}
           placeholder="1600 Pennsylvania Avenue NW, Washington, DC 20500"
         />
         <p className="mt-1 text-xs text-ink-soft">{ADDRESS_FIELD_PRIVACY_NOTE}</p>
       </div>
       <button
         type="submit"
-        disabled={!address.trim() || saving}
+        disabled={!address.trim() || saving || retrievePending}
         className="w-full rounded-md bg-rausch px-4 py-3 font-semibold text-white transition hover:bg-rausch-dark disabled:cursor-not-allowed disabled:bg-line"
       >
         {saving ? "Saving…" : "Save address"}
