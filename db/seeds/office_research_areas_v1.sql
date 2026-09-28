@@ -3275,6 +3275,17 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- (public_infrastructure), and moves riders out of cars
     -- (environment_and_public_health).
     ('local_special', 'Transit District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- Austin-area special districts and multi-county courts (migration 307).
+    -- Each copies its closest county/statewide counterpart; the appraisal
+    -- board values property and runs its office but sets no tax rate.
+    ('local_special', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('local_special', 'Court of Appeals Justice', ARRAY['civil_rights', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('local_special', 'District Judge', ARRAY['civil_rights', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('local_special', 'Community College Trustee', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('local_special', 'Groundwater Conservation District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'Municipal Utility District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'Library District Trustee', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
+    ('county', 'Appraisal District Director', ARRAY['government_efficiency', 'government_spending_reduction', 'housing_affordability']::text[]),
     ('school_elementary', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('school_secondary', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('school_unified', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),

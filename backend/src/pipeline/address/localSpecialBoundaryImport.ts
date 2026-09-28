@@ -1,18 +1,27 @@
 import { createHash } from "node:crypto";
+import { unzipSync } from "fflate";
 import type { PoolClient } from "pg";
 
 import { STATE_FIPS_BY_ABBREVIATION } from "../../constants/usStates.js";
 import { isValidLocalBoundaryGeometry } from "./localSpecialDistrictEligibility.js";
 
 type Queryable = Pick<PoolClient, "query">;
-type FetchLike = (url: URL) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;
+type FetchLike = (url: URL) => Promise<{
+  ok: boolean;
+  status: number;
+  json(): Promise<unknown>;
+  arrayBuffer?(): Promise<ArrayBuffer>;
+}>;
 
 /** One official source of boundary pieces. `match` names the exact feature set
  * the reviewer expects: the source must return one feature per value, no more,
  * no fewer. An ArcGIS layer is queried by that field; a GeoJSON file is
- * filtered by it. */
+ * filtered by it. A `kml_zip` source is a zipped KML file, the format some
+ * state offices publish instead of a map service (the Texas Legislative
+ * Council's redistricting plans, for example); each Placemark becomes a
+ * feature whose `name` and ExtendedData fields can be matched. */
 export type BoundarySourceSpec = {
-  kind: "arcgis" | "geojson";
+  kind: "arcgis" | "geojson" | "kml_zip";
   url: string;
   match: { field: string; values: string[] };
 };
@@ -58,8 +67,8 @@ function httpsUrl(value: unknown): URL | null {
 }
 
 function parseSource(value: unknown, label: string): BoundarySourceSpec {
-  if (!isRecord(value) || (value.kind !== "arcgis" && value.kind !== "geojson")) {
-    throw new Error(`${label}.kind must be "arcgis" or "geojson"`);
+  if (!isRecord(value) || (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip")) {
+    throw new Error(`${label}.kind must be "arcgis", "geojson", or "kml_zip"`);
   }
   const url = httpsUrl(value.url);
   if (!url) throw new Error(`${label}.url must be an HTTPS URL`);
@@ -132,13 +141,80 @@ function stableJson(value: unknown): string {
 }
 
 function sourceRequestUrl(spec: BoundarySourceSpec): URL {
-  if (spec.kind === "geojson") return new URL(spec.url);
+  if (spec.kind === "geojson" || spec.kind === "kml_zip") return new URL(spec.url);
   const url = new URL(`${spec.url}/query`);
   url.searchParams.set("where", `${spec.match.field} IN (${spec.match.values.map((entry) => `'${entry}'`).join(",")})`);
   url.searchParams.set("outFields", "*");
   url.searchParams.set("outSR", "4326");
   url.searchParams.set("f", "geojson");
   return url;
+}
+
+async function readArrayBuffer(
+  response: { arrayBuffer?(): Promise<ArrayBuffer> },
+  url: URL
+): Promise<Uint8Array> {
+  if (!response.arrayBuffer) throw new Error(`Official boundary source cannot be read as a file: ${url}`);
+  return new Uint8Array(await response.arrayBuffer());
+}
+
+function decodeXmlText(value: string): string {
+  return value
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&")
+    .trim();
+}
+
+function parseKmlRing(text: string): number[][] {
+  const ring = text.trim().split(/\s+/).filter(Boolean).map((tuple) => {
+    const [lon, lat] = tuple.split(",").map(Number);
+    if (!Number.isFinite(lon) || !Number.isFinite(lat)) throw new Error(`KML coordinate is not a number: ${tuple}`);
+    return [lon as number, lat as number];
+  });
+  const first = ring[0];
+  const last = ring[ring.length - 1];
+  if (first && last && (first[0] !== last[0] || first[1] !== last[1])) ring.push([first[0] as number, first[1] as number]);
+  return ring;
+}
+
+function ringsIn(block: string, tag: "outerBoundaryIs" | "innerBoundaryIs"): number[][][] {
+  const pattern = new RegExp(`<${tag}>[\\s\\S]*?<coordinates>([\\s\\S]*?)</coordinates>[\\s\\S]*?</${tag}>`, "g");
+  return [...block.matchAll(pattern)].map((match) => parseKmlRing(match[1] as string));
+}
+
+/** Reads the first .kml file in a zip into a GeoJSON FeatureCollection: one
+ * feature per Placemark, with `name` and every ExtendedData SimpleData or
+ * Data value as properties. Only polygon geometry is kept. */
+export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "FeatureCollection"; features: unknown[] } {
+  const files = unzipSync(zipBytes);
+  const kmlName = Object.keys(files).sort().find((name) => name.toLowerCase().endsWith(".kml"));
+  if (!kmlName) throw new Error("Official boundary zip holds no .kml file");
+  const kml = new TextDecoder("utf-8").decode(files[kmlName]);
+  const features = [...kml.matchAll(/<Placemark\b[\s\S]*?<\/Placemark>/g)].map((match) => {
+    const block = match[0];
+    const properties: Record<string, string> = {};
+    const name = /<name>([\s\S]*?)<\/name>/.exec(block);
+    if (name) properties.name = decodeXmlText(name[1] as string);
+    for (const field of block.matchAll(/<SimpleData name="([^"]+)">([\s\S]*?)<\/SimpleData>/g)) {
+      properties[field[1] as string] = decodeXmlText(field[2] as string);
+    }
+    for (const field of block.matchAll(/<Data name="([^"]+)">\s*<value>([\s\S]*?)<\/value>/g)) {
+      properties[field[1] as string] = decodeXmlText(field[2] as string);
+    }
+    const polygons = [...block.matchAll(/<Polygon\b[\s\S]*?<\/Polygon>/g)].map((polygon) => {
+      const outer = ringsIn(polygon[0], "outerBoundaryIs");
+      if (outer.length !== 1) throw new Error(`KML polygon needs exactly one outer ring (${properties.name ?? "unnamed"})`);
+      return [outer[0] as number[][], ...ringsIn(polygon[0], "innerBoundaryIs")];
+    });
+    const geometry = polygons.length === 0
+      ? null
+      : polygons.length === 1
+        ? { type: "Polygon", coordinates: polygons[0] }
+        : { type: "MultiPolygon", coordinates: polygons };
+    return { type: "Feature", properties, geometry };
+  });
+  return { type: "FeatureCollection", features };
 }
 
 async function fetchSourceFeatures(
@@ -148,7 +224,9 @@ async function fetchSourceFeatures(
   const url = sourceRequestUrl(spec);
   const response = await fetchImpl(url);
   if (!response.ok) throw new Error(`Official boundary source returned HTTP ${response.status}: ${url}`);
-  const body: unknown = await response.json();
+  const body: unknown = spec.kind === "kml_zip"
+    ? kmlZipToFeatureCollection(await readArrayBuffer(response, url))
+    : await response.json();
   if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
     throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
   }

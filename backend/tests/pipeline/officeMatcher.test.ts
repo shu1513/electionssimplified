@@ -3378,6 +3378,83 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("maps Austin-area special-district and multi-county court titles to local_special offices", async () => {
+    const offices: Array<[string, string[]]> = [
+      ["State Board of Education Member", ["State Board of Education Member", "Member, State Board of Education"]],
+      ["Court of Appeals Justice", ["Court of Appeals Justice", "Chief Justice, Court of Appeals", "Justice, Court of Appeals"]],
+      ["District Judge", ["District Judge", "Judge, District Court"]],
+      ["Community College Trustee", ["Community College Trustee", "Austin Community College District Board of Trustees"]],
+      ["Groundwater Conservation District Director", [
+        "Groundwater Conservation District Director",
+        "Barton Springs Edwards Aquifer Conservation District Director",
+      ]],
+      ["Municipal Utility District Director", ["Municipal Utility District Director", "Director, Municipal Utility District"]],
+      ["Library District Trustee", ["Library District Trustee", "Community Library District Trustee"]],
+    ];
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: offices.flatMap(([name, aliases]) =>
+          aliases.map((alias) => ({ office_id: name, normalized_alias: normalizeElectionTitleKey(alias) }))),
+      },
+      officesByScope: {
+        local_special: offices.map(([name]) => ({ id: name, canonical_name: name })),
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const cases: Array<[string, string, "judicial_office" | "non_judicial_office"]> = [
+      ["Member, State Board of Education, District 5", "State Board of Education Member", "non_judicial_office"],
+      ["Chief Justice, 3rd Court of Appeals District", "Court of Appeals Justice", "judicial_office"],
+      ["District Judge, 207th Judicial District", "District Judge", "judicial_office"],
+      ["District Judge, 274th Judicial District", "District Judge", "judicial_office"],
+      ["Austin Community College District Board of Trustees, Place 1", "Community College Trustee", "non_judicial_office"],
+      ["Barton Springs Edwards Aquifer Conservation District Director, District 2", "Groundwater Conservation District Director", "non_judicial_office"],
+      ["Pilot Knob Municipal Utility District No. 2 Director", "Municipal Utility District Director", "non_judicial_office"],
+      ["East Travis Gateway Library District Trustee", "Library District Trustee", "non_judicial_office"],
+    ];
+    for (const [title, expected, family] of cases) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName: "Austin-area special district",
+        state: "TX",
+        officialBallotTitle: title,
+        discoveryContestFamily: family,
+      });
+      expect(result.officeId, title).toBe(expected);
+    }
+  });
+
+  it("maps a countywide appraisal district board seat to Appraisal District Director", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        county: [
+          { office_id: "office-appraisal", normalized_alias: normalizeElectionTitleKey("Appraisal District Director") },
+          { office_id: "office-appraisal", normalized_alias: normalizeElectionTitleKey("Central Appraisal District Board of Directors") },
+          { office_id: "office-appraisal", normalized_alias: normalizeElectionTitleKey("Appraisal District Board of Directors") },
+        ],
+      },
+      officesByScope: {
+        county: [{ id: "office-appraisal", canonical_name: "Appraisal District Director" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    for (const [title, districtName] of [
+      ["Travis Central Appraisal District Board of Directors, Place 1", "Travis County, Texas"],
+      ["Williamson Central Appraisal District Board of Directors, Place 3", "Williamson County, Texas"],
+      ["Hays Central Appraisal District Board of Directors, Place 2", "Hays County, Texas"],
+    ]) {
+      const result = await matcher.resolve({
+        scope: "county",
+        districtName,
+        state: "TX",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-appraisal");
+    }
+  });
+
   it("maps an elected city auditor to City Auditor, not Municipal Controller", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {

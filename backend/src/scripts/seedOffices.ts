@@ -748,6 +748,78 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "local_special",
+    canonicalName: "State Board of Education Member",
+    summary: [
+      "Setting what students must learn in each grade and subject",
+      "Approving textbooks and instructional materials for public schools",
+      "Overseeing the state fund that helps pay for public schools",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Court of Appeals Justice",
+    summary: [
+      "Hearing appeals of civil and criminal cases from trial courts in the district",
+      "Deciding whether the trial court followed the law, usually in three-judge panels",
+      "Writing opinions that guide lower courts in the district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "District Judge",
+    summary: [
+      "Presiding over felony criminal trials and large civil lawsuits",
+      "Hearing divorce, child custody, and other family cases",
+      "Serving the voters of every county the court covers",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Community College Trustee",
+    summary: [
+      "Setting the college's property tax rate and yearly budget",
+      "Approving tuition, programs, and new campuses",
+      "Hiring and overseeing the college president",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Groundwater Conservation District Director",
+    summary: [
+      "Setting rules and permits for pumping water from the aquifer",
+      "Deciding how much well owners may pump during a drought",
+      "Approving the district's budget and water fees",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Municipal Utility District Director",
+    summary: [
+      "Overseeing water, sewer, and drainage service for the district",
+      "Setting the district's property tax rate and water rates",
+      "Deciding when to borrow money for pipes, parks, and roads",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Library District Trustee",
+    summary: [
+      "Setting the library district's budget and tax rate",
+      "Approving library hours, services, and branches",
+      "Hiring and overseeing the library director",
+    ].join("\n"),
+  },
+  {
+    scope: "county",
+    canonicalName: "Appraisal District Director",
+    summary: [
+      "Overseeing the office that sets property values for tax bills",
+      "Approving the appraisal district's budget",
+      "Hiring the chief appraiser and appointing the appeals board",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
     canonicalName: "Transit District Director",
     summary: [
       "Setting bus and train routes, schedules, and fares for the region",
@@ -1724,6 +1796,78 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     officeCanonicalName: "City Auditor",
     aliasText: "Auditor",
   },
+  ...[
+    "State Board of Education Member",
+    "Member, State Board of Education",
+    "State Board of Education",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "State Board of Education Member",
+    aliasText,
+  })),
+  ...[
+    "Court of Appeals Justice",
+    "Chief Justice, Court of Appeals",
+    "Justice, Court of Appeals",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Court of Appeals Justice",
+    aliasText,
+  })),
+  ...[
+    "District Judge",
+    "Judge, District Court",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "District Judge",
+    aliasText,
+  })),
+  ...[
+    "Community College Trustee",
+    "Community College District Board of Trustees",
+    "Austin Community College District Board of Trustees",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Community College Trustee",
+    aliasText,
+  })),
+  ...[
+    "Groundwater Conservation District Director",
+    "Aquifer Conservation District Director",
+    "Barton Springs Edwards Aquifer Conservation District Director",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Groundwater Conservation District Director",
+    aliasText,
+  })),
+  ...[
+    "Municipal Utility District Director",
+    "MUD Director",
+    "Director, Municipal Utility District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Municipal Utility District Director",
+    aliasText,
+  })),
+  ...[
+    "Library District Trustee",
+    "Community Library District Trustee",
+    "Library District Board of Trustees",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Library District Trustee",
+    aliasText,
+  })),
+  ...[
+    "Appraisal District Director",
+    "Appraisal District Board of Directors",
+    "Central Appraisal District Board of Directors",
+    "Appraisal District Board Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "county",
+    officeCanonicalName: "Appraisal District Director",
+    aliasText,
+  })),
   ...[
     "Transit District Director",
     "Regional Transportation District Director",
