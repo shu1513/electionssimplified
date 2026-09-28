@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
+import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import type { BallotLookupElectionSummary, BallotSummaryResult } from "./ballotLookup.js";
 import { stateBallotContestRank } from "./stateBallotOrderRules.js";
 import {
@@ -374,13 +375,19 @@ const BALLOT_LEVEL_RANKS: Record<string, number> = {
   school_secondary: 4,
 };
 const FEDERAL_LEVEL_RANK = 1;
+const STATE_LEVEL_RANK = 2;
 const UNKNOWN_LEVEL_RANK = 5;
 
+// Colorado's regent and State Board of Education seats are the other case
+// the scope cannot tell: their offices are scope "us_house" (elected per
+// congressional district), but they are state offices.
 function ballotLevelRank(election: OrderedBallotElectionSummary, sort: BallotSummarySort): number {
   const rank =
     election.discovery_contest_family === "us_senate"
       ? FEDERAL_LEVEL_RANK
-      : BALLOT_LEVEL_RANKS[election.office?.scope ?? election.district.district_type];
+      : isCongressionalDistrictBoardOfficeName(election.office?.canonical_name)
+        ? STATE_LEVEL_RANK
+        : BALLOT_LEVEL_RANKS[election.office?.scope ?? election.district.district_type];
   if (rank === undefined) {
     return UNKNOWN_LEVEL_RANK;
   }

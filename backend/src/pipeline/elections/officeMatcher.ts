@@ -3,6 +3,7 @@ import type { PoolClient } from "pg";
 import { getStateNameByAbbreviation } from "../../constants/usStates.js";
 import type { ElectionContestFamily, ElectionDistrictType } from "../../types/election.js";
 import { normalizeElectionTitleKey } from "../../utils/normalizeElectionTitleKey.js";
+import { congressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import { isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
 
 type OfficeAliasRow = {
@@ -1271,6 +1272,32 @@ export class OfficeMatcher {
 
     if (isCombinedCountyDistrictClerkTitle(input)) {
       const office = findSingleScopeOffice(await this.loadOffices(input.scope), COUNTY_CLERK_CANONICAL_NAME);
+      if (office) {
+        return {
+          officeId: office.id,
+          method: "deterministic_fallback",
+          confidence: 1,
+          normalizedAlias,
+          aliasMemoryKey: titleMatcherKey,
+          shouldPersistAlias: false,
+        };
+      }
+    }
+
+    // Colorado elects its University of Colorado regents and State Board of
+    // Education members by congressional district, on the us_house row's
+    // ballot ("Regent of the University of Colorado - Congressional District
+    // 2"). Route them to their us_house-scoped board offices instead of the
+    // House seat every other us_house title takes. Ahead of every alias: the
+    // House route persists its aliases, so a database whose earlier runs
+    // learned one of these titles -> the House seat would otherwise return
+    // that alias first. State-scoped and never persisted; any other state's
+    // row keeps the House route.
+    if (input.scope === "us_house") {
+      const boardOfficeName = congressionalDistrictBoardOfficeName(input.state, titleMatcherKey);
+      const office = boardOfficeName
+        ? findSingleScopeOffice(await this.loadOffices(input.scope), boardOfficeName)
+        : undefined;
       if (office) {
         return {
           officeId: office.id,
