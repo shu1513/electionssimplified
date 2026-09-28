@@ -42,10 +42,39 @@ describe("parseTagsFile", () => {
     expect(parsed).toEqual([{ ...INPUT, recordId: "rec-1", researchAreaSlug: "ai_regulation" }]);
   });
 
-  it("rejects a null stance, a missing description, and a placeholder reason", () => {
+  it("rejects a null stance on a policy area, a missing description, and a placeholder reason", () => {
     expect(() => parseTagsFile(JSON.stringify([{ ...INPUT, stance: null }]))).toThrow(/stance/);
     expect(() => parseTagsFile(JSON.stringify([{ ...INPUT, expectedDescription: "" }]))).toThrow(/expectedDescription/);
     expect(() => parseTagsFile(JSON.stringify([{ ...INPUT, reason: "AI" }]))).toThrow(/reason/);
+  });
+
+  it("accepts general with the stance omitted or null, and normalizes it to null", () => {
+    const { stance: _stance, ...withoutStance } = INPUT;
+    const parsed = parseTagsFile(
+      JSON.stringify([
+        { ...withoutStance, researchAreaSlug: "General" },
+        { ...INPUT, recordId: "rec-2", researchAreaSlug: "general", stance: null },
+      ])
+    );
+    expect(parsed.map((tag) => [tag.researchAreaSlug, tag.stance])).toEqual([
+      ["general", null],
+      ["general", null],
+    ]);
+  });
+
+  it("rejects a stance on general", () => {
+    expect(() => parseTagsFile(JSON.stringify([{ ...INPUT, researchAreaSlug: "general", stance: "for" }]))).toThrow(
+      /omitted or null for general/
+    );
+  });
+
+  it("refuses integrity_and_ethics with or without a stance", () => {
+    expect(() =>
+      parseTagsFile(JSON.stringify([{ ...INPUT, researchAreaSlug: "integrity_and_ethics", stance: null }]))
+    ).toThrow(/not taggable here/);
+    expect(() =>
+      parseTagsFile(JSON.stringify([{ ...INPUT, researchAreaSlug: "Integrity_And_Ethics", stance: "against" }]))
+    ).toThrow(/not taggable here/);
   });
 
   it("rejects a non-array file", () => {
@@ -117,6 +146,47 @@ describe("tagOneRecordArea", () => {
       { apply: true }
     );
     expect(conflict).toMatchObject({ status: "skipped", reason: expect.stringMatching(/untag it first/) });
+  });
+
+  describe("general (no stance)", () => {
+    const GENERAL = { ...INPUT, researchAreaSlug: "general", stance: null };
+    const WITH_GENERAL = [...ALLOWED, { id: "area-general", slug: "general" }];
+
+    it("applies with a null stance and the same description guard", async () => {
+      const applyTag = vi.fn(async () => 1);
+      const outcome = await tagOneRecordArea(
+        GENERAL,
+        makeDeps({ loadAllowedAreas: async () => WITH_GENERAL, applyTag }),
+        { apply: true }
+      );
+      expect(outcome).toMatchObject({ status: "tagged", stance: null });
+      expect(applyTag).toHaveBeenCalledWith({
+        recordId: "rec-1",
+        researchAreaId: "area-general",
+        stance: null,
+        expectedDescription: RECORD.description,
+      });
+    });
+
+    it("skips when the record already carries general", async () => {
+      const applyTag = vi.fn(async () => 1);
+      const outcome = await tagOneRecordArea(
+        GENERAL,
+        makeDeps({
+          loadRecord: async () => ({ ...RECORD, existing_stance: null }),
+          loadAllowedAreas: async () => WITH_GENERAL,
+          applyTag,
+        }),
+        { apply: true }
+      );
+      expect(outcome).toMatchObject({ status: "skipped", reason: "already tagged general:null" });
+      expect(applyTag).not.toHaveBeenCalled();
+    });
+
+    it("still requires general in the office's allowed set", async () => {
+      const outcome = await tagOneRecordArea(GENERAL, makeDeps(), { apply: true });
+      expect(outcome).toMatchObject({ status: "skipped", reason: expect.stringMatching(/'general' is not allowed/) });
+    });
   });
 
   it("skips a retired record and a candidate with no office race", async () => {

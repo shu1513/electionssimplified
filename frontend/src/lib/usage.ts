@@ -128,6 +128,7 @@ export function officeLevel(scope: string | null | undefined): "federal" | "stat
     case "statewide":
     case "state_lower":
     case "state_upper":
+    case "state_executive_council":
       return "state";
     case "county":
       return "county";

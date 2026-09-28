@@ -22,6 +22,7 @@ type FakeElection = {
   candidate_count?: number;
   has_results?: boolean;
   office_scope?: string;
+  office_name?: string;
   contest_family?: string;
   election_stage?: string;
 };
@@ -56,7 +57,12 @@ function makeSummary(elections: FakeElection[]): BallotSummaryResult {
         has_results: e.has_results ?? false,
         current_result_outcome: null,
         office: e.office_scope
-          ? { id: "12121212-1212-4212-8212-121212121212", scope: e.office_scope, canonical_name: "Office", summary: "" }
+          ? {
+              id: "12121212-1212-4212-8212-121212121212",
+              scope: e.office_scope,
+              canonical_name: e.office_name ?? "Office",
+              summary: "",
+            }
           : null,
         research_areas: (e.research_area_ids ?? []).map((areaId) => ({
           id: areaId,
@@ -211,10 +217,20 @@ describe("applyBallotElectionOrdering", () => {
     // US Senate offices carry scope "statewide" (no us_senate scope exists);
     // the contest family is what makes them federal, above the House seat
     // by population and above the governor's identical statewide district.
+    // Colorado's regent seat is the reverse case: its office is scope
+    // "us_house" but it is a state office, so it sits in the state tier,
+    // after the governor's larger district.
     const elections = [
       { id: electionA, population: 9_800_000, official_ballot_title: "Sheriff" }, // county (no office)
       { id: electionB, population: 760_000, office_scope: "us_house", official_ballot_title: "US House" },
       { id: electionC, population: 39_000_000, office_scope: "statewide", official_ballot_title: "Governor" },
+      {
+        id: "88888888-8888-4888-8888-888888888888",
+        population: 760_000,
+        office_scope: "us_house",
+        office_name: "State Board of Regents Member",
+        official_ballot_title: "Regent",
+      },
       { id: "dddddddd-4444-4444-8444-dddddddddddd", population: 4_000_000, office_scope: "place", official_ballot_title: "Mayor" },
       { id: "eeeeeeee-5555-4555-8555-eeeeeeeeeeee", population: 39_000_000, office_scope: "presidential", official_ballot_title: "President" },
       { id: "ffffffff-6666-4666-8666-ffffffffffff", population: 20_000, office_scope: "school_unified", official_ballot_title: "School Board" },
@@ -228,6 +244,7 @@ describe("applyBallotElectionOrdering", () => {
       "US Senate",
       "US House",
       "Governor",
+      "Regent",
       "Sheriff",
       "Mayor",
       "School Board",
@@ -241,6 +258,7 @@ describe("applyBallotElectionOrdering", () => {
       "School Board",
       "Mayor",
       "Sheriff",
+      "Regent",
       "Governor",
       "US House",
       "US Senate",

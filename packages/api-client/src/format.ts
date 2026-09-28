@@ -38,6 +38,7 @@ const DISTRICT_TYPE_LABELS: Record<string, string> = {
   us_house: "U.S. House district",
   state_upper: "State senate district",
   state_lower: "State house district",
+  state_executive_council: "Executive council district",
   school_unified: "School district",
   school_elementary: "Elementary school district",
   school_secondary: "Secondary school district",

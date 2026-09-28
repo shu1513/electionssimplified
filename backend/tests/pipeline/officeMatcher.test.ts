@@ -83,6 +83,50 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("ignores office words inside a retention nominee's name (Boulder County Court)", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [
+          { id: "office-county-judge", canonical_name: "County Level Judge" },
+          { id: "office-county-commissioner", canonical_name: "County Commissioner" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Boulder County, Colorado",
+      state: "CO",
+      officialBallotTitle:
+        "Shall Judge Elizabeth House Moulton Brodsky of the Boulder County Court be retained in office?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).toBe("office-county-judge");
+  });
+
+  it("still rejects a non-judicial office word outside the nominee's name", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [{ id: "office-county-judge", canonical_name: "County Level Judge" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Orleans Parish, Louisiana",
+      state: "LA",
+      officialBallotTitle: "Shall Constable Jane House of the First City Court be retained?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).not.toBe("office-county-judge");
+  });
+
   it("keeps a Texas justice of the peace on the judicial JP office", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: { county: [] },
@@ -619,6 +663,101 @@ describe("OfficeMatcher", () => {
       officialBallotTitle: "District 5 Member of the State Board of Education",
     });
     expect(other.officeId).toBe("office-state-senator");
+  });
+
+  it("routes Colorado's congressional-district regent and State Board seats to their us_house board offices", async () => {
+    // Colorado elects CU regents and State Board of Education members by
+    // congressional district, on the us_house row's ballot (CO SOS 2026
+    // general candidate list; Boulder and Denver sample ballots).
+    const client = createMatcherDataClient({
+      aliasesByScope: { us_house: [] },
+      officesByScope: {
+        us_house: [
+          { id: "office-us-rep", canonical_name: "United States Representative" },
+          { id: "office-co-regent", canonical_name: "State Board of Regents Member" },
+          { id: "office-co-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const regent = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Regent of the University of Colorado - Congressional District 2",
+    });
+    expect(regent).toMatchObject({
+      officeId: "office-co-regent",
+      method: "deterministic_fallback",
+      confidence: 1,
+      shouldPersistAlias: false,
+    });
+
+    const board = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 1 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "State Board of Education Member - Congressional District 1",
+    });
+    expect(board.officeId).toBe("office-co-sboe");
+
+    // The House seat on the same row still takes the House office.
+    const house = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Representative to the 120th United States Congress - District 2",
+    });
+    expect(house.officeId).toBe("office-us-rep");
+
+    // Another state's us_house row keeps the House route.
+    const other = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 3 (119th Congress), Nebraska",
+      state: "NE",
+      officialBallotTitle: "Regent of the University of Nebraska - Congressional District 3",
+    });
+    expect(other.officeId).toBe("office-us-rep");
+  });
+
+  it("routes a Colorado board seat past a learned alias that points at the House seat", async () => {
+    // The House route persists its aliases, so a database whose earlier runs
+    // wrote these titles learned "regent of the university of colorado" ->
+    // the House seat. The Colorado rule runs ahead of every alias.
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        us_house: [
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado congressional district 2" },
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado" },
+          { office_id: "office-us-rep", normalized_alias: "state board of education member" },
+        ],
+      },
+      officesByScope: {
+        us_house: [
+          { id: "office-us-rep", canonical_name: "United States Representative" },
+          { id: "office-co-regent", canonical_name: "State Board of Regents Member" },
+          { id: "office-co-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const regent = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Regent of the University of Colorado - Congressional District 2",
+    });
+    expect(regent).toMatchObject({ officeId: "office-co-regent", method: "deterministic_fallback" });
+
+    const board = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 1 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "State Board of Education Member - Congressional District 1",
+    });
+    expect(board.officeId).toBe("office-co-sboe");
   });
 
   it("resolves 'Council District No. N' seat titles through the place alias (Seattle)", async () => {
@@ -3345,6 +3484,50 @@ describe("OfficeMatcher", () => {
       method: "alias_exact",
       aliasMemoryKey: "public defender",
     });
+  });
+
+  it("maps an elected city auditor to City Auditor, not Municipal Controller", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        place: [
+          { office_id: "office-city-auditor", normalized_alias: normalizeElectionTitleKey("City Auditor") },
+          { office_id: "office-city-auditor", normalized_alias: normalizeElectionTitleKey("Auditor") },
+          { office_id: "office-municipal-controller", normalized_alias: normalizeElectionTitleKey("City Controller") },
+        ],
+      },
+      officesByScope: {
+        place: [
+          { id: "office-city-auditor", canonical_name: "City Auditor" },
+          { id: "office-municipal-controller", canonical_name: "Municipal Controller" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    for (const [title, districtName] of [
+      ["City Auditor, City of Oakland", "Oakland, California"],
+      ["City Auditor", "Berkeley, California"],
+      ["Auditor", "Berkeley, California"],
+    ] as const) {
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName,
+        state: "CA",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-city-auditor");
+      expect(result.method, title).not.toBe("none");
+    }
+
+    const controller = await matcher.resolve({
+      scope: "place",
+      districtName: "Los Angeles, California",
+      state: "CA",
+      officialBallotTitle: "City Controller",
+      discoveryContestFamily: "non_judicial_office",
+    });
+    expect(controller.officeId).toBe("office-municipal-controller");
   });
 
   it("routes a Louisiana city marshal to its own office instead of the place judge", async () => {
