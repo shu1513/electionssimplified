@@ -153,6 +153,8 @@ describe("electionAnswerSnippet", () => {
     expect(electionAnswerSnippet(measure, TODAY)).toBe(
       "Parks Bond is a ballot measure in Kentucky on the November 3, 2026 ballot. Borrows $6.5 million to fix parks in St. Louis."
     );
+    // Under a cap that cuts inside the summary, "St." still does not end a sentence.
+    expect(electionAnswerSnippet(measure, TODAY, 100)).toBe("Parks Bond is a ballot measure in Kentucky on the November 3, 2026 ballot.");
   });
 });
 

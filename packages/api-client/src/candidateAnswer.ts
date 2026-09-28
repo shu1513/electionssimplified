@@ -1,6 +1,7 @@
 import { answerSnippet } from "./answerSnippet";
 import { formatDistrictName, formatElectionDate } from "./format";
 import { profilePartyLabel } from "./partyLabel";
+import { isJudicialRetentionTitle } from "./retention";
 
 /**
  * The one-paragraph, self-contained answer a candidate page opens with:
@@ -43,9 +44,13 @@ function nameWithParty(input: CandidateAnswerInput): string {
 
 // "State's Attorney, Carroll County in Carroll County, Maryland" says the
 // place twice: when the ballot title already names the district, the
-// title stands alone.
+// title stands alone. A retention question ("Shall Judge X be retained in
+// office?") is not an office to run for; it reads as a retention vote.
 function raceLabel(election: CandidateAnswerElection): string {
   const district = formatDistrictName(election.district.name);
+  if (isJudicialRetentionTitle(election.official_ballot_title)) {
+    return `a yes-or-no retention vote in ${district}`;
+  }
   const place = district.split(",")[0]!.trim().toLowerCase();
   if (place && election.official_ballot_title.toLowerCase().includes(place)) {
     return election.official_ballot_title;
@@ -78,18 +83,24 @@ function leadSentence(input: CandidateAnswerInput, today: string): string {
   const who = nameWithParty(input);
   if (active.length === 1) {
     const race = active[0]!;
-    return `${who} is running for ${raceLabel(race)} in the ${formatElectionDate(race.election_date)} election.`;
+    const verb = isJudicialRetentionTitle(race.official_ballot_title) ? "faces" : "is running for";
+    return `${who} ${verb} ${raceLabel(race)} in the ${formatElectionDate(race.election_date)} election.`;
   }
   if (active.length > 1) {
-    return `${who} is running for ${joinRaces(active)}.`;
+    return `${who} is on the ballot for ${joinRaces(active)}.`;
   }
+  // A withdrawn candidate's name can still be printed on the ballot (the
+  // roster keeps such links on purpose), so say what happened, not where
+  // the name is.
   const exited = ongoing.find(isExited);
   if (exited) {
-    return `${who} is no longer on the ballot for ${raceLabel(exited)} (${formatElectionDate(exited.election_date)}).`;
+    const what = exited.status === "withdrawn" ? "withdrew from" : "is no longer a candidate for";
+    return `${who} ${what} ${raceLabel(exited)} (${formatElectionDate(exited.election_date)}).`;
   }
   const past = byDate.find((election) => election.election_date < today);
   if (past) {
-    return `${who} ran for ${raceLabel(past)} in the ${formatElectionDate(past.election_date)} election.`;
+    const verb = isJudicialRetentionTitle(past.official_ballot_title) ? "faced" : "ran for";
+    return `${who} ${verb} ${raceLabel(past)} in the ${formatElectionDate(past.election_date)} election.`;
   }
   const party = profilePartyLabel(input.party);
   return party

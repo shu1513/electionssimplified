@@ -51,7 +51,7 @@ describe("candidateAnswerText", () => {
       elections: [election(), election({ official_ballot_title: "City Council At-Large", district: { name: "Lexington, Kentucky" } })],
     });
     expect(candidateAnswerText(two, TODAY)).toContain(
-      "is running for Governor in Kentucky (November 3, 2026) and City Council At-Large in Lexington, Kentucky (November 3, 2026)."
+      "is on the ballot for Governor in Kentucky (November 3, 2026) and City Council At-Large in Lexington, Kentucky (November 3, 2026)."
     );
   });
 
@@ -68,14 +68,31 @@ describe("candidateAnswerText", () => {
     expect(candidateAnswerText(person({ elections: [election({ election_date: "2024-11-05" })] }), TODAY)).toContain(
       "Jordan Voter (Democratic) ran for Governor in Kentucky in the November 5, 2024 election."
     );
+    // "withdrew", not "off the ballot": a withdrawn name can still be printed.
     const withdrew = person({ elections: [election({ status: "withdrawn" })] });
-    expect(candidateAnswerText(withdrew, TODAY)).toContain(
-      "Jordan Voter (Democratic) is no longer on the ballot for Governor in Kentucky (November 3, 2026)."
-    );
+    expect(candidateAnswerText(withdrew, TODAY)).toContain("Jordan Voter (Democratic) withdrew from Governor in Kentucky (November 3, 2026).");
+    const lost = person({ elections: [election({ status: "lost" })] });
+    expect(candidateAnswerText(lost, TODAY)).toContain("Jordan Voter (Democratic) is no longer a candidate for Governor in Kentucky (November 3, 2026).");
     // A live candidacy beats an exited one in the same cycle.
     const mixed = person({ elections: [election({ status: "withdrawn", official_ballot_title: "Mayor" }), election()] });
     expect(candidateAnswerText(mixed, TODAY)).toContain("is running for Governor in Kentucky");
     expect(candidateAnswerText(mixed, TODAY)).not.toContain("Mayor");
+  });
+
+  it("phrases a retention question as a yes-or-no vote, never as an office to run for", () => {
+    const retention = person({
+      party: "Nonpartisan",
+      elections: [election({ official_ballot_title: "Shall Judge Jordan Voter be retained in office?", is_incumbent: true })],
+    });
+    expect(candidateAnswerText(retention, TODAY)).toContain(
+      "Jordan Voter faces a yes-or-no retention vote in Kentucky in the November 3, 2026 election. Jordan Voter is the incumbent."
+    );
+    expect(candidateAnswerText(retention, TODAY)).not.toContain("running for Shall");
+    const past = person({
+      party: "Nonpartisan",
+      elections: [election({ official_ballot_title: "Shall Judge Jordan Voter be retained in office?", election_date: "2024-11-05" })],
+    });
+    expect(candidateAnswerText(past, TODAY)).toContain("Jordan Voter faced a yes-or-no retention vote in Kentucky in the November 5, 2024 election.");
   });
 
   it("falls back to party and state when no race is known, and hides placeholder parties", () => {
@@ -100,6 +117,19 @@ describe("candidateAnswerText", () => {
 });
 
 describe("candidateAnswerSnippet", () => {
+  it("never treats a middle initial or a suffix as a sentence end", () => {
+    const initial = person({
+      display_name: "John A. Smith",
+      summary: "John A. Smith Jr. is a Lexington city council member.",
+      elections: [election({ official_ballot_title: "Board of Directors, Metropolitan Water District of Southern California, Division 3", district: { name: "Los Angeles County, California" } })],
+    });
+    // The lead sentence alone is over the cap and stays whole.
+    expect(candidateAnswerSnippet(initial, TODAY, 100)).toBe(
+      "John A. Smith (Democratic) is running for Board of Directors, Metropolitan Water District of Southern California, Division 3 in Los Angeles County, California in the November 3, 2026 election."
+    );
+    expect(candidateAnswerSnippet(initial, TODAY, 260)).toContain("John A. Smith Jr. is a Lexington city council member.");
+  });
+
   it("keeps whole leading sentences within the length cap", () => {
     expect(candidateAnswerSnippet(person(), TODAY, 170)).toBe(
       "Jordan Voter (Democratic) is running for Governor in Kentucky in the November 3, 2026 election. Jordan Voter is a Lexington city council member and former teacher."
