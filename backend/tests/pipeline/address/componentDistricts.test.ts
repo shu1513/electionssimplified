@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 import { lookupAddressDistricts } from "../../../src/pipeline/address/addressDistrictLookup.js";
-import { resolveAddressDistrictKeysFromGeographies } from "../../../src/pipeline/address/addressDistrictResolver.js";
+import {
+  resolveAddressDistrictKeysFromGeographies,
+  warningAffectsSupportedDistrict,
+} from "../../../src/pipeline/address/addressDistrictResolver.js";
 import { stateBaselineContestRank } from "../../../src/pipeline/address/ballotContestRank.js";
 import { OfficeMatcher } from "../../../src/pipeline/elections/officeMatcher.js";
 
@@ -58,6 +61,31 @@ describe("resolver: county subdivisions", () => {
 
     expect(resolution.component_keys).toEqual([{ component_type: "county_subdivision", geoid: "3301145140" }]);
     expect(resolution.district_keys).toEqual([]);
+  });
+
+  it("warns on a malformed town feature, and the warning blocks a saved-address update", () => {
+    // A town that fails to resolve costs the address its council district. The
+    // authenticated updater must refuse the save, as it does for a lost House
+    // district, instead of replacing the saved set with the smaller one.
+    const noGeoid = resolveAddressDistrictKeysFromGeographies({
+      "County Subdivisions": [{ MTFCC: "G4040", NAME: "Manchester city" }],
+    });
+    expect(noGeoid.component_keys).toEqual([]);
+    expect(noGeoid.warnings).toEqual([
+      { layer_name: "County Subdivisions", mtfcc: "G4040", reason: "geography feature is missing GEOID" },
+    ]);
+    expect(noGeoid.warnings.map(warningAffectsSupportedDistrict)).toEqual([true]);
+
+    const notAnObject = resolveAddressDistrictKeysFromGeographies({ "County Subdivisions": ["Manchester city"] });
+    expect(notAnObject.warnings.map(warningAffectsSupportedDistrict)).toEqual([true]);
+
+    const notAnArray = resolveAddressDistrictKeysFromGeographies({ "County Subdivisions": "Manchester city" });
+    expect(notAnArray.warnings.map(warningAffectsSupportedDistrict)).toEqual([true]);
+
+    // The MTFCC identifies the town even when the geocoder renames the layer.
+    expect(
+      warningAffectsSupportedDistrict({ layer_name: "Towns", mtfcc: "G4040", reason: "geography feature is missing GEOID" })
+    ).toBe(true);
   });
 });
 

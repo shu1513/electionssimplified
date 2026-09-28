@@ -291,9 +291,20 @@ function isHardScopeMismatch(
     return "state_lower scope contains clearly non-state_lower race";
   }
 
+  // Massachusetts' "Governor's Councillor" names the council, not the
+  // governor. Any other governor-family title is a statewide race filed on
+  // the wrong row.
+  const executiveCouncilTitle = hasAny(scopeText, EXECUTIVE_COUNCIL_MARKERS);
   if (
     districtType === "state_executive_council" &&
-    (usSenate || usHouse || stateSenate || stateHouse || countyLike || cityLike || schoolLike)
+    (usSenate ||
+      usHouse ||
+      stateSenate ||
+      stateHouse ||
+      (governorLike && !executiveCouncilTitle) ||
+      countyLike ||
+      cityLike ||
+      schoolLike)
   ) {
     return "state_executive_council scope contains clearly non-council race";
   }

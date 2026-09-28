@@ -126,6 +126,13 @@ function componentTypeFromLayerName(layerName: string): AddressComponentType | u
   return layerName.trim().toLowerCase() === "county subdivisions" ? "county_subdivision" : undefined;
 }
 
+function componentTypeFromMtfcc(mtfcc: unknown): AddressComponentType | undefined {
+  if (typeof mtfcc !== "string") {
+    return undefined;
+  }
+  return CENSUS_MTFCC_TO_COMPONENT_TYPE[mtfcc.trim().toUpperCase()];
+}
+
 function sortDistrictKeys(keys: AddressDistrictKey[]): AddressDistrictKey[] {
   return [...keys].sort((left, right) => {
     const leftOrder = DISTRICT_TYPE_ORDER.get(left.district_type) ?? Number.MAX_SAFE_INTEGER;
@@ -144,13 +151,19 @@ function preferDistrictKey(existing: AddressDistrictKey, next: AddressDistrictKe
   return existing;
 }
 
-// True when the warning's layer or MTFCC maps to a supported district type,
-// i.e. a district the app tracks failed to resolve into a key (missing GEOID,
-// MTFCC/layer conflict, malformed feature). Warnings from layers the geocoder
-// returns but the app ignores (tracts, blocks — layers=all requests
-// everything) stay non-blocking.
+// True when the warning's layer or MTFCC maps to a supported district type or
+// a component unit, i.e. a district the app tracks failed to resolve into a
+// key (missing GEOID, MTFCC/layer conflict, malformed feature). A lost town is
+// a lost component-built district (the council seat), so it counts too.
+// Warnings from layers the geocoder returns but the app ignores (tracts,
+// blocks — layers=all requests everything) stay non-blocking.
 export function warningAffectsSupportedDistrict(warning: AddressDistrictResolverWarning): boolean {
-  return districtTypeFromLayerName(warning.layer_name) !== null || districtTypeFromMtfcc(warning.mtfcc) !== null;
+  return (
+    districtTypeFromLayerName(warning.layer_name) !== null ||
+    districtTypeFromMtfcc(warning.mtfcc) !== null ||
+    componentTypeFromLayerName(warning.layer_name) !== undefined ||
+    componentTypeFromMtfcc(warning.mtfcc) !== undefined
+  );
 }
 
 export function resolveAddressDistrictKeysFromGeographies(geographies: unknown): AddressDistrictResolution {
@@ -184,18 +197,14 @@ export function resolveAddressDistrictKeysFromGeographies(geographies: unknown):
       const mtfccDistrictType = districtTypeFromMtfcc(mtfcc);
       const name = readNonEmptyString(rawFeature, "NAME") ?? undefined;
 
-      const componentType = mtfcc
-        ? CENSUS_MTFCC_TO_COMPONENT_TYPE[mtfcc.toUpperCase()]
-        : componentTypeFromLayerName(layerName);
-      if (componentType) {
-        if (geoid) {
-          componentKeys.set(`${componentType}::${geoid}`, { component_type: componentType, geoid });
-        }
+      if (!geoid) {
+        warnings.push({ layer_name: layerName, mtfcc: mtfcc ?? undefined, reason: "geography feature is missing GEOID" });
         continue;
       }
 
-      if (!geoid) {
-        warnings.push({ layer_name: layerName, mtfcc: mtfcc ?? undefined, reason: "geography feature is missing GEOID" });
+      const componentType = mtfcc ? componentTypeFromMtfcc(mtfcc) : componentTypeFromLayerName(layerName);
+      if (componentType) {
+        componentKeys.set(`${componentType}::${geoid}`, { component_type: componentType, geoid });
         continue;
       }
 
