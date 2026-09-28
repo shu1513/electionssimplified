@@ -6213,7 +6213,7 @@
       "population_2025": 679817,
       "lat": 36.2333,
       "lon": -115.2667,
-      "built_at": "2026-09-12T05:01:38.141Z",
+      "built_at": "2026-09-28T06:23:09.500Z",
       "place_geoid": "3240000",
       "place_layer": "place",
       "place_name": "Las Vegas city",
@@ -6417,6 +6417,24 @@
           "geoid_compact": "3200060",
           "name": "Clark County School District",
           "city_share": 1
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NV:REGENTS:2",
+          "name": "Nevada Board of Regents District 2",
+          "city_share": 0.2218
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NV:REGENTS:5",
+          "name": "Nevada Board of Regents District 5",
+          "city_share": 0.0686
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NV:REGENTS:8",
+          "name": "Nevada Board of Regents District 8",
+          "city_share": 0.1792
         }
       ]
     },
@@ -11568,7 +11586,7 @@
       "population_2025": 353289,
       "lat": 36.0167,
       "lon": -115.0333,
-      "built_at": "2026-09-12T05:03:26.413Z",
+      "built_at": "2026-09-28T06:23:28.368Z",
       "place_geoid": "3231900",
       "place_layer": "place",
       "place_name": "Henderson city",
@@ -11712,6 +11730,12 @@
           "geoid_compact": "3200060",
           "name": "Clark County School District",
           "city_share": 1
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NV:REGENTS:3",
+          "name": "Nevada Board of Regents District 3",
+          "city_share": 0.1026
         }
       ]
     },
@@ -14415,7 +14439,7 @@
       "population_2025": 283621,
       "lat": 39.55,
       "lon": -119.85,
-      "built_at": "2026-09-12T05:04:25.127Z",
+      "built_at": "2026-09-28T06:23:39.652Z",
       "place_geoid": "3260600",
       "place_layer": "place",
       "place_name": "Reno city",
@@ -14523,6 +14547,12 @@
           "geoid_compact": "3200480",
           "name": "Washoe County School District",
           "city_share": 1
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NV:REGENTS:10",
+          "name": "Nevada Board of Regents District 10",
+          "city_share": 0.6187
         }
       ]
     },

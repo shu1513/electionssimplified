@@ -3563,6 +3563,37 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("maps Nevada regent district titles to the local_special regents office", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: [
+          "State Board of Regents Member",
+          "Board of Regents",
+          "Member, Board of Regents",
+          "Regent",
+        ].map((alias) => ({ office_id: "office-regents", normalized_alias: normalizeElectionTitleKey(alias) })),
+      },
+      officesByScope: {
+        local_special: [{ id: "office-regents", canonical_name: "State Board of Regents Member" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    for (const [title, districtName] of [
+      ["Board of Regents, District 2", "Nevada Board of Regents District 2"],
+      ["Board of Regents, District 10", "Nevada Board of Regents District 10"],
+    ]) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName,
+        state: "NV",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-regents");
+    }
+  });
+
   it("maps a countywide appraisal district board seat to Appraisal District Director", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {
