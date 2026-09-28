@@ -3995,7 +3995,7 @@ describe("OfficeMatcher", () => {
     });
   });
 
-  describe("county hospital trustee and extension council offices (migration 304)", () => {
+  describe("county hospital trustee and extension council offices (migration 305)", () => {
     const aliasRow = (officeId: string, aliasText: string) => ({
       office_id: officeId,
       normalized_alias: normalizeElectionTitleKey(aliasText),
