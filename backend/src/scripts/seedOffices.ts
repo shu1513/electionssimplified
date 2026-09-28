@@ -813,6 +813,15 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    scope: "local_special",
+    canonicalName: "Transit District Director",
+    summary: [
+      "Setting bus and train routes, schedules, and fares for the region",
+      "Approving the transit agency's budget and large construction projects",
+      "Hiring and overseeing the general manager who runs daily service",
+    ].join("\n"),
+  },
+  {
     scope: "place",
     canonicalName: "Municipal Constable",
     summary: [
@@ -1814,6 +1823,18 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     officeCanonicalName: "City Auditor",
     aliasText: "Auditor",
   },
+  ...[
+    "Transit District Director",
+    "Regional Transportation District Director",
+    "RTD Director",
+    "Director, Regional Transportation District",
+    "Transit Board Director",
+    "Transit Board Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Transit District Director",
+    aliasText,
+  })),
   {
     scope: "place",
     officeCanonicalName: "Municipal Constable",

@@ -26,7 +26,8 @@ export type ElectionDistrictType =
   | "place"
   | "school_elementary"
   | "school_secondary"
-  | "school_unified";
+  | "school_unified"
+  | "local_special";
 
 export type OfficeScope = ElectionDistrictType | "presidential";
 

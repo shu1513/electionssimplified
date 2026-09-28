@@ -16,7 +16,7 @@ export type AddressResolvedDistrict = {
   name: string;
   state: string;
   state_fips: string;
-  population: number;
+  population: number | null;
   representation_power_score: number | null;
 };
 
@@ -32,7 +32,7 @@ type DistrictRow = {
   name: string;
   state: string;
   state_fips: string;
-  population: number;
+  population: number | null;
   representation_power_score: string | number | null;
   // The key the caller asked for, which is not the row we return when the
   // requested row is a suppressed duplicate of another government's row.

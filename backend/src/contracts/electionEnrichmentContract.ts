@@ -29,4 +29,5 @@ export const ELECTION_ALLOWED_DISTRICT_TYPES: readonly ElectionDistrictType[] = 
   "school_elementary",
   "school_secondary",
   "school_unified",
+  "local_special",
 ] as const;

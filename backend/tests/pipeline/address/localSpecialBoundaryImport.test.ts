@@ -1,0 +1,132 @@
+import { describe, expect, it, vi } from "vitest";
+
+import {
+  fetchLocalBoundarySource,
+  insertReviewedLocalBoundary,
+  parseLocalBoundaryImport,
+} from "../../../src/pipeline/address/localSpecialBoundaryImport.js";
+
+const square = (minLon: number, minLat: number, maxLon: number, maxLat: number) => ({
+  type: "Polygon",
+  coordinates: [[
+    [minLon, minLat], [maxLon, minLat], [maxLon, maxLat], [minLon, maxLat], [minLon, minLat],
+  ]],
+});
+
+const LAYER = "https://services5.arcgis.com/abc/arcgis/rest/services/RTD_GIS_Boundaries/FeatureServer/1";
+const MUNIS = "https://services3.arcgis.com/xyz/arcgis/rest/services/Municipalities/FeatureServer/0";
+
+const rtdO = {
+  district_key: "CO:RTD:DIRECTOR-O",
+  district_name: "RTD Director District O",
+  state: "co",
+  boundary_vintage: "RTD director districts, layer edited 2026-02-23",
+  eligibility_source_url: "https://assets.bouldercounty.gov/wp-content/uploads/2026/09/sample.pdf",
+  review_note: "Boulder County sample ballot prints the District O race; RTD's layer matches the county ballot area.",
+  sources: [{ kind: "arcgis", url: LAYER, match: { field: "BND", values: ["O"] } }],
+  expected_source_sha256: null,
+};
+
+function respond(features: unknown[]) {
+  return { ok: true, status: 200, json: async () => ({ type: "FeatureCollection", features }) };
+}
+
+describe("reviewed local boundary import", () => {
+  it("parses a generic payload and normalizes the state code", () => {
+    const payload = parseLocalBoundaryImport(rtdO);
+    expect(payload.state).toBe("CO");
+    expect(payload.exclusion_sources).toEqual([]);
+  });
+
+  it("rejects keys, hosts and sources that skip a review gate", () => {
+    expect(() => parseLocalBoundaryImport({ ...rtdO, district_key: "OH:RTD:O" })).toThrow("start with the state code");
+    expect(() => parseLocalBoundaryImport({ ...rtdO, eligibility_source_url: "https://ballotpedia.org/x" })).toThrow(".gov or .us");
+    expect(() => parseLocalBoundaryImport({ ...rtdO, review_note: "ok" })).toThrow("review_note");
+    expect(() => parseLocalBoundaryImport({ ...rtdO, sources: [] })).toThrow("at least one");
+    expect(() => parseLocalBoundaryImport({
+      ...rtdO, sources: [{ kind: "arcgis", url: "https://example.com/data.json", match: { field: "BND", values: ["O"] } }],
+    })).toThrow("ArcGIS layer URL");
+    expect(() => parseLocalBoundaryImport({
+      ...rtdO, sources: [{ kind: "arcgis", url: LAYER, match: { field: "BND", values: ["O' OR '1'='1"] } }],
+    })).toThrow("match");
+  });
+
+  it("queries the named features and hashes the snapshot", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(respond([
+      { type: "Feature", properties: { BND: "O" }, geometry: square(-105.3, 40.0, -105.1, 40.2) },
+    ]));
+    const source = await fetchLocalBoundarySource(parseLocalBoundaryImport(rtdO), fetchImpl);
+    expect(String(fetchImpl.mock.calls[0]?.[0])).toContain("where=BND+IN+%28%27O%27%29");
+    expect((source.geometry as { type: string }).type).toBe("Polygon");
+    expect(source.exclusionGeometry).toBeNull();
+    expect(source.sourceSha256).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("combines statute pieces into one MultiPolygon with a stable hash", async () => {
+    const payload = parseLocalBoundaryImport({
+      ...rtdO,
+      district_key: "CO:FRPRD",
+      district_name: "Front Range Passenger Rail District",
+      sources: [{ kind: "arcgis", url: MUNIS, match: { field: "city", values: ["20000", "07850"] } }],
+    });
+    const denver = { type: "Feature", properties: { city: "20000" }, geometry: square(-105.1, 39.6, -104.9, 39.8) };
+    const boulder = { type: "Feature", properties: { city: "07850" }, geometry: square(-105.3, 40.0, -105.2, 40.1) };
+    const first = await fetchLocalBoundarySource(payload, vi.fn().mockResolvedValue(respond([denver, boulder])));
+    const second = await fetchLocalBoundarySource(payload, vi.fn().mockResolvedValue(respond([boulder, denver])));
+    expect(first.geometry).toMatchObject({ type: "MultiPolygon" });
+    expect((first.geometry as { coordinates: unknown[] }).coordinates).toHaveLength(2);
+    expect(first.sourceSha256).toBe(second.sourceSha256);
+  });
+
+  it("refuses a missing, extra or duplicated official feature", async () => {
+    const payload = parseLocalBoundaryImport(rtdO);
+    await expect(fetchLocalBoundarySource(payload, vi.fn().mockResolvedValue(respond([]))))
+      .rejects.toThrow("incomplete");
+    const twice = { type: "Feature", properties: { BND: "O" }, geometry: square(-105.3, 40.0, -105.1, 40.2) };
+    await expect(fetchLocalBoundarySource(payload, vi.fn().mockResolvedValue(respond([twice, twice]))))
+      .rejects.toThrow("duplicated");
+  });
+
+  it("refuses a changed source hash before opening a transaction", async () => {
+    const query = vi.fn();
+    const payload = parseLocalBoundaryImport({ ...rtdO, expected_source_sha256: "a".repeat(64) });
+    const source = {
+      geometry: square(0, 0, 1, 1), exclusionGeometry: null, sourceSha256: "b".repeat(64),
+      sourceUrl: LAYER, sourceUrls: [LAYER],
+    };
+    await expect(insertReviewedLocalBoundary({ query }, payload, source)).rejects.toThrow("changed since review");
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it("rolls back when a district already exists instead of overwriting vetted geometry", async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+    const payload = parseLocalBoundaryImport({ ...rtdO, expected_source_sha256: "a".repeat(64) });
+    const source = {
+      geometry: square(0, 0, 1, 1), exclusionGeometry: null, sourceSha256: "a".repeat(64),
+      sourceUrl: LAYER, sourceUrls: [LAYER],
+    };
+    await expect(insertReviewedLocalBoundary({ query }, payload, source)).rejects.toThrow("already exists");
+    expect(query.mock.calls.map((call) => String(call[0]))).toEqual([
+      "BEGIN", expect.stringContaining("ON CONFLICT"), "ROLLBACK",
+    ]);
+  });
+
+  it("writes the district with its state FIPS and keeps every source URL in the note", async () => {
+    const query = vi.fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [{ id: "district-id" }] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+    const hash = "a".repeat(64);
+    const payload = parseLocalBoundaryImport({ ...rtdO, expected_source_sha256: hash });
+    const source = {
+      geometry: square(0, 0, 1, 1), exclusionGeometry: null, sourceSha256: hash,
+      sourceUrl: LAYER, sourceUrls: [LAYER, MUNIS],
+    };
+    await expect(insertReviewedLocalBoundary({ query }, payload, source)).resolves.toBe("district-id");
+    expect(query.mock.calls[1]?.[1]).toEqual(["CO:RTD:DIRECTOR-O", "RTD Director District O", "CO", "08"]);
+    expect(query.mock.calls[2]?.[1]?.[2]).toBeNull();
+    expect(String(query.mock.calls[2]?.[1]?.[7])).toContain(`Sources: ${LAYER} ${MUNIS}`);
+    expect(query.mock.calls[3]?.[0]).toBe("COMMIT");
+  });
+});

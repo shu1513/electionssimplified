@@ -5136,7 +5136,7 @@
       "population_2025": 740613,
       "lat": 39.7667,
       "lon": -104.8833,
-      "built_at": "2026-09-12T05:01:15.534Z",
+      "built_at": "2026-09-28T03:27:34.642Z",
       "place_geoid": "0820000",
       "place_layer": "place",
       "place_name": "Denver city",
@@ -5262,6 +5262,24 @@
           "geoid_compact": "0803360",
           "name": "Denver County School District 1",
           "city_share": 1
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CO:FRPRD",
+          "name": "Front Range Passenger Rail District",
+          "city_share": 0.9865
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CO:RTD:DIRECTOR-B",
+          "name": "RTD Director District B",
+          "city_share": 0.4517
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CO:RTD:DIRECTOR-C",
+          "name": "RTD Director District C",
+          "city_share": 0.1968
         }
       ]
     },
@@ -38478,7 +38496,7 @@
       "population_2025": 105689,
       "lat": 40.0167,
       "lon": -105.25,
-      "built_at": "2026-09-12T05:13:43.589Z",
+      "built_at": "2026-09-28T03:28:08.492Z",
       "place_geoid": "0807850",
       "place_layer": "place",
       "place_name": "Boulder city",
@@ -38550,6 +38568,18 @@
           "geoid_compact": "0805370",
           "name": "St. Vrain Valley School District RE 1J",
           "city_share": 0.0211
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CO:FRPRD",
+          "name": "Front Range Passenger Rail District",
+          "city_share": 0.9032
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CO:RTD:DIRECTOR-O",
+          "name": "RTD Director District O",
+          "city_share": 1
         }
       ]
     },

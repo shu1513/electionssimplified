@@ -3,6 +3,37 @@ import { describe, expect, it, vi } from "vitest";
 import { resolveAddressToDistricts } from "../../../src/pipeline/address/addressResolverService.js";
 
 describe("resolveAddressToDistricts", () => {
+  it("adds only a reviewed local polygon match to an exact Ohio address", async () => {
+    const geocodeAddress = vi.fn().mockResolvedValue({
+      matched_address: "100 MAIN ST, CARROLLTON, OH",
+      coordinates: { lat: 40.63, lng: -81.31 },
+      address_match_count: 1,
+      geographies: {
+        States: [{ GEOID: "39", MTFCC: "G4000" }],
+        Counties: [{ GEOID: "39019", MTFCC: "G4020" }],
+      },
+    });
+    const geometry = { type: "Polygon", coordinates: [[
+      [-81.32, 40.62], [-81.28, 40.62], [-81.28, 40.66], [-81.32, 40.66], [-81.32, 40.62],
+    ]] };
+    const query = vi.fn()
+      .mockResolvedValueOnce({ rows: [{ geoid_compact: "OH:CARROLL:FOX", geometry, exclusion_geometry: null }] })
+      .mockResolvedValueOnce({ rows: [{
+        id: "fox-id", district_type: "local_special", geoid_compact: "OH:CARROLL:FOX",
+        name: "Fox Township", state: "OH", state_fips: "39", population: 1000,
+        representation_power_score: null,
+        requested_district_type: "local_special", requested_geoid_compact: "OH:CARROLL:FOX",
+      }] });
+
+    const result = await resolveAddressToDistricts({ query }, "100 Main St Carrollton OH", { geocodeAddress });
+    expect(query).toHaveBeenCalledTimes(2);
+    expect(query.mock.calls[1]?.[1]).toEqual([
+      ["statewide", "county", "local_special"], ["39", "39019", "OH:CARROLL:FOX"],
+    ]);
+    expect(result.districts.map((district) => district.id)).toEqual(["fox-id"]);
+    expect(result.district_keys.at(-1)?.source).toBe("verified_polygon");
+  });
+
   it("geocodes, resolves district keys, looks up districts, and reports missing keys", async () => {
     const geocodeAddress = vi.fn().mockResolvedValue({
       matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",

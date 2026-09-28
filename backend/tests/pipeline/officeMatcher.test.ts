@@ -3486,6 +3486,37 @@ describe("OfficeMatcher", () => {
     });
   });
 
+  it("maps Regional Transportation District director titles to the local_special transit office", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: [
+          { office_id: "office-transit-director", normalized_alias: normalizeElectionTitleKey("Transit District Director") },
+          { office_id: "office-transit-director", normalized_alias: normalizeElectionTitleKey("Regional Transportation District Director") },
+          { office_id: "office-transit-director", normalized_alias: normalizeElectionTitleKey("RTD Director") },
+        ],
+      },
+      officesByScope: {
+        local_special: [{ id: "office-transit-director", canonical_name: "Transit District Director" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    for (const title of [
+      "Regional Transportation District Director - District O",
+      "Regional Transportation District Director District B",
+      "RTD Director, District C",
+    ]) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName: "RTD Director District O",
+        state: "CO",
+        officialBallotTitle: title,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, title).toBe("office-transit-director");
+    }
+  });
+
   it("maps an elected city auditor to City Auditor, not Municipal Controller", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {
