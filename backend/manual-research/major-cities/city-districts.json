@@ -9591,7 +9591,7 @@
       "population_2025": 488797,
       "lat": 41.2667,
       "lon": -96.05,
-      "built_at": "2026-09-12T05:02:51.285Z",
+      "built_at": "2026-09-28T06:34:46.026Z",
       "place_geoid": "3137000",
       "place_layer": "place",
       "place_name": "Omaha city",
@@ -9741,6 +9741,186 @@
           "geoid_compact": "3103990",
           "name": "Bennington Public Schools",
           "city_share": 0.0053
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:ESU3:1",
+          "name": "Educational Service Unit 3 Board District 1",
+          "city_share": 0.0189
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:ESU3:3",
+          "name": "Educational Service Unit 3 Board District 3",
+          "city_share": 0.1116
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:ESU3:5",
+          "name": "Educational Service Unit 3 Board District 5",
+          "city_share": 0.0326
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:ESU3:7",
+          "name": "Educational Service Unit 3 Board District 7",
+          "city_share": 0.0347
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:JUD:2",
+          "name": "Nebraska Supreme Court Judicial District 2",
+          "city_share": 0.5345
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:LC:1",
+          "name": "Learning Community Subcouncil District 1",
+          "city_share": 0.1674
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:LC:3",
+          "name": "Learning Community Subcouncil District 3",
+          "city_share": 0.2478
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:LC:5",
+          "name": "Learning Community Subcouncil District 5",
+          "city_share": 0.091
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MCC:1",
+          "name": "Metropolitan Community College Board District 1",
+          "city_share": 0.1552
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MCC:2",
+          "name": "Metropolitan Community College Board District 2",
+          "city_share": 0.3202
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MCC:3",
+          "name": "Metropolitan Community College Board District 3",
+          "city_share": 0.2261
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MCC:4",
+          "name": "Metropolitan Community College Board District 4",
+          "city_share": 0.2893
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MCC:AT-LARGE",
+          "name": "Metropolitan Community College Area (Douglas and Sarpy counties)",
+          "city_share": 0.9969
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MUD:3",
+          "name": "Metropolitan Utilities District Subdivision 3",
+          "city_share": 0.1437
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MUD:4",
+          "name": "Metropolitan Utilities District Subdivision 4",
+          "city_share": 0.1137
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:MUD:5",
+          "name": "Metropolitan Utilities District Subdivision 5",
+          "city_share": 0.1988
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:OPPD:1",
+          "name": "Omaha Public Power District Subdivision 1",
+          "city_share": 0.1461
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:OPPD:2",
+          "name": "Omaha Public Power District Subdivision 2",
+          "city_share": 0.1602
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:PMRNRD:2",
+          "name": "Papio-Missouri River Natural Resources District Subdistrict 2",
+          "city_share": 0.1446
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:PMRNRD:4",
+          "name": "Papio-Missouri River Natural Resources District Subdistrict 4",
+          "city_share": 0.1315
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:PMRNRD:6",
+          "name": "Papio-Missouri River Natural Resources District Subdistrict 6",
+          "city_share": 0.0951
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:PMRNRD:8",
+          "name": "Papio-Missouri River Natural Resources District Subdistrict 8",
+          "city_share": 0.1202
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:PSC:2",
+          "name": "Nebraska Public Service Commission District 2",
+          "city_share": 0.7732
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:REGENTS:2",
+          "name": "University of Nebraska Board of Regents District 2",
+          "city_share": 0.1578
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:REGENTS:4",
+          "name": "University of Nebraska Board of Regents District 4",
+          "city_share": 0.4298
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:RMTA:1",
+          "name": "Regional Metropolitan Transit Authority of Omaha District 1",
+          "city_share": 0.1841
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:RMTA:3",
+          "name": "Regional Metropolitan Transit Authority of Omaha District 3",
+          "city_share": 0.0912
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:RMTA:5",
+          "name": "Regional Metropolitan Transit Authority of Omaha District 5",
+          "city_share": 0.1406
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:RMTA:7",
+          "name": "Regional Metropolitan Transit Authority of Omaha District 7",
+          "city_share": 0.1396
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "NE:SBOE:8",
+          "name": "Nebraska State Board of Education District 8",
+          "city_share": 0.4466
         }
       ]
     },

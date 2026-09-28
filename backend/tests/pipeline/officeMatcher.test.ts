@@ -3570,7 +3570,7 @@ describe("OfficeMatcher", () => {
           "State Board of Regents Member",
           "Board of Regents",
           "Member, Board of Regents",
-          "Regent",
+          "University Regent",
         ].map((alias) => ({ office_id: "office-regents", normalized_alias: normalizeElectionTitleKey(alias) })),
       },
       officesByScope: {
@@ -3591,6 +3591,84 @@ describe("OfficeMatcher", () => {
         discoveryContestFamily: "non_judicial_office",
       });
       expect(result.officeId, title).toBe("office-regents");
+    }
+  });
+
+  it("maps Omaha-area special-district titles to local_special offices", async () => {
+    const offices: Array<[string, string[]]> = [
+      ["Public Service Commissioner", ["Public Service Commissioner", "Public Service Commission"]],
+      ["State Board of Education Member", ["State Board of Education Member", "State Board of Education"]],
+      ["State Board of Regents Member", ["State Board of Regents Member", "Board of Regents", "University Regent"]],
+      ["Court of Appeals Justice", ["Court of Appeals Justice", "Judge of the Court of Appeals", "Court of Appeals Judge"]],
+      ["Community College Trustee", ["Community College Trustee", "Community College Board of Governors", "Metropolitan Community College Board of Governors"]],
+      ["Natural Resources District Director", [
+        "Natural Resources District Director",
+        "Natural Resources District Board of Directors",
+      ]],
+      ["Public Power District Director", ["Public Power District Director", "Public Power District Board of Directors"]],
+      ["Utility District Director", ["Utility District Director", "Metropolitan Utilities District Director"]],
+      ["Learning Community Council Member", [
+        "Learning Community Council Member",
+        "Learning Community Coordinating Council",
+      ]],
+      ["Educational Service Unit Board Member", ["Educational Service Unit Board Member", "Educational Service Unit Board"]],
+      ["Transit District Director", ["Transit District Director", "Transit Authority Director"]],
+    ];
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: offices.flatMap(([name, aliases]) =>
+          aliases.map((alias) => ({ office_id: name, normalized_alias: normalizeElectionTitleKey(alias) }))),
+      },
+      officesByScope: {
+        local_special: offices.map(([name]) => ({ id: name, canonical_name: name })),
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    // local_special entries carry no contest family (one combined research
+    // pass), so the cases resolve without one, the way the writer calls it.
+    const cases: Array<[string, string, "judicial_office" | "non_judicial_office"]> = [
+      ["Public Service Commissioner, District 2", "Public Service Commissioner", "non_judicial_office"],
+      ["State Board of Education, District 8", "State Board of Education Member", "non_judicial_office"],
+      ["Board of Regents, University of Nebraska, District 2", "State Board of Regents Member", "non_judicial_office"],
+      [
+        "Shall Judge Michael W. Pirtle of the Nebraska Court of Appeals be retained in office?",
+        "Court of Appeals Justice",
+        "judicial_office",
+      ],
+      ["Metropolitan Community College Board of Governors, District 1", "Community College Trustee", "non_judicial_office"],
+      ["Metropolitan Community College Board of Governors, At Large", "Community College Trustee", "non_judicial_office"],
+      [
+        "Papio-Missouri River Natural Resources District Director, Subdistrict 2",
+        "Natural Resources District Director",
+        "non_judicial_office",
+      ],
+      ["Omaha Public Power District Director, Subdivision 1", "Public Power District Director", "non_judicial_office"],
+      ["Utility District Director, Metropolitan Utilities District Subdivision 3", "Utility District Director", "non_judicial_office"],
+      ["Learning Community Coordinating Council, District 5", "Learning Community Council Member", "non_judicial_office"],
+      ["Educational Service Unit 3 Board Member, District 1", "Educational Service Unit Board Member", "non_judicial_office"],
+      [
+        "Transit District Director, Regional Metropolitan Transit Authority of Omaha District 1",
+        "Transit District Director",
+        "non_judicial_office",
+      ],
+    ];
+    for (const [title, expected, family] of cases) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName: "Omaha-area special district",
+        state: "NE",
+        officialBallotTitle: title,
+      });
+      expect(result.officeId, title).toBe(expected);
+      const withFamily = await matcher.resolve({
+        scope: "local_special",
+        districtName: "Omaha-area special district",
+        state: "NE",
+        officialBallotTitle: title,
+        discoveryContestFamily: family,
+      });
+      expect(withFamily.officeId, `${title} (${family})`).toBe(expected);
     }
   });
 

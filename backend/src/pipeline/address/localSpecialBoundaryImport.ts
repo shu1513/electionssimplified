@@ -224,31 +224,40 @@ export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "Featur
 }
 
 /** True when every point of the ring lies on one line (or all coincide), so
- * the ring provably encloses nothing. A self-crossing ring can also sum to
- * zero area without being empty; it is not degenerate and is left alone. */
+ * the ring provably encloses nothing. The line runs from the first point to
+ * the point farthest from it: anchoring on the first *different* point would
+ * let a near-duplicate vertex (float noise) shrink every cross product under
+ * the tolerance and condemn a real polygon. A self-crossing ring can also sum
+ * to zero area without being empty; it is not degenerate and is left alone. */
 function isDegenerateRing(ring: unknown): boolean {
   if (!Array.isArray(ring)) return false;
   const points = ring as number[][];
   const [ox = 0, oy = 0] = points[0] ?? [];
-  const anchor = points.find((point) => point[0] !== ox || point[1] !== oy);
-  if (!anchor) return true;
-  const dx = (anchor[0] ?? 0) - ox;
-  const dy = (anchor[1] ?? 0) - oy;
-  return points.every((point) => Math.abs(((point[0] ?? 0) - ox) * dy - ((point[1] ?? 0) - oy) * dx) <= 1e-12);
+  const offsets = points.map((point) => [(point[0] ?? 0) - ox, (point[1] ?? 0) - oy] as const);
+  const [dx, dy] = offsets.reduce((far, next) => (next[0] ** 2 + next[1] ** 2 > far[0] ** 2 + far[1] ** 2 ? next : far), [0, 0] as const);
+  if (dx === 0 && dy === 0) return true;
+  return offsets.every(([px, py]) => Math.abs(px * dy - py * dx) <= 1e-12);
 }
 
 /** Official layers sometimes carry a hole with no area (a digitizing slip:
  * three copies of one point). It removes nothing from the district, but the
- * boundary check rejects zero-area rings, so drop such holes. Only provably
- * degenerate rings go; any other malformed hole stays and fails the boundary
- * check. Outer rings are never touched. */
+ * boundary check rejects zero-area rings, so drop such holes. A multi-part
+ * layer can carry the same slip as a whole piece (Douglas County's MUD
+ * Subdivision 4 has a three-point sliver); a piece with no area adds no
+ * territory, so it goes too while at least one real piece remains. Only
+ * provably degenerate rings go; any other malformed ring stays and fails the
+ * boundary check. A single polygon's outer ring is never touched. */
 export function dropDegenerateHoles(geometry: unknown): unknown {
   if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
   const clean = (polygon: unknown) => Array.isArray(polygon)
     ? polygon.filter((ring, index) => index === 0 || !isDegenerateRing(ring))
     : polygon;
   if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
-  if (geometry.type === "MultiPolygon") return { ...geometry, coordinates: geometry.coordinates.map(clean) };
+  if (geometry.type === "MultiPolygon") {
+    const pieces = geometry.coordinates.map(clean);
+    const real = pieces.filter((polygon) => !Array.isArray(polygon) || !isDegenerateRing(polygon[0]));
+    return { ...geometry, coordinates: real.length > 0 ? real : pieces };
+  }
   return geometry;
 }
 

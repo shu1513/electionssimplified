@@ -797,7 +797,26 @@ function isJusticeOfThePeaceTitle(titleMatcherKey: string): boolean {
   return hasPhrase(titleMatcherKey, "justice of the peace");
 }
 
-function judgeCanonicalNameForScope(scope: ElectionDistrictType): string | null {
+// A local_special court seat covers a multi-county judicial district, and the
+// catalog holds one office per court level there. Retention questions name the
+// court only after the judge ("Shall Judge Michael W. Pirtle of the Nebraska
+// Court of Appeals be retained in office?"), which the token scorer cannot
+// reach, so pick the office from the court named in the title.
+function localSpecialJudgeCanonicalName(titleMatcherKey: string): string | null {
+  const officeWords = stripRetentionNomineeName(titleMatcherKey);
+  if (/\bcourt of appeals\b/.test(officeWords)) {
+    return "Court of Appeals Justice";
+  }
+  if (/\bdistrict (?:court|judge)\b/.test(officeWords)) {
+    return "District Judge";
+  }
+  return null;
+}
+
+function judgeCanonicalNameForScope(scope: ElectionDistrictType, titleMatcherKey: string): string | null {
+  if (scope === "local_special") {
+    return localSpecialJudgeCanonicalName(titleMatcherKey);
+  }
   if (scope === "statewide") {
     return STATE_LEVEL_JUDGE_CANONICAL_NAME;
   }
@@ -1562,11 +1581,13 @@ export class OfficeMatcher {
       }
     }
 
-    if (
-      input.discoveryContestFamily === "judicial_office" &&
-      isJudicialCompatibleTitle(titleMatcherKey)
-    ) {
-      const judgeCanonicalName = judgeCanonicalNameForScope(input.scope);
+    // local_special rows research one combined pass and carry no per-entry
+    // family, so a judicial-looking title there takes the judge route too.
+    const judicialEntry =
+      input.discoveryContestFamily === "judicial_office" ||
+      (input.scope === "local_special" && input.discoveryContestFamily == null);
+    if (judicialEntry && isJudicialCompatibleTitle(titleMatcherKey)) {
+      const judgeCanonicalName = judgeCanonicalNameForScope(input.scope, titleMatcherKey);
       if (judgeCanonicalName) {
         const match = toSingleScopeOfficeMatch(
           findSingleScopeOffice(offices, judgeCanonicalName),
