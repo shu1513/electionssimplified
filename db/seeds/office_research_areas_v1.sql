@@ -3261,6 +3261,9 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('place', 'Municipal Assessor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'housing_affordability']::text[]),
     ('place', 'Municipal Attorney', ARRAY['civil_rights', 'government_efficiency', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
     ('place', 'Municipal Controller', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
+    -- Independent elected auditor (Oakland, Berkeley): the Municipal Controller
+    -- set, since both jobs watch how the city spends money (migration 303).
+    ('place', 'City Auditor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('place', 'Municipal Constable', ARRAY['civil_rights', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
     -- Officer of the city court (Louisiana): the same civil-process job as
     -- Municipal Constable, housing_affordability included because the marshal
