@@ -3184,6 +3184,16 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- builds and runs the pipes and plants (public_infrastructure), and keeps
     -- drinking water safe and sewage treated (environment_and_public_health).
     ('county', 'Water and Sewer Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- Career and technical education district board (Arizona CTEDs such as
+    -- EVIT): sets the district budget and its small property tax (both
+    -- spending slugs) and decides what job training students get
+    -- (public_education_quality).
+    ('county', 'Career and Technical Education District Board Member', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    -- State mine inspector: inspects mines for worker safety (labor_rights,
+    -- public_safety_and_crime_control), enforces safety rules and seals
+    -- abandoned mines (environment_and_public_health), and runs a small
+    -- state agency (government_efficiency).
+    ('statewide', 'State Mine Inspector', ARRAY['environment_and_public_health', 'government_efficiency', 'labor_rights', 'public_safety_and_crime_control']::text[]),
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),

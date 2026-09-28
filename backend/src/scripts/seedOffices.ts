@@ -145,6 +145,16 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Arizona elects a state mine inspector (Ariz. Const. art. XIX).
+    scope: "statewide",
+    canonicalName: "State Mine Inspector",
+    summary: [
+      "Inspecting mines and quarries to keep workers safe",
+      "Investigating mine accidents and enforcing safety rules",
+      "Making sure closed and abandoned mines are sealed off",
+    ].join("\n"),
+  },
+  {
     scope: "statewide",
     canonicalName: "Public Service Commissioner",
     summary: [
@@ -546,6 +556,17 @@ const SEED_OFFICES: SeedOffice[] = [
       "Setting the water and sewer rates you pay",
       "Deciding which pipes, pumps, and treatment plants get built or fixed",
       "Picking the utility's director",
+    ].join("\n"),
+  },
+  {
+    // Arizona career and technical education districts (EVIT, West-MEC)
+    // elect their boards by district on the county ballot.
+    scope: "county",
+    canonicalName: "Career and Technical Education District Board Member",
+    summary: [
+      "Deciding which job-training programs students can take",
+      "Approving the district's budget and property tax",
+      "Picking the district's superintendent",
     ].join("\n"),
   },
   {
@@ -1960,6 +1981,47 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "county",
     officeCanonicalName: "Water and Sewer Commissioner",
     aliasText: "Water and Sewer Commissioner",
+  },
+  {
+    scope: "statewide",
+    officeCanonicalName: "State Mine Inspector",
+    aliasText: "Mine Inspector",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Career and Technical Education District Board Member",
+    aliasText: "Career and Technical Education District Board Member",
+  },
+  {
+    // "East Valley Institute of Technology Governing Board Member, District 3"
+    // after the seat is stripped (Maricopa County ballot, 2026).
+    scope: "county",
+    officeCanonicalName: "Career and Technical Education District Board Member",
+    aliasText: "East Valley Institute of Technology Governing Board Member",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "Career and Technical Education District Board Member",
+    aliasText: "Technical Education District Governing Board Member",
+  },
+  {
+    // Maricopa County Community College District board; the office itself is
+    // seeded with the Michigan community college boards.
+    scope: "county",
+    officeCanonicalName: "Community College Trustee",
+    aliasText: "Community College District Governing Board Member",
+  },
+  {
+    // Maricopa County Special Health Care District (Valleywise Health) runs
+    // the county's public hospital system.
+    scope: "county",
+    officeCanonicalName: "County Hospital Trustee",
+    aliasText: "Special Health Care District Board of Directors Member",
+  },
+  {
+    scope: "county",
+    officeCanonicalName: "County Hospital Trustee",
+    aliasText: "Special Health Care District Board of Directors",
   },
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").
