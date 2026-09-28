@@ -3301,7 +3301,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('statewide', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'State Level Judge', ARRAY['civil_rights', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'State Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
-    -- Executive Councilor (NH; migration 302): votes on judges (impartiality,
+    -- Executive Councilor (NH; migration 306): votes on judges (impartiality,
     -- legal_competence), state contracts (spending, efficiency, corruption;
     -- NH family-planning contracts are its best-known votes), and pardons.
     ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),

@@ -64,7 +64,7 @@ BEGIN
       AND c.conrelid = format('public.%I', target.table_name)::regclass;
 
     IF allowed IS NULL OR NOT ('state_lower' = ANY (allowed)) THEN
-      RAISE EXCEPTION 'migration 302: could not read the value list of %.%', target.table_name, target.constraint_name;
+      RAISE EXCEPTION 'migration 306: could not read the value list of %.%', target.table_name, target.constraint_name;
     END IF;
 
     IF NOT ('state_executive_council' = ANY (allowed)) THEN
@@ -373,7 +373,7 @@ DO $$
 BEGIN
   IF (SELECT count(*) FROM nh_council_towns) <> 259
      OR (SELECT count(DISTINCT cousub_geoid) FROM nh_council_towns) <> 259 THEN
-    RAISE EXCEPTION 'migration 302: expected 259 distinct New Hampshire towns in the council plan';
+    RAISE EXCEPTION 'migration 306: expected 259 distinct New Hampshire towns in the council plan';
   END IF;
 END
 $$;

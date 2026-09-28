@@ -25,16 +25,16 @@ const MANCHESTER_GEOGRAPHIES = {
   "Census Tracts": [{ GEOID: "33011200400", MTFCC: "G5020", NAME: "Census Tract 2004" }],
 };
 
-const MIGRATION_302_SQL = readFileSync(
-  new URL("../../../../db/migrations/302_add_nh_executive_council_and_floterial_districts.sql", import.meta.url),
+const MIGRATION_306_SQL = readFileSync(
+  new URL("../../../../db/migrations/306_add_nh_executive_council_and_floterial_districts.sql", import.meta.url),
   "utf8"
 );
 
 // The VALUES rows of the INSERT INTO <table> statement.
 function valuesRows(table: string): string[] {
-  const start = MIGRATION_302_SQL.indexOf(`INSERT INTO ${table} `);
+  const start = MIGRATION_306_SQL.indexOf(`INSERT INTO ${table} `);
   expect(start, table).toBeGreaterThanOrEqual(0);
-  const body = MIGRATION_302_SQL.slice(start, MIGRATION_302_SQL.indexOf(";\n", start));
+  const body = MIGRATION_306_SQL.slice(start, MIGRATION_306_SQL.indexOf(";\n", start));
   return body.split("\n").filter((line) => line.startsWith("    ("));
 }
 
@@ -157,7 +157,7 @@ describe("lookupAddressDistricts: component-built districts", () => {
   });
 });
 
-describe("migration 302 data", () => {
+describe("migration 306 data", () => {
   it("puts each of New Hampshire's 259 towns in exactly one of 5 balanced council districts", () => {
     const towns = valuesRows("nh_council_towns").map((line) => {
       const match = /^\s+\((\d), '(\d{10})', '((?:[^']|'')+)', (\d+)\)/.exec(line);
@@ -215,8 +215,8 @@ describe("migration 302 data", () => {
   });
 
   it("keeps any district type another migration added when it widens the checks", () => {
-    expect(MIGRATION_302_SQL).toContain("'state_executive_council' = ANY (allowed)");
-    expect(MIGRATION_302_SQL).not.toMatch(/ADD CONSTRAINT chk_district_type CHECK \(\s*district_type IN/);
+    expect(MIGRATION_306_SQL).toContain("'state_executive_council' = ANY (allowed)");
+    expect(MIGRATION_306_SQL).not.toMatch(/ADD CONSTRAINT chk_district_type CHECK \(\s*district_type IN/);
   });
 });
 
