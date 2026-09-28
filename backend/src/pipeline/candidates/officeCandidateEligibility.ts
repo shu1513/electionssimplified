@@ -106,7 +106,7 @@ const ELIGIBILITY_SELECT_SQL = `
       WHEN (
         CASE
           WHEN b.district_type IN ('statewide', 'us_house') THEN $7::int
-          WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified')
+          WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified', 'local_special')
             THEN $8::int
           ELSE NULL
         END
@@ -114,7 +114,7 @@ const ELIGIBILITY_SELECT_SQL = `
         AND (b.election_date - $2::date)::int > (
           CASE
             WHEN b.district_type IN ('statewide', 'us_house') THEN $7::int
-            WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified')
+            WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified', 'local_special')
               THEN $8::int
             ELSE NULL
           END
@@ -224,7 +224,7 @@ const ELIGIBILITY_SELECT_UPCOMING_OFFICES_SQL = `
       WHEN (
         CASE
           WHEN b.district_type IN ('statewide', 'us_house') THEN $6::int
-          WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified')
+          WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified', 'local_special')
             THEN $7::int
           ELSE NULL
         END
@@ -232,7 +232,7 @@ const ELIGIBILITY_SELECT_UPCOMING_OFFICES_SQL = `
         AND (b.election_date - $1::date)::int > (
           CASE
             WHEN b.district_type IN ('statewide', 'us_house') THEN $6::int
-            WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified')
+            WHEN b.district_type IN ('county', 'place', 'school_elementary', 'school_secondary', 'school_unified', 'local_special')
               THEN $7::int
             ELSE NULL
           END

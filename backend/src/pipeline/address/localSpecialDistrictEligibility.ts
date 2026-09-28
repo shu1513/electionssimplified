@@ -113,6 +113,48 @@ function classifyGeometry(point: Point, geometry: MultiPolygon): "inside" | "out
   return inside ? "inside" : "outside";
 }
 
+function ringContains(point: Point, ring: Ring): boolean {
+  let inside = false;
+  for (let index = 1; index < ring.length; index += 1) {
+    const from = ring[index - 1];
+    const to = ring[index];
+    if ((from[1] > point[1]) !== (to[1] > point[1]) &&
+      point[0] < (to[0] - from[0]) * (point[1] - from[1]) / (to[1] - from[1]) + from[0]) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function unionContains(point: Point, geometry: MultiPolygon): boolean {
+  return geometry.some((polygon) =>
+    ringContains(point, polygon[0]) && !polygon.slice(1).some((hole) => ringContains(point, hole)));
+}
+
+// A district built from several official pieces (for example, a list of
+// cities named in statute) is their union. Two neighboring cities share a
+// line that is not the district's edge, so the per-ring edge test above would
+// wrongly refuse voters near it. Instead, the point and a ring of points at
+// the buffer distance around it must all fall inside some piece.
+const UNION_SAMPLE_DIRECTIONS = 16;
+
+function deepInsideUnion(point: Point, geometry: MultiPolygon): boolean {
+  if (!unionContains(point, geometry)) return false;
+  const metersPerDegreeLat = 111_195;
+  const metersPerDegreeLon = metersPerDegreeLat * Math.cos(point[1] * Math.PI / 180);
+  for (const radius of [LOCAL_BOUNDARY_MARGIN_METERS / 2, LOCAL_BOUNDARY_MARGIN_METERS]) {
+    for (let step = 0; step < UNION_SAMPLE_DIRECTIONS; step += 1) {
+      const angle = (2 * Math.PI * step) / UNION_SAMPLE_DIRECTIONS;
+      const sample: Point = [
+        point[0] + (radius * Math.cos(angle)) / metersPerDegreeLon,
+        point[1] + (radius * Math.sin(angle)) / metersPerDegreeLat,
+      ];
+      if (!unionContains(sample, geometry)) return false;
+    }
+  }
+  return true;
+}
+
 /** Only a strict interior point beyond the boundary buffer is eligible.
  * Exclusions remove incorporated areas or other electorates verified by the
  * same official source. Invalid geometry always fails closed. */
@@ -125,7 +167,10 @@ export function pointInVerifiedLocalBoundary(
   const exclusions = exclusionValue === null ? null : parseGeometry(exclusionValue);
   if (!geometry || (exclusionValue !== null && !exclusions)) return false;
   const point: Point = [coordinates.lng, coordinates.lat];
-  if (classifyGeometry(point, geometry) !== "inside") return false;
+  const inside = geometry.length === 1
+    ? classifyGeometry(point, geometry) === "inside"
+    : deepInsideUnion(point, geometry);
+  if (!inside) return false;
   return !exclusions || classifyGeometry(point, exclusions) === "outside";
 }
 

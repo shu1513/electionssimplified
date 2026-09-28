@@ -25,6 +25,31 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.2951, lat: 40.642 }, township, village)).toBe(false);
   });
 
+  it("treats a multi-piece district as the union of its pieces", () => {
+    // Two cities side by side share the line lng = -105.0.
+    const pieces = {
+      type: "MultiPolygon",
+      coordinates: [
+        square(-105.1, 39.7, -105.0, 39.8).coordinates,
+        square(-105.0, 39.7, -104.9, 39.8).coordinates,
+      ],
+    };
+    expect(pointInVerifiedLocalBoundary({ lng: -105.00005, lat: 39.75 }, pieces)).toBe(true);
+    expect(pointInVerifiedLocalBoundary({ lng: -105.05, lat: 39.75 }, pieces)).toBe(true);
+    // Still refused near the district's own outer edge, and outside it.
+    expect(pointInVerifiedLocalBoundary({ lng: -105.0999, lat: 39.75 }, pieces)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -104.85, lat: 39.75 }, pieces)).toBe(false);
+    // A gap between two pieces is not in the district.
+    const apart = {
+      type: "MultiPolygon",
+      coordinates: [
+        square(-105.1, 39.7, -105.001, 39.8).coordinates,
+        square(-104.999, 39.7, -104.9, 39.8).coordinates,
+      ],
+    };
+    expect(pointInVerifiedLocalBoundary({ lng: -105.0, lat: 39.75 }, apart)).toBe(false);
+  });
+
   it("fails closed for malformed geometry", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, { type: "Polygon", coordinates: [] })).toBe(false);
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, township, { type: "Polygon" })).toBe(false);
