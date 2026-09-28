@@ -56,6 +56,15 @@ export const LEGACY_DUPLICATE_MIGRATION_FILES_BY_PREFIX = new Map<string, string
       "241_key_candidate_record_sweep_confirmations_by_context.sql",
     ],
   ],
+  // #1469 (county hospital trustee) and #1470 (transit district director)
+  // both landed on 305 and were applied locally under those names.
+  [
+    "305",
+    [
+      "305_add_county_hospital_trustee_and_extension_council_offices.sql",
+      "305_add_local_special_transit_district_director_office.sql",
+    ],
+  ],
 ]);
 
 export function isLegacyDuplicateMigrationSet(

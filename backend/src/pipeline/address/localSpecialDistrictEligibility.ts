@@ -68,49 +68,32 @@ export function isValidLocalBoundaryGeometry(value: unknown): boolean {
   return parseGeometry(value) !== null;
 }
 
-function nearSegment(point: Point, start: Point, end: Point, marginMeters: number): boolean {
-  const metersPerDegreeLat = 111_195;
-  const metersPerDegreeLon = metersPerDegreeLat * Math.cos(point[1] * Math.PI / 180);
-  const ax = (start[0] - point[0]) * metersPerDegreeLon;
-  const ay = (start[1] - point[1]) * metersPerDegreeLat;
-  const bx = (end[0] - point[0]) * metersPerDegreeLon;
-  const by = (end[1] - point[1]) * metersPerDegreeLat;
+const METERS_PER_DEGREE_LAT = 111_195;
+
+function metersPerDegreeLon(lat: number): number {
+  return METERS_PER_DEGREE_LAT * Math.cos(lat * Math.PI / 180);
+}
+
+// The closest point of the segment to `point`, in meters east and north of
+// `point`, or null when the segment stays farther away than `marginMeters`.
+function nearestOnSegment(
+  point: Point,
+  start: Point,
+  end: Point,
+  marginMeters: number
+): readonly [number, number] | null {
+  const lonScale = metersPerDegreeLon(point[1]);
+  const ax = (start[0] - point[0]) * lonScale;
+  const ay = (start[1] - point[1]) * METERS_PER_DEGREE_LAT;
+  const bx = (end[0] - point[0]) * lonScale;
+  const by = (end[1] - point[1]) * METERS_PER_DEGREE_LAT;
   const dx = bx - ax;
   const dy = by - ay;
   const lengthSquared = dx * dx + dy * dy;
   const fraction = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1, -(ax * dx + ay * dy) / lengthSquared));
-  return Math.hypot(ax + fraction * dx, ay + fraction * dy) <= marginMeters;
-}
-
-function classifyRing(point: Point, ring: Ring): "inside" | "outside" | "edge" {
-  let inside = false;
-  for (let index = 1; index < ring.length; index += 1) {
-    const from = ring[index - 1];
-    const to = ring[index];
-    if (nearSegment(point, from, to, LOCAL_BOUNDARY_MARGIN_METERS)) return "edge";
-    if ((from[1] > point[1]) !== (to[1] > point[1]) &&
-      point[0] < (to[0] - from[0]) * (point[1] - from[1]) / (to[1] - from[1]) + from[0]) {
-      inside = !inside;
-    }
-  }
-  return inside ? "inside" : "outside";
-}
-
-function classifyGeometry(point: Point, geometry: MultiPolygon): "inside" | "outside" | "edge" {
-  let inside = false;
-  for (const polygon of geometry) {
-    const outer = classifyRing(point, polygon[0]);
-    if (outer === "edge") return "edge";
-    if (outer === "outside") continue;
-    let inHole = false;
-    for (const hole of polygon.slice(1)) {
-      const result = classifyRing(point, hole);
-      if (result === "edge") return "edge";
-      if (result === "inside") inHole = true;
-    }
-    if (!inHole) inside = true;
-  }
-  return inside ? "inside" : "outside";
+  const x = ax + fraction * dx;
+  const y = ay + fraction * dy;
+  return Math.hypot(x, y) <= marginMeters ? [x, y] : null;
 }
 
 function ringContains(point: Point, ring: Ring): boolean {
@@ -126,33 +109,45 @@ function ringContains(point: Point, ring: Ring): boolean {
   return inside;
 }
 
-function unionContains(point: Point, geometry: MultiPolygon): boolean {
+function geometryContains(point: Point, geometry: MultiPolygon): boolean {
   return geometry.some((polygon) =>
     ringContains(point, polygon[0]) && !polygon.slice(1).some((hole) => ringContains(point, hole)));
 }
 
-// A district built from several official pieces (for example, a list of
-// cities named in statute) is their union. Two neighboring cities share a
-// line that is not the district's edge, so the per-ring edge test above would
-// wrongly refuse voters near it. Instead, the point and a ring of points at
-// the buffer distance around it must all fall inside some piece.
-const UNION_SAMPLE_DIRECTIONS = 16;
+// A ring segment is part of the area's edge only where one side of it lies
+// outside the area. A district built from several official pieces (for
+// example, a list of cities named in statute) is their union, and two
+// neighboring pieces share a line that is not an edge. So every segment
+// within the margin is probed one step to either side; a hole, a gap between
+// pieces, or the outer line has a probe land outside.
+const EDGE_PROBE_METERS = 1;
 
-function deepInsideUnion(point: Point, geometry: MultiPolygon): boolean {
-  if (!unionContains(point, geometry)) return false;
-  const metersPerDegreeLat = 111_195;
-  const metersPerDegreeLon = metersPerDegreeLat * Math.cos(point[1] * Math.PI / 180);
-  for (const radius of [LOCAL_BOUNDARY_MARGIN_METERS / 2, LOCAL_BOUNDARY_MARGIN_METERS]) {
-    for (let step = 0; step < UNION_SAMPLE_DIRECTIONS; step += 1) {
-      const angle = (2 * Math.PI * step) / UNION_SAMPLE_DIRECTIONS;
-      const sample: Point = [
-        point[0] + (radius * Math.cos(angle)) / metersPerDegreeLon,
-        point[1] + (radius * Math.sin(angle)) / metersPerDegreeLat,
-      ];
-      if (!unionContains(sample, geometry)) return false;
+function nearEdge(point: Point, geometry: MultiPolygon): boolean {
+  const lonScale = metersPerDegreeLon(point[1]);
+  for (const polygon of geometry) {
+    for (const ring of polygon) {
+      for (let index = 1; index < ring.length; index += 1) {
+        const from = ring[index - 1];
+        const to = ring[index];
+        const nearest = nearestOnSegment(point, from, to, LOCAL_BOUNDARY_MARGIN_METERS);
+        if (!nearest) continue;
+        const dx = (to[0] - from[0]) * lonScale;
+        const dy = (to[1] - from[1]) * METERS_PER_DEGREE_LAT;
+        const length = Math.hypot(dx, dy);
+        if (length === 0) continue;
+        const normalX = (-dy / length) * EDGE_PROBE_METERS;
+        const normalY = (dx / length) * EDGE_PROBE_METERS;
+        for (const side of [1, -1]) {
+          const probe: Point = [
+            point[0] + (nearest[0] + side * normalX) / lonScale,
+            point[1] + (nearest[1] + side * normalY) / METERS_PER_DEGREE_LAT,
+          ];
+          if (!geometryContains(probe, geometry)) return true;
+        }
+      }
     }
   }
-  return true;
+  return false;
 }
 
 /** Only a strict interior point beyond the boundary buffer is eligible.
@@ -167,11 +162,8 @@ export function pointInVerifiedLocalBoundary(
   const exclusions = exclusionValue === null ? null : parseGeometry(exclusionValue);
   if (!geometry || (exclusionValue !== null && !exclusions)) return false;
   const point: Point = [coordinates.lng, coordinates.lat];
-  const inside = geometry.length === 1
-    ? classifyGeometry(point, geometry) === "inside"
-    : deepInsideUnion(point, geometry);
-  if (!inside) return false;
-  return !exclusions || classifyGeometry(point, exclusions) === "outside";
+  if (!geometryContains(point, geometry) || nearEdge(point, geometry)) return false;
+  return !exclusions || (!geometryContains(point, exclusions) && !nearEdge(point, exclusions));
 }
 
 export async function lookupLocalSpecialDistrictKeys(

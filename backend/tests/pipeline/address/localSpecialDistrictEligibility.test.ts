@@ -50,6 +50,35 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -105.0, lat: 39.75 }, apart)).toBe(false);
   });
 
+  it("refuses points near a hole even when the district has other pieces", () => {
+    // A 4 m hole 8 m east of the point. Ring sampling at 12.5 m and 25 m
+    // missed it once a distant island made the district multi-piece.
+    const hole = square(-105.0000234, 39.749982, -104.9999766, 39.750018).coordinates[0];
+    const withHole = { type: "Polygon", coordinates: [square(-105.1, 39.7, -104.9, 39.8).coordinates[0], hole] };
+    const withIsland = {
+      type: "MultiPolygon",
+      coordinates: [withHole.coordinates, square(-104.5, 39.7, -104.4, 39.8).coordinates],
+    };
+    const nearHole = { lng: -105.000117, lat: 39.75 };
+    expect(pointInVerifiedLocalBoundary(nearHole, withHole)).toBe(false);
+    expect(pointInVerifiedLocalBoundary(nearHole, withIsland)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -105.05, lat: 39.75 }, withIsland)).toBe(true);
+  });
+
+  it("refuses points near a narrow gap between pieces", () => {
+    // Two pieces 3 m apart; the point is 18 m from the gap, between the old
+    // 12.5 m and 25 m sample rings.
+    const gap = {
+      type: "MultiPolygon",
+      coordinates: [
+        square(-105.1, 39.7, -105.0000175, 39.8).coordinates,
+        square(-104.9999825, 39.7, -104.9, 39.8).coordinates,
+      ],
+    };
+    expect(pointInVerifiedLocalBoundary({ lng: -105.0002281, lat: 39.75 }, gap)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -105.05, lat: 39.75 }, gap)).toBe(true);
+  });
+
   it("fails closed for malformed geometry", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, { type: "Polygon", coordinates: [] })).toBe(false);
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, township, { type: "Polygon" })).toBe(false);

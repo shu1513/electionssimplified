@@ -53,7 +53,7 @@ describe("addressResolutionCache", () => {
 
     await writeAddressLookupCache(
       cache,
-      "address_lookup:v3:test",
+      "address_lookup:v4:test",
       {
         matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",
         coordinates: { lat: 34.08, lng: -117.98 },
@@ -68,17 +68,19 @@ describe("addressResolutionCache", () => {
             name: "Los Angeles County",
           },
         ],
+        component_keys: [{ component_type: "county_subdivision", geoid: "0603791400" }],
         warnings: [],
       },
       60
     );
 
-    expect(cache.set).toHaveBeenCalledWith("address_lookup:v3:test", expect.any(String), { EX: 60 });
-    await expect(readAddressLookupCache(cache, "address_lookup:v3:test")).resolves.toMatchObject({
+    expect(cache.set).toHaveBeenCalledWith("address_lookup:v4:test", expect.any(String), { EX: 60 });
+    await expect(readAddressLookupCache(cache, "address_lookup:v4:test")).resolves.toMatchObject({
       matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",
       coordinates: { lat: 34.08, lng: -117.98 },
       address_match_count: 1,
       district_keys: [{ district_type: "county", geoid_compact: "06037" }],
+      component_keys: [{ component_type: "county_subdivision", geoid: "0603791400" }],
       warnings: [],
     });
   });
@@ -86,21 +88,22 @@ describe("addressResolutionCache", () => {
   it("returns null for malformed cached payloads", async () => {
     const cache = { get: vi.fn(async () => "not-json") };
 
-    await expect(readAddressLookupCache(cache, "address_lookup:v3:test")).resolves.toBeNull();
+    await expect(readAddressLookupCache(cache, "address_lookup:v4:test")).resolves.toBeNull();
   });
 
   it("uses the default TTL when none is provided", async () => {
     const cache = { set: vi.fn(async () => "OK") };
 
-    await writeAddressLookupCache(cache, "address_lookup:v3:test", {
+    await writeAddressLookupCache(cache, "address_lookup:v4:test", {
       matched_address: "matched",
       coordinates: { lat: 1, lng: 2 },
       address_match_count: 1,
       district_keys: [],
+      component_keys: [],
       warnings: [],
     });
 
-    expect(cache.set).toHaveBeenCalledWith("address_lookup:v3:test", expect.any(String), {
+    expect(cache.set).toHaveBeenCalledWith("address_lookup:v4:test", expect.any(String), {
       EX: DEFAULT_ADDRESS_LOOKUP_CACHE_TTL_SECONDS,
     });
   });

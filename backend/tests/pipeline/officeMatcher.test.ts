@@ -83,6 +83,50 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("ignores office words inside a retention nominee's name (Boulder County Court)", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [
+          { id: "office-county-judge", canonical_name: "County Level Judge" },
+          { id: "office-county-commissioner", canonical_name: "County Commissioner" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Boulder County, Colorado",
+      state: "CO",
+      officialBallotTitle:
+        "Shall Judge Elizabeth House Moulton Brodsky of the Boulder County Court be retained in office?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).toBe("office-county-judge");
+  });
+
+  it("still rejects a non-judicial office word outside the nominee's name", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: { county: [] },
+      officesByScope: {
+        county: [{ id: "office-county-judge", canonical_name: "County Level Judge" }],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const result = await matcher.resolve({
+      scope: "county",
+      districtName: "Orleans Parish, Louisiana",
+      state: "LA",
+      officialBallotTitle: "Shall Constable Jane House of the First City Court be retained?",
+      discoveryContestFamily: "judicial_office",
+    });
+
+    expect(result.officeId).not.toBe("office-county-judge");
+  });
+
   it("keeps a Texas justice of the peace on the judicial JP office", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: { county: [] },
@@ -619,6 +663,101 @@ describe("OfficeMatcher", () => {
       officialBallotTitle: "District 5 Member of the State Board of Education",
     });
     expect(other.officeId).toBe("office-state-senator");
+  });
+
+  it("routes Colorado's congressional-district regent and State Board seats to their us_house board offices", async () => {
+    // Colorado elects CU regents and State Board of Education members by
+    // congressional district, on the us_house row's ballot (CO SOS 2026
+    // general candidate list; Boulder and Denver sample ballots).
+    const client = createMatcherDataClient({
+      aliasesByScope: { us_house: [] },
+      officesByScope: {
+        us_house: [
+          { id: "office-us-rep", canonical_name: "United States Representative" },
+          { id: "office-co-regent", canonical_name: "State Board of Regents Member" },
+          { id: "office-co-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const regent = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Regent of the University of Colorado - Congressional District 2",
+    });
+    expect(regent).toMatchObject({
+      officeId: "office-co-regent",
+      method: "deterministic_fallback",
+      confidence: 1,
+      shouldPersistAlias: false,
+    });
+
+    const board = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 1 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "State Board of Education Member - Congressional District 1",
+    });
+    expect(board.officeId).toBe("office-co-sboe");
+
+    // The House seat on the same row still takes the House office.
+    const house = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Representative to the 120th United States Congress - District 2",
+    });
+    expect(house.officeId).toBe("office-us-rep");
+
+    // Another state's us_house row keeps the House route.
+    const other = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 3 (119th Congress), Nebraska",
+      state: "NE",
+      officialBallotTitle: "Regent of the University of Nebraska - Congressional District 3",
+    });
+    expect(other.officeId).toBe("office-us-rep");
+  });
+
+  it("routes a Colorado board seat past a learned alias that points at the House seat", async () => {
+    // The House route persists its aliases, so a database whose earlier runs
+    // wrote these titles learned "regent of the university of colorado" ->
+    // the House seat. The Colorado rule runs ahead of every alias.
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        us_house: [
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado congressional district 2" },
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado" },
+          { office_id: "office-us-rep", normalized_alias: "state board of education member" },
+        ],
+      },
+      officesByScope: {
+        us_house: [
+          { id: "office-us-rep", canonical_name: "United States Representative" },
+          { id: "office-co-regent", canonical_name: "State Board of Regents Member" },
+          { id: "office-co-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const regent = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Regent of the University of Colorado - Congressional District 2",
+    });
+    expect(regent).toMatchObject({ officeId: "office-co-regent", method: "deterministic_fallback" });
+
+    const board = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 1 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "State Board of Education Member - Congressional District 1",
+    });
+    expect(board.officeId).toBe("office-co-sboe");
   });
 
   it("resolves 'Council District No. N' seat titles through the place alias (Seattle)", async () => {
@@ -3961,6 +4100,116 @@ describe("OfficeMatcher", () => {
         discoveryContestFamily: "non_judicial_office",
       });
       expect(result.method).not.toBe("alias_exact");
+    });
+  });
+
+  describe("county hospital trustee and extension council offices (migration 305)", () => {
+    const aliasRow = (officeId: string, aliasText: string) => ({
+      office_id: officeId,
+      normalized_alias: normalizeElectionTitleKey(aliasText),
+    });
+    const hospitalAliases = [
+      "County Hospital Trustee",
+      "County Hospital Trustees",
+      "Hospital Trustee",
+      "Hospital Trustees",
+      "Public Hospital Trustee",
+      "Public Hospital Trustees",
+      "Memorial Hospital Trustee",
+      "Memorial Hospital Trustees",
+      "Hospital Board of Trustees",
+      "Memorial Hospital Board of Trustees",
+      "Hospital Board",
+      "Hospital District Trustee",
+      "Hospital District Trustees",
+    ];
+    const extensionAliases = [
+      "County Agricultural Extension Council Member",
+      "Agricultural Extension Council Member",
+      "Agricultural Extension Council Members",
+      "Agricultural Extension Council",
+      "Extension Council Member",
+      "Extension Council",
+    ];
+    const makeMatcher = () =>
+      new OfficeMatcher(
+        createMatcherDataClient({
+          aliasesByScope: {
+            county: [
+              aliasRow("office-county-supervisor", "County Supervisor"),
+              aliasRow("office-soil-water", "Soil and Water Conservation District Supervisor"),
+              ...hospitalAliases.map((alias) => aliasRow("office-hospital", alias)),
+              ...extensionAliases.map((alias) => aliasRow("office-extension", alias)),
+            ],
+          },
+          officesByScope: {
+            county: [
+              { id: "office-county-supervisor", canonical_name: "County Supervisor" },
+              { id: "office-soil-water", canonical_name: "Soil and Water Conservation District Supervisor" },
+              { id: "office-county-treasurer", canonical_name: "County Treasurer" },
+              { id: "office-hospital", canonical_name: "County Hospital Trustee" },
+              { id: "office-extension", canonical_name: "County Agricultural Extension Council Member" },
+            ],
+          },
+        }) as never
+      );
+
+    it("resolves the live Iowa and Kansas titles that wrote NULL-office shells", async () => {
+      const matcher = makeMatcher();
+      const cases: Array<[string, string, string, string]> = [
+        ["Polk County, Iowa", "IA", "County Hospital Trustee", "office-hospital"],
+        ["Keokuk County, Iowa", "IA", "Keokuk County Public Hospital Trustees", "office-hospital"],
+        ["Greene County, Iowa", "IA", "Greene County Public Hospital Trustee", "office-hospital"],
+        ["Davis County, Iowa", "IA", "Davis County Hospital Board of Trustees", "office-hospital"],
+        ["Humboldt County, Iowa", "IA", "Humboldt County Memorial Hospital Board of Trustees", "office-hospital"],
+        ["Palo Alto County, Iowa", "IA", "Palo Alto County Hospital District Trustee", "office-hospital"],
+        ["Kiowa County, Kansas", "KS", "Kiowa County Hospital Board", "office-hospital"],
+        ["Polk County, Iowa", "IA", "County Agricultural Extension Council", "office-extension"],
+        [
+          "Polk County, Iowa",
+          "IA",
+          "County Agricultural Extension Council to Fill Vacancy",
+          "office-extension",
+        ],
+        ["Warren County, Iowa", "IA", "Warren County Agricultural Extension Council", "office-extension"],
+        ["Worth County, Iowa", "IA", "Worth County Agricultural Extension Council Member", "office-extension"],
+        ["Davis County, Iowa", "IA", "Davis County Agricultural Extension Council Members", "office-extension"],
+        [
+          "Davis County, Iowa",
+          "IA",
+          "Davis County Agricultural Extension Council Member To Fill a Vacancy",
+          "office-extension",
+        ],
+      ];
+      for (const [districtName, state, officialBallotTitle, expected] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).toBe(expected);
+      }
+    });
+
+    it("leaves neighboring county offices on their own rows", async () => {
+      const matcher = makeMatcher();
+      const cases: Array<[string, string]> = [
+        ["Polk County Supervisor District 3", "office-county-supervisor"],
+        ["Polk County Soil and Water Conservation District Supervisor", "office-soil-water"],
+        ["Polk County Treasurer", "office-county-treasurer"],
+      ];
+      for (const [officialBallotTitle, expected] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName: "Polk County, Iowa",
+          state: "IA",
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).toBe(expected);
+      }
     });
   });
 });
