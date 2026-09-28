@@ -549,6 +549,28 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Elected board of a county-owned public hospital (Iowa Code chapter 347,
+    // e.g. Polk County's Broadlawns Medical Center).
+    scope: "county",
+    canonicalName: "County Hospital Trustee",
+    summary: [
+      "Overseeing the county's public hospital and its budget",
+      "Hiring the hospital's chief executive",
+      "Setting how much property tax the hospital asks for",
+    ].join("\n"),
+  },
+  {
+    // Elected county extension council (Iowa Code chapter 176A), which runs
+    // the county's farm, 4-H, and family education programs.
+    scope: "county",
+    canonicalName: "County Agricultural Extension Council Member",
+    summary: [
+      "Choosing which farm, 4-H, and family classes the county extension office offers",
+      "Setting the extension office's budget and property tax levy",
+      "Hiring the county extension staff",
+    ].join("\n"),
+  },
+  {
     scope: "county",
     canonicalName: "Collector of Revenue",
     summary: [
@@ -1961,6 +1983,46 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     officeCanonicalName: "Water and Sewer Commissioner",
     aliasText: "Water and Sewer Commissioner",
   },
+  // Iowa county ballots title the public hospital board many ways ("Keokuk
+  // County Public Hospital Trustees", "Davis County Hospital Board of
+  // Trustees", "Humboldt County Memorial Hospital Board of Trustees", "Palo
+  // Alto County Hospital District Trustee", all live). The matcher keeps
+  // plurals and the leading "county" word, so each form needs its own key.
+  // "Hospital Board" is the Kansas county form ("Kiowa County Hospital Board").
+  ...[
+    "County Hospital Trustee",
+    "County Hospital Trustees",
+    "Hospital Trustee",
+    "Hospital Trustees",
+    "Public Hospital Trustee",
+    "Public Hospital Trustees",
+    "Memorial Hospital Trustee",
+    "Memorial Hospital Trustees",
+    "Hospital Board of Trustees",
+    "Memorial Hospital Board of Trustees",
+    "Hospital Board",
+    "Hospital District Trustee",
+    "Hospital District Trustees",
+  ].map((aliasText) => ({
+    scope: "county" as const,
+    officeCanonicalName: "County Hospital Trustee",
+    aliasText,
+  })),
+  // Iowa extension council seats ("Marion County Agricultural Extension
+  // Council", "Worth County Agricultural Extension Council Member", live). The
+  // matcher already drops a trailing "to fill a vacancy".
+  ...[
+    "County Agricultural Extension Council Member",
+    "Agricultural Extension Council Member",
+    "Agricultural Extension Council Members",
+    "Agricultural Extension Council",
+    "Extension Council Member",
+    "Extension Council",
+  ].map((aliasText) => ({
+    scope: "county" as const,
+    officeCanonicalName: "County Agricultural Extension Council Member",
+    aliasText,
+  })),
   {
     // Tennessee chancery-court trial judge ("Chancellor Part II ...").
     scope: "county",

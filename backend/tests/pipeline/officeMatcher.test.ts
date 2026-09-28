@@ -3811,4 +3811,114 @@ describe("OfficeMatcher", () => {
       expect(result.method).not.toBe("alias_exact");
     });
   });
+
+  describe("county hospital trustee and extension council offices (migration 304)", () => {
+    const aliasRow = (officeId: string, aliasText: string) => ({
+      office_id: officeId,
+      normalized_alias: normalizeElectionTitleKey(aliasText),
+    });
+    const hospitalAliases = [
+      "County Hospital Trustee",
+      "County Hospital Trustees",
+      "Hospital Trustee",
+      "Hospital Trustees",
+      "Public Hospital Trustee",
+      "Public Hospital Trustees",
+      "Memorial Hospital Trustee",
+      "Memorial Hospital Trustees",
+      "Hospital Board of Trustees",
+      "Memorial Hospital Board of Trustees",
+      "Hospital Board",
+      "Hospital District Trustee",
+      "Hospital District Trustees",
+    ];
+    const extensionAliases = [
+      "County Agricultural Extension Council Member",
+      "Agricultural Extension Council Member",
+      "Agricultural Extension Council Members",
+      "Agricultural Extension Council",
+      "Extension Council Member",
+      "Extension Council",
+    ];
+    const makeMatcher = () =>
+      new OfficeMatcher(
+        createMatcherDataClient({
+          aliasesByScope: {
+            county: [
+              aliasRow("office-county-supervisor", "County Supervisor"),
+              aliasRow("office-soil-water", "Soil and Water Conservation District Supervisor"),
+              ...hospitalAliases.map((alias) => aliasRow("office-hospital", alias)),
+              ...extensionAliases.map((alias) => aliasRow("office-extension", alias)),
+            ],
+          },
+          officesByScope: {
+            county: [
+              { id: "office-county-supervisor", canonical_name: "County Supervisor" },
+              { id: "office-soil-water", canonical_name: "Soil and Water Conservation District Supervisor" },
+              { id: "office-county-treasurer", canonical_name: "County Treasurer" },
+              { id: "office-hospital", canonical_name: "County Hospital Trustee" },
+              { id: "office-extension", canonical_name: "County Agricultural Extension Council Member" },
+            ],
+          },
+        }) as never
+      );
+
+    it("resolves the live Iowa and Kansas titles that wrote NULL-office shells", async () => {
+      const matcher = makeMatcher();
+      const cases: Array<[string, string, string, string]> = [
+        ["Polk County, Iowa", "IA", "County Hospital Trustee", "office-hospital"],
+        ["Keokuk County, Iowa", "IA", "Keokuk County Public Hospital Trustees", "office-hospital"],
+        ["Greene County, Iowa", "IA", "Greene County Public Hospital Trustee", "office-hospital"],
+        ["Davis County, Iowa", "IA", "Davis County Hospital Board of Trustees", "office-hospital"],
+        ["Humboldt County, Iowa", "IA", "Humboldt County Memorial Hospital Board of Trustees", "office-hospital"],
+        ["Palo Alto County, Iowa", "IA", "Palo Alto County Hospital District Trustee", "office-hospital"],
+        ["Kiowa County, Kansas", "KS", "Kiowa County Hospital Board", "office-hospital"],
+        ["Polk County, Iowa", "IA", "County Agricultural Extension Council", "office-extension"],
+        [
+          "Polk County, Iowa",
+          "IA",
+          "County Agricultural Extension Council to Fill Vacancy",
+          "office-extension",
+        ],
+        ["Warren County, Iowa", "IA", "Warren County Agricultural Extension Council", "office-extension"],
+        ["Worth County, Iowa", "IA", "Worth County Agricultural Extension Council Member", "office-extension"],
+        ["Davis County, Iowa", "IA", "Davis County Agricultural Extension Council Members", "office-extension"],
+        [
+          "Davis County, Iowa",
+          "IA",
+          "Davis County Agricultural Extension Council Member To Fill a Vacancy",
+          "office-extension",
+        ],
+      ];
+      for (const [districtName, state, officialBallotTitle, expected] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName,
+          state,
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).toBe(expected);
+      }
+    });
+
+    it("leaves neighboring county offices on their own rows", async () => {
+      const matcher = makeMatcher();
+      const cases: Array<[string, string]> = [
+        ["Polk County Supervisor District 3", "office-county-supervisor"],
+        ["Polk County Soil and Water Conservation District Supervisor", "office-soil-water"],
+        ["Polk County Treasurer", "office-county-treasurer"],
+      ];
+      for (const [officialBallotTitle, expected] of cases) {
+        const result = await matcher.resolve({
+          scope: "county",
+          districtName: "Polk County, Iowa",
+          state: "IA",
+          officialBallotTitle,
+          discoveryContestFamily: "non_judicial_office",
+        });
+        expect(result.officeId, officialBallotTitle).toBe(expected);
+      }
+    });
+  });
 });

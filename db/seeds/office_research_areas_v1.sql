@@ -3184,6 +3184,14 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- builds and runs the pipes and plants (public_infrastructure), and keeps
     -- drinking water safe and sewage treated (environment_and_public_health).
     ('county', 'Water and Sewer Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- County public hospital board: runs the hospital (healthcare_affordability,
+    -- environment_and_public_health) and asks for its own property tax levy
+    -- (both spending slugs).
+    ('county', 'County Hospital Trustee', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability']::text[]),
+    -- County extension council: runs farm, 4-H, and family education programs
+    -- (public_education_quality) and sets its own levy (both spending slugs).
+    -- The catalog has no agriculture area.
+    ('county', 'County Agricultural Extension Council Member', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
