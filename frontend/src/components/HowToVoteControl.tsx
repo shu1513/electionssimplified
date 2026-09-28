@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@voteapp/api-client";
 import type { StateVotingResources, StateVotingResourcesResult } from "@voteapp/api-client";
@@ -128,29 +128,56 @@ function StateResourcesSection({ state, showStateName }: { state: string; showSt
 
 /**
  * "How to vote in WA" disclosure for the elections list: official state links
- * for registering first, then voting by mail, then in person. Inline disclosure — no portal or
- * outside-click machinery. This is informational content, not a list
- * control, so the trigger is a quiet text link with an info glyph rather
- * than a bordered button (py-1.5 keeps it level with the toolbar row it
- * sits beside). Resources load lazily on first
- * open; states normally holds one entry (a ballot's districts share a
- * state), but every distinct state gets its own section if not.
+ * for registering first, then voting by mail, then in person. The panel is a
+ * popover layered over the list (absolute, anchored under the trigger) so
+ * opening it never shoves the elections down the page; Escape and a click
+ * outside close it. This is informational content, not a list control, so
+ * the trigger is a quiet text link with an info glyph rather than a bordered
+ * button (py-1.5 keeps it level with the toolbar row it sits beside).
+ * Resources load lazily on first open; states normally holds one entry (a
+ * ballot's districts share a state), but every distinct state gets its own
+ * section if not.
  */
 export function HowToVoteControl({ states }: { states: string[] }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const uniqueStates = [...new Set(states)];
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
   if (uniqueStates.length === 0) {
     return null;
   }
 
   // ml-auto keeps the control on the right edge even when the toolbar row
   // wraps and this becomes the only item on its line — justify-between on
-  // the parent would otherwise drop it to the left, and items-end would
-  // then shove the trigger sideways the moment the wider panel opens.
+  // the parent would otherwise drop it to the left. relative anchors the
+  // popover to this column.
   return (
-    <div className="ml-auto flex flex-col items-end gap-2">
+    <div ref={wrapperRef} className="relative ml-auto">
       <button
         ref={triggerRef}
         type="button"
@@ -174,7 +201,7 @@ export function HowToVoteControl({ states }: { states: string[] }) {
       {open ? (
         <div
           id={panelId}
-          className="relative flex w-72 max-w-full flex-col gap-4 rounded-lg border border-line bg-white p-3 pr-9"
+          className="absolute right-0 top-full z-20 mt-2 flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-4 rounded-lg border border-line bg-white p-3 pr-9 shadow-lg"
         >
           {/* Explicit close affordance — the trigger also toggles, but a
               panel with no visible way out reads as stuck. Focus returns to
@@ -195,7 +222,6 @@ export function HowToVoteControl({ states }: { states: string[] }) {
           {uniqueStates.map((state) => (
             <StateResourcesSection key={state} state={state} showStateName={uniqueStates.length > 1} />
           ))}
-          <p className="text-xs text-ink-soft">Links go to official state election sites.</p>
         </div>
       ) : null}
     </div>
