@@ -39,6 +39,34 @@ describe("extractSubDistrictSeat", () => {
     );
   });
 
+  it("extracts the district from Arizona special-district boards on the county row", () => {
+    // The word "District" inside the board's own name must not be read as the seat.
+    expect(
+      extractSubDistrictSeat(
+        "Maricopa County Community College District Governing Board Member, District 3",
+        "Community College Trustee"
+      )
+    ).toBe("District 3");
+    expect(
+      extractSubDistrictSeat(
+        "Maricopa County Special Health Care District Board of Directors Member, District 4",
+        "County Hospital Trustee"
+      )
+    ).toBe("District 4");
+    expect(
+      extractSubDistrictSeat(
+        "East Valley Institute of Technology Governing Board Member, District 7",
+        "Career and Technical Education District Board Member"
+      )
+    ).toBe("District 7");
+    expect(
+      extractSubDistrictSeat(
+        "Maricopa County Community College District Governing Board Member, At-Large",
+        "Community College Trustee"
+      )
+    ).toBeNull();
+  });
+
   it("stays silent on at-large seat numbering rather than inventing a warning", () => {
     // Utah commissions elect seats A/B/C countywide; Florida city commissions
     // elect numbered seats at large. Neither is a sub-jurisdiction electorate.

@@ -8,6 +8,10 @@ import {
   type AllowedResearchArea,
   type CandidateRecordAreaStance,
 } from "../pipeline/candidates/candidateRecordAreaTagging.js";
+import {
+  GENERAL_RESEARCH_AREA_SLUG,
+  INTEGRITY_AND_ETHICS_RESEARCH_AREA_SLUG,
+} from "../pipeline/candidates/candidateRecordResearchAreaPolicy.js";
 import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 
 /**
@@ -29,8 +33,19 @@ import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
  *   npm run manual:records:tag -- --tags-file <path>
  *   npm run manual:records:tag -- --tags-file <path> --apply
  *
+ * Also the path for label-only fixes on stored records, such as adding a
+ * missing `general` tag. Unlike re-submitting through
+ * `manual:candidate-records:write`, it never runs the whole-record-set
+ * quality gate and never moves the candidate's records-research stamps
+ * (`last_records_searched_at`, `last_records_researched_through`).
+ *
+ * Stance rules: `general` takes no stance (omit it or pass null); every
+ * other area needs "for" or "against". `integrity_and_ethics` is refused:
+ * it counts as a negative strike app-wide (auto-pick, skip-if-negative), so
+ * adding one is a content judgment for the records writer, not a label fix.
+ *
  * File format: JSON array of
- *   { recordId, researchAreaSlug, stance, expectedDescription, reason, note? }.
+ *   { recordId, researchAreaSlug, stance?, expectedDescription, reason, note? }.
  * expectedDescription pins what the operator reviewed (same staleness
  * discipline as the untag manifest): a row whose description moved since
  * review skips instead of tagging today's content. Dry run is the default;
@@ -43,7 +58,7 @@ import { requireLocalDatabaseTarget } from "./localDatabaseGuard.js";
 type TagInput = {
   recordId: string;
   researchAreaSlug: string;
-  stance: CandidateRecordAreaStance;
+  stance: CandidateRecordAreaStance | null;
   /** The record description the stance was judged against. */
   expectedDescription: string;
   reason: string;
@@ -65,7 +80,7 @@ type TagOutcome =
       recordId: string;
       researchAreaSlug: string;
       status: "tagged" | "would_tag";
-      stance: CandidateRecordAreaStance;
+      stance: CandidateRecordAreaStance | null;
       office: string;
       description: string;
       reason: string;
@@ -114,9 +129,27 @@ export function parseTagsFile(raw: string): TagInput[] {
     if (typeof researchAreaSlug !== "string" || researchAreaSlug.trim().length === 0) {
       throw new Error(`tags[${index}].researchAreaSlug must be a non-empty string`);
     }
-    // Null-stance areas (general, integrity_and_ethics) are the writer's job;
-    // this manifest only ever states a policy position.
-    if (stance !== "for" && stance !== "against") {
+    // Lowercased here, once: the lookup, the validator, and the write must
+    // all see the same slug, or a mixed-case manifest could miss an existing
+    // tag in the lookup and then overwrite it in the write.
+    const normalizedSlug = researchAreaSlug.trim().toLowerCase();
+    // integrity_and_ethics counts as a strike app-wide, so adding one to a
+    // stored record is a content judgment, not a label fix: it goes through
+    // the records writer and its quality gate.
+    if (normalizedSlug === INTEGRITY_AND_ETHICS_RESEARCH_AREA_SLUG) {
+      throw new Error(
+        `tags[${index}]: ${INTEGRITY_AND_ETHICS_RESEARCH_AREA_SLUG} is not taggable here; write it through manual:candidate-records:write`
+      );
+    }
+    let normalizedStance: CandidateRecordAreaStance | null;
+    if (normalizedSlug === GENERAL_RESEARCH_AREA_SLUG) {
+      if (stance !== undefined && stance !== null) {
+        throw new Error(`tags[${index}].stance must be omitted or null for ${GENERAL_RESEARCH_AREA_SLUG}`);
+      }
+      normalizedStance = null;
+    } else if (stance === "for" || stance === "against") {
+      normalizedStance = stance;
+    } else {
       throw new Error(`tags[${index}].stance must be "for" or "against"`);
     }
     if (typeof expectedDescription !== "string" || expectedDescription.trim().length === 0) {
@@ -124,12 +157,8 @@ export function parseTagsFile(raw: string): TagInput[] {
     }
     const trimmedReason = typeof reason === "string" ? reason.trim() : "";
     if (trimmedReason.length < 10) {
-      throw new Error(`tags[${index}].reason must state why the record takes this stance (at least 10 characters)`);
+      throw new Error(`tags[${index}].reason must state why the record takes this tag (at least 10 characters)`);
     }
-    // Lowercased here, once: the lookup, the validator, and the write must
-    // all see the same slug, or a mixed-case manifest could miss an existing
-    // tag in the lookup and then overwrite it in the write.
-    const normalizedSlug = researchAreaSlug.trim().toLowerCase();
     const key = `${recordId.trim()}:${normalizedSlug}`;
     if (seen.has(key)) {
       throw new Error(`tags[${index}] repeats ${key}; each record/area pair may appear once`);
@@ -138,7 +167,7 @@ export function parseTagsFile(raw: string): TagInput[] {
     return {
       recordId: recordId.trim(),
       researchAreaSlug: normalizedSlug,
-      stance,
+      stance: normalizedStance,
       expectedDescription,
       reason: trimmedReason,
       ...(typeof note === "string" ? { note } : {}),
@@ -157,7 +186,7 @@ export type TagDeps = {
   applyTag: (input: {
     recordId: string;
     researchAreaId: string;
-    stance: CandidateRecordAreaStance;
+    stance: CandidateRecordAreaStance | null;
     expectedDescription: string;
   }) => Promise<number>;
 };

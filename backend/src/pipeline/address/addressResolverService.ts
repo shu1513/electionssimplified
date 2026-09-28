@@ -42,18 +42,16 @@ import { STATE_FIPS_BY_ABBREVIATION, STATE_NAME_BY_FIPS } from "../../constants/
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
-// The Carroll, Ohio geometry is the only candidate with an official GIS
-// source under review. Expand this gate after another state's electorate
-// geometry is verified; boundary rows alone never activate a state.
-const LOCAL_SPECIAL_STATE_FIPS = new Set(["39"]);
-
+// A local_special boundary takes part in address resolution as soon as its
+// review_status is 'verified'; the importer's review gates are the only
+// switch (see local_special_boundaries in migration 300).
 async function addVerifiedLocalDistrictKeys(
   db: Queryable,
   keys: readonly AddressDistrictKey[],
   coordinates: CensusAddressCoordinates
 ): Promise<AddressDistrictKey[]> {
   const stateFips = keys.find((key) => key.district_type === "statewide")?.geoid_compact;
-  if (!stateFips || !LOCAL_SPECIAL_STATE_FIPS.has(stateFips)) return [...keys];
+  if (!stateFips) return [...keys];
   return [...keys, ...await lookupLocalSpecialDistrictKeys(db, stateFips, coordinates)];
 }
 
@@ -402,7 +400,7 @@ export async function resolveAddressToDistricts(
       // below try, and fail with its clearer not_found if it also misses.
       if (keyResolution.district_keys.length > 0) {
         const districtKeys = await addVerifiedLocalDistrictKeys(db, keyResolution.district_keys, options.coordinates);
-        const districtLookup = await lookupAddressDistricts(db, districtKeys);
+        const districtLookup = await lookupAddressDistricts(db, districtKeys, keyResolution.component_keys);
         return {
           matched_address: address.trim(),
           coordinates: options.coordinates,
@@ -459,6 +457,7 @@ export async function resolveAddressToDistricts(
           coordinates: geocoded.coordinates,
           address_match_count: geocoded.address_match_count,
           district_keys: keyResolution.district_keys,
+          component_keys: keyResolution.component_keys,
           warnings: keyResolution.warnings,
         };
         if (options.cache) {
@@ -476,7 +475,7 @@ export async function resolveAddressToDistricts(
   // local voting boundary take effect without waiting for a cached address
   // key set to expire, and no additional address leaves this resolver.
   const districtKeys = await addVerifiedLocalDistrictKeys(db, resolved.district_keys, resolved.coordinates);
-  const districtLookup = await lookupAddressDistricts(db, districtKeys);
+  const districtLookup = await lookupAddressDistricts(db, districtKeys, resolved.component_keys);
 
   return {
     matched_address: resolved.matched_address,

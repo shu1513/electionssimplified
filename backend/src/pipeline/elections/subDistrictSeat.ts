@@ -37,6 +37,13 @@ const SUB_JURISDICTION_SEAT_OFFICES: ReadonlySet<string> = new Set([
   "Justice of the Peace",
   "City Council Member",
   "Town Council Member",
+  // Special-district boards stored on the county row. Arizona elects these by
+  // district ("Maricopa County Community College District Governing Board
+  // Member, District 3"); boards elected at large carry no district number,
+  // so they are never badged.
+  "Community College Trustee",
+  "County Hospital Trustee",
+  "Career and Technical Education District Board Member",
 ]);
 
 // Only GEOGRAPHIC designators. "Seat"/"Position"/"Office"/"Division"/"Part" are
