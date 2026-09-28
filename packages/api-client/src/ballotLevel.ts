@@ -9,8 +9,11 @@
 // have no office): the two vocabularies share their words. School boards
 // fold into "City" — "school district" is a level no voter thinks in, and
 // the section label says "City" rather than "place" for the same reason.
-// US Senate is the one level the scope cannot tell — its offices are scope
+// US Senate is one level the scope cannot tell — its offices are scope
 // "statewide" — so the election's contest family lifts it to Federal.
+// Colorado's regent and State Board of Education seats are the other: their
+// offices are scope "us_house" (one seat per congressional district), but
+// they are state offices, so the office name puts them under State.
 
 export const BALLOT_LEVELS = [
   { key: "presidential", label: "Presidential" },
@@ -23,13 +26,23 @@ export const BALLOT_LEVELS = [
 
 export type BallotLevel = (typeof BALLOT_LEVELS)[number]["key"];
 
+// Mirrors congressionalDistrictBoardOffice.ts in the backend.
+const CONGRESSIONAL_DISTRICT_BOARD_OFFICE_NAMES = new Set([
+  "State Board of Regents Member",
+  "State Board of Education Member",
+]);
+
 export function ballotLevel(
   scope: string | null | undefined,
   districtType: string,
-  contestFamily?: string | null
+  contestFamily?: string | null,
+  officeName?: string | null
 ): BallotLevel {
   if (contestFamily === "us_senate") {
     return "federal";
+  }
+  if (scope === "us_house" && officeName && CONGRESSIONAL_DISTRICT_BOARD_OFFICE_NAMES.has(officeName.trim())) {
+    return "state";
   }
   switch (scope ?? districtType) {
     case "presidential":

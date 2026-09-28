@@ -677,6 +677,45 @@ describe("OfficeMatcher", () => {
     expect(other.officeId).toBe("office-us-rep");
   });
 
+  it("routes a Colorado board seat past a learned alias that points at the House seat", async () => {
+    // The House route persists its aliases, so a database whose earlier runs
+    // wrote these titles learned "regent of the university of colorado" ->
+    // the House seat. The Colorado rule runs ahead of every alias.
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        us_house: [
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado congressional district 2" },
+          { office_id: "office-us-rep", normalized_alias: "regent of the university of colorado" },
+          { office_id: "office-us-rep", normalized_alias: "state board of education member" },
+        ],
+      },
+      officesByScope: {
+        us_house: [
+          { id: "office-us-rep", canonical_name: "United States Representative" },
+          { id: "office-co-regent", canonical_name: "State Board of Regents Member" },
+          { id: "office-co-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const regent = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 2 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "Regent of the University of Colorado - Congressional District 2",
+    });
+    expect(regent).toMatchObject({ officeId: "office-co-regent", method: "deterministic_fallback" });
+
+    const board = await matcher.resolve({
+      scope: "us_house",
+      districtName: "Congressional District 1 (119th Congress), Colorado",
+      state: "CO",
+      officialBallotTitle: "State Board of Education Member - Congressional District 1",
+    });
+    expect(board.officeId).toBe("office-co-sboe");
+  });
+
   it("resolves 'Council District No. N' seat titles through the place alias (Seattle)", async () => {
     // "City of Seattle Council District No. 5" wrote a NULL-office shell
     // (live): the interposed "No." survived the seat strip, and even a plain

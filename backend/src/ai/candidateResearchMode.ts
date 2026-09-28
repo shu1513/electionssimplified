@@ -34,7 +34,9 @@ export function resolveCandidateResearchMode(input: {
 
   // Colorado's regent and State Board of Education seats sit on the us_house
   // row and say "Congressional District", but they are state offices with
-  // no FEC filings.
+  // no FEC filings. Deliberately not limited to Colorado: a regent or state
+  // board title is never a House race in any state, so state-level research
+  // is right for it wherever its row is scoped.
   if (namesCongressionalDistrictBoardSeat(input.officialBallotTitle)) {
     return "state_level";
   }
