@@ -555,6 +555,96 @@ describe("runElectionsValidator", () => {
     expect(softFailCall).toBeUndefined();
   });
 
+  it("accepts Arizona career and technical education district board titles on a county row", async () => {
+    const payload = {
+      district_id: "d-maricopa-county-az",
+      district_name: "Maricopa County, Arizona",
+      district_type: "county",
+      state: "AZ",
+      entries: [
+        {
+          official_ballot_title: "East Valley Institute of Technology Governing Board Member, District 3",
+          election_date: "2099-11-03",
+          race_type: "office",
+          election_stage: "general",
+          is_partisan: false,
+          discovery_contest_family: "non_judicial_office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:maricopa-county-az",
+            payload,
+            status: "pending",
+            run_id: "run_maricopa_county_az",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const updateValidatedCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[0]).includes("SET status = 'validated'")
+    );
+    expect(updateValidatedCall).toBeTruthy();
+    const softFailCall = poolQueryMock.mock.calls.find((call) => String(call[1]?.[1] ?? "").includes("soft_fail"));
+    expect(softFailCall).toBeUndefined();
+  });
+
+  it("still rejects a bare Arizona governing board title on a county row", async () => {
+    const payload = {
+      district_id: "d-maricopa-county-az",
+      district_name: "Maricopa County, Arizona",
+      district_type: "county",
+      state: "AZ",
+      entries: [
+        {
+          official_ballot_title: "Governing Board Member, District 3",
+          election_date: "2099-11-03",
+          race_type: "office",
+          election_stage: "general",
+          is_partisan: false,
+          discovery_contest_family: "non_judicial_office",
+          sources: ["https://example.org/election"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:maricopa-county-az-school",
+            payload,
+            status: "pending",
+            run_id: "run_maricopa_county_az_school",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const updateValidatedCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[0]).includes("SET status = 'validated'")
+    );
+    expect(updateValidatedCall).toBeUndefined();
+    const softFailCall = poolQueryMock.mock.calls.find((call) => String(call[1]?.[1] ?? "").includes("soft_fail"));
+    expect(softFailCall).toBeTruthy();
+  });
+
   it("accepts verified historical dates only when manual import is explicitly approved", async () => {
     const payload = {
       district_id: "d-lausd",
