@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DraftLink } from "./PostPickActions";
 
 // The election page's post-pick confirmation for roster picks — the same
 // "added to cart" moment the candidate page's sticky card gives, cut to the
 // one link that matters here: the reader is already on the election, so no
 // "Back to election". A brief toast, never a pinned bar (owner's rule:
-// persistent = nag): it slides down at the top right — the header's My
-// Draft counter's corner, so the motion points at where the running total
-// lives — holds a few seconds, fades, and unmounts.
+// persistent = nag): it slides down, holds a few seconds, fades, and
+// unmounts.
 //
-// When the header link is on screen (reader still near the top), the pill
-// anchors directly beneath it with a caret pointing up at the counter.
-// The header is not sticky, so after a scroll down the roster the link is
-// gone; the pill then takes the top-right corner without the caret,
-// gesturing at the header's place rather than pointing at nothing.
-// Measured once on mount — the caller keys the toast per pick, so another
-// pick remounts and re-measures — and not on scroll: a six-second pill
-// need not track the page.
+// It lives in the header's My Draft counter's column, so the motion points
+// at where the running total lives. While the header link is on screen the
+// pill hangs directly beneath it with a caret pointing up at the counter,
+// and follows it as the page scrolls. The header is not sticky, so once a
+// scroll down the roster takes the link away the pill parks at the top of
+// that same column without the caret. Scrolling back up dismisses the pill
+// the moment the header returns: the real counter is the thing to see, and
+// a pill over it would cover it.
 //
 // The caller keys it per pick, so another pick remounts it and the label
 // re-reads with the new count. Hidden in split view by the caller — the
@@ -28,31 +27,31 @@ const FADE_MS = 300;
 const ANCHOR_GAP_PX = 6;
 /** The caret is a 12px square rotated 45°; half its width centers it. */
 const CARET_HALF_PX = 6;
+/** Corner fallback (no header link to align with): the page's 16px gutter. */
+const GUTTER_PX = 16;
 
-type Anchor = {
-  /** Viewport offset of the pill's top edge. */
-  top: number;
-  /** Viewport offset of the pill's right edge (from the viewport's right). */
+type Placement = {
+  /** Viewport offset of the pill's top edge; null parks it at the top. */
+  top: number | null;
+  /** The pill's right edge, as an offset from the viewport's right. */
   right: number;
   /** The caret's offset from the pill's right edge, centering it under the link. */
   caretRight: number;
 };
 
-/** The header's My Draft link, if it is on screen right now. */
-function measureAnchor(): Anchor | null {
+/** Where the header's My Draft link is right now, on screen or not. */
+function measure(): Placement {
   if (typeof document === "undefined") {
-    return null;
+    return { top: null, right: GUTTER_PX, caretRight: CARET_HALF_PX };
   }
   const link = document.querySelector<HTMLElement>("[data-draft-link]");
-  if (!link) {
-    return null;
+  const rect = link?.getBoundingClientRect();
+  if (!rect || rect.width === 0) {
+    return { top: null, right: GUTTER_PX, caretRight: CARET_HALF_PX };
   }
-  const rect = link.getBoundingClientRect();
-  if (rect.width === 0 || rect.bottom <= 0 || rect.top >= window.innerHeight) {
-    return null;
-  }
+  const onScreen = rect.bottom > 0 && rect.top < window.innerHeight;
   return {
-    top: rect.bottom + ANCHOR_GAP_PX,
+    top: onScreen ? rect.bottom + ANCHOR_GAP_PX : null,
     right: window.innerWidth - rect.right,
     caretRight: Math.max(CARET_HALF_PX, rect.width / 2 - CARET_HALF_PX),
   };
@@ -60,7 +59,8 @@ function measureAnchor(): Anchor | null {
 
 export function DraftToast() {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in");
-  const [anchor] = useState<Anchor | null>(measureAnchor);
+  const [placement, setPlacement] = useState<Placement>(measure);
+  const placementRef = useRef(placement);
   useEffect(() => {
     const fade = setTimeout(() => setPhase("out"), HOLD_MS - FADE_MS);
     const gone = setTimeout(() => setPhase("gone"), HOLD_MS);
@@ -69,19 +69,46 @@ export function DraftToast() {
       clearTimeout(gone);
     };
   }, []);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const next = measure();
+      // Parked, and the header just scrolled back in: get out of its way.
+      if (placementRef.current.top === null && next.top !== null) {
+        setPhase("gone");
+        return;
+      }
+      placementRef.current = next;
+      setPlacement(next);
+    };
+    const schedule = () => {
+      if (frame === 0) {
+        frame = requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
   if (phase === "gone") {
     return null;
   }
+  const anchored = placement.top !== null;
   return (
     // pointer-events: the full-width strip must not swallow taps on the
     // page beneath it; only the pill itself is clickable.
     <div
       className={
-        anchor
+        anchored
           ? "pointer-events-none fixed inset-x-0 z-30 flex justify-end"
-          : "pointer-events-none fixed inset-x-0 top-3 z-30 flex justify-end px-4"
+          : "pointer-events-none fixed inset-x-0 top-3 z-30 flex justify-end"
       }
-      style={anchor ? { top: anchor.top, paddingRight: anchor.right } : undefined}
+      style={{ top: anchored ? placement.top! : undefined, paddingRight: placement.right }}
     >
       <div
         role="status"
@@ -89,12 +116,12 @@ export function DraftToast() {
           phase === "out" ? "opacity-0" : "opacity-100"
         }`}
       >
-        {anchor ? (
+        {anchored ? (
           <span
             aria-hidden="true"
             data-draft-toast-caret=""
             className="absolute -top-1.5 h-3 w-3 rotate-45 border-t border-l border-line bg-white"
-            style={{ right: anchor.caretRight }}
+            style={{ right: placement.caretRight }}
           />
         ) : null}
         <DraftLink />
