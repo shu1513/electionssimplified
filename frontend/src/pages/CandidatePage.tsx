@@ -6,12 +6,10 @@ import {
   CANDIDATE_RAIL_SORTS,
   candidateRailSortsOffered,
   sortCandidateRailEntries,
-  sortRailEntries,
   type CandidateRailSortKey,
 } from "@voteapp/api-client";
 import { DetailPager } from "../components/DetailPager";
-import { BallotRail, type BallotRailContest, type BallotRailRow } from "../components/BallotRail";
-import { choicePickedLabel } from "../lib/choicePickedLabel";
+import { DetailRail } from "../components/DetailRail";
 import {
   pagerNeighbors,
   readCandidateNavState,
@@ -449,57 +447,6 @@ export function CandidatePage() {
   // can legitimately check several rows.
   const railChoice = navState?.electionId !== undefined ? choiceForElection(navState.electionId) : undefined;
   const railPickedIds = new Set((railChoice?.picks ?? []).map((pick) => pick.candidate_id));
-  // The ballot around that race: the election page's own forwarded context
-  // (backState) holds the list's contests, and the order that page showed
-  // them in is reproduced from the tab and sort it stamped there — a tab
-  // only when every contest is typed (the election page slices only then),
-  // and never a slice that would drop this race itself. Without that
-  // context (the election page was a deep link) the ballot is the one
-  // race, titled by the back link. Null = no race to open (an old
-  // snapshot without electionId), which withholds the rail.
-  const ballot = navState?.backState;
-  const ballotContests: BallotRailContest[] | null = (() => {
-    if (navState === null || navState.electionId === undefined) return null;
-    const electionId = navState.electionId;
-    const pool = ballot?.contests;
-    if (pool === undefined || !pool.some((contest) => contest.id === electionId)) {
-      return [{ id: electionId, label: navState.backTo.label, path: navState.backTo.path }];
-    }
-    const raceType = ballot?.raceType;
-    const sliced =
-      raceType !== undefined && pool.every((contest) => contest.race_type !== undefined)
-        ? pool.filter((contest) => contest.race_type === raceType)
-        : pool;
-    const kept = sliced.some((contest) => contest.id === electionId) ? sliced : pool;
-    const ordered = ballot?.railSort !== undefined ? sortRailEntries(kept, ballot.railSort, weights) : kept;
-    return ordered.map((contest) => ({
-      id: contest.id,
-      label: contest.title,
-      path: `/elections/${contest.id}`,
-      pickedLabel: choicePickedLabel(choiceForElection(contest.id)),
-      ...(ballot?.railSort === "district" && contest.group !== undefined ? { group: contest.group } : {}),
-      ...(contest.retention ? { retention: true } : {}),
-    }));
-  })();
-  // The open box's rows: the roster the rail sorts, each name a link
-  // carrying this page's forwarded context; this candidate is the
-  // highlighted row (BallotRail renders it as text).
-  const ballotRows: BallotRailRow[] = (railCandidates ?? []).map((entry) => ({
-    id: entry.id,
-    label: entry.name,
-    path: `/candidates/${entry.id}`,
-    state: forwardedNavState,
-    picked: railPickedIds.has(entry.id),
-  }));
-  const railContext =
-    railCandidates !== null && navState !== null && navState.electionId !== undefined && ballotContests !== null
-      ? { electionId: navState.electionId, contests: ballotContests, navState }
-      : null;
-  // The rail's exit: the ballot list when the election page handed its own
-  // context along (its backTo, with the state its rail's exit delivers),
-  // else the election itself — the pager's back slot destination.
-  const railBackTo = ballot?.backTo ?? navState?.backTo;
-  const railBackToState = ballot ? (ballot.backState ?? ballot.listState) : backToElectionState;
 
   // Display label for the back slot: when the destination is an election,
   // its official ballot title runs to legal-name length ("For United States
@@ -538,62 +485,81 @@ export function CandidatePage() {
     ) : null;
 
   return (
-    // With rail context the page widens to a two-column grid (rail | detail)
-    // from the rail breakpoint (54rem, see index.css); without it — deep
-    // links, stale snapshots — the markup is the classic centered column at
-    // every width. Mirrors ElectionPage.
+    // With rail context the page widens to a two-column grid on lg+ (rail |
+    // detail); without it — deep links, stale snapshots — the markup is the
+    // classic centered column at every width. Mirrors ElectionPage.
     <div
       className={
-        railContext !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8"
+        railCandidates !== null
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
-      {railContext !== null && railBackTo !== undefined ? (
-        <BallotRail
-          ariaLabel="Ballot"
-          contests={railContext.contests}
-          currentId={railContext.electionId}
-          currentRowId={candidate.candidate_id}
-          rows={ballotRows}
-          backTo={railBackTo}
-          backToState={railBackToState}
-          // Contest links and the open race's title both reopen an election
-          // page with this page's arrival context, rosterSort overridden by
-          // the rail's current sort — one continuous control (see
-          // backToElectionState).
-          siblingState={backToElectionState}
-          openContestState={backToElectionState}
-          openSlot={
-            offeredRailSorts.length > 0 ? (
-              <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                Sort
-                <select
-                  value={railSort ?? ""}
-                  onChange={(event) =>
-                    setRailSortState(event.target.value as CandidateRailSortKey)
-                  }
-                  className="min-w-0 flex-1 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
-                >
-                  {CANDIDATE_RAIL_SORTS.filter((option) =>
-                    offeredRailSorts.includes(option.value)
-                  ).map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null
+      {railCandidates !== null && navState !== null ? (
+        // The rail's exit link keeps the full backTo label (the election's
+        // ballot title): rail rows truncate, so length is fine there, and
+        // the fuller name is clearer than the pager's generic "Election".
+        <DetailRail
+          ariaLabel="Candidates in this race"
+          entries={railCandidates.map((entry) => ({
+            id: entry.id,
+            label: entry.name,
+            path: `/candidates/${entry.id}`,
+            picked: railPickedIds.has(entry.id),
+          }))}
+          pickedSrLabel="my pick"
+          currentId={candidate.candidate_id}
+          backTo={navState.backTo}
+          backToState={backToElectionState}
+          siblingState={forwardedNavState}
+          headerSlot={
+            // The list label renders even when no sort is offerable (an old
+            // snapshot): naming WHAT the rows are never depends on the keys.
+            <div className="flex flex-col gap-1.5">
+              {/* text-ink, not -soft: the label is the rail's identity, not
+                  a caption — it must register at a glance. */}
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink">Candidates:</p>
+              {offeredRailSorts.length > 0 ? (
+                <label className="flex items-center gap-1.5 text-xs text-ink-soft">
+                  Sort
+                  <select
+                    value={railSort ?? ""}
+                    onChange={(event) =>
+                      setRailSortState(event.target.value as CandidateRailSortKey)
+                    }
+                    className="min-w-0 flex-1 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
+                  >
+                    {CANDIDATE_RAIL_SORTS.filter((option) =>
+                      offeredRailSorts.includes(option.value)
+                    ).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+            </div>
           }
         />
       ) : null}
-      {/* min-w-0: the grid column must be allowed to shrink or long titles
-          blow the layout; rail:max-w-3xl keeps the reading measure of the
-          classic column even though the grid column is wider. The rail/detail
-          divider is the rail column's own right edge (BallotRail). */}
-      <div className="min-w-0 rail:max-w-3xl">
-        {railContext !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
+      {/* min-w-0: the grid column must be allowed to shrink or long names
+          blow the layout; lg:max-w-3xl keeps the reading measure of the
+          classic column even though the grid column is wider. In rail mode a
+          before pseudo-element draws the rail/detail divider a rem into the
+          gutter (centered in gap-8) — a pseudo, not border-l + pl, because
+          box-sizing is border-box and padding on this max-w-3xl div would
+          eat 17px of reading measure. On the detail side (not the rail) so
+          the rule spans the full content height; conditional so deep links
+          never grow a stray rule. */}
+      <div
+        className={
+          railCandidates !== null
+            ? "min-w-0 lg:relative lg:max-w-3xl lg:before:absolute lg:before:inset-y-0 lg:before:-left-4 lg:before:w-px lg:before:bg-line lg:before:content-['']"
+            : "min-w-0 lg:max-w-3xl"
+        }
+      >
+        {railCandidates !== null ? <div className="lg:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
             "@type": "Person",

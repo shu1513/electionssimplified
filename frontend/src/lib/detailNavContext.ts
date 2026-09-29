@@ -78,9 +78,6 @@ export type NavContest = {
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
   retention?: boolean;
-  /** The list's district section heading this contest sat under, stamped
-   * by the district-size sorts only — see RailSortEntry.group. */
-  group?: string;
 };
 /** research_area_records powers the candidate rail's My-issues sort: each
  * candidate's stance-bearing records condensed to per-area counts at
@@ -227,9 +224,6 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
       }
       if (raw.awaiting_candidates === true) {
         entry.awaiting_candidates = true;
-      }
-      if (typeof raw.group === "string" && raw.group.trim() !== "") {
-        entry.group = raw.group;
       }
       return entry;
     });
