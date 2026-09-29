@@ -2637,7 +2637,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
     expect(await within(rail).findByRole("combobox")).toHaveValue("vote_power");
-    expect(railHeadings(rail)).toEqual(["Very high", "High", "Average"]);
+    expect(railHeadings(rail)).toEqual(["Vote power: Very high", "Vote power: High", "Vote power: Average"]);
     expect(within(rail).getAllByRole("listitem")).toHaveLength(10);
   });
 
@@ -2653,7 +2653,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
     await within(rail).findByRole("combobox");
-    expect(railHeadings(rail)).toEqual(["Very high", "High"]);
+    expect(railHeadings(rail)).toEqual(["Vote power: Very high", "Vote power: High"]);
     expect(railRows(rail).slice(0, 4)).toEqual(["Governor", "Race 2", "Race 1", "Race 3"]);
     // The pager walks the same order: next from the current (Governor) is
     // Race 2, the other Very high race, not the higher-scoring Race 1.
