@@ -149,16 +149,10 @@ function ContestBox({
         ) : null}
       </header>
       {isMeasure ? (
-        <>
-          {preview?.measure?.summary ? (
-            // VoteApp's explanation, visually set apart and labeled — never
-            // styled as the printed ballot question, which we don't store.
-            <p className="border-t border-line bg-surface/50 px-3 py-1.5 text-xs italic text-ink-soft">
-              VoteApp summary (not the printed ballot text): {preview.measure.summary}
-            </p>
-          ) : null}
-          <YesNoRows pickedPosition={choice?.measure_position ?? null} />
-        </>
+        // The sheet prints only the title and the Yes/No ovals. VoteApp's
+        // measure summary is left off: it is not the printed ballot text and
+        // the list card already shows it.
+        <YesNoRows pickedPosition={choice?.measure_position ?? null} />
       ) : isRetention ? (
         <>
           {retentionJudge ? (

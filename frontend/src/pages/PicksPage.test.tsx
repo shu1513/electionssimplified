@@ -736,8 +736,8 @@ describe("PicksPage", () => {
     expect(screen.getByText("Walt Withdrawn").className).toContain("line-through");
     expect(screen.getByText(/withdrew — votes may not count/)).toBeInTheDocument();
 
-    // Measure: VoteApp summary is labeled as ours, never as ballot text.
-    expect(screen.getByText(/VoteApp summary \(not the printed ballot text\): A parcel tax\./)).toBeInTheDocument();
+    // Measure: the sheet prints the title and ovals only, not VoteApp's summary.
+    expect(screen.queryByText(/A parcel tax\./)).not.toBeInTheDocument();
 
     // Toggling back restores the list cards.
     await user.click(screen.getByRole("button", { name: "List view" }));
