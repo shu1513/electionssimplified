@@ -735,10 +735,10 @@ describe("content report API contract constants", () => {
 });
 
 describe("parsePublicAddressResolveBodyValue", () => {
-  it("requires the accepted terms version", async () => {
+  it("accepts a body with no terms version and leaves the field out", async () => {
     const { parsePublicAddressResolveBodyValue } = await import("../../src/api/apiValidation.js");
-    expect(() => parsePublicAddressResolveBodyValue({ address: "1 Main St" })).toThrow(
-      /accepted_terms_version/
+    expect(parsePublicAddressResolveBodyValue({ address: "1 Main St" })).not.toHaveProperty(
+      "accepted_terms_version"
     );
   });
 

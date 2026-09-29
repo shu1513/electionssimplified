@@ -262,7 +262,7 @@ describe("createApiApp", () => {
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 
-  it("refuses to resolve an address without an accepted terms version", async () => {
+  it("resolves an address that carries no terms version", async () => {
     const resolveAddress = vi.fn().mockResolvedValue(resolvedAddress);
 
     const response = await invokeExpressApp(createApiApp({ resolveAddress }), {
@@ -272,15 +272,24 @@ describe("createApiApp", () => {
       headers: { "content-type": "application/json" },
     });
 
-    expect(response.statusCode).toBe(400);
-    expect(response.body).toEqual({
-      error: {
-        code: "invalid_request",
-        message: "Request body must include non-empty string field: accepted_terms_version",
-      },
+    // The web app searches first and asks for agreement over the results, so
+    // a first search arrives without an acceptance and is served.
+    expect(response.statusCode).toBe(200);
+    expect(resolveAddress).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a blank terms version", async () => {
+    const resolveAddress = vi.fn().mockResolvedValue(resolvedAddress);
+
+    const response = await invokeExpressApp(createApiApp({ resolveAddress }), {
+      method: "POST",
+      path: "/api/address/resolve",
+      body: JSON.stringify({ address: "3921 Harlan Ave Baldwin Park CA 91706", accepted_terms_version: "  " }),
+      headers: { "content-type": "application/json" },
     });
-    // The clickwrap is the gate: a caller who accepted nothing gets no search,
-    // however they reached the endpoint.
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error.code).toBe("invalid_request");
     expect(resolveAddress).not.toHaveBeenCalled();
   });
 

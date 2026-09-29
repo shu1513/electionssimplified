@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { APP_NAME, apiRequest, useMe } from "@voteapp/api-client";
@@ -26,6 +26,8 @@ import {
   useBallotDraft,
 } from "../lib/ballotDraft";
 import { useRaceTypeParam } from "../lib/useRaceTypeParam";
+import { hasCurrentTermsAcceptance, rememberTermsAcceptance } from "../lib/termsAcceptance";
+import { PreSearchTermsDialog } from "../components/PreSearchTermsDialog";
 import { EmptyNotice, ErrorNotice, LoadingNotice } from "../components/Status";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { pageMeta } from "../lib/pageMeta";
@@ -73,9 +75,34 @@ export function BallotPage() {
   const location = useLocation();
   const hydrated = useHydrated();
   const routerState = hydrated
-    ? (location.state as { matchedAddress?: unknown; addressMatchCount?: unknown; scope?: unknown } | null)
+    ? (location.state as
+        | { matchedAddress?: unknown; addressMatchCount?: unknown; scope?: unknown; termsPending?: unknown }
+        | null)
     : null;
   const matchedAddress = typeof routerState?.matchedAddress === "string" ? routerState.matchedAddress : null;
+  // The search ran on a browser with no terms acceptance: the clickwrap opens
+  // here, over the results, and the list stays blurred until agreement.
+  // Storage is re-checked on each arrival (a refresh, or a second search
+  // after agreeing elsewhere) rather than trusting the flag alone; it is read
+  // in the effect, never during render, so SSR and hydration agree.
+  const termsPending = routerState?.termsPending === true;
+  const [termsOpen, setTermsOpen] = useState(false);
+  // The dialog's checkbox. Reset every time the dialog opens, never seeded
+  // from storage: a box that arrives pre-ticked shows assent nobody gave.
+  const [termsChecked, setTermsChecked] = useState(false);
+  const termsOpenedAt = useRef<number | null>(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!termsPending || hasCurrentTermsAcceptance()) {
+      return;
+    }
+    setTermsChecked(false);
+    setTermsOpen(true);
+    termsOpenedAt.current = performance.now();
+    track("terms_shown");
+  }, [termsPending]);
+  const termsOpenMs = () =>
+    termsOpenedAt.current === null ? 0 : Math.round(performance.now() - termsOpenedAt.current);
   // Which partial search produced this ballot ("zip" names the ZIP, "region"
   // names the area); null on bare links, where the banner stays generic.
   const partialScope =
@@ -140,6 +167,23 @@ export function BallotPage() {
   // page instead of the site's landing page, and a top bar leads back there.
   const embedHome = embedSession ? getEmbedHome() : null;
   const searchAgainPath = embedHome?.path ?? "/?new=1";
+
+  function agreeToTerms() {
+    if (!termsChecked) {
+      return;
+    }
+    track("terms_decision", { decision: "agree", open_ms: termsOpenMs() });
+    rememberTermsAcceptance();
+    setTermsOpen(false);
+  }
+
+  // Declining means no results: back to the search page, results unread.
+  // Cancel, Escape, and the backdrop all land here.
+  function declineTerms() {
+    track("terms_decision", { decision: "cancel", open_ms: termsOpenMs() });
+    setTermsOpen(false);
+    navigate(searchAgainPath);
+  }
 
   const ballotElections = ballot.data?.elections;
   useEffect(() => {
@@ -223,7 +267,21 @@ export function BallotPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]">
+    // Blurred while the terms dialog is up: the visitor sees that their
+    // elections are there, and reads them after agreeing. The dialog renders
+    // in a portal, so the blur never reaches it.
+    <div
+      className={`mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]${
+        termsOpen ? " blur-sm select-none" : ""
+      }`}
+    >
+      <PreSearchTermsDialog
+        open={termsOpen}
+        checked={termsChecked}
+        onCheckedChange={setTermsChecked}
+        onAgree={agreeToTerms}
+        onCancel={declineTerms}
+      />
       {/* Visible page heading, one step larger than the date group headings
           ("Elections on …") below it, so a first-time visitor landing here
           straight from the address form knows what the list is: THEIR
@@ -265,11 +323,23 @@ export function BallotPage() {
         ) : null}
       </div>
 
-      {/* The always-on "Matched address" confirmation line was dropped as
-          clutter; the warning below is self-contained (it names the matched
-          address) and only appears when the geocoder was ambiguous — the one
-          case where the ballot has a real chance of being for the wrong
-          address. */}
+      {/* One line for the visitor who just typed an address on the landing
+          page: which address these elections are for, and that the address
+          itself was not kept: the address never reaches the database — only
+          the districts ride the URL and the local draft. Guests only, and
+          only when neither banner below already names the address (partial
+          or ambiguous match).
+          Router state, so a refresh keeps it and a shared link never has it.
+          Signed-in visitors saving an address get AddressSavedNotice on
+          their saved ballot instead; a member's one-off search stays quiet.
+          isGuest is false while /api/me is still loading, so the line
+          appears once identity settles rather than flashing for a member. */}
+      {matchedAddress && isGuest && !isPartialBallot && !ambiguousMatchCount ? (
+        <p role="status" className="mt-2 rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink">
+          Elections for <span className="font-medium">{matchedAddress}</span>. Only the election districts were
+          kept — your address is not saved in our database.
+        </p>
+      ) : null}
       {/* ZIP and city searches land here with partial=1 in the URL (the flag
           carries no location, so unlike the matched address it survives
           refreshes and shared links). The ZIP or area name rides router

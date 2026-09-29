@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PRE_SEARCH_AGREEMENT_PARAGRAPHS, TERMS_VERSION } from "@voteapp/api-client";
+import { TERMS_VERSION } from "@voteapp/api-client";
 import { HomePage } from "./HomePage";
 
 const ADDRESS_LABEL = "Enter address to see your elections and candidates:";
@@ -62,19 +62,33 @@ afterEach(() => {
 });
 
 describe("HomePage pre-search clickwrap", () => {
-  it("keeps the landing page free of the gate until Search is pressed", async () => {
+  it("keeps the landing page free of the gate and searches at once on a first visit", async () => {
+    const fetchMock = stubResolveFetch();
     const user = userEvent.setup();
-    renderHome();
+    const { router } = renderHome();
 
     // The wall of legal text is what moved off the page; a first-time visitor
-    // sees an address field, not an agreement.
+    // sees an address field, not an agreement — and no dialog here either:
+    // the ballot page asks over the results.
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     await typeAddress(user);
     await user.click(screen.getByRole("button", { name: "Search" }));
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/ballot");
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // No acceptance on this browser: the request carries no version and the
+    // ballot page is told to ask.
+    const resolveCall = fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve");
+    expect(JSON.parse((resolveCall as [string, { body: string }])[1].body)).toEqual({
+      address: "123 Main St, Austin, TX",
+      allow_partial: true,
+    });
+    expect(router.state.location.state).toMatchObject({ matchedAddress: "123 Main St", termsPending: true });
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
   it("opens on the pitch, with no brand mark of its own", () => {
@@ -193,7 +207,7 @@ describe("HomePage pre-search clickwrap", () => {
       "Your ballot depends on your voting districts, whose boundaries don’t follow ZIP codes"
     );
     expect(dialog).toHaveTextContent("Two homes in the same ZIP can vote in different races.");
-    expect(dialog).toHaveTextContent("We don’t save it to your account");
+    expect(dialog).toHaveTextContent("We do NOT save it to your account");
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 
     const privacyPolicy = screen.getByRole("link", { name: "Read our Privacy Policy" });
@@ -204,162 +218,59 @@ describe("HomePage pre-search clickwrap", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("does not open the dialog without an address", async () => {
-    const user = userEvent.setup();
-    renderHome();
-
-    await user.click(screen.getByRole("button", { name: "Search" }));
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("opens with an empty box, the action disabled, and every document named", async () => {
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    expect(screen.getByRole("checkbox")).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "Agree and search" })).toBeDisabled();
-    for (const paragraph of PRE_SEARCH_AGREEMENT_PARAGRAPHS) {
-      expect(screen.getByRole("dialog")).toHaveTextContent(paragraph);
-    }
-    // Clickwrap adjacency, and opening one must not discard the dialog.
-    for (const [name, href] of [
-      ["Terms of Use", "/terms"],
-      ["Privacy Policy", "/privacy"],
-      ["AI Research and Election Information Disclaimer", "/disclaimer"],
-    ] as const) {
-      const link = screen.getByRole("link", { name });
-      expect(link).toHaveAttribute("href", href);
-      expect(link).toHaveAttribute("target", "_blank");
-    }
-  });
-
-  it("enables the action only once the box is ticked", async () => {
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-
-    expect(screen.getByRole("button", { name: "Agree and search" })).toBeEnabled();
-  });
-
-  it("cancels without searching, without storing, and without losing the address", async () => {
+  it("does not search without an address", async () => {
     const fetchMock = stubResolveFetch();
     const user = userEvent.setup();
     renderHome();
 
-    await typeAddress(user);
     await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(0);
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
-    // Cancelling the terms is not a request to retype an address.
-    expect(screen.getByLabelText(ADDRESS_LABEL)).toHaveValue("123 Main St, Austin, TX");
   });
 
-  it("re-opens with an empty box after a cancel", async () => {
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    expect(screen.getByRole("checkbox")).not.toBeChecked();
-  });
-
-  it("searches on agreement and sends the accepted version", async () => {
+  it("sends the accepted version and no pending flag once this browser has agreed", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: TERMS_VERSION, acceptedAt: Date.now() }));
     const fetchMock = stubResolveFetch();
     const user = userEvent.setup();
-    renderHome();
+    const { router } = renderHome();
 
     await typeAddress(user);
     await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Agree and search" }));
 
     await waitFor(() => {
-      const resolveCall = fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve");
-      expect(resolveCall).toBeDefined();
-      expect(JSON.parse((resolveCall as [string, { body: string }])[1].body)).toEqual({
-        address: "123 Main St, Austin, TX",
-        accepted_terms_version: TERMS_VERSION,
-        allow_partial: true,
-      });
+      expect(router.state.location.pathname).toBe("/ballot");
     });
+    const resolveCall = fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve");
+    expect(JSON.parse((resolveCall as [string, { body: string }])[1].body)).toEqual({
+      address: "123 Main St, Austin, TX",
+      accepted_terms_version: TERMS_VERSION,
+      allow_partial: true,
+    });
+    expect(router.state.location.state).toMatchObject({ termsPending: false });
   });
 
-  it("remembers the acceptance so the next search goes straight through", async () => {
-    stubResolveFetch();
+  // Fails closed: asking once more costs a click, skipping the terms wrongly
+  // costs the agreement.
+  it.each([
+    ["expired", JSON.stringify({ version: TERMS_VERSION, acceptedAt: Date.now() - NINETY_DAYS_MS - 1000 })],
+    ["for superseded terms", JSON.stringify({ version: "0.9", acceptedAt: Date.now() })],
+    ["unreadable", "{not json"],
+  ])("asks again when the stored acceptance is %s", async (_label, stored) => {
+    localStorage.setItem(STORAGE_KEY, stored);
+    const fetchMock = stubResolveFetch();
     const user = userEvent.setup();
-    renderHome();
+    const { router } = renderHome();
 
     await typeAddress(user);
     await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Agree and search" }));
 
     await waitFor(() => {
-      expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+      expect(router.state.location.pathname).toBe("/ballot");
     });
-
-    cleanup();
-    renderHome();
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
-  it("asks again once the stored acceptance expires", async () => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ version: TERMS_VERSION, acceptedAt: Date.now() - NINETY_DAYS_MS - 1000 })
+    const resolveCall = fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve");
+    expect(JSON.parse((resolveCall as [string, { body: string }])[1].body)).not.toHaveProperty(
+      "accepted_terms_version"
     );
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByRole("checkbox")).not.toBeChecked();
-  });
-
-  it("asks again when the stored acceptance is for superseded terms", async () => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ version: "0.9", acceptedAt: Date.now() })
-    );
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
-  });
-
-  it("asks again when the stored acceptance is unreadable", async () => {
-    localStorage.setItem(STORAGE_KEY, "{not json");
-    const user = userEvent.setup();
-    renderHome();
-
-    await typeAddress(user);
-    await user.click(screen.getByRole("button", { name: "Search" }));
-
-    // Fails closed: showing the terms once more costs a click, skipping them
-    // wrongly costs the agreement.
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(router.state.location.state).toMatchObject({ termsPending: true });
   });
 });
 
@@ -369,8 +280,6 @@ describe("HomePage ZIP partial flow", () => {
   async function searchFor(user: ReturnType<typeof userEvent.setup>, input: string) {
     await user.type(screen.getByLabelText(ADDRESS_LABEL), input);
     await user.click(screen.getByRole("button", { name: "Search" }));
-    await user.click(screen.getByRole("checkbox"));
-    await user.click(screen.getByRole("button", { name: "Agree and search" }));
   }
 
   it("routes a ZIP result to the ballot with partial=1 and clears any pending handoff", async () => {

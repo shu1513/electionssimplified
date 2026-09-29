@@ -2764,16 +2764,16 @@ async function dispatchApiRequest(
   }
 
   const payload = parsePublicAddressResolveBodyValue(request.body);
-  // The clickwrap is enforced here, not only in the browser: a search is the
-  // act the terms gate, so the endpoint refuses to perform one without a
-  // current-version acceptance. Nothing about the acceptance is stored — the
-  // visitor is anonymous, and the evidence that matters (what the gate said,
-  // and that it could not be bypassed) lives in this code and in
-  // docs/legal/, not in a row naming their IP address.
-  // An unknown version is refused outright, the same rule registration
-  // follows; a listed grace version (stale bundle showing the documents it
-  // names) is accepted — see GRACE_TERMS_VERSIONS.
-  if (!isAcceptableTermsVersion(payload.accepted_terms_version)) {
+  // The web app searches first and asks for agreement over the results
+  // (docs/legal/checkbox-copy.md, 2026-09-28), so a first search arrives with
+  // no accepted_terms_version and is served. A version that IS sent must be
+  // acceptable: an unknown one means a stale bundle showing documents that
+  // are no longer current, and is refused the same way registration refuses
+  // it; a listed grace version is accepted — see GRACE_TERMS_VERSIONS.
+  // Nothing about the acceptance is stored either way — the visitor is
+  // anonymous. Abuse is bounded by the per-IP rate limit middleware, not by
+  // this field, which any direct caller could always have filled in.
+  if (payload.accepted_terms_version !== undefined && !isAcceptableTermsVersion(payload.accepted_terms_version)) {
     sendApiResponse(
       response,
       toErrorResponse(

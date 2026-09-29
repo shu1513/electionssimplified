@@ -201,7 +201,10 @@ export type AddressResolvePayload = {
  * visitor is anonymous, and no row naming their IP address is written.
  */
 export type PublicAddressResolvePayload = AddressResolvePayload & {
-  accepted_terms_version: string;
+  /** Present when the client already holds a terms acceptance; the web app
+   * searches first and asks for agreement over the results, so a first
+   * search carries none. When present it must name an acceptable version. */
+  accepted_terms_version?: string;
   /** Optional lat/lng from the Google Places autocomplete selection; lets the
    * resolver look districts up by point when the Census street-range data
    * lacks the address (stadiums, campuses). Absent for hand-typed input. */
@@ -457,8 +460,12 @@ function parseOptionalCoordinatesField(parsed: unknown): { lat: number; lng: num
 export function parsePublicAddressResolveBodyValue(parsed: unknown): PublicAddressResolvePayload {
   const { address } = parseAddressBodyValue(parsed);
   const acceptedTermsVersion = (parsed as { accepted_terms_version?: unknown }).accepted_terms_version;
-  if (typeof acceptedTermsVersion !== "string" || acceptedTermsVersion.trim().length === 0) {
-    throw new RequestValidationError("Request body must include non-empty string field: accepted_terms_version");
+  let acceptedVersion: string | undefined;
+  if (acceptedTermsVersion !== undefined) {
+    if (typeof acceptedTermsVersion !== "string" || acceptedTermsVersion.trim().length === 0) {
+      throw new RequestValidationError("accepted_terms_version must be a non-empty string when present");
+    }
+    acceptedVersion = acceptedTermsVersion.trim();
   }
 
   const allowPartial = (parsed as { allow_partial?: unknown }).allow_partial;
@@ -484,7 +491,7 @@ export function parsePublicAddressResolveBodyValue(parsed: unknown): PublicAddre
 
   return {
     address,
-    accepted_terms_version: acceptedTermsVersion.trim(),
+    ...(acceptedVersion !== undefined ? { accepted_terms_version: acceptedVersion } : {}),
     coordinates: parseOptionalCoordinatesField(parsed),
     allow_partial: allowPartial ?? false,
     ...(regionState !== undefined ? { region_state: regionState.toUpperCase() } : {}),

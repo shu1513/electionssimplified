@@ -1,17 +1,15 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useId } from "react";
-import {
-  ADDRESS_FIELD_PRIVACY_NOTE,
-  PRE_SEARCH_AGREEMENT_PARAGRAPHS,
-  PRE_SEARCH_CHECKBOX_LABEL,
-} from "@voteapp/api-client";
+import { ADDRESS_FIELD_PRIVACY_NOTE, PRE_SEARCH_CHECKBOX_LABEL } from "@voteapp/api-client";
 import { track } from "../lib/usage";
 
-// The anonymous clickwrap, deferred to the moment it gates something. The
-// landing page carries no checkbox and no legal box: assent is asked for when
-// the visitor asks for the service, which is where the clickwrap cases put it
-// (Meyer v. Uber). The weak pattern is notice sitting apart from the action —
-// Nicosia v. Amazon turned on exactly that.
+// The anonymous clickwrap, deferred to the moment it gates something: the
+// ballot page opens it over a first search's results (BallotPage,
+// termsPending), and the results are read only after agreement. The landing
+// page carries no checkbox and no legal box — assent is asked for when the
+// visitor is about to get the service, which is where the clickwrap cases put
+// it (Meyer v. Uber). The weak pattern is notice sitting apart from the action
+// — Nicosia v. Amazon turned on exactly that.
 //
 // Requirements this encodes:
 // - checkbox starts empty, every single time the dialog opens
@@ -21,10 +19,18 @@ import { track } from "../lib/usage";
 //   PRE_SEARCH_CHECKBOX_LABEL), those links carry the whole of the notice:
 //   named, adjacent, and reachable before agreeing. Nothing here may move to
 //   the footer or turn into a bare "Terms" label.
-// - the button names what it does ("Agree and search"), not "Continue"
+// - the button names what it does ("Agree and show results"), not "Continue"
 // - documents open in a new tab, so reading one does not discard the dialog
-//   or the address already typed
-// - Cancel, Escape, and the backdrop close without agreeing to anything
+//   or the results behind it
+// - Cancel, Escape, and the backdrop close without agreeing to anything (the
+//   ballot page then leaves the results)
+//
+// The body carries the one privacy line and nothing else. The two disclaimer
+// paragraphs (PRE_SEARCH_AGREEMENT_PARAGRAPHS) came out on 2026-09-28: they
+// restated the linked Disclaimer as scare copy at the moment of assent, and
+// the same warning still reaches every reader on the results page
+// (VERIFY_WITH_OFFICIALS_NOTE) — the audience that never saw a dialog at
+// all. Presentation-only, no version bump; see docs/legal/checkbox-copy.md.
 //
 // Built on Headless UI's Dialog like ReportContentButton: focus trapping,
 // Escape, and scroll locking come from the library.
@@ -44,41 +50,20 @@ type PreSearchTermsDialogProps = {
   onCheckedChange: (checked: boolean) => void;
   onAgree: () => void;
   onCancel: () => void;
-  pending: boolean;
 };
 
-export function PreSearchTermsDialog({
-  open,
-  checked,
-  onCheckedChange,
-  onAgree,
-  onCancel,
-  pending,
-}: PreSearchTermsDialogProps) {
+export function PreSearchTermsDialog({ open, checked, onCheckedChange, onAgree, onCancel }: PreSearchTermsDialogProps) {
   const checkboxId = useId();
   return (
-    <Dialog
-      open={open}
-      // A search in flight must not be interrupted by a stray Escape or
-      // backdrop click; the buttons below are disabled for the same reason.
-      onClose={pending ? () => undefined : onCancel}
-      className="relative z-40"
-    >
+    <Dialog open={open} onClose={onCancel} className="relative z-40">
       <DialogBackdrop className="fixed inset-0 bg-ink/40" />
       <div className="fixed inset-0 overflow-y-auto p-4">
         <div className="flex min-h-full items-center justify-center">
           <DialogPanel className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <DialogTitle className="text-lg font-bold text-ink">Before we search</DialogTitle>
-            <div className="mt-3 text-sm text-ink-soft">
-              {PRE_SEARCH_AGREEMENT_PARAGRAPHS.map((paragraph) => (
-                <p key={paragraph} className="mt-2 first:mt-0">
-                  {paragraph}
-                </p>
-              ))}
-              {/* One short, true privacy line, not a restatement of Privacy
-                  Policy Section 1 — the policy itself is linked below. */}
-              <p className="mt-2">{ADDRESS_FIELD_PRIVACY_NOTE}</p>
-            </div>
+            <DialogTitle className="text-lg font-bold text-ink">Your elections are ready</DialogTitle>
+            {/* One short, true privacy line, not a restatement of Privacy
+                Policy Section 1 — the policy itself is linked below. */}
+            <p className="mt-3 text-sm text-ink-soft">{ADDRESS_FIELD_PRIVACY_NOTE}</p>
 
             <div className="mt-4 rounded-xl border border-line bg-surface p-4 text-sm text-ink">
               <label htmlFor={checkboxId} className="flex cursor-pointer items-start gap-3">
@@ -111,18 +96,17 @@ export function PreSearchTermsDialog({
               <button
                 type="button"
                 onClick={onCancel}
-                disabled={pending}
-                className="rounded-lg border border-line px-4 py-2.5 font-semibold text-ink transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-line px-4 py-2.5 font-semibold text-ink transition hover:bg-surface"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={onAgree}
-                disabled={!checked || pending}
+                disabled={!checked}
                 className="rounded-lg bg-rausch px-5 py-2.5 font-semibold text-white transition hover:bg-rausch-dark disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-rausch"
               >
-                {pending ? "Searching…" : "Agree and search"}
+                Agree and show results
               </button>
             </div>
           </DialogPanel>
