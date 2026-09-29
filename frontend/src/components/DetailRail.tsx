@@ -215,18 +215,11 @@ export function DetailRail({
           <span aria-hidden="true">← </span>
           {backTo.label}
         </Link>
-        {/* One divider, right under the back link: everything below it — the
-          header slot's label/controls and the rows — reads as one panel.
-          Without a header slot the divider moves down to keep separating
-          the back link from the rows. */}
-        {headerSlot ? (
-          <div className="mr-3 mt-3 border-t border-rail-line px-3 pt-3">
-            {headerSlot}
-          </div>
-        ) : null}
-        <ul
-          className={`mt-3 space-y-1 ${headerSlot ? "" : "mr-3 border-t border-rail-line pt-3"}`}
-        >
+        {/* No divider under the back link: on the tinted panel the title
+          and controls read as one block with it (the mockup's "← All
+          elections" / "Your ballot"); spacing alone separates them. */}
+        {headerSlot ? <div className="mr-3 mt-4 px-3">{headerSlot}</div> : null}
+        <ul className="mt-3 space-y-1">
           {main.map((entry, index) => [
             // role="presentation": a heading, not a list item — the rows keep
             // their count for assistive tech.
