@@ -153,13 +153,3 @@ body:has([data-sticky-pick-cta]) .chat-launcher {
     width: 100%;
   }
 }
-
-/* Scrolls without a visible scrollbar (wheel, trackpad, and keyboard still
-   work). The detail rail uses it: a second scrollbar beside the page's own
-   read as clutter, and the rail scrolls its current row into view itself. */
-@utility scrollbar-none {
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
