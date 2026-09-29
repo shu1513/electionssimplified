@@ -30,13 +30,17 @@ export type RailEntry = {
 function PickedAnswer({ label }: { label: string }) {
   return (
     <>
+      {/* Below lg the answer is visually hidden but still read: one sr-only
+          run carrying the whole phrase, so a screen reader never hears a
+          dangling "my pick:". At lg the visible pair replaces it. */}
+      <span className="sr-only lg:hidden">, my pick: {label}</span>
       <span
         aria-hidden="true"
         className="hidden shrink-0 text-ink-soft lg:inline"
       >
         ·
       </span>
-      <span className="sr-only">, my pick: </span>
+      <span className="sr-only hidden lg:inline">, my pick: </span>
       <span className="hidden max-w-[45%] shrink-0 truncate text-xs font-semibold text-green-700 lg:inline">
         {label}
       </span>

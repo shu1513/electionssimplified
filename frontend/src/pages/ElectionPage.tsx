@@ -599,7 +599,7 @@ export function ElectionPage() {
             label: contest.title,
             path: `/elections/${contest.id}`,
             picked: isPickedContest(contest.id),
-            pickedLabel: choicePickedLabel(railChoices?.get(contest.id)),
+            pickedLabel: choicePickedLabel(railChoices?.get(contest.id), contest.retention === true),
             // The list's section headings, only under the sort that mirrors
             // them; retention rows form the rail's fold-away tail.
             ...(isRailDistrictSort(railSort) && contest.group !== undefined
