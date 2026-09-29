@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, isDecidedChoice, myDraftLabel, nearestDayDraftProgress, useElectionChoices, useMe } from "@voteapp/api-client";
 import type { BallotSummary, DraftProgress, PickProgress } from "@voteapp/api-client";
@@ -97,4 +98,37 @@ export function useGuestDraftNav(): { to: string; label: string; complete: boole
     return { to: "/draft", label: "My Draft", complete: false };
   }
   return null;
+}
+
+/**
+ * The guest's picked count behind the header link's label: the target
+ * day's progress when there is one, else the deep-link pick count. Feeds
+ * useDraftPulse, which only cares whether the number went up.
+ */
+export function useGuestPickedCount(): number {
+  const draft = useBallotDraft();
+  const progress = useGuestPickProgress();
+  return progress ? progress.picked : draftPickCount(draft);
+}
+
+/**
+ * The header counter's "something landed" beat: a serial that advances
+ * each time the picked count RISES (a pick, an auto-fill), so the link can
+ * replay a short pulse and teach where the running total lives. Never on
+ * first load (no previous number to rise from), never on a removal, and a
+ * null gap (choices refetching) neither pulses nor resets the baseline.
+ */
+export function useDraftPulse(picked: number | null): number {
+  const [pulse, setPulse] = useState(0);
+  const previous = useRef<number | null>(null);
+  useEffect(() => {
+    if (picked === null) {
+      return;
+    }
+    if (previous.current !== null && picked > previous.current) {
+      setPulse((n) => n + 1);
+    }
+    previous.current = picked;
+  }, [picked]);
+  return pulse;
 }

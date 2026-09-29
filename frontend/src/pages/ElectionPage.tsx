@@ -55,6 +55,7 @@ import { RetentionJudgeSection } from "../components/RetentionJudgeSection";
 import { CandidatePickButton, MeasureChoiceButtons, StrandedPicksNotice } from "../components/ElectionChoiceControls";
 import { PostPickActions } from "../components/PostPickActions";
 import { DraftToast } from "../components/DraftToast";
+import { hasDraftToastBeenSeen } from "../lib/draftToastSeen";
 import { draftChoicesByElectionId, isDecidedChoice, useBallotDraft } from "../lib/ballotDraft";
 import { choicePickedLabel } from "../lib/choicePickedLabel";
 import { useMyDistricts } from "../lib/useMyDistricts";
@@ -1332,9 +1333,17 @@ export function ElectionPage() {
                             seatsToFill={data.seats_to_fill ?? null}
                             size="sm"
                             surface="election_inline"
-                            onPicked={() =>
-                              setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }))
-                            }
+                            onPicked={() => {
+                              // First SHOWING on this browser only: the
+                              // toast is a lesson, not a receipt, and marks
+                              // itself seen once it is actually on screen
+                              // (a split-view mount is hidden and doesn't
+                              // count — see DraftToast).
+                              if (hasDraftToastBeenSeen()) {
+                                return;
+                              }
+                              setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }));
+                            }}
                           />
                         </span>
                       ) : null}

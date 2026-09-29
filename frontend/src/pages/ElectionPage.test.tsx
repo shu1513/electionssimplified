@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { ElectionPage, ErrorBoundary } from "./ElectionPage";
 import { ElectionList } from "../components/ElectionCard";
 import { clearBallotDraft, readBallotDraft, setDraftBallotContext, setDraftCandidateChoice } from "../lib/ballotDraft";
+import { DRAFT_TOAST_SEEN_KEY } from "../lib/draftToastSeen";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import {
@@ -19,6 +20,12 @@ import {
 import type { ElectionDetail } from "@voteapp/api-client";
 
 const ANONYMOUS = { "/api/me": apiError(401, "unauthorized", "Not logged in") };
+
+// The post-pick toast shows once per browser; tests that expect it start
+// from a browser that has never seen it.
+function resetDraftToastSeen() {
+  window.localStorage.removeItem(DRAFT_TOAST_SEEN_KEY);
+}
 
 // The subject arrives via the route loader (server-fetched in production);
 // tests supply it directly instead of stubbing the loader's fetch.
@@ -979,6 +986,7 @@ describe("ElectionPage", () => {
 
   it("shows a brief draft-link toast after a roster pick, then removes it", async () => {
     clearBallotDraft();
+    resetDraftToastSeen();
     setDraftBallotContext([DISTRICT.id], null);
     stubApiRoutes({ ...ANONYMOUS });
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -1016,8 +1024,43 @@ describe("ElectionPage", () => {
     }
   });
 
+  it("shows the post-pick toast only for the first pick on this browser", async () => {
+    clearBallotDraft();
+    resetDraftToastSeen();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const { unmount } = renderElection(() => electionDetail());
+
+      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+      expect(await screen.findByRole("link", { name: "My Draft (1)" })).toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(6500);
+      });
+      expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
+
+      // A second pick, same page: no toast.
+      await user.click(await screen.findByRole("button", { name: "Make my pick: Riley Runner" }));
+      expect(await screen.findByRole("button", { name: "✓ My pick: Riley Runner" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
+
+      // A later visit on the same browser: still no toast.
+      unmount();
+      renderElection(() => electionDetail());
+      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+      expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+      clearBallotDraft();
+    }
+  });
+
   it("turns the post-pick toast link green only once the draft is complete", async () => {
     clearBallotDraft();
+    resetDraftToastSeen();
     // A one-race ballot: this pick completes the draft.
     setDraftBallotContext([DISTRICT.id], { election_date: "2026-11-03", election_ids: ["e-1"] });
     stubApiRoutes({ ...ANONYMOUS });
@@ -1031,6 +1074,7 @@ describe("ElectionPage", () => {
 
   it("hides the post-pick toast in split view, where the rail's progress bar already confirms", async () => {
     clearBallotDraft();
+    resetDraftToastSeen();
     setDraftBallotContext([DISTRICT.id], null);
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail(), "e-1", {
@@ -1049,6 +1093,7 @@ describe("ElectionPage", () => {
   });
 
   it("shows signed-in viewers the account draft link in the post-pick toast", async () => {
+    resetDraftToastSeen();
     stubApiRoutes({
       "/api/me": { body: ME_VERIFIED },
       "/api/me/districts": { body: MY_DISTRICTS },
