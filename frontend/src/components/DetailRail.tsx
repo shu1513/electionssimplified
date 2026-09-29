@@ -13,9 +13,40 @@ export type RailEntry = {
   label: string;
   path: string;
   picked?: boolean;
+  /** The decided answer shown at the row's right edge on wide screens: the
+   * picked name(s), or Yes / No. Absent or null = nothing shown. */
+  pickedLabel?: string | null;
   group?: string;
   retention?: boolean;
 };
+
+// The answer beside a decided race: right after the title, a muted dot
+// between them, so it reads as one line ("City Council, District 7 · Aidan
+// Hill") rather than a value pushed to the far edge. Only from lg (64rem),
+// where the rail widens to 22rem: at the 54rem rail breakpoint the 18rem
+// rail has no room for it, and the circle alone carries "decided" there.
+// The title truncates first; the answer keeps up to 45% of the row. The
+// sr-only lead-in keeps it readable as "Governor, my pick: Katie Porter".
+function PickedAnswer({ label }: { label: string }) {
+  return (
+    <>
+      {/* Below lg the answer is visually hidden but still read: one sr-only
+          run carrying the whole phrase, so a screen reader never hears a
+          dangling "my pick:". At lg the visible pair replaces it. */}
+      <span className="sr-only lg:hidden">, my pick: {label}</span>
+      <span
+        aria-hidden="true"
+        className="hidden shrink-0 text-ink-soft lg:inline"
+      >
+        ·
+      </span>
+      <span className="sr-only hidden lg:inline">, my pick: </span>
+      <span className="hidden max-w-[45%] shrink-0 truncate text-xs font-semibold text-green-700 lg:inline">
+        {label}
+      </span>
+    </>
+  );
+}
 
 // Empty ring before an undecided race — the blank on the ballot waiting
 // to be filled; PickedCheck takes its place once the race is decided.
@@ -53,8 +84,11 @@ function PickedCheck() {
 // Headings sit a clear step lighter than the rows (rows are ink-mid), in a
 // smaller, wider-tracked uppercase, with room above each section — the
 // same treatment the list page's section labels use.
+// The mockup's group label: 11px bold, .08em tracking, a light warm grey
+// (rail-heading), 10px above and 6px below; first label ~26px under the
+// header controls, 20px between one group's last row and the next label.
 const HEADING_CLASS =
-  "px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-soft";
+  "px-3 text-[11px] font-bold uppercase tracking-[.08em] text-rail-heading";
 
 /**
  * The desktop master–detail rail: the sibling list the visitor arrived with,
@@ -154,6 +188,7 @@ export function DetailRail({
             <span className="sr-only"> ({pickedSrLabel})</span>
           ) : null}
         </span>
+        {entry.pickedLabel ? <PickedAnswer label={entry.pickedLabel} /> : null}
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
@@ -185,6 +220,9 @@ export function DetailRail({
               <span className="sr-only"> ({pickedSrLabel})</span>
             ) : null}
           </span>
+          {entry.pickedLabel ? (
+            <PickedAnswer label={entry.pickedLabel} />
+          ) : null}
         </Link>
       </li>
     );
@@ -210,23 +248,16 @@ export function DetailRail({
           onClick={() =>
             track("detail_control", { control: "pager_back", value: "none" })
           }
-          className="block truncate px-3 text-sm font-semibold text-ink-soft transition hover:text-ink"
+          className="block truncate px-3 text-[13px] font-semibold text-ink-soft transition hover:text-ink"
         >
           <span aria-hidden="true">← </span>
           {backTo.label}
         </Link>
-        {/* One divider, right under the back link: everything below it — the
-          header slot's label/controls and the rows — reads as one panel.
-          Without a header slot the divider moves down to keep separating
-          the back link from the rows. */}
-        {headerSlot ? (
-          <div className="mr-3 mt-3 border-t border-rail-line px-3 pt-3">
-            {headerSlot}
-          </div>
-        ) : null}
-        <ul
-          className={`mt-3 space-y-1 ${headerSlot ? "" : "mr-3 border-t border-rail-line pt-3"}`}
-        >
+        {/* No divider under the back link: on the tinted panel the title
+          and controls read as one block with it (the mockup's "← All
+          elections" / "Your ballot"); spacing alone separates them. */}
+        {headerSlot ? <div className="mr-3 mt-4 px-3">{headerSlot}</div> : null}
+        <ul className="mt-2.5 space-y-1">
           {main.map((entry, index) => [
             // role="presentation": a heading, not a list item — the rows keep
             // their count for assistive tech.
@@ -235,9 +266,11 @@ export function DetailRail({
               <li
                 key={`heading:${entry.id}`}
                 role="presentation"
-                className={index > 0 ? "pt-4" : ""}
+                className={index > 0 ? "pt-2.5" : "pt-1"}
               >
-                <p className={`pb-1 ${HEADING_CLASS}`}>{entry.group}</p>
+                <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>
+                  {entry.group}
+                </p>
               </li>
             ) : null,
             renderRow(entry),

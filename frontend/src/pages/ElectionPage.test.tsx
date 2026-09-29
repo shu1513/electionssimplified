@@ -2809,7 +2809,20 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     const bar = await within(rail).findByRole("progressbar", { name: "1 of 3 races decided" });
     expect(bar).toHaveAttribute("aria-valuemax", "3");
     expect(bar).toHaveAttribute("aria-valuenow", "1");
-    expect(within(rail).getByText("1/3")).toBeInTheDocument();
+    expect(within(rail).getByText("1/3")).toHaveClass("text-ink-soft");
+    // Decide the rest: the count turns green.
+    for (const [electionId, raceTitle] of [["e-1", "Governor"], ["e-2", "Proposition 33"]] as const) {
+      setDraftCandidateChoice({
+        electionId,
+        raceTitle,
+        electionDate: "2026-11-03",
+        seatsToFill: null,
+        candidateId: "c-1",
+        candidateName: "Jordan Voter",
+        chosen: true,
+      });
+    }
+    await waitFor(() => expect(within(rail).getByText("3/3")).toHaveClass("text-green-700"));
     clearBallotDraft();
   });
 
@@ -2844,6 +2857,8 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     await waitFor(() =>
       expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("(decided)")
     );
+    // The decided answer rides at the row's right edge (shown from lg).
+    expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("my pick: Jordan Voter");
     expect(within(rail).getByTitle("Proposition 4").querySelector("svg")).not.toBeNull();
     // Undecided rows keep their plain label and no check.
     const plainRow = within(rail).getByTitle("Proposition 33");
