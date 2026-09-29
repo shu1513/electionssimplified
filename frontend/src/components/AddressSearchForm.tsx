@@ -5,10 +5,9 @@ import { apiRequest, TERMS_VERSION, useMe } from "@voteapp/api-client";
 import type { AddressLocation, AddressResolution } from "@voteapp/api-client";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { FullAddressExplanation } from "./FullAddressExplanation";
-import { PreSearchTermsDialog } from "./PreSearchTermsDialog";
 import { ErrorNotice } from "./Status";
 import { clearPendingDistrictIds, savePendingDistrictIds } from "../lib/pendingDistricts";
-import { hasCurrentTermsAcceptance, rememberTermsAcceptance } from "../lib/termsAcceptance";
+import { hasCurrentTermsAcceptance } from "../lib/termsAcceptance";
 import { errorCategoryOf, track } from "../lib/usage";
 
 // Below Tailwind's sm breakpoint the landing swaps the autofocused cursor
@@ -23,10 +22,12 @@ function isPhoneWidth(): boolean {
 }
 
 /**
- * The address search: field with suggestions, Search button, the terms
- * dialog on a browser's first search, and the hop to the ballot page. One
- * component so the landing page and the newsroom box run the SAME search
- * (same clickwrap, same partial-ballot paths, same usage events).
+ * The address search: field with suggestions, Search button, and the hop to
+ * the ballot page. The search runs at once; on a browser with no terms
+ * acceptance the ballot page opens the terms dialog over the results
+ * (termsPending in router state). One component so the landing page and the
+ * newsroom box run the SAME search (same partial-ballot paths, same usage
+ * events).
  *
  * "landing" is the home page's centred, Google-style form with its focus
  * helpers; "compact" is a tighter form for the box, with no focus grabbing
@@ -67,18 +68,11 @@ export function AddressSearchForm({
   // ZIP / region) has not landed, so a quick Enter would send a bare area
   // string to the geocoder and 422.
   const [retrievePending, setRetrievePending] = useState(false);
-  const [termsOpen, setTermsOpen] = useState(false);
-  // The dialog's checkbox. Reset to false every time the dialog opens, never
-  // seeded from storage: remembering may decide whether the dialog opens, and
-  // nothing more. A box that arrives pre-ticked shows assent nobody gave.
-  const [accepted, setAccepted] = useState(false);
   // Usage analytics bookkeeping (docs/plans/usage-analytics.md): first real
-  // input once per visit, whether the current value came from a suggestion,
-  // and how long the terms dialog stayed open. Refs — none of it renders.
+  // input once per visit, and whether the current value came from a
+  // suggestion. Refs — none of it renders.
   const inputTracked = useRef(false);
   const lastGranularity = useRef<"address" | "zip" | "region" | "unsupported" | null>(null);
-  const termsOpenedAt = useRef<number | null>(null);
-  const termsOpenMs = () => (termsOpenedAt.current === null ? 0 : Math.round(performance.now() - termsOpenedAt.current));
 
   // Google-style stray-typing catch: a click on empty page space moves focus
   // off the address box, and the next keystrokes would silently go nowhere.
@@ -93,9 +87,7 @@ export function AddressSearchForm({
   //  - never from inside any role="dialog" overlay — this page does not own
   //    them all (TermsRenewalGate for stale signed-in terms, the chat panel
   //    for signed-in visitors), and a letter pressed on a modal's button must
-  //    not drop focus behind the overlay,
-  //  - never while the terms dialog is open (belt for the case above while
-  //    its focus trap is still settling).
+  //    not drop focus behind the overlay.
   // Registered per-render but removed on cleanup, so the listener exists
   // only while the landing page is mounted.
   useEffect(() => {
@@ -103,7 +95,7 @@ export function AddressSearchForm({
       return;
     }
     function redirectStrayTyping(e: KeyboardEvent) {
-      if (termsOpen || e.defaultPrevented || e.isComposing) {
+      if (e.defaultPrevented || e.isComposing) {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) {
@@ -127,7 +119,7 @@ export function AddressSearchForm({
     }
     document.addEventListener("keydown", redirectStrayTyping);
     return () => document.removeEventListener("keydown", redirectStrayTyping);
-  }, [focusHelpers, termsOpen]);
+  }, [focusHelpers]);
 
   // Desktop keeps the Google-style cursor-in-box on load, but via an effect
   // rather than the autoFocus prop: React SSRs autoFocus as a real autofocus
@@ -148,23 +140,25 @@ export function AddressSearchForm({
       address: string;
       coordinates: AddressLocation | null;
       region: { state: string; locality: string | null } | null;
+      /** This browser already holds a current terms acceptance. */
+      termsAccepted: boolean;
     }) => {
       // The address_result usage event is recorded here, inside the mutation
       // function, so it lands even if this page unmounts before the reply.
       // It carries outcome and latency only — never the address.
       const started = performance.now();
       try {
-        // The accepted version rides along because the endpoint enforces the
-        // clickwrap too, refusing a search that carries no current acceptance.
-        // Nothing is stored server-side; the disabled button is a courtesy, and
-        // the endpoint is the actual gate. Coordinates (from the autocomplete
-        // selection, when present) let the backend resolve venue addresses the
-        // Census street data lacks.
+        // The accepted version rides along only when this browser holds one:
+        // a first search runs before agreement, and the ballot page asks for
+        // it over the results. The endpoint serves a search without the
+        // field and refuses a stale version. Coordinates (from the
+        // autocomplete selection, when present) let the backend resolve
+        // venue addresses the Census street data lacks.
         const resolution = await apiRequest<AddressResolution>("/api/address/resolve", {
           method: "POST",
           body: {
             address: input.address,
-            accepted_terms_version: TERMS_VERSION,
+            ...(input.termsAccepted ? { accepted_terms_version: TERMS_VERSION } : {}),
             // Opt in to the ZIP/region partial-ballot paths: this page renders
             // the partial banner and scope-aware errors, so a bare ZIP or a
             // picked city gets a partial ballot here instead of a dead-end 422.
@@ -192,7 +186,7 @@ export function AddressSearchForm({
         throw error;
       }
     },
-    onSuccess: (resolution) => {
+    onSuccess: (resolution, input) => {
       // Stash for the anonymous-to-account handoff: if this visitor signs up,
       // these districts become their saved ballot once they verify. Save only
       // when identity is KNOWN to be logged out or unverified — while /api/me
@@ -226,14 +220,13 @@ export function AddressSearchForm({
           // Lets the partial banner name the search ("ZIP code 91706" vs
           // "Los Angeles, CA, USA"); a bare link renders generic wording.
           scope: resolution.scope,
+          // No acceptance on this browser yet: the ballot page opens the
+          // terms dialog over the results. Router state like the address —
+          // a shared link never carries it, a refresh keeps it (and the
+          // page re-checks storage, so an agreement given since is honored).
+          termsPending: !input.termsAccepted,
         },
       });
-    },
-    onError: () => {
-      // Surface the failure on the page rather than inside the dialog. The
-      // acceptance is already recorded, so the retry goes straight through
-      // instead of asking the visitor to agree a second time.
-      setTermsOpen(false);
     },
   });
 
@@ -252,36 +245,12 @@ export function AddressSearchForm({
     track("address_submit", { via_suggestion: lastGranularity.current !== null });
     // Storage is read here, in the handler, and never during render: reading
     // it while rendering would diverge from the server-rendered HTML.
-    if (hasCurrentTermsAcceptance()) {
-      resolve.mutate({ address: address.trim(), coordinates: addressLocation, region: regionSelection });
-      return;
-    }
-    setAccepted(false);
-    termsOpenedAt.current = performance.now();
-    track("terms_shown");
-    setTermsOpen(true);
-  }
-
-  function agreeAndSearch() {
-    if (!accepted || resolve.isPending) {
-      return;
-    }
-    track("terms_decision", { decision: "agree", open_ms: termsOpenMs() });
-    // Recorded before the request, so a failed search does not re-ask for an
-    // agreement the visitor already gave.
-    rememberTermsAcceptance();
-    resolve.mutate({ address: address.trim(), coordinates: addressLocation, region: regionSelection });
-  }
-
-  function cancelTerms() {
-    if (resolve.isPending) {
-      return;
-    }
-    track("terms_decision", { decision: "cancel", open_ms: termsOpenMs() });
-    setTermsOpen(false);
-    setAccepted(false);
-    // The typed address is deliberately left alone — cancelling the terms is
-    // not a request to retype an address.
+    resolve.mutate({
+      address: address.trim(),
+      coordinates: addressLocation,
+      region: regionSelection,
+      termsAccepted: hasCurrentTermsAcceptance(),
+    });
   }
 
   return (
@@ -378,15 +347,6 @@ export function AddressSearchForm({
             <ErrorNotice error={resolve.error} />
           </div>
         ) : null}
-
-      <PreSearchTermsDialog
-        open={termsOpen}
-        checked={accepted}
-        onCheckedChange={setAccepted}
-        onAgree={agreeAndSearch}
-        onCancel={cancelTerms}
-        pending={resolve.isPending}
-      />
     </>
   );
 }

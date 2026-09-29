@@ -182,7 +182,7 @@ page: `summary`, `stance`, `finance`, `track_record`, `pick_card`.
 | `address_suggestion` | suggestion selected | `granularity` (`address\|zip\|region\|unsupported`) |
 | `why_address_open` | explainer opened | `after_input` (bool) |
 | `address_submit` | form `submit` (covers Enter and the button) | `via_suggestion` (bool) |
-| `terms_shown` / `terms_decision` | pre-search dialog | `decision` (`agree\|cancel\|dismiss`), `doc_opened` (`terms\|privacy\|disclaimer\|none`), `open_ms` |
+| `terms_shown` / `terms_decision` | terms dialog (web: over the first results on the ballot page; mobile: before search) | `decision` (`agree\|cancel\|dismiss`), `doc_opened` (`terms\|privacy\|disclaimer\|none`), `open_ms` |
 | `address_result` | resolve settled | `outcome` (`exact\|zip\|region\|error`), `error_category?`, `latency_ms` |
 | `ballot_result` | `/api/ballot` or `/api/me/ballot` settled on a list page | `outcome` (`ready\|empty\|error`), `scope`, `states` (≤ 3 codes), `election_count_bucket`, `district_count_bucket`, `partial_banner`, `ambiguous_banner` |
 | `list_control` | sort / filter / tab / how-to-vote | `control` (`sort\|filter_issues\|filter_impact\|show_all\|race_tab\|how_to_vote\|how_to_vote_link\|followed_first\|view_toggle`), `value` (enum, bounded) |

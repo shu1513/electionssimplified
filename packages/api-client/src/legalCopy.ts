@@ -5,14 +5,13 @@
 
 export const TERMS_VERSION = "1.5";
 
-// The pre-search clickwrap is split in two: a one-sentence label naming every
-// document, plus a dialog holding the two sentences a first-time visitor has
-// to read before results mean anything. Three paragraphs of small print above
-// the Search button was skimmed past, which is the failure mode a clickwrap
-// cannot afford; a summary the visitor actually reads, with the full text one
-// click away and re-shown at the moment of agreement, is the pattern the
-// clickwrap cases reward (Meyer v. Uber; Berman v. Freedom Financial; Sellers
-// v. JustAnswer).
+// The anonymous clickwrap is a one-sentence label naming every document,
+// inside a dialog that opens at the moment of assent (web: over a first
+// search's results; mobile: before the search). Three paragraphs of small
+// print above the Search button was skimmed past, which is the failure mode a
+// clickwrap cannot afford; a short label the visitor actually reads, with the
+// full text one click away, is the pattern the clickwrap cases reward (Meyer
+// v. Uber; Berman v. Freedom Financial; Sellers v. JustAnswer).
 //
 // No label in this file names arbitration — not this one, not
 // SIGNUP_CHECKBOX_LABEL, not RENEWAL_CHECKBOX_LABEL. Section 12 lives in the
@@ -34,7 +33,13 @@ export const PRE_SEARCH_CHECKBOX_LABEL =
   "I have read and agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
   "Disclaimer.";
 
-/** Body of the "full agreement" dialog behind the pre-search checkbox. */
+/**
+ * Body of the mobile pre-search terms sheet. The web dialog stopped rendering
+ * these on 2026-09-28 (presentation only, no version bump): the linked
+ * Disclaimer says the same thing, and VERIFY_WITH_OFFICIALS_NOTE repeats it on
+ * results for everyone. Kept here for mobile and for the archive check in
+ * legalCopy.test.ts.
+ */
 export const PRE_SEARCH_AGREEMENT_PARAGRAPHS = [
   "Elections Simplified provides AI-assisted informational research only. It is not an official election " +
     "source, and results may be inaccurate, incomplete, outdated, or misleading.",
@@ -73,7 +78,7 @@ export const RENEWAL_CHECKBOX_LABEL =
  * disclosure stays one click away in the Privacy Policy.
  */
 export const ADDRESS_FIELD_PRIVACY_NOTE =
-  "The address is only used to find voting districts. We don’t save it to your account.";
+  "The address is only used to find voting districts. We do NOT save it to your account.";
 
 /**
  * Shown on results, where it reaches people who never passed the gate at all

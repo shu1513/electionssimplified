@@ -1,7 +1,8 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
+import { TERMS_VERSION } from "@voteapp/api-client";
 import { App } from "../App";
 import { clearBallotDraft, readBallotDraft, setDraftCandidateChoice } from "../lib/ballotDraft";
 import { BallotPage } from "./BallotPage";
@@ -158,7 +159,7 @@ describe("BallotPage", () => {
     expect(screen.queryByText(/0 candidates/)).not.toBeInTheDocument();
   });
 
-  it("shows no matched-address confirmation line for an unambiguous match", async () => {
+  it("tells a guest which address the elections are for after an unambiguous match", async () => {
     stubApiRoutes({
       ...ANONYMOUS,
       "/api/ballot": { body: ballotSummary([electionSummary()]) },
@@ -166,14 +167,31 @@ describe("BallotPage", () => {
     renderBallot({
       pathname: "/ballot",
       search: "?d=d-1",
-      state: { matchedAddress: "123 MAIN ST, JUNEAU, AK, 99801" },
+      state: { matchedAddress: "123 MAIN ST, JUNEAU, AK, 99801", addressMatchCount: 1 },
     });
 
-    // The always-on confirmation line was dropped as clutter; without an
-    // ambiguous match count the address never renders.
+    const status = await screen.findByRole("status");
+    expect(status).toHaveTextContent("Elections for 123 MAIN ST, JUNEAU, AK, 99801.");
+    expect(status).toHaveTextContent(
+      "Your address was only used to find these election districts. We do NOT save it to any account."
+    );
+    // A single match needs no warning; the status line is not an alert.
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("keeps the matched-address line off a signed-in member's one-off search", async () => {
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/ballot": { body: ballotSummary([electionSummary()]) },
+    });
+    renderBallot({
+      pathname: "/ballot",
+      search: "?d=d-1",
+      state: { matchedAddress: "123 MAIN ST, JUNEAU, AK, 99801", addressMatchCount: 1 },
+    });
+
     await screen.findByText("Governor");
     expect(screen.queryByText(/123 MAIN ST/)).not.toBeInTheDocument();
-    expect(screen.queryByText("Not your address?")).not.toBeInTheDocument();
   });
 
   it("warns with the matched address when the search matched multiple addresses", async () => {
@@ -218,6 +236,100 @@ describe("BallotPage", () => {
     renderBallot("/ballot?d=d-1");
     await screen.findByText("Governor");
     expect(screen.queryByText(/Matched address:/)).not.toBeInTheDocument();
+  });
+
+  describe("terms gate over a first search's results", () => {
+    const STORAGE_KEY = "voteapp_terms_acceptance";
+    const PENDING = {
+      pathname: "/ballot",
+      search: "?d=d-1",
+      state: { matchedAddress: "123 MAIN ST, JUNEAU, AK, 99801", addressMatchCount: 1, termsPending: true },
+    };
+
+    beforeEach(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+      clearBallotDraft();
+    });
+
+    it("opens the dialog over the results with an empty box and the action disabled", async () => {
+      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+      renderBallot(PENDING);
+
+      const dialog = await screen.findByRole("dialog", { name: "Your elections are ready" });
+      expect(screen.getByRole("checkbox")).not.toBeChecked();
+      expect(screen.getByRole("button", { name: "Agree and show results" })).toBeDisabled();
+      expect(dialog).toHaveTextContent("The address is only used to find voting districts.");
+      // Clickwrap adjacency, and opening one must not discard the dialog.
+      for (const [name, href] of [
+        ["Terms of Use", "/terms"],
+        ["Privacy Policy", "/privacy"],
+        ["AI Research and Election Information Disclaimer", "/disclaimer"],
+      ] as const) {
+        const link = screen.getByRole("link", { name });
+        expect(link).toHaveAttribute("href", href);
+        expect(link).toHaveAttribute("target", "_blank");
+      }
+      // The results are on the page behind it, blurred, not withheld.
+      expect(await screen.findByText("Governor")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1, hidden: true }).parentElement?.className).toContain("blur-sm");
+    });
+
+    it("reveals the results and remembers the acceptance on agreement", async () => {
+      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+      renderBallot(PENDING);
+
+      await screen.findByRole("dialog");
+      await userEvent.click(screen.getByRole("checkbox"));
+      await userEvent.click(screen.getByRole("button", { name: "Agree and show results" }));
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null")).toMatchObject({ version: TERMS_VERSION });
+      expect(screen.getByRole("heading", { level: 1 }).parentElement?.className).not.toContain("blur-sm");
+      // The draft follows the search only once agreed.
+      await waitFor(() => {
+        expect(readBallotDraft().district_ids).toEqual(["d-1"]);
+      });
+    });
+
+    it("leaves for the search form with nothing kept from the search on cancel", async () => {
+      // What the home page queued for a later signup handoff before the gate.
+      sessionStorage.setItem("voteapp_pending_district_ids", JSON.stringify(["d-1"]));
+      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+      const { router } = renderBallot(PENDING);
+
+      await screen.findByRole("dialog");
+      await screen.findByText("Governor");
+      // The guest draft is not pointed at an un-agreed search either.
+      expect(readBallotDraft().district_ids).toEqual([]);
+      await userEvent.click(screen.getByRole("checkbox"));
+      await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+      await waitFor(() => {
+        expect(router.state.location.pathname).toBe("/");
+      });
+      expect(router.state.location.search).toBe("?new=1");
+      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+      expect(sessionStorage.getItem("voteapp_pending_district_ids")).toBeNull();
+      expect(readBallotDraft().district_ids).toEqual([]);
+    });
+
+    it("stays closed when this browser already holds a current acceptance", async () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: TERMS_VERSION, acceptedAt: Date.now() }));
+      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+      renderBallot(PENDING);
+
+      await screen.findByText("Governor");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("never opens on a shared link or a search that already carried an acceptance", async () => {
+      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+      renderBallot({ ...PENDING, state: { ...PENDING.state, termsPending: false } });
+
+      await screen.findByText("Governor");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 
   it("shows the empty-ballot message when districts have no elections", async () => {

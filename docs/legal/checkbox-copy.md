@@ -4,6 +4,33 @@ disclaimer.md require re-review of this file too.
 1.4 → 1.5 (2026-09-16, legal audit): reviewed for the Terms 1.5 / Disclaimer
 1.5 / Privacy 1.8 bump — every published checkbox string is unchanged; the
 only addition is the re-acceptance interstitial's exit rules (below).
+1.5 presentation revision (2026-09-28), WEB ANONYMOUS GATE ONLY. Two changes,
+no version bump — the three pinned documents are byte-identical, so the
+agreement entered is the same agreement.
+(a) The web dialog dropped its two disclaimer paragraphs; its body is now the
+short privacy note, then the checkbox with its three linked documents. Same
+reasoning as the 2026-08-30 trim: the paragraphs restated the linked
+Disclaimer as warning copy at the moment of assent, and the results page
+already shows the verification line (VERIFY_WITH_OFFICIALS_NOTE) to every
+reader, gate or no gate.
+(b) The gate moved from before the search to before the results. Pressing
+Search now runs the lookup at once; a browser with no current acceptance
+lands on the elections page with the list blurred behind the dialog, and the
+list is readable only after **Agree and show results**. Cancel, Escape, or the
+backdrop leave the page for the search form with the results unread. The
+Terms of Use already bind on "submitting an address or search" (Section 1),
+so the moment of assent moved to where the visitor is about to get the
+service, which is still the clickwrap-case placement (assent gating the thing
+asked for). Consequence for enforcement: POST /api/address/resolve no longer
+requires accepted_terms_version. It serves a search that carries none and
+still refuses a stale or unknown version; the field is sent only by browsers
+that already hold an acceptance. The evidence of the gate is this file plus
+the deployed frontend (BallotPage termsPending), not the endpoint.
+The mobile sheet is unchanged by both (still pre-search, still renders the
+paragraphs archived below) until it is revised separately; a 1.5 acceptance
+row cannot say which screen it came from, and the ambiguity only runs the
+safe way — every acceptor saw the checkbox naming and linking all three
+documents, some saw extra paragraphs above it.
 1.1 → 1.2 (2026-08-21): reviewed for the Terms 1.2 support-payments bump —
 every published string below is unchanged. One-time payments ride the
 three-document acceptance. Monthly memberships additionally carry their own
@@ -81,18 +108,23 @@ Freedom Financial Network):
   version or needs a bump and re-acceptance.
 - Registration and the re-acceptance interstitial keep their checkbox INLINE
   on the page: both gate an explicit account action the visitor came to take.
-- The anonymous pre-search gate is DEFERRED instead: the home page carries no
-  checkbox and no legal box, and pressing Search opens the terms dialog. Assent
-  is asked for at the moment it gates something, which is where the clickwrap
-  cases put it (Meyer v. Uber). Notice sitting apart from the action is the
-  weak pattern — Nicosia v. Amazon turned on exactly that.
-- Anonymous search acceptance is ENFORCED server-side but never stored: POST
-  /api/address/resolve requires accepted_terms_version matching
-  CURRENT_TERMS_VERSION and refuses the search otherwise, so the gate is real
-  rather than a disabled button a direct API call walks around. Nothing about
-  the acceptance is persisted — an anonymous visitor's IP and user agent are
+- The anonymous gate is DEFERRED instead: the home page carries no checkbox
+  and no legal box. On the web, pressing Search runs the lookup and the
+  elections page opens the terms dialog over the blurred results (since
+  2026-09-28; the mobile app still opens its sheet before searching). Assent
+  is asked for at the moment it gates something — reading the results — which
+  is where the clickwrap cases put it (Meyer v. Uber). Notice sitting apart
+  from the action is the weak pattern — Nicosia v. Amazon turned on exactly
+  that.
+- Anonymous acceptance is never stored, and since 2026-09-28 the web gate is
+  a frontend gate: POST /api/address/resolve serves a search that carries no
+  accepted_terms_version (a first web search) and refuses only a stale or
+  unknown one (a stale bundle). Before that date the endpoint refused any
+  search without a current acceptance. Nothing about the acceptance is
+  persisted either way — an anonymous visitor's IP and user agent are
   deliberately NOT collected, so the evidence is this file plus the deployed
-  gate, not a row per search.
+  gate, not a row per search. Abuse of the endpoint is bounded by the per-IP
+  rate limit, which never depended on this field.
 - Acceptance IS remembered on the device for 90 days, keyed to the terms
   version (frontend/src/lib/termsAcceptance.ts and the mobile port). Re-asking
   a returning visitor on every search teaches click-through, which weakens
@@ -117,23 +149,32 @@ Freedom Financial Network):
 
 # Checkbox and notice copy — Version 1.5
 
-## Pre-search terms dialog (anonymous address search)
+## Anonymous terms dialog (web: over the first results; mobile: before search)
 
-Opened by pressing **Search**. Heading: **Before we search**. Body, in order:
-the two paragraphs below, the short privacy note, then the checkbox and its
-three document links, then **Cancel** and **Agree and search**.
+Web (since 2026-09-28): opens on the elections page when the search ran on a
+browser with no current acceptance, with the list blurred behind it. Heading:
+**Your elections are ready**. Body, in order: the short privacy note, then
+the checkbox and its three document links, then **Cancel** and **Agree and
+show results**.
+
+Mobile (unchanged): opened by pressing **Search**. Heading: **Before we
+search**. Body: the two "Dialog paragraphs" below, the short privacy note, the
+checkbox and links, then **Cancel** and **Agree and search**.
 
 > [ ] I have read and agree to the [Terms of Use], [Privacy Policy], and
 > [AI Research and Election Information Disclaimer].
 
-Rules for the dialog: the box is empty every time it opens; **Agree and search**
+Rules for the dialog: the box is empty every time it opens; the agree button
 stays disabled until it is ticked and names what it does rather than saying
 "Continue"; the document links open in a new tab so reading one does not
-discard the dialog or the address already typed; Cancel, Escape, and the
-backdrop close it without agreeing and leave the typed address alone; no
-forced scrolling through the documents.
+discard the dialog; Cancel, Escape, and the backdrop close it without agreeing
+— on the web that leaves the results page for the search form, results unread;
+on mobile it leaves the typed address alone; no forced scrolling through the
+documents.
 
-### Dialog paragraphs
+### Dialog paragraphs (mobile sheet only since 2026-09-28)
+
+Archived for the mobile sheet and the copy check in legalCopy.test.ts.
 
 > Elections Simplified provides AI-assisted informational research only. It is
 > not an official election source, and results may be inaccurate, incomplete,
@@ -214,7 +255,7 @@ the address is sent to the Census geocoder, held in an anonymous 14-day cache
 in its normalised form, and never written to the database or attached to an
 account, which stores district ids only.
 
-> The address is only used to find voting districts. We don’t save it to
+> The address is only used to find voting districts. We do NOT save it to
 > your account.
 
 Beside the anonymous-search note, **Why do we need the full address?** opens
