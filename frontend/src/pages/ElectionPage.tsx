@@ -592,25 +592,22 @@ export function ElectionPage() {
             <div className="flex flex-col gap-2">
               <p className="text-base font-bold text-ink">My elections</p>
               {/* Same bar as My Draft: green = the "decided" color the pick
-                  names use; the sentence is the bar's accessible name. */}
+                  names use. The bar alone — the header is tight, so the
+                  count lives in the accessible name and the tooltip. */}
               {railProgress !== null ? (
-                <div className="flex flex-col gap-1">
+                <div
+                  role="progressbar"
+                  aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
+                  title={`${railProgress.picked} of ${railProgress.total} decided`}
+                  aria-valuemin={0}
+                  aria-valuemax={railProgress.total}
+                  aria-valuenow={railProgress.picked}
+                  className="h-1.5 w-full overflow-hidden rounded-full bg-rail-line"
+                >
                   <div
-                    role="progressbar"
-                    aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
-                    aria-valuemin={0}
-                    aria-valuemax={railProgress.total}
-                    aria-valuenow={railProgress.picked}
-                    className="h-1.5 w-full overflow-hidden rounded-full bg-rail-line"
-                  >
-                    <div
-                      className="h-full rounded-full bg-green-700"
-                      style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
-                    />
-                  </div>
-                  <p className="text-xs text-ink-soft">
-                    {railProgress.picked} of {railProgress.total} decided
-                  </p>
+                    className="h-full rounded-full bg-green-700"
+                    style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
+                  />
                 </div>
               ) : null}
               <div className="flex flex-col gap-2">
