@@ -997,6 +997,9 @@ describe("ElectionPage", () => {
       expect(draftLink).toHaveAttribute("href", "/draft");
       expect(draftLink.closest('[role="status"]')).not.toBeNull();
       expect(screen.queryByRole("link", { name: /Back to/ })).not.toBeInTheDocument();
+      // Green is the "done" color: an in-progress draft's link stays ink.
+      expect(draftLink).toHaveClass("text-ink");
+      expect(draftLink).not.toHaveClass("text-green-800");
       // Deep link (no rail context): the toast is not behind a rail-only
       // hide, so it shows at every width.
       expect(draftLink.closest(".rail\\:hidden")).toBeNull();
@@ -1010,6 +1013,19 @@ describe("ElectionPage", () => {
       vi.useRealTimers();
       clearBallotDraft();
     }
+  });
+
+  it("turns the post-pick toast link green only once the draft is complete", async () => {
+    clearBallotDraft();
+    // A one-race ballot: this pick completes the draft.
+    setDraftBallotContext([DISTRICT.id], { election_date: "2026-11-03", election_ids: ["e-1"] });
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail());
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+
+    expect(await screen.findByRole("link", { name: "My Draft ✓" })).toHaveClass("text-green-800");
+    clearBallotDraft();
   });
 
   it("hides the post-pick toast in split view, where the rail's progress bar already confirms", async () => {

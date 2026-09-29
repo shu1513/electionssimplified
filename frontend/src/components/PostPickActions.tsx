@@ -39,13 +39,19 @@ export function PostPickActions({ back }: PostPickActionsProps) {
 
 /** The post-pick draft link on its own — the election page's toast
  * (DraftToast) shows just this, since there the reader is already on the
- * election. Same label and destination as the header item. */
+ * election. Same label and destination as the header item, and the
+ * header's color rule too: green is the "done" color, so the link only
+ * wears it once the draft is complete ("My Draft ✓"); "My Draft 4/34" is
+ * still homework and stays ink. */
 export function DraftLink() {
   const { me } = useMe();
   const isGuest = me === null;
   const guestDraftNav = useGuestDraftNav();
   const picksProgress = useMyPicksProgress();
-  const className = "whitespace-nowrap font-semibold text-green-800 hover:underline";
+  const complete = isGuest ? (guestDraftNav?.complete ?? false) : (picksProgress?.complete ?? false);
+  const className = complete
+    ? "whitespace-nowrap font-semibold text-green-800 hover:underline"
+    : "whitespace-nowrap font-semibold text-ink hover:underline";
   const onClick = () => track("post_pick_click", { target: "draft" });
   if (isGuest) {
     return guestDraftNav ? (
