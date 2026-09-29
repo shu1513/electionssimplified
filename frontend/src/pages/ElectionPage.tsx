@@ -610,20 +610,9 @@ export function ElectionPage() {
       ) : null}
       {/* min-w-0: the grid column must be allowed to shrink or long titles
           blow the layout; rail:max-w-3xl keeps the reading measure of the
-          classic column even though the grid column is wider. In rail mode a
-          before pseudo-element draws the rail/detail divider a rem into the
-          gutter (centered in gap-8) — a pseudo, not border-l + pl, because
-          box-sizing is border-box and padding on this max-w-3xl div would
-          eat 17px of reading measure. On the detail side (not the rail) so
-          the rule spans the full content height; conditional so deep links
-          never grow a stray rule. */}
-      <div
-        className={
-          railContests !== null
-            ? "min-w-0 rail:relative rail:max-w-3xl rail:before:absolute rail:before:inset-y-0 rail:before:-left-4 rail:before:w-px rail:before:bg-line rail:before:content-['']"
-            : "min-w-0 rail:max-w-3xl"
-        }
-      >
+          classic column even though the grid column is wider. The rail/detail
+          divider is the rail column's own right edge (DetailRail). */}
+      <div className="min-w-0 rail:max-w-3xl">
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
