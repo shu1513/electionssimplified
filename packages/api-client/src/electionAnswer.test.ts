@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { electionAnswerSnippet, electionAnswerText, type ElectionAnswerInput } from "./electionAnswer";
+import { electionAnswerFaq, electionAnswerSnippet, electionAnswerText, type ElectionAnswerInput } from "./electionAnswer";
 
 const TODAY = "2026-09-24";
 
@@ -153,5 +153,54 @@ describe("electionAnswerSnippet", () => {
     expect(electionAnswerSnippet(measure, TODAY)).toBe(
       "Parks Bond is a ballot measure in Kentucky on the November 3, 2026 ballot. Borrows $6.5 million to fix parks in St. Louis."
     );
+    // Under a cap that cuts inside the summary, "St." still does not end a sentence.
+    expect(electionAnswerSnippet(measure, TODAY, 100)).toBe("Parks Bond is a ballot measure in Kentucky on the November 3, 2026 ballot.");
+  });
+});
+
+describe("electionAnswerFaq", () => {
+  it("pairs each question heading with the sentences shown under it", () => {
+    const decided = race({
+      election_date: "2024-11-05",
+      results: [{ outcome: "won", result_status: "certified", winners: [{ candidate_name: "Riley Runner", party: "Republican" }] }],
+    });
+    // Seeded bullets carry no end punctuation; each gets a period.
+    expect(electionAnswerFaq(decided, ["Signs or vetoes bills", "Appoints agency heads."])).toEqual([
+      { question: "Who is running?", answer: "2 candidates are running: Jordan Voter (Democratic) and Riley Runner (Republican). Riley Runner is the incumbent." },
+      { question: "What does this office do?", answer: "Signs or vetoes bills. Appoints agency heads." },
+      { question: "Who won?", answer: "Certified result: the winner is Riley Runner (Republican)." },
+    ]);
+  });
+
+  it("leaves out questions the page has no section for", () => {
+    expect(electionAnswerFaq(race({ candidates: [] }))).toEqual([]);
+    // A too-close row names nobody, so there is no "Who won?" entry.
+    const undecided = race({
+      election_date: "2024-11-05",
+      results: [{ outcome: "too_close", result_status: "unofficial", winners: [{ candidate_name: "Riley Runner" }] }],
+    });
+    expect(electionAnswerFaq(undecided).map((entry) => entry.question)).toEqual(["Who is running?"]);
+  });
+
+  it("asks only what the measure does for a ballot measure", () => {
+    const measure = race({
+      race_type: "ballot_measure",
+      official_ballot_title: "Proposition 1",
+      candidates: [],
+      ballot_measure: { summary: "Adds a two percent sales tax for road repair.", result: "passed" },
+    });
+    expect(electionAnswerFaq(measure, ["ignored"])).toEqual([
+      { question: "What does this measure do?", answer: "Adds a two percent sales tax for road repair. It passed." },
+    ]);
+    expect(electionAnswerFaq(race({ race_type: "ballot_measure", candidates: [], ballot_measure: { summary: null, result: null } }))).toEqual([]);
+  });
+
+  it("carries no roster question for a retention race, whose section is headed by the judge's name", () => {
+    const retention = race({
+      official_ballot_title: "Shall Judge Alex Bench be retained in office?",
+      candidates: [{ display_name: "Alex Bench", party: "Nonpartisan", is_incumbent: true, status: "declared" }],
+      vote_power: { label: "retention", decisiveness_level: "unknown" },
+    });
+    expect(electionAnswerFaq(retention, ["Hears appeals."])).toEqual([{ question: "What does this office do?", answer: "Hears appeals." }]);
   });
 });

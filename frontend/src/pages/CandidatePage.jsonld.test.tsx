@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { screen } from "@testing-library/react";
-import { CandidatePage, ErrorBoundary } from "./CandidatePage";
+import { CandidatePage, ErrorBoundary, meta } from "./CandidatePage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { candidateDetail } from "../test/fixtures";
+import { candidateDetail, candidateElection, DISTRICT } from "../test/fixtures";
 
 const ANONYMOUS = { "/api/me": apiError(401, "unauthorized", "Not logged in") };
 
@@ -61,5 +61,49 @@ describe("CandidatePage structured data", () => {
     });
     // The filing PDF is a source, not an identity, so it stays out of sameAs.
     expect(person.sameAs).toEqual(["https://jordan.example", "https://x.com/jordanvoter", "https://ballotpedia.org/Jordan_Voter"]);
+  });
+
+  // The answer paragraph: the header facts and the summary in one passage,
+  // and its opening sentences as the meta description.
+  it("opens with a one-paragraph answer that the meta description repeats", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const detail = {
+      ...candidateDetail({
+        party: "Democratic",
+        current_office: "State Senator",
+        elections: [candidateElection({ election_date: "2099-11-03", district: { ...DISTRICT, name: "Kentucky" } })],
+      }),
+      ongoing_finance: {},
+    };
+    renderRoutes(
+      [
+        {
+          path: "/candidates/:candidateId",
+          element: <CandidatePage />,
+          errorElement: <ErrorBoundary />,
+          hydrateFallbackElement: <p />,
+          loader: () => detail,
+        },
+        { path: "/elections/:electionId", element: <p /> },
+      ],
+      "/candidates/c-1"
+    );
+
+    expect(await screen.findByRole("heading", { name: "Jordan Voter" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Jordan Voter (Democratic) is running for Governor in Kentucky in the November 3, 2099 election. " +
+          "Jordan Voter currently serves as State Senator. A candidate summary. " +
+          "1 public record with sources, researched through June 1, 2026, is listed below."
+      )
+    ).toBeInTheDocument();
+    // The route's meta export (the test router renders no <Meta/>): the
+    // description is the paragraph's opening sentences, cut at a sentence end.
+    const tags = meta({ data: detail, location: { pathname: "/candidates/c-1" } } as unknown as Parameters<typeof meta>[0]);
+    expect(tags).toContainEqual({
+      name: "description",
+      content:
+        "Jordan Voter (Democratic) is running for Governor in Kentucky in the November 3, 2099 election. Jordan Voter currently serves as State Senator. A candidate summary.",
+    });
   });
 });

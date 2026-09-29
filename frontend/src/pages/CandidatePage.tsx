@@ -39,7 +39,7 @@ import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { useHydrated } from "../lib/useHydrated";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { partyColorClass, profilePartyLabel } from "@voteapp/api-client";
-import { candidateProfileLinks, candidateSameAsUrls } from "@voteapp/api-client";
+import { candidateAnswerSnippet, candidateAnswerText, candidateProfileLinks, candidateSameAsUrls } from "@voteapp/api-client";
 import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
@@ -236,7 +236,9 @@ export const meta: MetaFunction<typeof loader> = ({ data, error, location }) => 
   const candidate = data.candidate;
   return pageMeta({
     title: `${candidateTitleText(candidate)} · ${APP_NAME}`,
-    description: `${candidateShareText(candidate)} — issue-tagged records with sources, election history, and campaign finance.`,
+    // The opening sentences of the page's own answer paragraph, so the
+    // search snippet says what the page says (who, which race, office held).
+    description: candidateAnswerSnippet(candidate, usLatestLocalDate()),
     path: location.pathname,
   });
 };
@@ -279,6 +281,9 @@ export function CandidatePage() {
   const profileLinks = candidateProfileLinks(candidate);
   const sameAs = candidateSameAsUrls(candidate);
   const today = usLatestLocalDate();
+  // The one-paragraph answer (candidateAnswerText): opens the page and its
+  // first sentences are the meta description — one text, two readers.
+  const answerText = candidateAnswerText(candidate, today);
   const ongoingElections = candidate.elections.filter((election) => election.election_date >= today);
   // The history list splits on the same date boundary: "is in" would misread
   // on a race that finished years ago. Within the ongoing bucket it also
@@ -637,11 +642,14 @@ export function CandidatePage() {
             ))}
           </p>
         ) : null}
-        {candidate.summary ? (
-          <p ref={summaryRef} className="mt-3 text-body text-ink">
-            {candidate.summary}
-          </p>
-        ) : null}
+        {/* The answer paragraph: who, which race, office held, the profile
+            summary, and how much sourced record history follows — the whole
+            profile in one self-contained passage a reader (or an answer
+            engine) can take on its own. Replaces the bare summary line; the
+            summary is inside it verbatim. */}
+        <p ref={summaryRef} className="mt-3 text-body text-ink">
+          {answerText}
+        </p>
 
         {/* Directly after the summary, before the pick rows — the same order
             as the measure page (explainer boxes, then choice buttons). */}
