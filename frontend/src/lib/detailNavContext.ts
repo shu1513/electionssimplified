@@ -9,7 +9,7 @@
 // take the back link down with it.
 
 import type { BallotRaceType, CandidateRailSortKey, RailSortKey } from "@voteapp/api-client";
-import { CANDIDATE_RAIL_SORTS, RAIL_SORTS } from "@voteapp/api-client";
+import { CANDIDATE_RAIL_SORTS, RAIL_SORTS, railSortForBallotSort } from "@voteapp/api-client";
 import { safeInternalPath } from "./safeInternalPath";
 
 /** A back-link destination. Purely where and what to call it — any state to
@@ -78,6 +78,9 @@ export type NavContest = {
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
   retention?: boolean;
+  /** The list's district section heading this contest sat under, stamped
+   * by the district-size sorts only — see RailSortEntry.group. */
+  group?: string;
 };
 /** research_area_records powers the candidate rail's My-issues sort: each
  * candidate's stance-bearing records condensed to per-area counts at
@@ -225,6 +228,9 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
       if (raw.awaiting_candidates === true) {
         entry.awaiting_candidates = true;
       }
+      if (typeof raw.group === "string" && raw.group.trim() !== "") {
+        entry.group = raw.group;
+      }
       return entry;
     });
   }
@@ -238,6 +244,59 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
     result.rosterSort = record.rosterSort as CandidateRailSortKey;
   }
   return result;
+}
+
+/** The rail's race-type tabs are offered only when the snapshot types
+ * every contest (an old history entry may not) and holds both types. Both
+ * detail pages read this so the back link's ?type= rewrite (rewriteBackPath)
+ * agrees between them. */
+export function railTabsAvailableFor(contests: NavContest[] | undefined): boolean {
+  return (
+    contests !== undefined &&
+    contests.every((contest) => contest.race_type !== undefined) &&
+    contests.some((contest) => contest.race_type === "office") &&
+    contests.some((contest) => contest.race_type === "ballot_measure")
+  );
+}
+
+// Rewrites the back link's ?type= (and, where the list can honor it, ?sort=)
+// to the rail's current tab and sort, so leaving the split view lands on the
+// view the rail is showing rather than the one the reader arrived with.
+// Sort carry-over rules: vote_power is a list sort on both pages; my_areas
+// reaches both ballot lists (/me/ballot server-side, /ballot via its
+// client-side mirror — which degrades to vote_power rather than lying if
+// the URL ever lands on a viewer without saved areas); alphabetical is
+// rail-only and leaves the path's sort untouched. The rewrite happens only when the engaged sort would
+// CHANGE the order the back URL already yields — the rail's seeded default
+// is mapped FROM that URL's sort (railSortForBallotSort), so this rule
+// keeps a list sort the rail only mirrors (district_size → By district,
+// which has no ?sort= of its own) from being silently overwritten, while a
+// genuinely different choice still carries over. The base is a throwaway for relative parsing
+// only.
+export function rewriteBackPath(
+  path: string,
+  tabs: { available: boolean; raceType: BallotRaceType | null },
+  railSort: RailSortKey | null
+): string {
+  const url = new URL(path, "http://internal");
+  if (tabs.available) {
+    if (tabs.raceType) {
+      url.searchParams.set("type", tabs.raceType);
+    } else {
+      url.searchParams.delete("type");
+    }
+  }
+  const honorable =
+    railSort === "vote_power" ||
+    (railSort === "my_areas" && (url.pathname === "/me/ballot" || url.pathname === "/ballot"));
+  const urlRailSort = railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power");
+  // A district-size back URL is never rewritten: the rail mirrors it as By
+  // district when the snapshot is grouped and merely approximates it with
+  // vote_power when not — neither is a sort the reader chose over it.
+  if (honorable && urlRailSort !== "district" && railSort !== urlRailSort) {
+    url.searchParams.set("sort", railSort);
+  }
+  return url.pathname + url.search + url.hash;
 }
 
 /** The pager's neighbors in a validated sibling list, or null when there is

@@ -2197,6 +2197,17 @@ describe("ElectionPage ballot rail", () => {
     // The current contest is text with aria-current, not a link.
     expect(within(rail).queryByRole("link", { name: "Mayor" })).not.toBeInTheDocument();
     expect(within(rail).getByText("Mayor").closest("li")).toHaveAttribute("aria-current", "page");
+    // The open box lists this contest's roster, each name linking to the
+    // profile with the election's candidate context (same as the roster).
+    const current = within(rail).getByText("Mayor").closest("li")!;
+    expect(within(current).getByRole("link", { name: "Jordan Voter" })).toHaveAttribute(
+      "href",
+      "/candidates/c-1"
+    );
+    expect(within(current).getByRole("link", { name: "Riley Runner" })).toHaveAttribute(
+      "href",
+      "/candidates/c-2"
+    );
     // The exit control: same destination and state contract as the pager's
     // back slot.
     expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
@@ -2238,6 +2249,51 @@ describe("ElectionPage ballot rail", () => {
       expect(screen.getAllByRole("navigation", { name: "Ballot navigation" })).toHaveLength(1)
     );
     expect(screen.queryByRole("navigation", { name: "Ballot" })).not.toBeInTheDocument();
+  });
+
+  it("folds retention races under a closed heading at the end, open while reading one", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    const withRetention = {
+      ...ARRIVAL,
+      contests: [{ id: "e-4", title: "Judge Kim — retain?", retention: true }, ...CONTESTS],
+    };
+    renderElection(perIdLoader, "e-2", withRetention);
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    // Closed by default: the heading names the tail with its count, the
+    // judge's line is not rendered, and the other contests keep their order
+    // ahead of it.
+    const heading = within(rail).getByRole("button", { name: "Retention races (1)" });
+    expect(heading).toHaveAttribute("aria-expanded", "false");
+    expect(within(rail).queryByRole("link", { name: "Judge Kim — retain?" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("link", { name: "Governor" })).toBeInTheDocument();
+
+    await user.click(heading);
+    expect(heading).toHaveAttribute("aria-expanded", "true");
+    expect(within(rail).getByRole("link", { name: "Judge Kim — retain?" })).toHaveAttribute(
+      "href",
+      "/elections/e-4"
+    );
+    await user.click(heading);
+    expect(within(rail).queryByRole("link", { name: "Judge Kim — retain?" })).not.toBeInTheDocument();
+  });
+
+  it("holds the retention tail open while reading a retention race", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(perIdLoader, "e-4", {
+      ...ARRIVAL,
+      contests: [{ id: "e-4", title: "Judge Kim — retain?", retention: true }, ...CONTESTS],
+    });
+
+    // The open box must be visible, so the heading reports open and the
+    // race's box sits under it with aria-current.
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByRole("button", { name: "Retention races (1)" })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(within(rail).getByText("Judge Kim — retain?").closest("li")).toHaveAttribute("aria-current", "page");
   });
 
   it("offers no race-type tabs on an untyped (pre-deploy) snapshot", async () => {
@@ -2443,7 +2499,13 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     // vote_power and arrives already sorted — and since that's also what
     // the back URL yields, the URL is NOT rewritten.
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    const rows = () => within(rail).getAllByRole("listitem").map((row) => row.textContent);
+    // Contest boxes only (the ballot's top-level list): the open box nests
+    // its own roster rows. Each box's title is the contest title — on the
+    // open box itself, on the collapsed line's link otherwise.
+    const rows = () =>
+      [...rail.querySelectorAll<HTMLLIElement>("ol > li")].map(
+        (box) => box.getAttribute("title") ?? box.querySelector("a")?.getAttribute("title")
+      );
     const select = await within(rail).findByRole("combobox");
     expect(select).toHaveValue("vote_power");
     expect(within(select).queryByRole("option", { name: "As listed" })).not.toBeInTheDocument();
@@ -2465,9 +2527,10 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
   it("starts on the seeded list sort and preserves a district-size back URL", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {
-      // A district-size list: the rail cannot honor that order, so the
-      // seed falls back to vote_power (stamped by the list page) — but the
-      // back URL must keep the richer sort the rail merely approximates.
+      // A district-size list whose snapshot carries no group headings (a
+      // pre-deploy entry): By district is not offered, so the rail falls
+      // back to vote_power — but the back URL must keep the richer sort
+      // the rail merely approximates.
       backTo: { path: "/me/ballot?sort=district_size", label: "My Elections" },
       contests: KEYED_CONTESTS,
       railSort: "vote_power",
@@ -2522,6 +2585,45 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     );
   });
 
+  it("groups the rail under the list's district headings on a district-size arrival", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    // A snapshot from a district-size list: every contest carries its
+    // section heading, in the list's order (smallest districts first).
+    const grouped = [
+      { ...KEYED_CONTESTS[1], group: "City: Berkeley" },
+      { ...KEYED_CONTESTS[0], group: "City: Berkeley" },
+      { ...KEYED_CONTESTS[2], group: "State: California" },
+    ];
+    renderElection(perIdLoader, "e-1", {
+      backTo: { path: "/me/ballot?sort=district_size_smallest", label: "My Elections" },
+      contests: grouped,
+      railSort: "district",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const select = await within(rail).findByRole("combobox");
+    expect(select).toHaveValue("district");
+    // Headings render where the group changes; contests keep the list's
+    // order under them. The back link is not rewritten: By district has no
+    // list sort of its own to carry.
+    // Heading rows have no title; contest boxes carry theirs (the open
+    // box's text would include its roster).
+    const rows = () =>
+      [...rail.querySelectorAll("ol > li")].map(
+        (box) => box.getAttribute("title") ?? box.querySelector("a")?.getAttribute("title") ?? box.textContent
+      );
+    expect(rows()).toEqual(["City: Berkeley", "Proposition 33", "Governor", "State: California", "Proposition 4"]);
+    expect(within(rail).getByRole("link", { name: "Back to My Elections" })).toHaveAttribute(
+      "href",
+      "/me/ballot?sort=district_size_smallest"
+    );
+
+    // Leaving the sort drops the headings.
+    await user.selectOptions(select, "alphabetical");
+    expect(rows()).toEqual(["Governor", "Proposition 4", "Proposition 33"]);
+  });
+
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {
@@ -2533,7 +2635,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(within(rail).queryByRole("combobox")).not.toBeInTheDocument();
   });
 
-  it("marks decided races with the check and an accessible suffix", async () => {
+  it("shows the decided answer on a collapsed race and fills the open race's oval", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     // Guest pick in the local draft — the same source the ballot cards use.
     setDraftCandidateChoice({
@@ -2551,12 +2653,27 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     // resolves to "no session".
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
     await waitFor(() =>
-      expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("(decided)")
+      expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("Proposition 4, my pick:Jordan Voter")
     );
-    expect(within(rail).getByTitle("Proposition 4").querySelector("svg")).not.toBeNull();
-    // Undecided rows keep their plain label and no check.
-    const plainRow = within(rail).getByTitle("Proposition 33");
-    expect(plainRow).not.toHaveTextContent("(decided)");
-    expect(plainRow.querySelector("svg")).toBeNull();
+    // Undecided lines keep their bare title.
+    expect(within(rail).getByTitle("Proposition 33")).toHaveTextContent(/^Proposition 33$/);
+    // The open race (e-1, undecided here) shows its roster with empty ovals
+    // and no pick suffix.
+    const current = within(rail).getByText("Governor").closest("li")!;
+    expect(within(current).getByTitle("Jordan Voter")).not.toHaveTextContent("(my pick)");
+    clearBallotDraft();
+    // Now a pick IN the open race: its row goes bold with the pick suffix.
+    setDraftCandidateChoice({
+      electionId: "e-1",
+      raceTitle: "Governor",
+      electionDate: "2026-11-03",
+      seatsToFill: null,
+      candidateId: "c-2",
+      candidateName: "Riley Runner",
+      chosen: true,
+    });
+    await waitFor(() => expect(within(current).getByTitle("Riley Runner")).toHaveTextContent("(my pick)"));
+    expect(within(current).getByTitle("Jordan Voter")).not.toHaveTextContent("(my pick)");
+    clearBallotDraft();
   });
 });

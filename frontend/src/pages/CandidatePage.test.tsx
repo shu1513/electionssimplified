@@ -1437,10 +1437,11 @@ describe("CandidatePage roster pager", () => {
   });
 });
 
-// The desktop split-screen rail (aria-label "Candidates in this race", vs
-// the pager's "Candidate navigation" — distinct names because both are in
-// the DOM and CSS decides which is visible per viewport). Same gate as
-// prev/next: a validated roster containing the current candidate.
+// The desktop split-screen rail (aria-label "Ballot", vs the pager's
+// "Candidate navigation" — distinct names because both are in the DOM and
+// CSS decides which is visible per viewport): the ballot with this
+// candidate's race open and the roster inside it. Same gate as prev/next:
+// a validated roster containing the current candidate.
 describe("CandidatePage roster rail", () => {
   const ROSTER_ARRIVAL = {
     backTo: { path: "/elections/e-1", label: "Governor" },
@@ -1455,11 +1456,11 @@ describe("CandidatePage roster rail", () => {
   const perIdLoader = ({ params }: { params: { candidateId?: string } }) =>
     candidateDetail({ candidate_id: params.candidateId });
 
-  it("renders the roster with the current candidate highlighted and the full back label", async () => {
+  it("renders the race open on the ballot with the current candidate highlighted", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderCandidate(perIdLoader, "c-2", ROSTER_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     expect(within(rail).getByRole("link", { name: "Jordan Voter" })).toHaveAttribute("href", "/candidates/c-1");
     expect(within(rail).getByRole("link", { name: "Casey Contender" })).toHaveAttribute(
       "href",
@@ -1468,15 +1469,17 @@ describe("CandidatePage roster rail", () => {
     // The current candidate is text with aria-current, not a link.
     expect(within(rail).queryByRole("link", { name: "Riley Runner" })).not.toBeInTheDocument();
     expect(within(rail).getByText("Riley Runner").closest("li")).toHaveAttribute("aria-current", "page");
-    // The exit link keeps the election's full title — unlike the pager's
-    // generic "Election" relabel.
-    expect(within(rail).getByRole("link", { name: "Back to Governor" })).toHaveAttribute(
+    // The open race's title links back to the election (full title —
+    // unlike the pager's generic "Election" relabel); the rail's exit goes
+    // to the ballot list the election page came from.
+    expect(within(rail).getByRole("link", { name: "Governor" })).toHaveAttribute("href", "/elections/e-1");
+    expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
       "href",
-      "/elections/e-1"
+      "/ballot?d=d-1"
     );
   });
 
-  it("marks the picked candidate with the check and an accessible suffix", async () => {
+  it("fills the picked candidate's oval with an accessible suffix", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     clearBallotDraft();
     // Guest pick in the local draft — the same source the "My choice" rows
@@ -1494,16 +1497,13 @@ describe("CandidatePage roster rail", () => {
 
     // waitFor: the guest draft becomes the choice source only once /api/me
     // resolves to "no session".
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     await waitFor(() =>
       expect(within(rail).getByTitle("Casey Contender")).toHaveTextContent("(my pick)")
     );
-    expect(within(rail).getByTitle("Casey Contender").querySelector("svg")).not.toBeNull();
     // Unpicked rows — the current candidate included — stay plain.
-    const plainRow = within(rail).getByTitle("Jordan Voter");
-    expect(plainRow).not.toHaveTextContent("(my pick)");
-    expect(plainRow.querySelector("svg")).toBeNull();
-    expect(within(rail).getByTitle("Riley Runner").querySelector("svg")).toBeNull();
+    expect(within(rail).getByTitle("Jordan Voter")).not.toHaveTextContent("(my pick)");
+    expect(within(rail).getByTitle("Riley Runner")).not.toHaveTextContent("(my pick)");
     clearBallotDraft();
   });
 
@@ -1512,7 +1512,7 @@ describe("CandidatePage roster rail", () => {
     const user = userEvent.setup();
     const { router } = renderCandidate(perIdLoader, "c-1", ROSTER_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     await user.click(within(rail).getByRole("link", { name: "Casey Contender" }));
 
     await waitFor(() => expect(router.state.location.pathname).toBe("/candidates/c-3"));
@@ -1520,23 +1520,94 @@ describe("CandidatePage roster rail", () => {
     // The rail stays mounted across the walk, so finding the nav resolves
     // against the still-current page; wait for the neighbor's own marker.
     await waitFor(() => {
-      const railNow = screen.getByRole("navigation", { name: "Candidates in this race" });
+      const railNow = screen.getByRole("navigation", { name: "Ballot" });
       expect(within(railNow).getByText("Casey Contender").closest("li")).toHaveAttribute("aria-current", "page");
     });
-    const nextRail = screen.getByRole("navigation", { name: "Candidates in this race" });
+    const nextRail = screen.getByRole("navigation", { name: "Ballot" });
     expect(within(nextRail).getByRole("link", { name: "Jordan Voter" })).toHaveAttribute(
       "href",
       "/candidates/c-1"
     );
   });
 
-  it("delivers the ballot context through the rail's exit link", async () => {
+  it("keeps the ballot rail for a one-name roster and folds a retention judge's box", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // Unopposed: the roster is this candidate alone, but the ballot around
+    // the race still wants walking. No prev/next, so no pager neighbors —
+    // the rail no longer hangs on those.
+    renderCandidate(perIdLoader, "c-1", {
+      backTo: { path: "/elections/e-1", label: "Governor" },
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor" },
+          { id: "e-2", title: "Mayor" },
+          { id: "e-9", title: "Judge Kim — retain?", retention: true },
+        ],
+      },
+      electionId: "e-1",
+      candidates: [{ id: "c-1", name: "Jordan Voter" }],
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByText("Jordan Voter").closest("li")).toHaveAttribute("aria-current", "page");
+    expect(within(rail).getByRole("link", { name: "Mayor" })).toHaveAttribute("href", "/elections/e-2");
+  });
+
+  it("renders a retention judge's box as the name over Yes / No, no oval on the name", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // The ballot marks the answer, not the person — same shape as the
+    // election page's own rail box for the race.
+    renderCandidate(perIdLoader, "c-1", {
+      backTo: { path: "/elections/e-9", label: "Judge Kim — retain?" },
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor" },
+          { id: "e-9", title: "Judge Kim — retain?", retention: true },
+        ],
+      },
+      electionId: "e-9",
+      candidates: [{ id: "c-1", name: "Jordan Voter" }],
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const box = within(rail).getByText("Judge Kim — retain?").closest("li")!;
+    expect(within(box).getByTitle("Yes")).toBeInTheDocument();
+    expect(within(box).getByTitle("No")).toBeInTheDocument();
+    expect(within(box).getByTitle("Jordan Voter").querySelector("span[aria-hidden]")).toBeNull();
+    expect(within(box).getByTitle("Yes").querySelector("span[aria-hidden]")).not.toBeNull();
+  });
+
+  it("rewrites the rail's exit to the tab and sort the election page's rail engaged", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(perIdLoader, "c-2", {
+      ...ROSTER_ARRIVAL,
+      // The election page forwards its context with the engaged tab and
+      // sort stamped; its own exit link rewrites the back URL from them,
+      // and this page's exit must land on that same view.
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor", race_type: "office" },
+          { id: "q-1", title: "Measure A", race_type: "ballot_measure" },
+        ],
+        raceType: "office",
+        railSort: "vote_power",
+      },
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
+      "href",
+      "/ballot?d=d-1&type=office"
+    );
+  });
+
+  it("delivers the election context through the open race's title link", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     const user = userEvent.setup();
     const { router } = renderCandidate(perIdLoader, "c-1", ROSTER_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
-    await user.click(within(rail).getByRole("link", { name: "Back to Governor" }));
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await user.click(within(rail).getByRole("link", { name: "Governor" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
     expect(router.state.location.state).toEqual(ROSTER_ARRIVAL.backState);
@@ -1547,7 +1618,7 @@ describe("CandidatePage roster rail", () => {
     // Deep link: no router state at all.
     renderCandidate(perIdLoader, "c-1");
     await screen.findByRole("heading", { name: "Jordan Voter" });
-    expect(screen.queryByRole("navigation", { name: "Candidates in this race" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Ballot" })).not.toBeInTheDocument();
 
     // Stale snapshot: current candidate missing from the roster — the back
     // bar survives (its own gate), the rail does not.
@@ -1555,14 +1626,14 @@ describe("CandidatePage roster rail", () => {
     await waitFor(() =>
       expect(screen.getAllByRole("navigation", { name: "Candidate navigation" })).toHaveLength(1)
     );
-    expect(screen.queryByRole("navigation", { name: "Candidates in this race" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Ballot" })).not.toBeInTheDocument();
   });
 
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderCandidate(perIdLoader, "c-2", ROSTER_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     expect(within(rail).queryByRole("combobox")).not.toBeInTheDocument();
   });
 });
@@ -1604,19 +1675,17 @@ describe("CandidatePage roster rail sort", () => {
   };
   const perIdLoader = ({ params }: { params: { candidateId?: string } }) =>
     candidateDetail({ candidate_id: params.candidateId });
+  // The open race's rows (the roster), by title: the current row's text
+  // carries no link, and a picked row's text carries its sr-only suffix.
   const railRows = (rail: HTMLElement) =>
-    within(rail)
-      .getAllByRole("listitem")
-      .map((row) => row.textContent);
+    [...rail.querySelectorAll("ol > li ul > li")].map((row) => row.getAttribute("title"));
 
   it("defaults to My issues first and forwards the engaged sort to sibling walks", async () => {
     stubApiRoutes({ ...SAVED_GUN });
     const user = userEvent.setup();
     const { router } = renderCandidate(perIdLoader, "c-1", KEYED_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
-    // The list is labeled for what it is.
-    expect(within(rail).getByText("Candidates:")).toBeInTheDocument();
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     // findBy: the control appears once the saved-areas fetch settles. No
     // "As listed" option — the sort is always engaged, defaulting to My
     // issues first, so the rail arrives already sorted.
@@ -1634,10 +1703,10 @@ describe("CandidatePage roster rail sort", () => {
     // are identical on both pages, so wait for Riley's own marker before
     // asserting — otherwise these checks pass against the departed page.
     await waitFor(() => {
-      const railNow = screen.getByRole("navigation", { name: "Candidates in this race" });
+      const railNow = screen.getByRole("navigation", { name: "Ballot" });
       expect(within(railNow).getByText("Riley Runner").closest("li")).toHaveAttribute("aria-current", "page");
     });
-    const nextRail = screen.getByRole("navigation", { name: "Candidates in this race" });
+    const nextRail = screen.getByRole("navigation", { name: "Ballot" });
     expect(await within(nextRail).findByRole("combobox")).toHaveValue("my_issues");
     expect(railRows(nextRail)).toEqual(["Casey Contender", "Riley Runner", "Jordan Voter"]);
   });
@@ -1648,7 +1717,7 @@ describe("CandidatePage roster rail sort", () => {
 
     // The reader explicitly chose A–Z on the election page; the rail must
     // start there even though this viewer's default would be My issues.
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     const select = await within(rail).findByRole("combobox");
     await within(select).findByRole("option", { name: "My issues first" });
     expect(select).toHaveValue("alphabetical");
@@ -1660,7 +1729,7 @@ describe("CandidatePage roster rail sort", () => {
     const user = userEvent.setup();
     renderCandidate(perIdLoader, "c-1", KEYED_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     const select = await within(rail).findByRole("combobox");
     await user.selectOptions(select, "alphabetical");
     expect(railRows(rail)).toEqual(["Casey Contender", "Jordan Voter", "Riley Runner"]);
@@ -1681,9 +1750,9 @@ describe("CandidatePage roster rail sort", () => {
     // Switch the rail to A–Z, then take the back hop: the election page
     // must reopen its roster in A–Z, not its My-issues default — rail and
     // roster read as one continuous control across the round trip.
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     await user.selectOptions(await within(rail).findByRole("combobox"), "alphabetical");
-    await user.click(within(rail).getByRole("link", { name: "Back to Governor" }));
+    await user.click(within(rail).getByRole("link", { name: "Governor" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
     expect(router.state.location.state).toEqual({
@@ -1696,7 +1765,7 @@ describe("CandidatePage roster rail sort", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderCandidate(perIdLoader, "c-1", KEYED_ARRIVAL);
 
-    const rail = await screen.findByRole("navigation", { name: "Candidates in this race" });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
     const select = await within(rail).findByRole("combobox");
     const options = within(select).getAllByRole("option").map((option) => option.textContent);
     expect(options).toEqual(["A–Z"]);
