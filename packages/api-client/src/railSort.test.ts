@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   candidateRailSortsOffered,
-  railSortForBallotSort,
   railSortsOffered,
   sortCandidateRailEntries,
   sortRailEntries,
@@ -34,12 +33,6 @@ describe("railSortsOffered", () => {
   it("offers nothing on an unkeyed (pre-deploy) snapshot or a single entry", () => {
     expect(railSortsOffered([{ id: "a", title: "A" }, { id: "b", title: "B" }], true)).toEqual([]);
     expect(railSortsOffered([entry("a")], true)).toEqual([]);
-  });
-
-  it("offers By district only when every entry carries a group heading", () => {
-    const grouped = [entry("a", { group: "City: Berkeley" }), entry("b", { group: "County: Alameda" })];
-    expect(railSortsOffered(grouped, false)).toEqual(["vote_power", "district", "alphabetical"]);
-    expect(railSortsOffered([grouped[0], entry("b")], false)).toEqual(["vote_power", "alphabetical"]);
   });
 
   it("withholds only my_areas when area ids are missing from an entry", () => {
@@ -132,30 +125,6 @@ describe("sortRailEntries", () => {
     }
   });
 
-  it("district: groups by heading in first-appearance order, list order within a group", () => {
-    const entries = [
-      entry("mayor", { group: "City: Berkeley" }),
-      entry("prop-1", { group: "State: California" }),
-      entry("council", { group: "City: Berkeley" }),
-      entry("sheriff", { group: "County: Alameda" }),
-      entry("prop-2", { group: "State: California" }),
-    ];
-    expect(sortRailEntries(entries, "district").map((e) => e.id)).toEqual([
-      "mayor",
-      "council",
-      "prop-1",
-      "prop-2",
-      "sheriff",
-    ]);
-  });
-
-  it("maps both district-size list sorts to By district", () => {
-    expect(railSortForBallotSort("district_size")).toBe("district");
-    expect(railSortForBallotSort("district_size_smallest")).toBe("district");
-    expect(railSortForBallotSort("vote_power")).toBe("vote_power");
-    expect(railSortForBallotSort("my_areas")).toBe("my_areas");
-  });
-
   it("does not mutate the input", () => {
     const entries = [entry("b"), entry("a")];
     sortRailEntries(entries, "alphabetical");
@@ -233,13 +202,13 @@ describe("sortCandidateRailEntries", () => {
 });
 
 describe("retention rail order", () => {
-  it.each(["my_areas", "vote_power", "alphabetical"] as const)("sinks retention below every date and above awaiting under %s", (sort) => {
+  it.each(["my_areas", "vote_power", "alphabetical"] as const)("sinks retention above awaiting under %s", (sort) => {
     const entries = [
       entry("retention", { title: "A judge", retention: true, vote_power_score: 99 }),
       entry("awaiting", { title: "A awaiting", awaiting_candidates: true }),
       entry("contest", { title: "Z contest", vote_power_score: 1 }),
       entry("later", { election_date: "2027-01-01" }),
     ];
-    expect(sortRailEntries(entries, sort).map((e) => e.id)).toEqual(["contest", "later", "retention", "awaiting"]);
+    expect(sortRailEntries(entries, sort).map((e) => e.id)).toEqual(["contest", "retention", "later", "awaiting"]);
   });
 });

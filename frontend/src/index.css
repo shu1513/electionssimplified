@@ -106,11 +106,6 @@
      content cards, like paper on a desk. Cards, dialogs, and menus stay
      white so the coral, yellow, and party colors keep their true hue. */
   --color-page: #fdfbf7;
-  /* Split-screen rail ground (user decision 2026-09-29): a warm grey a
-     clear step deeper than the page, so the open contest box — page-toned,
-     running flush into the detail — reads as connected to what it opens.
-     surface was too close to page for that join to register. */
-  --color-rail: #f1efe8;
   /* Honorary-member card (/me/membership): navy with ivory text and a gold
      mark — the one dark card on the site, so the paid tier reads as a
      different tier at a glance. Gold on navy is 7.4:1, ivory 12:1. */
@@ -121,7 +116,7 @@
      needs about 54rem (864px). Deliberately below Tailwind's lg (1024px):
      an unfolded iPhone Duo in landscape (~890pt) and an iPad in portrait
      get the rail; a Duo in portrait (~626pt) keeps the pager bar. Only
-     the two detail pages and BallotRail use it — lg stays global. */
+     the two detail pages and DetailRail use it — lg stays global. */
   --breakpoint-rail: 54rem;
 }
 
@@ -156,15 +151,5 @@ body:has([data-sticky-pick-cta]) .chat-launcher {
     top: 0;
     left: 0;
     width: 100%;
-  }
-}
-
-/* Scrolls without a visible scrollbar (wheel, trackpad, and keyboard still
-   work). The ballot rail uses it: a second scrollbar beside the page's own
-   read as clutter, and the rail scrolls its current item into view itself. */
-@utility scrollbar-none {
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
   }
 }

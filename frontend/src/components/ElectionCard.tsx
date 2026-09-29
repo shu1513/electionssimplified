@@ -418,23 +418,6 @@ export function ElectionList({
   // Navigation uses the same qualifying dates as the displayed list,
   // even when its pool includes races hidden by the active tab.
   const pool = groupListElections(contestsPool ?? elections, votePowerDates);
-  const levelSections = sort === "district_size" || sort === "district_size_smallest";
-  // Under the district-size sorts every contest sits under a level section
-  // heading ("City: Berkeley"); the rail's "By district" sort groups under
-  // the same headings, so each contest carries its own. The retention and
-  // awaiting tails get theirs by the same rule so a snapshot is either
-  // fully grouped or not grouped at all (railSortsOffered).
-  const groupById = new Map<string, string>();
-  if (levelSections) {
-    for (const list of [...pool.groups.flatMap((group) => [group.contested, group.retention]), pool.awaiting]) {
-      for (const run of splitLevelRuns(list)) {
-        const { label } = levelLocation(run.level, run.elections);
-        for (const election of run.elections) {
-          groupById.set(election.id, label);
-        }
-      }
-    }
-  }
   const navState: ElectionNavState | undefined = backTo
     ? {
         backTo,
@@ -455,7 +438,6 @@ export function ElectionList({
           ...(pool.retentionIds.has(election.id)
             ? { retention: true }
             : isAwaitingCandidates(election) ? { awaiting_candidates: true } : {}),
-          ...(groupById.has(election.id) ? { group: groupById.get(election.id) } : {}),
         })),
         ...(raceType ? { raceType } : {}),
         ...(railSort ? { railSort } : {}),
@@ -467,6 +449,7 @@ export function ElectionList({
   for (const election of [...groups.flatMap((group) => [...group.contested, ...group.retention]), ...awaitingCandidates]) {
     positionById.set(election.id, positionById.size + 1);
   }
+  const levelSections = sort === "district_size" || sort === "district_size_smallest";
   const renderCards = (cards: ElectionSummary[], showVotePower = true, headingDistrictId?: string) =>
     splitSeatRuns(cards).map((run) => (
       <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>
