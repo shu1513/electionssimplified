@@ -42,7 +42,7 @@ export function PostPickActions({ back }: PostPickActionsProps) {
  * election. Same label and destination as the header item, and the
  * header's color rule too: green is the "done" color, so the link only
  * wears it once the draft is complete ("My Draft ✓"); "My Draft 4/34" is
- * still homework and stays ink. */
+ * still homework and takes the header greeting's navy instead. */
 export function DraftLink() {
   const { me } = useMe();
   const isGuest = me === null;
@@ -51,7 +51,7 @@ export function DraftLink() {
   const complete = isGuest ? (guestDraftNav?.complete ?? false) : (picksProgress?.complete ?? false);
   const className = complete
     ? "whitespace-nowrap font-semibold text-green-800 hover:underline"
-    : "whitespace-nowrap font-semibold text-ink hover:underline";
+    : "whitespace-nowrap font-semibold text-navy hover:underline";
   const onClick = () => track("post_pick_click", { target: "draft" });
   if (isGuest) {
     return guestDraftNav ? (

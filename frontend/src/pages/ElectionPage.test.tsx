@@ -997,8 +997,9 @@ describe("ElectionPage", () => {
       expect(draftLink).toHaveAttribute("href", "/draft");
       expect(draftLink.closest('[role="status"]')).not.toBeNull();
       expect(screen.queryByRole("link", { name: /Back to/ })).not.toBeInTheDocument();
-      // Green is the "done" color: an in-progress draft's link stays ink.
-      expect(draftLink).toHaveClass("text-ink");
+      // Green is the "done" color: an in-progress draft's link wears the
+      // header greeting's navy instead.
+      expect(draftLink).toHaveClass("text-navy");
       expect(draftLink).not.toHaveClass("text-green-800");
       // Deep link (no rail context): the toast is not behind a rail-only
       // hide, so it shows at every width.
