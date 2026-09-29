@@ -222,7 +222,7 @@ export function DetailRail({
           and controls read as one block with it (the mockup's "← All
           elections" / "Your ballot"); spacing alone separates them. */}
         {headerSlot ? <div className="mr-3 mt-4 px-3">{headerSlot}</div> : null}
-        <ul className="mt-3 space-y-1">
+        <ul className="mt-2.5 space-y-1">
           {main.map((entry, index) => [
             // role="presentation": a heading, not a list item — the rows keep
             // their count for assistive tech.
@@ -231,7 +231,7 @@ export function DetailRail({
               <li
                 key={`heading:${entry.id}`}
                 role="presentation"
-                className={index > 0 ? "pt-2.5" : "pt-1"}
+                className={index > 0 ? "pt-2.5" : ""}
               >
                 <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>{entry.group}</p>
               </li>
