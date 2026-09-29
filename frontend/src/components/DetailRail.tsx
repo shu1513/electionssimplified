@@ -210,7 +210,7 @@ export function DetailRail({
           onClick={() =>
             track("detail_control", { control: "pager_back", value: "none" })
           }
-          className="block truncate px-3 text-sm font-semibold text-ink-soft transition hover:text-ink"
+          className="block truncate px-3 text-[13px] font-semibold text-ink-soft transition hover:text-ink"
         >
           <span aria-hidden="true">← </span>
           {backTo.label}
