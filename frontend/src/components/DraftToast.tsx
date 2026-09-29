@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DraftLink } from "./PostPickActions";
+import { markDraftToastSeen } from "../lib/draftToastSeen";
 
 // The election page's post-pick confirmation for roster picks — the same
 // "added to cart" moment the candidate page's sticky card gives, cut to the
@@ -20,6 +21,11 @@ import { DraftLink } from "./PostPickActions";
 // The caller keys it per pick, so another pick remounts it and the label
 // re-reads with the new count. Hidden in split view by the caller — the
 // rail's own progress bar already says it.
+//
+// Once per browser (draftToastSeen): the caller skips it after the first
+// showing, and the toast marks that showing itself, only when it is
+// actually on screen — a split-view mount sits under the caller's
+// rail:hidden and must not spend the one lesson a phone would later get.
 
 const HOLD_MS = 6000;
 const FADE_MS = 300;
@@ -61,7 +67,14 @@ export function DraftToast() {
   const [phase, setPhase] = useState<"in" | "out" | "gone">("in");
   const [placement, setPlacement] = useState<Placement>(measure);
   const placementRef = useRef(placement);
+  const pillRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // checkVisibility sees through an ancestor's display:none; where the
+    // browser lacks it (older Safari, jsdom) assume the pill is showing.
+    const pill = pillRef.current;
+    if (pill && (typeof pill.checkVisibility !== "function" || pill.checkVisibility())) {
+      markDraftToastSeen();
+    }
     const fade = setTimeout(() => setPhase("out"), HOLD_MS - FADE_MS);
     const gone = setTimeout(() => setPhase("gone"), HOLD_MS);
     return () => {
@@ -111,6 +124,7 @@ export function DraftToast() {
       style={{ top: anchored ? placement.top! : undefined, paddingRight: placement.right }}
     >
       <div
+        ref={pillRef}
         role="status"
         className={`pointer-events-auto relative rounded-full border border-line bg-white px-4 py-2 text-sm shadow-lg transition-opacity duration-300 motion-safe:animate-toast-in ${
           phase === "out" ? "opacity-0" : "opacity-100"

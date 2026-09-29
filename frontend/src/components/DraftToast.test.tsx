@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, screen } from "@testing-library/react";
 import { DraftToast } from "./DraftToast";
 import { clearBallotDraft, setDraftBallotContext, setDraftCandidateChoice } from "../lib/ballotDraft";
+import { DRAFT_TOAST_SEEN_KEY } from "../lib/draftToastSeen";
 import { apiError, stubApiRoutes } from "../test/mockApi";
 import { renderRoutes } from "../test/render";
 
@@ -118,6 +119,29 @@ describe("DraftToast", () => {
     const parts = pillParts();
     expect(parts.strip).toHaveClass("top-3");
     expect(parts.caret).not.toBeNull();
+  });
+
+  it("spends the once-per-browser showing only when it is actually on screen", async () => {
+    window.localStorage.removeItem(DRAFT_TOAST_SEEN_KEY);
+    // Split view: the caller's rail:hidden wrapper keeps the pill off
+    // screen. jsdom has no checkVisibility, so stand one in.
+    const checkVisibility = vi.fn(() => false);
+    HTMLElement.prototype.checkVisibility = checkVisibility;
+    try {
+      const { unmount } = renderToast();
+      await screen.findByRole("link", { name: "My Draft (1)" });
+      expect(checkVisibility).toHaveBeenCalled();
+      expect(window.localStorage.getItem(DRAFT_TOAST_SEEN_KEY)).toBeNull();
+      unmount();
+
+      checkVisibility.mockReturnValue(true);
+      renderToast();
+      await screen.findByRole("link", { name: "My Draft (1)" });
+      expect(window.localStorage.getItem(DRAFT_TOAST_SEEN_KEY)).toBe("1");
+    } finally {
+      delete (HTMLElement.prototype as { checkVisibility?: unknown }).checkVisibility;
+      window.localStorage.removeItem(DRAFT_TOAST_SEEN_KEY);
+    }
   });
 
   it("falls back to the page gutter when there is no header link at all", async () => {
