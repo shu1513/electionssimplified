@@ -270,7 +270,26 @@ describe("AutoPickFillControl", () => {
     });
     expect(await screen.findByRole("button", { name: "Clear auto picks" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Auto-fill empty picks by my issues" })).toBeNull();
-    expect(screen.queryByText(/Picks the best match for your ranked issues/)).toBeNull();
+    expect(screen.queryByRole("button", { name: "How does this work?" })).toBeNull();
+  });
+
+  // The plain-English note sits behind an (i) beside the fill button
+  // (HowItWorksPopover); it leaves with the fill button, so a date that
+  // only offers Clear shows no glyph (asserted above).
+  it("explains how the fill works in a popover beside the button", async () => {
+    stubApiRoutes({ "/api/me/research-area-preferences": { body: THREE_PREFERENCES } });
+    renderControl();
+    await screen.findByRole("button", { name: "Auto-fill empty picks by my issues" });
+    const how = screen.getByRole("button", { name: "How does this work?" });
+    expect(how).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/Picks you made yourself are not changed/)).toBeNull();
+    const user = userEvent.setup();
+    await user.click(how);
+    expect(how).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText(/Picks you made yourself are not changed/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByText(/Picks you made yourself are not changed/)).toBeNull();
+    expect(how).toHaveFocus();
   });
 
   it("hides the clear button when the only auto picks are on another date", async () => {

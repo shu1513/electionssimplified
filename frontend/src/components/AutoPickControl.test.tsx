@@ -135,9 +135,9 @@ describe("AutoPickControl", () => {
     const user = userEvent.setup();
     await user.click(how);
     expect(how).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText(/pick the closest match/)).toBeInTheDocument();
+    expect(screen.getByText(/pick the best match/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Close" }));
-    expect(screen.queryByText(/pick the closest match/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/pick the best match/)).not.toBeInTheDocument();
     expect(how).toHaveFocus();
   });
 

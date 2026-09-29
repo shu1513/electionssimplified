@@ -13,6 +13,7 @@ import {
 } from "@voteapp/api-client";
 import type { AutoPickElectionResult, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
 import { countBucket, currentAttribution, errorCategoryOf, track } from "../lib/usage";
+import { HowItWorksPopover } from "./HowItWorksPopover";
 
 // Per-date auto-pick controls for the My Picks page
 // (docs/plans/auto-pick-by-issues.md): each election-date card (list view
@@ -34,8 +35,11 @@ import { countBucket, currentAttribution, errorCategoryOf, track } from "../lib/
 // Kept for the existing import sites (PicksPage, BallotPreview).
 export { reasonLabel };
 
-const FILL_DESCRIPTION =
-  "Picks the best match for your ranked issues in each race you haven't decided. Your own picks are never changed.";
+// Plain-English note behind the (i) beside the fill button. Says the two
+// things the label can't: it covers every undecided race on this date, and
+// it never touches a pick the user made themselves.
+const HOW_FILL_WORKS =
+  "You rank the issues you care about in Settings. For each race on this date you haven't decided, we compare the candidates' records on those issues and pick the best match. Picks you made yourself are not changed. If there isn't enough evidence in a race, we leave it.";
 
 export function AutoPickFillControl({
   date,
@@ -103,22 +107,19 @@ export function AutoPickFillControl({
 
   return (
     <div className="mt-2 print:hidden">
-      <div className="flex flex-wrap items-center gap-2">
+      {/* relative: HowItWorksPopover anchors its panel to this row. */}
+      <div className="relative flex flex-wrap items-center gap-x-1 gap-y-2">
         {fillable ? (
-          // The one-line explanation rides as a hover tooltip and a
-          // screen-reader description, not visible copy: the label already
-          // says what the button does, and the card stays uncluttered.
           <button
             type="button"
             disabled={saving || preferencesLoading}
             onClick={onFill}
-            title={FILL_DESCRIPTION}
-            aria-describedby={`autopick-fill-help-${date}`}
             className="rounded-full border border-autopick-border bg-autopick px-3 py-1.5 text-sm font-semibold text-autopick-ink transition hover:bg-autopick-dark disabled:opacity-50"
           >
             {fill.isPending ? "Picking…" : "Auto-fill empty picks by my issues"}
           </button>
         ) : null}
+        {fillable ? <HowItWorksPopover text={HOW_FILL_WORKS} /> : null}
         {clearable ? (
           <button
             type="button"
@@ -130,13 +131,6 @@ export function AutoPickFillControl({
           </button>
         ) : null}
       </div>
-      {fillable ? (
-        // Describes the fill button (aria-describedby above), so it leaves
-        // with it; the Auto chips on the rows say what Clear removes.
-        <p id={`autopick-fill-help-${date}`} className="sr-only">
-          {FILL_DESCRIPTION}
-        </p>
-      ) : null}
       {prompt ? (
         <p role="status" className="mt-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-mid">
           Rank at least {MIN_AUTO_PICK_ISSUES} issues first, so the picks reflect what matters to you.{" "}
