@@ -5,7 +5,9 @@ import type { BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@
 import {
   RAIL_SORTS,
   VOTE_POWER_BAND_ORDER,
+  ballotSortForRailSort,
   competitivenessChip,
+  isRailDistrictSort,
   nearestDayPickProgress,
   railSortForBallotSort,
   railSortsOffered,
@@ -69,24 +71,25 @@ import { positionBucket, sourceLinkProps, track, useSectionExposure } from "../l
 // default for viewers with saved research areas.
 type CandidateSort = "alphabetical" | "my_issues";
 
-// Rewrites the back link's ?type= (and, where the list can honor it, ?sort=)
-// to the rail's current tab and sort, so leaving the split view lands on the
-// view the rail is showing rather than the one the reader arrived with.
-// Sort carry-over rules: vote_power is a list sort on both pages; my_areas
-// reaches both ballot lists (/me/ballot server-side, /ballot via its
+// Rewrites the back link's ?type= and ?sort= to the rail's current tab and
+// sort, so leaving the split view lands on the view the rail is showing
+// rather than the one the reader arrived with. Every rail sort is one of the
+// list's (ballotSortForRailSort); my_areas is carried only to the ballot
+// lists that can honor it (/me/ballot server-side, /ballot via its
 // client-side mirror — which degrades to vote_power rather than lying if
-// the URL ever lands on a viewer without saved areas); alphabetical is
-// rail-only and leaves the path's sort untouched. The rewrite happens only when the engaged sort would
-// CHANGE the order the back URL already yields — the rail's seeded default
-// is mapped FROM that URL's sort (railSortForBallotSort), so this rule
-// keeps a list sort the rail only mirrors (district_size → By district,
-// which has no ?sort= of its own) from being silently overwritten, while a
-// genuinely different choice still carries over. The base is a throwaway for relative parsing
-// only.
+// the URL ever lands on a viewer without saved areas). The rewrite happens
+// only when the engaged sort would CHANGE the order the back URL already
+// yields — the rail's seeded default is mapped FROM that URL's sort
+// (railSortForBallotSort) — and never for a FALLBACK sort, nor over a
+// district-size URL the rail cannot offer district sorts for (a snapshot
+// without district headings): there the rail shows vote_power, but the
+// reader chose nothing, so the richer list sort stays in the URL. The base
+// is a throwaway for relative parsing only.
 function rewriteBackPath(
   path: string,
   tabs: { available: boolean; raceType: BallotRaceType | null },
-  railSort: RailSortKey | null
+  railSort: RailSortKey | null,
+  { fallback, districtOffered }: { fallback: boolean; districtOffered: boolean }
 ): string {
   const url = new URL(path, "http://internal");
   if (tabs.available) {
@@ -98,13 +101,12 @@ function rewriteBackPath(
   }
   const honorable =
     railSort === "vote_power" ||
+    isRailDistrictSort(railSort) ||
     (railSort === "my_areas" && (url.pathname === "/me/ballot" || url.pathname === "/ballot"));
   const urlRailSort = railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power");
-  // A district-size back URL is never rewritten: the rail mirrors it as By
-  // district when the snapshot is grouped and merely approximates it with
-  // vote_power when not — neither is a sort the reader chose over it.
-  if (honorable && urlRailSort !== "district" && railSort !== urlRailSort) {
-    url.searchParams.set("sort", railSort);
+  const unofferable = isRailDistrictSort(urlRailSort) && !districtOffered;
+  if (!fallback && !unofferable && honorable && railSort !== null && railSort !== urlRailSort) {
+    url.searchParams.set("sort", ballotSortForRailSort(railSort));
   }
   return url.pathname + url.search + url.hash;
 }
@@ -387,8 +389,9 @@ export function ElectionPage() {
   // engage prematurely and visibly re-shuffle. Same persistence story as
   // the tab: component state across sibling walks, nav state across
   // remounts. No "As listed": the sort is always engaged, seeded by the
-  // LIST's sort (the pages stamp railSort via railSortForBallotSort, which
-  // sends both district-size sorts to By district). A snapshot
+  // LIST's sort (the pages stamp railSort via railSortForBallotSort — the
+  // rail's sorts are the list's own, the two district-size sorts
+  // included). A snapshot
   // that PREDATES the railSort stamp seeds from the back URL's own ?sort=
   // instead — defaulting it to vote_power would make rewriteBackPath
   // silently rewrite a sort=my_areas back link the reader never touched.
@@ -411,6 +414,22 @@ export function ElectionPage() {
       : offeredRailSorts.includes("vote_power")
         ? "vote_power"
         : (offeredRailSorts[0] ?? null);
+  // A fallback sort is one the reader did not choose (rewriteBackPath).
+  const railSortFallback = railSort !== railSortState;
+  const railDistrictOffered = offeredRailSorts.some((sort) => isRailDistrictSort(sort));
+  // The direction the snapshot's district headings run in — the list's
+  // sort at click time (stamped; else read off the back URL for a snapshot
+  // that predates the stamp). Flipping to the other district sort runs the
+  // groups the other way.
+  const snapshotDistrictSort = (() => {
+    if (navState === null) return null;
+    const stamped = navState.railSort;
+    if (isRailDistrictSort(stamped)) return stamped;
+    const fromUrl = railSortForBallotSort(
+      new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
+    );
+    return isRailDistrictSort(fromUrl) ? fromUrl : null;
+  })();
   // Prev/next walk exactly what the rail shows: the engaged tab's slice, in
   // the engaged sort's order.
   const slicedContests =
@@ -419,7 +438,10 @@ export function ElectionPage() {
       : contests;
   const sortedContests =
     railSort !== null && slicedContests !== undefined
-      ? sortRailEntries(slicedContests, railSort, weights)
+      ? sortRailEntries(slicedContests, railSort, weights, {
+          reverseGroups:
+            isRailDistrictSort(railSort) && snapshotDistrictSort !== null && railSort !== snapshotDistrictSort,
+        })
       : slicedContests;
   // Vote-power band headings by the list's own rule: bands only once ten
   // or more banded races are on show, so a short ballot is not chopped
@@ -486,7 +508,8 @@ export function ElectionPage() {
               path: rewriteBackPath(
                 navState.backTo.path,
                 { available: railTabsAvailable, raceType: railTab },
-                railSort
+                railSort,
+                { fallback: railSortFallback, districtOffered: railDistrictOffered }
               ),
             },
           };
@@ -571,7 +594,7 @@ export function ElectionPage() {
             picked: isPickedContest(contest.id),
             // The list's section headings, only under the sort that mirrors
             // them; retention rows form the rail's fold-away tail.
-            ...(railSort === "district" && contest.group !== undefined
+            ...(isRailDistrictSort(railSort) && contest.group !== undefined
               ? { group: contest.group }
               : railVotePowerBands && contest.vote_power_band !== undefined
                 ? // "Vote power: High", not a bare "High": the district
