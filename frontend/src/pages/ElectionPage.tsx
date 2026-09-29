@@ -76,9 +76,9 @@ type CandidateSort = "alphabetical" | "my_issues";
 // rail-only and leaves the path's sort untouched. The rewrite happens only when the engaged sort would
 // CHANGE the order the back URL already yields — the rail's seeded default
 // is mapped FROM that URL's sort (railSortForBallotSort), so this rule
-// keeps a richer list sort the rail merely approximates (district_size →
-// vote_power) from being silently overwritten, while a genuinely different
-// choice still carries over. The base is a throwaway for relative parsing
+// keeps a list sort the rail only mirrors (district_size → By district,
+// which has no ?sort= of its own) from being silently overwritten, while a
+// genuinely different choice still carries over. The base is a throwaway for relative parsing
 // only.
 function rewriteBackPath(
   path: string,
@@ -96,7 +96,11 @@ function rewriteBackPath(
   const honorable =
     railSort === "vote_power" ||
     (railSort === "my_areas" && (url.pathname === "/me/ballot" || url.pathname === "/ballot"));
-  if (honorable && railSort !== railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power")) {
+  const urlRailSort = railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power");
+  // A district-size back URL is never rewritten: the rail mirrors it as By
+  // district when the snapshot is grouped and merely approximates it with
+  // vote_power when not — neither is a sort the reader chose over it.
+  if (honorable && urlRailSort !== "district" && railSort !== urlRailSort) {
     url.searchParams.set("sort", railSort);
   }
   return url.pathname + url.search + url.hash;
@@ -365,7 +369,7 @@ export function ElectionPage() {
   // the tab: component state across sibling walks, nav state across
   // remounts. No "As listed": the sort is always engaged, seeded by the
   // LIST's sort (the pages stamp railSort via railSortForBallotSort, which
-  // sends the un-honorable district-size sorts to vote_power). A snapshot
+  // sends both district-size sorts to By district). A snapshot
   // that PREDATES the railSort stamp seeds from the back URL's own ?sort=
   // instead — defaulting it to vote_power would make rewriteBackPath
   // silently rewrite a sort=my_areas back link the reader never touched.
@@ -403,6 +407,11 @@ export function ElectionPage() {
   // election), not the slice — switching the rail to the other tab hides
   // the current row from the slice but must not tear the rail down.
   const railContests = pagerNeighbors(contests, data.id) !== null ? (displayedContests ?? null) : null;
+  // Vote-power band headings by the list's own rule: bands only once ten
+  // or more banded races are on show, so a short ballot is not chopped
+  // into tiny sections. Counted on the rail's displayed slice.
+  const railVotePowerBands =
+    (railContests ?? []).filter((contest) => contest.vote_power_band !== undefined).length >= 10;
   // Two derived contexts, deliberately split:
   // - `forwarded` (sibling walks, the candidate chain's back hop) carries
   //   the rail's CURRENT tab and sort but the ORIGINAL back destination —
@@ -523,6 +532,14 @@ export function ElectionPage() {
             label: contest.title,
             path: `/elections/${contest.id}`,
             picked: isPickedContest(contest.id),
+            // The list's section headings, only under the sort that mirrors
+            // them; retention rows form the rail's fold-away tail.
+            ...(railSort === "district" && contest.group !== undefined
+              ? { group: contest.group }
+              : railSort === "vote_power" && railVotePowerBands && contest.vote_power_band !== undefined
+                ? { group: contest.vote_power_band }
+                : {}),
+            ...(contest.retention ? { retention: true } : {}),
           }))}
           currentId={data.id}
           backTo={railNav.backTo}

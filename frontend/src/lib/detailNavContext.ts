@@ -78,6 +78,12 @@ export type NavContest = {
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
   retention?: boolean;
+  /** The list's district section heading this contest sat under, stamped
+   * by the district-size sorts only — see RailSortEntry.group. */
+  group?: string;
+  /** The vote-power band label the list heads this race with ("High");
+   * absent on the retention and awaiting tails. */
+  vote_power_band?: string;
 };
 /** research_area_records powers the candidate rail's My-issues sort: each
  * candidate's stance-bearing records condensed to per-area counts at
@@ -224,6 +230,12 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
       }
       if (raw.awaiting_candidates === true) {
         entry.awaiting_candidates = true;
+      }
+      if (typeof raw.group === "string" && raw.group.trim() !== "") {
+        entry.group = raw.group;
+      }
+      if (typeof raw.vote_power_band === "string" && raw.vote_power_band.trim() !== "") {
+        entry.vote_power_band = raw.vote_power_band;
       }
       return entry;
     });

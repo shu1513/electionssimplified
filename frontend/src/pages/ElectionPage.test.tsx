@@ -2240,6 +2240,50 @@ describe("ElectionPage ballot rail", () => {
     expect(screen.queryByRole("navigation", { name: "Ballot" })).not.toBeInTheDocument();
   });
 
+  it("folds retention races under a closed heading at the end", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    renderElection(perIdLoader, "e-2", {
+      ...ARRIVAL,
+      contests: [{ id: "e-4", title: "Judge Kim — retain?", retention: true }, ...CONTESTS],
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    // Closed by default: the heading names the tail with its count, the
+    // judge's row is not rendered, and the other contests keep their order
+    // ahead of it.
+    const heading = within(rail).getByRole("button", { name: "Retention races (1)" });
+    expect(heading).toHaveAttribute("aria-expanded", "false");
+    expect(within(rail).queryByRole("link", { name: "Judge Kim — retain?" })).not.toBeInTheDocument();
+    expect(within(rail).getByRole("link", { name: "Governor" })).toBeInTheDocument();
+
+    await user.click(heading);
+    expect(heading).toHaveAttribute("aria-expanded", "true");
+    expect(within(rail).getByRole("link", { name: "Judge Kim — retain?" })).toHaveAttribute(
+      "href",
+      "/elections/e-4"
+    );
+    await user.click(heading);
+    expect(within(rail).queryByRole("link", { name: "Judge Kim — retain?" })).not.toBeInTheDocument();
+  });
+
+  it("holds the retention tail open while reading a retention race", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(perIdLoader, "e-4", {
+      ...ARRIVAL,
+      contests: [{ id: "e-4", title: "Judge Kim — retain?", retention: true }, ...CONTESTS],
+    });
+
+    // The current row must be visible, so the heading reports open and the
+    // race's row sits under it with aria-current.
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByRole("button", { name: "Retention races (1)" })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(within(rail).getByText("Judge Kim — retain?").closest("li")).toHaveAttribute("aria-current", "page");
+  });
+
   it("offers no race-type tabs on an untyped (pre-deploy) snapshot", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-2", ARRIVAL);
@@ -2465,9 +2509,10 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
   it("starts on the seeded list sort and preserves a district-size back URL", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {
-      // A district-size list: the rail cannot honor that order, so the
-      // seed falls back to vote_power (stamped by the list page) — but the
-      // back URL must keep the richer sort the rail merely approximates.
+      // A district-size list whose snapshot carries no group headings (a
+      // pre-deploy entry): By district is not offered, so the rail falls
+      // back to vote_power — but the back URL must keep the richer sort
+      // the rail merely approximates.
       backTo: { path: "/me/ballot?sort=district_size", label: "My Elections" },
       contests: KEYED_CONTESTS,
       railSort: "vote_power",
@@ -2520,6 +2565,81 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       "href",
       "/me/ballot?sort=my_areas"
     );
+  });
+
+  it("groups the rail under the list's district headings on a district-size arrival", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    // A snapshot from a district-size list: every contest carries its
+    // section heading, in the list's order (smallest districts first).
+    const grouped = [
+      { ...KEYED_CONTESTS[1], group: "City: Berkeley" },
+      { ...KEYED_CONTESTS[0], group: "City: Berkeley" },
+      { ...KEYED_CONTESTS[2], group: "State: California" },
+    ];
+    renderElection(perIdLoader, "e-1", {
+      backTo: { path: "/me/ballot?sort=district_size_smallest", label: "My Elections" },
+      contests: grouped,
+      railSort: "district",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const select = await within(rail).findByRole("combobox");
+    expect(select).toHaveValue("district");
+    // Headings render where the group changes (presentation rows, so the
+    // list's item count stays the contests'); contests keep the list's
+    // order under them. The back link is not rewritten: By district has no
+    // list sort of its own to carry.
+    const rows = () =>
+      [...rail.querySelectorAll("ul > li")].map(
+        (row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title") ?? row.textContent
+      );
+    expect(rows()).toEqual(["City: Berkeley", "Proposition 33", "Governor", "State: California", "Proposition 4"]);
+    expect(within(rail).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(rail).getByRole("link", { name: "Back to My Elections" })).toHaveAttribute(
+      "href",
+      "/me/ballot?sort=district_size_smallest"
+    );
+
+    // Leaving the sort drops the headings.
+    await user.selectOptions(select, "alphabetical");
+    expect(rows()).toEqual(["Governor", "Proposition 4", "Proposition 33"]);
+  });
+
+  it("heads the vote-power sort with the list's bands once ten races are on show", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // Ten banded races, scores descending through three bands; the
+    // headings render where the band changes, in vote-power order.
+    const banded = Array.from({ length: 10 }, (_, index) => ({
+      id: index === 0 ? "e-1" : `b-${index}`,
+      title: index === 0 ? "Governor" : `Race ${index}`,
+      race_type: "office",
+      vote_power_score: 100 - index * 10,
+      election_date: "2026-11-03",
+      research_area_ids: [],
+      vote_power_band: index < 2 ? "Very high" : index < 6 ? "High" : "Average",
+    }));
+    renderElection(perIdLoader, "e-1", { backTo: ARRIVAL.backTo, contests: banded, railSort: "vote_power" });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(await within(rail).findByRole("combobox")).toHaveValue("vote_power");
+    const headings = () =>
+      [...rail.querySelectorAll('ul > li[role="presentation"]')].map((row) => row.textContent);
+    expect(headings()).toEqual(["Very high", "High", "Average"]);
+    expect(within(rail).getAllByRole("listitem")).toHaveLength(10);
+  });
+
+  it("shows no vote-power bands on a short ballot, as the list would not", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(perIdLoader, "e-1", {
+      backTo: ARRIVAL.backTo,
+      contests: KEYED_CONTESTS.map((contest) => ({ ...contest, vote_power_band: "High" })),
+      railSort: "vote_power",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await within(rail).findByRole("combobox");
+    expect(rail.querySelectorAll('ul > li[role="presentation"]')).toHaveLength(0);
   });
 
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {

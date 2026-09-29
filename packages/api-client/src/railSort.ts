@@ -14,7 +14,7 @@ import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 // view, and the authoritative order returns from the backend the moment
 // the reader navigates back to the list.
 
-export type RailSortKey = "my_areas" | "vote_power" | "alphabetical";
+export type RailSortKey = "my_areas" | "vote_power" | "district" | "alphabetical";
 
 /** The snapshot fields the rail sorts on — a NavContest subset. */
 export type RailSortEntry = {
@@ -26,6 +26,10 @@ export type RailSortEntry = {
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
   retention?: boolean;
+  /** The list's district section heading this contest sat under ("City:
+   * Berkeley"), stamped only by the district-size list sorts. Powers the
+   * rail's "By district" sort, which groups under these headings. */
+  group?: string;
 };
 
 /** Rail order, matching the list pages' labels where the sort is the same
@@ -33,6 +37,7 @@ export type RailSortEntry = {
 export const RAIL_SORTS: readonly { value: RailSortKey; label: string }[] = [
   { value: "my_areas", label: "My issues" },
   { value: "vote_power", label: "My vote power" },
+  { value: "district", label: "By district" },
   { value: "alphabetical", label: "A–Z" },
 ];
 
@@ -49,7 +54,9 @@ const TITLE_COLLATOR = new Intl.Collator("en", { numeric: true });
  * unknown, such as the retired `soonest` value in an old link.
  */
 export function railSortForBallotSort(sort: string): RailSortKey {
-  return sort === "my_areas" ? sort : "vote_power";
+  if (sort === "my_areas") return sort;
+  if (sort === "district_size" || sort === "district_size_smallest") return "district";
+  return "vote_power";
 }
 
 /**
@@ -70,8 +77,11 @@ export function railSortsOffered(entries: RailSortEntry[], hasSavedAreas: boolea
   }
   const myAreas =
     hasSavedAreas && entries.every((entry) => entry.research_area_ids !== undefined);
+  // By district needs every entry's heading: a snapshot from a vote-power
+  // or My-issues list carries none, and the rail cannot derive one.
+  const grouped = entries.every((entry) => entry.group !== undefined);
   return RAIL_SORTS.map((option) => option.value).filter(
-    (value) => value !== "my_areas" || myAreas
+    (value) => (value !== "my_areas" || myAreas) && (value !== "district" || grouped)
   );
 }
 
@@ -147,6 +157,17 @@ export function sortRailEntries<Entry extends RailSortEntry>(
   weights?: Map<string, ResearchAreaWeight>
 ): Entry[] {
   const areaWeights = weights ?? new Map<string, ResearchAreaWeight>();
+  // By district keeps the list's own group order (first appearance) and the
+  // list's order within a group: the district-size list already ordered
+  // the sections by size, which the rail cannot recompute.
+  const groupOrder = new Map<string, number>();
+  if (sort === "district") {
+    for (const entry of entries) {
+      if (entry.group !== undefined && !groupOrder.has(entry.group)) {
+        groupOrder.set(entry.group, groupOrder.size);
+      }
+    }
+  }
   return [...entries].sort((a, b) => {
     // The awaiting-candidates sink outranks every sort key, as on the list.
     const aAwaiting = a.awaiting_candidates ? 1 : 0;
@@ -154,17 +175,20 @@ export function sortRailEntries<Entry extends RailSortEntry>(
     if (aAwaiting !== bAwaiting) {
       return aAwaiting - bAwaiting;
     }
-    // Date is the outer structure of every sort, as on the list: earliest
+    // Retention races are one tail below every date (the rail folds them
+    // under a single "Retention races" heading); the list is unaffected,
+    // since it regroups by date and splits retention out itself.
+    const aRetention = a.retention ? 1 : 0;
+    const bRetention = b.retention ? 1 : 0;
+    if (aRetention !== bRetention) {
+      return aRetention - bRetention;
+    }
+    // Date is the outer structure of the rest, as on the list: earliest
     // date first, the chosen sort within a date.
     const aDate = a.election_date ?? "";
     const bDate = b.election_date ?? "";
     if (aDate !== bDate) {
       return aDate < bDate ? -1 : 1;
-    }
-    const aRetention = a.retention ? 1 : 0;
-    const bRetention = b.retention ? 1 : 0;
-    if (aRetention !== bRetention) {
-      return aRetention - bRetention;
     }
     if (sort === "alphabetical") {
       const byTitle = TITLE_COLLATOR.compare(a.title, b.title);
@@ -193,6 +217,16 @@ export function sortRailEntries<Entry extends RailSortEntry>(
       if (byPower !== 0) {
         return byPower;
       }
+    }
+    if (sort === "district") {
+      // Ungrouped entries (never offered this sort, but be total) sink.
+      const aGroup = a.group !== undefined ? (groupOrder.get(a.group) ?? Infinity) : Infinity;
+      const bGroup = b.group !== undefined ? (groupOrder.get(b.group) ?? Infinity) : Infinity;
+      if (aGroup !== bGroup) {
+        return aGroup - bGroup;
+      }
+      // Within a group the input (list) order stands: sort() is stable.
+      return 0;
     }
     // The tail for equal primary keys.
     return compareTail(a, b);
