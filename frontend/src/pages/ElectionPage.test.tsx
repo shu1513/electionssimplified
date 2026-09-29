@@ -2857,6 +2857,8 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     await waitFor(() =>
       expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("(decided)")
     );
+    // The decided answer rides at the row's right edge (shown from lg).
+    expect(within(rail).getByTitle("Proposition 4")).toHaveTextContent("my pick: Jordan Voter");
     expect(within(rail).getByTitle("Proposition 4").querySelector("svg")).not.toBeNull();
     // Undecided rows keep their plain label and no check.
     const plainRow = within(rail).getByTitle("Proposition 33");

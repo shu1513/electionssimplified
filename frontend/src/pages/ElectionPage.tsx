@@ -56,6 +56,7 @@ import { CandidatePickButton, MeasureChoiceButtons, StrandedPicksNotice } from "
 import { PostPickActions } from "../components/PostPickActions";
 import { DraftToast } from "../components/DraftToast";
 import { draftChoicesByElectionId, isDecidedChoice, useBallotDraft } from "../lib/ballotDraft";
+import { choicePickedLabel } from "../lib/choicePickedLabel";
 import { useMyDistricts } from "../lib/useMyDistricts";
 import { AddressNudge } from "../components/AddressNudge";
 import { isRetentionRace, splitResearchAreasBySaved, useElectionChoices } from "@voteapp/api-client";
@@ -586,7 +587,7 @@ export function ElectionPage() {
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
@@ -598,6 +599,7 @@ export function ElectionPage() {
             label: contest.title,
             path: `/elections/${contest.id}`,
             picked: isPickedContest(contest.id),
+            pickedLabel: choicePickedLabel(railChoices?.get(contest.id)),
             // The list's section headings, only under the sort that mirrors
             // them; retention rows form the rail's fold-away tail.
             ...(isRailDistrictSort(railSort) && contest.group !== undefined
