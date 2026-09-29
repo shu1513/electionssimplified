@@ -6,6 +6,7 @@ import {
   RAIL_SORTS,
   VOTE_POWER_BAND_ORDER,
   competitivenessChip,
+  nearestDayPickProgress,
   railSortForBallotSort,
   railSortsOffered,
   sortRailEntries,
@@ -292,6 +293,22 @@ export function ElectionPage() {
   // the pick-progress counters — a choice row emptied of picks keeps no
   // check.
   const railChoices = isGuest ? draftChoicesByElectionId(draft) : choiceByElectionId;
+  // The rail's progress bar: decided races over the ballot's nearest
+  // upcoming day, retention races excluded — the same count as My Draft
+  // (nearestDayDraftProgress) and the nav badge. Read off the full
+  // snapshot, not the rail's tab slice, so it never changes with the tab.
+  // Null on a snapshot without dates (pre-deploy) or while choices load.
+  const railProgress =
+    navState?.contests !== undefined
+      ? nearestDayPickProgress(
+          navState.contests.flatMap((contest) =>
+            contest.election_date !== undefined ? [{ id: contest.id, election_date: contest.election_date }] : []
+          ),
+          railChoices,
+          usLatestLocalDate(),
+          { exclude: new Set(navState.contests.filter((contest) => contest.retention).map((contest) => contest.id)) }
+        )
+      : null;
   const isPickedContest = (electionId: string): boolean => isDecidedChoice(railChoices?.get(electionId));
   const choicesSettled = isGuest || (canChoose && choiceByElectionId !== undefined);
   const isUpcoming = data.election_date >= usLatestLocalDate();
@@ -540,7 +557,7 @@ export function ElectionPage() {
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
@@ -569,11 +586,34 @@ export function ElectionPage() {
           backToState={railNav.forwarded.backState ?? railNav.forwarded.listState}
           siblingState={railNav.forwarded}
           headerSlot={
-            // The list label renders even when no control is offerable (an
+            // The panel's title renders even when no control is offerable (an
             // old snapshot): naming WHAT the rows are never depends on the
-            // sort/tab keys. Mirrors the candidate rail's "Candidates:".
+            // sort/tab keys.
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink">Elections:</p>
+              <p className="text-base font-bold text-ink">My elections</p>
+              {/* Same bar as My Draft, count beside it as on that page:
+                  green = the "decided" color the pick names use; the
+                  sentence is the bar's accessible name. */}
+              {railProgress !== null ? (
+                <div className="flex items-center gap-2">
+                  <div
+                    role="progressbar"
+                    aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
+                    aria-valuemin={0}
+                    aria-valuemax={railProgress.total}
+                    aria-valuenow={railProgress.picked}
+                    className="h-1.5 flex-1 overflow-hidden rounded-full bg-rail-line"
+                  >
+                    <div
+                      className="h-full rounded-full bg-green-700"
+                      style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold tabular-nums text-ink-soft">
+                    {railProgress.picked}/{railProgress.total}
+                  </span>
+                </div>
+              ) : null}
               <div className="flex flex-col gap-2">
                 {railTabsAvailable ? (
                   <RaceTypeTabs
@@ -613,20 +653,11 @@ export function ElectionPage() {
       ) : null}
       {/* min-w-0: the grid column must be allowed to shrink or long titles
           blow the layout; rail:max-w-3xl keeps the reading measure of the
-          classic column even though the grid column is wider. In rail mode a
-          before pseudo-element draws the rail/detail divider a rem into the
-          gutter (centered in gap-8) — a pseudo, not border-l + pl, because
-          box-sizing is border-box and padding on this max-w-3xl div would
-          eat 17px of reading measure. On the detail side (not the rail) so
-          the rule spans the full content height; conditional so deep links
-          never grow a stray rule. */}
-      <div
-        className={
-          railContests !== null
-            ? "min-w-0 rail:relative rail:max-w-3xl rail:before:absolute rail:before:inset-y-0 rail:before:-left-4 rail:before:w-px rail:before:bg-line rail:before:content-['']"
-            : "min-w-0 rail:max-w-3xl"
-        }
-      >
+          classic column even though the grid column is wider. The rail/detail
+          divider is the rail panel's own right edge (DetailRail). In rail
+          mode the grid drops its top padding so the panel meets the header
+          line, and the detail column carries that padding itself. */}
+      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{

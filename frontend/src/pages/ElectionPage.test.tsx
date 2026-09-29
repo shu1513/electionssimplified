@@ -2687,6 +2687,32 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(rail.querySelectorAll('ul > li[role="presentation"]')).toHaveLength(0);
   });
 
+  it("shows a progress bar over the ballot's decided races, retention excluded", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    clearBallotDraft();
+    setDraftCandidateChoice({
+      electionId: "e-3",
+      raceTitle: "Proposition 4",
+      electionDate: "2026-11-03",
+      seatsToFill: null,
+      candidateId: "c-1",
+      candidateName: "Jordan Voter",
+      chosen: true,
+    });
+    renderElection(perIdLoader, "e-1", {
+      ...ARRIVAL,
+      contests: [...KEYED_CONTESTS, { id: "e-9", title: "Judge Kim — retain?", election_date: "2026-11-03", retention: true }],
+    });
+
+    // Three regular races on the day, one decided; the judge is not counted.
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const bar = await within(rail).findByRole("progressbar", { name: "1 of 3 races decided" });
+    expect(bar).toHaveAttribute("aria-valuemax", "3");
+    expect(bar).toHaveAttribute("aria-valuenow", "1");
+    expect(within(rail).getByText("1/3")).toBeInTheDocument();
+    clearBallotDraft();
+  });
+
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {

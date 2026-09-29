@@ -1498,12 +1498,12 @@ describe("CandidatePage roster rail", () => {
     await waitFor(() =>
       expect(within(rail).getByTitle("Casey Contender")).toHaveTextContent("(my pick)")
     );
-    expect(within(rail).getByTitle("Casey Contender").querySelector("svg")).not.toBeNull();
+    expect(within(rail).getByTitle("Casey Contender").querySelector("svg circle")).not.toBeNull();
     // Unpicked rows — the current candidate included — stay plain.
     const plainRow = within(rail).getByTitle("Jordan Voter");
     expect(plainRow).not.toHaveTextContent("(my pick)");
-    expect(plainRow.querySelector("svg")).toBeNull();
-    expect(within(rail).getByTitle("Riley Runner").querySelector("svg")).toBeNull();
+    expect(plainRow.querySelector("svg circle")).toBeNull();
+    expect(within(rail).getByTitle("Riley Runner").querySelector("svg circle")).toBeNull();
     clearBallotDraft();
   });
 

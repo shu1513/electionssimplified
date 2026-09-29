@@ -366,7 +366,7 @@ export function SavedBallotPage() {
           choicesByElectionId={choiceByElectionId}
           // Full query string: the back link must return to this exact
           // list — the ?type= tab and ?sort= override survive the round trip.
-          backTo={{ path: location.pathname + location.search, label: "My Elections" }}
+          backTo={{ path: location.pathname + location.search, label: "All elections" }}
           // Tab-unsliced pool + the engaged tab: the detail rail's own
           // race-type tabs start here and can reach the other tab's races.
           contestsPool={filtersView.filteredElections}
