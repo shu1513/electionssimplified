@@ -13,7 +13,7 @@ import { useGuestDraftNav } from "../lib/usePickProgress";
  */
 export function EmbedHeader() {
   const nav = useGuestDraftNav();
-  // On the site a loaded ballot shows a plain "My Draft" link at zero picks.
+  // On the site a loaded ballot shows a "My Draft 0/n" link at zero picks.
   // Here the link is earned by the first pick.
   const draftNav = draftPickCount(useBallotDraft()) > 0 ? nav : null;
   // The new tab is a separate document: it cannot see the code this box was

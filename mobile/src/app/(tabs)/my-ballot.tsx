@@ -331,7 +331,7 @@ function SavedBallotBody({ email }: { email: string }) {
 
 // Header entry to the My Draft screen (no fifth tab; tab real estate is
 // scarce). The label carries live progress over the nearest election day —
-// "My Draft" → "My Draft 4/13" → "My Draft ✓" — from the shared hook, the
+// "My Draft 0/13" → "My Draft 4/13" → "My Draft ✓" — from the shared hook, the
 // same vocabulary as the web header nav. Hidden while logged out or the
 // session is still loading: a draft link for a viewer with no draft is
 // noise (mobile has no guest draft).

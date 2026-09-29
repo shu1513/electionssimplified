@@ -356,7 +356,7 @@ export function BallotPage() {
       {matchedAddress && isGuest && !isPartialBallot && !ambiguousMatchCount ? (
         <p role="status" className="mt-2 rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink">
           Elections for <span className="font-medium">{matchedAddress}</span>. Your address was only used to
-          find these election districts. We do NOT save it to any account.
+          find these election districts. We do NOT save it to your account.
         </p>
       ) : null}
       {/* ZIP and city searches land here with partial=1 in the URL (the flag

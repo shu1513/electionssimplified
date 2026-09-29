@@ -19,13 +19,14 @@ export type PickProgress = {
 /**
  * The draft link's label, shared by the web header nav, the web candidate
  * page's post-pick actions, and the mobile saved-ballot header so they never
- * drift: plain until the first pick (no homework-flavored "0/8", and no
- * counter while the queries haven't settled — a counter that flashes in
- * later is fine, a wrong one is not), then counting up, then the earned name
- * "My Draft ✓" when every race on the nearest election day is decided.
+ * drift: plain only while the counts are unknown (no counter while the
+ * queries haven't settled — a counter that flashes in later is fine, a wrong
+ * one is not), then "0/8" as soon as the nearest day's contested races are
+ * known so the goal is visible before the first pick, counting up, then the
+ * earned name "My Draft ✓" when every race on that day is decided.
  */
 export function myDraftLabel(progress: PickProgress | null): string {
-  return progress && progress.picked > 0
+  return progress
     ? progress.complete
       ? "My Draft ✓"
       : `My Draft ${progress.picked}/${progress.total}`

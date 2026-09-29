@@ -107,7 +107,8 @@ describe("App account nav", () => {
     stubApiRoutes({ "/api/me": { body: ME_VERIFIED } });
     renderApp();
 
-    // Plain "My Draft" (no counter) while no pick is made / progress unknown.
+    // Plain "My Draft" (no counter) while progress is unknown: no ballot
+    // route is stubbed here, so the nearest-day counts never settle.
     expect(await screen.findByRole("link", { name: "My Draft" })).toHaveAttribute("href", "/me/picks");
 
     // Everything else waits behind the greeting-as-menu-button, closed by
