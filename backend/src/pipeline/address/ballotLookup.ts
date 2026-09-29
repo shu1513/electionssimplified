@@ -354,7 +354,7 @@ export type BallotLookupPreviewMeasure = {
 // plain list card does not.
 export type BallotLookupElectionPreview = {
   // null = seat count never recorded; display treats null and 1 the same
-  // ("Vote for One").
+  // (no instruction line; >1 shows "Vote for up to N").
   seats_to_fill: number | null;
   candidates: BallotLookupPreviewCandidate[];
   measure: BallotLookupPreviewMeasure | null;

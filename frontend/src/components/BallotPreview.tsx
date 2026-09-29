@@ -31,8 +31,10 @@ function BallotOval({ filled, label }: { filled: boolean; label?: string }) {
   );
 }
 
-function voteInstruction(seatsToFill: number | null): string {
-  return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : "Vote for One";
+// Single-seat races get no instruction line: "Vote for One" on nearly every
+// box was noise. Multi-seat and Yes/No races still say what to do.
+function voteInstruction(seatsToFill: number | null): string | null {
+  return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : null;
 }
 
 // Judicial retention races are stored as race_type "office" with the judge as
@@ -135,9 +137,12 @@ function ContestBox({
             Covers {election.sub_district_seat} — may not be on your ballot.
           </p>
         ) : null}
-        <p className="mt-0.5 text-xs font-semibold text-ink">
-          {isMeasure || isRetention ? "Vote Yes or No" : voteInstruction(preview?.seats_to_fill ?? null)}
-        </p>
+        {(() => {
+          const instruction = isMeasure || isRetention ? "Vote Yes or No" : voteInstruction(preview?.seats_to_fill ?? null);
+          return instruction !== null ? (
+            <p className="mt-0.5 text-xs font-semibold text-ink">{instruction}</p>
+          ) : null;
+        })()}
         {autoNote !== null ? (
           <p className="mt-0.5 text-xs italic text-ink-soft print:hidden">{autoNote}</p>
         ) : null}

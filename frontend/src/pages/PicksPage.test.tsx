@@ -724,9 +724,9 @@ describe("PicksPage", () => {
     const headings = screen.getAllByRole("heading", { level: 4 }).map((h) => h.textContent);
     expect(headings).toEqual(["United States Senator", "Governor", "Measure H"]);
 
-    // Multi-seat instruction from seats_to_fill; single/null renders as one.
+    // Multi-seat instruction from seats_to_fill; single/null shows no line.
     expect(screen.getByText("Vote for up to 2")).toBeInTheDocument();
-    expect(screen.getByText("Vote for One")).toBeInTheDocument();
+    expect(screen.queryByText("Vote for One")).not.toBeInTheDocument();
 
     // The pick: filled oval is visual; the textual chip is the contract.
     expect(screen.getAllByText("My pick").length).toBe(2); // Jane + measure Yes
