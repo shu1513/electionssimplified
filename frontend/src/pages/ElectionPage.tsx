@@ -11,7 +11,8 @@ import {
 } from "@voteapp/api-client";
 import { partyColorClass } from "@voteapp/api-client";
 import { DetailPager } from "../components/DetailPager";
-import { DetailRail } from "../components/DetailRail";
+import { BallotRail, type BallotRailRow } from "../components/BallotRail";
+import { choicePickedLabel } from "../lib/choicePickedLabel";
 import { RaceTypeTabs } from "../components/RaceTypeTabs";
 import {
   pagerNeighbors,
@@ -76,9 +77,9 @@ type CandidateSort = "alphabetical" | "my_issues";
 // rail-only and leaves the path's sort untouched. The rewrite happens only when the engaged sort would
 // CHANGE the order the back URL already yields — the rail's seeded default
 // is mapped FROM that URL's sort (railSortForBallotSort), so this rule
-// keeps a richer list sort the rail merely approximates (district_size →
-// vote_power) from being silently overwritten, while a genuinely different
-// choice still carries over. The base is a throwaway for relative parsing
+// keeps a list sort the rail only mirrors (district_size → By district,
+// which has no ?sort= of its own) from being silently overwritten, while a
+// genuinely different choice still carries over. The base is a throwaway for relative parsing
 // only.
 function rewriteBackPath(
   path: string,
@@ -96,7 +97,11 @@ function rewriteBackPath(
   const honorable =
     railSort === "vote_power" ||
     (railSort === "my_areas" && (url.pathname === "/me/ballot" || url.pathname === "/ballot"));
-  if (honorable && railSort !== railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power")) {
+  const urlRailSort = railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power");
+  // A district-size back URL is never rewritten: the rail mirrors it as By
+  // district when the snapshot is grouped and merely approximates it with
+  // vote_power when not — neither is a sort the reader chose over it.
+  if (honorable && urlRailSort !== "district" && railSort !== urlRailSort) {
     url.searchParams.set("sort", railSort);
   }
   return url.pathname + url.search + url.hash;
@@ -281,12 +286,10 @@ export function ElectionPage() {
   const myChoice = isGuest
     ? draftChoicesByElectionId(draft).get(data.id)
     : choiceByElectionId?.get(data.id);
-  // The rail's pick checks: same choice source as the ballot pages' cards
-  // (account choices signed-in, local draft as guest), same decided rule as
-  // the pick-progress counters — a choice row emptied of picks keeps no
-  // check.
+  // The rail's decided answers: same choice source as the ballot pages'
+  // cards (account choices signed-in, local draft as guest). A choice row
+  // emptied of picks yields no label, same as the pick-progress counters.
   const railChoices = isGuest ? draftChoicesByElectionId(draft) : choiceByElectionId;
-  const isPickedContest = (electionId: string): boolean => isDecidedChoice(railChoices?.get(electionId));
   const choicesSettled = isGuest || (canChoose && choiceByElectionId !== undefined);
   const isUpcoming = data.election_date >= usLatestLocalDate();
   // District gate (docs/plans/pick-district-gate.md): controls only for a
@@ -365,7 +368,7 @@ export function ElectionPage() {
   // the tab: component state across sibling walks, nav state across
   // remounts. No "As listed": the sort is always engaged, seeded by the
   // LIST's sort (the pages stamp railSort via railSortForBallotSort, which
-  // sends the un-honorable district-size sorts to vote_power). A snapshot
+  // sends both district-size sorts to By district). A snapshot
   // that PREDATES the railSort stamp seeds from the back URL's own ?sort=
   // instead — defaulting it to vote_power would make rewriteBackPath
   // silently rewrite a sort=my_areas back link the reader never touched.
@@ -478,6 +481,40 @@ export function ElectionPage() {
     // "alphabetical" | "my_issues".
     railSort: candidateSort,
   };
+  // The rail's open box: this contest's own rows, mirroring the picks made
+  // on the detail side. Candidates in the roster's displayed order (same
+  // array as the roster links, so the rail and the page agree), each with
+  // an oval and a link to the profile. A measure is its Yes / No pair; a
+  // retention race is the judge's name (no oval — the ballot marks Yes or
+  // No, not the name) over the same pair, a legacy judge pick reading as
+  // Yes, exactly as the My Draft ballot renders it (BallotPreview).
+  const myPickedIds = new Set((myChoice?.picks ?? []).map((pick) => pick.candidate_id));
+  const railPosition: "yes" | "no" | null =
+    myChoice?.measure_position ?? (retention && myPickedIds.size > 0 ? "yes" : null);
+  const railRows: BallotRailRow[] =
+    data.race_type === "ballot_measure" || retention
+      ? [
+          ...(retentionJudge
+            ? [
+                {
+                  id: retentionJudge.candidate_id,
+                  label: retentionJudge.display_name,
+                  path: `/candidates/${retentionJudge.candidate_id}`,
+                  state: candidateNavState,
+                },
+              ]
+            : []),
+          { id: "yes", label: "Yes", picked: railPosition === "yes" },
+          { id: "no", label: "No", picked: railPosition === "no" },
+        ]
+      : orderedCandidates.map(({ candidate }) => ({
+          id: candidate.candidate_id,
+          label: candidate.display_name,
+          path: `/candidates/${candidate.candidate_id}`,
+          state: candidateNavState,
+          picked: myPickedIds.has(candidate.candidate_id),
+          withdrawn: candidate.status === "withdrawn",
+        }));
 
   // The nav bar at the top: prev | back | next, each slot captioned.
   // backToState: when the back destination is a candidate page, restore
@@ -504,26 +541,30 @@ export function ElectionPage() {
   ) : null;
 
   return (
-    // With rail context the page widens to a two-column grid on lg+ (rail |
-    // detail); without it — deep links, stale snapshots — the markup is the
-    // classic centered column at every width.
+    // With rail context the page widens to a two-column grid (rail | detail)
+    // from the rail breakpoint (54rem, see index.css); without it — deep
+    // links, stale snapshots — the markup is the classic centered column at
+    // every width.
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
       {railContests !== null && railNav !== null ? (
-        <DetailRail
+        <BallotRail
           ariaLabel="Ballot"
-          entries={railContests.map((contest) => ({
+          contests={railContests.map((contest) => ({
             id: contest.id,
             label: contest.title,
             path: `/elections/${contest.id}`,
-            picked: isPickedContest(contest.id),
+            pickedLabel: choicePickedLabel(railChoices?.get(contest.id)),
+            ...(railSort === "district" && contest.group !== undefined ? { group: contest.group } : {}),
+            ...(contest.retention ? { retention: true } : {}),
           }))}
           currentId={data.id}
+          rows={railRows}
           backTo={railNav.backTo}
           backToState={railNav.forwarded.backState ?? railNav.forwarded.listState}
           siblingState={railNav.forwarded}
@@ -571,22 +612,11 @@ export function ElectionPage() {
         />
       ) : null}
       {/* min-w-0: the grid column must be allowed to shrink or long titles
-          blow the layout; lg:max-w-3xl keeps the reading measure of the
-          classic column even though the grid column is wider. In rail mode a
-          before pseudo-element draws the rail/detail divider a rem into the
-          gutter (centered in gap-8) — a pseudo, not border-l + pl, because
-          box-sizing is border-box and padding on this max-w-3xl div would
-          eat 17px of reading measure. On the detail side (not the rail) so
-          the rule spans the full content height; conditional so deep links
-          never grow a stray rule. */}
-      <div
-        className={
-          railContests !== null
-            ? "min-w-0 lg:relative lg:max-w-3xl lg:before:absolute lg:before:inset-y-0 lg:before:-left-4 lg:before:w-px lg:before:bg-line lg:before:content-['']"
-            : "min-w-0 lg:max-w-3xl"
-        }
-      >
-        {railContests !== null ? <div className="lg:hidden">{pagerBar}</div> : pagerBar}
+          blow the layout; rail:max-w-3xl keeps the reading measure of the
+          classic column even though the grid column is wider. The rail/detail
+          divider is the rail column's own right edge (BallotRail). */}
+      <div className="min-w-0 rail:max-w-3xl">
+        {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
             "@type": "Event",
