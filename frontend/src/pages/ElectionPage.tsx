@@ -447,6 +447,10 @@ export function ElectionPage() {
   const sortedContests =
     railSort !== null && slicedContests !== undefined
       ? sortRailEntries(slicedContests, railSort, weights, {
+          // A district-size arrival's own order is the list's true size
+          // order: keep it (flipped for the other direction). Any other
+          // arrival orders the levels itself.
+          groupOrder: snapshotDistrictSort !== null ? "snapshot" : "level",
           reverseGroups:
             isRailDistrictSort(railSort) && snapshotDistrictSort !== null && railSort !== snapshotDistrictSort,
         })

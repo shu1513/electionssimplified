@@ -8,8 +8,8 @@
 // optional fields degrade independently: a broken sibling list must not
 // take the back link down with it.
 
-import type { BallotRaceType, CandidateRailSortKey, RailSortKey } from "@voteapp/api-client";
-import { CANDIDATE_RAIL_SORTS, RAIL_SORTS } from "@voteapp/api-client";
+import type { BallotLevel, BallotRaceType, CandidateRailSortKey, RailSortKey } from "@voteapp/api-client";
+import { BALLOT_LEVELS, CANDIDATE_RAIL_SORTS, RAIL_SORTS } from "@voteapp/api-client";
 import { safeInternalPath } from "./safeInternalPath";
 
 /** A back-link destination. Purely where and what to call it — any state to
@@ -78,9 +78,13 @@ export type NavContest = {
   research_area_ids?: string[];
   awaiting_candidates?: boolean;
   retention?: boolean;
-  /** The list's district section heading this contest sat under, stamped
-   * by the district-size sorts only — see RailSortEntry.group. */
+  /** The list's district section heading for this contest's level ("City:
+   * Berkeley"), stamped under every list sort — see RailSortEntry.group. */
   group?: string;
+  /** This contest's government level (BALLOT_LEVELS): the rail's district
+   * sorts order the levels themselves when the snapshot did not come from
+   * a district-size list. */
+  level?: BallotLevel;
   /** The vote-power band KEY the list heads this race with ("high", see
    * VOTE_POWER_BAND_ORDER); absent on the retention and awaiting tails. */
   vote_power_band?: string;
@@ -233,6 +237,9 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
       }
       if (typeof raw.group === "string" && raw.group.trim() !== "") {
         entry.group = raw.group;
+      }
+      if (BALLOT_LEVELS.some((option) => option.key === raw.level)) {
+        entry.level = raw.level as BallotLevel;
       }
       if (typeof raw.vote_power_band === "string" && raw.vote_power_band.trim() !== "") {
         entry.vote_power_band = raw.vote_power_band;

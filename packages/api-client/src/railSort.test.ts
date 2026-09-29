@@ -37,10 +37,14 @@ describe("railSortsOffered", () => {
     expect(railSortsOffered([entry("a")], true)).toEqual([]);
   });
 
-  it("offers By district only when every entry carries a group heading", () => {
-    const grouped = [entry("a", { group: "City: Berkeley" }), entry("b", { group: "County: Alameda" })];
+  it("offers the district sorts only when every entry carries a heading and a level", () => {
+    const grouped = [
+      entry("a", { group: "City: Berkeley", level: "city" }),
+      entry("b", { group: "County: Alameda", level: "county" }),
+    ];
     expect(railSortsOffered(grouped, false)).toEqual(["vote_power", "district_smallest", "district_biggest"]);
     expect(railSortsOffered([grouped[0], entry("b")], false)).toEqual(["vote_power"]);
+    expect(railSortsOffered([grouped[0], entry("b", { group: "County: Alameda" })], false)).toEqual(["vote_power"]);
   });
 
   it("withholds only my_areas when area ids are missing from an entry", () => {
@@ -129,18 +133,39 @@ describe("sortRailEntries", () => {
       entry("sheriff", { group: "County: Alameda" }),
       entry("prop-2", { group: "State: California" }),
     ];
+    // Snapshot order: the entries' own group order stands (a district-size
+    // arrival), rows within a group in input order.
+    expect(
+      sortRailEntries(entries, "district_smallest", undefined, { groupOrder: "snapshot" }).map((e) => e.id)
+    ).toEqual(["mayor", "council", "prop-1", "prop-2", "sheriff"]);
+    // The other direction: groups run the other way, rows within stay put.
+    expect(
+      sortRailEntries(entries, "district_biggest", undefined, { groupOrder: "snapshot", reverseGroups: true }).map(
+        (e) => e.id
+      )
+    ).toEqual(["sheriff", "prop-1", "prop-2", "mayor", "council"]);
+  });
+
+  it("district: orders the levels itself from any other arrival", () => {
+    // A vote-power order, levels interleaved.
+    const entries = [
+      entry("prop-1", { group: "State: California", level: "state" }),
+      entry("mayor", { group: "City: Berkeley", level: "city" }),
+      entry("sheriff", { group: "County: Alameda", level: "county" }),
+      entry("rep", { group: "Federal", level: "federal" }),
+      entry("council", { group: "City: Berkeley", level: "city" }),
+    ];
     expect(sortRailEntries(entries, "district_smallest").map((e) => e.id)).toEqual([
       "mayor",
       "council",
-      "prop-1",
-      "prop-2",
       "sheriff",
+      "prop-1",
+      "rep",
     ]);
-    // The other direction: groups run the other way, rows within stay put.
-    expect(sortRailEntries(entries, "district_biggest", undefined, { reverseGroups: true }).map((e) => e.id)).toEqual([
-      "sheriff",
+    expect(sortRailEntries(entries, "district_biggest").map((e) => e.id)).toEqual([
+      "rep",
       "prop-1",
-      "prop-2",
+      "sheriff",
       "mayor",
       "council",
     ]);

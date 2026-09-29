@@ -709,6 +709,7 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
           group: "Other",
         },
         {
@@ -719,6 +720,7 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           awaiting_candidates: true,
+          level: "other",
           group: "Other",
         },
       ],
@@ -756,6 +758,8 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
+          group: "Other",
         },
         {
           id: "q-1",
@@ -765,6 +769,8 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
+          group: "Other",
         },
       ],
       raceType: "ballot_measure",

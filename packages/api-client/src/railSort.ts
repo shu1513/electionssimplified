@@ -1,3 +1,4 @@
+import { BALLOT_LEVELS } from "./ballotLevel";
 import type { ResearchAreaWeight } from "./researchAreaScoring";
 import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 
@@ -37,6 +38,9 @@ export type RailSortEntry = {
    * Berkeley"), stamped only by the district-size list sorts. Powers the
    * rail's "By district" sort, which groups under these headings. */
   group?: string;
+  /** The entry's government level (BALLOT_LEVELS key): the district sorts'
+   * order when the snapshot's own order is not the list's district order. */
+  level?: string;
 };
 
 /** Rail order, matching the list pages' labels where the sort is the same
@@ -93,10 +97,9 @@ export function railSortsOffered(entries: RailSortEntry[], hasSavedAreas: boolea
   }
   const myAreas =
     hasSavedAreas && entries.every((entry) => entry.research_area_ids !== undefined);
-  // The district sorts need every entry's heading: a snapshot from a
-  // vote-power or My-issues list carries none, and the rail cannot derive
-  // one.
-  const grouped = entries.every((entry) => entry.group !== undefined);
+  // The district sorts need every entry's heading and level (an old
+  // snapshot may carry neither, and the rail cannot derive them).
+  const grouped = entries.every((entry) => entry.group !== undefined && entry.level !== undefined);
   return RAIL_SORTS.map((option) => option.value).filter(
     (value) => (value !== "my_areas" || myAreas) && (!isRailDistrictSort(value) || grouped)
   );
@@ -172,27 +175,42 @@ export function sortRailEntries<Entry extends RailSortEntry>(
   entries: readonly Entry[],
   sort: RailSortKey,
   weights?: Map<string, ResearchAreaWeight>,
-  { reverseGroups = false }: { reverseGroups?: boolean } = {}
+  { groupOrder: groupOrderMode = "level", reverseGroups = false }: {
+    /** "snapshot": keep the entries' own group order (first appearance) —
+     * for a snapshot that came from a district-size list, whose order is
+     * the list's true size order. "level" (default): order the groups by
+     * government level, biggest first for district_biggest and smallest
+     * first for district_smallest, rows within a group in input order. */
+    groupOrder?: "snapshot" | "level";
+    /** Snapshot mode only: run the groups the other way (the reader
+     * flipped smallest ↔ biggest); rows within a group stay put. */
+    reverseGroups?: boolean;
+  } = {}
 ): Entry[] {
   const areaWeights = weights ?? new Map<string, ResearchAreaWeight>();
-  // The district sorts keep the list's own group order (first appearance)
-  // and the list's order within a group: the district-size list already
-  // ordered the sections by size, which the rail cannot recompute. The
-  // caller asks for `reverseGroups` when the reader flips to the other
-  // direction (smallest ↔ biggest): the groups run the other way, rows
-  // within a group stay put.
-  const groupOrder = new Map<string, number>();
+  const firstAppearance = new Map<string, number>();
   if (isRailDistrictSort(sort)) {
     for (const entry of entries) {
-      if (entry.group !== undefined && !groupOrder.has(entry.group)) {
-        groupOrder.set(entry.group, groupOrder.size);
+      if (entry.group !== undefined && !firstAppearance.has(entry.group)) {
+        firstAppearance.set(entry.group, firstAppearance.size);
       }
     }
   }
+  const levelIndex = (level: string | undefined): number => {
+    const index = BALLOT_LEVELS.findIndex((option) => option.key === level);
+    return index === -1 ? Infinity : index;
+  };
+  // Ungrouped entries (never offered these sorts, but be total) sink.
   const groupRank = (entry: RailSortEntry): number => {
-    const index = entry.group !== undefined ? groupOrder.get(entry.group) : undefined;
-    if (index === undefined) return Infinity;
-    return reverseGroups ? groupOrder.size - 1 - index : index;
+    if (groupOrderMode === "snapshot") {
+      const index = entry.group !== undefined ? firstAppearance.get(entry.group) : undefined;
+      if (index === undefined) return Infinity;
+      return reverseGroups ? firstAppearance.size - 1 - index : index;
+    }
+    const index = levelIndex(entry.level);
+    if (index === Infinity) return Infinity;
+    // BALLOT_LEVELS runs biggest (presidential) to smallest (other).
+    return sort === "district_smallest" ? BALLOT_LEVELS.length - 1 - index : index;
   };
   return [...entries].sort((a, b) => {
     // Retention races are the outermost tail — below every date AND below
@@ -240,7 +258,6 @@ export function sortRailEntries<Entry extends RailSortEntry>(
       }
     }
     if (isRailDistrictSort(sort)) {
-      // Ungrouped entries (never offered this sort, but be total) sink.
       const aGroup = groupRank(a);
       const bGroup = groupRank(b);
       if (aGroup !== bGroup) {
