@@ -231,7 +231,7 @@ export function DetailRail({
               <li
                 key={`heading:${entry.id}`}
                 role="presentation"
-                className={index > 0 ? "pt-2.5" : ""}
+                className={index > 0 ? "pt-2.5" : "pt-1"}
               >
                 <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>{entry.group}</p>
               </li>
