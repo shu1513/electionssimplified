@@ -81,8 +81,8 @@ export type NavContest = {
   /** The list's district section heading this contest sat under, stamped
    * by the district-size sorts only — see RailSortEntry.group. */
   group?: string;
-  /** The vote-power band label the list heads this race with ("High");
-   * absent on the retention and awaiting tails. */
+  /** The vote-power band KEY the list heads this race with ("high", see
+   * VOTE_POWER_BAND_ORDER); absent on the retention and awaiting tails. */
   vote_power_band?: string;
 };
 /** research_area_records powers the candidate rail's My-issues sort: each

@@ -169,19 +169,21 @@ export function sortRailEntries<Entry extends RailSortEntry>(
     }
   }
   return [...entries].sort((a, b) => {
+    // Retention races are the outermost tail — below every date AND below
+    // the awaiting-candidates sink — because the rail renders them last,
+    // under its fold-away "Retention races" heading, and the pager must
+    // walk the order the rail shows. The list is unaffected: it regroups
+    // by date and splits retention out itself.
+    const aRetention = a.retention ? 1 : 0;
+    const bRetention = b.retention ? 1 : 0;
+    if (aRetention !== bRetention) {
+      return aRetention - bRetention;
+    }
     // The awaiting-candidates sink outranks every sort key, as on the list.
     const aAwaiting = a.awaiting_candidates ? 1 : 0;
     const bAwaiting = b.awaiting_candidates ? 1 : 0;
     if (aAwaiting !== bAwaiting) {
       return aAwaiting - bAwaiting;
-    }
-    // Retention races are one tail below every date (the rail folds them
-    // under a single "Retention races" heading); the list is unaffected,
-    // since it regroups by date and splits retention out itself.
-    const aRetention = a.retention ? 1 : 0;
-    const bRetention = b.retention ? 1 : 0;
-    if (aRetention !== bRetention) {
-      return aRetention - bRetention;
     }
     // Date is the outer structure of the rest, as on the list: earliest
     // date first, the chosen sort within a date.

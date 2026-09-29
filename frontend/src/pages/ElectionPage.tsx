@@ -4,6 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import type { BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
 import {
   RAIL_SORTS,
+  VOTE_POWER_BAND_ORDER,
   competitivenessChip,
   railSortForBallotSort,
   railSortsOffered,
@@ -18,6 +19,7 @@ import {
   readElectionNavState,
   type CandidateNavState,
   type ElectionNavState,
+  type NavContest,
 } from "../lib/detailNavContext";
 import { JsonLdScript } from "../components/JsonLdScript";
 import { MeasureFundingSection } from "../components/MeasureFundingSection";
@@ -398,20 +400,38 @@ export function ElectionPage() {
     railTab !== null && contests !== undefined
       ? contests.filter((contest) => contest.race_type === railTab)
       : contests;
-  const displayedContests =
+  const sortedContests =
     railSort !== null && slicedContests !== undefined
       ? sortRailEntries(slicedContests, railSort, weights)
       : slicedContests;
+  // Vote-power band headings by the list's own rule: bands only once ten
+  // or more banded races are on show, so a short ballot is not chopped
+  // into tiny sections — and only on a single-date slice, since the list
+  // counts per date and the rail has no date headings to keep a second
+  // date's bands from reading as repeats.
+  const bandedContests = (sortedContests ?? []).filter((contest) => contest.vote_power_band !== undefined);
+  const railVotePowerBands =
+    railSort === "vote_power" &&
+    bandedContests.length >= 10 &&
+    new Set(bandedContests.map((contest) => contest.election_date)).size === 1;
+  // With bands on, the order is the list's: band first, score within — the
+  // scorer's ratings are not monotone in the score (a measure bump can
+  // lift a rating), so a pure score order would repeat a heading. A stable
+  // sort keeps the score order inside each band; the tails (no band) stay
+  // where sortRailEntries put them. Rail and pager both read this array.
+  const bandRank = (contest: NavContest): number =>
+    contest.vote_power_band === undefined
+      ? Number.POSITIVE_INFINITY
+      : VOTE_POWER_BAND_ORDER.indexOf(contest.vote_power_band as (typeof VOTE_POWER_BAND_ORDER)[number]);
+  const displayedContests =
+    railVotePowerBands && sortedContests !== undefined
+      ? [...sortedContests].sort((a, b) => bandRank(a) - bandRank(b))
+      : sortedContests;
   const contestNeighbors = pagerNeighbors(displayedContests, data.id);
   // Desktop rail: gated on the FULL snapshot (>= 2 entries containing this
   // election), not the slice — switching the rail to the other tab hides
   // the current row from the slice but must not tear the rail down.
   const railContests = pagerNeighbors(contests, data.id) !== null ? (displayedContests ?? null) : null;
-  // Vote-power band headings by the list's own rule: bands only once ten
-  // or more banded races are on show, so a short ballot is not chopped
-  // into tiny sections. Counted on the rail's displayed slice.
-  const railVotePowerBands =
-    (railContests ?? []).filter((contest) => contest.vote_power_band !== undefined).length >= 10;
   // Two derived contexts, deliberately split:
   // - `forwarded` (sibling walks, the candidate chain's back hop) carries
   //   the rail's CURRENT tab and sort but the ORIGINAL back destination —
@@ -536,8 +556,8 @@ export function ElectionPage() {
             // them; retention rows form the rail's fold-away tail.
             ...(railSort === "district" && contest.group !== undefined
               ? { group: contest.group }
-              : railSort === "vote_power" && railVotePowerBands && contest.vote_power_band !== undefined
-                ? { group: contest.vote_power_band }
+              : railVotePowerBands && contest.vote_power_band !== undefined
+                ? { group: formatVotePowerLabel(contest.vote_power_band) }
                 : {}),
             ...(contest.retention ? { retention: true } : {}),
           }))}

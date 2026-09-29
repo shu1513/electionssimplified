@@ -708,7 +708,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
-          vote_power_band: "High",
+          vote_power_band: "high",
           group: "Other",
         },
         {
@@ -755,7 +755,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
-          vote_power_band: "High",
+          vote_power_band: "high",
         },
         {
           id: "q-1",
@@ -764,7 +764,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
-          vote_power_band: "High",
+          vote_power_band: "high",
         },
       ],
       raceType: "ballot_measure",

@@ -233,13 +233,13 @@ describe("sortCandidateRailEntries", () => {
 });
 
 describe("retention rail order", () => {
-  it.each(["my_areas", "vote_power", "alphabetical"] as const)("sinks retention below every date and above awaiting under %s", (sort) => {
+  it.each(["my_areas", "vote_power", "alphabetical"] as const)("sinks retention below every date and below the awaiting tail under %s", (sort) => {
     const entries = [
       entry("retention", { title: "A judge", retention: true, vote_power_score: 99 }),
       entry("awaiting", { title: "A awaiting", awaiting_candidates: true }),
       entry("contest", { title: "Z contest", vote_power_score: 1 }),
       entry("later", { election_date: "2027-01-01" }),
     ];
-    expect(sortRailEntries(entries, sort).map((e) => e.id)).toEqual(["contest", "later", "retention", "awaiting"]);
+    expect(sortRailEntries(entries, sort).map((e) => e.id)).toEqual(["contest", "later", "awaiting", "retention"]);
   });
 });

@@ -261,9 +261,9 @@ it("preserves a valid retention flag and discards malformed flags", () => {
 
 it("preserves a non-empty vote-power band and discards blank ones", () => {
   expect(readElectionNavState({ backTo: BACK_TO, contests: [
-    { id: "a", title: "Mayor", vote_power_band: "High" },
+    { id: "a", title: "Mayor", vote_power_band: "high" },
     { id: "b", title: "Sheriff", vote_power_band: "" },
-  ] })?.contests).toEqual([{ id: "a", title: "Mayor", vote_power_band: "High" }, { id: "b", title: "Sheriff" }]);
+  ] })?.contests).toEqual([{ id: "a", title: "Mayor", vote_power_band: "high" }, { id: "b", title: "Sheriff" }]);
 });
 
 it("preserves a non-empty group heading and discards blank or non-string ones", () => {

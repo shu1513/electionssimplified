@@ -2606,34 +2606,79 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(rows()).toEqual(["Governor", "Proposition 4", "Proposition 33"]);
   });
 
-  it("heads the vote-power sort with the list's bands once ten races are on show", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    // Ten banded races, scores descending through three bands; the
-    // headings render where the band changes, in vote-power order.
-    const banded = Array.from({ length: 10 }, (_, index) => ({
+  // Ten banded races on one date; `bands` gives each its band key, and
+  // scores descend with the index so the score order is the index order.
+  const bandedContests = (bands: (index: number) => string) =>
+    Array.from({ length: 10 }, (_, index) => ({
       id: index === 0 ? "e-1" : `b-${index}`,
       title: index === 0 ? "Governor" : `Race ${index}`,
       race_type: "office",
-      vote_power_score: 100 - index * 10,
+      vote_power_score: 100 - index * 5,
       election_date: "2026-11-03",
       research_area_ids: [],
-      vote_power_band: index < 2 ? "Very high" : index < 6 ? "High" : "Average",
+      vote_power_band: bands(index),
     }));
-    renderElection(perIdLoader, "e-1", { backTo: ARRIVAL.backTo, contests: banded, railSort: "vote_power" });
+  const railHeadings = (rail: HTMLElement) =>
+    [...rail.querySelectorAll('ul > li[role="presentation"]')].map((row) => row.textContent);
+  const railRows = (rail: HTMLElement) =>
+    within(rail)
+      .getAllByRole("listitem")
+      .map((row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title"));
+
+  it("heads the vote-power sort with the list's bands once ten races are on show", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // Scores descending through three bands: the headings render where the
+    // band changes, in vote-power order.
+    renderElection(perIdLoader, "e-1", {
+      backTo: ARRIVAL.backTo,
+      contests: bandedContests((index) => (index < 2 ? "very_high" : index < 6 ? "high" : "medium")),
+      railSort: "vote_power",
+    });
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
     expect(await within(rail).findByRole("combobox")).toHaveValue("vote_power");
-    const headings = () =>
-      [...rail.querySelectorAll('ul > li[role="presentation"]')].map((row) => row.textContent);
-    expect(headings()).toEqual(["Very high", "High", "Average"]);
+    expect(railHeadings(rail)).toEqual(["Very high", "High", "Average"]);
     expect(within(rail).getAllByRole("listitem")).toHaveLength(10);
+  });
+
+  it("groups by band before score, as the list does, so a heading never repeats", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // The scorer's ratings are not monotone in the score: Race 2 (90) is
+    // Very high while Race 1 (95) is High. Band first, score within.
+    renderElection(perIdLoader, "e-1", {
+      backTo: ARRIVAL.backTo,
+      contests: bandedContests((index) => (index === 0 || index === 2 ? "very_high" : "high")),
+      railSort: "vote_power",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await within(rail).findByRole("combobox");
+    expect(railHeadings(rail)).toEqual(["Very high", "High"]);
+    expect(railRows(rail).slice(0, 4)).toEqual(["Governor", "Race 2", "Race 1", "Race 3"]);
+    // The pager walks the same order: next from the current (Governor) is
+    // Race 2, the other Very high race, not the higher-scoring Race 1.
+    const pager = screen.getByRole("navigation", { name: "Ballot navigation" });
+    expect(within(pager).getByRole("link", { name: /Next/ })).toHaveAttribute("href", "/elections/b-2");
+  });
+
+  it("shows no vote-power bands across two dates, since the list counts per date", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const twoDates = bandedContests((index) => (index < 5 ? "very_high" : "high")).map((contest, index) => ({
+      ...contest,
+      election_date: index < 5 ? "2026-08-18" : "2026-11-03",
+    }));
+    renderElection(perIdLoader, "e-1", { backTo: ARRIVAL.backTo, contests: twoDates, railSort: "vote_power" });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await within(rail).findByRole("combobox");
+    expect(railHeadings(rail)).toEqual([]);
   });
 
   it("shows no vote-power bands on a short ballot, as the list would not", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {
       backTo: ARRIVAL.backTo,
-      contests: KEYED_CONTESTS.map((contest) => ({ ...contest, vote_power_band: "High" })),
+      contests: KEYED_CONTESTS.map((contest) => ({ ...contest, vote_power_band: "high" })),
       railSort: "vote_power",
     });
 

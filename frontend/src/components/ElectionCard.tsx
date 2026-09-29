@@ -21,7 +21,9 @@ import {
   formatDistrictName,
   formatElectionDate,
   formatRosterStatus,
+  VOTE_POWER_BAND_ORDER,
   formatVotePowerLabel,
+  votePowerBand,
   resultChipTone,
   isDecidedChoice,
   isRetentionRace,
@@ -165,18 +167,15 @@ function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
   return { label: `${label}: ${name}`, districtId: district.id };
 }
 
-// Visible bands, highest first. The two lowest ratings share one label.
-const VOTE_POWER_GROUPS = ["very_high", "high", "above_average", "medium", "low", "unknown"] as const;
-
+// Visible bands, highest first (VOTE_POWER_BAND_ORDER); a race's band is
+// votePowerBand(rating) — the same normalization the rail's headings use.
 function splitVotePowerGroups(elections: ElectionSummary[]) {
-  return VOTE_POWER_GROUPS.map((rating) => ({
+  return VOTE_POWER_BAND_ORDER.map((rating) => ({
     rating,
     label: formatVotePowerLabel(rating),
-    elections: elections.filter((election) => {
-      if (isRetentionRace(election)) return false;
-      const label = election.vote_power.label === "very_low" ? "low" : election.vote_power.label;
-      return (label === "retention" ? "unknown" : label) === rating;
-    }),
+    elections: elections.filter(
+      (election) => !isRetentionRace(election) && votePowerBand(election.vote_power.label) === rating
+    ),
   })).filter((group) => group.elections.length > 0);
 }
 
@@ -456,10 +455,10 @@ export function ElectionList({
             ? { retention: true }
             : isAwaitingCandidates(election)
               ? { awaiting_candidates: true }
-              : // The vote-power band the list would head this race with;
-                // the rail shows those headings under its vote-power sort
-                // by the list's own ten-race rule. Tails carry none.
-                { vote_power_band: formatVotePowerLabel(election.vote_power.label) }),
+              : // The vote-power band (key) the list would head this race
+                // with; the rail shows those headings under its vote-power
+                // sort by the list's own ten-race rule. Tails carry none.
+                { vote_power_band: votePowerBand(election.vote_power.label) }),
           ...(groupById.has(election.id) ? { group: groupById.get(election.id) } : {}),
         })),
         ...(raceType ? { raceType } : {}),
