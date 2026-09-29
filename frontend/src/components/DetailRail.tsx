@@ -20,15 +20,24 @@ export type RailEntry = {
   retention?: boolean;
 };
 
-// The answer beside a decided race. Only from lg (64rem), where the rail
-// widens to 22rem: at the 54rem rail breakpoint the 18rem rail has no room
-// for it, and the circle alone carries "decided" there. Truncates; the
+// The answer beside a decided race: right after the title, a muted dot
+// between them, so it reads as one line ("City Council, District 7 · Aidan
+// Hill") rather than a value pushed to the far edge. Only from lg (64rem),
+// where the rail widens to 22rem: at the 54rem rail breakpoint the 18rem
+// rail has no room for it, and the circle alone carries "decided" there.
+// The title truncates first; the answer keeps up to 45% of the row. The
 // sr-only lead-in keeps it readable as "Governor, my pick: Katie Porter".
 function PickedAnswer({ label }: { label: string }) {
   return (
     <>
+      <span
+        aria-hidden="true"
+        className="hidden shrink-0 text-ink-soft lg:inline"
+      >
+        ·
+      </span>
       <span className="sr-only">, my pick: </span>
-      <span className="ml-auto hidden max-w-[45%] shrink-0 truncate text-xs font-semibold text-green-700 lg:inline">
+      <span className="hidden max-w-[45%] shrink-0 truncate text-xs font-semibold text-green-700 lg:inline">
         {label}
       </span>
     </>
@@ -179,7 +188,7 @@ export function DetailRail({
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
-          className={`h-4 w-4 shrink-0 text-rausch ${entry.pickedLabel ? "" : "ml-auto"}`}
+          className="ml-auto h-4 w-4 shrink-0 text-rausch"
           fill="none"
           stroke="currentColor"
           strokeWidth="2.2"
