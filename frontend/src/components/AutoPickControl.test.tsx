@@ -154,7 +154,7 @@ describe("AutoPickControl", () => {
     await userEvent.setup().click(screen.getByRole("button", { name: "Which candidate best matches my values?" }));
     expect(
       await screen.findByText(
-        "Sign up or log in to pick the issues you care about, and see which candidate best matches what you believe. Signing up is free."
+        "Log in or sign up for free to pick the issues you care about, and see which candidate best matches what you believe."
       )
     ).toBeInTheDocument();
     const next = encodeURIComponent(`/elections/${ELECTION_ID}`);

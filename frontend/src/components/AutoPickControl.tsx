@@ -111,10 +111,10 @@ export function AutoPickControl({
           title={question}
           description={
             measure
-              ? "Sign up or log in to pick the issues you care about, and see whether this measure matches what you believe. Signing up is free."
+              ? "Log in or sign up for free to pick the issues you care about, and see whether this measure matches what you believe."
               : retention
-                ? "Sign up or log in to pick the issues you care about, and see whether this candidate aligns with what you believe. Signing up is free."
-                : "Sign up or log in to pick the issues you care about, and see which candidate best matches what you believe. Signing up is free."
+                ? "Log in or sign up for free to pick the issues you care about, and see whether this candidate aligns with what you believe."
+                : "Log in or sign up for free to pick the issues you care about, and see which candidate best matches what you believe."
           }
         />
       </>
