@@ -16,9 +16,7 @@ import { choicePickedLabel } from "../lib/choicePickedLabel";
 import { RaceTypeTabs } from "../components/RaceTypeTabs";
 import {
   pagerNeighbors,
-  railTabsAvailableFor,
   readElectionNavState,
-  rewriteBackPath,
   type CandidateNavState,
   type ElectionNavState,
 } from "../lib/detailNavContext";
@@ -68,6 +66,46 @@ import { positionBucket, sourceLinkProps, track, useSectionExposure } from "../l
 // display name (there is no true ballot-position data). "my_issues" is the
 // default for viewers with saved research areas.
 type CandidateSort = "alphabetical" | "my_issues";
+
+// Rewrites the back link's ?type= (and, where the list can honor it, ?sort=)
+// to the rail's current tab and sort, so leaving the split view lands on the
+// view the rail is showing rather than the one the reader arrived with.
+// Sort carry-over rules: vote_power is a list sort on both pages; my_areas
+// reaches both ballot lists (/me/ballot server-side, /ballot via its
+// client-side mirror — which degrades to vote_power rather than lying if
+// the URL ever lands on a viewer without saved areas); alphabetical is
+// rail-only and leaves the path's sort untouched. The rewrite happens only when the engaged sort would
+// CHANGE the order the back URL already yields — the rail's seeded default
+// is mapped FROM that URL's sort (railSortForBallotSort), so this rule
+// keeps a list sort the rail only mirrors (district_size → By district,
+// which has no ?sort= of its own) from being silently overwritten, while a
+// genuinely different choice still carries over. The base is a throwaway for relative parsing
+// only.
+function rewriteBackPath(
+  path: string,
+  tabs: { available: boolean; raceType: BallotRaceType | null },
+  railSort: RailSortKey | null
+): string {
+  const url = new URL(path, "http://internal");
+  if (tabs.available) {
+    if (tabs.raceType) {
+      url.searchParams.set("type", tabs.raceType);
+    } else {
+      url.searchParams.delete("type");
+    }
+  }
+  const honorable =
+    railSort === "vote_power" ||
+    (railSort === "my_areas" && (url.pathname === "/me/ballot" || url.pathname === "/ballot"));
+  const urlRailSort = railSortForBallotSort(url.searchParams.get("sort") ?? "vote_power");
+  // A district-size back URL is never rewritten: the rail mirrors it as By
+  // district when the snapshot is grouped and merely approximates it with
+  // vote_power when not — neither is a sort the reader chose over it.
+  if (honorable && urlRailSort !== "district" && railSort !== urlRailSort) {
+    url.searchParams.set("sort", railSort);
+  }
+  return url.pathname + url.search + url.hash;
+}
 
 // The party filter over the candidates list. Order fixes the chip row;
 // labels are plural because the chips answer "show me the …".
@@ -312,7 +350,11 @@ export function ElectionPage() {
   // which is exactly the persistence the choice needs; remounts (back out
   // and in, candidate round trips) restore it from the nav state instead.
   const contests = navState?.contests;
-  const railTabsAvailable = railTabsAvailableFor(contests);
+  const railTabsAvailable =
+    contests !== undefined &&
+    contests.every((contest) => contest.race_type !== undefined) &&
+    contests.some((contest) => contest.race_type === "office") &&
+    contests.some((contest) => contest.race_type === "ballot_measure");
   // undefined = untouched (follow the nav state's tab), null = an explicit
   // "All" — the one control here whose cleared value is a real choice, so a
   // plain ?? fallback would undo it.
