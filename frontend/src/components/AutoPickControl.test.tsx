@@ -120,6 +120,27 @@ async function clickPickForMe() {
 }
 
 describe("AutoPickControl", () => {
+  // The plain-English explanation sits behind a bare info glyph beside
+  // the button (accessible name "How does this work?") that opens a
+  // popover with its own close button (same panel as "How to vote in
+  // WA"): a hover title never shows on touch screens, and the "Why this
+  // pick" panel only explains after a click.
+  it("explains how the pick works in a popover next to the button", async () => {
+    stubApiRoutes({});
+    renderControl();
+    await screen.findByRole("button", { name: "Auto-pick by my issues" });
+    const how = screen.getByRole("button", { name: "How does this work?" });
+    expect(how).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/weighting your top issues most/)).not.toBeInTheDocument();
+    const user = userEvent.setup();
+    await user.click(how);
+    expect(how).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText(/pick the closest match/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    expect(screen.queryByText(/pick the closest match/)).not.toBeInTheDocument();
+    expect(how).toHaveFocus();
+  });
+
   // Guests get the pitch instead of the button: a plain-words question
   // that opens the shared log in / sign up dialog, both links carrying
   // this page as the post-auth return path so the visitor lands back on

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router";
 import {
   ApiError,
@@ -67,6 +67,35 @@ export function AutoPickControl({
   const [prompt, setPrompt] = useState<"rank_issues" | null>(null);
   const [result, setResult] = useState<AutoPickElectionResult | null>(null);
   const [teaserOpen, setTeaserOpen] = useState(false);
+  const [howOpen, setHowOpen] = useState(false);
+  const howPanelId = useId();
+  const howTriggerRef = useRef<HTMLButtonElement>(null);
+  const howWrapperRef = useRef<HTMLSpanElement>(null);
+
+  // Escape and a click outside close the "how does this work" popover
+  // (same mechanics as HowToVoteControl).
+  useEffect(() => {
+    if (!howOpen) {
+      return;
+    }
+    const onPointerDown = (event: MouseEvent) => {
+      if (howWrapperRef.current && !howWrapperRef.current.contains(event.target as Node)) {
+        setHowOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setHowOpen(false);
+        howTriggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [howOpen]);
 
   const areaNames = new Map(preferences.map((preference) => [preference.research_area_id, preference.name]));
   const areaName = (researchAreaId: string) => areaNames.get(researchAreaId) ?? "one of your issues";
@@ -170,27 +199,80 @@ export function AutoPickControl({
     );
   }
 
+  // Plain-English "how does this work?" beside the button: a bare info
+  // glyph (no visible text; the label is its tooltip and accessible name)
+  // that opens a popover anchored under the row, the same panel shape as
+  // "How to vote in WA" on the elections list. A hover title
+  // never shows on touch screens and the "Why this pick" panel only
+  // explains after a click, so a first visit needs this before pressing.
+  // A popover (absolute) so opening it never shoves the roster down; it is
+  // anchored to the whole button row so its left edge lines up with the
+  // pill, and it is wide enough that three sentences read as a short
+  // block rather than a tall column.
+  const howItWorks = measure
+    ? "You rank the issues you care about in Settings. We compare what this measure would do against those issues, weighting your top issues most, and answer Yes or No. If there isn't enough evidence, we don't give an answer and tell you why."
+    : retention
+      ? "You rank the issues you care about in Settings. We check this judge's record on those issues, weighting your top issues most, and answer Yes or No on keeping them. If there isn't enough evidence, we don't give an answer and tell you why."
+      : "You rank the issues you care about in Settings. We compare each candidate's record on those issues, weighting your top issues most, and pick the closest match. If there isn't enough evidence, we don't make a pick and tell you why.";
+
   return (
     <div className="flex flex-col gap-2">
-      <span>
+      <span ref={howWrapperRef} className="relative flex flex-wrap items-center gap-x-1 gap-y-1">
         <button
           type="button"
-          title={
-            retention
-              ? "Answers Yes or No on keeping this judge, based on whether their record aligns with my issues"
-              : "Picks the candidate whose record best aligns with my issues, in the order I ranked them"
-          }
           // Disabled while the preferences load: clicking then would hit the
           // issue-floor check against a still-empty list and misdirect a
           // ready user to the issue editor.
           disabled={saving || preferencesLoading}
-          onClick={onClick}
+          onClick={() => {
+            setHowOpen(false);
+            onClick();
+          }}
           className={`rounded-full border border-autopick-border bg-autopick font-semibold text-autopick-ink transition hover:bg-autopick-dark disabled:opacity-50 ${
             compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"
           }`}
         >
           {autoPick.isPending ? "Picking…" : "Auto-pick by my issues"}
         </button>
+        <div>
+          <button
+            ref={howTriggerRef}
+            type="button"
+            onClick={() => setHowOpen(!howOpen)}
+            aria-label="How does this work?"
+            title="How does this work?"
+            aria-expanded={howOpen}
+            aria-controls={howPanelId}
+            className={`flex items-center rounded-full p-1 transition hover:text-ink ${howOpen ? "text-ink" : "text-ink-soft"}`}
+          >
+            <svg aria-hidden="true" viewBox="0 0 12 12" className={compact ? "h-4 w-4" : "h-5 w-5"}>
+              <circle cx="6" cy="6" r="5.25" fill="none" stroke="currentColor" strokeWidth="1.25" />
+              <path d="M6 5.4v3" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+              <circle cx="6" cy="3.4" r="0.8" fill="currentColor" />
+            </svg>
+          </button>
+          {howOpen ? (
+            <div
+              id={howPanelId}
+              className="absolute left-0 top-full z-20 mt-2 w-[28rem] max-w-[calc(100vw-2rem)] rounded-lg border border-line bg-white p-3 pr-9 text-sm leading-relaxed text-ink shadow-lg"
+            >
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => {
+                  setHowOpen(false);
+                  howTriggerRef.current?.focus();
+                }}
+                className="absolute right-2 top-2 rounded p-1 text-ink-soft transition hover:bg-surface hover:text-ink"
+              >
+                <svg aria-hidden="true" viewBox="0 0 12 12" className="h-3.5 w-3.5">
+                  <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+              {howItWorks}
+            </div>
+          ) : null}
+        </div>
       </span>
       {prompt === "rank_issues" ? (
         <p role="status" className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-mid">
