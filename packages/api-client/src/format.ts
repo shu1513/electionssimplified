@@ -102,6 +102,17 @@ const VOTE_POWER_LABELS: Record<string, string> = {
   retention: "Retention race",
 };
 
+/** The list's vote-power bands, highest first: the section order the
+ * ballot list shows and the rail's band order under its vote-power sort.
+ * very_low folds into low and retention into unknown (votePowerBand). */
+export const VOTE_POWER_BAND_ORDER = ["very_high", "high", "above_average", "medium", "low", "unknown"] as const;
+
+/** The band a rating sits in: the two lowest ratings share one band, and a
+ * retention rating (no score) reads as unknown. */
+export function votePowerBand(label: string): string {
+  return label === "very_low" ? "low" : label === "retention" ? "unknown" : label;
+}
+
 export function formatVotePowerLabel(label: string): string {
   return VOTE_POWER_LABELS[label] ?? label;
 }

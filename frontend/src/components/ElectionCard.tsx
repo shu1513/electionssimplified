@@ -21,7 +21,9 @@ import {
   formatDistrictName,
   formatElectionDate,
   formatRosterStatus,
+  VOTE_POWER_BAND_ORDER,
   formatVotePowerLabel,
+  votePowerBand,
   resultChipTone,
   isDecidedChoice,
   isRetentionRace,
@@ -165,18 +167,15 @@ function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
   return { label: `${label}: ${name}`, districtId: district.id };
 }
 
-// Visible bands, highest first. The two lowest ratings share one label.
-const VOTE_POWER_GROUPS = ["very_high", "high", "above_average", "medium", "low", "unknown"] as const;
-
+// Visible bands, highest first (VOTE_POWER_BAND_ORDER); a race's band is
+// votePowerBand(rating) — the same normalization the rail's headings use.
 function splitVotePowerGroups(elections: ElectionSummary[]) {
-  return VOTE_POWER_GROUPS.map((rating) => ({
+  return VOTE_POWER_BAND_ORDER.map((rating) => ({
     rating,
     label: formatVotePowerLabel(rating),
-    elections: elections.filter((election) => {
-      if (isRetentionRace(election)) return false;
-      const label = election.vote_power.label === "very_low" ? "low" : election.vote_power.label;
-      return (label === "retention" ? "unknown" : label) === rating;
-    }),
+    elections: elections.filter(
+      (election) => !isRetentionRace(election) && votePowerBand(election.vote_power.label) === rating
+    ),
   })).filter((group) => group.elections.length > 0);
 }
 
@@ -418,6 +417,23 @@ export function ElectionList({
   // Navigation uses the same qualifying dates as the displayed list,
   // even when its pool includes races hidden by the active tab.
   const pool = groupListElections(contestsPool ?? elections, votePowerDates);
+  const levelSections = sort === "district_size" || sort === "district_size_smallest";
+  // Under the district-size sorts every contest sits under a level section
+  // heading ("City: Berkeley"); the rail's "By district" sort groups under
+  // the same headings, so each contest carries its own. The retention and
+  // awaiting tails get theirs by the same rule so a snapshot is either
+  // fully grouped or not grouped at all (railSortsOffered).
+  const groupById = new Map<string, string>();
+  if (levelSections) {
+    for (const list of [...pool.groups.flatMap((group) => [group.contested, group.retention]), pool.awaiting]) {
+      for (const run of splitLevelRuns(list)) {
+        const { label } = levelLocation(run.level, run.elections);
+        for (const election of run.elections) {
+          groupById.set(election.id, label);
+        }
+      }
+    }
+  }
   const navState: ElectionNavState | undefined = backTo
     ? {
         backTo,
@@ -437,7 +453,13 @@ export function ElectionList({
           research_area_ids: election.research_areas.map((area) => area.id),
           ...(pool.retentionIds.has(election.id)
             ? { retention: true }
-            : isAwaitingCandidates(election) ? { awaiting_candidates: true } : {}),
+            : isAwaitingCandidates(election)
+              ? { awaiting_candidates: true }
+              : // The vote-power band (key) the list would head this race
+                // with; the rail shows those headings under its vote-power
+                // sort by the list's own ten-race rule. Tails carry none.
+                { vote_power_band: votePowerBand(election.vote_power.label) }),
+          ...(groupById.has(election.id) ? { group: groupById.get(election.id) } : {}),
         })),
         ...(raceType ? { raceType } : {}),
         ...(railSort ? { railSort } : {}),
@@ -449,7 +471,6 @@ export function ElectionList({
   for (const election of [...groups.flatMap((group) => [...group.contested, ...group.retention]), ...awaitingCandidates]) {
     positionById.set(election.id, positionById.size + 1);
   }
-  const levelSections = sort === "district_size" || sort === "district_size_smallest";
   const renderCards = (cards: ElectionSummary[], showVotePower = true, headingDistrictId?: string) =>
     splitSeatRuns(cards).map((run) => (
       <SeatRun key={run.elections[0].id} district={run.district} count={run.elections.length}>

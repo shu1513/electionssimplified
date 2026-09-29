@@ -259,6 +259,25 @@ it("preserves a valid retention flag and discards malformed flags", () => {
   ] })?.contests).toEqual([{ id: "a", title: "Judge A", retention: true }, { id: "b", title: "Judge B" }]);
 });
 
+it("preserves a non-empty vote-power band and discards blank ones", () => {
+  expect(readElectionNavState({ backTo: BACK_TO, contests: [
+    { id: "a", title: "Mayor", vote_power_band: "high" },
+    { id: "b", title: "Sheriff", vote_power_band: "" },
+  ] })?.contests).toEqual([{ id: "a", title: "Mayor", vote_power_band: "high" }, { id: "b", title: "Sheriff" }]);
+});
+
+it("preserves a non-empty group heading and discards blank or non-string ones", () => {
+  expect(readElectionNavState({ backTo: BACK_TO, contests: [
+    { id: "a", title: "Mayor", group: "City: Berkeley" },
+    { id: "b", title: "Sheriff", group: " " },
+    { id: "c", title: "Governor", group: 3 },
+  ] })?.contests).toEqual([
+    { id: "a", title: "Mayor", group: "City: Berkeley" },
+    { id: "b", title: "Sheriff" },
+    { id: "c", title: "Governor" },
+  ]);
+});
+
 describe("readElectionListState", () => {
   it("keeps the opened waiting section across a round trip, and only a literal true", () => {
     expect(readElectionListState({ awaitingCandidatesOpen: true })).toEqual({

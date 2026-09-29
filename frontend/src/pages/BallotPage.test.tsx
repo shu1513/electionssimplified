@@ -696,7 +696,10 @@ describe("BallotPage nav context", () => {
       backTo: { path: "/ballot?d=d-1&sort=district_size", label: "All elections" },
       // race_type powers the detail rail's tabs, the sort keys its sort
       // control; the awaiting flag keeps that tail sunk under rail sorts.
-      // No raceType field while the list is on the All tab.
+      // No raceType field while the list is on the All tab. Under a
+      // district-size sort every contest carries its level section heading
+      // (the fixture district is an unlevelled "state" type: "Other"), so
+      // the rail can group under the same headings.
       contests: [
         {
           id: "e-1",
@@ -705,6 +708,8 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          vote_power_band: "high",
+          group: "Other",
         },
         {
           id: "e-2",
@@ -714,10 +719,12 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           awaiting_candidates: true,
+          group: "Other",
         },
       ],
-      // The list's sort seeds the rail's always-engaged sort control.
-      railSort: "vote_power",
+      // The list's sort seeds the rail's always-engaged sort control: a
+      // district-size list opens the rail on By district.
+      railSort: "district",
     });
   });
 
@@ -748,6 +755,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          vote_power_band: "high",
         },
         {
           id: "q-1",
@@ -756,6 +764,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          vote_power_band: "high",
         },
       ],
       raceType: "ballot_measure",
