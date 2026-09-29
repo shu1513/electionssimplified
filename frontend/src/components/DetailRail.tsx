@@ -13,9 +13,27 @@ export type RailEntry = {
   label: string;
   path: string;
   picked?: boolean;
+  /** The decided answer shown at the row's right edge on wide screens: the
+   * picked name(s), or Yes / No. Absent or null = nothing shown. */
+  pickedLabel?: string | null;
   group?: string;
   retention?: boolean;
 };
+
+// The answer beside a decided race. Only from lg (64rem), where the rail
+// widens to 22rem: at the 54rem rail breakpoint the 18rem rail has no room
+// for it, and the circle alone carries "decided" there. Truncates; the
+// sr-only lead-in keeps it readable as "Governor, my pick: Katie Porter".
+function PickedAnswer({ label }: { label: string }) {
+  return (
+    <>
+      <span className="sr-only">, my pick: </span>
+      <span className="ml-auto hidden max-w-[45%] shrink-0 truncate text-xs font-semibold text-green-700 lg:inline">
+        {label}
+      </span>
+    </>
+  );
+}
 
 // Empty ring before an undecided race — the blank on the ballot waiting
 // to be filled; PickedCheck takes its place once the race is decided.
@@ -157,10 +175,11 @@ export function DetailRail({
             <span className="sr-only"> ({pickedSrLabel})</span>
           ) : null}
         </span>
+        {entry.pickedLabel ? <PickedAnswer label={entry.pickedLabel} /> : null}
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
-          className="ml-auto h-4 w-4 shrink-0 text-rausch"
+          className={`h-4 w-4 shrink-0 text-rausch ${entry.pickedLabel ? "" : "ml-auto"}`}
           fill="none"
           stroke="currentColor"
           strokeWidth="2.2"
@@ -188,6 +207,9 @@ export function DetailRail({
               <span className="sr-only"> ({pickedSrLabel})</span>
             ) : null}
           </span>
+          {entry.pickedLabel ? (
+            <PickedAnswer label={entry.pickedLabel} />
+          ) : null}
         </Link>
       </li>
     );
@@ -233,7 +255,9 @@ export function DetailRail({
                 role="presentation"
                 className={index > 0 ? "pt-2.5" : "pt-1"}
               >
-                <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>{entry.group}</p>
+                <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>
+                  {entry.group}
+                </p>
               </li>
             ) : null,
             renderRow(entry),

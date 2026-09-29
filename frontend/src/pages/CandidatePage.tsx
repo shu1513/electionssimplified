@@ -492,7 +492,7 @@ export function CandidatePage() {
     <div
       className={
         railCandidates !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
