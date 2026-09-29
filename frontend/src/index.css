@@ -111,6 +111,13 @@
      different tier at a glance. Gold on navy is 7.4:1, ivory 12:1. */
   --color-member-gold: #d9b56b;
   --color-member-paper: #f4efe6;
+  /* Split-screen (master-detail rail) breakpoint. The rail is 18rem plus a
+     2rem gap, and the detail column reads badly under ~32rem, so the split
+     needs about 54rem (864px). Deliberately below Tailwind's lg (1024px):
+     an unfolded iPhone Duo in landscape (~890pt) and an iPad in portrait
+     get the rail; a Duo in portrait (~626pt) keeps the pager bar. Only
+     the two detail pages and DetailRail use it — lg stays global. */
+  --breakpoint-rail: 54rem;
 }
 
 body {

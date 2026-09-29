@@ -84,7 +84,7 @@ export function DetailRail({
       currentRef.current.scrollIntoView({ block: "nearest" });
     }
   }, [currentId]);
-  // hidden lg:block — narrow screens keep the pager bar instead. self-start
+  // hidden rail:block — narrow screens keep the pager bar instead. self-start
   // keeps the grid from stretching the nav to the content's height, which
   // would leave sticky nothing to do; max-h + overflow give long ballots
   // their own scrollbar. truncate + title on every row: contest titles run
@@ -92,7 +92,7 @@ export function DetailRail({
   return (
     <nav
       aria-label={ariaLabel}
-      className="sticky top-4 hidden max-h-[calc(100vh-2rem)] min-w-0 self-start overflow-y-auto lg:block"
+      className="sticky top-4 hidden max-h-[calc(100vh-2rem)] min-w-0 self-start overflow-y-auto rail:block"
     >
       <Link
         to={backTo.path}

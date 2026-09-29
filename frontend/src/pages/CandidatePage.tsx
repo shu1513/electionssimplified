@@ -485,13 +485,14 @@ export function CandidatePage() {
     ) : null;
 
   return (
-    // With rail context the page widens to a two-column grid on lg+ (rail |
-    // detail); without it — deep links, stale snapshots — the markup is the
-    // classic centered column at every width. Mirrors ElectionPage.
+    // With rail context the page widens to a two-column grid (rail | detail)
+    // from the rail breakpoint (54rem, see index.css); without it — deep
+    // links, stale snapshots — the markup is the classic centered column at
+    // every width. Mirrors ElectionPage.
     <div
       className={
         railCandidates !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] lg:grid lg:max-w-6xl lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
@@ -544,7 +545,7 @@ export function CandidatePage() {
         />
       ) : null}
       {/* min-w-0: the grid column must be allowed to shrink or long names
-          blow the layout; lg:max-w-3xl keeps the reading measure of the
+          blow the layout; rail:max-w-3xl keeps the reading measure of the
           classic column even though the grid column is wider. In rail mode a
           before pseudo-element draws the rail/detail divider a rem into the
           gutter (centered in gap-8) — a pseudo, not border-l + pl, because
@@ -555,11 +556,11 @@ export function CandidatePage() {
       <div
         className={
           railCandidates !== null
-            ? "min-w-0 lg:relative lg:max-w-3xl lg:before:absolute lg:before:inset-y-0 lg:before:-left-4 lg:before:w-px lg:before:bg-line lg:before:content-['']"
-            : "min-w-0 lg:max-w-3xl"
+            ? "min-w-0 rail:relative rail:max-w-3xl rail:before:absolute rail:before:inset-y-0 rail:before:-left-4 rail:before:w-px rail:before:bg-line rail:before:content-['']"
+            : "min-w-0 rail:max-w-3xl"
         }
       >
-        {railCandidates !== null ? <div className="lg:hidden">{pagerBar}</div> : pagerBar}
+        {railCandidates !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
             "@type": "Person",
