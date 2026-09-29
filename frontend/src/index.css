@@ -111,6 +111,12 @@
      different tier at a glance. Gold on navy is 7.4:1, ivory 12:1. */
   --color-member-gold: #d9b56b;
   --color-member-paper: #f4efe6;
+  /* Split-screen rail panel (user decision 2026-09-29, from the "tinted
+     rail" mockup): a warm grey a step deeper than surface, with its own
+     hairline a step deeper again. The current row takes the page tone so
+     it reads as the page's own tab. */
+  --color-rail: #f3f0ea;
+  --color-rail-line: #e3ded4;
   /* Split-screen (master-detail rail) breakpoint. The rail is 18rem plus a
      2rem gap, and the detail column reads badly under ~32rem, so the split
      needs about 54rem (864px). Deliberately below Tailwind's lg (1024px):
@@ -151,5 +157,16 @@ body:has([data-sticky-pick-cta]) .chat-launcher {
     top: 0;
     left: 0;
     width: 100%;
+  }
+}
+
+/* Scrolls without a visible scrollbar (wheel, trackpad, and keyboard still
+   work). The detail rail uses it: a second scrollbar beside the panel's
+   hairline read as clutter, and the rail scrolls its current row into
+   view itself. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

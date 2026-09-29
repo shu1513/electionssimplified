@@ -313,7 +313,7 @@ describe("SavedBallotPage nav context", () => {
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
     expect(router.state.location.state).toEqual({
-      backTo: { path: "/me/ballot?type=office", label: "My Elections" },
+      backTo: { path: "/me/ballot?type=office", label: "All elections" },
       contests: [
         {
           id: "e-1",

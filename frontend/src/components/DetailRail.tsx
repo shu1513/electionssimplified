@@ -20,14 +20,23 @@ export type RailEntry = {
 // Empty ring before an undecided race — the blank on the ballot waiting
 // to be filled; PickedCheck takes its place once the race is decided.
 function EmptyCircle() {
-  return <span aria-hidden="true" className="h-4 w-4 shrink-0 rounded-full border border-ink-soft/50" />;
+  return (
+    <span
+      aria-hidden="true"
+      className="h-4 w-4 shrink-0 rounded-full border border-ink-soft/50"
+    />
+  );
 }
 
 // Filled green circle with a white check — the rail's "you decided this
 // race" marker. The sr-only text in the row carries it for screen readers.
 function PickedCheck() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4 shrink-0 text-green-700">
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0 text-green-700"
+    >
       <circle cx="8" cy="8" r="8" fill="currentColor" />
       <path
         d="M4.5 8.5 7 10.5l4.5-5"
@@ -44,7 +53,8 @@ function PickedCheck() {
 // Headings sit a clear step lighter than the rows (rows are ink-mid), in a
 // smaller, wider-tracked uppercase, with room above each section — the
 // same treatment the list page's section labels use.
-const HEADING_CLASS = "px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-soft";
+const HEADING_CLASS =
+  "px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-soft";
 
 /**
  * The desktop master–detail rail: the sibling list the visitor arrived with,
@@ -108,27 +118,31 @@ export function DetailRail({
     // engage one, and the top of the new order is what they asked to see
     // ("My issues first" = show me who ranks highest). A tab switch can
     // even drop the current row from the list, which must scroll nowhere.
-    if (currentRef.current && typeof currentRef.current.scrollIntoView === "function") {
+    if (
+      currentRef.current &&
+      typeof currentRef.current.scrollIntoView === "function"
+    ) {
       currentRef.current.scrollIntoView({ block: "nearest" });
     }
   }, [currentId]);
   const main = entries.filter((entry) => !entry.retention);
   const tail = entries.filter((entry) => entry.retention);
   const [tailOpenChoice, setTailOpenChoice] = useState(false);
-  const tailOpen = tailOpenChoice || tail.some((entry) => entry.id === currentId);
+  const tailOpen =
+    tailOpenChoice || tail.some((entry) => entry.id === currentId);
 
   const renderRow = (entry: RailEntry) =>
     entry.id === currentId ? (
-      // Purple tint, not surface grey: sibling rows hover with
-      // bg-surface, so a grey current row was indistinguishable from a
-      // hovered neighbor. Purple deliberately — coral reads as the
-      // error tint, and blue/red read partisan on election content.
+      // The current row: the page tone on the panel's grey, hairlines above
+      // and below, run to the panel's edge — the page's own tab — with a
+      // brand chevron pointing at the detail. No accent fill needed, which
+      // sidesteps the partisan read of blue/red on election content.
       <li
         key={entry.id}
         ref={currentRef}
         aria-current="page"
         title={entry.label}
-        className="flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-1.5 text-sm font-medium text-purple-800"
+        className="flex items-center gap-2 rounded-l-lg border-y border-rail-line bg-page px-3 py-1.5 text-sm font-semibold text-ink"
       >
         {entry.picked ? <PickedCheck /> : <EmptyCircle />}
         <span className="truncate">
@@ -136,8 +150,22 @@ export function DetailRail({
           {/* Suffix, not prefix: the label must stay the leading text
               of the accessible name so rows read (and match queries)
               by their race title first. */}
-          {entry.picked ? <span className="sr-only"> ({pickedSrLabel})</span> : null}
+          {entry.picked ? (
+            <span className="sr-only"> ({pickedSrLabel})</span>
+          ) : null}
         </span>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          className="ml-auto h-4 w-4 shrink-0 text-rausch"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M7 5l5 5-5 5" />
+        </svg>
       </li>
     ) : (
       <li key={entry.id}>
@@ -145,96 +173,118 @@ export function DetailRail({
           to={entry.path}
           state={siblingState}
           title={entry.label}
-          onClick={() => track("detail_control", { control: "rail_item", value: "none" })}
-          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-ink-mid transition hover:bg-surface hover:text-ink"
+          onClick={() =>
+            track("detail_control", { control: "rail_item", value: "none" })
+          }
+          className="flex items-center gap-2 rounded-l-lg px-3 py-1.5 text-sm text-ink-mid transition hover:bg-white/60 hover:text-ink"
         >
           {entry.picked ? <PickedCheck /> : <EmptyCircle />}
           <span className="truncate">
             {entry.label}
-            {entry.picked ? <span className="sr-only"> ({pickedSrLabel})</span> : null}
+            {entry.picked ? (
+              <span className="sr-only"> ({pickedSrLabel})</span>
+            ) : null}
           </span>
         </Link>
       </li>
     );
 
-  // hidden rail:block — narrow screens keep the pager bar instead. self-start
-  // keeps the grid from stretching the nav to the content's height, which
-  // would leave sticky nothing to do; max-h + overflow give long ballots
-  // their own scrollbar. truncate + title on every row: contest titles run
-  // legal-length, and the rail must stay a rail.
+  // The tinted panel: the rail column (the grid cell, so full page height)
+  // sits on the rail tone with its own continuous hairline at the right
+  // edge; the current row takes the page tone and runs to that edge. The
+  // nav inside sticks and scrolls on its own, scrollbar hidden (a second
+  // bar beside the hairline read as clutter). Hidden below the rail
+  // breakpoint, where the pager bar takes over. truncate + title on every
+  // row: contest titles run legal-length, and the rail must stay a rail.
   return (
-    <nav
-      aria-label={ariaLabel}
-      className="sticky top-4 hidden max-h-[calc(100vh-2rem)] min-w-0 self-start overflow-y-auto rail:block"
-    >
-      <Link
-        to={backTo.path}
-        state={backToState}
-        aria-label={`Back to ${backTo.label}`}
-        title={backTo.label}
-        onClick={() => track("detail_control", { control: "pager_back", value: "none" })}
-        className="block truncate px-3 text-sm font-medium text-ink transition hover:text-rausch"
+    <div className="hidden rounded-l-2xl border-r border-rail-line bg-rail rail:block">
+      <nav
+        aria-label={ariaLabel}
+        className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"
       >
-        <span aria-hidden="true">← </span>
-        {backTo.label}
-      </Link>
-      {/* One divider, right under the back link: everything below it — the
+        <Link
+          to={backTo.path}
+          state={backToState}
+          aria-label={`Back to ${backTo.label}`}
+          title={backTo.label}
+          onClick={() =>
+            track("detail_control", { control: "pager_back", value: "none" })
+          }
+          className="block truncate px-3 text-sm font-semibold text-ink-soft transition hover:text-ink"
+        >
+          <span aria-hidden="true">← </span>
+          {backTo.label}
+        </Link>
+        {/* One divider, right under the back link: everything below it — the
           header slot's label/controls and the rows — reads as one panel.
           Without a header slot the divider moves down to keep separating
           the back link from the rows. */}
-      {headerSlot ? (
-        <div className="mt-3 border-t border-line px-3 pt-3">{headerSlot}</div>
-      ) : null}
-      <ul className={`mt-3 space-y-1 ${headerSlot ? "" : "border-t border-line pt-3"}`}>
-        {main.map((entry, index) => [
-          // role="presentation": a heading, not a list item — the rows keep
-          // their count for assistive tech.
-          entry.group !== undefined && entry.group !== main[index - 1]?.group ? (
-            <li key={`heading:${entry.id}`} role="presentation" className={index > 0 ? "pt-4" : ""}>
-              <p className={`pb-1 ${HEADING_CLASS}`}>{entry.group}</p>
-            </li>
-          ) : null,
-          renderRow(entry),
-        ])}
-      </ul>
-      {tail.length > 0 ? (
-        <>
-          {/* The tail's heading is the fold control: same size and case as
+        {headerSlot ? (
+          <div className="mr-3 mt-3 border-t border-rail-line px-3 pt-3">
+            {headerSlot}
+          </div>
+        ) : null}
+        <ul
+          className={`mt-3 space-y-1 ${headerSlot ? "" : "mr-3 border-t border-rail-line pt-3"}`}
+        >
+          {main.map((entry, index) => [
+            // role="presentation": a heading, not a list item — the rows keep
+            // their count for assistive tech.
+            entry.group !== undefined &&
+            entry.group !== main[index - 1]?.group ? (
+              <li
+                key={`heading:${entry.id}`}
+                role="presentation"
+                className={index > 0 ? "pt-4" : ""}
+              >
+                <p className={`pb-1 ${HEADING_CLASS}`}>{entry.group}</p>
+              </li>
+            ) : null,
+            renderRow(entry),
+          ])}
+        </ul>
+        {tail.length > 0 ? (
+          <>
+            {/* The tail's heading is the fold control: same size and case as
               the group headings, chevron trailing (points right closed, down
               open — the list's convention). The rows under it stay ordinary
               rail rows; only the heading toggles. */}
-          <button
-            type="button"
-            aria-expanded={tailOpen}
-            aria-controls="detail-rail-retention"
-            onClick={() => {
-              track("detail_control", { control: "rail_retention", value: tailOpen ? "close" : "open" });
-              setTailOpenChoice(!tailOpen);
-            }}
-            className={`mt-5 flex w-full items-center gap-1 text-left transition hover:text-ink ${HEADING_CLASS}`}
-          >
-            Retention races{" "}
-            <span className="font-normal normal-case">({tail.length})</span>
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 20 20"
-              className={`h-4 w-4 shrink-0 transition-transform ${tailOpen ? "rotate-90" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <button
+              type="button"
+              aria-expanded={tailOpen}
+              aria-controls="detail-rail-retention"
+              onClick={() => {
+                track("detail_control", {
+                  control: "rail_retention",
+                  value: tailOpen ? "close" : "open",
+                });
+                setTailOpenChoice(!tailOpen);
+              }}
+              className={`mt-5 flex w-full items-center gap-1 text-left transition hover:text-ink ${HEADING_CLASS}`}
             >
-              <path d="M7 5l5 5-5 5" />
-            </svg>
-          </button>
-          {tailOpen ? (
-            <ul id="detail-rail-retention" className="mt-1 space-y-1">
-              {tail.map((entry) => renderRow(entry))}
-            </ul>
-          ) : null}
-        </>
-      ) : null}
-    </nav>
+              Retention races{" "}
+              <span className="font-normal normal-case">({tail.length})</span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className={`h-4 w-4 shrink-0 transition-transform ${tailOpen ? "rotate-90" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M7 5l5 5-5 5" />
+              </svg>
+            </button>
+            {tailOpen ? (
+              <ul id="detail-rail-retention" className="mt-1 space-y-1">
+                {tail.map((entry) => renderRow(entry))}
+              </ul>
+            ) : null}
+          </>
+        ) : null}
+      </nav>
+    </div>
   );
 }
