@@ -54,6 +54,7 @@ import { AutoPickControl } from "../components/AutoPickControl";
 import { RetentionJudgeSection } from "../components/RetentionJudgeSection";
 import { CandidatePickButton, MeasureChoiceButtons, StrandedPicksNotice } from "../components/ElectionChoiceControls";
 import { PostPickActions } from "../components/PostPickActions";
+import { DraftToast } from "../components/DraftToast";
 import { draftChoicesByElectionId, isDecidedChoice, useBallotDraft } from "../lib/ballotDraft";
 import { useMyDistricts } from "../lib/useMyDistricts";
 import { AddressNudge } from "../components/AddressNudge";
@@ -329,6 +330,11 @@ export function ElectionPage() {
   // foreign renders neither (state 2: clean read-only page).
   const showAddressNudge =
     choicesSettled && !districtsLoading && isUpcoming && districtIds === undefined && !isDecidedChoice(myChoice);
+  // The post-pick toast (DraftToast), one per landed roster pick: `n`
+  // keys the mount so a second pick restarts it; `electionId` pins it to
+  // the election it was made on, since this element stays mounted across
+  // rail walks and a toast must not follow the reader to a sibling race.
+  const [draftToast, setDraftToast] = useState<{ electionId: string; n: number } | null>(null);
   // Per-candidate result badges (Won / Advanced / Lost / …); the matching and
   // completeness guards — roster-matched winners only, losers only where the
   // outcome's own signal proves the race decided — live in
@@ -682,6 +688,18 @@ export function ElectionPage() {
           line, and the detail column carries that padding itself. */}
       <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
+        {/* Same width rule as the pager bar: in split view the rail's own
+            progress bar is the confirmation, so the toast only shows where
+            the rail doesn't. */}
+        {draftToast !== null && draftToast.electionId === data.id ? (
+          railContests !== null ? (
+            <div className="rail:hidden">
+              <DraftToast key={draftToast.n} />
+            </div>
+          ) : (
+            <DraftToast key={draftToast.n} />
+          )
+        ) : null}
         <JsonLdScript
           data={{
             "@type": "Event",
@@ -1308,6 +1326,9 @@ export function ElectionPage() {
                             seatsToFill={data.seats_to_fill ?? null}
                             size="sm"
                             surface="election_inline"
+                            onPicked={() =>
+                              setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }))
+                            }
                           />
                         </span>
                       ) : null}

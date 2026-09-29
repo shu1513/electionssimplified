@@ -73,6 +73,10 @@ type CandidatePickButtonProps = {
   fullWidth?: boolean;
   /** Where the control sits, for the pick usage events. */
   surface?: "election_inline" | "candidate_card";
+  /** Fires once a pick LANDS (guest: on the draft write; account: when the
+   * PUT resolves) — never on a removal or a failed save. The election
+   * page's post-pick toast hangs off it. */
+  onPicked?: () => void;
 };
 
 /**
@@ -92,6 +96,7 @@ export function CandidatePickButton({
   size = "md",
   fullWidth = false,
   surface = "election_inline",
+  onPicked,
 }: CandidatePickButtonProps) {
   const { me } = useMe();
   const isGuest = me === null;
@@ -114,9 +119,18 @@ export function CandidatePickButton({
     if (isGuest) {
       setDraftCandidateChoice({ electionId, raceTitle, electionDate, seatsToFill, candidateId, candidateName, chosen });
       recordPick(base, null);
+      if (chosen) {
+        onPicked?.();
+      }
       return;
     }
-    recordPick(base, setChoice.mutateAsync({ election_id: electionId, candidate_id: candidateId, chosen }));
+    const request = setChoice.mutateAsync({ election_id: electionId, candidate_id: candidateId, chosen });
+    recordPick(base, request);
+    if (chosen && onPicked) {
+      // Rejections already surface under the button (SaveError); nothing to
+      // confirm then.
+      request.then(onPicked, () => undefined);
+    }
   }
   const atMultiSeatCap = seatCap > 1 && !isPicked && picks.length >= seatCap;
   // Yellow only ever marks an UNDONE decision (same grammar as

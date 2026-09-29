@@ -977,6 +977,77 @@ describe("ElectionPage", () => {
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
   });
 
+  it("shows a brief draft-link toast after a roster pick, then removes it", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderElection(() => electionDetail());
+
+      const jordanPick = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+      expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
+      await user.click(jordanPick);
+
+      // The toast wears the header's exact guest label (deep-link count
+      // form) and points at the guest draft — no "Back to election": the
+      // reader is already on it.
+      const draftLink = await screen.findByRole("link", { name: "My Draft (1)" });
+      expect(draftLink).toHaveAttribute("href", "/draft");
+      expect(draftLink.closest('[role="status"]')).not.toBeNull();
+      expect(screen.queryByRole("link", { name: /Back to/ })).not.toBeInTheDocument();
+      // Deep link (no rail context): the toast is not behind a rail-only
+      // hide, so it shows at every width.
+      expect(draftLink.closest(".rail\\:hidden")).toBeNull();
+
+      // Brief, never pinned: gone on its own after the hold.
+      act(() => {
+        vi.advanceTimersByTime(6500);
+      });
+      expect(screen.queryByRole("link", { name: "My Draft (1)" })).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+      clearBallotDraft();
+    }
+  });
+
+  it("hides the post-pick toast in split view, where the rail's progress bar already confirms", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail(), "e-1", {
+      backTo: { path: "/ballot", label: "All elections" },
+      contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }],
+    });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+
+    // Same rule as the pager bar: rendered, but only for widths below the
+    // rail breakpoint (jsdom applies no media queries, so the class is the
+    // proof).
+    const draftLink = await screen.findByRole("link", { name: "My Draft (1)" });
+    expect(draftLink.closest(".rail\\:hidden")).not.toBeNull();
+    clearBallotDraft();
+  });
+
+  it("shows signed-in viewers the account draft link in the post-pick toast", async () => {
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/districts": { body: MY_DISTRICTS },
+      "/api/me/candidate-follows": { body: { follows: [] } },
+      "/api/me/election-choices": (_url, init) =>
+        init?.method === "PUT" ? { status: 200, body: { choice: null } } : { status: 200, body: { choices: [] } },
+    });
+    renderElection(() => electionDetail());
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+
+    // No ballot loaded in this render, so the label is the plain form; the
+    // destination is the signed-in draft page.
+    expect(await screen.findByRole("link", { name: "My Draft" })).toHaveAttribute("href", "/me/picks");
+  });
+
   it("lets guests pick a measure position from the sticky card, then shows the draft link", async () => {
     clearBallotDraft();
     setDraftBallotContext([DISTRICT.id], null);
