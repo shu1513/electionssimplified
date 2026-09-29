@@ -324,11 +324,14 @@ export function BallotPage() {
       </div>
 
       {/* One line for the visitor who just typed an address on the landing
-          page: which address these elections are for, and that the address
-          itself was not kept: the address never reaches the database — only
-          the districts ride the URL and the local draft. Guests only, and
-          only when neither banner below already names the address (partial
-          or ambiguous match).
+          page: which address these elections are for, plus the privacy
+          promise the address field made, scoped to accounts on purpose. The
+          address does not land on any account (the districts ride the URL and
+          the local draft), but the backend keeps a short-lived geocoder cache
+          the privacy policy discloses, so "never stored" or "only the
+          districts were kept" would be untrue. Guests only, and only when
+          neither banner below already names the address (partial or
+          ambiguous match).
           Router state, so a refresh keeps it and a shared link never has it.
           Signed-in visitors saving an address get AddressSavedNotice on
           their saved ballot instead; a member's one-off search stays quiet.
@@ -336,8 +339,8 @@ export function BallotPage() {
           appears once identity settles rather than flashing for a member. */}
       {matchedAddress && isGuest && !isPartialBallot && !ambiguousMatchCount ? (
         <p role="status" className="mt-2 rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink">
-          Elections for <span className="font-medium">{matchedAddress}</span>. Only the election districts were
-          kept — your address is not saved in our database.
+          Elections for <span className="font-medium">{matchedAddress}</span>. Your address was only used to
+          find these election districts. We do NOT save it to any account.
         </p>
       ) : null}
       {/* ZIP and city searches land here with partial=1 in the URL (the flag
