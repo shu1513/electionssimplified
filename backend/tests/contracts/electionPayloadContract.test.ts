@@ -154,6 +154,25 @@ describe("parseCanonicalElectionPayload", () => {
     expect(result.ok).toBe(false);
   });
 
+  it("rejects a title longer than the cap (full ballot question text)", () => {
+    const result = parseCanonicalElectionPayload({
+      district_id: "d1",
+      district_name: "Centennial city, Colorado",
+      district_type: "place",
+      state: "CO",
+      entries: [
+        {
+          official_ballot_title: "SHALL CITY OF CENTENNIAL TAXES BE INCREASED $27 MILLION ANNUALLY, " + "AND BY WHATEVER ADDITIONAL AMOUNT IS RAISED ANNUALLY THEREAFTER ".repeat(4),
+          election_date: "2026-11-03",
+          race_type: "ballot_measure",
+          sources: ["https://example.gov/elections/ballot-issue"],
+        },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+  });
+
   it("rejects ballot measure rows with office discovery family", () => {
     const result = parseCanonicalElectionPayload({
       district_id: "d1",
