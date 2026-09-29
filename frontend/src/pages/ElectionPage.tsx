@@ -609,7 +609,11 @@ export function ElectionPage() {
                       style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-xs font-semibold tabular-nums text-ink-soft">
+                  {/* Green once every race is decided, like the header's
+                      "My Draft ✓" at the same moment. */}
+                  <span
+                    className={`text-xs font-semibold tabular-nums ${railProgress.complete ? "text-green-700" : "text-ink-soft"}`}
+                  >
                     {railProgress.picked}/{railProgress.total}
                   </span>
                 </div>
