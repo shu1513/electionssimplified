@@ -19,5 +19,8 @@ it.each([{ election_ids: ["mayor"] }, { election_ids: [] }])("does not count ret
   }));
   window.dispatchEvent(new StorageEvent("storage", { key: "voteapp_ballot_draft" }));
   const { result } = renderHook(() => useGuestDraftNav());
-  expect(result.current).toEqual({ to: "/draft", label: "My Draft", complete: false });
+  // A contested race gives a 0/1 goal; a retention-only day has no
+  // denominator, so the label stays plain rather than counting the answer.
+  const label = election_ids.length > 0 ? "My Draft 0/1" : "My Draft";
+  expect(result.current).toEqual({ to: "/draft", label, complete: false });
 });

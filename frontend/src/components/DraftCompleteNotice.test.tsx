@@ -190,7 +190,7 @@ describe("DraftCompleteNotice", () => {
       "/api/me/election-choices": () => ({ body: { choices } }),
     });
     const { queryClient } = renderShell();
-    expect(await screen.findByRole("link", { name: "My Draft" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "My Draft 0/1" })).toBeInTheDocument();
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
 
     // A pick lands (the choice mutation invalidates this key the same way).

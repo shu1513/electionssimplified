@@ -173,7 +173,7 @@ describe("BallotPage", () => {
     const status = await screen.findByRole("status");
     expect(status).toHaveTextContent("Elections for 123 MAIN ST, JUNEAU, AK, 99801.");
     expect(status).toHaveTextContent(
-      "Your address was only used to find these election districts. We do NOT save it to any account."
+      "Your address was only used to find these election districts. We do NOT save it to your account."
     );
     // A single match needs no warning; the status line is not an alert.
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();

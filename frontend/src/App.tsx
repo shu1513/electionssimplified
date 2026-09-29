@@ -203,7 +203,8 @@ function AccountNav() {
             className={
               guestDraftNav.complete
                 ? "whitespace-nowrap font-semibold text-green-800 hover:text-green-900"
-                : "whitespace-nowrap font-medium text-ink-soft hover:text-ink"
+                : // Same weight and navy as the signed-in header's draft link.
+                  "whitespace-nowrap font-semibold text-navy hover:text-ink"
             }
           >
             {guestDraftNav.label}
@@ -244,7 +245,9 @@ function AccountNav() {
   return (
     <span className="flex min-w-0 items-center gap-x-2.5 sm:gap-x-4">
       <AccountMenu firstName={me.first_name} />
-      <Link to="/me/picks" className="shrink-0 whitespace-nowrap text-ink-soft hover:text-ink">
+      {/* Same size, weight, and color as the greeting beside it, so the two
+          header items read as one row rather than a label and a footnote. */}
+      <Link to="/me/picks" className="shrink-0 whitespace-nowrap text-sm font-semibold text-navy hover:text-ink">
         {draftLabel}
       </Link>
     </span>

@@ -24,10 +24,10 @@ const decided = (electionId: string) =>
   });
 
 describe("myDraftLabel", () => {
-  it("stays plain until the first pick, counts up, then earns My Draft ✓", () => {
+  it("stays plain while progress is unknown, shows 0/n before the first pick, counts up, then earns My Draft ✓", () => {
     expect(myDraftLabel(null)).toBe("My Draft");
     const day = { election_date: "2026-11-03", election_ids: [] };
-    expect(myDraftLabel({ ...day, picked: 0, total: 8, complete: false })).toBe("My Draft");
+    expect(myDraftLabel({ ...day, picked: 0, total: 8, complete: false })).toBe("My Draft 0/8");
     expect(myDraftLabel({ ...day, picked: 3, total: 8, complete: false })).toBe("My Draft 3/8");
     expect(myDraftLabel({ ...day, picked: 8, total: 8, complete: true })).toBe("My Draft ✓");
   });

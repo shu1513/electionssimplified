@@ -66,11 +66,10 @@ export function useGuestPickProgress(): WebPickProgress | null {
  * draft to speak of, and a dead-end nav item there is noise. Null is also
  * what the SSR pass returns (server snapshot is an empty draft), so the
  * edge-cached anonymous document stays draft-free and identical for every
- * visitor. Once live, the label stays a plain "My Draft" until the first
- * pick — a "0/20" on arrival reads as homework, not collecting — then
- * counts up and finally takes the earned name, "My Draft ✓". Same short
- * vocabulary as the signed-in labels (myDraftLabel) so the header fits one
- * line on a 375px phone.
+ * visitor. Once live, the label shows the day's goal from the start
+ * ("My Draft 0/20"), counts up, and finally takes the earned name,
+ * "My Draft ✓". Same short vocabulary as the signed-in labels
+ * (myDraftLabel) so the header fits one line on a 375px phone.
  */
 export function useGuestDraftNav(): { to: string; label: string; complete: boolean } | null {
   const draft = useBallotDraft();
@@ -92,7 +91,8 @@ export function useGuestDraftNav(): { to: string; label: string; complete: boole
   if (pickCount > 0) {
     return { to: "/draft", label: `My Draft (${pickCount})`, complete: false };
   }
-  // Ballot seen but nothing picked yet: plain label, no counter.
+  // Ballot seen but no target day stored and nothing picked yet: plain
+  // label, since there is no race denominator to count against.
   if (draft.district_ids.length > 0) {
     return { to: "/draft", label: "My Draft", complete: false };
   }
