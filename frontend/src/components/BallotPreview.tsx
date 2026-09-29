@@ -31,8 +31,11 @@ function BallotOval({ filled, label }: { filled: boolean; label?: string }) {
   );
 }
 
-function voteInstruction(seatsToFill: number | null): string {
-  return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : "Vote for One";
+// Only multi-seat races get an instruction line. "Vote for One" and
+// "Vote Yes or No" on nearly every box were noise: the ovals already show
+// the choices.
+function voteInstruction(seatsToFill: number | null): string | null {
+  return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : null;
 }
 
 // Judicial retention races are stored as race_type "office" with the judge as
@@ -135,24 +138,21 @@ function ContestBox({
             Covers {election.sub_district_seat} — may not be on your ballot.
           </p>
         ) : null}
-        <p className="mt-0.5 text-xs font-semibold text-ink">
-          {isMeasure || isRetention ? "Vote Yes or No" : voteInstruction(preview?.seats_to_fill ?? null)}
-        </p>
+        {(() => {
+          const instruction = isMeasure || isRetention ? null : voteInstruction(preview?.seats_to_fill ?? null);
+          return instruction !== null ? (
+            <p className="mt-0.5 text-xs font-semibold text-ink">{instruction}</p>
+          ) : null;
+        })()}
         {autoNote !== null ? (
           <p className="mt-0.5 text-xs italic text-ink-soft print:hidden">{autoNote}</p>
         ) : null}
       </header>
       {isMeasure ? (
-        <>
-          {preview?.measure?.summary ? (
-            // VoteApp's explanation, visually set apart and labeled — never
-            // styled as the printed ballot question, which we don't store.
-            <p className="border-t border-line bg-surface/50 px-3 py-1.5 text-xs italic text-ink-soft">
-              VoteApp summary (not the printed ballot text): {preview.measure.summary}
-            </p>
-          ) : null}
-          <YesNoRows pickedPosition={choice?.measure_position ?? null} />
-        </>
+        // The sheet prints only the title and the Yes/No ovals. VoteApp's
+        // measure summary is left off: it is not the printed ballot text and
+        // the list card already shows it.
+        <YesNoRows pickedPosition={choice?.measure_position ?? null} />
       ) : isRetention ? (
         <>
           {retentionJudge ? (
