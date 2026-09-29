@@ -197,7 +197,7 @@ export function DetailRail({
   // breakpoint, where the pager bar takes over. truncate + title on every
   // row: contest titles run legal-length, and the rail must stay a rail.
   return (
-    <div className="hidden rounded-l-2xl border-r border-rail-line bg-rail rail:block">
+    <div className="hidden rounded-bl-2xl border-r border-rail-line bg-rail rail:block">
       <nav
         aria-label={ariaLabel}
         className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"

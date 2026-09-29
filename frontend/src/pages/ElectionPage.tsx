@@ -540,7 +540,7 @@ export function ElectionPage() {
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0"
           : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
@@ -614,8 +614,10 @@ export function ElectionPage() {
       {/* min-w-0: the grid column must be allowed to shrink or long titles
           blow the layout; rail:max-w-3xl keeps the reading measure of the
           classic column even though the grid column is wider. The rail/detail
-          divider is the rail panel's own right edge (DetailRail). */}
-      <div className="min-w-0 rail:max-w-3xl">
+          divider is the rail panel's own right edge (DetailRail). In rail
+          mode the grid drops its top padding so the panel meets the header
+          line, and the detail column carries that padding itself. */}
+      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
