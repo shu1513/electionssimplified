@@ -215,6 +215,8 @@ function AccountNav() {
           <Link
             key={pulse}
             to={guestDraftNav.to}
+            // The post-pick toast (DraftToast) anchors under this link.
+            data-draft-link=""
             className={
               (guestDraftNav.complete
                 ? "whitespace-nowrap font-semibold text-green-800 hover:text-green-900"
@@ -265,6 +267,8 @@ function AccountNav() {
       <Link
         key={pulse}
         to="/me/picks"
+        // The post-pick toast (DraftToast) anchors under this link.
+        data-draft-link=""
         className={"shrink-0 whitespace-nowrap text-sm font-semibold text-navy hover:text-ink" + pulseClass}
       >
         {draftLabel}
