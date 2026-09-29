@@ -2709,9 +2709,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     const bar = await within(rail).findByRole("progressbar", { name: "1 of 3 races decided" });
     expect(bar).toHaveAttribute("aria-valuemax", "3");
     expect(bar).toHaveAttribute("aria-valuenow", "1");
-    // No caption: the count is the bar's tooltip and accessible name only.
-    expect(within(rail).queryByText("1 of 3 decided")).not.toBeInTheDocument();
-    expect(bar).toHaveAttribute("title", "1 of 3 decided");
+    expect(within(rail).getByText("1/3")).toBeInTheDocument();
     clearBallotDraft();
   });
 

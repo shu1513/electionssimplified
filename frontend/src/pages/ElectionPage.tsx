@@ -591,23 +591,27 @@ export function ElectionPage() {
             // sort/tab keys.
             <div className="flex flex-col gap-2">
               <p className="text-base font-bold text-ink">My elections</p>
-              {/* Same bar as My Draft: green = the "decided" color the pick
-                  names use. The bar alone — the header is tight, so the
-                  count lives in the accessible name and the tooltip. */}
+              {/* Same bar as My Draft, count beside it as on that page:
+                  green = the "decided" color the pick names use; the
+                  sentence is the bar's accessible name. */}
               {railProgress !== null ? (
-                <div
-                  role="progressbar"
-                  aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
-                  title={`${railProgress.picked} of ${railProgress.total} decided`}
-                  aria-valuemin={0}
-                  aria-valuemax={railProgress.total}
-                  aria-valuenow={railProgress.picked}
-                  className="h-1.5 w-full overflow-hidden rounded-full bg-rail-line"
-                >
+                <div className="flex items-center gap-2">
                   <div
-                    className="h-full rounded-full bg-green-700"
-                    style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
-                  />
+                    role="progressbar"
+                    aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
+                    aria-valuemin={0}
+                    aria-valuemax={railProgress.total}
+                    aria-valuenow={railProgress.picked}
+                    className="h-1.5 flex-1 overflow-hidden rounded-full bg-rail-line"
+                  >
+                    <div
+                      className="h-full rounded-full bg-green-700"
+                      style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs font-semibold tabular-nums text-ink-soft">
+                    {railProgress.picked}/{railProgress.total}
+                  </span>
                 </div>
               ) : null}
               <div className="flex flex-col gap-2">
