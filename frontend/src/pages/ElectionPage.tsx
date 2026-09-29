@@ -557,7 +557,10 @@ export function ElectionPage() {
             ...(railSort === "district" && contest.group !== undefined
               ? { group: contest.group }
               : railVotePowerBands && contest.vote_power_band !== undefined
-                ? { group: formatVotePowerLabel(contest.vote_power_band) }
+                ? // "Vote power: High", not a bare "High": the district
+                  // headings read "City: Berkeley", and a bare band word
+                  // over a race reads as that race's label.
+                  { group: `Vote power: ${formatVotePowerLabel(contest.vote_power_band)}` }
                 : {}),
             ...(contest.retention ? { retention: true } : {}),
           }))}
