@@ -137,6 +137,21 @@
       transform: translateY(0);
     }
   }
+  /* The header's My Draft counter (useDraftPulse): one short bump when the
+     picked count rises, so the eye finds the running total. Used under
+     motion-safe only. */
+  --animate-draft-pulse: draft-pulse 500ms ease-out;
+  @keyframes draft-pulse {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
 }
 
 body {

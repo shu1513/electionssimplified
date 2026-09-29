@@ -1,7 +1,26 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { clearBallotDraft } from "./ballotDraft";
-import { useGuestDraftNav } from "./usePickProgress";
+import { useDraftPulse, useGuestDraftNav } from "./usePickProgress";
+
+it("pulses the draft counter only when the picked count rises", () => {
+  const { result, rerender } = renderHook(({ picked }: { picked: number | null }) => useDraftPulse(picked), {
+    initialProps: { picked: null as number | null },
+  });
+  // First number is the baseline, not a rise.
+  rerender({ picked: 3 });
+  expect(result.current).toBe(0);
+  rerender({ picked: 4 });
+  expect(result.current).toBe(1);
+  // A refetch gap keeps the baseline; a removal never pulses.
+  rerender({ picked: null });
+  rerender({ picked: 4 });
+  expect(result.current).toBe(1);
+  rerender({ picked: 3 });
+  expect(result.current).toBe(1);
+  rerender({ picked: 5 });
+  expect(result.current).toBe(2);
+});
 
 beforeEach(() => {
   vi.useFakeTimers();

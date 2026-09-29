@@ -11,7 +11,13 @@ import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purge
 import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
-import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "./lib/usePickProgress";
+import {
+  myDraftLabel,
+  useDraftPulse,
+  useGuestDraftNav,
+  useGuestPickedCount,
+  useMyPicksProgress,
+} from "./lib/usePickProgress";
 import { trackSettled, useUsageTracking } from "./lib/usage";
 
 /**
@@ -166,6 +172,14 @@ function AccountNav() {
   // stays draft-free.
   const guestDraftNav = useGuestDraftNav();
   const picksProgress = useMyPicksProgress();
+  // The counter's pulse (one bump when the picked count rises): the same
+  // number the label reads, per session side. key={pulse} remounts the
+  // link so the CSS animation replays on every rise.
+  const guestPicked = useGuestPickedCount();
+  const pulse = useDraftPulse(
+    me ? (picksProgress?.picked ?? null) : guestDraftNav !== null ? guestPicked : null
+  );
+  const pulseClass = pulse > 0 ? " motion-safe:animate-draft-pulse" : "";
 
   // While /api/me is unresolved (SSR, or a cold-started API taking tens of
   // seconds), default to the logged-out links rather than an empty header —
@@ -199,12 +213,13 @@ function AccountNav() {
         )}
         {showDraftLink ? (
           <Link
+            key={pulse}
             to={guestDraftNav.to}
             className={
-              guestDraftNav.complete
+              (guestDraftNav.complete
                 ? "whitespace-nowrap font-semibold text-green-800 hover:text-green-900"
                 : // Same weight and navy as the signed-in header's draft link.
-                  "whitespace-nowrap font-semibold text-navy hover:text-ink"
+                  "whitespace-nowrap font-semibold text-navy hover:text-ink") + pulseClass
             }
           >
             {guestDraftNav.label}
@@ -247,7 +262,11 @@ function AccountNav() {
       <AccountMenu firstName={me.first_name} />
       {/* Same size, weight, and color as the greeting beside it, so the two
           header items read as one row rather than a label and a footnote. */}
-      <Link to="/me/picks" className="shrink-0 whitespace-nowrap text-sm font-semibold text-navy hover:text-ink">
+      <Link
+        key={pulse}
+        to="/me/picks"
+        className={"shrink-0 whitespace-nowrap text-sm font-semibold text-navy hover:text-ink" + pulseClass}
+      >
         {draftLabel}
       </Link>
     </span>
