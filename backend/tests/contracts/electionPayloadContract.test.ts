@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  MAX_OFFICIAL_BALLOT_TITLE_LENGTH,
   parseAiElectionEntriesPayload,
   parseCanonicalElectionPayload,
   parseFamilySourceUrls,
@@ -152,6 +153,28 @@ describe("parseCanonicalElectionPayload", () => {
     });
 
     expect(result.ok).toBe(false);
+  });
+
+  it("accepts a title at the length cap and rejects one over it", () => {
+    const parseWithTitle = (title: string) =>
+      parseCanonicalElectionPayload({
+        district_id: "d1",
+        district_name: "Centennial city, Colorado",
+        district_type: "place",
+        state: "CO",
+        entries: [
+          {
+            official_ballot_title: title,
+            election_date: "2026-11-03",
+            race_type: "ballot_measure",
+            discovery_contest_family: "ballot_measure",
+            sources: ["https://example.gov/elections/ballot-issue"],
+          },
+        ],
+      });
+
+    expect(parseWithTitle("S".repeat(MAX_OFFICIAL_BALLOT_TITLE_LENGTH)).ok).toBe(true);
+    expect(parseWithTitle("S".repeat(MAX_OFFICIAL_BALLOT_TITLE_LENGTH + 1)).ok).toBe(false);
   });
 
   it("rejects ballot measure rows with office discovery family", () => {

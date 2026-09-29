@@ -207,6 +207,9 @@ export function parseFamilySourceUrls(value: unknown): ParseFamilySourceUrlsResu
   };
 }
 
+// A ballot title is the short heading a ballot prints, never the full "Shall ..." question text.
+export const MAX_OFFICIAL_BALLOT_TITLE_LENGTH = 200;
+
 function parseEntry(value: unknown): ElectionEntryPayload | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return null;
@@ -214,6 +217,9 @@ function parseEntry(value: unknown): ElectionEntryPayload | null {
 
   const input = value as Record<string, unknown>;
   if (!isNonEmptyString(input.official_ballot_title)) {
+    return null;
+  }
+  if (input.official_ballot_title.trim().length > MAX_OFFICIAL_BALLOT_TITLE_LENGTH) {
     return null;
   }
   if (!isNonEmptyString(input.election_date) || !isIsoDate(input.election_date.trim())) {
