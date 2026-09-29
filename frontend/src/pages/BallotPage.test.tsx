@@ -724,7 +724,7 @@ describe("BallotPage nav context", () => {
       ],
       // The list's sort seeds the rail's always-engaged sort control: a
       // district-size list opens the rail on By district.
-      railSort: "district",
+      railSort: "district_biggest",
     });
   });
 

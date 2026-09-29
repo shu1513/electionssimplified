@@ -2478,9 +2478,8 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
   const perIdLoader = ({ params }: { params: { electionId?: string } }) =>
     electionDetail({ id: params.electionId });
 
-  it("engages the default sort on arrival and rewrites the back link only for a real change", async () => {
+  it("engages the default sort on arrival and offers only the list's sorts", async () => {
     stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
     renderElection(perIdLoader, "e-1", ARRIVAL);
 
     // No "As listed": with no seed in the snapshot the rail defaults to
@@ -2497,22 +2496,20 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       "/me/ballot"
     );
 
-    // A–Z is numeric-aware and rail-only: no ?sort= carry-over.
-    await user.selectOptions(select, "alphabetical");
-    expect(rows()).toEqual(["Governor", "Proposition 4", "Proposition 33"]);
-    expect(within(rail).getByRole("link", { name: "Back to My Elections" })).toHaveAttribute(
-      "href",
-      "/me/ballot"
-    );
+    // The rail offers the list's sorts and nothing else: no A–Z, and no
+    // district sorts on a snapshot that carries no district headings.
+    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "My vote power",
+    ]);
   });
 
   it("starts on the seeded list sort and preserves a district-size back URL", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {
       // A district-size list whose snapshot carries no group headings (a
-      // pre-deploy entry): By district is not offered, so the rail falls
-      // back to vote_power — but the back URL must keep the richer sort
-      // the rail merely approximates.
+      // pre-deploy entry): the district sorts are not offered, so the rail
+      // falls back to vote_power — a fallback, not a choice, so the back
+      // URL keeps the richer sort.
       backTo: { path: "/me/ballot?sort=district_size", label: "My Elections" },
       contests: KEYED_CONTESTS,
       railSort: "vote_power",
@@ -2580,16 +2577,21 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     renderElection(perIdLoader, "e-1", {
       backTo: { path: "/me/ballot?sort=district_size_smallest", label: "My Elections" },
       contests: grouped,
-      railSort: "district",
+      railSort: "district_smallest",
     });
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
     const select = await within(rail).findByRole("combobox");
-    expect(select).toHaveValue("district");
+    expect(select).toHaveValue("district_smallest");
+    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "My vote power",
+      "Smallest districts",
+      "Biggest districts",
+    ]);
     // Headings render where the group changes (presentation rows, so the
     // list's item count stays the contests'); contests keep the list's
-    // order under them. The back link is not rewritten: By district has no
-    // list sort of its own to carry.
+    // order under them. The back link is not rewritten: the rail is on the
+    // sort the URL already yields.
     const rows = () =>
       [...rail.querySelectorAll("ul > li")].map(
         (row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title") ?? row.textContent
@@ -2601,9 +2603,19 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       "/me/ballot?sort=district_size_smallest"
     );
 
-    // Leaving the sort drops the headings.
-    await user.selectOptions(select, "alphabetical");
-    expect(rows()).toEqual(["Governor", "Proposition 4", "Proposition 33"]);
+    // The other direction runs the groups the other way, rows within a
+    // group unchanged, and carries over to the back URL as the list's own
+    // biggest-first sort.
+    await user.selectOptions(select, "district_biggest");
+    expect(rows()).toEqual(["State: California", "Proposition 4", "City: Berkeley", "Proposition 33", "Governor"]);
+    expect(within(rail).getByRole("link", { name: "Back to My Elections" })).toHaveAttribute(
+      "href",
+      "/me/ballot?sort=district_size"
+    );
+
+    // Leaving the district sorts drops the headings.
+    await user.selectOptions(select, "vote_power");
+    expect(rows()).toEqual(["Proposition 33", "Proposition 4", "Governor"]);
   });
 
   // Ten banded races on one date; `bands` gives each its band key, and

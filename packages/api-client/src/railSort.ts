@@ -14,7 +14,14 @@ import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 // view, and the authoritative order returns from the backend the moment
 // the reader navigates back to the list.
 
-export type RailSortKey = "my_areas" | "vote_power" | "district" | "alphabetical";
+export type RailSortKey = "my_areas" | "vote_power" | "district_smallest" | "district_biggest";
+
+/** The two district sorts: the list's district-size sorts, which the rail
+ * mirrors from the snapshot's section headings (it cannot size districts
+ * itself), flipping the group order for the other direction. */
+export function isRailDistrictSort(sort: string | null | undefined): sort is "district_smallest" | "district_biggest" {
+  return sort === "district_smallest" || sort === "district_biggest";
+}
 
 /** The snapshot fields the rail sorts on — a NavContest subset. */
 export type RailSortEntry = {
@@ -37,8 +44,8 @@ export type RailSortEntry = {
 export const RAIL_SORTS: readonly { value: RailSortKey; label: string }[] = [
   { value: "my_areas", label: "My issues" },
   { value: "vote_power", label: "My vote power" },
-  { value: "district", label: "By district" },
-  { value: "alphabetical", label: "A–Z" },
+  { value: "district_smallest", label: "Smallest districts" },
+  { value: "district_biggest", label: "Biggest districts" },
 ];
 
 // Same collator as the backend's BALLOT_TITLE_COLLATOR: numeric-aware so
@@ -55,8 +62,17 @@ const TITLE_COLLATOR = new Intl.Collator("en", { numeric: true });
  */
 export function railSortForBallotSort(sort: string): RailSortKey {
   if (sort === "my_areas") return sort;
-  if (sort === "district_size" || sort === "district_size_smallest") return "district";
+  if (sort === "district_size_smallest") return "district_smallest";
+  if (sort === "district_size") return "district_biggest";
   return "vote_power";
+}
+
+/** The inverse: the list's ?sort= value for a rail sort (every rail sort is
+ * one of the list's). */
+export function ballotSortForRailSort(sort: RailSortKey): string {
+  if (sort === "district_smallest") return "district_size_smallest";
+  if (sort === "district_biggest") return "district_size";
+  return sort;
 }
 
 /**
@@ -77,11 +93,12 @@ export function railSortsOffered(entries: RailSortEntry[], hasSavedAreas: boolea
   }
   const myAreas =
     hasSavedAreas && entries.every((entry) => entry.research_area_ids !== undefined);
-  // By district needs every entry's heading: a snapshot from a vote-power
-  // or My-issues list carries none, and the rail cannot derive one.
+  // The district sorts need every entry's heading: a snapshot from a
+  // vote-power or My-issues list carries none, and the rail cannot derive
+  // one.
   const grouped = entries.every((entry) => entry.group !== undefined);
   return RAIL_SORTS.map((option) => option.value).filter(
-    (value) => (value !== "my_areas" || myAreas) && (value !== "district" || grouped)
+    (value) => (value !== "my_areas" || myAreas) && (!isRailDistrictSort(value) || grouped)
   );
 }
 
@@ -154,20 +171,29 @@ function compareTail(a: RailSortEntry, b: RailSortEntry): number {
 export function sortRailEntries<Entry extends RailSortEntry>(
   entries: readonly Entry[],
   sort: RailSortKey,
-  weights?: Map<string, ResearchAreaWeight>
+  weights?: Map<string, ResearchAreaWeight>,
+  { reverseGroups = false }: { reverseGroups?: boolean } = {}
 ): Entry[] {
   const areaWeights = weights ?? new Map<string, ResearchAreaWeight>();
-  // By district keeps the list's own group order (first appearance) and the
-  // list's order within a group: the district-size list already ordered
-  // the sections by size, which the rail cannot recompute.
+  // The district sorts keep the list's own group order (first appearance)
+  // and the list's order within a group: the district-size list already
+  // ordered the sections by size, which the rail cannot recompute. The
+  // caller asks for `reverseGroups` when the reader flips to the other
+  // direction (smallest ↔ biggest): the groups run the other way, rows
+  // within a group stay put.
   const groupOrder = new Map<string, number>();
-  if (sort === "district") {
+  if (isRailDistrictSort(sort)) {
     for (const entry of entries) {
       if (entry.group !== undefined && !groupOrder.has(entry.group)) {
         groupOrder.set(entry.group, groupOrder.size);
       }
     }
   }
+  const groupRank = (entry: RailSortEntry): number => {
+    const index = entry.group !== undefined ? groupOrder.get(entry.group) : undefined;
+    if (index === undefined) return Infinity;
+    return reverseGroups ? groupOrder.size - 1 - index : index;
+  };
   return [...entries].sort((a, b) => {
     // Retention races are the outermost tail — below every date AND below
     // the awaiting-candidates sink — because the rail renders them last,
@@ -192,13 +218,6 @@ export function sortRailEntries<Entry extends RailSortEntry>(
     if (aDate !== bDate) {
       return aDate < bDate ? -1 : 1;
     }
-    if (sort === "alphabetical") {
-      const byTitle = TITLE_COLLATOR.compare(a.title, b.title);
-      if (byTitle !== 0) {
-        return byTitle;
-      }
-      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
-    }
     if (sort === "my_areas") {
       const aMatch = scoreAreaMatch(a.research_area_ids, areaWeights);
       const bMatch = scoreAreaMatch(b.research_area_ids, areaWeights);
@@ -220,10 +239,10 @@ export function sortRailEntries<Entry extends RailSortEntry>(
         return byPower;
       }
     }
-    if (sort === "district") {
+    if (isRailDistrictSort(sort)) {
       // Ungrouped entries (never offered this sort, but be total) sink.
-      const aGroup = a.group !== undefined ? (groupOrder.get(a.group) ?? Infinity) : Infinity;
-      const bGroup = b.group !== undefined ? (groupOrder.get(b.group) ?? Infinity) : Infinity;
+      const aGroup = groupRank(a);
+      const bGroup = groupRank(b);
       if (aGroup !== bGroup) {
         return aGroup - bGroup;
       }
