@@ -6,6 +6,7 @@ import {
   RAIL_SORTS,
   VOTE_POWER_BAND_ORDER,
   competitivenessChip,
+  nearestDayPickProgress,
   railSortForBallotSort,
   railSortsOffered,
   sortRailEntries,
@@ -292,6 +293,22 @@ export function ElectionPage() {
   // the pick-progress counters — a choice row emptied of picks keeps no
   // check.
   const railChoices = isGuest ? draftChoicesByElectionId(draft) : choiceByElectionId;
+  // The rail's progress bar: decided races over the ballot's nearest
+  // upcoming day, retention races excluded — the same count as My Draft
+  // (nearestDayDraftProgress) and the nav badge. Read off the full
+  // snapshot, not the rail's tab slice, so it never changes with the tab.
+  // Null on a snapshot without dates (pre-deploy) or while choices load.
+  const railProgress =
+    navState?.contests !== undefined
+      ? nearestDayPickProgress(
+          navState.contests.flatMap((contest) =>
+            contest.election_date !== undefined ? [{ id: contest.id, election_date: contest.election_date }] : []
+          ),
+          railChoices,
+          usLatestLocalDate(),
+          { exclude: new Set(navState.contests.filter((contest) => contest.retention).map((contest) => contest.id)) }
+        )
+      : null;
   const isPickedContest = (electionId: string): boolean => isDecidedChoice(railChoices?.get(electionId));
   const choicesSettled = isGuest || (canChoose && choiceByElectionId !== undefined);
   const isUpcoming = data.election_date >= usLatestLocalDate();
@@ -574,6 +591,28 @@ export function ElectionPage() {
             // sort/tab keys.
             <div className="flex flex-col gap-2">
               <p className="text-base font-bold text-ink">My elections</p>
+              {/* Same bar as My Draft: green = the "decided" color the pick
+                  names use; the sentence is the bar's accessible name. */}
+              {railProgress !== null ? (
+                <div className="flex flex-col gap-1">
+                  <div
+                    role="progressbar"
+                    aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
+                    aria-valuemin={0}
+                    aria-valuemax={railProgress.total}
+                    aria-valuenow={railProgress.picked}
+                    className="h-1.5 w-full overflow-hidden rounded-full bg-rail-line"
+                  >
+                    <div
+                      className="h-full rounded-full bg-green-700"
+                      style={{ width: `${Math.round((railProgress.picked / railProgress.total) * 100)}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-ink-soft">
+                    {railProgress.picked} of {railProgress.total} decided
+                  </p>
+                </div>
+              ) : null}
               <div className="flex flex-col gap-2">
                 {railTabsAvailable ? (
                   <RaceTypeTabs
