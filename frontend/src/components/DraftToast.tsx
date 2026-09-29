@@ -5,7 +5,9 @@ import { DraftLink } from "./PostPickActions";
 // "added to cart" moment the candidate page's sticky card gives, cut to the
 // one link that matters here: the reader is already on the election, so no
 // "Back to election". A brief toast, never a pinned bar (owner's rule:
-// persistent = nag): it slides up, holds a few seconds, fades, and unmounts.
+// persistent = nag): it slides down at the top right — the header's My
+// Draft counter's corner, so the motion points at where the running total
+// lives — holds a few seconds, fades, and unmounts.
 // The caller keys it per pick, so another pick remounts it and the label
 // re-reads with the new count. Hidden in split view by the caller — the
 // rail's own progress bar already says it.
@@ -27,9 +29,9 @@ export function DraftToast() {
     return null;
   }
   return (
-    // pointer-events: the full-width centering strip must not swallow taps
-    // on the roster beneath it; only the pill itself is clickable.
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-30 flex justify-center px-4">
+    // pointer-events: the full-width strip must not swallow taps on the
+    // page beneath it; only the pill itself is clickable.
+    <div className="pointer-events-none fixed inset-x-0 top-3 z-30 flex justify-end px-4">
       <div
         role="status"
         className={`pointer-events-auto rounded-full border border-line bg-white px-4 py-2 text-sm shadow-lg transition-opacity duration-300 motion-safe:animate-toast-in ${
