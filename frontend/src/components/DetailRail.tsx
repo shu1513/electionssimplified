@@ -17,6 +17,12 @@ export type RailEntry = {
   retention?: boolean;
 };
 
+// Empty ring before an undecided race — the blank on the ballot waiting
+// to be filled; PickedCheck takes its place once the race is decided.
+function EmptyCircle() {
+  return <span aria-hidden="true" className="h-4 w-4 shrink-0 rounded-full border border-ink-soft/50" />;
+}
+
 // Filled green circle with a white check — the rail's "you decided this
 // race" marker. The sr-only text in the row carries it for screen readers.
 function PickedCheck() {
@@ -35,7 +41,10 @@ function PickedCheck() {
   );
 }
 
-const HEADING_CLASS = "px-3 text-xs font-semibold uppercase tracking-wide text-ink-soft";
+// Headings sit a clear step lighter than the rows (rows are ink-mid), in a
+// smaller, wider-tracked uppercase, with room above each section — the
+// same treatment the list page's section labels use.
+const HEADING_CLASS = "px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-soft";
 
 /**
  * The desktop master–detail rail: the sibling list the visitor arrived with,
@@ -119,9 +128,9 @@ export function DetailRail({
         ref={currentRef}
         aria-current="page"
         title={entry.label}
-        className="flex items-center gap-1.5 rounded-lg bg-purple-100 px-3 py-1.5 text-sm font-medium text-purple-800"
+        className="flex items-center gap-2 rounded-lg bg-purple-100 px-3 py-1.5 text-sm font-medium text-purple-800"
       >
-        {entry.picked ? <PickedCheck /> : null}
+        {entry.picked ? <PickedCheck /> : <EmptyCircle />}
         <span className="truncate">
           {entry.label}
           {/* Suffix, not prefix: the label must stay the leading text
@@ -137,9 +146,9 @@ export function DetailRail({
           state={siblingState}
           title={entry.label}
           onClick={() => track("detail_control", { control: "rail_item", value: "none" })}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-ink-soft transition hover:bg-surface hover:text-ink"
+          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-ink-mid transition hover:bg-surface hover:text-ink"
         >
-          {entry.picked ? <PickedCheck /> : null}
+          {entry.picked ? <PickedCheck /> : <EmptyCircle />}
           <span className="truncate">
             {entry.label}
             {entry.picked ? <span className="sr-only"> ({pickedSrLabel})</span> : null}
@@ -181,8 +190,8 @@ export function DetailRail({
           // role="presentation": a heading, not a list item — the rows keep
           // their count for assistive tech.
           entry.group !== undefined && entry.group !== main[index - 1]?.group ? (
-            <li key={`heading:${entry.id}`} role="presentation" className={index > 0 ? "pt-2" : ""}>
-              <p className={HEADING_CLASS}>{entry.group}</p>
+            <li key={`heading:${entry.id}`} role="presentation" className={index > 0 ? "pt-4" : ""}>
+              <p className={`pb-1 ${HEADING_CLASS}`}>{entry.group}</p>
             </li>
           ) : null,
           renderRow(entry),
@@ -202,7 +211,7 @@ export function DetailRail({
               track("detail_control", { control: "rail_retention", value: tailOpen ? "close" : "open" });
               setTailOpenChoice(!tailOpen);
             }}
-            className={`mt-3 flex w-full items-center gap-1 text-left transition hover:text-ink ${HEADING_CLASS}`}
+            className={`mt-5 flex w-full items-center gap-1 text-left transition hover:text-ink ${HEADING_CLASS}`}
           >
             Retention races{" "}
             <span className="font-normal normal-case">({tail.length})</span>
