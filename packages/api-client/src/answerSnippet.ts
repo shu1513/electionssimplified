@@ -1,8 +1,9 @@
 // A period after one of these is not a sentence end: a middle initial
-// ("John A. Smith"), a suffix ("George Psoras Jr."), or a title/place
-// abbreviation ("St. Louis", "Dr. Lee"). Without this, a long lead sentence
-// naming "John A. Smith" would be cut to "John A.".
-const NOT_A_SENTENCE_END = /(?:^|\s)(?:[A-Z]|Jr|Sr|St|Mt|Ft|Dr|Mr|Mrs|Ms|Gen|Col|Lt|Sgt|Rep|Sen|Gov|Hon|Inc|Co)\.$/;
+// ("John A. Smith"), a dotted abbreviation ("U.S. Representative": the
+// letter may follow a period), a suffix ("George Psoras Jr."), or a
+// title/place abbreviation ("St. Louis", "Dr. Lee"). Without this, a long
+// lead sentence naming "John A. Smith" would be cut to "John A.".
+const NOT_A_SENTENCE_END = /(?:^|[\s.])(?:[A-Z]|Jr|Sr|St|Mt|Ft|Dr|Mr|Mrs|Ms|Gen|Col|Lt|Sgt|Rep|Sen|Gov|Hon|Inc|Co)\.$/;
 
 /** Whole sentences of `text`, split only at real sentence ends. */
 export function splitSentences(text: string): string[] {

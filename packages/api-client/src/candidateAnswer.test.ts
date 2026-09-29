@@ -128,6 +128,11 @@ describe("candidateAnswerSnippet", () => {
       "John A. Smith (Democratic) is running for Board of Directors, Metropolitan Water District of Southern California, Division 3 in Los Angeles County, California in the November 3, 2026 election."
     );
     expect(candidateAnswerSnippet(initial, TODAY, 260)).toContain("John A. Smith Jr. is a Lexington city council member.");
+    // A dotted abbreviation: the "S." in "U.S." follows a period, not a space.
+    const federal = person({ elections: [election({ official_ballot_title: "U.S. Representative", district: { name: "Congressional District 6, Kentucky" } })] });
+    expect(candidateAnswerSnippet(federal, TODAY, 40)).toBe(
+      "Jordan Voter (Democratic) is running for U.S. Representative in Congressional District 6, Kentucky in the November 3, 2026 election."
+    );
   });
 
   it("keeps whole leading sentences within the length cap", () => {
