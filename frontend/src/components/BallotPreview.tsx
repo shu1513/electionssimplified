@@ -31,8 +31,9 @@ function BallotOval({ filled, label }: { filled: boolean; label?: string }) {
   );
 }
 
-// Single-seat races get no instruction line: "Vote for One" on nearly every
-// box was noise. Multi-seat and Yes/No races still say what to do.
+// Only multi-seat races get an instruction line. "Vote for One" and
+// "Vote Yes or No" on nearly every box were noise: the ovals already show
+// the choices.
 function voteInstruction(seatsToFill: number | null): string | null {
   return seatsToFill !== null && seatsToFill > 1 ? `Vote for up to ${seatsToFill}` : null;
 }
@@ -138,7 +139,7 @@ function ContestBox({
           </p>
         ) : null}
         {(() => {
-          const instruction = isMeasure || isRetention ? "Vote Yes or No" : voteInstruction(preview?.seats_to_fill ?? null);
+          const instruction = isMeasure || isRetention ? null : voteInstruction(preview?.seats_to_fill ?? null);
           return instruction !== null ? (
             <p className="mt-0.5 text-xs font-semibold text-ink">{instruction}</p>
           ) : null;

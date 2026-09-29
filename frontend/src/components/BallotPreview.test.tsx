@@ -51,8 +51,7 @@ describe("BallotPreviewSheets retention races", () => {
     const contest = screen
       .getByRole("heading", { name: /Retention of 4th Judicial District Court Judge/ })
       .closest("section")!;
-    expect(within(contest).getByText("Vote Yes or No")).toBeInTheDocument();
-    expect(within(contest).queryByText("Vote for One")).not.toBeInTheDocument();
+    expect(within(contest).queryByText(/^Vote for/)).not.toBeInTheDocument();
     expect(within(contest).getByText("Yes")).toBeInTheDocument();
     expect(within(contest).getByText("No")).toBeInTheDocument();
     // Picking the judge means voting to retain: the mark lands on Yes.
@@ -97,7 +96,8 @@ describe("BallotPreviewSheets retention races", () => {
       />
     );
 
-    expect(screen.getByText("Vote Yes or No")).toBeInTheDocument();
+    expect(screen.getByText("Yes")).toBeInTheDocument();
+    expect(screen.getByText("No")).toBeInTheDocument();
     expect(screen.queryByText("My pick")).not.toBeInTheDocument();
   });
 });
@@ -109,7 +109,7 @@ it("prints a contiguous retention block after contested races, without collapse 
     "Governor", "Retention Races", "Shall Judge r-1 be retained in office?", "Shall Judge r-2 be retained in office?",
   ]);
   expect(screen.queryByRole("button", { name: /Retention/ })).not.toBeInTheDocument();
-  expect(screen.getAllByText("Vote Yes or No")).toHaveLength(2);
+  expect(screen.getAllByText("Yes")).toHaveLength(2);
 });
 
 it("prints a lone retention in place without a group heading", () => {
