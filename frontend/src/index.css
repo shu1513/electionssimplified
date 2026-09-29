@@ -117,6 +117,7 @@
      it reads as the page's own tab. */
   --color-rail: #f3f0ea;
   --color-rail-line: #e3ded4;
+  --color-rail-heading: #8a8377;
   /* Split-screen (master-detail rail) breakpoint. The rail is 18rem plus a
      2rem gap, and the detail column reads badly under ~32rem, so the split
      needs about 54rem (864px). Deliberately below Tailwind's lg (1024px):
