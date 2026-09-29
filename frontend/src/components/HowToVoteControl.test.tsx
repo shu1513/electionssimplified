@@ -43,6 +43,21 @@ describe("HowToVoteControl", () => {
     expect(headings).toEqual(["Register to vote", "Vote by mail", "Vote in person"]);
   });
 
+  it("closes on Escape and returns focus to the trigger", async () => {
+    await openPanel(OHIO);
+
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("link", { name: "Find your polling place" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "How to vote in OH" })).toHaveFocus();
+  });
+
+  it("closes on a click outside the panel", async () => {
+    await openPanel(OHIO);
+
+    await userEvent.click(document.body);
+    expect(screen.queryByRole("link", { name: "Find your polling place" })).not.toBeInTheDocument();
+  });
+
   it("omits the registration block when an older API build leaves the field out", async () => {
     const { voter_registration_url: _omitted, ...withoutRegistration } = OHIO;
     await openPanel(withoutRegistration);
