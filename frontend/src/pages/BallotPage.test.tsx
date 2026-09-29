@@ -248,6 +248,8 @@ describe("BallotPage", () => {
 
     beforeEach(() => {
       localStorage.clear();
+      sessionStorage.clear();
+      clearBallotDraft();
     });
 
     it("opens the dialog over the results with an empty box and the action disabled", async () => {
@@ -284,13 +286,22 @@ describe("BallotPage", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null")).toMatchObject({ version: TERMS_VERSION });
       expect(screen.getByRole("heading", { level: 1 }).parentElement?.className).not.toContain("blur-sm");
+      // The draft follows the search only once agreed.
+      await waitFor(() => {
+        expect(readBallotDraft().district_ids).toEqual(["d-1"]);
+      });
     });
 
-    it("leaves for the search form without storing anything on cancel", async () => {
+    it("leaves for the search form with nothing kept from the search on cancel", async () => {
+      // What the home page queued for a later signup handoff before the gate.
+      sessionStorage.setItem("voteapp_pending_district_ids", JSON.stringify(["d-1"]));
       stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
       const { router } = renderBallot(PENDING);
 
       await screen.findByRole("dialog");
+      await screen.findByText("Governor");
+      // The guest draft is not pointed at an un-agreed search either.
+      expect(readBallotDraft().district_ids).toEqual([]);
       await userEvent.click(screen.getByRole("checkbox"));
       await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
@@ -299,6 +310,8 @@ describe("BallotPage", () => {
       });
       expect(router.state.location.search).toBe("?new=1");
       expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+      expect(sessionStorage.getItem("voteapp_pending_district_ids")).toBeNull();
+      expect(readBallotDraft().district_ids).toEqual([]);
     });
 
     it("stays closed when this browser already holds a current acceptance", async () => {

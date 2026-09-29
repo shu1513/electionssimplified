@@ -27,6 +27,7 @@ import {
 } from "../lib/ballotDraft";
 import { useRaceTypeParam } from "../lib/useRaceTypeParam";
 import { hasCurrentTermsAcceptance, rememberTermsAcceptance } from "../lib/termsAcceptance";
+import { clearPendingDistrictIds } from "../lib/pendingDistricts";
 import { PreSearchTermsDialog } from "../components/PreSearchTermsDialog";
 import { EmptyNotice, ErrorNotice, LoadingNotice } from "../components/Status";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
@@ -87,13 +88,22 @@ export function BallotPage() {
   // in the effect, never during render, so SSR and hydration agree.
   const termsPending = routerState?.termsPending === true;
   const [termsOpen, setTermsOpen] = useState(false);
+  // True once the gate is settled in this browser's favor: an acceptance was
+  // already stored, or the visitor agreed here. Nothing derived from the
+  // search is written to browser storage before that (see the draft effect
+  // below) — a declined search must leave nothing behind.
+  const [termsAgreed, setTermsAgreed] = useState(false);
   // The dialog's checkbox. Reset every time the dialog opens, never seeded
   // from storage: a box that arrives pre-ticked shows assent nobody gave.
   const [termsChecked, setTermsChecked] = useState(false);
   const termsOpenedAt = useRef<number | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!termsPending || hasCurrentTermsAcceptance()) {
+    if (!termsPending) {
+      return;
+    }
+    if (hasCurrentTermsAcceptance()) {
+      setTermsAgreed(true);
       return;
     }
     setTermsChecked(false);
@@ -101,6 +111,7 @@ export function BallotPage() {
     termsOpenedAt.current = performance.now();
     track("terms_shown");
   }, [termsPending]);
+  const termsSettled = !termsPending || termsAgreed;
   const termsOpenMs = () =>
     termsOpenedAt.current === null ? 0 : Math.round(performance.now() - termsOpenedAt.current);
   // Which partial search produced this ballot ("zip" names the ZIP, "region"
@@ -162,7 +173,8 @@ export function BallotPage() {
 
   // Keep the guest draft's badge link and progress denominator tracking the
   // ballot the guest actually looked at last. Signed-in visitors never touch
-  // the draft here — theirs lives in the account.
+  // the draft here — theirs lives in the account. Waits for the terms gate:
+  // a search the visitor then declines must not update the draft.
   // Inside the newsroom box: "search again" goes to the box's own search
   // page instead of the site's landing page, and a top bar leads back there.
   const embedHome = embedSession ? getEmbedHome() : null;
@@ -174,26 +186,30 @@ export function BallotPage() {
     }
     track("terms_decision", { decision: "agree", open_ms: termsOpenMs() });
     rememberTermsAcceptance();
+    setTermsAgreed(true);
     setTermsOpen(false);
   }
 
-  // Declining means no results: back to the search page, results unread.
-  // Cancel, Escape, and the backdrop all land here.
+  // Declining means no results: back to the search page, results unread, and
+  // nothing kept from the search — the districts the home page queued for a
+  // later account handoff go too. Cancel, Escape, and the backdrop all land
+  // here.
   function declineTerms() {
     track("terms_decision", { decision: "cancel", open_ms: termsOpenMs() });
+    clearPendingDistrictIds();
     setTermsOpen(false);
     navigate(searchAgainPath);
   }
 
   const ballotElections = ballot.data?.elections;
   useEffect(() => {
-    if (!isGuest || !ballotElections) {
+    if (!isGuest || !ballotElections || !termsSettled) {
       return;
     }
     setDraftBallotContext(districtIds, nearestUpcomingTarget(ballotElections, usLatestLocalDate()));
     // districtIds is rebuilt each render; its joined string is the stable key.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGuest, ballotElections, districtIds.join(",")]);
+  }, [isGuest, ballotElections, termsSettled, districtIds.join(",")]);
 
   function onSortChange(nextSort: string) {
     track("list_control", { control: "sort", value: nextSort });
