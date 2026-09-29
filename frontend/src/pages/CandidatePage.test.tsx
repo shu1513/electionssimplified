@@ -1530,6 +1530,77 @@ describe("CandidatePage roster rail", () => {
     );
   });
 
+  it("keeps the ballot rail for a one-name roster and folds a retention judge's box", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // Unopposed: the roster is this candidate alone, but the ballot around
+    // the race still wants walking. No prev/next, so no pager neighbors —
+    // the rail no longer hangs on those.
+    renderCandidate(perIdLoader, "c-1", {
+      backTo: { path: "/elections/e-1", label: "Governor" },
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor" },
+          { id: "e-2", title: "Mayor" },
+          { id: "e-9", title: "Judge Kim — retain?", retention: true },
+        ],
+      },
+      electionId: "e-1",
+      candidates: [{ id: "c-1", name: "Jordan Voter" }],
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByText("Jordan Voter").closest("li")).toHaveAttribute("aria-current", "page");
+    expect(within(rail).getByRole("link", { name: "Mayor" })).toHaveAttribute("href", "/elections/e-2");
+  });
+
+  it("renders a retention judge's box as the name over Yes / No, no oval on the name", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    // The ballot marks the answer, not the person — same shape as the
+    // election page's own rail box for the race.
+    renderCandidate(perIdLoader, "c-1", {
+      backTo: { path: "/elections/e-9", label: "Judge Kim — retain?" },
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor" },
+          { id: "e-9", title: "Judge Kim — retain?", retention: true },
+        ],
+      },
+      electionId: "e-9",
+      candidates: [{ id: "c-1", name: "Jordan Voter" }],
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const box = within(rail).getByText("Judge Kim — retain?").closest("li")!;
+    expect(within(box).getByTitle("Yes")).toBeInTheDocument();
+    expect(within(box).getByTitle("No")).toBeInTheDocument();
+    expect(within(box).getByTitle("Jordan Voter").querySelector("span[aria-hidden]")).toBeNull();
+    expect(within(box).getByTitle("Yes").querySelector("span[aria-hidden]")).not.toBeNull();
+  });
+
+  it("rewrites the rail's exit to the tab and sort the election page's rail engaged", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(perIdLoader, "c-2", {
+      ...ROSTER_ARRIVAL,
+      // The election page forwards its context with the engaged tab and
+      // sort stamped; its own exit link rewrites the back URL from them,
+      // and this page's exit must land on that same view.
+      backState: {
+        backTo: { path: "/ballot?d=d-1", label: "All elections" },
+        contests: [
+          { id: "e-1", title: "Governor", race_type: "office" },
+          { id: "q-1", title: "Measure A", race_type: "ballot_measure" },
+        ],
+        raceType: "office",
+        railSort: "vote_power",
+      },
+    });
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
+      "href",
+      "/ballot?d=d-1&type=office"
+    );
+  });
+
   it("delivers the election context through the open race's title link", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     const user = userEvent.setup();

@@ -14,7 +14,9 @@ import { BallotRail, type BallotRailContest, type BallotRailRow } from "../compo
 import { choicePickedLabel } from "../lib/choicePickedLabel";
 import {
   pagerNeighbors,
+  railTabsAvailableFor,
   readCandidateNavState,
+  rewriteBackPath,
   type CandidateNavState,
   type ElectionNavState,
 } from "../lib/detailNavContext";
@@ -436,11 +438,15 @@ export function CandidatePage() {
   // out of the snapshot. The nav bar exists only for in-app arrivals: no
   // router state (deep link) = no bar, by product choice.
   const rosterNeighbors = pagerNeighbors(displayedRoster, candidate.candidate_id);
-  // Desktop rail: the arrival race's roster under the same guard as
-  // prev/next (pagerNeighbors is null unless the list has >= 2 entries and
-  // contains this candidate). navState is re-read only for the type system —
-  // non-null neighbors implies it.
-  const railCandidates = rosterNeighbors !== null ? (displayedRoster ?? null) : null;
+  // Desktop rail: the arrival race's roster, gated only on this candidate
+  // being in it — NOT on prev/next existing. The rail is the whole ballot,
+  // so an unopposed candidate or a retention judge (a one-name roster)
+  // still needs it for walking the other contests; only the pager bar
+  // needs neighbors.
+  const railCandidates =
+    displayedRoster !== undefined && displayedRoster.some((entry) => entry.id === candidate.candidate_id)
+      ? displayedRoster
+      : null;
   // The rail's pick checks, mirroring the election rail: the green mark on
   // the candidate(s) the viewer picked IN THIS RACE — same choice source as
   // the "My choice" rows (account choices signed-in, local draft as guest).
@@ -483,22 +489,49 @@ export function CandidatePage() {
   })();
   // The open box's rows: the roster the rail sorts, each name a link
   // carrying this page's forwarded context; this candidate is the
-  // highlighted row (BallotRail renders it as text).
-  const ballotRows: BallotRailRow[] = (railCandidates ?? []).map((entry) => ({
-    id: entry.id,
-    label: entry.name,
-    path: `/candidates/${entry.id}`,
-    state: forwardedNavState,
-    picked: railPickedIds.has(entry.id),
-  }));
+  // highlighted row (BallotRail renders it as text). A retention race
+  // (flagged in the ballot snapshot) renders as the election page does:
+  // the judge's name without an oval over the Yes / No pair, a legacy
+  // judge pick reading as Yes.
+  const currentIsRetention =
+    ballot?.contests?.some((contest) => contest.id === navState?.electionId && contest.retention) === true;
+  const railPosition: "yes" | "no" | null =
+    railChoice?.measure_position ?? (currentIsRetention && railPickedIds.size > 0 ? "yes" : null);
+  const ballotRows: BallotRailRow[] = [
+    ...(railCandidates ?? []).map((entry) => ({
+      id: entry.id,
+      label: entry.name,
+      path: `/candidates/${entry.id}`,
+      state: forwardedNavState,
+      ...(currentIsRetention ? {} : { picked: railPickedIds.has(entry.id) }),
+    })),
+    ...(currentIsRetention
+      ? [
+          { id: "yes", label: "Yes", picked: railPosition === "yes" },
+          { id: "no", label: "No", picked: railPosition === "no" },
+        ]
+      : []),
+  ];
   const railContext =
     railCandidates !== null && navState !== null && navState.electionId !== undefined && ballotContests !== null
       ? { electionId: navState.electionId, contests: ballotContests, navState }
       : null;
   // The rail's exit: the ballot list when the election page handed its own
-  // context along (its backTo, with the state its rail's exit delivers),
-  // else the election itself — the pager's back slot destination.
-  const railBackTo = ballot?.backTo ?? navState?.backTo;
+  // context along — its backTo with ?type= / ?sort= rewritten to the tab
+  // and sort that page's rail engaged (the same derivation as its own
+  // exit link, so leaving from here lands on the same view), delivering
+  // the state its rail's exit delivers; else the election itself — the
+  // pager's back slot destination.
+  const railBackTo = ballot
+    ? {
+        ...ballot.backTo,
+        path: rewriteBackPath(
+          ballot.backTo.path,
+          { available: railTabsAvailableFor(ballot.contests), raceType: ballot.raceType ?? null },
+          ballot.railSort ?? null
+        ),
+      }
+    : navState?.backTo;
   const railBackToState = ballot ? (ballot.backState ?? ballot.listState) : backToElectionState;
 
   // Display label for the back slot: when the destination is an election,
