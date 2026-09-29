@@ -13,9 +13,9 @@ import { DraftLink } from "./PostPickActions";
 // pill hangs directly beneath it with a caret pointing up at the counter,
 // and follows it as the page scrolls. The header is not sticky, so once a
 // scroll down the roster takes the link away the pill parks at the top of
-// that same column without the caret. Scrolling back up dismisses the pill
-// the moment the header returns: the real counter is the thing to see, and
-// a pill over it would cover it.
+// that same column, caret still pointing up: "it's above you". Scrolling
+// back up dismisses the pill the moment the header returns: the real
+// counter is the thing to see, and a pill over it would cover it.
 //
 // The caller keys it per pick, so another pick remounts it and the label
 // re-reads with the new count. Hidden in split view by the caller — the
@@ -116,14 +116,12 @@ export function DraftToast() {
           phase === "out" ? "opacity-0" : "opacity-100"
         }`}
       >
-        {anchored ? (
-          <span
-            aria-hidden="true"
-            data-draft-toast-caret=""
-            className="absolute -top-1.5 h-3 w-3 rotate-45 border-t border-l border-line bg-white"
-            style={{ right: placement.caretRight }}
-          />
-        ) : null}
+        <span
+          aria-hidden="true"
+          data-draft-toast-caret=""
+          className="absolute -top-1.5 h-3 w-3 rotate-45 border-t border-l border-line bg-white"
+          style={{ right: placement.caretRight }}
+        />
         <DraftLink />
       </div>
     </div>

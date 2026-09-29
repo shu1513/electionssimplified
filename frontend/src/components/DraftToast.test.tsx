@@ -82,7 +82,7 @@ describe("DraftToast", () => {
     expect(parts.caret).not.toBeNull();
   });
 
-  it("parks at the top of the link's column, no caret, once the header scrolls away", async () => {
+  it("parks at the top of the link's column, caret still up, once the header scrolls away", async () => {
     mountHeaderLink(-60);
     renderToast();
     await screen.findByRole("link", { name: "My Draft (1)" });
@@ -91,9 +91,10 @@ describe("DraftToast", () => {
     expect(parts.strip).toHaveClass("top-3");
     expect(parts.strip.style.top).toBe("");
     // Still the header link's column: the pill lines up with where the
-    // counter is, not with the viewport edge.
+    // counter is, not with the viewport edge — and the caret keeps
+    // pointing up at it ("it's above you").
     expect(parts.strip.style.paddingRight).toBe("20px");
-    expect(parts.caret).toBeNull();
+    expect(parts.caret?.style.right).toBe("54px");
   });
 
   it("dismisses itself when the header scrolls back into view over a parked pill", async () => {
@@ -116,7 +117,7 @@ describe("DraftToast", () => {
     scroll();
     const parts = pillParts();
     expect(parts.strip).toHaveClass("top-3");
-    expect(parts.caret).toBeNull();
+    expect(parts.caret).not.toBeNull();
   });
 
   it("falls back to the page gutter when there is no header link at all", async () => {
@@ -125,6 +126,6 @@ describe("DraftToast", () => {
     const parts = pillParts();
     expect(parts.strip).toHaveClass("top-3");
     expect(parts.strip.style.paddingRight).toBe("16px");
-    expect(parts.caret).toBeNull();
+    expect(parts.caret).not.toBeNull();
   });
 });
