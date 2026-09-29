@@ -65,7 +65,7 @@ export function FollowButton({ candidateId, candidateName, isFollowing, size = "
         className={
           isFollowing
             ? `${base} border border-line bg-gray-100 text-ink hover:border-red-700 hover:bg-red-50 hover:text-red-900`
-            : `${base} bg-[#0095f6] text-white hover:bg-[#1877f2]`
+            : `${base} bg-rausch text-white hover:bg-rausch-dark`
         }
       >
         {setFollow.isPending ? "…" : isFollowing ? (previewUnfollow ? "Unfollow" : "Following") : "Follow"}

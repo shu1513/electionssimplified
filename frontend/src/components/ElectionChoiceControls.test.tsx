@@ -94,6 +94,68 @@ describe("CandidatePickButton", () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
   });
 
+  it("fires onPicked once the PUT resolves", async () => {
+    let resolvePut: (() => void) | null = null;
+    stubApiRoutes({
+      "/api/me/election-choices": () =>
+        new Promise<{ status: number; body: unknown }>((resolve) => {
+          resolvePut = () => resolve({ status: 200, body: { choice: choice({ picks: [pick(CANDIDATE_ID)] }) } });
+        }),
+    });
+    const onPicked = vi.fn();
+    renderControl(
+      <CandidatePickButton electionId={ELECTION_ID} candidateId={CANDIDATE_ID} candidateName="Jane Doe" raceTitle="Governor" electionDate="2026-11-03" choice={undefined} seatsToFill={null} onPicked={onPicked} />
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "Make my pick: Jane Doe" }));
+    // In flight: nothing to confirm yet.
+    await waitFor(() => expect(resolvePut).not.toBeNull());
+    expect(onPicked).not.toHaveBeenCalled();
+    resolvePut!();
+    await waitFor(() => expect(onPicked).toHaveBeenCalledTimes(1));
+  });
+
+  it("does not fire onPicked on a removal", async () => {
+    const fetchMock = stubApiRoutes({
+      "/api/me/election-choices": () => ({ status: 200, body: { choice: choice() } }),
+    });
+    const onPicked = vi.fn();
+    renderControl(
+      <CandidatePickButton electionId={ELECTION_ID} candidateId={CANDIDATE_ID} candidateName="Jane Doe" raceTitle="Governor" electionDate="2026-11-03" choice={choice({ picks: [pick(CANDIDATE_ID)] })} seatsToFill={null} onPicked={onPicked} />
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "✓ My pick: Jane Doe" }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByRole("button", { name: "✓ My pick: Jane Doe" })).toBeEnabled());
+    expect(onPicked).not.toHaveBeenCalled();
+  });
+
+  it("does not fire onPicked on a rejected save", async () => {
+    stubApiRoutes({
+      "/api/me/election-choices": apiError(400, "election_closed", "Choices can only be changed for upcoming elections"),
+    });
+    const onPicked = vi.fn();
+    renderControl(
+      <CandidatePickButton electionId={ELECTION_ID} candidateId={CANDIDATE_ID} candidateName="Jane Doe" raceTitle="Governor" electionDate="2026-11-03" choice={undefined} seatsToFill={null} onPicked={onPicked} />
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "Make my pick: Jane Doe" }));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+    expect(onPicked).not.toHaveBeenCalled();
+  });
+
+  it("fires onPicked on a guest draft pick, synchronously", async () => {
+    mockMe = null;
+    const onPicked = vi.fn();
+    renderControl(
+      <CandidatePickButton electionId={ELECTION_ID} candidateId={CANDIDATE_ID} candidateName="Jane Doe" raceTitle="Governor" electionDate="2026-11-03" choice={undefined} seatsToFill={null} onPicked={onPicked} />
+    );
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "Make my pick: Jane Doe" }));
+    expect(onPicked).toHaveBeenCalledTimes(1);
+    expect(readBallotDraft().choices[ELECTION_ID].picks.map((p) => p.candidate_id)).toEqual([CANDIDATE_ID]);
+  });
+
   it("renders as picked and unpicks with chosen: false", async () => {
     const fetchMock = stubApiRoutes({
       "/api/me/election-choices": (_url, init) => {

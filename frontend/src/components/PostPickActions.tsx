@@ -20,10 +20,6 @@ type PostPickActionsProps = {
 };
 
 export function PostPickActions({ back }: PostPickActionsProps) {
-  const { me } = useMe();
-  const isGuest = me === null;
-  const guestDraftNav = useGuestDraftNav();
-  const picksProgress = useMyPicksProgress();
   return (
     <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
       {back ? (
@@ -36,25 +32,37 @@ export function PostPickActions({ back }: PostPickActionsProps) {
           Back to {back.label}
         </Link>
       ) : null}
-      {isGuest ? (
-        guestDraftNav ? (
-          <Link
-            to={guestDraftNav.to}
-            onClick={() => track("post_pick_click", { target: "draft" })}
-            className="whitespace-nowrap font-semibold text-green-800 hover:underline"
-          >
-            {guestDraftNav.label}
-          </Link>
-        ) : null
-      ) : (
-        <Link
-          to="/me/picks"
-          onClick={() => track("post_pick_click", { target: "draft" })}
-          className="whitespace-nowrap font-semibold text-green-800 hover:underline"
-        >
-          {myDraftLabel(picksProgress)}
-        </Link>
-      )}
+      <DraftLink />
     </div>
+  );
+}
+
+/** The post-pick draft link on its own — the election page's toast
+ * (DraftToast) shows just this, since there the reader is already on the
+ * election. Same label and destination as the header item, and the
+ * header's color rule too: green is the "done" color, so the link only
+ * wears it once the draft is complete ("My Draft ✓"); "My Draft 4/34" is
+ * still homework and takes the header greeting's navy instead. */
+export function DraftLink() {
+  const { me } = useMe();
+  const isGuest = me === null;
+  const guestDraftNav = useGuestDraftNav();
+  const picksProgress = useMyPicksProgress();
+  const complete = isGuest ? (guestDraftNav?.complete ?? false) : (picksProgress?.complete ?? false);
+  const className = complete
+    ? "whitespace-nowrap font-semibold text-green-800 hover:underline"
+    : "whitespace-nowrap font-semibold text-navy hover:underline";
+  const onClick = () => track("post_pick_click", { target: "draft" });
+  if (isGuest) {
+    return guestDraftNav ? (
+      <Link to={guestDraftNav.to} onClick={onClick} className={className}>
+        {guestDraftNav.label}
+      </Link>
+    ) : null;
+  }
+  return (
+    <Link to="/me/picks" onClick={onClick} className={className}>
+      {myDraftLabel(picksProgress)}
+    </Link>
   );
 }
