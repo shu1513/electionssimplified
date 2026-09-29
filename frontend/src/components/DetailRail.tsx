@@ -53,8 +53,11 @@ function PickedCheck() {
 // Headings sit a clear step lighter than the rows (rows are ink-mid), in a
 // smaller, wider-tracked uppercase, with room above each section — the
 // same treatment the list page's section labels use.
+// The mockup's group label: 11px bold, .08em tracking, a light warm grey
+// (rail-heading), 10px above and 6px below; first label ~26px under the
+// header controls, 20px between one group's last row and the next label.
 const HEADING_CLASS =
-  "px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-soft";
+  "px-3 text-[11px] font-bold uppercase tracking-[.08em] text-rail-heading";
 
 /**
  * The desktop master–detail rail: the sibling list the visitor arrived with,
@@ -228,9 +231,9 @@ export function DetailRail({
               <li
                 key={`heading:${entry.id}`}
                 role="presentation"
-                className={index > 0 ? "pt-4" : "pt-3"}
+                className={index > 0 ? "pt-2.5" : "pt-1"}
               >
-                <p className={`pb-1 ${HEADING_CLASS}`}>{entry.group}</p>
+                <p className={`pb-1.5 pt-2.5 ${HEADING_CLASS}`}>{entry.group}</p>
               </li>
             ) : null,
             renderRow(entry),
