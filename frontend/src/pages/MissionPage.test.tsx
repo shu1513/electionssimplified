@@ -90,6 +90,34 @@ describe("MissionPage", () => {
     expect(screen.queryByText(/embed\.js/)).not.toBeInTheDocument();
   });
 
+  it("keeps the FAQ and every question collapsed until opened", async () => {
+    stubApiRoutes({ "/api/me": apiError(401, "unauthorized", "Not logged in") });
+    renderMission();
+
+    // The heading sits outside the disclosure (sr-only) so it stays in
+    // screen-reader heading navigation.
+    const heading = await screen.findByRole("heading", { name: "Frequently asked questions" });
+    expect(heading.closest("details")).toBeNull();
+
+    const faq = screen.getByText("Frequently asked questions", { selector: "summary" }).closest("details");
+    expect(faq).not.toHaveAttribute("open");
+    // Questions are the labels; none is open by default, and no answer shows.
+    const question = screen.getByText("Why is Elections Simplified not a non-profit?");
+    expect(question.closest("details")).not.toHaveAttribute("open");
+    expect(screen.queryByText(/In principle we function as a non-profit/)).not.toBeVisible();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByText("Frequently asked questions", { selector: "summary" }));
+    expect(faq).toHaveAttribute("open");
+    await user.click(question);
+    expect(question.closest("details")).toHaveAttribute("open");
+    expect(screen.getByText(/In principle we function as a non-profit/)).toBeVisible();
+    // Opening one question leaves the others closed.
+    expect(
+      screen.getByText("Who is behind Elections Simplified, and how is it funded?").closest("details")
+    ).not.toHaveAttribute("open");
+  });
+
   it("asks unverified accounts to verify", async () => {
     stubApiRoutes({ "/api/me": { body: ME_UNVERIFIED } });
     renderMission();
