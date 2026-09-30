@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import { APP_NAME, useMe } from "@voteapp/api-client";
@@ -21,6 +22,85 @@ export const meta: MetaFunction = () =>
 // sign-up/login buttons.
 const memberCtaClass =
   "inline-block rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800";
+
+// FAQ copy (user-approved wording; questions are the collapsed labels, the
+// answer follows once opened).
+const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
+  {
+    question: `Who is behind ${APP_NAME}, and how is it funded?`,
+    answer: (
+      <p>
+        We are actually just a few friends—everyday people from all walks of life and with very
+        different political views. We all thought the voting system itself could be much more
+        transparent, regardless of someone’s political view. So we all decided to work on this. We
+        have no company sponsors. We offer an option for contributions on the website, but so far
+        our “funding” consists of our own Visa and MasterCard.
+      </p>
+    ),
+  },
+  {
+    question: "What happens to the address or ZIP code information we enter? Are they sold or shared?",
+    answer: (
+      <p>
+        We don’t save your address to your account, only the districts it maps to. The address goes
+        to a geocoding service and a short-lived cache, as our{" "}
+        <Link to="/privacy" className="font-semibold underline hover:text-ink">
+          Privacy Policy
+        </Link>{" "}
+        explains. We never sell your information, and we never share it with advertisers, campaigns,
+        or data brokers. In addition, we open our source code to public so people will have full
+        transparency of exactly what we do.
+      </p>
+    ),
+  },
+  {
+    question: "How do you check the AI-assisted summaries for accuracy, and how are corrections handled?",
+    answer: (
+      <>
+        <p>We use a combination of methods to ensure the accuracy of the records. To give you 3 examples:</p>
+        <ol className="list-decimal space-y-1 pl-6">
+          <li>
+            We have non-AI systems that filter the sources—is the source governmental, a reputable
+            news outlet, or from the candidate’s own campaign website or a suspicious site?
+          </li>
+          <li>
+            We give AI models very specific parameters and have different AI models crosscheck each
+            other’s work, which minimizes mistakes from any particular AI model.
+          </li>
+          <li>
+            We have humans—ourselves—check the answers for quality. We can’t check every single
+            thing but we check as much as we can. If we find a mistake in one area, we then use AI
+            to find similar mistakes across all records.
+          </li>
+        </ol>
+        <p>
+          We actually have more guardrails in place to ensure the quality and accuracy of records but
+          I don’t want to bore you with too many technical details. So far the quality and accuracy
+          have been exceptionally strong because we would rather filter out something we are not
+          sure about than include it. In our own spot checks, errors have been rare. We know it is
+          not perfect, but it is still far more accurate than political ad campaigns on TV.
+        </p>
+      </>
+    ),
+  },
+  {
+    question: `Why is ${APP_NAME} not a non-profit?`,
+    answer: (
+      <>
+        <p>
+          We are a small for-profit corporation, not a registered charity, so contributions are not
+          tax-deductible. We chose not to form a non-profit yet because it requires a board and much
+          more paperwork for a tiny team.
+        </p>
+        <p>
+          We get contributions from users who choose to support us. We never run ads on the site or
+          charge a fee. Our goal is to make voting transparent because we believe there is currently
+          an extreme lack of transparency.
+        </p>
+      </>
+    ),
+  },
+];
 
 // Public mission page: the pitch reads without an account. Payment moved to
 // /support/member (the one-time option is offered on that page); the button
@@ -187,6 +267,26 @@ export default function MissionPage() {
           </a>
           .
         </p>
+
+        {/* FAQ: the whole block and every question start collapsed. The
+            headings sit outside <summary> as sr-only (a heading inside a
+            <summary> can drop out of screen-reader heading navigation), same
+            pattern as the campaign-finance section. The visible summary
+            lines carry the same look as the page's h2 / bold labels. */}
+        <h2 className="sr-only">Frequently asked questions</h2>
+        <details className="pt-2">
+          <summary className="cursor-pointer select-none text-heading font-semibold">
+            Frequently asked questions
+          </summary>
+          <div className="mt-3 space-y-3">
+            {FAQ_ITEMS.map((item) => (
+              <details key={item.question} className="space-y-2">
+                <summary className="cursor-pointer select-none font-semibold">{item.question}</summary>
+                <div className="space-y-2 pt-1">{item.answer}</div>
+              </details>
+            ))}
+          </div>
+        </details>
       </section>
 
       {me?.email_verified ? (
