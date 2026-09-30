@@ -104,14 +104,19 @@ describe("MissionPage", () => {
     // Questions are the labels; none is open by default, and no answer shows.
     const question = screen.getByText("Why is Elections Simplified not a non-profit?");
     expect(question.closest("details")).not.toHaveAttribute("open");
-    expect(screen.queryByText(/In principle we function as a non-profit/)).not.toBeVisible();
+    expect(screen.queryByText(/We are a small for-profit corporation/)).not.toBeVisible();
 
     const user = userEvent.setup();
     await user.click(screen.getByText("Frequently asked questions", { selector: "summary" }));
     expect(faq).toHaveAttribute("open");
     await user.click(question);
     expect(question.closest("details")).toHaveAttribute("open");
-    expect(screen.getByText(/In principle we function as a non-profit/)).toBeVisible();
+    expect(screen.getByText(/We are a small for-profit corporation/)).toBeVisible();
+    // The privacy answer points at the policy it now mirrors.
+    await user.click(
+      screen.getByText("What happens to the address or ZIP code information we enter? Are they sold or shared?")
+    );
+    expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
     // Opening one question leaves the others closed.
     expect(
       screen.getByText("Who is behind Elections Simplified, and how is it funded?").closest("details")

@@ -42,9 +42,14 @@ const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
     question: "What happens to the address or ZIP code information we enter? Are they sold or shared?",
     answer: (
       <p>
-        We do not store anyone’s address or ZIP code in our database. We never sell or share users’
-        information. We explicitly have that in our legal agreement on our website. In addition, we
-        open our source code to public so people will have full transparency of exactly what we do.
+        We don’t save your address to your account, only the districts it maps to. The address goes
+        to a geocoding service and a short-lived cache, as our{" "}
+        <Link to="/privacy" className="font-semibold underline hover:text-ink">
+          Privacy Policy
+        </Link>{" "}
+        explains. We never sell your information, and we never share it with advertisers, campaigns,
+        or data brokers. In addition, we open our source code to public so people will have full
+        transparency of exactly what we do.
       </p>
     ),
   },
@@ -72,9 +77,8 @@ const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
           We actually have more guardrails in place to ensure the quality and accuracy of records but
           I don’t want to bore you with too many technical details. So far the quality and accuracy
           have been exceptionally strong because we would rather filter out something we are not
-          sure about than include it. We found an above 99% accuracy rate as of now. I know that it
-          is not ideal but it is still a thousand times more accurate than political ad campaigns on
-          TV.
+          sure about than include it. In our own spot checks, errors have been rare. We know it is
+          not perfect, but it is still far more accurate than political ad campaigns on TV.
         </p>
       </>
     ),
@@ -84,12 +88,12 @@ const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
     answer: (
       <>
         <p>
-          In principle we function as a non-profit. We only chose not to incorporate as a non-profit
-          legal entity right now because the non-profit status requires a board and significantly
-          more bureaucracy for our small team.
+          We are a small for-profit corporation, not a registered charity, so contributions are not
+          tax-deductible. We chose not to form a non-profit yet because it requires a board and much
+          more paperwork for a tiny team.
         </p>
         <p>
-          We get contributions from users who choose to donate. We never run ads on the site or
+          We get contributions from users who choose to support us. We never run ads on the site or
           charge a fee. Our goal is to make voting transparent because we believe there is currently
           an extreme lack of transparency.
         </p>
