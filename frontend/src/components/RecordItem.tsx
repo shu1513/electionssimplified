@@ -47,11 +47,16 @@ export function RecordItem({
   showTags,
   reporterEmail,
   stanceAreaId,
+  relatedRecords,
 }: {
   record: CandidateRecord;
   showTags: boolean;
   reporterEmail?: string | null;
   stanceAreaId?: string | null;
+  /** The candidate's other records on the same bill (amendment votes next
+   * to final passage), so a bill's story is not scattered across issue
+   * groups. Rendered as one line per record under the source line. */
+  relatedRecords?: readonly CandidateRecord[];
 }) {
   const stanceTag = stanceAreaId != null ? recordStanceTag(record, stanceAreaId) : null;
   return (
@@ -93,6 +98,26 @@ export function RecordItem({
         ) : null}
       </p>
       <SourceLine url={record.source_url} researchedDate={record.created_at.slice(0, 10)} />
+      {relatedRecords && relatedRecords.length > 0 ? (
+        <div className="mt-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink-soft">
+          <p className="font-medium text-ink">Also on this bill</p>
+          <ul className="mt-1 space-y-1">
+            {relatedRecords.map((related) => (
+              <li key={related.id}>
+                <span>{formatElectionDate(related.event_date)}</span>
+                {" · "}
+                <span className="text-ink">{related.description}</span>
+                {related.research_area_tags.length > 0 ? (
+                  <span>
+                    {" "}
+                    ({related.research_area_tags.map((tag) => (tag.stance === "for" || tag.stance === "against" ? stanceLabel(tag.stance, tag.slug, tag.name) : tag.name)).join(", ")})
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       <div className="mt-2">
         <ReportContentButton
           entityType="candidate_record"

@@ -8,7 +8,11 @@ import {
   BLOCKED_SOURCE_DOMAIN_REGISTRY,
   classifyCandidateRecordSourceDomain,
   evaluateCandidateRecordSourcePolicy,
+  findLegislativeTrackerSourceReason,
   FOUNDING_LISTED_SOURCE_DOMAINS,
+  isLegislativeActionRecord,
+  isLegislativeTrackerHostname,
+  LEGISLATIVE_TRACKER_DOMAINS,
   LISTED_SOURCE_DOMAIN_ADDITIONS,
   LISTED_SOURCE_DOMAINS,
   matchesDamagingClaimPattern,
@@ -596,7 +600,8 @@ describe("evaluateCandidateRecordSourcePolicy", () => {
     ];
     for (const [sourceUrl, candidateDisplayName] of independent) {
       const result = evaluateCandidateRecordSourcePolicy({
-        description: "Voted for the annual budget.",
+        // Not a vote: the tracker rule would reject votesmart.org for one.
+        description: "Spoke at the annual budget hearing.",
         sourceUrl,
         candidateDisplayName,
       });
@@ -1196,5 +1201,128 @@ describe("listed-source addition guard", () => {
       expect(classifyCandidateRecordSourceDomain(`https://${domain}/article`).tier).toBe("listed");
       expect(classifyCandidateRecordSourceDomain(`https://sub.${domain}/article`).tier).toBe("listed");
     }
+  });
+});
+
+describe("legislative tracker source rule", () => {
+  it("recognizes vote, sponsorship, and introduction records by their leading verb", () => {
+    for (const description of [
+      "Voted against the Secure DC amendment allowing DNA collection before conviction.",
+      "Vote to override the veto failed 60-40; she voted yes.",
+      "Cast the lone vote against raising the superintendent's salary.",
+      "Co-sponsored a bill allowing searches of jailed youth at any time.",
+      "Sponsored SB 252 on protection from discrimination.",
+      "Introduced H.R.1470, the Ending Qualified Immunity Act.",
+      "Filed H.866, a bill enabling cities to extend voting rights.",
+      "Filed a petition for H3519 on regulation of government privatization contracts.",
+      "Filed HD5003, a bill on electronic filing fees for limited liability companies.",
+      "Filed HB 620 requiring public access to court records.",
+      "Authored AB 3161 requiring hospital patient safety plans.",
+      "Joined 12 other Democrats in voting for the budget.",
+    ]) {
+      expect(isLegislativeActionRecord(description), description).toBe(true);
+    }
+    for (const description of [
+      "Received the endorsement of the Massachusetts Fiscal Alliance for her votes on taxes.",
+      "Was rated 100% by the NH Liberty Alliance for the 2023 session.",
+      "Was endorsed for Mayor by the Working Families Party.",
+      "Served as a House floor manager for House File 2240.",
+      "Signed a pledge opposing new taxes.",
+      "Filed a federal lawsuit as her daughter's parent challenging the athletic conference's policy.",
+      "Filed candidacy papers for the 2026 primary.",
+      "Filed a financial disclosure listing rental income.",
+      "Filed an ethics complaint against the county clerk.",
+      "Filed a class-action complaint over the county's court fees.",
+    ]) {
+      expect(isLegislativeActionRecord(description), description).toBe(false);
+    }
+  });
+
+  it("matches tracker hosts by domain, subdomain, and affiliate naming pattern", () => {
+    for (const host of [
+      "2024.dccouncil.org",
+      "massfiscalscorecard.org",
+      "scorecard.progressivemass.com",
+      "justfacts.votesmart.org",
+      "www.nhliberty.org",
+      "cdn.plannedparenthood.org",
+      "www.plannedparenthoodaction.org",
+      "scorecard.ksaflcio.org",
+      "wisaflcio.org",
+      "www.michiganlcv.org",
+      "www.aclumich.org",
+      "www.acluwv.org",
+      "azchamber.com",
+      "www.savannahchamber.com",
+      "www.uschamber.com",
+    ]) {
+      expect(isLegislativeTrackerHostname(host), host).toBe(true);
+    }
+    for (const host of [
+      "dccouncil.gov",
+      "lims.dccouncil.gov",
+      "malegislature.gov",
+      "www.akleg.gov",
+      "clerk.house.gov",
+      "legiscan.com",
+      "ballotpedia.org",
+      "www.nytimes.com",
+      "gc.nh.gov",
+      "davids.house.gov",
+      "",
+    ]) {
+      expect(isLegislativeTrackerHostname(host), host).toBe(false);
+    }
+  });
+
+  it("keeps the tracker domain list free of duplicates and official hosts", () => {
+    expect(new Set(LEGISLATIVE_TRACKER_DOMAINS).size).toBe(LEGISLATIVE_TRACKER_DOMAINS.length);
+    for (const domain of LEGISLATIVE_TRACKER_DOMAINS) {
+      expect(domain.endsWith(".gov"), domain).toBe(false);
+    }
+  });
+
+  it("rejects a vote record cited to a tracker, on the listed tier too", () => {
+    const votesmart = evaluateCandidateRecordSourcePolicy({
+      description: "Voted for a law requiring police agencies to report use-of-force data.",
+      sourceUrl: "https://justfacts.votesmart.org/candidate/key-votes/184629/aaron-lieberman",
+    });
+    expect(votesmart.ok).toBe(false);
+    if (!votesmart.ok) {
+      expect(votesmart.reason).toContain("advocacy scorecard or secondary vote tracker");
+      expect(votesmart.reason).toContain("roll call");
+    }
+    const jufj = evaluateCandidateRecordSourcePolicy({
+      description: "Voted for a Secure DC amendment protecting residents from DNA collection.",
+      sourceUrl: "https://2024.dccouncil.org/mems/janeese-lewis-george",
+    });
+    expect(jufj.ok).toBe(false);
+  });
+
+  it("still accepts endorsements and ratings cited to the group's own page", () => {
+    expect(
+      findLegislativeTrackerSourceReason(
+        "Received the endorsement of Planned Parenthood Advocacy Fund of Massachusetts.",
+        "https://www.plannedparenthoodaction.org/planned-parenthood-advocacy-fund-massachusetts/endorsements"
+      )
+    ).toBeNull();
+    expect(
+      evaluateCandidateRecordSourcePolicy({
+        description: "Was rated 92% by the NH Liberty Alliance for the 2023 session.",
+        sourceUrl: "https://www.nhliberty.org/ratings/legislator/nicole-leapley/?year=2023",
+      }).ok
+    ).toBe(true);
+  });
+
+  it("accepts the same vote cited to the official bill page", () => {
+    expect(
+      evaluateCandidateRecordSourcePolicy({
+        description: "Voted for D.C.'s Secure DC crime law.",
+        sourceUrl: "https://lims.dccouncil.gov/Legislation/B25-0345",
+      }).ok
+    ).toBe(true);
+    expect(
+      findLegislativeTrackerSourceReason("Voted yes on HB 620.", "not a url")
+    ).toBeNull();
   });
 });

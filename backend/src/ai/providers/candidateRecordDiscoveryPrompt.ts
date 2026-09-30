@@ -107,7 +107,7 @@ export function buildCandidateRecordDiscoveryPrompt(input: CandidateRecordDiscov
     "- Each record must include source_url and event_date.",
     "- event_date must be YYYY-MM-DD; use the action/event date when known, otherwise use the source publication date.",
     "- If neither action/event date nor publication date is available, omit that record.",
-    "- Use one row per concrete record; do not duplicate the same source/event.",
+    "- Use one row per BILL or action, not per stage: a bill re-filed in later sessions, an amendment voted at first and second reading, a yearly repeat of the same vote, and a bill's final passage after its amendments are ONE row whose description tells the whole arc (\"Voted for the amendment at first reading, against its reversal at second reading, and for the final bill\"). The importer refuses repeat rows.",
     RECORD_DESCRIPTION_SUBSTANCE_RULE,
     // Identity gate. Applies to every route (officeholder, never-held,
     // self-decide, judicial), so it lives in the shared rule list. A record
@@ -116,6 +116,7 @@ export function buildCandidateRecordDiscoveryPrompt(input: CandidateRecordDiscov
     "- Every record must be about this exact person; a name match is not proof. Tie it to this candidate with a hard identifier: office or district held, employer, license or docket number, or reporting that states the identification. On a page covering several candidates, take the fact next to this candidate's name. If only the name matches, omit the record.",
     "- source_url must not be a social/UGC platform or a personal blog/self-published page (Reddit, X/Twitter, Facebook, YouTube, Medium, Substack, and similar); the importer rejects known platform domains.",
     "- For damaging claims, require official/legal sources or reputable news (the importer rejects damaging claims cited to other domains) and do not state allegations as proven facts.",
+    "- A vote, sponsorship, or bill-introduction record must cite the legislature's own roll call, journal, or bill page. Advocacy scorecards and vote trackers (Vote Smart key votes, LCV, AFL-CIO, chamber of commerce, ACLU, Planned Parenthood, fiscal-alliance scorecards and similar) are leads only: the importer rejects such records cited to them, and their one-line vote summaries carry the group's framing, so restate the vote from the official page in neutral words.",
     ...PLAIN_LANGUAGE_STYLE_RULES,
     "- return JSON only (no prose, no markdown).",
     ...(reviewFeedbackLines.length > 0

@@ -18,7 +18,7 @@ const recordRow = (overrides: Partial<RecordRow>): RecordRow => ({
   description: "Voted to adopt the budget for fiscal year 2025.",
   source_url: "https://example.gov/doc/1",
   event_date: "2024-03-06",
-  created_at_utc: "2026-07-28 06:14:50.777574",
+  created_at_utc: "2026-07-28 06:14:50.777574", retired_at_utc: null, retired_reason: null,
   origin: null,
   origin_run_id: null,
   ...overrides,

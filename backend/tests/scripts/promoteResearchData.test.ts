@@ -37,6 +37,7 @@ import {
   UPSERT_RECORDS_SQL,
   UPSERT_TAGS_SQL,
   upsertBatched,
+  readCandidateScope,
 } from "../../src/scripts/promoteResearchData.js";
 
 const LOCAL = "postgresql://localhost:5432/voteapp";
@@ -427,7 +428,7 @@ describe("sameRecord", () => {
     description: "d",
     source_url: "u",
     event_date: "2026-01-01",
-    created_at_utc: "2026-01-01 00:00:00.000000",
+    created_at_utc: "2026-01-01 00:00:00.000000", retired_at_utc: null, retired_reason: null,
     origin: "manual",
     origin_run_id: "r1",
   };
@@ -454,7 +455,7 @@ describe("planRecordRekeys", () => {
     description: "Voted to adopt the budget for fiscal year 2025.",
     source_url: "https://example.gov/doc/1",
     event_date: "2024-03-06",
-    created_at_utc: "2026-07-28 06:14:50.777574",
+    created_at_utc: "2026-07-28 06:14:50.777574", retired_at_utc: null, retired_reason: null,
     origin: null,
     origin_run_id: null,
     ...overrides,
@@ -735,7 +736,7 @@ describe("planTagReconciliation", () => {
     description: "Voted to adopt the budget for fiscal year 2025.",
     source_url: "https://example.gov/doc/1",
     event_date: "2024-03-06",
-    created_at_utc: "2026-07-28 06:14:50.777574",
+    created_at_utc: "2026-07-28 06:14:50.777574", retired_at_utc: null, retired_reason: null,
     origin: null,
     origin_run_id: null,
     ...overrides,
@@ -909,7 +910,7 @@ describe("REKEY_RECORDS_SQL", () => {
       description: "d",
       source_url: "u",
       event_date: "2024-01-01",
-      created_at_utc: "2026-01-01 00:00:00.000000",
+      created_at_utc: "2026-01-01 00:00:00.000000", retired_at_utc: null, retired_reason: null,
       origin: "manual",
       origin_run_id: "run-9",
     };
@@ -923,6 +924,8 @@ describe("REKEY_RECORDS_SQL", () => {
         event_date: "2024-01-01",
         origin: "manual",
         origin_run_id: "run-9",
+        retired_at_utc: null,
+        retired_reason: null,
       },
     ]);
   });
@@ -969,7 +972,7 @@ describe("findIdentityKeyMismatches", () => {
     description: "desc",
     source_url: "https://x",
     event_date: "2026-01-01",
-    created_at_utc: "2026-01-01 00:00:00.000000",
+    created_at_utc: "2026-01-01 00:00:00.000000", retired_at_utc: null, retired_reason: null,
     origin: null,
     origin_run_id: null,
   };
@@ -1051,5 +1054,24 @@ describe("countUnresolvedTags", () => {
     const { calls, client } = fakeClient();
     expect(await countUnresolvedTags(client, [])).toBe(0);
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe("readCandidateScope", () => {
+  it("reads one uuid per line, ignoring blanks and comments, and rejects junk", async () => {
+    const { mkdtemp, writeFile: write } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = await mkdtemp(join(tmpdir(), "scope-"));
+    const ok = join(dir, "ok.txt");
+    await write(ok, "# scope\n11111111-2222-4333-8444-555555555555\n\n11111111-2222-4333-8444-555555555555\n");
+    const scope = await readCandidateScope(ok);
+    expect([...scope]).toEqual(["11111111-2222-4333-8444-555555555555"]);
+    const bad = join(dir, "bad.txt");
+    await write(bad, "not-a-uuid\n");
+    await expect(readCandidateScope(bad)).rejects.toThrow(/not a uuid/);
+    const empty = join(dir, "empty.txt");
+    await write(empty, "# nothing\n");
+    await expect(readCandidateScope(empty)).rejects.toThrow(/empty/);
   });
 });

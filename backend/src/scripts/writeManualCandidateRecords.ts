@@ -21,7 +21,9 @@ import { markCandidateRecordsSearchCompleted } from "../pipeline/candidates/cand
 import { isNonStanceResearchAreaSlug } from "../pipeline/candidates/candidateRecordResearchAreaPolicy.js";
 import {
   buildCandidateRecordIdentityKey,
+  findRepeatExistingRecords,
   findWithinPayloadRecordCollisions,
+  findWithinPayloadRepeatRows,
   upsertCandidateRecords,
 } from "../pipeline/candidates/candidateRecordStore.js";
 import { createCandidateRecordUpdateNotificationEvents } from "../pipeline/users/candidateFollowNotificationEvents.js";
@@ -62,6 +64,8 @@ function usage(): string {
     "A supplied --evidence-file on a stance-bearing FULL-history write is persisted too (candidate_record_sweep_confirmations with an empty claim set), so keep supplying the ledger — the output reports sweepEvidence.persisted (dry-run: wouldPersist).",
     "",
     "Every full-history ledger must COVER its route's question list via question_id tags: judicial contests (discovery_contest_family=judicial_office) need cases, discipline, endorsements; officeholders (has EVER held public office) need rollcalls, sponsorship, executive, proceedings, leadership, outside_chamber, endorsements; never-held candidates need career, orgs_advocacy, court_legal, endorsements. Era-split sweeps tag several entries with the same question_id; extra entries (archive scans, office-area follow-ups) omit it. Non-judicial routing reads candidates.has_held_public_office; when that column is NULL the evidence file must carry a top-level \"has_held_public_office\": true|false, which the write persists.",
+    "",
+    "One row per bill or action: the writer refuses a payload row that repeats another row or a stored row after bill numbers, dates and years are stripped (a re-filed bill, a later reading of the same amendment, a yearly repeat). Fold the sessions/stages into one description instead; --allow-repeats overrides for rows a human confirmed are distinct actions.",
     "",
     "--since-date runs a DELTA (windowed) refresh: it must be on/before the candidate's last_records_researched_through checkpoint (later would skip dates forever), and every record must have event_date >= since-date (out-of-window rows are an error, not a silent drop — remove them and their labels so indices stay aligned). Delta mode makes no full-history claims: the no_records_found / only_general_labels quality gaps are skipped and ALL --confirmed-gap flags are disallowed. A zero-record delta write still requires --evidence-file with the WINDOW-scoped per-question evidence table.",
   ].join("\n");
@@ -542,7 +546,7 @@ async function deleteStaleCandidateRecordAreaTags(
 }
 
 async function main(): Promise<void> {
-  assertKnownCliFlags("manual:candidate-records:write", process.argv.slice(2), [{ name: "--candidate-id", value: "space" }, { name: "--election-id", value: "space" }, { name: "--records-file", value: "space" }, { name: "--labels-file", value: "space" }, { name: "--since-date", value: "space" }, { name: "--repair-report-file", value: "space" }, { name: "--confirmed-gap", value: "space" }, { name: "--evidence-file", value: "space" }, { name: "--strict-quality-gate", value: "none" }, { name: "--dry-run", value: "none" }]);
+  assertKnownCliFlags("manual:candidate-records:write", process.argv.slice(2), [{ name: "--candidate-id", value: "space" }, { name: "--election-id", value: "space" }, { name: "--records-file", value: "space" }, { name: "--labels-file", value: "space" }, { name: "--since-date", value: "space" }, { name: "--repair-report-file", value: "space" }, { name: "--confirmed-gap", value: "space" }, { name: "--evidence-file", value: "space" }, { name: "--strict-quality-gate", value: "none" }, { name: "--allow-repeats", value: "none" }, { name: "--dry-run", value: "none" }]);
   loadProjectEnv();
 
   const candidateId = readFlag("--candidate-id");
@@ -552,6 +556,7 @@ async function main(): Promise<void> {
   const repairReportFile = readFlag("--repair-report-file");
   const evidenceFile = readFlag("--evidence-file");
   const strictQualityGate = hasFlag("--strict-quality-gate");
+  const allowRepeats = hasFlag("--allow-repeats");
   const confirmedGapIds = normalizeConfirmedGaps(readRepeatedFlag("--confirmed-gap"));
   const rawSinceDate = readFlag("--since-date");
   const sinceDate = rawSinceDate
@@ -804,6 +809,67 @@ async function main(): Promise<void> {
         throw new Error(windowError);
       }
     }
+
+  // Repeat guard: one row per bill or action. A re-filed bill, a later
+  // reading of the same amendment, or a yearly repeat of the same vote is
+  // folded into the existing row's description, never written as a new row
+  // (live: three rows for one DC bill; 1,083 near-identical pairs). The
+  // check compares descriptions with bill numbers, dates and years stripped.
+  // `--allow-repeats` is the operator's override for rows that really are
+  // distinct actions after a human read both.
+  if (!allowRepeats) {
+    const payloadRows = validatedRecords.records.map((record) => ({
+      description: record.description,
+      sourceUrl: record.source_url,
+      eventDate: record.event_date,
+    }));
+    const withinPayloadRepeats = findWithinPayloadRepeatRows(payloadRows);
+    const existingRepeats = await findRepeatExistingRecords(pool, candidateId, payloadRows);
+    if (withinPayloadRepeats.length > 0 || existingRepeats.length > 0) {
+      const focusedResearchPass =
+        "One row per bill or action: fold every session, reading, or stage into ONE description (\"Filed the bill in 2019, 2021, 2023 and 2025 (H399, H538, H.707, H.866)\"; \"Voted for the amendment at first reading on Feb. 6 and against its reversal on March 5; voted for the final bill\"). For an existing row, rewrite it with content:backfill-plain-language and drop the payload row. If the rows are genuinely distinct actions, rerun with --allow-repeats.";
+      const gaps: ManualResearchRepairGap[] = [
+        ...withinPayloadRepeats.map((repeat) => ({
+          id: `candidate_records.within_payload_repeat.${repeat.firstIndex}.${repeat.secondIndex}`,
+          stage: "candidate_records" as const,
+          objectType: "candidate_record_set" as const,
+          outcome: "needs_repair" as const,
+          failureKind: "schema" as const,
+          reason: `records[${repeat.firstIndex}] and records[${repeat.secondIndex}] describe the same bill or action on different dates (repeat after stripping bill numbers, dates and years)`,
+          recordIndex: repeat.secondIndex,
+          focusedResearchPass,
+        })),
+        ...existingRepeats.map((repeat) => ({
+          id: `candidate_records.existing_repeat.${repeat.index}`,
+          stage: "candidate_records" as const,
+          objectType: "candidate_record_set" as const,
+          outcome: "needs_repair" as const,
+          failureKind: "schema" as const,
+          reason: `records[${repeat.index}] repeats stored record ${repeat.existingRecordId} (${repeat.existingEventDate}: ${repeat.existingDescription.slice(0, 120)})`,
+          recordIndex: repeat.index,
+          focusedResearchPass,
+        })),
+      ];
+      await writeRecordsRepairReport({
+        reportFile: repairReportFile,
+        manualKey,
+        candidateId,
+        electionId,
+        recordsFile,
+        labelsFile,
+        candidateDisplayName: null,
+        gaps,
+      });
+      const preview = gaps
+        .slice(0, 5)
+        .map((gap) => gap.reason)
+        .join("; ");
+      const extra = gaps.length > 5 ? `; +${gaps.length - 5} more` : "";
+      throw new Error(
+        `Candidate records payload contains ${gaps.length} repeat row(s) (same bill or action on another date): ${preview}${extra}. ${focusedResearchPass}`
+      );
+    }
+  }
 
     const allowedAreas = await loadAllowedResearchAreasForOfficeId(pool, context.officeId);
     if (allowedAreas.length === 0) {

@@ -1,4 +1,4 @@
-import { readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -280,6 +280,15 @@ export type RecordRow = {
   created_at_utc: string;
   origin: string | null;
   origin_run_id: string | null;
+  /**
+   * Retirement travels with the record. A row folded, retired as a position
+   * statement, or retired as unverifiable locally must stop rendering in
+   * production too; before this the promoter never carried retired_at, so a
+   * local retirement left the production row live (2026-09-30 fact-check
+   * sweep: 1,100+ retirements).
+   */
+  retired_at_utc: string | null;
+  retired_reason: string | null;
 };
 
 export type TagRow = {
@@ -332,7 +341,9 @@ export const RECORD_PROJECTION_SQL = `
     to_char(event_date, 'YYYY-MM-DD') AS event_date,
     to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') AS created_at_utc,
     origin,
-    origin_run_id
+    origin_run_id,
+    to_char(retired_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') AS retired_at_utc,
+    retired_reason
   FROM public.candidate_records
 `;
 
@@ -397,7 +408,9 @@ export function sameRecord(a: RecordRow, b: RecordRow): boolean {
   return (
     sameScalar(a.description, b.description) &&
     sameScalar(a.source_url, b.source_url) &&
-    sameScalar(a.event_date, b.event_date)
+    sameScalar(a.event_date, b.event_date) &&
+    sameScalar(a.retired_at_utc ?? null, b.retired_at_utc ?? null) &&
+    sameScalar(a.retired_reason ?? null, b.retired_reason ?? null)
   );
 }
 
@@ -659,10 +672,13 @@ export const REKEY_RECORDS_SQL = `
     source_url = s.source_url,
     event_date = s.event_date::date,
     origin = s.origin,
-    origin_run_id = s.origin_run_id
+    origin_run_id = s.origin_run_id,
+    retired_at = CASE WHEN s.retired_at_utc IS NULL THEN NULL ELSE (s.retired_at_utc)::timestamp AT TIME ZONE 'UTC' END,
+    retired_reason = s.retired_reason
   FROM jsonb_to_recordset($1::jsonb) AS s(
     candidate_id uuid, old_key text, record_identity_key text, description text,
-    source_url text, event_date text, origin text, origin_run_id text)
+    source_url text, event_date text, origin text, origin_run_id text,
+    retired_at_utc text, retired_reason text)
   WHERE t.candidate_id = s.candidate_id
     AND t.record_identity_key = s.old_key
 `;
@@ -678,6 +694,10 @@ export function rekeyWireRows(rekeys: readonly RecordRekey[]): Record<string, un
     event_date: rekey.sourceRow.event_date,
     origin: rekey.sourceRow.origin,
     origin_run_id: rekey.sourceRow.origin_run_id,
+    // A row edited AND retired locally is rekeyed, not upserted, so the
+    // rekey must carry the retirement too or the target row stays live.
+    retired_at_utc: rekey.sourceRow.retired_at_utc ?? null,
+    retired_reason: rekey.sourceRow.retired_reason ?? null,
   }));
 }
 
@@ -892,25 +912,31 @@ export async function loadProjection<T>(client: PromotionClient, sql: string): P
 export const UPSERT_RECORDS_SQL = `
   INSERT INTO public.candidate_records
     (candidate_id, record_identity_key, description, source_url, event_date,
-     created_at, origin, origin_run_id)
+     created_at, origin, origin_run_id, retired_at, retired_reason)
   SELECT
     s.candidate_id, s.record_identity_key, s.description, s.source_url,
     s.event_date::date,
     (s.created_at_utc)::timestamp AT TIME ZONE 'UTC',
-    s.origin, s.origin_run_id
+    s.origin, s.origin_run_id,
+    CASE WHEN s.retired_at_utc IS NULL THEN NULL ELSE (s.retired_at_utc)::timestamp AT TIME ZONE 'UTC' END,
+    s.retired_reason
   FROM jsonb_to_recordset($1::jsonb) AS s(
     candidate_id uuid, record_identity_key text, description text,
     source_url text, event_date text, created_at_utc text,
-    origin text, origin_run_id text)
+    origin text, origin_run_id text, retired_at_utc text, retired_reason text)
   ON CONFLICT (candidate_id, record_identity_key) DO UPDATE SET
     description = EXCLUDED.description,
     source_url = EXCLUDED.source_url,
     event_date = EXCLUDED.event_date,
     origin = EXCLUDED.origin,
-    origin_run_id = EXCLUDED.origin_run_id
+    origin_run_id = EXCLUDED.origin_run_id,
+    retired_at = EXCLUDED.retired_at,
+    retired_reason = EXCLUDED.retired_reason
   WHERE public.candidate_records.description IS DISTINCT FROM EXCLUDED.description
      OR public.candidate_records.source_url IS DISTINCT FROM EXCLUDED.source_url
      OR public.candidate_records.event_date IS DISTINCT FROM EXCLUDED.event_date
+     OR public.candidate_records.retired_at IS DISTINCT FROM EXCLUDED.retired_at
+     OR public.candidate_records.retired_reason IS DISTINCT FROM EXCLUDED.retired_reason
 `;
 
 // The two joins are the fix for the central hazard: they resolve the TARGET's
@@ -1325,6 +1351,28 @@ export type PromotionReport = {
   };
 };
 
+/**
+ * One candidate uuid per line (blank lines and # comments ignored). Scopes a
+ * promotion to those candidates so one repair campaign can go out without
+ * carrying every other pending local campaign with it.
+ */
+export async function readCandidateScope(path: string): Promise<Set<string>> {
+  const text = await readFile(path, "utf8");
+  const ids = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const bad = ids.filter((id) => !uuid.test(id));
+  if (ids.length === 0 || bad.length > 0) {
+    throw new Error(
+      `--candidate-ids-file ${path}: expected one candidate uuid per line; ` +
+        (ids.length === 0 ? "the file is empty" : `not a uuid: ${bad.slice(0, 3).join(", ")}`)
+    );
+  }
+  return new Set(ids.map((id) => id.toLowerCase()));
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   assertKnownCliFlags(SCRIPT_LABEL, argv, [
@@ -1332,11 +1380,18 @@ async function main(): Promise<void> {
     { name: "--confirm-target", value: "space" },
     { name: "--report-file", value: "space" },
     { name: "--reconcile-tags", value: "none" },
+    { name: "--candidate-ids-file", value: "space" },
   ]);
 
   loadProjectEnv();
   const apply = argv.includes("--apply");
   const reconcileTags = argv.includes("--reconcile-tags");
+  const candidateIdsFile = readFlagValue(argv, "--candidate-ids-file");
+  if (argv.includes("--candidate-ids-file") && !candidateIdsFile) {
+    // Fail closed: a scope flag with no path must not quietly become "every candidate".
+    throw new Error("--candidate-ids-file requires a file path");
+  }
+  const scope = candidateIdsFile ? await readCandidateScope(candidateIdsFile) : null;
   const endpoints = assertPromotionEndpoints({
     sourceUrl: process.env.DATABASE_URL ?? "",
     targetUrl: process.env.PROMOTION_TARGET_DATABASE_URL ?? "",
@@ -1349,6 +1404,7 @@ async function main(): Promise<void> {
   console.log(`target: ${describeEndpoint(endpoints.target)}`);
   console.log(`mode:   ${apply ? "APPLY (writes)" : "dry run (writes nothing)"}`);
   console.log(`tags:   ${reconcileTags ? "reconcile (remove stale tags of exactly-matched records)" : "upsert only"}`);
+  console.log(`scope:  ${scope ? `${scope.size} candidate(s) from ${candidateIdsFile}; finance labels skipped` : "every candidate"}`);
 
   const sourcePool = new Pool({ connectionString: process.env.DATABASE_URL });
   // Bounded timeouts on the target: the apply path holds one transaction across
@@ -1379,22 +1435,34 @@ async function main(): Promise<void> {
       );
     }
 
-    const [sourceRecords, targetRecords] = await Promise.all([
-      loadProjection<RecordRow>(source, RECORD_PROJECTION_SQL),
-      loadProjection<RecordRow>(target, RECORD_PROJECTION_SQL),
-    ]);
-    const [sourceTags, targetTags] = await Promise.all([
-      loadProjection<TagRow>(source, TAG_PROJECTION_SQL),
-      loadProjection<TagRow>(target, TAG_PROJECTION_SQL),
-    ]);
-    const [sourceLabels, targetLabels] = await Promise.all([
-      loadProjection<LabelRow>(source, LABEL_PROJECTION_SQL),
-      loadProjection<LabelRow>(target, LABEL_PROJECTION_SQL),
-    ]);
+    // With --candidate-ids-file every projection is cut to those candidates on
+    // BOTH sides, so "target-only" (rekey and reconciliation input) means
+    // target-only within the scope, and nothing outside it is read or
+    // written. Finance labels have no candidate and are skipped when scoped.
+    const inScope = <T extends { candidate_id: string }>(rows: T[]): T[] =>
+      scope ? rows.filter((row) => scope.has(row.candidate_id)) : rows;
+    const [sourceRecords, targetRecords] = (
+      await Promise.all([
+        loadProjection<RecordRow>(source, RECORD_PROJECTION_SQL),
+        loadProjection<RecordRow>(target, RECORD_PROJECTION_SQL),
+      ])
+    ).map(inScope) as [RecordRow[], RecordRow[]];
+    const [sourceTags, targetTags] = (
+      await Promise.all([
+        loadProjection<TagRow>(source, TAG_PROJECTION_SQL),
+        loadProjection<TagRow>(target, TAG_PROJECTION_SQL),
+      ])
+    ).map(inScope) as [TagRow[], TagRow[]];
+    const [sourceLabels, targetLabels] = scope
+      ? [[], []]
+      : await Promise.all([
+          loadProjection<LabelRow>(source, LABEL_PROJECTION_SQL),
+          loadProjection<LabelRow>(target, LABEL_PROJECTION_SQL),
+        ]);
     // Source only: transitions describe local edit history. The migration
     // parity check above guarantees the table exists on both sides.
     const transitions = resolveIdentityTransitions(
-      await loadProjection<TransitionRow>(source, TRANSITION_PROJECTION_SQL)
+      inScope(await loadProjection<TransitionRow>(source, TRANSITION_PROJECTION_SQL))
     );
 
     const recordPlan = planRows({ sourceRows: sourceRecords, targetRows: targetRecords, keyOf: recordKey, isEqual: sameRecord });
@@ -1640,6 +1708,8 @@ async function main(): Promise<void> {
       console.log(
         "\nDry run only — nothing was written. Re-run with:\n" +
           `  npm run research:promote:apply -- --confirm-target ${confirmationTokenFor(endpoints.target)}` +
+          // The hint must carry the scope, or a copied command promotes every candidate.
+          (candidateIdsFile ? ` --candidate-ids-file '${candidateIdsFile.replace(/'/g, "'\\''")}'` : "") +
           (reconcileTags ? " --reconcile-tags" : "")
       );
     }

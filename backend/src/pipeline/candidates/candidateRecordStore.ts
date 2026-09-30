@@ -266,6 +266,152 @@ export function findWithinPayloadRecordCollisions(
   return collisions;
 }
 
+// ---------------------------------------------------------------------------
+// Repeat detection: the same bill or action written again for another session,
+// reading, or stage. The similarity dedupe above only merges rows that share
+// an event date AND a source URL, so "Filed H.707 ... noncitizen voting" (2019),
+// "Filed H.866 ..." (2025) and a first-reading amendment vote re-recorded at
+// second reading all survived as separate rows (live: 1,083 such pairs across
+// 278 candidates; a DC councilmember's page showed three rows for one bill).
+// The skill's rule is one row per bill: fold sessions and stages into one
+// description. Bill numbers, years, dates and ordinals are stripped before
+// comparison so a re-filed bill with a new number still reads as the same
+// action; adjacent DIFFERENT bills keep their distinct substance and pass.
+// ---------------------------------------------------------------------------
+
+const REPEAT_STRIP_PATTERNS: readonly RegExp[] = [
+  // DC-style "B25-0345", "PR25-0123".
+  /\b(?:b|pr|cer|ca)\d{1,2}-\d{3,4}\b/g,
+  // "House Bill 4432", "Senate File 12", "Assembly Bill 5", "House Joint Resolution 3".
+  /\b(?:house|senate|assembly|council)\s+(?:joint\s+|concurrent\s+)?(?:bill|file|resolution|substitute)\s+(?:no\.?\s*)?\d{1,5}\b/g,
+  // "HB 4432", "S.B. 68", "H.R.1470", "HJR 3", "LB 12", "H.3568", "H3983", "S2195", "SSB 1234".
+  // A bare chamber letter needs the digits attached or a dot ("H3535",
+  // "S. 1383"); "a 3" in ordinary prose is not a bill number.
+  /\b(?:(?:h|s|a|l|c)\.?\s?(?:b|r|f|j|c|con|cr|jr|s|sb|hb)\.?\s?\d{1,5}|[hslc]\.?\s?\d{1,5}|a\.?\d{1,5})(?:[a-z])?\b/g,
+  // Amendment / roll call numbers.
+  /\b(?:amendment|amdt|roll\s?call|rc)\s+(?:no\.?\s*)?\d{1,4}\b/g,
+  // Calendar dates and years.
+  /\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}(?:,?\s+(?:19|20)\d\d)?\b/g,
+  /\b\d{1,2}\/\d{1,2}\/(?:19|20)?\d\d\b/g,
+  /\b(?:19|20)\d\d(?:\s?[-–]\s?(?:19|20)?\d\d)?\b/g,
+  // "fiscal 2019", "FY19", "FY 2024-25".
+  /\bfy\s?\d{2,4}(?:\s?[-–]\s?\d{2,4})?\b/g,
+  // Session / reading / stage words that differ between repeats.
+  /\b(?:first|second|third|final)\s+(?:reading|passage|consideration)\b/g,
+  /\b(?:regular|special|extraordinary)\s+session\b/g,
+  /\b(?:this|last|current|previous|next)\s+(?:session|year|cycle|term)\b/g,
+  /\b\d{1,3}(?:st|nd|rd|th)\b/g,
+  // Vote tallies "57-52", "8-5".
+  /\b\d{1,3}\s?[-–]\s?\d{1,3}\b/g,
+];
+
+export function normalizeDescriptionForRepeatDetection(description: string): string {
+  let text = description.toLowerCase();
+  for (const pattern of REPEAT_STRIP_PATTERNS) {
+    text = text.replace(pattern, " ");
+  }
+  return text
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Two descriptions are repeats when, with identifiers stripped, they are the
+// SAME text. Exact equality on purpose: a fuzzy bar (tried at 0.94) also
+// caught "voted for" vs "voted against" the same budget in two years and
+// "elected chair" vs "elected vice chair", which are different actions. On
+// the live corpus exact matching still found 1,076 of 1,362 candidate pairs;
+// the reworded remainder is the researcher's call (skill rule), not the
+// writer's.
+export function isRepeatDescription(left: string, right: string): boolean {
+  const a = normalizeDescriptionForRepeatDetection(left);
+  const b = normalizeDescriptionForRepeatDetection(right);
+  return a.length > 0 && a === b;
+}
+
+export type WithinPayloadRepeatRow = {
+  firstIndex: number;
+  secondIndex: number;
+};
+
+// Payload rows that repeat each other across different dates or sources
+// (same-date, same-source pairs are the similarity collisions above).
+export function findWithinPayloadRepeatRows(
+  records: readonly { description: string; sourceUrl: string; eventDate: string | Date }[]
+): WithinPayloadRepeatRow[] {
+  const repeats: WithinPayloadRepeatRow[] = [];
+  for (let first = 0; first < records.length; first += 1) {
+    for (let second = first + 1; second < records.length; second += 1) {
+      const a = records[first]!;
+      const b = records[second]!;
+      const sameSlot =
+        toEventDateKey(a.eventDate) === toEventDateKey(b.eventDate) &&
+        normalizeUrlForIdentity(a.sourceUrl) === normalizeUrlForIdentity(b.sourceUrl);
+      if (sameSlot) {
+        continue;
+      }
+      if (isRepeatDescription(a.description, b.description)) {
+        repeats.push({ firstIndex: first, secondIndex: second });
+      }
+    }
+  }
+  return repeats;
+}
+
+export type ExistingRepeatMatch = {
+  index: number;
+  existingRecordId: string;
+  existingEventDate: string;
+  existingDescription: string;
+};
+
+// Live rows of the same candidate that a payload row would repeat. Excludes
+// the row's own identity slot (same date + source) because that is the
+// update path, not a repeat.
+export async function findRepeatExistingRecords(
+  client: Pick<PoolClient, "query">,
+  candidateId: string,
+  records: readonly { description: string; sourceUrl: string; eventDate: string | Date }[]
+): Promise<ExistingRepeatMatch[]> {
+  if (records.length === 0) {
+    return [];
+  }
+  const existing = await client.query<{
+    id: string;
+    description: string;
+    source_url: string;
+    event_date: string;
+  }>(
+    `
+      SELECT id, description, source_url, to_char(event_date, 'YYYY-MM-DD') AS event_date
+      FROM public.candidate_records
+      WHERE candidate_id = $1
+        AND retired_at IS NULL
+    `,
+    [candidateId]
+  );
+  const matches: ExistingRepeatMatch[] = [];
+  records.forEach((record, index) => {
+    const eventDate = toEventDateKey(record.eventDate);
+    const sourceUrl = normalizeUrlForIdentity(record.sourceUrl);
+    for (const row of existing.rows) {
+      if (row.event_date === eventDate && normalizeUrlForIdentity(row.source_url) === sourceUrl) {
+        continue;
+      }
+      if (isRepeatDescription(record.description, row.description)) {
+        matches.push({
+          index,
+          existingRecordId: row.id,
+          existingEventDate: row.event_date,
+          existingDescription: row.description,
+        });
+        break;
+      }
+    }
+  });
+  return matches;
+}
+
 async function findSimilarExistingRecord(
   client: Pick<PoolClient, "query">,
   input: {

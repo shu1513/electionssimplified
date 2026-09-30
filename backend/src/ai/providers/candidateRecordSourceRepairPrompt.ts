@@ -87,6 +87,7 @@ export function buildCandidateRecordSourceRepairPrompt(
     "- Never reuse any URL listed in blocked URLs.",
     "- source_url must be a valid public http(s) URL.",
     "- source_url must not be a social/UGC platform or a personal blog/self-published page (Reddit, X/Twitter, Facebook, YouTube, Medium, Substack, and similar); for damaging claims cite an official/legal source or reputable news outlet.",
+    "- For a vote, sponsorship, or bill-introduction record the replacement must be the legislature's own roll call, journal, or bill page; advocacy scorecards and vote trackers (Vote Smart key votes, LCV, AFL-CIO, chamber, ACLU, Planned Parenthood, fiscal-alliance scorecards and similar) are rejected for such records and carry the group's framing.",
     "- event_date must be YYYY-MM-DD.",
     "- Do not invent sources; if no reliable source exists, return no_replacement=true.",
     // Identity gate for the replacement source. A repair keeps the existing

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import type { CandidateRecord, ResearchAreaPreference } from "@voteapp/api-client";
-import { compareByResearchAreaPriority, EVALUATIVE_AREA_SLUGS, UNRANKED_RESEARCH_AREA_RANK } from "@voteapp/api-client";
+import { compareByResearchAreaPriority, EVALUATIVE_AREA_SLUGS, relatedRecordsByBill, UNRANKED_RESEARCH_AREA_RANK } from "@voteapp/api-client";
 import { RecordItem, recordStanceTag } from "./RecordItem";
 import { track } from "../lib/usage";
 
@@ -148,6 +148,11 @@ export function TrackRecordSection({
   const Heading = headingLevel;
   const GroupHeading = headingLevel === "h2" ? "h3" : "h4";
   const recordGroups = orderGroupsByPreference(groupRecords(records), preferences);
+  // A bill's other records (amendment votes beside its final passage) are
+  // shown under each card, because grouping by issue otherwise splits one
+  // bill's story across groups and a reader opening one group never sees
+  // the rest.
+  const relatedByRecordId = relatedRecordsByBill(records);
   if (recordGroups.length === 0) {
     return <>{emptyState}</>;
   }
@@ -180,7 +185,13 @@ export function TrackRecordSection({
                 <ul className="mt-2 space-y-3">
                   {(showAll ? records : records.slice(0, INITIAL_NEWEST_RECORDS)).map(
                     (record) => (
-                      <RecordItem key={record.id} record={record} showTags reporterEmail={reporterEmail} />
+                      <RecordItem
+                        key={record.id}
+                        record={record}
+                        showTags
+                        reporterEmail={reporterEmail}
+                        relatedRecords={relatedByRecordId.get(record.id)}
+                      />
                     )
                   )}
                 </ul>
@@ -284,6 +295,7 @@ export function TrackRecordSection({
                             showTags={false}
                             reporterEmail={reporterEmail}
                             stanceAreaId={group.areaId}
+                            relatedRecords={relatedByRecordId.get(record.id)}
                           />
                         ))}
                       </ul>

@@ -19,6 +19,7 @@ export const BALLOT_MEASURE_RESEARCH_AREA_SLUGS = [
   "public_infrastructure",
   "housing_affordability",
   "civil_rights",
+  "criminal_justice_and_civil_liberties",
   "public_education_quality",
   "gun_control",
   "ai_regulation",

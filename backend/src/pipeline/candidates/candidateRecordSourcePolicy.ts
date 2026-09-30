@@ -748,6 +748,130 @@ export function findBlockedSourceReason(sourceUrls: readonly string[]): string |
   return null;
 }
 
+// Advocacy scorecards and secondary vote trackers restate a legislature's
+// roll calls in the group's own framing ("protecting residents from DNA
+// collection", "undermining tipped workers' wages"). Live case: a DC
+// councilmember's page carried seven vote records cited to an advocacy
+// scorecard whose hostname (2024.dccouncil.org) read as the council itself,
+// and every description carried the group's framing. A LEGISLATIVE-ACTION
+// record (a vote, sponsorship, introduction, filing, or authorship) must cite
+// the official roll call, journal, or bill page; the tracker is a lead only.
+// Endorsements, ratings, and statements BY the group stay citable to the
+// group's own page — for those the group IS the primary source — so this is
+// a description-shaped rule layered on top of the domain tiers, not a tier.
+export const LEGISLATIVE_TRACKER_DOMAINS: readonly string[] = [
+  // Vote scorecards observed in the live corpus.
+  "2024.dccouncil.org",
+  "massfiscalscorecard.org",
+  "nhliberty.org",
+  "progressivemass.com",
+  "texasscorecard.com",
+  "votesmart.org",
+  // Advocacy organizations that publish legislative scorecards.
+  "aclu.org",
+  "afpaction.com",
+  "afscme.org",
+  "americansforprosperity.org",
+  "cato.org",
+  "clubforgrowth.org",
+  "conservativereview.com",
+  "everytown.org",
+  "frcaction.org",
+  "freedomworks.org",
+  "gunowners.org",
+  "heritageaction.com",
+  "hrc.org",
+  "lcv.org",
+  "nfib.com",
+  "nraila.org",
+  "nrapvf.org",
+  "numbersusa.com",
+  "plannedparenthood.org",
+  "plannedparenthoodaction.org",
+  "prochoiceamerica.org",
+  "reproductivefreedomforall.org",
+  "sbaprolife.org",
+  "sierraclub.org",
+  "uschamber.com",
+  // State affiliates seen live that the suffix patterns below do not cover.
+  "cfequality.org",
+  "equalityncpac.org",
+  "equalitymiaction.org",
+  "ksaflcio.org",
+];
+
+// State affiliates follow naming conventions rather than subdomains
+// (wisaflcio.org, michiganlcv.org, aclumich.org, azchamber.com), so a
+// suffix list cannot enumerate them; these shapes match the whole family.
+const LEGISLATIVE_TRACKER_HOSTNAME_PATTERNS: readonly RegExp[] = [
+  /scorecard/,
+  /aflcio\.org$/,
+  /lcv\.org$/,
+  /(?:^|\.)aclu[a-z]{2,}\.org$/,
+  /chamber\.(?:org|com)$/,
+];
+
+// The record shapes whose primary source is a legislative body's own
+// record: a floor or committee vote, or bill sponsorship/introduction. The
+// verb must LEAD the description (records lead with the past-tense verb),
+// so "Received the endorsement ... for her vote" is not matched.
+const LEGISLATIVE_ACTION_RECORD_PATTERN =
+  /^\s*(?:voted?|cast|co-?sponsor(?:ed|ing)?|sponsor(?:ed|ing)?|co-?introduc(?:ed|ing)|introduc(?:ed|ing)|filed\b(?=[^.]{0,60}\b(?:bill|resolution|amendment|petition|legislation|h\.?\s?(?:r\.?|b\.?|d\.?)?\s?\d|s\.?\s?(?:b\.?|d\.?)?\s?\d|hb\s?\d|sb\s?\d|lb\s?\d|ab\s?\d))|co-?author(?:ed|ing)?|author(?:ed|ing)?|joined [^.]{0,80}\bvot(?:e|ed|ing)\b|was one of [^.]{0,80}\bvot(?:e|ed|ing)\b)/i;
+
+// "Filed" also opens litigation ("Filed a federal lawsuit ..."), which is not
+// a legislative action and may legitimately cite the filing itself. The
+// exemption is anchored to the object of "filed" itself, so a bill ABOUT the
+// courts ("Filed HB 620 requiring public access to court records") stays a
+// legislative action.
+const COURT_FILING_PATTERN =
+  /^\s*filed\s+(?:(?:a|an|the|its|his|her|their)\s+)?(?:\w+[- ])?(?:lawsuit|suit|complaint|appeal|petition for review|motion|brief|amicus)\b/i;
+
+export function isLegislativeActionRecord(description: string): boolean {
+  if (!LEGISLATIVE_ACTION_RECORD_PATTERN.test(description)) {
+    return false;
+  }
+  if (COURT_FILING_PATTERN.test(description)) {
+    return false;
+  }
+  return true;
+}
+
+export function isLegislativeTrackerHostname(hostname: string): boolean {
+  const normalized = hostname.trim().toLowerCase().replace(/\.$/, "");
+  if (normalized.length === 0) {
+    return false;
+  }
+  if (matchesAnyDomain(normalized, LEGISLATIVE_TRACKER_DOMAINS)) {
+    return true;
+  }
+  return LEGISLATIVE_TRACKER_HOSTNAME_PATTERNS.some((pattern) => pattern.test(normalized));
+}
+
+export const LEGISLATIVE_TRACKER_REPAIR =
+  "a vote, sponsorship, or bill-introduction record must cite the legislature's own roll call, journal, or bill page; use the scorecard or tracker only as a lead to that page, and re-check every clause of the description against it (trackers restate votes in their own framing)";
+
+// Null when the row is fine: either the description is not a legislative
+// action, or the host is not a tracker. Runs on every tier — votesmart.org is
+// a LISTED civic-data domain and still a secondary restatement of a roll call.
+export function findLegislativeTrackerSourceReason(
+  description: string,
+  sourceUrl: string
+): string | null {
+  if (!isLegislativeActionRecord(description)) {
+    return null;
+  }
+  let hostname: string;
+  try {
+    hostname = new URL(sourceUrl).hostname;
+  } catch {
+    return null; // unparseable URLs are the schema layer's problem
+  }
+  if (!isLegislativeTrackerHostname(hostname)) {
+    return null;
+  }
+  return `source domain '${hostname.toLowerCase()}' is an advocacy scorecard or secondary vote tracker; ${LEGISLATIVE_TRACKER_REPAIR}`;
+}
+
 // Legacy state-government hostnames predating .gov migration, e.g.
 // courts.state.mn.us, sos.state.tx.us.
 const STATE_US_HOSTNAME_PATTERN = /(?:^|\.)state\.[a-z]{2}\.us$/;
@@ -1145,6 +1269,11 @@ export function evaluateCandidateRecordSourcePolicy(input: {
       ok: false,
       reason: describeBlockedSource(hostname, classification.blockedKind),
     };
+  }
+
+  const trackerReason = findLegislativeTrackerSourceReason(input.description, input.sourceUrl);
+  if (trackerReason) {
+    return { ok: false, reason: trackerReason };
   }
 
   if (isIndexPageSourcePath(input.sourceUrl)) {

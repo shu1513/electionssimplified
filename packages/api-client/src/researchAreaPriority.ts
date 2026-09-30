@@ -15,6 +15,7 @@ const RESEARCH_AREA_PRIORITY: readonly string[] = [
   "immigration",
   "government_spending_reduction",
   "public_safety_and_crime_control",
+  "criminal_justice_and_civil_liberties",
   "housing_affordability",
   "social_programs_and_welfare",
   "public_education_quality",
