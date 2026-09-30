@@ -6,16 +6,16 @@
 // Safety, and the Civil Rights group read as "4 support"). Null when no bill
 // identifier can be read; a null never links records.
 
-// Session window for bill numbers: legislatures reuse "HB 1" every session,
-// so a bare number keys with the two-year session (odd start year) of the
-// record's event date. Named acts and DC-style period-prefixed numbers carry
-// their own identity and need no window.
-function sessionWindow(eventDate: string): string {
-  const year = Number.parseInt(eventDate.slice(0, 4), 10);
-  if (!Number.isFinite(year)) {
-    return "";
-  }
-  return String(year % 2 === 0 ? year - 1 : year);
+// Bill numbers are keyed with the record's own event year. Legislatures
+// differ on numbering: Congress and about half the states keep a number for
+// a two-year session, while Florida, Arizona, Missouri, Virginia and others
+// renumber every year, so Florida's 2023 HB 1 (education) and 2024 HB 1
+// (online protections for minors) are unrelated bills. A two-year window
+// linked those; the per-year key never does. The cost is a missed link when
+// a two-year-session bill's votes fall in different calendar years, which
+// is the harmless failure: nothing false is shown.
+function eventYear(eventDate: string): string {
+  return eventDate.slice(0, 4);
 }
 
 // Every source collapses to ONE shape — "<PREFIX><NUMBER>:<session start year>"
@@ -36,17 +36,18 @@ const CONGRESS_KIND_PREFIX: Record<string, string> = {
 
 const URL_BILL_PATTERNS: readonly { pattern: RegExp; key: (match: RegExpMatchArray) => string | null }[] = [
   // DC LIMS: /Legislation/B25-0345
+  // DC LIMS: period-prefixed numbers ("B25-0345") are unique on their own.
   { pattern: /lims\.dccouncil\.gov\/legislation\/([a-z]{1,3}\d{1,2}-\d{3,4})/i, key: (m) => `dc:${m[1]!.toUpperCase()}` },
-  // LegiScan: /XX/bill/HB123/2024 (the year is the session's start year).
-  { pattern: /legiscan\.com\/[a-z]{2}\/bill\/([a-z]{1,6}\d{1,5})\/(\d{4})/i, key: (m) => `${m[1]!.toUpperCase()}:${sessionWindow(m[2]!)}` },
-  // Massachusetts: /Bills/193/H4000 — the 193rd General Court sat 2023-24.
-  { pattern: /malegislature\.gov\/bills\/(\d{2,3})\/([hs]\d{1,5})/i, key: (m) => `${m[2]!.toUpperCase()}:${2 * Number.parseInt(m[1]!, 10) + 1637}` },
-  // Congress.gov: /bill/118th-congress/house-bill/1470 — the 118th Congress sat 2023-24.
+  // LegiScan: /XX/bill/HB123/2024
+  { pattern: /legiscan\.com\/[a-z]{2}\/bill\/([a-z]{1,6}\d{1,5})\//i, key: (m) => m[1]!.toUpperCase() },
+  // Massachusetts: /Bills/193/H4000
+  { pattern: /malegislature\.gov\/bills\/\d{2,3}\/([hs]\d{1,5})/i, key: (m) => m[1]!.toUpperCase() },
+  // Congress.gov: /bill/118th-congress/house-bill/1470
   {
-    pattern: /congress\.gov\/bill\/(\d{2,3})(?:st|nd|rd|th)-congress\/([a-z-]+)\/(\d{1,5})/i,
+    pattern: /congress\.gov\/bill\/\d{2,3}(?:st|nd|rd|th)-congress\/([a-z-]+)\/(\d{1,5})/i,
     key: (m) => {
-      const prefix = CONGRESS_KIND_PREFIX[m[2]!.toLowerCase()];
-      return prefix ? `${prefix}${m[3]}:${1789 + 2 * (Number.parseInt(m[1]!, 10) - 1)}` : null;
+      const prefix = CONGRESS_KIND_PREFIX[m[1]!.toLowerCase()];
+      return prefix ? `${prefix}${m[2]}` : null;
     },
   },
 ];
@@ -88,7 +89,7 @@ export function recordBillKey(record: { description: string; source_url: string;
     if (match) {
       const key_ = key(match);
       if (key_) {
-        return key_;
+        return key_.startsWith("dc:") ? key_ : `${key_}:${eventYear(record.event_date)}`;
       }
     }
   }
@@ -103,12 +104,12 @@ export function recordBillKey(record: { description: string; source_url: string;
     // A spelled-out "House Resolution" is H.Res., not the House bill H.R.
     const kindCode =
       kind === "bill" ? "B" : kind === "file" ? "F" : kind === "resolution" ? "RES" : kind === "joint resolution" ? "JRES" : "CONRES";
-    return `${chamber}${kindCode}${spelled[3]}:${sessionWindow(record.event_date)}`;
+    return `${chamber}${kindCode}${spelled[3]}:${eventYear(record.event_date)}`;
   }
   const abbreviated = record.description.match(DESCRIPTION_BILL_PATTERNS[2]!);
   if (abbreviated) {
     const prefix = abbreviated[1]!.replace(/[^a-z]/gi, "").toUpperCase();
-    return `${prefix}${abbreviated[2]}:${sessionWindow(record.event_date)}`;
+    return `${prefix}${abbreviated[2]}:${eventYear(record.event_date)}`;
   }
   const named = record.description.match(NAMED_MEASURE_PATTERN);
   if (named) {

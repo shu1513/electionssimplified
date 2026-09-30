@@ -818,18 +818,19 @@ const LEGISLATIVE_TRACKER_HOSTNAME_PATTERNS: readonly RegExp[] = [
 const LEGISLATIVE_ACTION_RECORD_PATTERN =
   /^\s*(?:voted?|cast|co-?sponsor(?:ed|ing)?|sponsor(?:ed|ing)?|co-?introduc(?:ed|ing)|introduc(?:ed|ing)|filed\b(?=[^.]{0,60}\b(?:bill|resolution|amendment|petition|legislation|h\.?\s?(?:r\.?|b\.?|d\.?)?\s?\d|s\.?\s?(?:b\.?|d\.?)?\s?\d|hb\s?\d|sb\s?\d|lb\s?\d|ab\s?\d))|co-?author(?:ed|ing)?|author(?:ed|ing)?|joined [^.]{0,80}\bvot(?:e|ed|ing)\b|was one of [^.]{0,80}\bvot(?:e|ed|ing)\b)/i;
 
-// "Filed" also opens court records ("Filed a federal lawsuit ..."), candidacy
-// papers and disclosures, which are not legislative actions and may
-// legitimately cite the filing itself. The lookahead above already requires a
-// bill-shaped object after "filed"; this keeps a court filing that happens to
-// mention a bill out too.
-const COURT_FILING_PATTERN = /\b(?:lawsuit|suit|court|complaint|appeal|petition for review)\b/i;
+// "Filed" also opens litigation ("Filed a federal lawsuit ..."), which is not
+// a legislative action and may legitimately cite the filing itself. The
+// exemption is anchored to the object of "filed" itself, so a bill ABOUT the
+// courts ("Filed HB 620 requiring public access to court records") stays a
+// legislative action.
+const COURT_FILING_PATTERN =
+  /^\s*filed\s+(?:(?:a|an|the|its|his|her|their)\s+)?(?:\w+[- ])?(?:lawsuit|suit|complaint|appeal|petition for review|motion|brief|amicus)\b/i;
 
 export function isLegislativeActionRecord(description: string): boolean {
   if (!LEGISLATIVE_ACTION_RECORD_PATTERN.test(description)) {
     return false;
   }
-  if (/^\s*filed\b/i.test(description) && COURT_FILING_PATTERN.test(description)) {
+  if (COURT_FILING_PATTERN.test(description)) {
     return false;
   }
   return true;

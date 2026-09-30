@@ -7,17 +7,17 @@ const record = (description: string, source_url: string, event_date = "2024-03-0
 describe("recordBillKey", () => {
   it("reads the bill from official bill-page URLs first", () => {
     expect(recordBillKey(record("Voted for the crime law.", "https://lims.dccouncil.gov/Legislation/B25-0345"))).toBe("dc:B25-0345");
-    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/WA/bill/HB1234/2023"))).toBe("HB1234:2023");
-    expect(recordBillKey(record("Voted yes.", "https://malegislature.gov/Bills/193/H4000"))).toBe("H4000:2023");
-    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470"))).toBe("HR1470:2023");
-    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-resolution/5"))).toBe("HRES5:2023");
+    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/WA/bill/HB1234/2023", "2024-02-10"))).toBe("HB1234:2024");
+    expect(recordBillKey(record("Voted yes.", "https://malegislature.gov/Bills/193/H4000", "2023-04-26"))).toBe("H4000:2023");
+    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470", "2023-03-01"))).toBe("HR1470:2023");
+    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-resolution/5", "2023-03-01"))).toBe("HRES5:2023");
   });
 
   it("gives the same bill one key whether cited by official page or named in the description", () => {
     expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470", "2023-03-01"))).toBe(
       recordBillKey(record("Introduced H.R.1470, the Ending Qualified Immunity Act.", "https://clerk.house.gov/evs/2023/roll100.xml", "2023-03-01"))
     );
-    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/MA/bill/H4000/2023"))).toBe(
+    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/MA/bill/H4000/2023", "2023-04-26"))).toBe(
       recordBillKey(record("Voted for H.4000, the budget.", "https://malegislature.gov/Journal/House/193/2023/RollCalls", "2023-04-26"))
     );
     // A House resolution is not the House bill with the same number.
@@ -26,9 +26,9 @@ describe("recordBillKey", () => {
     expect(recordBillKey(record("Voted for H.R. 1470.", "https://example.gov/x", "2023-03-01"))).toBe("HR1470:2023");
   });
 
-  it("reads bill numbers from the description, windowed to the two-year session", () => {
+  it("reads bill numbers from the description, keyed with the record's own year", () => {
     expect(recordBillKey(record("Introduced H.R.1470, the Ending Qualified Immunity Act.", "https://example.gov/x", "2023-03-01"))).toBe("HR1470:2023");
-    expect(recordBillKey(record("Voted for House Bill 4432 at second reading.", "https://example.gov/x", "2024-01-10"))).toBe("HB4432:2023");
+    expect(recordBillKey(record("Voted for House Bill 4432 at second reading.", "https://example.gov/x", "2024-01-10"))).toBe("HB4432:2024");
     expect(recordBillKey(record("Filed H.866, a bill enabling noncitizen voting.", "https://example.gov/x", "2025-01-16"))).toBe("H866:2025");
     expect(recordBillKey(record("Voted for the Secure DC law, B25-0345.", "https://example.gov/x"))).toBe("dc:B25-0345");
   });

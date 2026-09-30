@@ -1216,6 +1216,7 @@ describe("legislative tracker source rule", () => {
       "Filed H.866, a bill enabling cities to extend voting rights.",
       "Filed a petition for H3519 on regulation of government privatization contracts.",
       "Filed HD5003, a bill on electronic filing fees for limited liability companies.",
+      "Filed HB 620 requiring public access to court records.",
       "Authored AB 3161 requiring hospital patient safety plans.",
       "Joined 12 other Democrats in voting for the budget.",
     ]) {
@@ -1231,6 +1232,7 @@ describe("legislative tracker source rule", () => {
       "Filed candidacy papers for the 2026 primary.",
       "Filed a financial disclosure listing rental income.",
       "Filed an ethics complaint against the county clerk.",
+      "Filed a class-action complaint over the county's court fees.",
     ]) {
       expect(isLegislativeActionRecord(description), description).toBe(false);
     }
