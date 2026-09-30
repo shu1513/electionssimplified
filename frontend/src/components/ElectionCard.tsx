@@ -472,7 +472,9 @@ export function ElectionList({
           ...(levelById.has(election.id) ? { ...levelById.get(election.id) } : {}),
         })),
         ...(raceType ? { raceType } : {}),
-        ...(railSort ? { railSort } : {}),
+        // railSort seeds the rail and is rewritten as it is switched;
+        // listSort records the order `contests` are in and never changes.
+        ...(railSort ? { railSort, listSort: railSort } : {}),
       }
     : undefined;
   // Displayed position (1-based, readable cards then the awaiting tail) for

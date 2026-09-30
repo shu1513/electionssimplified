@@ -727,6 +727,7 @@ describe("BallotPage nav context", () => {
       // The list's sort seeds the rail's always-engaged sort control: a
       // district-size list opens the rail on By district.
       railSort: "district_biggest",
+      listSort: "district_biggest",
     });
   });
 
@@ -775,6 +776,7 @@ describe("BallotPage nav context", () => {
       ],
       raceType: "ballot_measure",
       railSort: "vote_power",
+      listSort: "vote_power",
     });
   });
 });

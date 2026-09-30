@@ -117,6 +117,11 @@ export type ElectionNavState = {
    * trips keep it; absent (an old history entry) = the election page seeds
    * from the back URL's own ?sort= instead. */
   railSort?: RailSortKey;
+  /** The LIST's sort when the snapshot was taken — the order `contests`
+   * are in. Stamped by the list and never rewritten by the rail (unlike
+   * railSort), so a district-size snapshot stays recognizable as one after
+   * the rail's sort has been switched and forwarded. */
+  listSort?: RailSortKey;
   /** The election page's ROSTER sort (its candidates section), carried so a
    * candidate round trip restores it — set by the election page on
    * departure and overridden by the candidate page's rail sort on the way
@@ -252,6 +257,9 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
   }
   if (RAIL_SORTS.some((option) => option.value === record.railSort)) {
     result.railSort = record.railSort as RailSortKey;
+  }
+  if (RAIL_SORTS.some((option) => option.value === record.listSort)) {
+    result.listSort = record.listSort as RailSortKey;
   }
   if (CANDIDATE_RAIL_SORTS.some((option) => option.value === record.rosterSort)) {
     result.rosterSort = record.rosterSort as CandidateRailSortKey;

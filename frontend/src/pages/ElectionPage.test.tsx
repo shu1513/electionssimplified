@@ -2908,6 +2908,41 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(rows()).toEqual(["State: California", "Proposition 33", "Governor", "City: Berkeley", "Proposition 4"]);
   });
 
+  it("keeps the level order through a sibling walk after switching to a district sort", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    const { router } = renderElection(perIdLoader, "e-1", {
+      backTo: { path: "/me/ballot", label: "My Elections" },
+      contests: [
+        { ...KEYED_CONTESTS[1], group: "State: California", level: "state" },
+        { ...KEYED_CONTESTS[2], group: "City: Berkeley", level: "city" },
+        { ...KEYED_CONTESTS[0], group: "State: California", level: "state" },
+      ],
+      railSort: "vote_power",
+      listSort: "vote_power",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await user.selectOptions(await within(rail).findByRole("combobox"), "district_smallest");
+    await user.click(within(rail).getByRole("link", { name: "Proposition 4" }));
+
+    expect(router.state.location.pathname).toBe("/elections/e-3");
+    // The forwarded state carries the switched rail sort but the snapshot's
+    // own listSort untouched — the next page must not mistake the
+    // vote-power order for a size order.
+    expect(router.state.location.state).toMatchObject({ railSort: "district_smallest", listSort: "vote_power" });
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole("navigation", { name: "Ballot" })).getByText("Proposition 4").closest("li")
+      ).toHaveAttribute("aria-current", "page")
+    );
+    const nextRail = screen.getByRole("navigation", { name: "Ballot" });
+    const rows = [...nextRail.querySelectorAll("ul > li")].map(
+      (row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title") ?? row.textContent
+    );
+    expect(rows).toEqual(["City: Berkeley", "Proposition 4", "State: California", "Proposition 33", "Governor"]);
+  });
+
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-1", {

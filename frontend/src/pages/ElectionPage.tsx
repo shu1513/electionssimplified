@@ -431,8 +431,13 @@ export function ElectionPage() {
   // groups the other way.
   const snapshotDistrictSort = (() => {
     if (navState === null) return null;
-    const stamped = navState.railSort;
+    // listSort, never railSort: railSort is the rail's engaged sort and is
+    // forwarded on sibling walks, so after a switch to a district sort it
+    // would misread a vote-power snapshot as size-ordered.
+    const stamped = navState.listSort;
     if (isRailDistrictSort(stamped)) return stamped;
+    if (stamped !== undefined) return null;
+    // A snapshot that predates the listSort stamp: the back URL's sort.
     const fromUrl = railSortForBallotSort(
       new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
     );
