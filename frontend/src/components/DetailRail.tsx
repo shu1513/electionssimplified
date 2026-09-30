@@ -230,12 +230,17 @@ export function DetailRail({
   // The tinted panel: the rail column (the grid cell, so full page height)
   // sits on the rail tone with its own continuous hairline at the right
   // edge; the current row takes the page tone and runs to that edge. The
-  // nav inside sticks and scrolls on its own, scrollbar hidden (a second
-  // bar beside the hairline read as clutter). Hidden below the rail
-  // breakpoint, where the pager bar takes over. truncate + title on every
-  // row: contest titles run legal-length, and the rail must stay a rail.
+  // page grid is centered with side padding, so the cell stops short of
+  // the viewport; the ::before slab (100vw wide, placed entirely to the
+  // panel's left) carries the tone out to the left edge, and the corners
+  // stay square so the panel reads as one edge-to-edge surface. Overflow
+  // to the left never widens the page. The nav inside sticks and scrolls
+  // on its own, scrollbar hidden (a second bar beside the hairline read as
+  // clutter). Hidden below the rail breakpoint, where the pager bar takes
+  // over. truncate + title on every row: contest titles run legal-length,
+  // and the rail must stay a rail.
   return (
-    <div className="hidden rounded-bl-2xl border-r border-rail-line bg-rail rail:block">
+    <div className="relative hidden border-r border-rail-line bg-rail before:absolute before:inset-y-0 before:right-full before:w-screen before:bg-rail rail:block">
       <nav
         aria-label={ariaLabel}
         className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"
