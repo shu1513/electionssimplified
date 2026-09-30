@@ -2,6 +2,7 @@ import {
   BLOCKED_SOURCE_KIND_REPAIR,
   classifyCandidateRecordSourceDomain,
   matchesDamagingClaimPattern,
+  findLegislativeTrackerSourceReason,
   type BlockedSourceKind,
 } from "../pipeline/candidates/candidateRecordSourcePolicy.js";
 
@@ -416,6 +417,14 @@ export type SourceTierSweep = {
   blockedDomainRecords: BlockedSourceAuditRecord[];
   /** Blocked-row counts per class, so the headline is not one opaque total. */
   blockedKindCounts: Record<BlockedSourceKind, number>;
+  /**
+   * Stored vote/sponsorship/introduction records cited to an advocacy
+   * scorecard or secondary vote tracker (`findLegislativeTrackerSourceReason`).
+   * The write path rejects these now; every hit predates the rule and wants
+   * re-citation to the official roll call plus a description re-check,
+   * because tracker summaries carry the group's framing.
+   */
+  trackerCitedActionRecords: SourceAuditSampleRecord[];
 };
 
 /**
@@ -437,8 +446,12 @@ export function buildSourceTierSweep(records: readonly SourceAuditRecordRow[]): 
     generated_candidate_directory: 0,
     bot_check_interstitial: 0,
   };
+  const trackerCitedActionRecords: SourceAuditSampleRecord[] = [];
   for (const record of classifyRows(records)) {
     tierCounts[record.tier] += 1;
+    if (findLegislativeTrackerSourceReason(record.row.description, record.row.source_url)) {
+      trackerCitedActionRecords.push(toSampleRecord(record.row));
+    }
     if (record.tier === "blocked" && record.blockedKind) {
       blockedRecords.push(toBlockedRecord(record.row, record.blockedKind));
       blockedKindCounts[record.blockedKind] += 1;
@@ -472,5 +485,6 @@ export function buildSourceTierSweep(records: readonly SourceAuditRecordRow[]): 
       })),
     blockedDomainRecords: blockedRecords,
     blockedKindCounts,
+    trackerCitedActionRecords,
   };
 }

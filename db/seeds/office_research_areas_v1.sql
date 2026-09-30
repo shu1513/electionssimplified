@@ -2,6 +2,7 @@ DO $$
 DECLARE
   desired_slugs text[] := ARRAY[
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'election_integrity',
     'womens_reproductive_rights',
     'public_safety_and_crime_control',
@@ -80,6 +81,7 @@ BEGIN
       ('presidential', 'President of the United States', 'public_infrastructure'),
       ('presidential', 'President of the United States', 'public_safety_and_crime_control'),
       ('presidential', 'President of the United States', 'civil_rights'),
+      ('presidential', 'President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'President of the United States', 'womens_reproductive_rights'),
       ('presidential', 'President of the United States', 'gun_control'),
       ('presidential', 'President of the United States', 'ai_regulation'),
@@ -96,6 +98,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'anti_corruption'),
       ('presidential', 'Vice President of the United States', 'election_integrity'),
       ('presidential', 'Vice President of the United States', 'civil_rights'),
+      ('presidential', 'Vice President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
       ('presidential', 'Vice President of the United States', 'us_israel_ties'),
@@ -137,6 +140,7 @@ BEGIN
       ('presidential', 'President of the United States', 'public_infrastructure'),
       ('presidential', 'President of the United States', 'public_safety_and_crime_control'),
       ('presidential', 'President of the United States', 'civil_rights'),
+      ('presidential', 'President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'President of the United States', 'womens_reproductive_rights'),
       ('presidential', 'President of the United States', 'gun_control'),
       ('presidential', 'President of the United States', 'ai_regulation'),
@@ -153,6 +157,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'anti_corruption'),
       ('presidential', 'Vice President of the United States', 'election_integrity'),
       ('presidential', 'Vice President of the United States', 'civil_rights'),
+      ('presidential', 'Vice President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
       ('presidential', 'Vice President of the United States', 'us_israel_ties'),
@@ -206,6 +211,7 @@ BEGIN
       ('presidential', 'President of the United States', 'public_infrastructure'),
       ('presidential', 'President of the United States', 'public_safety_and_crime_control'),
       ('presidential', 'President of the United States', 'civil_rights'),
+      ('presidential', 'President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'President of the United States', 'womens_reproductive_rights'),
       ('presidential', 'President of the United States', 'gun_control'),
       ('presidential', 'President of the United States', 'ai_regulation'),
@@ -222,6 +228,7 @@ BEGIN
       ('presidential', 'Vice President of the United States', 'anti_corruption'),
       ('presidential', 'Vice President of the United States', 'election_integrity'),
       ('presidential', 'Vice President of the United States', 'civil_rights'),
+      ('presidential', 'Vice President of the United States', 'criminal_justice_and_civil_liberties'),
       ('presidential', 'Vice President of the United States', 'national_defense'),
       ('presidential', 'Vice President of the United States', 'peaceful_foreign_policy'),
       ('presidential', 'Vice President of the United States', 'us_israel_ties'),
@@ -265,6 +272,7 @@ BEGIN
   WITH desired(scope, canonical_name, slug) AS (
     VALUES
       ('statewide', 'Labor Commissioner', 'civil_rights'),
+      ('statewide', 'Labor Commissioner', 'criminal_justice_and_civil_liberties'),
       ('statewide', 'Labor Commissioner', 'corporate_accountability'),
       ('statewide', 'Labor Commissioner', 'cost_of_living_reduction'),
       ('statewide', 'Labor Commissioner', 'healthcare_affordability'),
@@ -295,8 +303,10 @@ BEGIN
       ('county', 'County Auditor', 'data_privacy'),
       ('county', 'County Auditor', 'corporate_accountability'),
       ('county', 'County Auditor', 'civil_rights'),
+      ('county', 'County Auditor', 'criminal_justice_and_civil_liberties'),
       ('county', 'County Auditor', 'election_integrity'),
       ('county', 'Clerk of Court', 'civil_rights'),
+      ('county', 'Clerk of Court', 'criminal_justice_and_civil_liberties'),
       ('county', 'Clerk of Court', 'public_safety_and_crime_control'),
       ('county', 'Clerk of Court', 'government_efficiency'),
       ('county', 'Clerk of Court', 'data_privacy'),
@@ -317,6 +327,7 @@ BEGIN
   WITH desired(scope, canonical_name, slug) AS (
     VALUES
       ('statewide', 'Labor Commissioner', 'civil_rights'),
+      ('statewide', 'Labor Commissioner', 'criminal_justice_and_civil_liberties'),
       ('statewide', 'Labor Commissioner', 'corporate_accountability'),
       ('statewide', 'Labor Commissioner', 'cost_of_living_reduction'),
       ('statewide', 'Labor Commissioner', 'healthcare_affordability'),
@@ -347,8 +358,10 @@ BEGIN
       ('county', 'County Auditor', 'data_privacy'),
       ('county', 'County Auditor', 'corporate_accountability'),
       ('county', 'County Auditor', 'civil_rights'),
+      ('county', 'County Auditor', 'criminal_justice_and_civil_liberties'),
       ('county', 'County Auditor', 'election_integrity'),
       ('county', 'Clerk of Court', 'civil_rights'),
+      ('county', 'Clerk of Court', 'criminal_justice_and_civil_liberties'),
       ('county', 'Clerk of Court', 'public_safety_and_crime_control'),
       ('county', 'Clerk of Court', 'government_efficiency'),
       ('county', 'Clerk of Court', 'data_privacy'),
@@ -378,6 +391,7 @@ BEGIN
   WITH desired(scope, canonical_name, slug) AS (
     VALUES
       ('statewide', 'Labor Commissioner', 'civil_rights'),
+      ('statewide', 'Labor Commissioner', 'criminal_justice_and_civil_liberties'),
       ('statewide', 'Labor Commissioner', 'corporate_accountability'),
       ('statewide', 'Labor Commissioner', 'cost_of_living_reduction'),
       ('statewide', 'Labor Commissioner', 'healthcare_affordability'),
@@ -408,8 +422,10 @@ BEGIN
       ('county', 'County Auditor', 'data_privacy'),
       ('county', 'County Auditor', 'corporate_accountability'),
       ('county', 'County Auditor', 'civil_rights'),
+      ('county', 'County Auditor', 'criminal_justice_and_civil_liberties'),
       ('county', 'County Auditor', 'election_integrity'),
       ('county', 'Clerk of Court', 'civil_rights'),
+      ('county', 'Clerk of Court', 'criminal_justice_and_civil_liberties'),
       ('county', 'Clerk of Court', 'public_safety_and_crime_control'),
       ('county', 'Clerk of Court', 'government_efficiency'),
       ('county', 'Clerk of Court', 'data_privacy'),
@@ -445,6 +461,7 @@ BEGIN
       ('Alderman', 'public_safety_and_crime_control'),
       ('Alderman', 'social_programs_and_welfare'),
       ('Alderman', 'civil_rights'),
+      ('Alderman', 'criminal_justice_and_civil_liberties'),
       ('Alderman', 'anti_corruption'),
       ('Alderman', 'corporate_accountability'),
       ('Alderman', 'data_privacy'),
@@ -453,6 +470,7 @@ BEGIN
       ('City Clerk', 'data_privacy'),
       ('City Clerk', 'anti_corruption'),
       ('City Clerk', 'civil_rights'),
+      ('City Clerk', 'criminal_justice_and_civil_liberties'),
       ('City Clerk', 'corporate_accountability'),
       ('City Council Member', 'government_spending_reduction'),
       ('City Council Member', 'government_efficiency'),
@@ -462,6 +480,7 @@ BEGIN
       ('City Council Member', 'public_safety_and_crime_control'),
       ('City Council Member', 'social_programs_and_welfare'),
       ('City Council Member', 'civil_rights'),
+      ('City Council Member', 'criminal_justice_and_civil_liberties'),
       ('City Council Member', 'anti_corruption'),
       ('City Council Member', 'corporate_accountability'),
       ('City Council Member', 'data_privacy'),
@@ -477,8 +496,10 @@ BEGIN
       ('Municipal Assessor', 'data_privacy'),
       ('Municipal Assessor', 'corporate_accountability'),
       ('Municipal Assessor', 'civil_rights'),
+      ('Municipal Assessor', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'government_efficiency'),
       ('Municipal Attorney', 'civil_rights'),
+      ('Municipal Attorney', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'anti_corruption'),
       ('Municipal Attorney', 'public_safety_and_crime_control'),
       ('Municipal Attorney', 'corporate_accountability'),
@@ -488,6 +509,7 @@ BEGIN
       ('Municipal Attorney', 'public_infrastructure'),
       ('Municipal Constable', 'public_safety_and_crime_control'),
       ('Municipal Constable', 'civil_rights'),
+      ('Municipal Constable', 'criminal_justice_and_civil_liberties'),
       ('Municipal Constable', 'housing_affordability'),
       ('Municipal Constable', 'government_efficiency'),
       ('Municipal Constable', 'data_privacy'),
@@ -500,11 +522,13 @@ BEGIN
       ('Town Council Member', 'public_safety_and_crime_control'),
       ('Town Council Member', 'social_programs_and_welfare'),
       ('Town Council Member', 'civil_rights'),
+      ('Town Council Member', 'criminal_justice_and_civil_liberties'),
       ('Town Council Member', 'anti_corruption'),
       ('Town Council Member', 'corporate_accountability'),
       ('Town Council Member', 'data_privacy'),
       ('Town Moderator', 'government_efficiency'),
       ('Town Moderator', 'civil_rights'),
+      ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
       ('Town Moderator', 'anti_corruption')
   )
@@ -529,6 +553,7 @@ BEGIN
       ('Alderman', 'public_safety_and_crime_control'),
       ('Alderman', 'social_programs_and_welfare'),
       ('Alderman', 'civil_rights'),
+      ('Alderman', 'criminal_justice_and_civil_liberties'),
       ('Alderman', 'anti_corruption'),
       ('Alderman', 'corporate_accountability'),
       ('Alderman', 'data_privacy'),
@@ -537,6 +562,7 @@ BEGIN
       ('City Clerk', 'data_privacy'),
       ('City Clerk', 'anti_corruption'),
       ('City Clerk', 'civil_rights'),
+      ('City Clerk', 'criminal_justice_and_civil_liberties'),
       ('City Clerk', 'corporate_accountability'),
       ('City Council Member', 'government_spending_reduction'),
       ('City Council Member', 'government_efficiency'),
@@ -546,6 +572,7 @@ BEGIN
       ('City Council Member', 'public_safety_and_crime_control'),
       ('City Council Member', 'social_programs_and_welfare'),
       ('City Council Member', 'civil_rights'),
+      ('City Council Member', 'criminal_justice_and_civil_liberties'),
       ('City Council Member', 'anti_corruption'),
       ('City Council Member', 'corporate_accountability'),
       ('City Council Member', 'data_privacy'),
@@ -561,8 +588,10 @@ BEGIN
       ('Municipal Assessor', 'data_privacy'),
       ('Municipal Assessor', 'corporate_accountability'),
       ('Municipal Assessor', 'civil_rights'),
+      ('Municipal Assessor', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'government_efficiency'),
       ('Municipal Attorney', 'civil_rights'),
+      ('Municipal Attorney', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'anti_corruption'),
       ('Municipal Attorney', 'public_safety_and_crime_control'),
       ('Municipal Attorney', 'corporate_accountability'),
@@ -572,6 +601,7 @@ BEGIN
       ('Municipal Attorney', 'public_infrastructure'),
       ('Municipal Constable', 'public_safety_and_crime_control'),
       ('Municipal Constable', 'civil_rights'),
+      ('Municipal Constable', 'criminal_justice_and_civil_liberties'),
       ('Municipal Constable', 'housing_affordability'),
       ('Municipal Constable', 'government_efficiency'),
       ('Municipal Constable', 'data_privacy'),
@@ -584,11 +614,13 @@ BEGIN
       ('Town Council Member', 'public_safety_and_crime_control'),
       ('Town Council Member', 'social_programs_and_welfare'),
       ('Town Council Member', 'civil_rights'),
+      ('Town Council Member', 'criminal_justice_and_civil_liberties'),
       ('Town Council Member', 'anti_corruption'),
       ('Town Council Member', 'corporate_accountability'),
       ('Town Council Member', 'data_privacy'),
       ('Town Moderator', 'government_efficiency'),
       ('Town Moderator', 'civil_rights'),
+      ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
       ('Town Moderator', 'anti_corruption')
   ),
@@ -622,6 +654,7 @@ BEGIN
       ('Alderman', 'public_safety_and_crime_control'),
       ('Alderman', 'social_programs_and_welfare'),
       ('Alderman', 'civil_rights'),
+      ('Alderman', 'criminal_justice_and_civil_liberties'),
       ('Alderman', 'anti_corruption'),
       ('Alderman', 'corporate_accountability'),
       ('Alderman', 'data_privacy'),
@@ -630,6 +663,7 @@ BEGIN
       ('City Clerk', 'data_privacy'),
       ('City Clerk', 'anti_corruption'),
       ('City Clerk', 'civil_rights'),
+      ('City Clerk', 'criminal_justice_and_civil_liberties'),
       ('City Clerk', 'corporate_accountability'),
       ('City Council Member', 'government_spending_reduction'),
       ('City Council Member', 'government_efficiency'),
@@ -639,6 +673,7 @@ BEGIN
       ('City Council Member', 'public_safety_and_crime_control'),
       ('City Council Member', 'social_programs_and_welfare'),
       ('City Council Member', 'civil_rights'),
+      ('City Council Member', 'criminal_justice_and_civil_liberties'),
       ('City Council Member', 'anti_corruption'),
       ('City Council Member', 'corporate_accountability'),
       ('City Council Member', 'data_privacy'),
@@ -654,8 +689,10 @@ BEGIN
       ('Municipal Assessor', 'data_privacy'),
       ('Municipal Assessor', 'corporate_accountability'),
       ('Municipal Assessor', 'civil_rights'),
+      ('Municipal Assessor', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'government_efficiency'),
       ('Municipal Attorney', 'civil_rights'),
+      ('Municipal Attorney', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'anti_corruption'),
       ('Municipal Attorney', 'public_safety_and_crime_control'),
       ('Municipal Attorney', 'corporate_accountability'),
@@ -665,6 +702,7 @@ BEGIN
       ('Municipal Attorney', 'public_infrastructure'),
       ('Municipal Constable', 'public_safety_and_crime_control'),
       ('Municipal Constable', 'civil_rights'),
+      ('Municipal Constable', 'criminal_justice_and_civil_liberties'),
       ('Municipal Constable', 'housing_affordability'),
       ('Municipal Constable', 'government_efficiency'),
       ('Municipal Constable', 'data_privacy'),
@@ -677,11 +715,13 @@ BEGIN
       ('Town Council Member', 'public_safety_and_crime_control'),
       ('Town Council Member', 'social_programs_and_welfare'),
       ('Town Council Member', 'civil_rights'),
+      ('Town Council Member', 'criminal_justice_and_civil_liberties'),
       ('Town Council Member', 'anti_corruption'),
       ('Town Council Member', 'corporate_accountability'),
       ('Town Council Member', 'data_privacy'),
       ('Town Moderator', 'government_efficiency'),
       ('Town Moderator', 'civil_rights'),
+      ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
       ('Town Moderator', 'anti_corruption')
   ),
@@ -719,6 +759,7 @@ BEGIN
       ('Alderman', 'public_safety_and_crime_control'),
       ('Alderman', 'social_programs_and_welfare'),
       ('Alderman', 'civil_rights'),
+      ('Alderman', 'criminal_justice_and_civil_liberties'),
       ('Alderman', 'anti_corruption'),
       ('Alderman', 'corporate_accountability'),
       ('Alderman', 'data_privacy'),
@@ -727,6 +768,7 @@ BEGIN
       ('City Clerk', 'data_privacy'),
       ('City Clerk', 'anti_corruption'),
       ('City Clerk', 'civil_rights'),
+      ('City Clerk', 'criminal_justice_and_civil_liberties'),
       ('City Clerk', 'corporate_accountability'),
       ('City Council Member', 'government_spending_reduction'),
       ('City Council Member', 'government_efficiency'),
@@ -736,6 +778,7 @@ BEGIN
       ('City Council Member', 'public_safety_and_crime_control'),
       ('City Council Member', 'social_programs_and_welfare'),
       ('City Council Member', 'civil_rights'),
+      ('City Council Member', 'criminal_justice_and_civil_liberties'),
       ('City Council Member', 'anti_corruption'),
       ('City Council Member', 'corporate_accountability'),
       ('City Council Member', 'data_privacy'),
@@ -751,8 +794,10 @@ BEGIN
       ('Municipal Assessor', 'data_privacy'),
       ('Municipal Assessor', 'corporate_accountability'),
       ('Municipal Assessor', 'civil_rights'),
+      ('Municipal Assessor', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'government_efficiency'),
       ('Municipal Attorney', 'civil_rights'),
+      ('Municipal Attorney', 'criminal_justice_and_civil_liberties'),
       ('Municipal Attorney', 'anti_corruption'),
       ('Municipal Attorney', 'public_safety_and_crime_control'),
       ('Municipal Attorney', 'corporate_accountability'),
@@ -762,6 +807,7 @@ BEGIN
       ('Municipal Attorney', 'public_infrastructure'),
       ('Municipal Constable', 'public_safety_and_crime_control'),
       ('Municipal Constable', 'civil_rights'),
+      ('Municipal Constable', 'criminal_justice_and_civil_liberties'),
       ('Municipal Constable', 'housing_affordability'),
       ('Municipal Constable', 'government_efficiency'),
       ('Municipal Constable', 'data_privacy'),
@@ -774,11 +820,13 @@ BEGIN
       ('Town Council Member', 'public_safety_and_crime_control'),
       ('Town Council Member', 'social_programs_and_welfare'),
       ('Town Council Member', 'civil_rights'),
+      ('Town Council Member', 'criminal_justice_and_civil_liberties'),
       ('Town Council Member', 'anti_corruption'),
       ('Town Council Member', 'corporate_accountability'),
       ('Town Council Member', 'data_privacy'),
       ('Town Moderator', 'government_efficiency'),
       ('Town Moderator', 'civil_rights'),
+      ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
       ('Town Moderator', 'anti_corruption')
   )
@@ -800,6 +848,7 @@ DECLARE
     'election_integrity',
     'government_efficiency',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'anti_corruption'
   ]::text[];
   expected_area_count integer;
@@ -851,7 +900,8 @@ DECLARE
     'anti_corruption',
     'data_privacy',
     'corporate_accountability',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -899,6 +949,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'government_efficiency',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'anti_corruption',
     'public_safety_and_crime_control',
     'corporate_accountability',
@@ -953,6 +1004,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'housing_affordability',
     'government_efficiency',
     'data_privacy',
@@ -1059,6 +1111,7 @@ DECLARE
     'cost_of_living_reduction',
     'corporate_accountability',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'government_efficiency',
     'anti_corruption',
@@ -1115,7 +1168,8 @@ DECLARE
     'government_efficiency',
     'anti_corruption',
     'data_privacy',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -1168,7 +1222,8 @@ DECLARE
     'government_efficiency',
     'anti_corruption',
     'data_privacy',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -1216,6 +1271,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_education_quality',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'government_efficiency',
     'government_spending_reduction',
     'data_privacy',
@@ -1274,6 +1330,7 @@ DECLARE
     'government_efficiency',
     'government_spending_reduction',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'social_programs_and_welfare',
     'data_privacy',
     'public_safety_and_crime_control',
@@ -1331,6 +1388,7 @@ DECLARE
     'anti_corruption',
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'public_infrastructure',
     'corporate_accountability'
   ]::text[];
@@ -1383,6 +1441,7 @@ DECLARE
     'anti_corruption',
     'data_privacy',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'corporate_accountability'
   ]::text[];
   expected_area_count integer;
@@ -1434,7 +1493,8 @@ DECLARE
     'government_spending_reduction',
     'data_privacy',
     'corporate_accountability',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -1583,6 +1643,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'corporate_accountability',
     'anti_corruption',
     'data_privacy',
@@ -1647,6 +1708,7 @@ DECLARE
     'environment_and_public_health',
     'social_programs_and_welfare',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'anti_corruption',
     'corporate_accountability',
     'data_privacy'
@@ -1699,6 +1761,7 @@ DECLARE
     'government_spending_reduction',
     'government_efficiency',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'anti_corruption',
     'corporate_accountability'
@@ -1754,6 +1817,7 @@ DECLARE
     'anti_corruption',
     'corporate_accountability',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy'
   ]::text[];
   expected_area_count integer;
@@ -1802,6 +1866,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'government_efficiency',
     'anti_corruption',
     'data_privacy',
@@ -1856,7 +1921,8 @@ DECLARE
     'anti_corruption',
     'data_privacy',
     'corporate_accountability',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -1913,6 +1979,7 @@ DECLARE
     'anti_corruption',
     'corporate_accountability',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'election_integrity'
   ]::text[];
@@ -1971,6 +2038,7 @@ DECLARE
     'anti_corruption',
     'corporate_accountability',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'election_integrity',
     'reduce_wealth_gap'
@@ -2024,6 +2092,7 @@ DECLARE
     'data_privacy',
     'anti_corruption',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'corporate_accountability'
   ]::text[];
   expected_area_count integer;
@@ -2081,6 +2150,7 @@ DECLARE
     'anti_corruption',
     'corporate_accountability',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'election_integrity'
   ]::text[];
@@ -2131,6 +2201,7 @@ DECLARE
     'public_safety_and_crime_control',
     'environment_and_public_health',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'anti_corruption',
     'government_efficiency',
@@ -2185,6 +2256,7 @@ DECLARE
     'government_efficiency',
     'anti_corruption',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'corporate_accountability'
   ]::text[];
   expected_area_count integer;
@@ -2235,6 +2307,7 @@ DECLARE
     'government_efficiency',
     'government_spending_reduction',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'social_programs_and_welfare',
     'data_privacy',
     'public_safety_and_crime_control',
@@ -2293,7 +2366,8 @@ DECLARE
     'data_privacy',
     'housing_affordability',
     'corporate_accountability',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -2345,7 +2419,8 @@ DECLARE
     'data_privacy',
     'housing_affordability',
     'corporate_accountability',
-    'civil_rights'
+    'civil_rights',
+    'criminal_justice_and_civil_liberties'
   ]::text[];
   expected_area_count integer;
   office_count integer;
@@ -2400,6 +2475,7 @@ DECLARE
     'government_spending_reduction',
     'government_efficiency',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'public_safety_and_crime_control',
     'social_programs_and_welfare',
     'data_privacy',
@@ -2456,6 +2532,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'anti_corruption',
     'government_efficiency',
     'corporate_accountability',
@@ -2508,6 +2585,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'housing_affordability',
     'corporate_accountability',
     'data_privacy',
@@ -2569,6 +2647,7 @@ DECLARE
   desired_slugs text[] := ARRAY[
     'public_safety_and_crime_control',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'government_efficiency',
     'housing_affordability',
     'data_privacy',
@@ -2634,6 +2713,7 @@ DECLARE
     'social_programs_and_welfare',
     'immigration',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'womens_reproductive_rights',
     'environment_and_public_health',
     'public_infrastructure',
@@ -2708,6 +2788,7 @@ DECLARE
     'womens_reproductive_rights',
     'election_integrity',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'corporate_accountability',
     'anti_corruption',
@@ -2781,6 +2862,7 @@ DECLARE
     'womens_reproductive_rights',
     'election_integrity',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'corporate_accountability',
     'anti_corruption',
@@ -2854,6 +2936,7 @@ DECLARE
     'personal_income_tax_reduction',
     'womens_reproductive_rights',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'data_privacy',
     'corporate_accountability',
     'anti_corruption',
@@ -2935,6 +3018,7 @@ DECLARE
     'anti_corruption',
     'government_efficiency',
     'civil_rights',
+    'criminal_justice_and_civil_liberties',
     'womens_reproductive_rights',
     'peaceful_foreign_policy',
     'us_israel_ties'
@@ -3154,7 +3238,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- Treasurer collects), and corporate_accountability carries extra weight
     -- because it also runs the local business-license tax.
     ('county', 'Commissioner of the Revenue', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'housing_affordability']::text[]),
-    ('county', 'Constable', ARRAY['civil_rights', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
+    ('county', 'Constable', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Assessor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'housing_affordability']::text[]),
     -- Combined office (e.g. San Francisco): union of the County Assessor and
     -- County Recorder curated sets, since the officeholder does both jobs.
@@ -3168,7 +3252,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- Recorder curated sets, since the officeholder does both jobs.
     ('county', 'County Clerk and Recorder', ARRAY['anti_corruption', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
     ('county', 'County Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
-    ('county', 'County Coroner', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'public_safety_and_crime_control']::text[]),
+    ('county', 'County Coroner', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'public_safety_and_crime_control']::text[]),
     -- Roads and capital projects: County Surveyor's infrastructure set with
     -- government_spending_reduction in place of the surveyor's land-records
     -- housing slug — the engineer's public exposure is the capital budget.
@@ -3209,12 +3293,12 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('county', 'Fire Control District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Executive', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('county', 'Borough President', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
-    ('county', 'County Level Judge', ARRAY['civil_rights', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('county', 'County Level Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
     -- The limited-jurisdiction tier of the same judiciary, so the County Level
     -- Judge set applies unchanged: JP courts are the eviction and small-claims
     -- forum (housing_affordability, civil_rights) and, in states such as Texas,
     -- the Class C misdemeanor and traffic court (public_safety_and_crime_control).
-    ('county', 'Justice of the Peace', ARRAY['civil_rights', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('county', 'Justice of the Peace', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
     ('county', 'County Recorder', ARRAY['anti_corruption', 'data_privacy', 'government_efficiency']::text[]),
     -- Business licensing and fee collection (St. Louis): recorder-class
     -- records set with corporate_accountability for the licensing power.
@@ -3223,12 +3307,12 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- licenses too) plus data_privacy, because this office holds the county's
     -- vehicle-ownership and driver-licence records.
     ('county', 'License Commissioner', ARRAY['anti_corruption', 'corporate_accountability', 'data_privacy', 'government_efficiency']::text[]),
-    ('county', 'County Superintendent of Schools', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('county', 'County Superintendent of Schools', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('county', 'County Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     -- Boundary records and plats: recorder-adjacent land administration.
     ('county', 'County Surveyor', ARRAY['government_efficiency', 'housing_affordability', 'public_infrastructure']::text[]),
     ('county', 'County Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction', 'housing_affordability']::text[]),
-    ('county', 'District Attorney', ARRAY['anti_corruption', 'civil_rights', 'corporate_accountability', 'gun_control', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('county', 'District Attorney', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'corporate_accountability', 'gun_control', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('county', 'Public Administrator', ARRAY['anti_corruption', 'data_privacy', 'government_efficiency']::text[]),
     -- Defense-side justice set, NOT a District Attorney mirror: the DA slugs
     -- that track prosecutorial charging discretion (gun_control,
@@ -3236,7 +3320,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- don't apply to an office whose job is representing the accused.
     -- legal_competence mirrors the judge sets (quality of representation);
     -- immigration covers crimmigration consequences of pleas (Padilla).
-    ('county', 'Public Defender', ARRAY['civil_rights', 'immigration', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('county', 'Public Defender', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'immigration', 'legal_competence', 'public_safety_and_crime_control']::text[]),
     -- Same job as County Recorder under its Missouri/Pennsylvania name.
     ('county', 'Recorder of Deeds', ARRAY['anti_corruption', 'data_privacy', 'government_efficiency']::text[]),
     -- Alabama's merged property-tax office: union of the County Assessor and
@@ -3250,19 +3334,19 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- gun_control stays: Georgia's weapons misdemeanors — carrying in a
     -- prohibited location, possession by a minor, pointing a firearm at
     -- another — are State Court cases. See db/migrations/225.
-    ('county', 'Solicitor General', ARRAY['anti_corruption', 'civil_rights', 'gun_control', 'public_safety_and_crime_control']::text[]),
+    ('county', 'Solicitor General', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'gun_control', 'public_safety_and_crime_control']::text[]),
     -- Kentucky's elected jail administrator: the custody slice of the Sheriff
     -- set (no patrol, so no gun_control/immigration) plus government_efficiency
     -- for jail operations and spending.
-    ('county', 'County Jailer', ARRAY['civil_rights', 'government_efficiency', 'public_safety_and_crime_control']::text[]),
+    ('county', 'County Jailer', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'public_safety_and_crime_control']::text[]),
     -- Kentucky fiscal-court district member: a county legislator, so the
     -- County Commissioner set.
     ('county', 'Magistrate', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'healthcare_affordability', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
-    ('county', 'Sheriff', ARRAY['civil_rights', 'data_privacy', 'gun_control', 'immigration', 'public_safety_and_crime_control']::text[]),
+    ('county', 'Sheriff', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'gun_control', 'immigration', 'public_safety_and_crime_control']::text[]),
     ('county', 'Soil and Water Conservation District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'public_infrastructure']::text[]),
-    ('place', 'Alderman', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'Alderman', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'City Clerk', ARRAY['anti_corruption', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
-    ('place', 'City Council Member', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'City Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     -- Elected public-library board. civil_rights is the board's most contested
     -- lever (challenges to materials, who may access them); data_privacy is
     -- the library-specific one, since patron borrowing records are
@@ -3275,25 +3359,25 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- omitting it would push those records into neighboring areas. No
     -- public_safety_and_crime_control — branch security is the director's
     -- administrative problem, not a lever the board is elected on.
-    ('place', 'Library Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
+    ('place', 'Library Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
     ('place', 'Comptroller', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('place', 'City Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
-    ('place', 'Mayor', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
-    ('place', 'Public Advocate', ARRAY['anti_corruption', 'civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'Mayor', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'Public Advocate', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'Municipal Assessor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'housing_affordability']::text[]),
-    ('place', 'Municipal Attorney', ARRAY['civil_rights', 'government_efficiency', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
+    ('place', 'Municipal Attorney', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
     ('place', 'Municipal Controller', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
     -- Independent elected auditor (Oakland, Berkeley): the Municipal Controller
     -- set, since both jobs watch how the city spends money (migration 303).
     ('place', 'City Auditor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
-    ('place', 'Municipal Constable', ARRAY['civil_rights', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
+    ('place', 'Municipal Constable', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
     -- Officer of the city court (Louisiana): the same civil-process job as
     -- Municipal Constable, housing_affordability included because the marshal
     -- executes evictions.
-    ('place', 'City Marshal', ARRAY['civil_rights', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
-    ('place', 'Municipal Trustee', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
-    ('place', 'Place Level Judge', ARRAY['civil_rights', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
-    ('place', 'Town Council Member', ARRAY['civil_rights', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'City Marshal', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'public_safety_and_crime_control']::text[]),
+    ('place', 'Municipal Trustee', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'Place Level Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('place', 'Town Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'Town Moderator', ARRAY['election_integrity', 'government_efficiency']::text[]),
     -- Elected transit board (e.g. Denver's RTD): sets fares and service
     -- (both spending slugs), builds and runs rail and bus lines
@@ -3303,56 +3387,56 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- Austin-area special districts and multi-county courts (migration 307).
     -- Each copies its closest county/statewide counterpart; the appraisal
     -- board values property and runs its office but sets no tax rate.
-    ('local_special', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
-    ('local_special', 'Court of Appeals Justice', ARRAY['civil_rights', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
-    ('local_special', 'District Judge', ARRAY['civil_rights', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
+    ('local_special', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('local_special', 'Court of Appeals Justice', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('local_special', 'District Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Community College Trustee', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('local_special', 'Groundwater Conservation District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('local_special', 'Municipal Utility District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
-    ('local_special', 'Library District Trustee', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
+    ('local_special', 'Library District Trustee', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
     ('county', 'Appraisal District Director', ARRAY['government_efficiency', 'government_spending_reduction', 'housing_affordability']::text[]),
     -- Omaha-area special districts (migration 309). Each copies its closest
     -- counterpart; utility and power boards set rates like the Public
     -- Service Commission.
     ('local_special', 'Public Service Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
-    ('local_special', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('local_special', 'State Board of Regents Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('local_special', 'Natural Resources District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('local_special', 'Public Power District Director', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
     ('local_special', 'Utility District Director', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
-    ('local_special', 'Learning Community Council Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
+    ('local_special', 'Learning Community Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Educational Service Unit Board Member', ARRAY['government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
-    ('school_elementary', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
-    ('school_secondary', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
-    ('school_unified', 'School Board Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
+    ('school_elementary', 'School Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
+    ('school_secondary', 'School Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
+    ('school_unified', 'School Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     -- DC's ward-elected State Board of Education seat (migration 280): the
     -- statewide board's set, since it is the same policy job at ward scope.
-    ('state_upper', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('state_upper', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     -- Colorado's congressional-district regent and State Board of Education
     -- seats (migration 304): the statewide boards' sets, same jobs.
-    ('us_house', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
-    ('us_house', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
-    ('statewide', 'Attorney General', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'gun_control', 'healthcare_affordability', 'immigration', 'labor_rights', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('us_house', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('us_house', 'State Board of Regents Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('statewide', 'Attorney General', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'gun_control', 'healthcare_affordability', 'immigration', 'labor_rights', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'Commissioner of Agriculture', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'foreign_trade', 'social_programs_and_welfare']::text[]),
     ('statewide', 'Commissioner of Insurance', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'healthcare_affordability', 'housing_affordability']::text[]),
     ('statewide', 'Comptroller', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('statewide', 'Corporation Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
-    ('statewide', 'Labor Commissioner', ARRAY['civil_rights', 'corporate_accountability', 'labor_rights', 'reduce_wealth_gap', 'social_programs_and_welfare']::text[]),
+    ('statewide', 'Labor Commissioner', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'corporate_accountability', 'labor_rights', 'reduce_wealth_gap', 'social_programs_and_welfare']::text[]),
     ('statewide', 'Land Commissioner', ARRAY['corporate_accountability', 'environment_and_public_health', 'government_spending_reduction', 'housing_affordability']::text[]),
-    ('statewide', 'Lieutenant Governor', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'gun_control', 'healthcare_affordability', 'housing_affordability', 'immigration', 'labor_rights', 'personal_income_tax_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control', 'reduce_wealth_gap', 'social_programs_and_welfare', 'womens_reproductive_rights']::text[]),
+    ('statewide', 'Lieutenant Governor', ARRAY['ai_regulation', 'anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'corporate_accountability', 'data_privacy', 'election_integrity', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'gun_control', 'healthcare_affordability', 'housing_affordability', 'immigration', 'labor_rights', 'personal_income_tax_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control', 'reduce_wealth_gap', 'social_programs_and_welfare', 'womens_reproductive_rights']::text[]),
     ('statewide', 'Public Service Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
     ('statewide', 'Railroad Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
-    ('statewide', 'Secretary of State', ARRAY['anti_corruption', 'civil_rights', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
+    ('statewide', 'Secretary of State', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
     ('statewide', 'State Auditor', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
-    ('statewide', 'State Board of Education Member', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('statewide', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'State Board of Equalization Member', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'government_efficiency', 'housing_affordability']::text[]),
-    ('statewide', 'State Board of Regents Member', ARRAY['civil_rights', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
-    ('statewide', 'State Level Judge', ARRAY['civil_rights', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('statewide', 'State Board of Regents Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    ('statewide', 'State Level Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'State Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
     -- Executive Councilor (NH; migration 306): votes on judges (impartiality,
     -- legal_competence), state contracts (spending, efficiency, corruption;
     -- NH family-planning contracts are its best-known votes), and pardons.
-    ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
-    ('statewide', 'Superintendent of Public Instruction', ARRAY['civil_rights', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]);
+    ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    ('statewide', 'Superintendent of Public Instruction', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]);
 
 -- Fail fast rather than silently mis-shaping an office. The reconcile below
 -- deletes every link outside the curated set and re-inserts the curated ones by

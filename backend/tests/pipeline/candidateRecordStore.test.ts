@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildCandidateRecordIdentityKey,
   deleteCandidateRecordsForReplacementRefresh,
+  findRepeatExistingRecords,
   findWithinPayloadRecordCollisions,
+  findWithinPayloadRepeatRows,
+  isRepeatDescription,
+  normalizeDescriptionForRepeatDetection,
   scoreCandidateRecordDescriptionSimilarity,
   upsertCandidateRecords,
 } from "../../src/pipeline/candidates/candidateRecordStore.js";
@@ -294,5 +298,96 @@ describe("findWithinPayloadRecordCollisions", () => {
         },
       ])
     ).toEqual([]);
+  });
+});
+
+describe("repeat detection (one row per bill)", () => {
+  it("strips bill numbers, dates, years, tallies and stage words", () => {
+    expect(
+      normalizeDescriptionForRepeatDetection(
+        "Filed H.866, a bill enabling cities and towns to extend voting rights in municipal elections to certain noncitizens, on January 16, 2025."
+      )
+    ).toBe(
+      normalizeDescriptionForRepeatDetection(
+        "Filed H.707, a bill enabling cities and towns to extend voting rights in municipal elections to certain noncitizens, on January 17, 2019."
+      )
+    );
+    expect(normalizeDescriptionForRepeatDetection("Voted for the fiscal 2019 House budget. It passed 122-23.")).toBe(
+      normalizeDescriptionForRepeatDetection("Voted for the fiscal 2020 House budget. It passed 130-20.")
+    );
+    expect(normalizeDescriptionForRepeatDetection("Voted for House Bill 4432 at second reading.")).toBe(
+      normalizeDescriptionForRepeatDetection("Voted for HB 4347 at first reading.")
+    );
+  });
+
+  it("treats re-filed bills and yearly repeats as repeats", () => {
+    const pairs: [string, string][] = [
+      [
+        "Introduced House Bill 4432 proposing tenant protections and landlord notice rules for rental property. It stayed in committee.",
+        "Introduced House Bill 4347 proposing tenant protections and landlord notice rules for rental property. It stayed in committee.",
+      ],
+      ["Filed H2667, a bill requiring municipalities to place insurance out to bid.", "Filed H2982, a bill requiring municipalities to place insurance out to bid."],
+      [
+        "Received the endorsement of Planned Parenthood Votes! Rhode Island PAC for her 2022 House District 63 race.",
+        "Received the endorsement of Planned Parenthood Votes! Rhode Island PAC for her 2026 House District 63 race.",
+      ],
+      ["Filed H538, a bill on the safety of schools, residences, and public assemblies.", "Filed H399, a bill on the safety of schools, residences, and public assemblies."],
+    ];
+    for (const [left, right] of pairs) {
+      expect(isRepeatDescription(left, right), left).toBe(true);
+    }
+  });
+
+  it("keeps adjacent bills and different actions on the same subject distinct", () => {
+    const pairs: [string, string][] = [
+      ["Voted yes on HB 204, which raised the state gas tax by three cents.", "Voted yes on HB 205, which created a rural broadband grant fund."],
+      [
+        "Voted against the Secure DC amendment allowing DNA collection and testing before conviction.",
+        "Voted for the Secure DC amendment removing the requirement that police officers' names be withheld from the public during adverse-action proceedings.",
+      ],
+      ["Voted for the fiscal 2019 House budget.", "Voted against the fiscal 2020 House budget."],
+      ["Was elected vice chair of the Board of Equalization for 2024.", "Was elected chair of the Board of Equalization for 2025."],
+      ["Filed H.1316, a bill on the stabilization of rents in distressed towns.", "Filed H.1440, a bill on the stabilization of rents and evictions in distressed towns."],
+      ["Sponsored SB 252 on protection from discrimination based on health-care choices.", "Sponsored SB 253 creating a rural hospital loan program."],
+      ["", "Filed H399, a bill on school safety."],
+    ];
+    for (const [left, right] of pairs) {
+      expect(isRepeatDescription(left, right), `${left} | ${right}`).toBe(false);
+    }
+  });
+
+  it("finds repeats inside a payload but ignores same-slot rows (the update path)", () => {
+    const rows = [
+      { description: "Filed H.707, a bill enabling noncitizen voting in municipal elections.", sourceUrl: "https://malegislature.gov/Bills/191/H707", eventDate: "2019-01-17" },
+      { description: "Voted yes on HB 204, which raised the state gas tax by three cents.", sourceUrl: "https://example.gov/hb204", eventDate: "2021-03-01" },
+      { description: "Filed H.866, a bill enabling noncitizen voting in municipal elections.", sourceUrl: "https://malegislature.gov/Bills/194/H866", eventDate: "2025-01-16" },
+      { description: "Filed H.866, a bill enabling noncitizen voting in municipal elections", sourceUrl: "https://malegislature.gov/Bills/194/H866/", eventDate: "2025-01-16" },
+    ];
+    expect(findWithinPayloadRepeatRows(rows)).toEqual([
+      { firstIndex: 0, secondIndex: 2 },
+      { firstIndex: 0, secondIndex: 3 },
+    ]);
+  });
+
+  it("finds stored repeats for the candidate, skipping the row's own identity slot", async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [
+          { id: "old-1", description: "Filed H.707, a bill enabling noncitizen voting in municipal elections.", source_url: "https://malegislature.gov/Bills/191/H707", event_date: "2019-01-17" },
+          { id: "old-2", description: "Voted for the annual budget.", source_url: "https://example.gov/budget-2024", event_date: "2024-06-30" },
+        ],
+      }),
+    };
+    const matches = await findRepeatExistingRecords(client, "cand", [
+      { description: "Filed H.866, a bill enabling noncitizen voting in municipal elections.", sourceUrl: "https://malegislature.gov/Bills/194/H866", eventDate: "2025-01-16" },
+      { description: "Filed H.707, a bill enabling noncitizen voting in municipal elections.", sourceUrl: "https://malegislature.gov/Bills/191/H707/", eventDate: "2019-01-17" },
+      { description: "Voted for the annual budget.", sourceUrl: "https://example.gov/budget-2025", eventDate: "2025-06-30" },
+      { description: "Spoke at a town hall on housing.", sourceUrl: "https://example.com/news", eventDate: "2025-02-01" },
+    ]);
+    expect(matches).toEqual([
+      { index: 0, existingRecordId: "old-1", existingEventDate: "2019-01-17", existingDescription: "Filed H.707, a bill enabling noncitizen voting in municipal elections." },
+      { index: 2, existingRecordId: "old-2", existingEventDate: "2024-06-30", existingDescription: "Voted for the annual budget." },
+    ]);
+    expect(await findRepeatExistingRecords(client, "cand", [])).toEqual([]);
   });
 });

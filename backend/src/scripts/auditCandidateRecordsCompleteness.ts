@@ -604,6 +604,8 @@ ${targetSql}
                 : {}),
               blockedDomainRecordCount: sourceTierSweep.blockedDomainRecords.length,
               blockedKindCounts: sourceTierSweep.blockedKindCounts,
+              trackerCitedActionRecordCount: sourceTierSweep.trackerCitedActionRecords.length,
+              trackerCitedActionRecords: sourceTierSweep.trackerCitedActionRecords.slice(0, BLOCKED_RECORD_LIST_LIMIT),
               blockedDomainRecords: sourceTierSweep.blockedDomainRecords.slice(
                 0,
                 BLOCKED_RECORD_LIST_LIMIT

@@ -103,7 +103,12 @@ VALUES
   (
     'civil_rights',
     'Civil Rights',
-    'Protect equal rights, anti-discrimination enforcement, and fair treatment under law.'
+    'Protect equal rights and anti-discrimination enforcement for race, sex, disability, religion, sexual orientation and gender identity, and equal access to voting and public life.'
+  ),
+  (
+    'criminal_justice_and_civil_liberties',
+    'Criminal Justice and Civil Liberties',
+    'Reform policing, sentencing, and incarceration, and protect civil liberties such as due process, privacy from searches and surveillance, and free expression.'
   ),
   (
     'general',

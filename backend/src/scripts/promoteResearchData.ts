@@ -280,6 +280,15 @@ export type RecordRow = {
   created_at_utc: string;
   origin: string | null;
   origin_run_id: string | null;
+  /**
+   * Retirement travels with the record. A row folded, retired as a position
+   * statement, or retired as unverifiable locally must stop rendering in
+   * production too; before this the promoter never carried retired_at, so a
+   * local retirement left the production row live (2026-09-30 fact-check
+   * sweep: 1,100+ retirements).
+   */
+  retired_at_utc: string | null;
+  retired_reason: string | null;
 };
 
 export type TagRow = {
@@ -332,7 +341,9 @@ export const RECORD_PROJECTION_SQL = `
     to_char(event_date, 'YYYY-MM-DD') AS event_date,
     to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') AS created_at_utc,
     origin,
-    origin_run_id
+    origin_run_id,
+    to_char(retired_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS.US') AS retired_at_utc,
+    retired_reason
   FROM public.candidate_records
 `;
 
@@ -397,7 +408,9 @@ export function sameRecord(a: RecordRow, b: RecordRow): boolean {
   return (
     sameScalar(a.description, b.description) &&
     sameScalar(a.source_url, b.source_url) &&
-    sameScalar(a.event_date, b.event_date)
+    sameScalar(a.event_date, b.event_date) &&
+    sameScalar(a.retired_at_utc ?? null, b.retired_at_utc ?? null) &&
+    sameScalar(a.retired_reason ?? null, b.retired_reason ?? null)
   );
 }
 
@@ -892,25 +905,31 @@ export async function loadProjection<T>(client: PromotionClient, sql: string): P
 export const UPSERT_RECORDS_SQL = `
   INSERT INTO public.candidate_records
     (candidate_id, record_identity_key, description, source_url, event_date,
-     created_at, origin, origin_run_id)
+     created_at, origin, origin_run_id, retired_at, retired_reason)
   SELECT
     s.candidate_id, s.record_identity_key, s.description, s.source_url,
     s.event_date::date,
     (s.created_at_utc)::timestamp AT TIME ZONE 'UTC',
-    s.origin, s.origin_run_id
+    s.origin, s.origin_run_id,
+    CASE WHEN s.retired_at_utc IS NULL THEN NULL ELSE (s.retired_at_utc)::timestamp AT TIME ZONE 'UTC' END,
+    s.retired_reason
   FROM jsonb_to_recordset($1::jsonb) AS s(
     candidate_id uuid, record_identity_key text, description text,
     source_url text, event_date text, created_at_utc text,
-    origin text, origin_run_id text)
+    origin text, origin_run_id text, retired_at_utc text, retired_reason text)
   ON CONFLICT (candidate_id, record_identity_key) DO UPDATE SET
     description = EXCLUDED.description,
     source_url = EXCLUDED.source_url,
     event_date = EXCLUDED.event_date,
     origin = EXCLUDED.origin,
-    origin_run_id = EXCLUDED.origin_run_id
+    origin_run_id = EXCLUDED.origin_run_id,
+    retired_at = EXCLUDED.retired_at,
+    retired_reason = EXCLUDED.retired_reason
   WHERE public.candidate_records.description IS DISTINCT FROM EXCLUDED.description
      OR public.candidate_records.source_url IS DISTINCT FROM EXCLUDED.source_url
      OR public.candidate_records.event_date IS DISTINCT FROM EXCLUDED.event_date
+     OR public.candidate_records.retired_at IS DISTINCT FROM EXCLUDED.retired_at
+     OR public.candidate_records.retired_reason IS DISTINCT FROM EXCLUDED.retired_reason
 `;
 
 // The two joins are the fix for the central hazard: they resolve the TARGET's
