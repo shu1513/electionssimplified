@@ -1387,6 +1387,10 @@ async function main(): Promise<void> {
   const apply = argv.includes("--apply");
   const reconcileTags = argv.includes("--reconcile-tags");
   const candidateIdsFile = readFlagValue(argv, "--candidate-ids-file");
+  if (argv.includes("--candidate-ids-file") && !candidateIdsFile) {
+    // Fail closed: a scope flag with no path must not quietly become "every candidate".
+    throw new Error("--candidate-ids-file requires a file path");
+  }
   const scope = candidateIdsFile ? await readCandidateScope(candidateIdsFile) : null;
   const endpoints = assertPromotionEndpoints({
     sourceUrl: process.env.DATABASE_URL ?? "",
@@ -1704,6 +1708,8 @@ async function main(): Promise<void> {
       console.log(
         "\nDry run only — nothing was written. Re-run with:\n" +
           `  npm run research:promote:apply -- --confirm-target ${confirmationTokenFor(endpoints.target)}` +
+          // The hint must carry the scope, or a copied command promotes every candidate.
+          (candidateIdsFile ? ` --candidate-ids-file '${candidateIdsFile.replace(/'/g, "'\\''")}'` : "") +
           (reconcileTags ? " --reconcile-tags" : "")
       );
     }

@@ -58,7 +58,9 @@ const URL_BILL_PATTERNS: readonly { pattern: RegExp; key: (match: RegExpMatchArr
 const DESCRIPTION_BILL_PATTERNS: readonly RegExp[] = [
   /\b([a-z]{1,3}\d{1,2}-\d{3,4})\b/i,
   /\b(house|senate|assembly)\s+(bill|file|resolution|joint\s+resolution|concurrent\s+resolution)\s+(?:no\.?\s*)?(\d{1,5})\b/i,
-  /\b((?:h|s|a|l)\.?\s?(?:con\.?\s?res|j\.?\s?res|res|b|r|f|j|c|con|cr|jr|s)?\.?)\s?(\d{1,5})\b/i,
+  // A bare chamber letter needs a dot or the digits attached ("S. 1383",
+  // "H3535"); "Section S 12" or "Plan A 5" is not a bill.
+  /\b((?:h|s|a|l)\.?\s?(?:con\.?\s?res|j\.?\s?res|res|b|r|f|j|c|con|cr|jr|s)\.?\s?|[hsal]\.\s?|[hsal])(\d{1,5})\b/i,
 ];
 
 // Named measures: two or more capitalized words followed by a measure noun

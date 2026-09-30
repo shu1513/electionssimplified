@@ -285,7 +285,9 @@ const REPEAT_STRIP_PATTERNS: readonly RegExp[] = [
   // "House Bill 4432", "Senate File 12", "Assembly Bill 5", "House Joint Resolution 3".
   /\b(?:house|senate|assembly|council)\s+(?:joint\s+|concurrent\s+)?(?:bill|file|resolution|substitute)\s+(?:no\.?\s*)?\d{1,5}\b/g,
   // "HB 4432", "S.B. 68", "H.R.1470", "HJR 3", "LB 12", "H.3568", "H3983", "S2195", "SSB 1234".
-  /\b(?:h|s|a|l|c)\.?\s?(?:b|r|f|j|c|con|cr|jr|s|sb|hb)?\.?\s?\d{1,5}(?:[a-z])?\b/g,
+  // A bare chamber letter needs the digits attached or a dot ("H3535",
+  // "S. 1383"); "a 3" in ordinary prose is not a bill number.
+  /\b(?:(?:h|s|a|l|c)\.?\s?(?:b|r|f|j|c|con|cr|jr|s|sb|hb)\.?\s?\d{1,5}|[hslc]\.?\s?\d{1,5}|a\.?\d{1,5})(?:[a-z])?\b/g,
   // Amendment / roll call numbers.
   /\b(?:amendment|amdt|roll\s?call|rc)\s+(?:no\.?\s*)?\d{1,4}\b/g,
   // Calendar dates and years.

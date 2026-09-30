@@ -1214,6 +1214,8 @@ describe("legislative tracker source rule", () => {
       "Sponsored SB 252 on protection from discrimination.",
       "Introduced H.R.1470, the Ending Qualified Immunity Act.",
       "Filed H.866, a bill enabling cities to extend voting rights.",
+      "Filed a petition for H3519 on regulation of government privatization contracts.",
+      "Filed HD5003, a bill on electronic filing fees for limited liability companies.",
       "Authored AB 3161 requiring hospital patient safety plans.",
       "Joined 12 other Democrats in voting for the budget.",
     ]) {
@@ -1226,6 +1228,9 @@ describe("legislative tracker source rule", () => {
       "Served as a House floor manager for House File 2240.",
       "Signed a pledge opposing new taxes.",
       "Filed a federal lawsuit as her daughter's parent challenging the athletic conference's policy.",
+      "Filed candidacy papers for the 2026 primary.",
+      "Filed a financial disclosure listing rental income.",
+      "Filed an ethics complaint against the county clerk.",
     ]) {
       expect(isLegislativeActionRecord(description), description).toBe(false);
     }

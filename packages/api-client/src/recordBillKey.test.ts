@@ -46,6 +46,9 @@ describe("recordBillKey", () => {
     expect(recordBillKey(record("Was endorsed for Mayor by the Working Families Party.", "https://example.org/a"))).toBeNull();
     expect(recordBillKey(record("Voted against the District's emergency measure restructuring the housing authority board.", "https://example.org/b"))).toBeNull();
     expect(recordBillKey(record("Was ordered to pay a $16,000 fine.", "https://example.org/c"))).toBeNull();
+    expect(recordBillKey(record("Served on the Plan A 5 committee.", "https://example.org/d"))).toBeNull();
+    expect(recordBillKey(record("Voted in Section S 12 of the hearing.", "https://example.org/e"))).toBeNull();
+    expect(recordBillKey(record("Voted for S. 1383, the shield bill.", "https://example.org/f", "2023-05-01"))).toBe("S1383:2023");
   });
 
   it("links only records that share a key", () => {

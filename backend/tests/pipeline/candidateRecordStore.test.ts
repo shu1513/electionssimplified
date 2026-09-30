@@ -346,6 +346,7 @@ describe("repeat detection (one row per bill)", () => {
         "Voted for the Secure DC amendment removing the requirement that police officers' names be withheld from the public during adverse-action proceedings.",
       ],
       ["Voted for the fiscal 2019 House budget.", "Voted against the fiscal 2020 House budget."],
+      ["Voted for a 3 percent raise for county workers.", "Voted for a 5 percent raise for county workers."],
       ["Was elected vice chair of the Board of Equalization for 2024.", "Was elected chair of the Board of Equalization for 2025."],
       ["Filed H.1316, a bill on the stabilization of rents in distressed towns.", "Filed H.1440, a bill on the stabilization of rents and evictions in distressed towns."],
       ["Sponsored SB 252 on protection from discrimination based on health-care choices.", "Sponsored SB 253 creating a rural hospital loan program."],

@@ -816,10 +816,13 @@ const LEGISLATIVE_TRACKER_HOSTNAME_PATTERNS: readonly RegExp[] = [
 // verb must LEAD the description (records lead with the past-tense verb),
 // so "Received the endorsement ... for her vote" is not matched.
 const LEGISLATIVE_ACTION_RECORD_PATTERN =
-  /^\s*(?:voted?|cast|co-?sponsor(?:ed|ing)?|sponsor(?:ed|ing)?|co-?introduc(?:ed|ing)|introduc(?:ed|ing)|filed|co-?author(?:ed|ing)|author(?:ed|ing)|joined [^.]{0,80}\bvot(?:e|ed|ing)\b|was one of [^.]{0,80}\bvot(?:e|ed|ing)\b)/i;
+  /^\s*(?:voted?|cast|co-?sponsor(?:ed|ing)?|sponsor(?:ed|ing)?|co-?introduc(?:ed|ing)|introduc(?:ed|ing)|filed\b(?=[^.]{0,60}\b(?:bill|resolution|amendment|petition|legislation|h\.?\s?(?:r\.?|b\.?|d\.?)?\s?\d|s\.?\s?(?:b\.?|d\.?)?\s?\d|hb\s?\d|sb\s?\d|lb\s?\d|ab\s?\d))|co-?author(?:ed|ing)?|author(?:ed|ing)?|joined [^.]{0,80}\bvot(?:e|ed|ing)\b|was one of [^.]{0,80}\bvot(?:e|ed|ing)\b)/i;
 
-// "Filed" also opens court records ("Filed a federal lawsuit ..."), which
-// are not legislative actions and may legitimately cite the filing itself.
+// "Filed" also opens court records ("Filed a federal lawsuit ..."), candidacy
+// papers and disclosures, which are not legislative actions and may
+// legitimately cite the filing itself. The lookahead above already requires a
+// bill-shaped object after "filed"; this keeps a court filing that happens to
+// mention a bill out too.
 const COURT_FILING_PATTERN = /\b(?:lawsuit|suit|court|complaint|appeal|petition for review)\b/i;
 
 export function isLegislativeActionRecord(description: string): boolean {
