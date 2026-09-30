@@ -1,4 +1,4 @@
-import { readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -672,10 +672,13 @@ export const REKEY_RECORDS_SQL = `
     source_url = s.source_url,
     event_date = s.event_date::date,
     origin = s.origin,
-    origin_run_id = s.origin_run_id
+    origin_run_id = s.origin_run_id,
+    retired_at = CASE WHEN s.retired_at_utc IS NULL THEN NULL ELSE (s.retired_at_utc)::timestamp AT TIME ZONE 'UTC' END,
+    retired_reason = s.retired_reason
   FROM jsonb_to_recordset($1::jsonb) AS s(
     candidate_id uuid, old_key text, record_identity_key text, description text,
-    source_url text, event_date text, origin text, origin_run_id text)
+    source_url text, event_date text, origin text, origin_run_id text,
+    retired_at_utc text, retired_reason text)
   WHERE t.candidate_id = s.candidate_id
     AND t.record_identity_key = s.old_key
 `;
@@ -691,6 +694,10 @@ export function rekeyWireRows(rekeys: readonly RecordRekey[]): Record<string, un
     event_date: rekey.sourceRow.event_date,
     origin: rekey.sourceRow.origin,
     origin_run_id: rekey.sourceRow.origin_run_id,
+    // A row edited AND retired locally is rekeyed, not upserted, so the
+    // rekey must carry the retirement too or the target row stays live.
+    retired_at_utc: rekey.sourceRow.retired_at_utc ?? null,
+    retired_reason: rekey.sourceRow.retired_reason ?? null,
   }));
 }
 
@@ -1344,6 +1351,28 @@ export type PromotionReport = {
   };
 };
 
+/**
+ * One candidate uuid per line (blank lines and # comments ignored). Scopes a
+ * promotion to those candidates so one repair campaign can go out without
+ * carrying every other pending local campaign with it.
+ */
+export async function readCandidateScope(path: string): Promise<Set<string>> {
+  const text = await readFile(path, "utf8");
+  const ids = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith("#"));
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const bad = ids.filter((id) => !uuid.test(id));
+  if (ids.length === 0 || bad.length > 0) {
+    throw new Error(
+      `--candidate-ids-file ${path}: expected one candidate uuid per line; ` +
+        (ids.length === 0 ? "the file is empty" : `not a uuid: ${bad.slice(0, 3).join(", ")}`)
+    );
+  }
+  return new Set(ids.map((id) => id.toLowerCase()));
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   assertKnownCliFlags(SCRIPT_LABEL, argv, [
@@ -1351,11 +1380,14 @@ async function main(): Promise<void> {
     { name: "--confirm-target", value: "space" },
     { name: "--report-file", value: "space" },
     { name: "--reconcile-tags", value: "none" },
+    { name: "--candidate-ids-file", value: "space" },
   ]);
 
   loadProjectEnv();
   const apply = argv.includes("--apply");
   const reconcileTags = argv.includes("--reconcile-tags");
+  const candidateIdsFile = readFlagValue(argv, "--candidate-ids-file");
+  const scope = candidateIdsFile ? await readCandidateScope(candidateIdsFile) : null;
   const endpoints = assertPromotionEndpoints({
     sourceUrl: process.env.DATABASE_URL ?? "",
     targetUrl: process.env.PROMOTION_TARGET_DATABASE_URL ?? "",
@@ -1368,6 +1400,7 @@ async function main(): Promise<void> {
   console.log(`target: ${describeEndpoint(endpoints.target)}`);
   console.log(`mode:   ${apply ? "APPLY (writes)" : "dry run (writes nothing)"}`);
   console.log(`tags:   ${reconcileTags ? "reconcile (remove stale tags of exactly-matched records)" : "upsert only"}`);
+  console.log(`scope:  ${scope ? `${scope.size} candidate(s) from ${candidateIdsFile}; finance labels skipped` : "every candidate"}`);
 
   const sourcePool = new Pool({ connectionString: process.env.DATABASE_URL });
   // Bounded timeouts on the target: the apply path holds one transaction across
@@ -1398,22 +1431,34 @@ async function main(): Promise<void> {
       );
     }
 
-    const [sourceRecords, targetRecords] = await Promise.all([
-      loadProjection<RecordRow>(source, RECORD_PROJECTION_SQL),
-      loadProjection<RecordRow>(target, RECORD_PROJECTION_SQL),
-    ]);
-    const [sourceTags, targetTags] = await Promise.all([
-      loadProjection<TagRow>(source, TAG_PROJECTION_SQL),
-      loadProjection<TagRow>(target, TAG_PROJECTION_SQL),
-    ]);
-    const [sourceLabels, targetLabels] = await Promise.all([
-      loadProjection<LabelRow>(source, LABEL_PROJECTION_SQL),
-      loadProjection<LabelRow>(target, LABEL_PROJECTION_SQL),
-    ]);
+    // With --candidate-ids-file every projection is cut to those candidates on
+    // BOTH sides, so "target-only" (rekey and reconciliation input) means
+    // target-only within the scope, and nothing outside it is read or
+    // written. Finance labels have no candidate and are skipped when scoped.
+    const inScope = <T extends { candidate_id: string }>(rows: T[]): T[] =>
+      scope ? rows.filter((row) => scope.has(row.candidate_id)) : rows;
+    const [sourceRecords, targetRecords] = (
+      await Promise.all([
+        loadProjection<RecordRow>(source, RECORD_PROJECTION_SQL),
+        loadProjection<RecordRow>(target, RECORD_PROJECTION_SQL),
+      ])
+    ).map(inScope) as [RecordRow[], RecordRow[]];
+    const [sourceTags, targetTags] = (
+      await Promise.all([
+        loadProjection<TagRow>(source, TAG_PROJECTION_SQL),
+        loadProjection<TagRow>(target, TAG_PROJECTION_SQL),
+      ])
+    ).map(inScope) as [TagRow[], TagRow[]];
+    const [sourceLabels, targetLabels] = scope
+      ? [[], []]
+      : await Promise.all([
+          loadProjection<LabelRow>(source, LABEL_PROJECTION_SQL),
+          loadProjection<LabelRow>(target, LABEL_PROJECTION_SQL),
+        ]);
     // Source only: transitions describe local edit history. The migration
     // parity check above guarantees the table exists on both sides.
     const transitions = resolveIdentityTransitions(
-      await loadProjection<TransitionRow>(source, TRANSITION_PROJECTION_SQL)
+      inScope(await loadProjection<TransitionRow>(source, TRANSITION_PROJECTION_SQL))
     );
 
     const recordPlan = planRows({ sourceRows: sourceRecords, targetRows: targetRecords, keyOf: recordKey, isEqual: sameRecord });

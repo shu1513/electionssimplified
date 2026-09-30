@@ -18,15 +18,37 @@ function sessionWindow(eventDate: string): string {
   return String(year % 2 === 0 ? year - 1 : year);
 }
 
-const URL_BILL_PATTERNS: readonly { pattern: RegExp; key: (match: RegExpMatchArray) => string }[] = [
+// Every source collapses to ONE shape — "<PREFIX><NUMBER>:<session start year>"
+// (DC keeps its period-prefixed number as "dc:B25-0345") — so a bill cited by
+// its official page and the same bill named in a description key alike.
+// Federal prefixes follow congress.gov's own: H.R. (House bill) is "HR",
+// S. is "S", H.Res. is "HRES", H.J.Res. is "HJRES", H.Con.Res. is "HCONRES".
+const CONGRESS_KIND_PREFIX: Record<string, string> = {
+  "house-bill": "HR",
+  "senate-bill": "S",
+  "house-resolution": "HRES",
+  "senate-resolution": "SRES",
+  "house-joint-resolution": "HJRES",
+  "senate-joint-resolution": "SJRES",
+  "house-concurrent-resolution": "HCONRES",
+  "senate-concurrent-resolution": "SCONRES",
+};
+
+const URL_BILL_PATTERNS: readonly { pattern: RegExp; key: (match: RegExpMatchArray) => string | null }[] = [
   // DC LIMS: /Legislation/B25-0345
   { pattern: /lims\.dccouncil\.gov\/legislation\/([a-z]{1,3}\d{1,2}-\d{3,4})/i, key: (m) => `dc:${m[1]!.toUpperCase()}` },
-  // LegiScan: /XX/bill/HB123/2024
-  { pattern: /legiscan\.com\/([a-z]{2})\/bill\/([a-z]{1,4}\d{1,5})\/(\d{4})/i, key: (m) => `${m[1]!.toLowerCase()}:${m[2]!.toUpperCase()}:${m[3]}` },
-  // Massachusetts: /Bills/193/H4000
-  { pattern: /malegislature\.gov\/bills\/(\d{2,3})\/([hs]\d{1,5})/i, key: (m) => `ma:${m[1]}:${m[2]!.toUpperCase()}` },
-  // Congress.gov: /bill/118th-congress/house-bill/1234
-  { pattern: /congress\.gov\/bill\/(\d{2,3})(?:st|nd|rd|th)-congress\/(house|senate)-(bill|resolution|joint-resolution|concurrent-resolution)\/(\d{1,5})/i, key: (m) => `us:${m[1]}:${m[2]![0]!.toUpperCase()}${m[3]!.replace(/[^a-z]/gi, "")[0]!.toUpperCase()}${m[4]}` },
+  // LegiScan: /XX/bill/HB123/2024 (the year is the session's start year).
+  { pattern: /legiscan\.com\/[a-z]{2}\/bill\/([a-z]{1,6}\d{1,5})\/(\d{4})/i, key: (m) => `${m[1]!.toUpperCase()}:${sessionWindow(m[2]!)}` },
+  // Massachusetts: /Bills/193/H4000 — the 193rd General Court sat 2023-24.
+  { pattern: /malegislature\.gov\/bills\/(\d{2,3})\/([hs]\d{1,5})/i, key: (m) => `${m[2]!.toUpperCase()}:${2 * Number.parseInt(m[1]!, 10) + 1637}` },
+  // Congress.gov: /bill/118th-congress/house-bill/1470 — the 118th Congress sat 2023-24.
+  {
+    pattern: /congress\.gov\/bill\/(\d{2,3})(?:st|nd|rd|th)-congress\/([a-z-]+)\/(\d{1,5})/i,
+    key: (m) => {
+      const prefix = CONGRESS_KIND_PREFIX[m[2]!.toLowerCase()];
+      return prefix ? `${prefix}${m[3]}:${1789 + 2 * (Number.parseInt(m[1]!, 10) - 1)}` : null;
+    },
+  },
 ];
 
 // Bill numbers as descriptions spell them: "H.R.1470", "HB 4432", "S.B. 68",
@@ -36,7 +58,7 @@ const URL_BILL_PATTERNS: readonly { pattern: RegExp; key: (match: RegExpMatchArr
 const DESCRIPTION_BILL_PATTERNS: readonly RegExp[] = [
   /\b([a-z]{1,3}\d{1,2}-\d{3,4})\b/i,
   /\b(house|senate|assembly)\s+(bill|file|resolution|joint\s+resolution|concurrent\s+resolution)\s+(?:no\.?\s*)?(\d{1,5})\b/i,
-  /\b((?:h|s|a|l)\.?\s?(?:b|r|f|j|c|con|cr|jr|s)?\.?)\s?(\d{1,5})\b/i,
+  /\b((?:h|s|a|l)\.?\s?(?:con\.?\s?res|j\.?\s?res|res|b|r|f|j|c|con|cr|jr|s)?\.?)\s?(\d{1,5})\b/i,
 ];
 
 // Named measures: two or more capitalized words followed by a measure noun
@@ -62,7 +84,10 @@ export function recordBillKey(record: { description: string; source_url: string;
   for (const { pattern, key } of URL_BILL_PATTERNS) {
     const match = record.source_url.match(pattern);
     if (match) {
-      return key(match);
+      const key_ = key(match);
+      if (key_) {
+        return key_;
+      }
     }
   }
   const dc = record.description.match(DESCRIPTION_BILL_PATTERNS[0]!);
@@ -73,7 +98,9 @@ export function recordBillKey(record: { description: string; source_url: string;
   if (spelled) {
     const chamber = spelled[1]![0]!.toUpperCase();
     const kind = spelled[2]!.replace(/\s+/g, " ").toLowerCase();
-    const kindCode = kind === "bill" ? "B" : kind === "file" ? "F" : kind === "resolution" ? "R" : kind === "joint resolution" ? "JR" : "CR";
+    // A spelled-out "House Resolution" is H.Res., not the House bill H.R.
+    const kindCode =
+      kind === "bill" ? "B" : kind === "file" ? "F" : kind === "resolution" ? "RES" : kind === "joint resolution" ? "JRES" : "CONRES";
     return `${chamber}${kindCode}${spelled[3]}:${sessionWindow(record.event_date)}`;
   }
   const abbreviated = record.description.match(DESCRIPTION_BILL_PATTERNS[2]!);

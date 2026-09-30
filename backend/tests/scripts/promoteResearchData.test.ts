@@ -37,6 +37,7 @@ import {
   UPSERT_RECORDS_SQL,
   UPSERT_TAGS_SQL,
   upsertBatched,
+  readCandidateScope,
 } from "../../src/scripts/promoteResearchData.js";
 
 const LOCAL = "postgresql://localhost:5432/voteapp";
@@ -923,6 +924,8 @@ describe("REKEY_RECORDS_SQL", () => {
         event_date: "2024-01-01",
         origin: "manual",
         origin_run_id: "run-9",
+        retired_at_utc: null,
+        retired_reason: null,
       },
     ]);
   });
@@ -1051,5 +1054,24 @@ describe("countUnresolvedTags", () => {
     const { calls, client } = fakeClient();
     expect(await countUnresolvedTags(client, [])).toBe(0);
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe("readCandidateScope", () => {
+  it("reads one uuid per line, ignoring blanks and comments, and rejects junk", async () => {
+    const { mkdtemp, writeFile: write } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = await mkdtemp(join(tmpdir(), "scope-"));
+    const ok = join(dir, "ok.txt");
+    await write(ok, "# scope\n11111111-2222-4333-8444-555555555555\n\n11111111-2222-4333-8444-555555555555\n");
+    const scope = await readCandidateScope(ok);
+    expect([...scope]).toEqual(["11111111-2222-4333-8444-555555555555"]);
+    const bad = join(dir, "bad.txt");
+    await write(bad, "not-a-uuid\n");
+    await expect(readCandidateScope(bad)).rejects.toThrow(/not a uuid/);
+    const empty = join(dir, "empty.txt");
+    await write(empty, "# nothing\n");
+    await expect(readCandidateScope(empty)).rejects.toThrow(/empty/);
   });
 });

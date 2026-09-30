@@ -7,9 +7,23 @@ const record = (description: string, source_url: string, event_date = "2024-03-0
 describe("recordBillKey", () => {
   it("reads the bill from official bill-page URLs first", () => {
     expect(recordBillKey(record("Voted for the crime law.", "https://lims.dccouncil.gov/Legislation/B25-0345"))).toBe("dc:B25-0345");
-    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/WA/bill/HB1234/2023"))).toBe("wa:HB1234:2023");
-    expect(recordBillKey(record("Voted yes.", "https://malegislature.gov/Bills/193/H4000"))).toBe("ma:193:H4000");
-    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470"))).toBe("us:118:HB1470");
+    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/WA/bill/HB1234/2023"))).toBe("HB1234:2023");
+    expect(recordBillKey(record("Voted yes.", "https://malegislature.gov/Bills/193/H4000"))).toBe("H4000:2023");
+    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470"))).toBe("HR1470:2023");
+    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-resolution/5"))).toBe("HRES5:2023");
+  });
+
+  it("gives the same bill one key whether cited by official page or named in the description", () => {
+    expect(recordBillKey(record("Voted yes.", "https://www.congress.gov/bill/118th-congress/house-bill/1470", "2023-03-01"))).toBe(
+      recordBillKey(record("Introduced H.R.1470, the Ending Qualified Immunity Act.", "https://clerk.house.gov/evs/2023/roll100.xml", "2023-03-01"))
+    );
+    expect(recordBillKey(record("Voted yes.", "https://legiscan.com/MA/bill/H4000/2023"))).toBe(
+      recordBillKey(record("Voted for H.4000, the budget.", "https://malegislature.gov/Journal/House/193/2023/RollCalls", "2023-04-26"))
+    );
+    // A House resolution is not the House bill with the same number.
+    expect(recordBillKey(record("Voted for House Resolution 1470 honoring veterans.", "https://example.gov/x", "2023-03-01"))).toBe("HRES1470:2023");
+    expect(recordBillKey(record("Voted for H.Res. 1470 honoring veterans.", "https://example.gov/x", "2023-03-01"))).toBe("HRES1470:2023");
+    expect(recordBillKey(record("Voted for H.R. 1470.", "https://example.gov/x", "2023-03-01"))).toBe("HR1470:2023");
   });
 
   it("reads bill numbers from the description, windowed to the two-year session", () => {
