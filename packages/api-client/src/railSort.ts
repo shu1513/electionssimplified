@@ -85,7 +85,18 @@ export function ballotSortForRailSort(sort: RailSortKey): string {
  * my_areas additionally needs the viewer to have saved research areas and
  * every entry's area ids. Empty result = hide the control.
  */
-export function railSortsOffered(entries: RailSortEntry[], hasSavedAreas: boolean): RailSortKey[] {
+export function railSortsOffered(
+  entries: RailSortEntry[],
+  hasSavedAreas: boolean,
+  {
+    snapshotOrdered = false,
+  }: {
+    /** The snapshot's own order is a district-size order (it came from a
+     * district-size list): the district sorts then need only the headings,
+     * not the levels — an older such snapshot carries no levels. */
+    snapshotOrdered?: boolean;
+  } = {}
+): RailSortKey[] {
   if (entries.length < 2) {
     return [];
   }
@@ -97,9 +108,12 @@ export function railSortsOffered(entries: RailSortEntry[], hasSavedAreas: boolea
   }
   const myAreas =
     hasSavedAreas && entries.every((entry) => entry.research_area_ids !== undefined);
-  // The district sorts need every entry's heading and level (an old
-  // snapshot may carry neither, and the rail cannot derive them).
-  const grouped = entries.every((entry) => entry.group !== undefined && entry.level !== undefined);
+  // The district sorts need every entry's heading, plus its level when
+  // the rail must order the levels itself (an old snapshot may carry
+  // neither, and the rail cannot derive them).
+  const grouped = entries.every(
+    (entry) => entry.group !== undefined && (snapshotOrdered || entry.level !== undefined)
+  );
   return RAIL_SORTS.map((option) => option.value).filter(
     (value) => (value !== "my_areas" || myAreas) && (!isRailDistrictSort(value) || grouped)
   );

@@ -45,6 +45,15 @@ describe("railSortsOffered", () => {
     expect(railSortsOffered(grouped, false)).toEqual(["vote_power", "district_smallest", "district_biggest"]);
     expect(railSortsOffered([grouped[0], entry("b")], false)).toEqual(["vote_power"]);
     expect(railSortsOffered([grouped[0], entry("b", { group: "County: Alameda" })], false)).toEqual(["vote_power"]);
+    // A snapshot in a district-size order needs only the headings: an
+    // older such snapshot carries no levels and must keep its sorts.
+    const headingsOnly = [entry("a", { group: "City: Berkeley" }), entry("b", { group: "County: Alameda" })];
+    expect(railSortsOffered(headingsOnly, false, { snapshotOrdered: true })).toEqual([
+      "vote_power",
+      "district_smallest",
+      "district_biggest",
+    ]);
+    expect(railSortsOffered(headingsOnly, false)).toEqual(["vote_power"]);
   });
 
   it("withholds only my_areas when area ids are missing from an entry", () => {
