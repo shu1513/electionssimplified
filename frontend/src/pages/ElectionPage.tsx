@@ -405,7 +405,27 @@ export function ElectionPage() {
   // silently rewrite a sort=my_areas back link the reader never touched.
   // Only after both fall through does vote_power, the ballot's default,
   // apply (below).
-  const offeredRailSorts = savedAreasLoading ? [] : railSortsOffered(contests ?? [], hasSaved);
+  // The direction the snapshot's district headings run in — the list's
+  // sort at click time (stamped; else read off the back URL for a snapshot
+  // that predates the stamp). Flipping to the other district sort runs the
+  // groups the other way.
+  const snapshotDistrictSort = (() => {
+    if (navState === null) return null;
+    // listSort, never railSort: railSort is the rail's engaged sort and is
+    // forwarded on sibling walks, so after a switch to a district sort it
+    // would misread a vote-power snapshot as size-ordered.
+    const stamped = navState.listSort;
+    if (isRailDistrictSort(stamped)) return stamped;
+    if (stamped !== undefined) return null;
+    // A snapshot that predates the listSort stamp: the back URL's sort.
+    const fromUrl = railSortForBallotSort(
+      new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
+    );
+    return isRailDistrictSort(fromUrl) ? fromUrl : null;
+  })();
+  const offeredRailSorts = savedAreasLoading
+    ? []
+    : railSortsOffered(contests ?? [], hasSaved, { snapshotOrdered: snapshotDistrictSort !== null });
   const [railSortOverride, setRailSortState] = useState<RailSortKey | null>(null);
   const railSortState =
     railSortOverride ??
@@ -425,19 +445,6 @@ export function ElectionPage() {
   // A fallback sort is one the reader did not choose (rewriteBackPath).
   const railSortFallback = railSort !== railSortState;
   const railDistrictOffered = offeredRailSorts.some((sort) => isRailDistrictSort(sort));
-  // The direction the snapshot's district headings run in — the list's
-  // sort at click time (stamped; else read off the back URL for a snapshot
-  // that predates the stamp). Flipping to the other district sort runs the
-  // groups the other way.
-  const snapshotDistrictSort = (() => {
-    if (navState === null) return null;
-    const stamped = navState.railSort;
-    if (isRailDistrictSort(stamped)) return stamped;
-    const fromUrl = railSortForBallotSort(
-      new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
-    );
-    return isRailDistrictSort(fromUrl) ? fromUrl : null;
-  })();
   // Prev/next walk exactly what the rail shows: the engaged tab's slice, in
   // the engaged sort's order.
   const slicedContests =
@@ -447,6 +454,10 @@ export function ElectionPage() {
   const sortedContests =
     railSort !== null && slicedContests !== undefined
       ? sortRailEntries(slicedContests, railSort, weights, {
+          // A district-size arrival's own order is the list's true size
+          // order: keep it (flipped for the other direction). Any other
+          // arrival orders the levels itself.
+          groupOrder: snapshotDistrictSort !== null ? "snapshot" : "level",
           reverseGroups:
             isRailDistrictSort(railSort) && snapshotDistrictSort !== null && railSort !== snapshotDistrictSort,
         })

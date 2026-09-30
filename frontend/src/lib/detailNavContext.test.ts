@@ -266,6 +266,13 @@ it("preserves a non-empty vote-power band and discards blank ones", () => {
   ] })?.contests).toEqual([{ id: "a", title: "Mayor", vote_power_band: "high" }, { id: "b", title: "Sheriff" }]);
 });
 
+it("preserves a known level and discards unknown ones", () => {
+  expect(readElectionNavState({ backTo: BACK_TO, contests: [
+    { id: "a", title: "Mayor", level: "city" },
+    { id: "b", title: "Sheriff", level: "galaxy" },
+  ] })?.contests).toEqual([{ id: "a", title: "Mayor", level: "city" }, { id: "b", title: "Sheriff" }]);
+});
+
 it("preserves a non-empty group heading and discards blank or non-string ones", () => {
   expect(readElectionNavState({ backTo: BACK_TO, contests: [
     { id: "a", title: "Mayor", group: "City: Berkeley" },

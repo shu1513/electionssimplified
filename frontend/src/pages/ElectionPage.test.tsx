@@ -2703,9 +2703,9 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     // A snapshot from a district-size list: every contest carries its
     // section heading, in the list's order (smallest districts first).
     const grouped = [
-      { ...KEYED_CONTESTS[1], group: "City: Berkeley" },
-      { ...KEYED_CONTESTS[0], group: "City: Berkeley" },
-      { ...KEYED_CONTESTS[2], group: "State: California" },
+      { ...KEYED_CONTESTS[1], group: "City: Berkeley", level: "city" },
+      { ...KEYED_CONTESTS[0], group: "City: Berkeley", level: "city" },
+      { ...KEYED_CONTESTS[2], group: "State: California", level: "state" },
     ];
     renderElection(perIdLoader, "e-1", {
       backTo: { path: "/me/ballot?sort=district_size_smallest", label: "My Elections" },
@@ -2869,6 +2869,78 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     }
     await waitFor(() => expect(within(rail).getByText("3/3")).toHaveClass("text-green-700"));
     clearBallotDraft();
+  });
+
+  it("offers the district sorts from a vote-power arrival, ordering the levels itself", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    // A vote-power list's snapshot: levelled, but in vote-power order.
+    renderElection(perIdLoader, "e-1", {
+      backTo: { path: "/me/ballot", label: "My Elections" },
+      contests: [
+        { ...KEYED_CONTESTS[1], group: "State: California", level: "state" },
+        { ...KEYED_CONTESTS[2], group: "City: Berkeley", level: "city" },
+        { ...KEYED_CONTESTS[0], group: "State: California", level: "state" },
+      ],
+      railSort: "vote_power",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const select = await within(rail).findByRole("combobox");
+    expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
+      "My vote power",
+      "Smallest districts",
+      "Biggest districts",
+    ]);
+    const rows = () =>
+      [...rail.querySelectorAll("ul > li")].map(
+        (row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title") ?? row.textContent
+      );
+    // Smallest first: city before state, vote-power order within a level;
+    // the back link carries the list's matching sort.
+    await user.selectOptions(select, "district_smallest");
+    expect(rows()).toEqual(["City: Berkeley", "Proposition 4", "State: California", "Proposition 33", "Governor"]);
+    expect(within(rail).getByRole("link", { name: "Back to My Elections" })).toHaveAttribute(
+      "href",
+      "/me/ballot?sort=district_size_smallest"
+    );
+    await user.selectOptions(select, "district_biggest");
+    expect(rows()).toEqual(["State: California", "Proposition 33", "Governor", "City: Berkeley", "Proposition 4"]);
+  });
+
+  it("keeps the level order through a sibling walk after switching to a district sort", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    const user = userEvent.setup();
+    const { router } = renderElection(perIdLoader, "e-1", {
+      backTo: { path: "/me/ballot", label: "My Elections" },
+      contests: [
+        { ...KEYED_CONTESTS[1], group: "State: California", level: "state" },
+        { ...KEYED_CONTESTS[2], group: "City: Berkeley", level: "city" },
+        { ...KEYED_CONTESTS[0], group: "State: California", level: "state" },
+      ],
+      railSort: "vote_power",
+      listSort: "vote_power",
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await user.selectOptions(await within(rail).findByRole("combobox"), "district_smallest");
+    await user.click(within(rail).getByRole("link", { name: "Proposition 4" }));
+
+    expect(router.state.location.pathname).toBe("/elections/e-3");
+    // The forwarded state carries the switched rail sort but the snapshot's
+    // own listSort untouched — the next page must not mistake the
+    // vote-power order for a size order.
+    expect(router.state.location.state).toMatchObject({ railSort: "district_smallest", listSort: "vote_power" });
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole("navigation", { name: "Ballot" })).getByText("Proposition 4").closest("li")
+      ).toHaveAttribute("aria-current", "page")
+    );
+    const nextRail = screen.getByRole("navigation", { name: "Ballot" });
+    const rows = [...nextRail.querySelectorAll("ul > li")].map(
+      (row) => row.getAttribute("title") ?? row.querySelector("a")?.getAttribute("title") ?? row.textContent
+    );
+    expect(rows).toEqual(["City: Berkeley", "Proposition 4", "State: California", "Proposition 33", "Governor"]);
   });
 
   it("offers no sort control on an unkeyed (pre-deploy) snapshot", async () => {

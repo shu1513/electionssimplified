@@ -323,10 +323,13 @@ describe("SavedBallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
+          group: "Other",
         },
       ],
       // The saved preference (vote_power) seeds the rail's sort.
       railSort: "vote_power",
+      listSort: "vote_power",
     });
   });
 

@@ -418,20 +418,30 @@ export function ElectionList({
   // even when its pool includes races hidden by the active tab.
   const pool = groupListElections(contestsPool ?? elections, votePowerDates);
   const levelSections = sort === "district_size" || sort === "district_size_smallest";
-  // Under the district-size sorts every contest sits under a level section
-  // heading ("City: Berkeley"); the rail's "By district" sort groups under
-  // the same headings, so each contest carries its own. The retention and
-  // awaiting tails get theirs by the same rule so a snapshot is either
-  // fully grouped or not grouped at all (railSortsOffered).
-  const groupById = new Map<string, string>();
-  if (levelSections) {
-    for (const list of [...pool.groups.flatMap((group) => [group.contested, group.retention]), pool.awaiting]) {
-      for (const run of splitLevelRuns(list)) {
-        const { label } = levelLocation(run.level, run.elections);
-        for (const election of run.elections) {
-          groupById.set(election.id, label);
-        }
-      }
+  // Every contest carries its government level and the section label the
+  // district-size sorts head that level with ("City: Berkeley"), under EVERY
+  // list sort: the rail offers the district sorts from any arrival, ordering
+  // the levels itself (it cannot size districts) and grouping under these
+  // labels. One label per level over the whole pool, so the same level never
+  // splits into two headings. The retention and awaiting tails get theirs
+  // too, so a snapshot is either fully levelled or not at all
+  // (railSortsOffered).
+  const poolElections = [...pool.groups.flatMap((group) => [...group.contested, ...group.retention]), ...pool.awaiting];
+  const byLevel = new Map<BallotLevel, ElectionSummary[]>();
+  for (const election of poolElections) {
+    const level = ballotLevel(
+      election.office?.scope,
+      election.district.district_type,
+      election.discovery_contest_family,
+      election.office?.canonical_name
+    );
+    byLevel.set(level, [...(byLevel.get(level) ?? []), election]);
+  }
+  const levelById = new Map<string, { level: BallotLevel; group: string }>();
+  for (const [level, levelElections] of byLevel) {
+    const { label } = levelLocation(level, levelElections);
+    for (const election of levelElections) {
+      levelById.set(election.id, { level, group: label });
     }
   }
   const navState: ElectionNavState | undefined = backTo
@@ -459,10 +469,12 @@ export function ElectionList({
                 // with; the rail shows those headings under its vote-power
                 // sort by the list's own ten-race rule. Tails carry none.
                 { vote_power_band: votePowerBand(election.vote_power.label) }),
-          ...(groupById.has(election.id) ? { group: groupById.get(election.id) } : {}),
+          ...(levelById.has(election.id) ? { ...levelById.get(election.id) } : {}),
         })),
         ...(raceType ? { raceType } : {}),
-        ...(railSort ? { railSort } : {}),
+        // railSort seeds the rail and is rewritten as it is switched;
+        // listSort records the order `contests` are in and never changes.
+        ...(railSort ? { railSort, listSort: railSort } : {}),
       }
     : undefined;
   // Displayed position (1-based, readable cards then the awaiting tail) for

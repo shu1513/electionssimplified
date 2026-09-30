@@ -709,6 +709,7 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
           group: "Other",
         },
         {
@@ -719,12 +720,14 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           awaiting_candidates: true,
+          level: "other",
           group: "Other",
         },
       ],
       // The list's sort seeds the rail's always-engaged sort control: a
       // district-size list opens the rail on By district.
       railSort: "district_biggest",
+      listSort: "district_biggest",
     });
   });
 
@@ -756,6 +759,8 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
+          group: "Other",
         },
         {
           id: "q-1",
@@ -765,10 +770,13 @@ describe("BallotPage nav context", () => {
           election_date: "2026-11-03",
           research_area_ids: [],
           vote_power_band: "high",
+          level: "other",
+          group: "Other",
         },
       ],
       raceType: "ballot_measure",
       railSort: "vote_power",
+      listSort: "vote_power",
     });
   });
 });
