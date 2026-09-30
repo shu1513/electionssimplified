@@ -36,7 +36,11 @@ export function RaceTypeTabs({
     <div
       role="group"
       aria-label="Race type"
-      className="flex flex-wrap items-center gap-1 rounded-md border border-line bg-white p-1"
+      // Compact (the rail): shrink to the tabs — a full-width box left a
+      // blank run after "Ballot Measures" — and sit a hair shorter.
+      className={`flex-wrap items-center rounded-md border border-line bg-white ${
+        compact ? "inline-flex gap-0.5 self-start p-0.5" : "flex gap-1 p-1"
+      }`}
     >
       {TABS.map((tab) => {
         const selected = raceType === tab.value;
@@ -46,7 +50,7 @@ export function RaceTypeTabs({
             type="button"
             aria-pressed={selected}
             onClick={() => onChange(tab.value)}
-            className={`rounded transition ${compact ? "min-h-6 px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm"} ${
+            className={`rounded transition ${compact ? "min-h-[22px] px-2 py-0 text-xs" : "px-2.5 py-1 text-sm"} ${
               selected ? "bg-ink font-medium text-white" : "text-ink-soft hover:bg-surface hover:text-ink"
             }`}
           >
