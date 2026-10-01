@@ -38,7 +38,7 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
             a page heading; text-balance stops the centred wrap from ragging
             into a one-word last line. */}
         <h1 className="text-balance text-[clamp(1.4375rem,1.1875rem+1.25vw,2.1875rem)] font-bold leading-[1.2]">
-          Uncover who your candidates really are by their{" "}
+          See who your candidates really are by their{" "}
           <span className="text-rausch">track records</span>
         </h1>
         {/* What the service is, where a first-time visitor actually looks.
