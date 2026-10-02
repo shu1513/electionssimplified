@@ -21,6 +21,14 @@ freely; nothing here is final until the owner approves it.
 
 ## Description (both stores)
 
+The last two sections ("NOT A GOVERNMENT APP" and "WHERE THE INFORMATION
+COMES FROM") are required by Google Play's Misleading Claims policy for apps
+that show government information: the description must name official
+sources and say the app does not represent a government entity. Keep them
+in both store descriptions. The pasteable text starts below the rule.
+
+---
+
 Elections Simplified shows you the full ballot for your address — every
 race, every candidate, every ballot measure — and explains it in plain
 language.
@@ -64,11 +72,6 @@ Official sources include:
 - District boundaries and population: U.S. Census Bureau —
   https://www.census.gov
 - How we research and check records: https://electionssimplified.com/methodology
-
-The two sections above are required by Google Play's Misleading Claims policy
-for apps that show government information (rejection of 2026-10-02): the
-description must name official sources and state that the app does not
-represent a government entity. Keep them in both store descriptions.
 
 Keywords (Apple, 100 chars, comma-separated):
 `election,ballot,vote,candidates,voter guide,midterm,2026,local elections,sample ballot,voting`
