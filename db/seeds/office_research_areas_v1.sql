@@ -882,7 +882,25 @@ BEGIN
       ('Town Moderator', 'civil_rights'),
       ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
-      ('Town Moderator', 'anti_corruption')
+      ('Town Moderator', 'anti_corruption'),
+      ('Town Supervisor', 'government_spending_reduction'),
+      ('Town Supervisor', 'government_efficiency'),
+      ('Town Supervisor', 'public_infrastructure'),
+      ('Town Supervisor', 'housing_affordability'),
+      ('Town Supervisor', 'environment_and_public_health'),
+      ('Town Supervisor', 'public_safety_and_crime_control'),
+      ('Town Supervisor', 'social_programs_and_welfare'),
+      ('Town Supervisor', 'civil_rights'),
+      ('Town Supervisor', 'criminal_justice_and_civil_liberties'),
+      ('Town Supervisor', 'anti_corruption'),
+      ('Town Supervisor', 'corporate_accountability'),
+      ('Town Supervisor', 'data_privacy'),
+      ('Highway Superintendent', 'public_infrastructure'),
+      ('Highway Superintendent', 'government_spending_reduction'),
+      ('Highway Superintendent', 'government_efficiency'),
+      ('Highway Superintendent', 'environment_and_public_health'),
+      ('Highway Superintendent', 'public_safety_and_crime_control'),
+      ('Highway Superintendent', 'anti_corruption')
   )
   INSERT INTO public.office_research_areas (office_id, research_area_id)
   SELECT office.id, area.id
