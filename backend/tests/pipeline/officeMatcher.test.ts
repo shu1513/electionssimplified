@@ -4346,4 +4346,67 @@ describe("OfficeMatcher", () => {
       }
     });
   });
+
+  describe("New York town offices on a town place row (migration 312)", () => {
+    // Westchester towns are county subdivisions with their own place rows.
+    // "Town Supervisor" and "Superintendent of Highways" had no catalog
+    // entry at place scope; "Supervisor" alone used to fall to nothing.
+    const client = () =>
+      createMatcherDataClient({
+        aliasesByScope: {
+          place: [
+            { office_id: "office-town-supervisor", normalized_alias: "town supervisor" },
+            { office_id: "office-town-supervisor", normalized_alias: "supervisor" },
+            { office_id: "office-highway-superintendent", normalized_alias: "highway superintendent" },
+            { office_id: "office-highway-superintendent", normalized_alias: "superintendent of highways" },
+            { office_id: "office-city-clerk", normalized_alias: "town clerk" },
+            { office_id: "office-town-council-member", normalized_alias: "town council member" },
+            { office_id: "office-municipal-trustee", normalized_alias: "village trustee" },
+          ],
+        },
+        officesByScope: {
+          place: [
+            { id: "office-town-supervisor", canonical_name: "Town Supervisor" },
+            { id: "office-highway-superintendent", canonical_name: "Highway Superintendent" },
+            { id: "office-city-clerk", canonical_name: "City Clerk" },
+            { id: "office-municipal-trustee", canonical_name: "Municipal Trustee" },
+            { id: "office-town-council-member", canonical_name: "Town Council Member" },
+            { id: "office-city-council-member", canonical_name: "City Council Member" },
+            { id: "office-place-level-judge", canonical_name: "Place Level Judge" },
+          ],
+        },
+      });
+
+    it.each([
+      ["Town Supervisor, Town of Greenburgh", "Greenburgh town, New York", "office-town-supervisor"],
+      ["Supervisor, Town of Yorktown", "Yorktown town, New York", "office-town-supervisor"],
+      ["Superintendent of Highways, Town of Ossining", "Ossining town, New York", "office-highway-superintendent"],
+      ["Town Clerk, Town of Pelham", "Pelham town, New York", "office-city-clerk"],
+      ["Town Council Member (Unexpired Term), Town of Somers", "Somers town, New York", "office-town-council-member"],
+      ["Village Trustee, Village of Larchmont", "Larchmont village, New York", "office-municipal-trustee"],
+    ])("resolves %s", async (officialBallotTitle, districtName, expected) => {
+      const matcher = new OfficeMatcher(client() as never);
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName,
+        state: "NY",
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, officialBallotTitle).toBe(expected);
+      expect(result.method, officialBallotTitle).toBe("alias_exact");
+    });
+
+    it("sends a town justice to Place Level Judge through the judicial family", async () => {
+      const matcher = new OfficeMatcher(client() as never);
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName: "Greenburgh town, New York",
+        state: "NY",
+        officialBallotTitle: "Town Justice, Town of Greenburgh",
+        discoveryContestFamily: "judicial_office",
+      });
+      expect(result.officeId).toBe("office-place-level-judge");
+    });
+  });
 });

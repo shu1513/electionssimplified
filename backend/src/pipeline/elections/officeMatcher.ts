@@ -351,10 +351,16 @@ function stripJurisdictionPrefixes(value: string, input: { districtName: string;
     }
   }
 
+  // New York titles its town and village seats "<Office>, Town of <Name>" /
+  // "<Office>, Village of <Name>" (Westchester County BOE, live). The core
+  // strip above removes the proper noun; the dangling connector would miss
+  // the alias table the same way "city of" did.
   next = next
     .replace(/\bstate of\b/g, " ")
     .replace(/\bcounty of\b/g, " ")
-    .replace(/\bcity of\b/g, " ");
+    .replace(/\bcity of\b/g, " ")
+    .replace(/\btown of\b/g, " ")
+    .replace(/\bvillage of\b/g, " ");
 
   return next.replace(/\s+/g, " ").trim();
 }
