@@ -446,7 +446,7 @@ $$;
 
 DO $$
 DECLARE
-  expected_office_count integer := 9;
+  expected_office_count integer := 11;
   expected_pair_count integer;
   office_count integer;
   pair_count integer;
@@ -530,7 +530,25 @@ BEGIN
       ('Town Moderator', 'civil_rights'),
       ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
-      ('Town Moderator', 'anti_corruption')
+      ('Town Moderator', 'anti_corruption'),
+      ('Town Supervisor', 'government_spending_reduction'),
+      ('Town Supervisor', 'government_efficiency'),
+      ('Town Supervisor', 'public_infrastructure'),
+      ('Town Supervisor', 'housing_affordability'),
+      ('Town Supervisor', 'environment_and_public_health'),
+      ('Town Supervisor', 'public_safety_and_crime_control'),
+      ('Town Supervisor', 'social_programs_and_welfare'),
+      ('Town Supervisor', 'civil_rights'),
+      ('Town Supervisor', 'criminal_justice_and_civil_liberties'),
+      ('Town Supervisor', 'anti_corruption'),
+      ('Town Supervisor', 'corporate_accountability'),
+      ('Town Supervisor', 'data_privacy'),
+      ('Highway Superintendent', 'public_infrastructure'),
+      ('Highway Superintendent', 'government_spending_reduction'),
+      ('Highway Superintendent', 'government_efficiency'),
+      ('Highway Superintendent', 'environment_and_public_health'),
+      ('Highway Superintendent', 'public_safety_and_crime_control'),
+      ('Highway Superintendent', 'anti_corruption')
   )
   SELECT COUNT(DISTINCT canonical_name), COUNT(*)
   INTO office_count, expected_pair_count
@@ -622,7 +640,25 @@ BEGIN
       ('Town Moderator', 'civil_rights'),
       ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
-      ('Town Moderator', 'anti_corruption')
+      ('Town Moderator', 'anti_corruption'),
+      ('Town Supervisor', 'government_spending_reduction'),
+      ('Town Supervisor', 'government_efficiency'),
+      ('Town Supervisor', 'public_infrastructure'),
+      ('Town Supervisor', 'housing_affordability'),
+      ('Town Supervisor', 'environment_and_public_health'),
+      ('Town Supervisor', 'public_safety_and_crime_control'),
+      ('Town Supervisor', 'social_programs_and_welfare'),
+      ('Town Supervisor', 'civil_rights'),
+      ('Town Supervisor', 'criminal_justice_and_civil_liberties'),
+      ('Town Supervisor', 'anti_corruption'),
+      ('Town Supervisor', 'corporate_accountability'),
+      ('Town Supervisor', 'data_privacy'),
+      ('Highway Superintendent', 'public_infrastructure'),
+      ('Highway Superintendent', 'government_spending_reduction'),
+      ('Highway Superintendent', 'government_efficiency'),
+      ('Highway Superintendent', 'environment_and_public_health'),
+      ('Highway Superintendent', 'public_safety_and_crime_control'),
+      ('Highway Superintendent', 'anti_corruption')
   ),
   resolved AS (
     SELECT office.id AS office_id, area.id AS research_area_id
@@ -723,7 +759,25 @@ BEGIN
       ('Town Moderator', 'civil_rights'),
       ('Town Moderator', 'criminal_justice_and_civil_liberties'),
       ('Town Moderator', 'election_integrity'),
-      ('Town Moderator', 'anti_corruption')
+      ('Town Moderator', 'anti_corruption'),
+      ('Town Supervisor', 'government_spending_reduction'),
+      ('Town Supervisor', 'government_efficiency'),
+      ('Town Supervisor', 'public_infrastructure'),
+      ('Town Supervisor', 'housing_affordability'),
+      ('Town Supervisor', 'environment_and_public_health'),
+      ('Town Supervisor', 'public_safety_and_crime_control'),
+      ('Town Supervisor', 'social_programs_and_welfare'),
+      ('Town Supervisor', 'civil_rights'),
+      ('Town Supervisor', 'criminal_justice_and_civil_liberties'),
+      ('Town Supervisor', 'anti_corruption'),
+      ('Town Supervisor', 'corporate_accountability'),
+      ('Town Supervisor', 'data_privacy'),
+      ('Highway Superintendent', 'public_infrastructure'),
+      ('Highway Superintendent', 'government_spending_reduction'),
+      ('Highway Superintendent', 'government_efficiency'),
+      ('Highway Superintendent', 'environment_and_public_health'),
+      ('Highway Superintendent', 'public_safety_and_crime_control'),
+      ('Highway Superintendent', 'anti_corruption')
   ),
   target_offices AS (
     SELECT id

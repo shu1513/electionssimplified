@@ -790,6 +790,24 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "place",
+    canonicalName: "Town Supervisor",
+    summary: [
+      "Proposing the town budget and your town property tax rate",
+      "Running town departments, such as police, roads, and parks",
+      "Leading the town board and signing town contracts",
+    ].join("\n"),
+  },
+  {
+    scope: "place",
+    canonicalName: "Highway Superintendent",
+    summary: [
+      "Deciding which town roads get paved and plowed first",
+      "Spending the town's road and snow removal budget",
+      "Hiring and overseeing the town highway crew",
+    ].join("\n"),
+  },
+  {
+    scope: "place",
     canonicalName: "Town Moderator",
     summary: [
       "Running town meetings and counting votes",
@@ -1843,6 +1861,41 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "place",
     officeCanonicalName: "Municipal Trustee",
     aliasText: "Town Trustee",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Town Supervisor",
+    aliasText: "Town Supervisor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Town Supervisor",
+    aliasText: "Supervisor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Town Supervisor",
+    aliasText: "Town Supervisor (Unexpired Term)",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Highway Superintendent",
+    aliasText: "Highway Superintendent",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Highway Superintendent",
+    aliasText: "Town Highway Superintendent",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Highway Superintendent",
+    aliasText: "Superintendent of Highways",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Highway Superintendent",
+    aliasText: "Town Superintendent of Highways",
   },
   {
     scope: "place",
