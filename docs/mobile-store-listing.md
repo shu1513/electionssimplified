@@ -39,6 +39,37 @@ organization behind it. Elections Simplified is independent and ad-free.
 Your picks are private. We never sell data, show ads, or share your choices
 with campaigns.
 
+NOT A GOVERNMENT APP
+Elections Simplified is published by Elections Simplified Inc., an
+independent, nonpartisan private company. It is not a government entity and
+is not affiliated with, endorsed by, or acting on behalf of any federal,
+state, or local government or election office. It does not register voters,
+issue ballots, or count votes. Always confirm your registration, polling
+place, and official ballot with your state or local election office:
+https://vote.gov
+
+WHERE THE INFORMATION COMES FROM
+Every record in the app shows its source link and the date it was researched.
+Official sources include:
+- Races, candidate lists, and ballot measures: state and county election
+  offices — certified candidate lists, sample ballots, and official voter
+  guides. Find yours at https://www.usa.gov/state-election-office
+- Congressional votes and bills: https://www.congress.gov,
+  https://clerk.house.gov, https://www.senate.gov
+- State legislative votes and bills: the official website of each state
+  legislature
+- Federal campaign finance: Federal Election Commission — https://www.fec.gov
+- State and local campaign finance: the state or city disclosure agency named
+  on each record
+- District boundaries and population: U.S. Census Bureau —
+  https://www.census.gov
+- How we research and check records: https://electionssimplified.com/methodology
+
+The two sections above are required by Google Play's Misleading Claims policy
+for apps that show government information (rejection of 2026-10-02): the
+description must name official sources and state that the app does not
+represent a government entity. Keep them in both store descriptions.
+
 Keywords (Apple, 100 chars, comma-separated):
 `election,ballot,vote,candidates,voter guide,midterm,2026,local elections,sample ballot,voting`
 
