@@ -3451,6 +3451,8 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('place', 'Place Level Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'housing_affordability', 'impartiality', 'legal_competence', 'public_safety_and_crime_control']::text[]),
     ('place', 'Town Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'Town Moderator', ARRAY['election_integrity', 'government_efficiency']::text[]),
+    ('place', 'Town Supervisor', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'Highway Superintendent', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     -- Elected transit board (e.g. Denver's RTD): sets fares and service
     -- (both spending slugs), builds and runs rail and bus lines
     -- (public_infrastructure), and moves riders out of cars
