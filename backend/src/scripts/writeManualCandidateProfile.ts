@@ -368,8 +368,9 @@ export function applyRegularElectionProfileContext(input: {
       // No FEC ID to match on, so another hard identifier keeps identity
       // matching and duplicate prevention working: the election authority's
       // filing number from the roster row, or a campaign website on a cited
-      // host (cited sources are the URLs this writer verifies).
-      assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, rosterStateFilingIds);
+      // host (cited sources are the URLs this writer verifies). A row marked
+      // printed_on_ballot may have neither.
+      assertNoFecIdExceptionProfileHasHardIdentifier(withoutParty, rosterStateFilingIds, noFecIdException);
     }
     // The regular federal profile path stores date_of_birth as null (the AI
     // prompt tells the model to omit it). Refuse instead of silently

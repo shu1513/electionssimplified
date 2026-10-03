@@ -41,17 +41,22 @@ function hostnameWithoutWww(url: string): string | null {
 //   reachability, so the site was actually opened during research.
 // A website in the payload is always held to the cited-host rule, even when a
 // filing number is present, so an unverified site never rides in beside it.
+// A row marked printed_on_ballot needs neither: voters see the name on the
+// ballot, so the candidate is shown even with no identifier (owner decision
+// 2026-10-03). The profile writer's own --allow-no-hard-identifier gate still
+// applies to that write.
 export function assertNoFecIdExceptionProfileHasHardIdentifier(
   profile: Pick<CandidateProfilePayload, "official_website_url" | "sources">,
-  rosterStateFilingIds: readonly string[]
+  rosterStateFilingIds: readonly string[],
+  exception?: Pick<CandidateRosterNoFecIdException, "printed_on_ballot">
 ): void {
   const websiteHost = profile.official_website_url ? hostnameWithoutWww(profile.official_website_url) : null;
   if (!websiteHost) {
-    if (rosterStateFilingIds.length > 0) {
+    if (rosterStateFilingIds.length > 0 || exception?.printed_on_ballot === true) {
       return;
     }
     throw new Error(
-      "payload.official_website_url is required for a roster row with no_fec_id_exception unless the roster row carries state_filing_ids; with no FEC ID, the campaign website or the election authority's filing number is the hard identifier"
+      "payload.official_website_url is required for a roster row with no_fec_id_exception unless the roster row carries state_filing_ids or the exception is marked printed_on_ballot; with no FEC ID, the campaign website or the election authority's filing number is the hard identifier"
     );
   }
   const cited = profile.sources.some((source) => hostnameWithoutWww(source) === websiteHost);

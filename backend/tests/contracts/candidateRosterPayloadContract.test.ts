@@ -481,6 +481,57 @@ describe("parseCandidateRosterPayload no_fec_id_exception", () => {
     });
   });
 
+  it("keeps printed_on_ballot only when it is true", () => {
+    const parsed = parseCandidateRosterPayload(
+      {
+        candidates: [
+          exceptionRow({
+            no_fec_id_exception: { reason: "Printed.", official_roster_url: officialUrl, printed_on_ballot: true },
+          }),
+          exceptionRow({
+            display_name: "Wren Write-In",
+            no_fec_id_exception: { reason: "Write-in.", official_roster_url: officialUrl, printed_on_ballot: false },
+          }),
+        ],
+      },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) {
+      return;
+    }
+    expect(parsed.payload.candidates[0]?.no_fec_id_exception).toEqual({
+      reason: "Printed.",
+      official_roster_url: officialUrl,
+      printed_on_ballot: true,
+    });
+    expect(parsed.payload.candidates[1]?.no_fec_id_exception).toEqual({
+      reason: "Write-in.",
+      official_roster_url: officialUrl,
+    });
+  });
+
+  it("rejects printed_on_ballot on a row whose party says write-in", () => {
+    const parsed = parseCandidateRosterPayload(
+      {
+        candidates: [
+          exceptionRow({
+            party: "Write-In",
+            no_fec_id_exception: { reason: "Listed.", official_roster_url: officialUrl, printed_on_ballot: true },
+          }),
+        ],
+      },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok) {
+      return;
+    }
+    expect(parsed.reason).toContain("printed_on_ballot cannot be true when row.party says write-in");
+  });
+
   it("ignores the exception by default, so the AI path still skips the row", () => {
     const parsed = parseCandidateRosterPayload(
       { candidates: [registeredRow, exceptionRow()] },
@@ -518,6 +569,11 @@ describe("parseCandidateRosterPayload no_fec_id_exception", () => {
       "must also be listed in row.sources",
     ],
     ["a non-object value", "certified", "must be an object"],
+    [
+      "a non-boolean printed_on_ballot",
+      { reason: "Certified.", official_roster_url: officialUrl, printed_on_ballot: "yes" },
+      "printed_on_ballot must be a boolean",
+    ],
   ])("rejects %s", (_label, exception, expectedReason) => {
     const parsed = parseCandidateRosterPayload(
       { candidates: [exceptionRow({ no_fec_id_exception: exception })] },

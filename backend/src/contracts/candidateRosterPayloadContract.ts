@@ -12,10 +12,13 @@ export type CandidateRosterRunningMate = {
 // authority lists on the ballot while the FEC has issued no candidate ID.
 // reason says why the ID is missing; official_roster_url is the election
 // authority page that lists the candidate and must also be one of the row's
-// sources.
+// sources. printed_on_ballot is true only when that page shows the name is
+// printed on the ballot (never for a write-in); it lets the profile be written
+// without a campaign website or filing number.
 export type CandidateRosterNoFecIdException = {
   reason: string;
   official_roster_url: string;
+  printed_on_ballot?: true;
 };
 
 export type CandidateRosterEntry = {
@@ -202,7 +205,22 @@ function parseEntry(
         reason: "row.no_fec_id_exception.official_roster_url must also be listed in row.sources",
       };
     }
-    noFecIdException = { reason: exception.reason.trim(), official_roster_url: officialRosterUrl };
+    if (exception.printed_on_ballot !== undefined && typeof exception.printed_on_ballot !== "boolean") {
+      return { ok: false, reason: "row.no_fec_id_exception.printed_on_ballot must be a boolean when provided" };
+    }
+    // The parser cannot read the cited page, so the flag is the operator's
+    // statement. This only catches a row that contradicts itself.
+    if (exception.printed_on_ballot === true && party !== undefined && /\bwrite[\s-]?in\b/i.test(party)) {
+      return {
+        ok: false,
+        reason: "row.no_fec_id_exception.printed_on_ballot cannot be true when row.party says write-in; a write-in name is not printed on the ballot",
+      };
+    }
+    noFecIdException = {
+      reason: exception.reason.trim(),
+      official_roster_url: officialRosterUrl,
+      ...(exception.printed_on_ballot === true ? { printed_on_ballot: true as const } : {}),
+    };
   }
 
   const stateFilingIds = normalizeOptionalStringArray(input.state_filing_ids);
