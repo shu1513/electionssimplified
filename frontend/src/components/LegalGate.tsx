@@ -18,13 +18,17 @@ type LegalGateProps = {
   checked: boolean;
   onChange: (checked: boolean) => void;
   inputId: string;
+  /** Open the document links in a new tab — for a gate inside a dialog, where
+   * following a link in place would discard the dialog and what it holds. */
+  linksInNewTab?: boolean;
 };
 
-export function LegalGate({ label, checked, onChange, inputId }: LegalGateProps) {
+export function LegalGate({ label, checked, onChange, inputId, linksInNewTab = false }: LegalGateProps) {
   // A click that lands before hydration checks the DOM box without reaching
   // state; adopt it so the gated action unlocks. Still a user action — the
   // clickwrap record is unaffected.
   useAdoptPreHydrationChecked(inputId, onChange);
+  const linkTarget = linksInNewTab ? { target: "_blank", rel: "noreferrer" } : {};
   return (
     <div className="rounded-xl border border-line bg-surface p-4 text-sm text-ink">
       <label htmlFor={inputId} className="flex cursor-pointer items-start gap-3">
@@ -38,13 +42,13 @@ export function LegalGate({ label, checked, onChange, inputId }: LegalGateProps)
         <span>{label}</span>
       </label>
       <p className="mt-2 flex flex-wrap gap-x-4 pl-7 font-medium">
-        <Link to="/terms" className="text-ink underline hover:text-rausch">
+        <Link to="/terms" {...linkTarget} className="text-ink underline hover:text-rausch">
           Terms of Use
         </Link>
-        <Link to="/privacy" className="text-ink underline hover:text-rausch">
+        <Link to="/privacy" {...linkTarget} className="text-ink underline hover:text-rausch">
           Privacy Policy
         </Link>
-        <Link to="/disclaimer" className="text-ink underline hover:text-rausch">
+        <Link to="/disclaimer" {...linkTarget} className="text-ink underline hover:text-rausch">
           {/* Full title, matching the checkbox labels word-for-word. */}
           AI Research and Election Information Disclaimer
         </Link>
