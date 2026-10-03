@@ -486,6 +486,16 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   [/^(?:[a-z0-9]+ ){0,4}highway district commissioner$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
 ];
+// Every office a body fold can land on. The token scorer vetoes a non-board
+// role title against these, because the fold's own refusal only helps when the
+// title reaches it: "Highway District Treasurer" on a county-named row skips
+// the fold, keeps all three tokens, and scored 0.667 into the commissioner
+// office with the alias persisted.
+const BODY_FOLD_OFFICE_KEYS: ReadonlySet<string> = new Set([
+  FIRE_DISTRICT_OFFICE_KEY,
+  WATER_SEWER_OFFICE_KEY,
+  ...LOCAL_BODY_SEAT_KEY_FOLDS.map(([, officeKey]) => officeKey),
+]);
 
 function mapLocalBodySeatForms(normalizedTitle: string): string | null {
   const withoutSeat = stripSeatSuffixes(normalizedTitle);
@@ -1102,15 +1112,14 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
-  // The folds above refuse to rewrite a non-board fire-district or water and
-  // sewer role, but bare token overlap can still carry one in on its own:
-  // "Fire District Clerk" and "Treasurer, Water and Sewer Commission" each
-  // share enough tokens with the board office to score 0.571, just over the
-  // floor. A body's treasurer/clerk/secretary is a different job, and the
-  // catalog has no office for it — no match is the honest answer.
+  // The body folds above refuse to rewrite a non-board role, but bare token
+  // overlap can still carry one in on its own: "Fire District Clerk",
+  // "Treasurer, Water and Sewer Commission", and "Highway District Treasurer"
+  // each share enough tokens with the board office to clear the floor
+  // (0.571, 0.571, 0.667). A body's treasurer/clerk/secretary is a different
+  // job, and the catalog has no office for it — no match is the honest answer.
   if (
-    (office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY ||
-      office.canonicalMatcherKey === WATER_SEWER_OFFICE_KEY) &&
+    BODY_FOLD_OFFICE_KEYS.has(office.canonicalMatcherKey) &&
     FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(titleMatcherKey)
   ) {
     return 0;

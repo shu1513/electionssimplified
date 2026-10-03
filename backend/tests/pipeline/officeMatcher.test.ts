@@ -3698,8 +3698,15 @@ describe("OfficeMatcher", () => {
       ["Ada County Highway District", "Ada County Highway District Commissioner, District 4", "Highway District Commissioner"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 2", "Community College Trustee"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 4", "Community College Trustee"],
-      // A non-board role on the same body never folds onto the board seat.
+      // A non-board role on the same body never folds onto the board seat,
+      // and the scorer refuses it too: on a county-named row the body's name
+      // survives the strip and the three-token key scored 0.667 into the
+      // commissioner office with the alias persisted.
       ["Ada County Highway District", "Ada County Highway District Treasurer", null],
+      ["Ada County", "Ada County Highway District Treasurer", null],
+      ["Ada County Highway District", "Highway District Clerk", null],
+      ["Ada County Highway District", "Highway District Secretary", null],
+      ["College of Western Idaho", "Community College Treasurer", null],
     ];
     for (const [districtName, title, expected] of cases) {
       const result = await matcher.resolve({
