@@ -75,8 +75,10 @@ function usage(): string {
     "",
     "Federal rows need fec_ids. A row for a candidate an election authority lists on the",
     "ballot while the FEC has issued no candidate ID may instead carry",
-    "  no_fec_id_exception: { reason, official_roster_url }",
-    "where official_roster_url is also one of the row's sources.",
+    "  no_fec_id_exception: { reason, official_roster_url, printed_on_ballot? }",
+    "where official_roster_url is also one of the row's sources. Set printed_on_ballot: true",
+    "only when that page shows the name is printed on the ballot (not a write-in); the",
+    "profile can then be written without a campaign website or filing number.",
   ].join("\n");
 }
 

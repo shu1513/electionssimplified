@@ -236,6 +236,34 @@ describe("applyRegularElectionProfileContext", () => {
       ).toThrow("payload.official_website_url is required for a roster row with no_fec_id_exception");
     });
 
+    it("accepts no website and no filing number when the exception is marked printed_on_ballot", () => {
+      const result = applyRegularElectionProfileContext({
+        profile: profile({ official_website_url: undefined }),
+        researchMode: "federal_us_house",
+        rosterHints: {
+          ...rosterHints,
+          noFecIdException: { ...rosterHints.noFecIdException, printed_on_ballot: true as const },
+        },
+      });
+
+      expect(result.fec_ids).toBeUndefined();
+      expect(result.official_website_url).toBeUndefined();
+      expect(result.state_filing_ids).toBeUndefined();
+    });
+
+    it("still holds a supplied website to the cited-source rule when marked printed_on_ballot", () => {
+      expect(() =>
+        applyRegularElectionProfileContext({
+          profile: profile({ sources: ["https://news.example/jane-candidate"] }),
+          researchMode: "federal_us_house",
+          rosterHints: {
+            ...rosterHints,
+            noFecIdException: { ...rosterHints.noFecIdException, printed_on_ballot: true as const },
+          },
+        })
+      ).toThrow("payload.sources must include a page on jane.example");
+    });
+
     it("requires the campaign website host among the cited sources", () => {
       expect(() =>
         applyRegularElectionProfileContext({
