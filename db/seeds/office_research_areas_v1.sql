@@ -3458,6 +3458,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- (public_infrastructure), and moves riders out of cars
     -- (environment_and_public_health).
     ('local_special', 'Transit District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'Highway District Commissioner', ARRAY['government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     -- Austin-area special districts and multi-county courts (migration 307).
     -- Each copies its closest county/statewide counterpart; the appraisal
     -- board values property and runs its office but sets no tax rate.

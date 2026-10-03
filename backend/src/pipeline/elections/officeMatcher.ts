@@ -470,6 +470,36 @@ function mapWaterSewerBodyForms(value: string): string {
   return WATER_SEWER_SEAT_KEY_PATTERN.test(value) ? WATER_SEWER_OFFICE_KEY : value;
 }
 
+// A reviewed local_special body titles its board seat by its own name, and
+// the districts row IS that body ("Ada County Highway District Commissioner,
+// District 3" on the Ada County Highway District row; "College of Western
+// Idaho Trustee, Zone 2" on the College of Western Idaho row — Ada County ID
+// live, four NULL-office shells). The jurisdiction strip removes the whole
+// name and leaves a bare role word ("commissioner", "trustee") that no alias
+// can safely own at local_special scope: a fire district, a port, or a
+// library board titles its seat with the same word. Fold the named body form
+// onto the office it elects BEFORE the jurisdiction strip, so the body's
+// generic kind survives. Same exactness rules as the fire fold: the seat is
+// stripped first, the pattern is anchored to the whole key, and a key that
+// still names a non-board role is left alone.
+const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^(?:[a-z0-9]+ ){0,4}highway district commissioner$/, "highway district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
+];
+
+function mapLocalBodySeatForms(normalizedTitle: string): string | null {
+  const withoutSeat = stripSeatSuffixes(normalizedTitle);
+  if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(withoutSeat)) {
+    return null;
+  }
+  for (const [pattern, officeKey] of LOCAL_BODY_SEAT_KEY_FOLDS) {
+    if (pattern.test(withoutSeat)) {
+      return officeKey;
+    }
+  }
+  return null;
+}
+
 // What a numbered/lettered seat designator can look like once normalized:
 // "5", "5a", "II", "A". Letter-only seats are as common as numbers on live
 // ballots — New Orleans and Shreveport council districts run A-E, Utah
@@ -716,6 +746,12 @@ function toMatcherTokens(value: string): string[] {
 
 function toMatcherKeyFromBallotTitle(input: OfficeMatchInput): string {
   const normalized = normalizeMatcherText(input.officialBallotTitle);
+  if (input.scope === "local_special") {
+    const bodyKey = mapLocalBodySeatForms(normalized);
+    if (bodyKey !== null) {
+      return bodyKey;
+    }
+  }
   const withoutJurisdiction = stripJurisdictionPrefixes(normalized, {
     districtName: input.districtName,
     state: input.state,
