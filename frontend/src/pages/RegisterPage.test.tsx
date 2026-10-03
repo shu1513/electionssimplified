@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -121,7 +121,7 @@ describe("RegisterPage clickwrap", () => {
     });
   });
 
-  it("ignores the Google credential until the signup box is checked, then signs up with terms", async () => {
+  it("signs up with Google straight away when the signup box is already checked", async () => {
     vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
     const gis = stubGis();
     const fetchMock = vi.fn().mockResolvedValue({
@@ -135,19 +135,11 @@ describe("RegisterPage clickwrap", () => {
     renderRegister();
     await waitFor(() => expect(gis.initialize).toHaveBeenCalled());
 
-    // Same clickwrap gate as the submit button: an unchecked box means the
-    // credential is dropped, and the wrapper is marked disabled.
-    expect(screen.getByTestId("google-signin-button").parentElement).toHaveAttribute(
-      "aria-disabled",
-      "true"
-    );
-    gis.fireCredential("google-jwt");
-    expect(fetchMock).not.toHaveBeenCalled();
-
     await user.click(screen.getByRole("checkbox"));
     gis.fireCredential("google-jwt");
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     const [path, init] = fetchMock.mock.calls[0] as [string, { body: string }];
     expect(path).toBe("/api/auth/google");
     expect(JSON.parse(init.body)).toEqual({
@@ -157,22 +149,61 @@ describe("RegisterPage clickwrap", () => {
     });
   });
 
-  it("explains the greyed-out Google button until the box is checked", async () => {
+  it("holds a Google credential behind the agreement dialog while the box is unchecked", async () => {
     vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
-    stubGis();
+    const gis = stubGis();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: async () => ({ status: "ok" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     renderRegister();
+    await waitFor(() => expect(gis.initialize).toHaveBeenCalled());
 
-    // Visible without any interaction, so keyboard and mouse users alike see
-    // why the button is inactive.
-    expect(
-      screen.getByText("Check the box above to enable sign-up with Google.")
-    ).toBeInTheDocument();
+    // Same clickwrap gate as the submit button: nothing is sent for an
+    // unchecked box, and the dialog's action stays disabled until it is.
+    gis.fireCredential("google-jwt");
+    const dialog = within(await screen.findByRole("dialog"));
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(dialog.getByRole("checkbox")).not.toBeChecked();
+    expect(dialog.getByRole("button", { name: "Agree and continue" })).toBeDisabled();
+    // Reading a document must not discard the dialog and its credential.
+    expect(dialog.getByRole("link", { name: "Terms of Use" })).toHaveAttribute("target", "_blank");
 
+    await user.click(dialog.getByRole("checkbox"));
+    await user.click(dialog.getByRole("button", { name: "Agree and continue" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    const [path, init] = fetchMock.mock.calls[0] as [string, { body: string }];
+    expect(path).toBe("/api/auth/google");
+    expect(JSON.parse(init.body)).toEqual({
+      credential: "google-jwt",
+      intent: "signup",
+      accepted_terms_version: TERMS_VERSION,
+    });
+  });
+
+  it("drops the held Google credential when the agreement dialog is cancelled", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
+    const gis = stubGis();
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    renderRegister();
+    await waitFor(() => expect(gis.initialize).toHaveBeenCalled());
+
+    gis.fireCredential("google-jwt");
+    const dialog = within(await screen.findByRole("dialog"));
+    await user.click(dialog.getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // Checking the page box afterwards must not send the dropped credential.
     await user.click(screen.getByRole("checkbox"));
-    expect(
-      screen.queryByText("Check the box above to enable sign-up with Google.")
-    ).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("hides the Google section and its divider when the client ID is not set", () => {
@@ -184,9 +215,6 @@ describe("RegisterPage clickwrap", () => {
 
     expect(screen.queryByTestId("google-signin-button")).not.toBeInTheDocument();
     expect(screen.queryByText("or")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("Check the box above to enable sign-up with Google.")
-    ).not.toBeInTheDocument();
   });
 
   it("forwards an internal next path to the login links", async () => {

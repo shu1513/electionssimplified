@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import { APP_NAME, apiRequest, purgeAccountScopedQueries } from "@voteapp/api-client";
 import { LegalGate } from "../components/LegalGate";
 import { ErrorNotice } from "../components/Status";
@@ -31,6 +32,10 @@ export function RegisterPage() {
   // typed, and revealing only one of a pair defeats the comparison.
   const [showPassword, setShowPassword] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  // A Google credential that arrived before the box was checked. It waits
+  // here while the agreement dialog asks for the same clickwrap, and is only
+  // sent once the box is checked — no account is created without it.
+  const [pendingCredential, setPendingCredential] = useState<string | null>(null);
   // The page is prerendered: text entered (or autofilled) before hydration
   // exists only in the DOM. Fold it into state or the submit drops it.
   useAdoptPreHydrationValue("register-email", setEmail);
@@ -149,36 +154,25 @@ export function RegisterPage() {
         </p>
       ) : null}
 
-      {/* The clickwrap checkbox leads the page because it gates BOTH signup
-          paths below it — Google directly underneath and the email form
-          after the divider. */}
+      {/* The clickwrap checkbox sits at the bottom, directly above Create
+          account. Google comes first on the page, so a Google credential
+          that arrives while the box is unchecked opens the agreement dialog
+          below instead of being sent. */}
       <div className="mt-6">
-        <LegalGate
-          inputId="signup-terms"
-          label={SIGNUP_CHECKBOX_LABEL}
-          checked={accepted}
-          onChange={setAccepted}
-        />
-      </div>
-
-      <div className="mt-4">
         <GoogleSignInButton
           text="signup_with"
-          disabled={!accepted || authPending}
+          disabled={authPending}
           onCredential={(credential) => {
-            if (accepted && !authPending) {
+            if (authPending) {
+              return;
+            }
+            if (accepted) {
               googleSignup.mutate(credential);
+            } else {
+              setPendingCredential(credential);
             }
           }}
         >
-          {/* Always explain the greyed-out button while unchecked — works
-              identically for keyboard and mouse users, no interaction
-              needed to discover why it's inactive. */}
-          {!accepted ? (
-            <p className="mt-2 text-center text-sm text-ink-soft">
-              Check the box above to enable sign-up with Google.
-            </p>
-          ) : null}
           {googleSignup.isError ? (
             <div className="mt-3">
               <ErrorNotice error={googleSignup.error} />
@@ -266,6 +260,13 @@ export function RegisterPage() {
           ) : null}
         </div>
 
+        <LegalGate
+          inputId="signup-terms"
+          label={SIGNUP_CHECKBOX_LABEL}
+          checked={accepted}
+          onChange={setAccepted}
+        />
+
         <button
           type="submit"
           disabled={!canSubmit}
@@ -287,6 +288,57 @@ export function RegisterPage() {
           Log in
         </Link>
       </p>
+
+      {/* Same clickwrap as the page checkbox, shared state: unchecked when it
+          opens (it only opens while unchecked), action disabled until
+          checked, document links adjacent and opening in a new tab so
+          reading one keeps the credential. Cancel, Escape, and the backdrop
+          drop the credential without creating anything. */}
+      <Dialog
+        open={pendingCredential !== null}
+        onClose={() => setPendingCredential(null)}
+        className="relative z-40"
+      >
+        <DialogBackdrop className="fixed inset-0 bg-ink/40" />
+        <div className="fixed inset-0 overflow-y-auto p-4">
+          <div className="flex min-h-full items-center justify-center">
+            <DialogPanel className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+              <DialogTitle className="text-lg font-bold text-ink">One more step</DialogTitle>
+              <div className="mt-4">
+                <LegalGate
+                  inputId="signup-terms-google"
+                  label={SIGNUP_CHECKBOX_LABEL}
+                  checked={accepted}
+                  onChange={setAccepted}
+                  linksInNewTab
+                />
+              </div>
+              <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setPendingCredential(null)}
+                  className="rounded-lg border border-line px-4 py-2.5 font-semibold text-ink transition hover:bg-surface"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={!accepted || authPending}
+                  onClick={() => {
+                    if (pendingCredential !== null) {
+                      googleSignup.mutate(pendingCredential);
+                      setPendingCredential(null);
+                    }
+                  }}
+                  className="rounded-lg bg-rausch px-5 py-2.5 font-semibold text-white transition hover:bg-rausch-dark disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-rausch"
+                >
+                  Agree and continue
+                </button>
+              </div>
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 // "Sign in with Google" via Google Identity Services (GIS), JS-callback mode:
@@ -53,11 +53,18 @@ function loadGisScript(): Promise<void> {
   return gisScriptPromise;
 }
 
+// GIS caps its button at "large" (40px tall, 400px wide). The rendered button
+// is scaled up in CSS to sit close to the height of the form's inputs; the
+// width asked of GIS is divided by the same factor so the scaled button
+// still fits.
+const GIS_BUTTON_HEIGHT = 40;
+const GIS_BUTTON_SCALE = 1.2;
+
 type GoogleSignInButtonProps = {
   /** GIS button label variant: register page vs login page. */
   text: "signup_with" | "signin_with";
-  /** Blocks interaction (clickwrap gate / request in flight). The GIS button
-   * is an iframe with no disabled state, so the wrapper goes inert. */
+  /** Blocks interaction (request in flight). The GIS button is an iframe
+   * with no disabled state, so the wrapper goes inert. */
   disabled?: boolean;
   onCredential: (credential: string) => void;
   /** Rendered between the button and the trailing "or" divider (hints,
@@ -83,7 +90,31 @@ export function GoogleSignInButton({
   // sign-in — the credential must then be dropped, not fed to a handler
   // whose page (and clickwrap state) is gone.
   const mountedRef = useRef(true);
+  // A redraw for a new width must not register with Google again: it can
+  // happen while the account chooser is open, and the sign-in in progress
+  // belongs to the registration already made.
+  const initializedRef = useRef(false);
   const [failed, setFailed] = useState(false);
+  // GIS draws the button at a fixed pixel width, so the wrapper's width is
+  // tracked and the button redrawn when it changes (phone rotation, window
+  // resize below the form's max width). A layout effect, so the first draw
+  // already has the measured width. Stays 0 where there is no layout (jsdom).
+  const [availableWidth, setAvailableWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) {
+      return;
+    }
+    const measure = () => setAvailableWidth(wrapper.clientWidth);
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -106,14 +137,17 @@ export function GoogleSignInButton({
         }
         // initialize() is global (last call wins), so remounts and page
         // changes never leave a stale callback behind.
-        accountsId.initialize({
-          client_id: clientId,
-          callback: (response) => {
-            if (mountedRef.current && response?.credential) {
-              onCredentialRef.current(response.credential);
-            }
-          },
-        });
+        if (!initializedRef.current) {
+          initializedRef.current = true;
+          accountsId.initialize({
+            client_id: clientId,
+            callback: (response) => {
+              if (mountedRef.current && response?.credential) {
+                onCredentialRef.current(response.credential);
+              }
+            },
+          });
+        }
         container.replaceChildren();
         accountsId.renderButton(container, {
           type: "standard",
@@ -121,9 +155,10 @@ export function GoogleSignInButton({
           size: "large",
           text,
           // GIS treats width as a minimum and caps it at 400, so ask for the
-          // container's real width (narrow phones) up to that cap. Falls back
-          // to 400 when layout hasn't produced a width (e.g. jsdom).
-          width: Math.min(400, wrapperRef.current?.clientWidth || 400),
+          // container's real width (narrow phones) up to that cap, less the
+          // CSS scale applied below. Falls back to 400 when layout hasn't
+          // produced a width (e.g. jsdom).
+          width: Math.min(400, Math.floor((availableWidth || 400) / GIS_BUTTON_SCALE)),
         });
       })
       .catch(() => {
@@ -134,7 +169,7 @@ export function GoogleSignInButton({
     return () => {
       cancelled = true;
     };
-  }, [clientId, text]);
+  }, [clientId, text, availableWidth]);
 
   if (!clientId || failed) {
     return null;
@@ -152,8 +187,15 @@ export function GoogleSignInButton({
         className={
           disabled ? "pointer-events-none flex justify-center opacity-50" : "flex justify-center"
         }
+        // A transform does not change layout, so the wrapper reserves the
+        // scaled height itself.
+        style={{ height: GIS_BUTTON_HEIGHT * GIS_BUTTON_SCALE }}
       >
-        <div ref={containerRef} data-testid="google-signin-button" />
+        <div
+          ref={containerRef}
+          data-testid="google-signin-button"
+          style={{ transform: `scale(${GIS_BUTTON_SCALE})`, transformOrigin: "top center" }}
+        />
       </div>
       {children}
       {/* The divider lives here, not in the pages: it separates Google from

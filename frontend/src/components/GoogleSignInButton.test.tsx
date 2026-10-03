@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 
 // jsdom never loads the real GIS script; stubbing window.google up front
@@ -78,7 +78,7 @@ describe("GoogleSignInButton", () => {
     expect(onCredential).not.toHaveBeenCalled();
   });
 
-  it("blocks pointer and keyboard interaction while disabled (clickwrap gate)", async () => {
+  it("blocks pointer and keyboard interaction while disabled (request in flight)", async () => {
     vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
     const gis = stubGis();
     render(<GoogleSignInButton text="signup_with" disabled onCredential={vi.fn()} />);
@@ -87,8 +87,8 @@ describe("GoogleSignInButton", () => {
     const wrapper = screen.getByTestId("google-signin-button").parentElement;
     expect(wrapper).toHaveAttribute("aria-disabled", "true");
     expect(wrapper?.className).toContain("pointer-events-none");
-    // inert is what keeps Tab from focusing the GIS iframe and running the
-    // Google flow behind the unchecked clickwrap.
+    // inert is what keeps Tab from focusing the GIS iframe and starting a
+    // second Google flow while a request is in flight.
     expect(wrapper).toHaveAttribute("inert");
   });
 
@@ -104,17 +104,54 @@ describe("GoogleSignInButton", () => {
     expect(screen.getByText("or")).toBeInTheDocument();
   });
 
-  it("requests the container width when it is narrower than Google's 400px cap", async () => {
+  it("requests a width that fits the container once the button is scaled up", async () => {
     vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
     const gis = stubGis();
-    // jsdom does no layout; a 375px phone leaves ~343px of content width.
+    // jsdom does no layout; a 375px phone leaves ~343px of content width,
+    // and the button is drawn 1.2x the size GIS renders it (343 / 1.2).
     const clientWidth = vi
       .spyOn(HTMLElement.prototype, "clientWidth", "get")
       .mockReturnValue(343);
     try {
       render(<GoogleSignInButton text="signin_with" onCredential={vi.fn()} />);
       await waitFor(() => expect(gis.renderButton).toHaveBeenCalled());
-      expect(gis.renderButton.mock.calls[0][1]).toMatchObject({ width: 343 });
+      expect(gis.renderButton.mock.calls[0][1]).toMatchObject({ width: 285 });
+      // Measured before the first draw, so the button is drawn once.
+      expect(gis.renderButton).toHaveBeenCalledTimes(1);
+    } finally {
+      clientWidth.mockRestore();
+    }
+  });
+
+  it("redraws for a new width without registering with Google again", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
+    const gis = stubGis();
+    let notifyResize = () => {};
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          notifyResize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    const clientWidth = vi
+      .spyOn(HTMLElement.prototype, "clientWidth", "get")
+      .mockReturnValue(343);
+    try {
+      render(<GoogleSignInButton text="signin_with" onCredential={vi.fn()} />);
+      await waitFor(() => expect(gis.renderButton).toHaveBeenCalledTimes(1));
+
+      clientWidth.mockReturnValue(300);
+      act(() => notifyResize());
+
+      await waitFor(() => expect(gis.renderButton).toHaveBeenCalledTimes(2));
+      expect(gis.renderButton.mock.calls[1][1]).toMatchObject({ width: 250 });
+      // The account chooser may be open during a redraw; a second
+      // initialize() would replace the registration that sign-in belongs to.
+      expect(gis.initialize).toHaveBeenCalledTimes(1);
     } finally {
       clientWidth.mockRestore();
     }
