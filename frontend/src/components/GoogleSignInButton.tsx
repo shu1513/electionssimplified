@@ -90,6 +90,10 @@ export function GoogleSignInButton({
   // sign-in — the credential must then be dropped, not fed to a handler
   // whose page (and clickwrap state) is gone.
   const mountedRef = useRef(true);
+  // A redraw for a new width must not register with Google again: it can
+  // happen while the account chooser is open, and the sign-in in progress
+  // belongs to the registration already made.
+  const initializedRef = useRef(false);
   const [failed, setFailed] = useState(false);
   // GIS draws the button at a fixed pixel width, so the wrapper's width is
   // tracked and the button redrawn when it changes (phone rotation, window
@@ -133,14 +137,17 @@ export function GoogleSignInButton({
         }
         // initialize() is global (last call wins), so remounts and page
         // changes never leave a stale callback behind.
-        accountsId.initialize({
-          client_id: clientId,
-          callback: (response) => {
-            if (mountedRef.current && response?.credential) {
-              onCredentialRef.current(response.credential);
-            }
-          },
-        });
+        if (!initializedRef.current) {
+          initializedRef.current = true;
+          accountsId.initialize({
+            client_id: clientId,
+            callback: (response) => {
+              if (mountedRef.current && response?.credential) {
+                onCredentialRef.current(response.credential);
+              }
+            },
+          });
+        }
         container.replaceChildren();
         accountsId.renderButton(container, {
           type: "standard",
