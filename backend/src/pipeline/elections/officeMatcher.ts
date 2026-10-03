@@ -470,6 +470,49 @@ function mapWaterSewerBodyForms(value: string): string {
   return WATER_SEWER_SEAT_KEY_PATTERN.test(value) ? WATER_SEWER_OFFICE_KEY : value;
 }
 
+// A reviewed local_special body titles its board seat by its own name, and
+// the districts row IS that body ("Ada County Highway District Commissioner,
+// District 3" on the Ada County Highway District row; "College of Western
+// Idaho Trustee, Zone 2" on the College of Western Idaho row — Ada County ID
+// live, four NULL-office shells). The jurisdiction strip removes the whole
+// name and leaves a bare role word ("commissioner", "trustee") that no alias
+// can safely own at local_special scope: a fire district, a port, or a
+// library board titles its seat with the same word. Fold the named body form
+// onto the office it elects BEFORE the jurisdiction strip, so the body's
+// generic kind survives. The seat wordings accepted are the ones the office's
+// seeded aliases carry, because an alias is unreachable from a body-named
+// row: the strip would leave "commission member", which matches nothing.
+// Same exactness rules as the fire fold: the seat is
+// stripped first, the pattern is anchored to the whole key, and a key that
+// still names a non-board role is left alone.
+const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
+];
+// Every office a body fold can land on. The token scorer vetoes a non-board
+// role title against these, because the fold's own refusal only helps when the
+// title reaches it: "Highway District Treasurer" on a county-named row skips
+// the fold, keeps all three tokens, and scored 0.667 into the commissioner
+// office with the alias persisted.
+const BODY_FOLD_OFFICE_KEYS: ReadonlySet<string> = new Set([
+  FIRE_DISTRICT_OFFICE_KEY,
+  WATER_SEWER_OFFICE_KEY,
+  ...LOCAL_BODY_SEAT_KEY_FOLDS.map(([, officeKey]) => officeKey),
+]);
+
+function mapLocalBodySeatForms(normalizedTitle: string): string | null {
+  const withoutSeat = stripSeatSuffixes(normalizedTitle);
+  if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(withoutSeat)) {
+    return null;
+  }
+  for (const [pattern, officeKey] of LOCAL_BODY_SEAT_KEY_FOLDS) {
+    if (pattern.test(withoutSeat)) {
+      return officeKey;
+    }
+  }
+  return null;
+}
+
 // What a numbered/lettered seat designator can look like once normalized:
 // "5", "5a", "II", "A". Letter-only seats are as common as numbers on live
 // ballots — New Orleans and Shreveport council districts run A-E, Utah
@@ -716,6 +759,12 @@ function toMatcherTokens(value: string): string[] {
 
 function toMatcherKeyFromBallotTitle(input: OfficeMatchInput): string {
   const normalized = normalizeMatcherText(input.officialBallotTitle);
+  if (input.scope === "local_special") {
+    const bodyKey = mapLocalBodySeatForms(normalized);
+    if (bodyKey !== null) {
+      return bodyKey;
+    }
+  }
   const withoutJurisdiction = stripJurisdictionPrefixes(normalized, {
     districtName: input.districtName,
     state: input.state,
@@ -1066,15 +1115,14 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
-  // The folds above refuse to rewrite a non-board fire-district or water and
-  // sewer role, but bare token overlap can still carry one in on its own:
-  // "Fire District Clerk" and "Treasurer, Water and Sewer Commission" each
-  // share enough tokens with the board office to score 0.571, just over the
-  // floor. A body's treasurer/clerk/secretary is a different job, and the
-  // catalog has no office for it — no match is the honest answer.
+  // The body folds above refuse to rewrite a non-board role, but bare token
+  // overlap can still carry one in on its own: "Fire District Clerk",
+  // "Treasurer, Water and Sewer Commission", and "Highway District Treasurer"
+  // each share enough tokens with the board office to clear the floor
+  // (0.571, 0.571, 0.667). A body's treasurer/clerk/secretary is a different
+  // job, and the catalog has no office for it — no match is the honest answer.
   if (
-    (office.canonicalMatcherKey === FIRE_DISTRICT_OFFICE_KEY ||
-      office.canonicalMatcherKey === WATER_SEWER_OFFICE_KEY) &&
+    BODY_FOLD_OFFICE_KEYS.has(office.canonicalMatcherKey) &&
     FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(titleMatcherKey)
   ) {
     return 0;

@@ -3672,6 +3672,54 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("maps a local_special body's own-name seat titles to the office it elects", async () => {
+    // The districts row IS the body here, so the jurisdiction strip removes
+    // the whole name ("Ada County Highway District Commissioner, District 3"
+    // -> "commissioner"; "College of Western Idaho Trustee, Zone 2" ->
+    // "trustee"). The body fold runs first and keeps the body's kind.
+    const offices: Array<[string, string[]]> = [
+      ["Highway District Commissioner", ["Highway District Commissioner", "Highway Commissioner"]],
+      ["Community College Trustee", ["Community College Trustee", "College Trustee"]],
+      ["Transit District Director", ["Transit District Director"]],
+    ];
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: offices.flatMap(([name, aliases]) =>
+          aliases.map((alias) => ({ office_id: name, normalized_alias: normalizeElectionTitleKey(alias) }))),
+      },
+      officesByScope: {
+        local_special: offices.map(([name]) => ({ id: name, canonical_name: name })),
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+
+    const cases: Array<[string, string, string | null]> = [
+      ["Ada County Highway District", "Ada County Highway District Commissioner, District 3", "Highway District Commissioner"],
+      ["Ada County Highway District", "Ada County Highway District Commissioner, District 4", "Highway District Commissioner"],
+      ["Ada County Highway District", "Ada County Highway District Commission Member, District 3", "Highway District Commissioner"],
+      ["College of Western Idaho", "College of Western Idaho Trustee, Zone 2", "Community College Trustee"],
+      ["College of Western Idaho", "College of Western Idaho Trustee, Zone 4", "Community College Trustee"],
+      // A non-board role on the same body never folds onto the board seat,
+      // and the scorer refuses it too: on a county-named row the body's name
+      // survives the strip and the three-token key scored 0.667 into the
+      // commissioner office with the alias persisted.
+      ["Ada County Highway District", "Ada County Highway District Treasurer", null],
+      ["Ada County", "Ada County Highway District Treasurer", null],
+      ["Ada County Highway District", "Highway District Clerk", null],
+      ["Ada County Highway District", "Highway District Secretary", null],
+      ["College of Western Idaho", "Community College Treasurer", null],
+    ];
+    for (const [districtName, title, expected] of cases) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName,
+        state: "ID",
+        officialBallotTitle: title,
+      });
+      expect(result.officeId, title).toBe(expected);
+    }
+  });
+
   it("keeps a non-judicial local_special entry out of the court offices", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {

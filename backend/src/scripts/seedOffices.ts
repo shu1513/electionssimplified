@@ -934,6 +934,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "local_special",
+    canonicalName: "Highway District Commissioner",
+    summary: [
+      "Setting the budget and property tax rate for county roads",
+      "Deciding which roads, bridges, and sidewalks get built or repaired",
+      "Hiring and overseeing the director who runs the highway district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
     canonicalName: "Public Service Commissioner",
     summary: [
       "Setting rates and service rules for phone, pipeline, and other regulated companies",
@@ -2114,6 +2123,26 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Transit District Director",
+    aliasText,
+  })),
+  ...[
+    "Highway District Commissioner",
+    "County Highway District Commissioner",
+    "Ada County Highway District Commissioner",
+    "Highway Commissioner",
+    "Highway District Commission Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Highway District Commissioner",
+    aliasText,
+  })),
+  ...[
+    "College of Western Idaho Trustee",
+    "College Trustee",
+    "Community College Trustee Zone",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Community College Trustee",
     aliasText,
   })),
   ...[
