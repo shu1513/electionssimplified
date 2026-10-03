@@ -512,6 +512,26 @@ describe("parseCandidateRosterPayload no_fec_id_exception", () => {
     });
   });
 
+  it("rejects printed_on_ballot on a row whose party says write-in", () => {
+    const parsed = parseCandidateRosterPayload(
+      {
+        candidates: [
+          exceptionRow({
+            party: "Write-In",
+            no_fec_id_exception: { reason: "Listed.", official_roster_url: officialUrl, printed_on_ballot: true },
+          }),
+        ],
+      },
+      federalManual
+    );
+
+    expect(parsed.ok).toBe(false);
+    if (parsed.ok) {
+      return;
+    }
+    expect(parsed.reason).toContain("printed_on_ballot cannot be true when row.party says write-in");
+  });
+
   it("ignores the exception by default, so the AI path still skips the row", () => {
     const parsed = parseCandidateRosterPayload(
       { candidates: [registeredRow, exceptionRow()] },

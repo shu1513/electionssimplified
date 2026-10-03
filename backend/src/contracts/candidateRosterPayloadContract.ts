@@ -208,6 +208,14 @@ function parseEntry(
     if (exception.printed_on_ballot !== undefined && typeof exception.printed_on_ballot !== "boolean") {
       return { ok: false, reason: "row.no_fec_id_exception.printed_on_ballot must be a boolean when provided" };
     }
+    // The parser cannot read the cited page, so the flag is the operator's
+    // statement. This only catches a row that contradicts itself.
+    if (exception.printed_on_ballot === true && party !== undefined && /\bwrite[\s-]?in\b/i.test(party)) {
+      return {
+        ok: false,
+        reason: "row.no_fec_id_exception.printed_on_ballot cannot be true when row.party says write-in; a write-in name is not printed on the ballot",
+      };
+    }
     noFecIdException = {
       reason: exception.reason.trim(),
       official_roster_url: officialRosterUrl,
