@@ -479,11 +479,14 @@ function mapWaterSewerBodyForms(value: string): string {
 // can safely own at local_special scope: a fire district, a port, or a
 // library board titles its seat with the same word. Fold the named body form
 // onto the office it elects BEFORE the jurisdiction strip, so the body's
-// generic kind survives. Same exactness rules as the fire fold: the seat is
+// generic kind survives. The seat wordings accepted are the ones the office's
+// seeded aliases carry, because an alias is unreachable from a body-named
+// row: the strip would leave "commission member", which matches nothing.
+// Same exactness rules as the fire fold: the seat is
 // stripped first, the pattern is anchored to the whole key, and a key that
 // still names a non-board role is left alone.
 const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
-  [/^(?:[a-z0-9]+ ){0,4}highway district commissioner$/, "highway district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board

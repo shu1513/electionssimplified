@@ -3696,6 +3696,7 @@ describe("OfficeMatcher", () => {
     const cases: Array<[string, string, string | null]> = [
       ["Ada County Highway District", "Ada County Highway District Commissioner, District 3", "Highway District Commissioner"],
       ["Ada County Highway District", "Ada County Highway District Commissioner, District 4", "Highway District Commissioner"],
+      ["Ada County Highway District", "Ada County Highway District Commission Member, District 3", "Highway District Commissioner"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 2", "Community College Trustee"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 4", "Community College Trustee"],
       // A non-board role on the same body never folds onto the board seat,
