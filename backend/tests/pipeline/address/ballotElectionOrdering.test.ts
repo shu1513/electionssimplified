@@ -520,6 +520,22 @@ describe("applyBallotElectionOrdering", () => {
     expect(result.elections[0].official_ballot_title).toBe("State Measure 1: Housing Bonds");
   });
 
+  it("shows a stored printed label in place of the stored title's label", async () => {
+    const summary = makeSummary([
+      {
+        id: electionA,
+        race_type: "ballot_measure",
+        contest_family: "ballot_measure",
+        election_stage: null,
+        official_ballot_title: "Act 2026-341: Lieutenant Governor vacancy",
+      },
+    ]);
+    summary.elections[0].printed_ballot_label = "Statewide Amendment 1";
+    const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, summary, { sort: "vote_power" });
+    expect(result.elections[0].official_ballot_title).toBe("Statewide Amendment 1: Lieutenant Governor vacancy");
+    expect(result.elections[0].printed_ballot_label).toBe("Statewide Amendment 1");
+  });
+
   it("state_baseline is positional: no followed-first grouping, no empty-race sink", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([{ election_id: electionB, candidate_id: candidateId, display_name: "Fol Lowed" }]) },

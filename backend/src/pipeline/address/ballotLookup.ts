@@ -367,6 +367,9 @@ export type BallotLookupElectionSummary = {
   district: BallotLookupDistrict;
   race_type: ElectionRaceType;
   official_ballot_title: string;
+  // Label the paper ballot prints for this contest ("Statewide Amendment 1")
+  // when it differs from the stored title's own label. Null for most rows.
+  printed_ballot_label: string | null;
   // Mirrors BallotLookupElection.sub_district_seat: the ballot list is where a
   // ward-level seat is most likely to be mistaken for a countywide one.
   sub_district_seat: string | null;
@@ -416,6 +419,7 @@ type ElectionRow = {
   population?: string | number | null;
   race_type: ElectionRaceType;
   official_ballot_title: string;
+  printed_ballot_label?: string | null;
   election_date: string;
   election_stage: ElectionStage | null;
   is_partisan: boolean | null;
@@ -1725,6 +1729,7 @@ export async function lookupBallotSummariesByDistrictIds(
         d.population,
         e.race_type,
         e.official_ballot_title,
+        e.printed_ballot_label,
         e.election_date::text AS election_date,
         e.election_stage,
         e.is_partisan,
@@ -1976,6 +1981,7 @@ export async function lookupBallotSummariesByDistrictIds(
       district,
       race_type: row.race_type,
       official_ballot_title: row.official_ballot_title,
+      printed_ballot_label: row.printed_ballot_label?.trim() || null,
       sub_district_seat: extractSubDistrictSeat(row.official_ballot_title, row.office_canonical_name, {
         state: row.state,
         districtName: row.district_name,

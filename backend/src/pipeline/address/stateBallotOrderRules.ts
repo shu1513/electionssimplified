@@ -49,7 +49,8 @@ export type StateRankableElection = Pick<
   | "election_stage"
   | "election_date"
   | "is_partisan"
->;
+> &
+  Partial<Pick<BallotLookupElectionSummary, "printed_ballot_label">>;
 
 // Pre-derived contest facts shared by every state rule, so each rule stays a
 // few-line declarative mapping.
@@ -1037,8 +1038,9 @@ export function withinTierOfficeRank(election: StateRankableElection): number {
 }
 
 // ---------------------------------------------------------------------------
-// Printed labels. A county can print a statewide contest under a different
-// label than the stored title carries. The stored title stays the contest's
+// Printed labels. A state or county can print a contest under a different
+// label than the stored title carries. Per-measure numbers live on the row
+// (elections.printed_ballot_label); county-wide patterns are rules here. The stored title stays the contest's
 // identity; this only changes what a voter in that county sees in the ballot
 // list, so it matches the paper ballot in hand.
 // ---------------------------------------------------------------------------
@@ -1059,18 +1061,35 @@ const COUNTY_PRINTED_TITLE_RULES: Record<string, PrintedTitleRule> = {
   },
 };
 
-// Title to show for a contest on this voter's ballot: the county's printed
-// label where one is encoded, the stored title otherwise.
+// Stored title with the paper ballot's label applied. The label replaces the
+// stored title's own leading label (the text before the first colon), or is
+// prefixed when the stored title has none:
+//   "Act 2026-341: Lieutenant Governor vacancy" -> "Statewide Amendment 1: Lieutenant Governor vacancy"
+//   "Next Generation 9-1-1 Fund Amendment"      -> "Proposed Constitutional Amendment 3: Next Generation 9-1-1 Fund Amendment"
+export function applyPrintedBallotLabel(title: string, printedLabel: string | null | undefined): string {
+  const label = printedLabel?.trim();
+  if (!label) {
+    return title;
+  }
+  const colon = title.indexOf(":");
+  const rest = colon === -1 ? title.trim() : title.slice(colon + 1).trim();
+  return rest ? `${label}: ${rest}` : label;
+}
+
+// Title to show for a contest on this voter's ballot: the stored printed
+// label where one is set, then the county's printed label where one is
+// encoded, the stored title otherwise.
 export function printedBallotTitle(election: StateRankableElection, context: BallotOrderContext = {}): string {
+  const title = applyPrintedBallotLabel(election.official_ballot_title, election.printed_ballot_label);
   const countyFips = context.countyFips ?? null;
   if (
     countyFips &&
     countyFips.startsWith(election.district.state_fips) &&
     Object.hasOwn(COUNTY_PRINTED_TITLE_RULES, countyFips)
   ) {
-    return COUNTY_PRINTED_TITLE_RULES[countyFips](election) ?? election.official_ballot_title;
+    return COUNTY_PRINTED_TITLE_RULES[countyFips]({ ...election, official_ballot_title: title }) ?? title;
   }
-  return election.official_ballot_title;
+  return title;
 }
 
 // FIPS codes carrying an override, exported for the tests' gate sweep.

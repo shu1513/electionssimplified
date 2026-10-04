@@ -100,6 +100,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
             representation_power_score: "72.5",
             race_type: "ballot_measure",
             official_ballot_title: "Measure H",
+            printed_ballot_label: " County Measure H ",
             election_date: "2026-06-02",
             election_stage: null,
             is_partisan: null,
@@ -187,6 +188,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           },
           race_type: "office",
           official_ballot_title: "Sheriff",
+          printed_ballot_label: null,
           // Countywide office with no seat designator, so nothing to flag.
           sub_district_seat: null,
           election_date: "2026-06-02",
@@ -242,6 +244,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           },
           race_type: "ballot_measure",
           official_ballot_title: "Measure H",
+          printed_ballot_label: "County Measure H",
           // Measures have no office, so the seat gate never applies.
           sub_district_seat: null,
           election_date: "2026-06-02",
