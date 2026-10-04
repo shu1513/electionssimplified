@@ -7,8 +7,10 @@ import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js
 //
 // Evidence source: docs/research/state-ballot-order.md (the 50-state + DC
 // contest-order research campaign). Encoding policy, decided there:
-//   - GRADE-A states only. B/C states (PA, ID, MO, AR) keep the generic
-//     baseline — their order rests on unverified or conflicting evidence.
+//   - GRADE-A states, plus states whose order was later confirmed on
+//     printed November 2026 ballots (PA, KY, MO, AK, MS, GA, NY). ID was checked
+//     against its printed ballot and matches the baseline; AR keeps the
+//     baseline until a printed ballot confirms its order.
 //   - DEVIATIONS only: a rule returns a rank ONLY for contests the state
 //     provably moves; everything else returns null and falls through to
 //     stateBaselineContestRank. States whose verified order matches the
@@ -21,20 +23,12 @@ import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js
 //     NOT encoded, even when observed practice is consistent.
 //
 // Grade-A states with NO entry (deliberate — checked against the doc):
-//   NY (36)  both in-scope legs match the baseline; the exec-spine leg is
-//            A-excluded until a Nov 2026 print exists
-//   GA (13)  in-scope leg = judicial absent from November; matches baseline
 //   DE (10)  baseline spine exact for every tier Delaware has
 //   RI (44)  A scope stops at the state house; local internals excluded
 //   CO (08)  retention-block position matches the baseline's late block
-//   MS (28)  the early-judicial leg is A-excluded (SOS practice only), so
-//            the known-wrong baseline judicial-late stays, per the doc
 //   WV (54)  in-scope legs already match the baseline shape
 //   ND (38)  the legislature-above-executives inversion sits in the
 //            A-excluded intra-party-ladder leg; in-scope legs match
-//   AK (02)  office ladder and measures-before-retention both A-excluded
-//   KY (21)  all block-POSITION legs graded B (county facsimiles only);
-//            the A legs are below tier granularity
 //
 // Granularity: overrides can only move whole tiers (office scope, judicial
 // family + court level, measure district type). Within-tier office ladders
@@ -54,6 +48,7 @@ export type StateRankableElection = Pick<
   | "official_ballot_title"
   | "election_stage"
   | "election_date"
+  | "is_partisan"
 >;
 
 // Pre-derived contest facts shared by every state rule, so each rule stays a
@@ -71,6 +66,8 @@ type ContestFacts = {
   title: string;
   // Election year, for the one cycle-scoped entry (NM).
   year: number;
+  // The stored partisan flag; null when the row does not say.
+  partisan: boolean | null;
 };
 
 // A state's deviation map: rank for contests the state provably moves,
@@ -87,6 +84,7 @@ function contestFacts(election: StateRankableElection): ContestFacts {
     court: judicial ? judicialCourtOffset(election.official_ballot_title) : 0,
     title: election.official_ballot_title,
     year: Number(election.election_date.slice(0, 4)),
+    partisan: election.is_partisan ?? null,
   };
 }
 
@@ -103,20 +101,67 @@ function school(c: ContestFacts): boolean {
   );
 }
 
+// California's executive ladder, identical in § 13109(c) and § 13109.8(d):
+// Governor, Lieutenant Governor, Secretary of State, Controller, Treasurer,
+// Attorney General, Insurance Commissioner, Board of Equalization. Returned
+// as a sub-rank that never reaches the next tier.
+const CA_EXECUTIVE_LADDER: readonly RegExp[] = [
+  /^governor\b/i,
+  /\blieutenant governor\b/i,
+  /\bsecretary of state\b/i,
+  /\bcontroller\b/i,
+  /\btreasurer\b/i,
+  /\battorney general\b/i,
+  /\binsurance commissioner\b/i,
+  /\bboard of equalization\b/i,
+];
+
+function caExecutiveOffset(title: string): number {
+  const index = CA_EXECUTIVE_LADDER.findIndex((pattern) => pattern.test(title));
+  return (index === -1 ? CA_EXECUTIVE_LADDER.length : index) * 0.01;
+}
+
+// California's judicial ladder, identical in § 13109(i) and § 13109.8(e):
+// Supreme Court, then presiding justices of the Court of Appeal, then its
+// associate justices (each run in division order), then everything else.
+const DIVISION_WORDS = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+function caJudicialOffset(title: string): number {
+  if (/\bsupreme\b/i.test(title)) {
+    return 0;
+  }
+  if (!/\bcourt of appeal\b/i.test(title)) {
+    return 0.6;
+  }
+  const division = /\bdivision (\w+)/i.exec(title);
+  const divisionRank = division ? DIVISION_WORDS.indexOf(division[1].toLowerCase()) + 1 : 0;
+  return (/\bpresiding\b/i.test(title) ? 0.3 : 0.4) + divisionRank * 0.01;
+}
+
 // Baseline tier anchors, for reading the numbers below: presidential 0,
 // us_senate 10, us_house 20, statewide 30, state_executive_council 35,
 // state_upper 40, state_lower 50,
 // county 60, place 70, school 80, judicial 82-90, unknown 95, measures 100.
 
 const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
+  // AK — ballot measures print before the judicial retention questions
+  // (Supreme Court, then Superior, then District Court), which close the
+  // ballot (House District 16 Nov 2026 official sample ballot).
+  "02": (c) => (c.measure ? 81 : null),
+
   // AL — § 17-6-25 ladder items (2)-(21). Gov + LtGov (items 2-3) precede
   // US Senate/House; Supreme/appellate courts follow the legislature; trial
-  // courts precede every county office. A-excluded (not encoded): measure
-  // placement, the item-(22) county tier (incl. county boards of education),
-  // and the split second executive run (below tier granularity).
+  // courts precede every county office. Attorney General keeps the slot
+  // after US House; the second executive run (Secretary of State, Treasurer,
+  // Auditor, Agriculture, Public Service Commission, State Board of
+  // Education) prints after the appellate courts (Jefferson County Nov 2026
+  // sample ballot). Not encoded: measure placement, the item-(22) county tier.
   "01": (c) => {
-    if (statewideExec(c) && /governor/i.test(c.title)) {
-      return 5;
+    if (statewideExec(c)) {
+      if (/governor/i.test(c.title)) {
+        return 5;
+      }
+      return /\battorney general\b/i.test(c.title) ? null : 55;
     }
     if (c.judicial) {
       return c.scope === "statewide" ? 52 + c.court : 57 + c.court;
@@ -159,18 +204,18 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
 
   // CA — Elec. Code § 13109: statewide executives before US Senate; judicial
   // in one block after the legislature; school before county and city.
-  // (The LA County § 13109.8 alternate order is a single-county carve-out
-  // below state-level granularity — not encoded.)
+  // (Los Angeles County prints the § 13109.8 alternate order instead — see
+  // COUNTY_ORDER_RULES.)
   "06": (c) => {
     if (statewideExec(c)) {
       // Superintendent of Public Instruction is statewide-scoped in the
       // office catalog but is NOT in the § 13109(c) state block — it heads
       // the SCHOOL block (§ 13109(j)), after judicial, before the
       // school-district contests.
-      return /\bsuperintendent\b/i.test(c.title) ? 54.5 : 5;
+      return /\bsuperintendent\b/i.test(c.title) ? 54.5 : 5 + caExecutiveOffset(c.title);
     }
     if (c.judicial) {
-      return 52 + c.court;
+      return 52 + caJudicialOffset(c.title);
     }
     if (school(c)) {
       return 55;
@@ -228,15 +273,33 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     return null;
   },
 
-  // FL — rule 1S-2.032(7): the whole nonpartisan judicial section prints
-  // before school board (baseline has school first). The partisan-vs-
-  // nonpartisan municipal split around it is below tier granularity.
+  // FL — rule 1S-2.032(7): the nonpartisan section follows the partisan
+  // offices and runs judicial, nonpartisan county offices, school board,
+  // then municipal offices (Miami-Dade Nov 2026 sample ballot: retention,
+  // Circuit Judge, County Commissioner, School Board, city offices,
+  // districts, amendments, county and school referendums).
   "12": (c) => {
     if (c.judicial) {
       return 75 + c.court;
     }
+    if (c.measure) {
+      return null;
+    }
+    if (c.scope === "county" && c.partisan === false) {
+      return 77;
+    }
+    if (c.scope === "place" && c.partisan !== true) {
+      return 81;
+    }
     return null;
   },
+
+  // GA — statewide executives print after US Senate and before US House
+  // (Fulton County consolidated Nov 2026 sample ballot: US Senate, Governor,
+  // Lt. Governor, Secretary of State, Attorney General, Agriculture,
+  // Insurance, School Superintendent, Labor, Public Service Commission, US
+  // House, State Senate, State House, county, school, amendments).
+  "13": (c) => (statewideExec(c) ? 15 : null),
 
   // HI — § 11-114 + 247/247 printed proofs: OHA trustees (statewide scope)
   // sit between the state house and county; county charter questions print
@@ -317,6 +380,20 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     return null;
   },
 
+  // KY — the nonpartisan tail prints after the county offices: judges, then
+  // school boards, then city offices (Kenton, Warren, Fayette Nov 2026
+  // ballots on the Secretary of State site; the judge/school order flips in
+  // some counties, city always follows both).
+  "21": (c) => {
+    if (c.judicial) {
+      return 62 + c.court;
+    }
+    if (school(c)) {
+      return 64;
+    }
+    return null;
+  },
+
   // LA — R.S. 18:551: statewide executives above US Senate/House; appellate
   // courts inside the state block after US House; trial courts + DA atop
   // the parish block; school board before municipal.
@@ -383,13 +460,18 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
   // MI — MCL 168.697: Gov/SOS/AG before US Senate/House; the partisan
   // education/university boards (also statewide scope) instead print
   // between the state legislature and county; judicial leads the
-  // nonpartisan section ahead of school.
+  // nonpartisan section, then nonpartisan city and village offices, then
+  // local school districts (Kent County Nov 2026 candidate and proposal
+  // listing: judicial, community college, city, village, local school).
   "26": (c) => {
     if (statewideExec(c)) {
       return /\b(university|state board of education|regents?|trustees?)\b/i.test(c.title) ? 55 : 5;
     }
     if (c.judicial) {
       return 75 + c.court;
+    }
+    if (c.scope === "place" && !c.measure && c.partisan !== true) {
+      return 78;
     }
     return null;
   },
@@ -410,6 +492,19 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     return null;
   },
 
+  // MS — the nonpartisan judicial election prints after the federal and
+  // legislative contests and before the county and school elections
+  // (Secretary of State Nov 2026 sample ballot: US Senate, US House, special
+  // legislative and district attorney contests, Court of Appeals, Chancery,
+  // Circuit).
+  "28": (c) => (c.judicial ? 55 + c.court : null),
+
+  // MO — statewide executives print before US Representative (Kansas City
+  // Election Board Nov 2026 sample ballot: State Auditor, US Representative,
+  // State Senator, State Representative, county, judicial ballot,
+  // amendments; same spine on nine 2022-2024 county ballots).
+  "29": (c) => (statewideExec(c) ? 15 : null),
+
   // MT — judicial mid-ballot between the statewide executives/PSC and the
   // legislature; JP is instead the last county office. Municipal/school
   // tiers are empty in November (no encoding needed).
@@ -421,12 +516,17 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
   },
 
   // NE — § 32-813(9): the statewide-measure ballot comes LAST, after local
-  // measures (inverting the usual state-before-local practice). Everything
-  // else in the A scope matches the baseline; the county-vs-nonpartisan
-  // position and intra-section orders are A-excluded (county-alterable).
+  // measures (inverting the usual state-before-local practice). The
+  // nonpartisan ticket prints after the county ticket, and the Legislature
+  // heads it (Douglas County Nov 2026 countywide sample ballot; Lancaster
+  // 2024): US Senate, US House, state ticket, county ticket, Legislature,
+  // boards, city, school, judges, special issues.
   "31": (c) => {
     if (c.measure && c.scope === "statewide") {
       return 101;
+    }
+    if (c.scope === "state_upper" && !c.measure && !c.judicial) {
+      return 65;
     }
     return null;
   },
@@ -471,15 +571,13 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     return null;
   },
 
-  // NM — § 1-10-8.1(A) presidential-cycle list: partisan judicial before
-  // ALL county offices (county = last offices), and retention leads the
-  // question block ahead of the amendments. The gubernatorial (B) list is
-  // A-excluded until a Nov 2026 general sample exists, so this entry is
-  // gated to presidential years.
+  // NM — § 1-10-8: partisan judicial before ALL county offices (county =
+  // last offices), and retention leads the question block ahead of the
+  // amendments. Same shape in presidential and gubernatorial years (Santa
+  // Fe County Nov 2026 sample ballot: executives, State Representative,
+  // Court of Appeals, District and Magistrate judges, county offices,
+  // judicial retention, constitutional amendments).
   "35": (c) => {
-    if (c.year % 4 !== 0) {
-      return null;
-    }
     if (c.judicial) {
       // Shared retention matcher: catches both "Retention of Judge X" and
       // the standard question form "Shall Justice X be retained in office?".
@@ -487,6 +585,11 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     }
     return null;
   },
+
+  // NY — Election Law § 7-104(11)(a): Governor and Lieutenant Governor,
+  // Comptroller, Attorney General print before US Senator and
+  // Representative in Congress (Suffolk County Nov 2026 ballot booklet).
+  "36": (c) => (statewideExec(c) ? 5 : null),
 
   // NC — GS 163-165.6: judicial within level — appellate courts between the
   // Council of State and the legislature, trial courts between the state
@@ -499,17 +602,18 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     return null;
   },
 
-  // OH — RC 3505.03: statewide executives above US Senate with the Supreme
-  // Court between them; Courts of Appeals after the state house; trial
-  // courts as a late block that still precedes school (which the baseline
-  // already places after judicial once judicial moves to 75).
+  // OH — RC 3505.03 and Secretary of State Directive 2026-45 (order of
+  // offices for the Nov 2026 ballots): statewide executives, Supreme Court,
+  // US Senator, Representative to Congress, State Senator, State
+  // Representative, Court of Appeals, Common Pleas, County Court, then the
+  // county offices.
   "39": (c) => {
     if (statewideExec(c)) {
       return 5;
     }
     if (c.judicial) {
       // court: supreme 0, appeals 0.3, trial 0.6 -> three distinct OH slots.
-      return c.court === 0 ? 7 : c.court === 0.3 ? 55 : 75;
+      return c.court === 0 ? 7 : c.court === 0.3 ? 55 : 56;
     }
     return null;
   },
@@ -537,6 +641,11 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
     }
     return null;
   },
+
+  // PA — 25 P.S. § 2963 specimen: Governor and the other statewide
+  // executives print after US Senator and before Representative in Congress
+  // (Mercer County Nov 2026 official ballot; Montgomery County 2024).
+  "42": (c) => (statewideExec(c) ? 15 : null),
 
   // SC — § 7-13-330/335 SEC template: state ticket before the congressional
   // ticket (statewide executives above US Senate/House). Everything from
@@ -709,17 +818,232 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// County-scoped orders. A county listed here prints a contest order of its
+// own, so its rule REPLACES the state rule and the baseline for every contest
+// on that county's ballots (total mapping — it never returns null, and its
+// ranks are only compared with each other). Same evidence bar as the state
+// entries: statute or rule text plus a matching printed ballot.
+// ---------------------------------------------------------------------------
+type CountyOrderRule = (c: ContestFacts) => number;
+
+const COUNTY_ORDER_RULES: Record<string, CountyOrderRule> = {
+  // Los Angeles County, CA — Elec. Code § 13109.8 alternate order (in use
+  // under § 13109.9; matches the Nov 2026 official ballot, style 2E633):
+  // CITY/LOCAL (mayor, council, school boards, college board, other city
+  // offices, then State Senate, Assembly, US House, then city and school
+  // measures) -> DISTRICT -> COUNTY (offices, Superior Court, county
+  // measures) -> STATE (executives, Superintendent last, state measures) ->
+  // STATE JUDICIAL -> NATIONAL (President, US Senate). Measures print inside
+  // their own jurisdiction's block, not in one closing block.
+  "06037": (c) => {
+    if (c.measure) {
+      switch (c.scope) {
+        case "place":
+          return 5;
+        case "school_elementary":
+        case "school_secondary":
+        case "school_unified":
+          return 6;
+        case "county":
+          return 11;
+        case "statewide":
+          return 13;
+        default:
+          return 8;
+      }
+    }
+    if (c.judicial) {
+      // Superior Court sits in the COUNTY block; the retention questions
+      // form their own STATE JUDICIAL block after the state measures.
+      if (/\bsuperior court\b/i.test(c.title)) {
+        return 10;
+      }
+      return 14 + caJudicialOffset(c.title);
+    }
+    switch (c.scope) {
+      case "place":
+        // § 13109.8(a): Mayor, Council, the school and college boards, then
+        // the remaining city offices.
+        if (/\bmayor\b/i.test(c.title)) {
+          return 1;
+        }
+        return /\bcouncil/i.test(c.title) ? 1.1 : 1.6;
+      case "school_unified":
+        return 1.2;
+      case "school_secondary":
+        return 1.3;
+      case "school_elementary":
+        return 1.4;
+      case "state_upper":
+        return 2;
+      case "state_lower":
+        return 3;
+      case "us_house":
+        return 4;
+      case "county":
+        if (/\bsupervisor\b/i.test(c.title)) {
+          return 9;
+        }
+        if (/\bsheriff\b/i.test(c.title)) {
+          return 9.1;
+        }
+        return /\bassessor\b/i.test(c.title) ? 9.2 : 9.5;
+      case "statewide":
+        if (c.senate) {
+          return 16;
+        }
+        return /\bsuperintendent\b/i.test(c.title) ? 12.5 : 12 + caExecutiveOffset(c.title);
+      case "presidential":
+        return 15;
+      default:
+        // College boards close the school run; every other district board
+        // prints under DISTRICT.
+        return /\bcollege\b/i.test(c.title) ? 1.5 : 7;
+    }
+  },
+};
+
+// County FIPS codes carrying a county-scoped order, exported for the tests.
+export const OVERRIDDEN_COUNTY_FIPS: readonly string[] = Object.keys(COUNTY_ORDER_RULES);
+
+// Facts about the whole ballot that one contest row cannot carry.
+export type BallotOrderContext = {
+  // 5-digit FIPS of the voter's county, when the ballot resolves to exactly
+  // one county.
+  countyFips?: string | null;
+  // Election dates on which this ballot carries at least one general-stage
+  // contest. Ballot measures and retention questions are stored without a
+  // stage, and a top-two runoff is stored as `runoff`, yet all of them print
+  // on the general ballot — they take the state's general-election order
+  // when they share a date with a general contest.
+  generalDates?: ReadonlySet<string>;
+};
+
+function printsOnGeneralBallot(election: StateRankableElection, context: BallotOrderContext): boolean {
+  if (election.election_stage === "general") {
+    return true;
+  }
+  return election.election_stage !== "primary" && (context.generalDates?.has(election.election_date) ?? false);
+}
+
+// ---------------------------------------------------------------------------
+// Within-tier ladder for statewide executives. The tier rules above place the
+// executive BLOCK; inside it the generic tie-break is the title alphabet,
+// which prints Attorney General above Governor. Every state lists Governor
+// first; the rest of the ladder is the state's own where the research doc
+// records one (statute or rule text, docs/research/state-ballot-order.md
+// "Office order"), and the common national sequence otherwise.
+// ---------------------------------------------------------------------------
+const EXECUTIVE_OFFICE: Record<string, RegExp> = {
+  governor: /(?<!lieutenant )\bgovernor\b/i,
+  lieutenant: /\blieutenant governor\b/i,
+  secretary: /\bsecretary of (?:state|the commonwealth)\b/i,
+  attorney: /\battorney general\b/i,
+  treasurer: /\btreasurer\b/i,
+  auditor: /\bauditor\b/i,
+  comptroller: /\b(?:comptroller|controller)\b/i,
+  cfo: /\bchief financial officer\b/i,
+  superintendent: /\bsuperintendent\b/i,
+  agriculture: /\bagriculture\b/i,
+  insurance: /\binsurance\b/i,
+  labor: /\blabor\b/i,
+  lands: /\blands?\b/i,
+  utilities: /\b(?:railroad|public service|public utilit(?:y|ies)|corporation) commission/i,
+  mine: /\bmine inspector\b/i,
+};
+
+const GENERIC_EXECUTIVE_LADDER = [
+  "governor", "lieutenant", "secretary", "attorney", "treasurer", "auditor", "comptroller", "cfo",
+  "superintendent", "agriculture", "insurance", "labor", "lands", "utilities", "mine",
+];
+
+// Ladders that differ from the generic sequence, keyed by state FIPS.
+const STATE_EXECUTIVE_LADDERS: Record<string, readonly string[]> = {
+  "01": ["governor", "lieutenant", "attorney", "secretary", "treasurer", "auditor", "agriculture", "utilities"], // AL § 17-6-25
+  "04": ["governor", "secretary", "attorney", "treasurer", "superintendent", "mine", "utilities"], // AZ EPM
+  "12": ["governor", "attorney", "cfo", "agriculture"], // FL § 101.151(2)(a)
+  "13": [
+    "governor", "lieutenant", "secretary", "attorney", "agriculture", "insurance", "superintendent", "labor",
+    "utilities",
+  ], // GA printed ballots
+  "16": ["governor", "lieutenant", "secretary", "comptroller", "treasurer", "attorney", "superintendent"], // ID art. IV § 1
+  "17": ["governor", "attorney", "secretary", "comptroller", "treasurer"], // IL printed ballots
+  "18": ["governor", "secretary", "auditor", "treasurer", "attorney"], // IN
+  "19": ["governor", "secretary", "auditor", "treasurer", "agriculture", "attorney"], // IA 721—21.203(3)
+  "20": ["governor", "secretary", "attorney", "treasurer", "insurance"], // KS
+  "24": ["governor", "comptroller", "attorney"], // MD § 9-210(a)
+  "25": ["governor", "attorney", "secretary", "treasurer", "auditor"], // MA c.54
+  "27": ["governor", "secretary", "auditor", "attorney"], // MN Rule 8250.1810
+  "29": ["governor", "lieutenant", "secretary", "treasurer", "attorney", "auditor"], // MO printed ballots
+  "30": ["governor", "secretary", "attorney", "auditor", "superintendent", "utilities"], // MT
+  "31": ["governor", "secretary", "treasurer", "attorney", "auditor"], // NE SOS order
+  "32": ["governor", "lieutenant", "secretary", "treasurer", "comptroller", "attorney"], // NV
+  "35": ["governor", "secretary", "attorney", "auditor", "treasurer", "lands"], // NM § 1-10-8(B)
+  "36": ["governor", "comptroller", "attorney"], // NY § 7-104(11)(a)
+  "37": [
+    "governor", "lieutenant", "attorney", "auditor", "agriculture", "insurance", "labor", "secretary",
+    "superintendent", "treasurer",
+  ], // NC 08 NCAC 06B .0103(b)
+  "39": ["governor", "attorney", "auditor", "secretary", "treasurer"], // OH RC 3505.03(C)
+  "42": ["governor", "attorney", "auditor", "treasurer"], // PA printed ballots
+  "45": ["governor", "secretary", "treasurer", "attorney", "comptroller", "superintendent", "agriculture"], // SC
+  "46": ["governor", "secretary", "attorney", "auditor", "treasurer", "lands", "utilities"], // SD ARSD 05:02:06:01.04
+  "48": ["governor", "lieutenant", "attorney", "comptroller", "lands", "agriculture", "utilities"], // TX § 52.092(c)
+  "50": ["governor", "lieutenant", "treasurer", "secretary", "auditor", "attorney"], // VT
+  "53": [
+    "governor", "lieutenant", "secretary", "treasurer", "auditor", "attorney", "lands", "superintendent",
+    "insurance",
+  ], // WA WAC 434-230-025
+  "54": ["governor", "secretary", "auditor", "treasurer", "agriculture", "attorney"], // WV
+  "55": ["governor", "attorney", "secretary", "treasurer"], // WI § 5.62(3)
+  "56": ["governor", "secretary", "auditor", "treasurer", "superintendent"], // WY § 22-6-117(a)
+};
+
+// Sub-rank that orders statewide executives inside their tier; 0 for every
+// other contest. Compared only between contests whose tier rank ties.
+export function withinTierOfficeRank(election: StateRankableElection): number {
+  const facts = contestFacts(election);
+  if (!statewideExec(facts)) {
+    return 0;
+  }
+  const stateFips = election.district.state_fips;
+  const ladder = Object.hasOwn(STATE_EXECUTIVE_LADDERS, stateFips)
+    ? STATE_EXECUTIVE_LADDERS[stateFips]
+    : GENERIC_EXECUTIVE_LADDER;
+  const index = ladder.findIndex((office) => EXECUTIVE_OFFICE[office].test(facts.title));
+  if (index !== -1) {
+    return index;
+  }
+  // An office the state's ladder does not name keeps the generic sequence,
+  // after every office the ladder does name.
+  const generic = GENERIC_EXECUTIVE_LADDER.findIndex((office) => EXECUTIVE_OFFICE[office].test(facts.title));
+  return ladder.length + (generic === -1 ? GENERIC_EXECUTIVE_LADDER.length : generic);
+}
+
 // FIPS codes carrying an override, exported for the tests' gate sweep.
 export const OVERRIDDEN_STATE_FIPS: readonly string[] = Object.keys(STATE_ORDER_RULES);
 
-// Rank of a summary election for the `state_baseline` sort: the state's
-// verified general-election deviation where one is encoded, the generic
-// baseline everywhere else. Single entry point for the ordering decorator.
-export function stateBallotContestRank(election: StateRankableElection): number {
-  if (election.election_stage === "general") {
-    // Own-key lookup: the districts table does not enforce the FIPS format,
-    // so a malformed value must miss instead of resolving an inherited
-    // Object.prototype member.
+// Rank of a summary election for the `state_baseline` sort: the county's
+// own order where one is encoded, else the state's verified general-election
+// deviation, else the generic baseline. Single entry point for the ordering
+// decorator.
+export function stateBallotContestRank(
+  election: StateRankableElection,
+  context: BallotOrderContext = {}
+): number {
+  // Own-key lookups: the districts table does not enforce the FIPS format,
+  // so a malformed value must miss instead of resolving an inherited
+  // Object.prototype member.
+  const countyFips = context.countyFips;
+  if (
+    countyFips &&
+    countyFips.startsWith(election.district.state_fips) &&
+    Object.hasOwn(COUNTY_ORDER_RULES, countyFips)
+  ) {
+    return COUNTY_ORDER_RULES[countyFips](contestFacts(election));
+  }
+  if (printsOnGeneralBallot(election, context)) {
     const rule = Object.hasOwn(STATE_ORDER_RULES, election.district.state_fips)
       ? STATE_ORDER_RULES[election.district.state_fips]
       : undefined;

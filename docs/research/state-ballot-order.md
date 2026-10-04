@@ -6175,3 +6175,46 @@ measures last.
   per-precinct archive (UNPADDED precinct slugs), elections.ri.gov
   statewide compendiums, elections.delaware.gov per-cycle indexes
   (naming changes per cycle — enumerate index hrefs, never construct).
+
+## November 2026 printed-ballot pass (2026-10-04)
+
+Official November 3, 2026 ballots read against the encoded order. "Encoded" means a rule was added or changed in
+`backend/src/pipeline/address/stateBallotOrderRules.ts`; "matches" means the existing rule or the baseline already printed
+the same order.
+
+| State / county | Printed ballot | Result |
+| --- | --- | --- |
+| CA — Los Angeles County | Voter's own official ballot, style 2E633 (Baldwin Park); Elec. Code § 13109.8 | Encoded as a county order (local first, federal last, measures inside each block) |
+| CA — San Bernardino County | https://uploads.rov.sbcounty.gov/ROV/Elections/2026/1103/VIG.pdf | Matches § 13109 |
+| CA — San Francisco | https://media.api.sf.gov/documents/N26_EN_VIP.pdf (p. 4) | Matches § 13109 |
+| CA — Riverside County | https://docs.voteinfo.net/voterInformation/root1103/ballots/bt000009.pdf | Matches § 13109 |
+| CA — San Diego County | https://www.sdvote.com/content/dam/rov/en/sb/SB-ENG-111.pdf | Matches § 13109 |
+| CA — Santa Barbara County | https://www.sbcvote.com/SampleballotandpollplaceLookup/ballots/bt000001.pdf | Matches § 13109 |
+| AK | https://www.elections.alaska.gov/election/2026/General/SampleBallots/HD16-JD3.pdf | Encoded: measures before retention |
+| AL — Jefferson, Limestone, Madison, Marshall, Mobile, Montgomery, Morgan, Shelby, Tuscaloosa | https://www.sos.alabama.gov/alabama-votes/2026-general-election-sample-ballots | Encoded: second executive run after the appellate courts |
+| FL — Miami-Dade County | https://www.miamidade.gov/elections/library/2026-11-03-general-election-sample-ballot.pdf | Encoded: nonpartisan county offices and city offices in the nonpartisan section |
+| GA — Fulton County | https://www.fultoncountyga.gov/-/media/2026-Election/November-3-Election/Sample-Ballot--Consolidated--Nov-32026-General--Special-Election--9282026.pdf | Encoded: executives between US Senate and US House |
+| ID — Canyon County | https://elections.canyoncounty.id.gov/wp-content/uploads/2026/10/Sample-Ballot-November-2026.jpg | Matches the baseline |
+| KY — Kenton, Warren, Fayette, Jefferson | https://web.sos.ky.gov/electionballots/ (`<County> 2026G.pdf`; Jefferson precinct ballots on the county clerk site) | Encoded: judges and school boards after county offices, city offices last |
+| MD — Montgomery County, Baltimore City | https://elections.maryland.gov/elections/2026/general_ballots/ | Matches |
+| MO — Kansas City | https://kceb.org/sample-ballot-for-november-3-2026-election/ | Encoded: executives before US House |
+| MS — statewide sample | https://www.sos.ms.gov/elections-voting (Sample Ballot 9-9-26) | Encoded: judicial after the legislature, before county and school |
+| NC — Johnston County | https://www.johnstonnc.gov/joconcelections/content.cfm?pageid=220 | Matches |
+| NE — Douglas County | https://www.votedouglascounty-ne.gov/elections/2026/General/GN26SampleBallot.pdf | Encoded: Legislature after the county ticket |
+| NY — Suffolk County | https://www.suffolkcountyny.gov/Portals/0/formsdocs/boe/GeneralElection2026EmergencyBallotBooklet.pdf | Encoded: executives before US Senate and US House |
+| PA — Mercer County | https://www.mercercountypa.gov/election/Ballots/2026/GENERAL/1.pdf | Encoded: executives between US Senate and US House |
+| TN — Davidson County | https://www.nashville.gov/departments/elections/voters/sample-ballots | Matches |
+| TX — Harris County | https://www.harrisvotes.com/Voter/Whats-on-my-Ballot | Matches |
+| IA — Black Hawk County | https://blackhawkcountyelections.iowa.gov/elections/info/2026_general_election_2026_11_03/ | Matches |
+| IL — McLean County | https://health.mcleancountyil.gov/1600/Ballots (2026 General specimen ballot) | Tier order matches; executive ladder encoded (Governor, Attorney General, Secretary of State, Comptroller, Treasurer) |
+| KS — Johnson County | https://www.jocoelection.org/events-elections/november-3-2026-general-election (Notice of Election) | Matches |
+| MI — Kent County | https://www.kentcountymi.gov/DocumentCenter/View/8870 (candidates and proposals by ballot section) | Encoded: nonpartisan city offices after the judges, before local school boards |
+| MN — Hennepin County (SD 45B) | Secretary of State sample ballot for precinct style 45B | Matches |
+| NM — Santa Fe County | https://www.santafecountynm.gov/clerk/elections/sample-ballots | Encoded: the presidential-year judicial placement also applies in governor years; executive ladder |
+| OH — statewide | Secretary of State Directive 2026-45, "Order of offices for all ballots" | Encoded: Common Pleas and County Court judges before the county offices |
+| VA — Fairfax County | https://www.fairfaxcounty.gov/elections/sample-ballots | Matches |
+
+Not yet read (no public November 2026 ballot found as of 2026-10-04, or the sample ballot sits behind a voter-identity
+lookup): AR, AZ, CO, CT, DC, DE, HI, IN, LA, MA, ME, MT, ND, NH, NJ, NV, OK, OR, RI, SC, SD, UT, VT, WA, WI, WV, WY, and the
+California counties of Orange, Santa Clara, Alameda, Sacramento and Contra Costa. Several of these states mail
+ballots in mid-October and had not posted samples yet.

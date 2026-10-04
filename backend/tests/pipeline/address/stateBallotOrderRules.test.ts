@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { stateBaselineContestRank } from "../../../src/pipeline/address/ballotContestRank.js";
 import {
+  OVERRIDDEN_COUNTY_FIPS,
   OVERRIDDEN_STATE_FIPS,
   stateBallotContestRank,
+  withinTierOfficeRank,
   type StateRankableElection,
 } from "../../../src/pipeline/address/stateBallotOrderRules.js";
 
@@ -16,6 +18,7 @@ type InputOverrides = {
   office_scope?: string | null;
   district_type?: string;
   title?: string;
+  is_partisan?: boolean | null;
 };
 
 function input(overrides: InputOverrides): StateRankableElection {
@@ -26,6 +29,7 @@ function input(overrides: InputOverrides): StateRankableElection {
       ? "general"
       : overrides.election_stage) as StateRankableElection["election_stage"],
     election_date: overrides.election_date ?? "2026-11-03",
+    is_partisan: overrides.is_partisan === undefined ? true : overrides.is_partisan,
     discovery_contest_family: (overrides.contest_family ??
       (overrides.race_type === "ballot_measure"
         ? "ballot_measure"
@@ -82,6 +86,28 @@ const PROBES: InputOverrides[] = [
 ];
 
 describe("stateBallotContestRank gating", () => {
+  it("applies overrides to stage-less, runoff, and special rows that share a date with a general contest", () => {
+    // Measures and retention questions carry no stage; a top-two runoff is
+    // stored as `runoff`. All of them print on the general ballot.
+    const context = { generalDates: new Set(["2026-11-03"]) };
+    for (const fips of OVERRIDDEN_STATE_FIPS) {
+      for (const probe of PROBES) {
+        const asGeneral = rank(fips, probe);
+        for (const stage of ["runoff", "special", null]) {
+          const row = input({ ...probe, state_fips: fips, election_stage: stage });
+          expect(stateBallotContestRank(row, context)).toBe(asGeneral);
+          // A different date on the same ballot does not qualify.
+          expect(stateBallotContestRank({ ...row, election_date: "2026-12-01" }, context)).toBe(
+            stateBaselineContestRank(row)
+          );
+        }
+        // A primary never takes the general-election order.
+        const primary = input({ ...probe, state_fips: fips, election_stage: "primary" });
+        expect(stateBallotContestRank(primary, context)).toBe(stateBaselineContestRank(primary));
+      }
+    }
+  });
+
   it("applies overrides only when election_stage is 'general'", () => {
     for (const fips of OVERRIDDEN_STATE_FIPS) {
       for (const probe of PROBES) {
@@ -95,8 +121,8 @@ describe("stateBallotContestRank gating", () => {
 
   it("every override entry moves at least one probe contest on a general", () => {
     // Guards against dead entries (a rule that never fires is either a typo'd
-    // FIPS key or an encoding mistake). NM is cycle-gated to presidential
-    // years, so the sweep probes a presidential-year date.
+    // FIPS key or an encoding mistake). The sweep probes a presidential-year
+    // date so presidential contests are in play.
     for (const fips of OVERRIDDEN_STATE_FIPS) {
       const moved = PROBES.some((probe) => {
         const generalRank = rank(fips, { ...probe, election_date: "2028-11-07" });
@@ -107,10 +133,9 @@ describe("stateBallotContestRank gating", () => {
   });
 
   it("falls back to the baseline for states without an entry", () => {
-    // Grade-B/C states (PA, ID, MO, AR) and the grade-A states whose
-    // verified order matches the baseline (NY, GA, DE, RI, CO, MS, WV, ND,
-    // AK, KY) — plus a FIPS with no entry at all.
-    const NO_ROW_FIPS = ["42", "16", "29", "05", "36", "13", "10", "44", "08", "28", "54", "38", "02", "21", "72"];
+    // States whose printed order matches the baseline (ID, DE, RI, CO, WV,
+    // ND), AR (no confirmed order yet) — plus a FIPS with no entry at all.
+    const NO_ROW_FIPS = ["16", "05", "10", "44", "08", "54", "38", "72"];
     for (const fips of NO_ROW_FIPS) {
       expect(OVERRIDDEN_STATE_FIPS).not.toContain(fips);
       for (const probe of PROBES) {
@@ -128,9 +153,9 @@ describe("per-state deviations", () => {
     expect(rank("01", { office_scope: "statewide", title: "Lieutenant Governor" })).toBeLessThan(
       rank("01", { office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" })
     );
-    // Other executives are NOT moved (split second run — below granularity).
-    expect(rank("01", { office_scope: "statewide", title: "Secretary of State" })).toBe(
-      stateBaselineContestRank(input({ office_scope: "statewide", title: "Secretary of State" }))
+    // Attorney General keeps the baseline slot after US House.
+    expect(rank("01", { office_scope: "statewide", title: "Attorney General" })).toBe(
+      stateBaselineContestRank(input({ office_scope: "statewide", title: "Attorney General" }))
     );
     const supreme = rank("01", {
       office_scope: "statewide",
@@ -497,7 +522,7 @@ describe("per-state deviations", () => {
     expect(municipal).toBeLessThan(county);
   });
 
-  it("NM (presidential years): partisan judicial before county; retention leads the question block", () => {
+  it("NM: partisan judicial before county; retention leads the question block", () => {
     const presYear = { election_date: "2028-11-07" };
     const partisanJudge = rank("35", {
       ...presYear,
@@ -525,12 +550,15 @@ describe("per-state deviations", () => {
       title: "Shall J. Miles Hanisee be retained as a Judge of the Court of Appeals?",
     });
     expect(questionForm).toBe(retention);
-    // Gubernatorial cycles are A-excluded: the whole entry defers to baseline.
-    expect(rank("35", { election_date: "2026-11-03", office_scope: "county", contest_family: "judicial_office", title: "Judge of the District Court" })).toBe(
-      stateBaselineContestRank(
-        input({ election_date: "2026-11-03", office_scope: "county", contest_family: "judicial_office", title: "Judge of the District Court" })
-      )
-    );
+    // Gubernatorial years print the same shape (Santa Fe County Nov 2026).
+    expect(
+      rank("35", {
+        election_date: "2026-11-03",
+        office_scope: "county",
+        contest_family: "judicial_office",
+        title: "Judge of the District Court",
+      })
+    ).toBeLessThan(rank("35", { election_date: "2026-11-03", office_scope: "county", title: "County Sheriff" }));
   });
 
   it("NC: appellate courts before the legislature; trial courts between state house and county", () => {
@@ -546,7 +574,7 @@ describe("per-state deviations", () => {
     expect(trial).toBeLessThan(rank("37", { office_scope: "county", title: "Register of Deeds" }));
   });
 
-  it("OH: executives then Supreme Court then US Senate; appeals after state house; trial courts before school", () => {
+  it("OH: executives then Supreme Court then US Senate; appeals then trial courts after state house, before county", () => {
     const governor = rank("39", { office_scope: "statewide", title: "Governor and Lieutenant Governor" });
     const supreme = rank("39", {
       office_scope: "statewide",
@@ -564,8 +592,8 @@ describe("per-state deviations", () => {
     expect(appeals).toBeGreaterThan(rank("39", { office_scope: "state_lower", title: "State Representative" }));
     expect(appeals).toBeLessThan(rank("39", { office_scope: "county", title: "County Auditor" }));
     const trial = rank("39", { office_scope: "county", contest_family: "judicial_office", title: "Judge of the Court of Common Pleas" });
-    expect(trial).toBeGreaterThan(rank("39", { office_scope: "place", title: "City Council" }));
-    expect(trial).toBeLessThan(rank("39", { office_scope: "school_unified", title: "Board of Education" }));
+    expect(trial).toBeGreaterThan(appeals);
+    expect(trial).toBeLessThan(rank("39", { office_scope: "county", title: "County Commissioner" }));
   });
 
   it("OK: executives before US Senate; trial then appellate retention after county, before State Questions", () => {
@@ -753,5 +781,262 @@ describe("per-state deviations", () => {
     expect(retention).toBeGreaterThan(rank("56", { office_scope: "county", title: "County Commissioner" }));
     expect(retention).toBeLessThan(rank("56", { office_scope: "place", title: "Mayor" }));
     expect(retention).toBeLessThan(rank("56", { office_scope: "school_unified", title: "School Board" }));
+  });
+});
+
+describe("orders confirmed on printed November 2026 ballots", () => {
+  it("PA: statewide executives between US Senate and US House", () => {
+    const governor = rank("42", { office_scope: "statewide", title: "Governor and Lieutenant Governor" });
+    expect(governor).toBeGreaterThan(
+      rank("42", { office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" })
+    );
+    expect(governor).toBeLessThan(rank("42", { office_scope: "us_house", title: "Representative in Congress" }));
+  });
+
+  it("KY: judges and school boards after county offices, city offices after both", () => {
+    const county = rank("21", { office_scope: "county", title: "Sheriff" });
+    const judge = rank("21", { office_scope: "county", contest_family: "judicial_office", title: "District Judge" });
+    const schoolBoard = rank("21", { office_scope: "school_unified", title: "Board of Education Member" });
+    const city = rank("21", { office_scope: "place", title: "Mayor" });
+    expect(judge).toBeGreaterThan(county);
+    expect(schoolBoard).toBeGreaterThan(judge);
+    expect(city).toBeGreaterThan(schoolBoard);
+  });
+
+  it("MO: statewide executives before US House", () => {
+    expect(rank("29", { office_scope: "statewide", title: "State Auditor" })).toBeLessThan(
+      rank("29", { office_scope: "us_house", title: "United States Representative" })
+    );
+  });
+
+  it("NE: the Legislature prints after the county ticket, before city offices", () => {
+    const legislature = rank("31", { office_scope: "state_upper", title: "For Member of the Legislature" });
+    expect(legislature).toBeGreaterThan(rank("31", { office_scope: "county", title: "County Sheriff" }));
+    expect(legislature).toBeLessThan(rank("31", { office_scope: "place", title: "City Council" }));
+  });
+
+  it("MS: judges after the legislature, before county and school contests", () => {
+    const judge = rank("28", { office_scope: "county", contest_family: "judicial_office", title: "Circuit Court Judge" });
+    expect(judge).toBeGreaterThan(rank("28", { office_scope: "state_lower", title: "State House of Representatives" }));
+    expect(judge).toBeLessThan(rank("28", { office_scope: "county", title: "Election Commissioner" }));
+    expect(judge).toBeLessThan(rank("28", { office_scope: "school_unified", title: "School Board Member" }));
+  });
+
+  it("GA: statewide executives between US Senate and US House", () => {
+    const governor = rank("13", { office_scope: "statewide", title: "Governor" });
+    expect(governor).toBeGreaterThan(
+      rank("13", { office_scope: "statewide", contest_family: "us_senate", title: "United States Senate" })
+    );
+    expect(governor).toBeLessThan(rank("13", { office_scope: "us_house", title: "United States House" }));
+  });
+
+  it("NY: statewide executives before US Senate and US House", () => {
+    const comptroller = rank("36", { office_scope: "statewide", title: "Comptroller" });
+    expect(comptroller).toBeLessThan(
+      rank("36", { office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" })
+    );
+    expect(comptroller).toBeLessThan(rank("36", { office_scope: "us_house", title: "Representative in Congress" }));
+  });
+
+  it("FL: nonpartisan county offices and city offices print in the nonpartisan section", () => {
+    const judge = rank("12", { office_scope: "county", contest_family: "judicial_office", title: "Circuit Judge" });
+    const schoolBoard = rank("12", { office_scope: "school_unified", title: "School Board Member" });
+    const partisanCounty = rank("12", { office_scope: "county", title: "County Commissioner" });
+    const nonpartisanCounty = rank("12", { office_scope: "county", title: "County Commissioner", is_partisan: false });
+    const city = rank("12", { office_scope: "place", title: "Mayor", is_partisan: false });
+    expect(partisanCounty).toBeLessThan(judge);
+    expect(nonpartisanCounty).toBeGreaterThan(judge);
+    expect(nonpartisanCounty).toBeLessThan(schoolBoard);
+    expect(city).toBeGreaterThan(schoolBoard);
+  });
+
+  it("MI: nonpartisan city offices after the judges, before local school boards", () => {
+    const city = rank("26", { office_scope: "place", title: "City Commissioner", is_partisan: false });
+    expect(city).toBeGreaterThan(
+      rank("26", { office_scope: "county", contest_family: "judicial_office", title: "Judge of District Court" })
+    );
+    expect(city).toBeLessThan(rank("26", { office_scope: "school_unified", title: "Board Member" }));
+  });
+
+  it("AK: ballot measures before the retention questions", () => {
+    const measure = rank("02", { race_type: "ballot_measure", office_scope: null, district_type: "statewide" });
+    expect(measure).toBeGreaterThan(rank("02", { office_scope: "state_lower", title: "State Representative" }));
+    expect(measure).toBeLessThan(
+      rank("02", { office_scope: "statewide", contest_family: "judicial_office", title: "Supreme Court Justice" })
+    );
+  });
+
+  it("AL: Attorney General before the legislature; the other executives after the appellate courts", () => {
+    const senate = rank("01", { office_scope: "state_upper", title: "State Senator" });
+    const appeals = rank("01", {
+      office_scope: "statewide",
+      contest_family: "judicial_office",
+      title: "Court of Civil Appeals Judge",
+    });
+    const trial = rank("01", { office_scope: "county", contest_family: "judicial_office", title: "Circuit Court Judge" });
+    expect(rank("01", { office_scope: "statewide", title: "Attorney General" })).toBeLessThan(senate);
+    const secretary = rank("01", { office_scope: "statewide", title: "Secretary of State" });
+    expect(secretary).toBeGreaterThan(appeals);
+    expect(secretary).toBeLessThan(trial);
+  });
+});
+
+describe("county-scoped orders", () => {
+  const LA = { countyFips: "06037" };
+  function la(overrides: InputOverrides): number {
+    return stateBallotContestRank(input({ ...overrides, state_fips: "06" }), LA);
+  }
+
+  it("lists Los Angeles County", () => {
+    expect(OVERRIDDEN_COUNTY_FIPS).toContain("06037");
+  });
+
+  it("Los Angeles County: local first, measures inside each block, federal last (Elec. Code 13109.8)", () => {
+    const measure = (district_type: string) =>
+      la({ race_type: "ballot_measure", office_scope: null, district_type, election_stage: null, title: "Measure" });
+    const order = [
+      la({ office_scope: "place", title: "Mayor" }),
+      la({ office_scope: "place", title: "Member of the City Council" }),
+      la({ office_scope: "school_unified", title: "Governing Board Member" }),
+      la({ office_scope: "school_secondary", title: "Governing Board Member" }),
+      la({ office_scope: "school_elementary", title: "Governing Board Member" }),
+      la({ office_scope: "local_special", title: "Community College District Governing Board Member" }),
+      la({ office_scope: "place", title: "City Clerk" }),
+      la({ office_scope: "state_upper", title: "State Senator" }),
+      la({ office_scope: "state_lower", title: "Member of the State Assembly" }),
+      la({ office_scope: "us_house", title: "United States Representative" }),
+      measure("place"),
+      measure("school_unified"),
+      la({ office_scope: "local_special", title: "Water District Director" }),
+      measure("local_special"),
+      la({ office_scope: "county", title: "County Supervisor", election_stage: "runoff" }),
+      la({ office_scope: "county", title: "Sheriff", election_stage: "runoff" }),
+      la({ office_scope: "county", title: "Assessor", election_stage: "runoff" }),
+      la({ office_scope: "county", title: "District Attorney", election_stage: "runoff" }),
+      la({
+        office_scope: "county",
+        contest_family: "judicial_office",
+        title: "Judge of the Superior Court, Office No. 64",
+        election_stage: "runoff",
+      }),
+      measure("county"),
+      la({ office_scope: "statewide", title: "Governor" }),
+      la({ office_scope: "statewide", title: "Superintendent of Public Instruction" }),
+      measure("statewide"),
+      la({
+        office_scope: "statewide",
+        contest_family: "judicial_office",
+        title: "Shall Associate Justice of the Supreme Court A be elected?",
+        election_stage: null,
+      }),
+      la({
+        office_scope: "statewide",
+        contest_family: "judicial_office",
+        title: "Presiding Justice, Court of Appeal, Second District, Division Three: Shall B be elected?",
+        election_stage: null,
+      }),
+      la({
+        office_scope: "statewide",
+        contest_family: "judicial_office",
+        title: "Associate Justice, Court of Appeal, Second District, Division One: Shall C be elected?",
+        election_stage: null,
+      }),
+      la({ office_scope: "presidential", title: "President and Vice President" }),
+      la({ office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" }),
+    ];
+    for (let i = 1; i < order.length; i += 1) {
+      expect(order[i], `position ${i}`).toBeGreaterThan(order[i - 1]);
+    }
+  });
+
+  it("California: executives and Court of Appeal questions follow the statutory ladder", () => {
+    const titles = [
+      "Governor",
+      "Lieutenant Governor",
+      "Secretary of State",
+      "Controller",
+      "Treasurer",
+      "Attorney General",
+      "Insurance Commissioner",
+      "Member, State Board of Equalization, 3rd District",
+    ];
+    const courts = [
+      "Shall Associate Justice of the Supreme Court A be elected?",
+      "Presiding Justice, Court of Appeal, Second District, Division Three: Shall B be elected?",
+      "Presiding Justice, Court of Appeal, Second District, Division Seven: Shall C be elected?",
+      "Associate Justice, Court of Appeal, Second District, Division One: Shall D be elected?",
+      "Associate Justice, Court of Appeal, Second District, Division Eight: Shall E be elected?",
+    ];
+    // Same ladders under the state rule (any other county) and the LA rule.
+    for (const context of [{}, LA]) {
+      const ranks = titles.map((title) =>
+        stateBallotContestRank(input({ state_fips: "06", office_scope: "statewide", title }), context)
+      );
+      const courtRanks = courts.map((title) =>
+        stateBallotContestRank(
+          input({ state_fips: "06", office_scope: "statewide", contest_family: "judicial_office", title }),
+          context
+        )
+      );
+      for (const run of [ranks, courtRanks]) {
+        for (let i = 1; i < run.length; i += 1) {
+          expect(run[i], `position ${i}`).toBeGreaterThan(run[i - 1]);
+        }
+      }
+    }
+  });
+
+  it("applies the county order at every stage, and only to that county's state", () => {
+    // The alternate order governs LA primaries too.
+    expect(la({ office_scope: "place", title: "Mayor", election_stage: "primary" })).toBeLessThan(
+      la({ office_scope: "statewide", title: "Governor", election_stage: "primary" })
+    );
+    // Another California county keeps the state rule.
+    const other = { countyFips: "06073" };
+    const governor = input({ state_fips: "06", office_scope: "statewide", title: "Governor" });
+    expect(stateBallotContestRank(governor, other)).toBe(stateBallotContestRank(governor));
+    // A row from another state is never ranked by the LA rule.
+    const texas = input({ state_fips: "48", office_scope: "statewide", title: "Governor" });
+    expect(stateBallotContestRank(texas, LA)).toBe(stateBallotContestRank(texas));
+  });
+});
+
+describe("withinTierOfficeRank", () => {
+  const exec = (state_fips: string, title: string) =>
+    withinTierOfficeRank(input({ state_fips, office_scope: "statewide", title }));
+
+  it("prints Governor first in every state, never by title alphabet", () => {
+    for (const fips of ["01", "13", "17", "36", "48", "53", "99"]) {
+      expect(exec(fips, "Governor and Lieutenant Governor")).toBeLessThan(exec(fips, "Attorney General"));
+      expect(exec(fips, "Governor")).toBeLessThan(exec(fips, "Lieutenant Governor"));
+    }
+  });
+
+  it("uses the state's own ladder where one is recorded", () => {
+    // Texas: Attorney General, then Comptroller, then Land Commissioner.
+    expect(exec("48", "Attorney General")).toBeLessThan(exec("48", "Comptroller of Public Accounts"));
+    expect(exec("48", "Comptroller of Public Accounts")).toBeLessThan(
+      exec("48", "Commissioner of the General Land Office")
+    );
+    // Ohio: Attorney General and Auditor before Secretary of State.
+    expect(exec("39", "Auditor of State")).toBeLessThan(exec("39", "Secretary of State"));
+    // Generic sequence: Secretary of State before Attorney General.
+    expect(exec("99", "Secretary of State")).toBeLessThan(exec("99", "Attorney General"));
+    // An office the ladder omits prints after the ones it names.
+    expect(exec("39", "Treasurer of State")).toBeLessThan(exec("39", "Member, State Board of Education"));
+  });
+
+  it("is zero for anything that is not a statewide executive", () => {
+    expect(withinTierOfficeRank(input({ office_scope: "county", title: "Treasurer" }))).toBe(0);
+    expect(
+      withinTierOfficeRank(
+        input({ office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" })
+      )
+    ).toBe(0);
+    expect(
+      withinTierOfficeRank(
+        input({ race_type: "ballot_measure", office_scope: null, district_type: "statewide", title: "Governor Recall" })
+      )
+    ).toBe(0);
   });
 });
