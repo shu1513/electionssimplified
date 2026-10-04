@@ -36,6 +36,21 @@ describe("GoogleSignInButton", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders the fallback instead when Google is unavailable", () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "");
+    stubGis();
+    render(<GoogleSignInButton text="continue_with" onCredential={vi.fn()} fallback={<p>No Google</p>} />);
+    expect(screen.getByText("No Google")).toBeInTheDocument();
+  });
+
+  it("drops the or-divider when divider is false", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
+    const gis = stubGis();
+    render(<GoogleSignInButton text="continue_with" divider={false} onCredential={vi.fn()} />);
+    await waitFor(() => expect(gis.renderButton).toHaveBeenCalled());
+    expect(screen.queryByText("or")).not.toBeInTheDocument();
+  });
+
   it("initializes GIS with the client ID and renders the button", async () => {
     vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
     const gis = stubGis();

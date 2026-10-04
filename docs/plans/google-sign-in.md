@@ -132,7 +132,7 @@ Google-only users have no password, and `changePassword` / `requestEmailChange` 
 
 - password-less account → Settings shows "Add a password" pointing at the existing **forgot-password** flow (their email is verified, so the reset link works today with zero backend change), and the three password-gated forms are replaced by that hint instead of failing.
 
-Account deletion therefore stays possible (set password → delete), satisfying the privacy-policy promise without a parallel re-auth mechanism. A fresh-Google-ID-token re-auth path is explicitly deferred.
+Account deletion therefore stays possible (set password → delete), satisfying the privacy-policy promise without a parallel re-auth mechanism. A fresh-Google-ID-token re-auth path is explicitly deferred. (Added later for account deletion only: `DELETE /api/me` accepts a `google_credential` whose subject must match the linked `google_sub`, so a Google-only account can delete itself without setting a password.)
 
 ## Privacy policy (before release)
 

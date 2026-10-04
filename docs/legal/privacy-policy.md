@@ -75,12 +75,17 @@ can contain identifying details; (5) Google Places entry links the Google
 Privacy Policy as the Places policies require. Corrections of overclaims,
 nothing new collected — ships with the Terms 1.5 bump, which re-accepts
 the bundle anyway.
+1.8 → 1.9 on 2026-10-04: Section 6 said deleting a Google-created account
+requires setting a password first. Settings now confirm that delete with a
+fresh Google sign-in (DELETE /api/me google_credential, matched against the
+linked google_sub), so the sentence says so; email change still needs a
+password. Nothing new collected — CURRENT_TERMS_VERSION stays 1.5.
 -->
 
 # Elections Simplified Privacy Policy
 
-**Last updated:** September 16, 2026
-**Version:** 1.8
+**Last updated:** October 4, 2026
+**Version:** 1.9
 
 This Privacy Policy describes how Elections Simplified Inc., a Delaware corporation and the operator of the Elections Simplified service ("Elections Simplified," "we," "us"), collects, uses, and shares information when you use the Elections Simplified website and services (the "Service").
 
@@ -143,7 +148,7 @@ You can view and update your name, email address, password, districts, follows, 
 
 ## 6. Security
 
-Passwords are stored using a modern memory-hard hashing algorithm; sessions use httpOnly cookies; email-verification, password-reset, and email-change links are single-use and expire; and account-sensitive actions require your password and are rate limited. An account created with Sign in with Google has no password until you set one; changing your email or deleting your account then requires setting a password first (account settings link to the emailed set-a-password flow). No system is perfectly secure — use a unique password.
+Passwords are stored using a modern memory-hard hashing algorithm; sessions use httpOnly cookies; email-verification, password-reset, and email-change links are single-use and expire; and account-sensitive actions require your password and are rate limited. An account created with Sign in with Google has no password until you set one; changing your email then requires setting a password first (account settings link to the emailed set-a-password flow), and deleting your account is confirmed by signing in with Google again. No system is perfectly secure — use a unique password.
 
 ## 7. Children
 

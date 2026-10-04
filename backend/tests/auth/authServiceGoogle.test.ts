@@ -472,7 +472,7 @@ describe("NULL password_hash guards (Google-only accounts)", () => {
     ).rejects.toThrow("Password is incorrect");
   });
 
-  it("deleteAccount rejects password-less accounts", async () => {
+  it("deleteAccount rejects a password on password-less accounts", async () => {
     const client = createDbClientMock();
     client.query
       .mockResolvedValueOnce({ rows: [] }) // BEGIN
@@ -487,5 +487,66 @@ describe("NULL password_hash guards (Google-only accounts)", () => {
     await expect(
       service.deleteAccount({ userId: USER_ID, password: "auth-login-dummy-password" })
     ).rejects.toThrow("Password is incorrect");
+  });
+
+  it("deleteAccount hard-deletes a password-less account confirmed by its linked Google account", async () => {
+    const client = createDbClientMock();
+    client.query
+      .mockResolvedValueOnce({ rows: [] }) // BEGIN
+      .mockResolvedValueOnce({ rows: [googleUserRow({ password_hash: null, google_sub: GOOGLE_SUB })] })
+      .mockResolvedValue({ rows: [] }); // scrubs, DELETE, COMMIT
+    const verify = vi.fn().mockResolvedValue(googlePayload());
+    const service = createAuthService({
+      db: createDbMock(client) as never,
+      redis: createRedisMock() as never,
+      mailer: createMailerMock(),
+      publicBaseUrl: "https://example.com",
+      verifyGoogleIdToken: verify,
+    });
+
+    await service.deleteAccount({ userId: USER_ID, googleCredential: "google-jwt" });
+
+    expect(verify).toHaveBeenCalledWith("google-jwt");
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some((sql) => /DELETE FROM public\.users\s+WHERE id = \$1::uuid/.test(sql))).toBe(true);
+    expect(statements.at(-1)).toBe("COMMIT");
+  });
+
+  it("deleteAccount rejects a Google account other than the linked one", async () => {
+    const client = createDbClientMock();
+    client.query
+      .mockResolvedValueOnce({ rows: [] }) // BEGIN
+      .mockResolvedValueOnce({ rows: [googleUserRow({ password_hash: null, google_sub: GOOGLE_SUB })] })
+      .mockResolvedValue({ rows: [] });
+    const service = createAuthService({
+      db: createDbMock(client) as never,
+      redis: createRedisMock() as never,
+      mailer: createMailerMock(),
+      publicBaseUrl: "https://example.com",
+      verifyGoogleIdToken: vi.fn().mockResolvedValue(googlePayload({ sub: "999999999999999999999" })),
+    });
+
+    await expect(service.deleteAccount({ userId: USER_ID, googleCredential: "google-jwt" })).rejects.toThrow(
+      "That Google account is not the one linked to this account"
+    );
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some((sql) => sql.includes("DELETE FROM public.users"))).toBe(false);
+  });
+
+  it("deleteAccount rejects a Google credential that fails verification", async () => {
+    const client = createDbClientMock();
+    const db = createDbMock(client);
+    const service = createAuthService({
+      db: db as never,
+      redis: createRedisMock() as never,
+      mailer: createMailerMock(),
+      publicBaseUrl: "https://example.com",
+      verifyGoogleIdToken: vi.fn().mockRejectedValue(new Error("bad signature")),
+    });
+
+    await expect(service.deleteAccount({ userId: USER_ID, googleCredential: "forged" })).rejects.toThrow(
+      "Google sign-in failed: invalid credential"
+    );
+    expect(db.connect).not.toHaveBeenCalled();
   });
 });
