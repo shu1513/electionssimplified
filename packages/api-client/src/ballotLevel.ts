@@ -66,6 +66,15 @@ export function ballotLevel(
   }
 }
 
+/**
+ * President, US Senate and US House office races: under the vote-power sort
+ * they lead each date, ahead of the vote-power bands. Mirrors
+ * isFederalLeadRace in the backend's ballotElectionOrdering.ts.
+ */
+export function isFederalLeadRace(raceType: string | undefined, level: string | undefined): boolean {
+  return raceType !== "ballot_measure" && (level === "presidential" || level === "federal");
+}
+
 export function ballotLevelLabel(level: BallotLevel): string {
   return BALLOT_LEVELS.find((entry) => entry.key === level)?.label ?? "Other";
 }

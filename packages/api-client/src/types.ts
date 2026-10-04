@@ -179,6 +179,12 @@ export type ElectionSummary = {
    */
   discovery_contest_family?: string | null;
   candidate_count: number;
+  /**
+   * The first few candidate names (at most four), in roster order, for the
+   * card's "Running:" line. `?? []` on read: a not-yet-redeployed backend
+   * omits the field.
+   */
+  candidate_names?: string[];
   /** null unless race_type is "office" and candidate_count is 0. */
   candidate_roster_status: CandidateRosterStatus | null;
   ballot_measure_id: string | null;

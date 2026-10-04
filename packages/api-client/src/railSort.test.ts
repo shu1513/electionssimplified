@@ -75,6 +75,20 @@ describe("sortRailEntries", () => {
     expect(sorted.map((e) => e.id)).toEqual(["high", "low", "unknown"]);
   });
 
+  it("vote_power: federal office races lead their date, ahead of every score", () => {
+    const sorted = sortRailEntries(
+      [
+        entry("governor", { vote_power_score: 90, level: "state" }),
+        entry("house", { vote_power_score: 10, level: "federal" }),
+        entry("measure", { vote_power_score: 50, level: "federal", race_type: "ballot_measure" }),
+        entry("president", { vote_power_score: 5, level: "presidential" }),
+        entry("sooner", { vote_power_score: 1, level: "city", election_date: "2026-08-18" }),
+      ],
+      "vote_power"
+    );
+    expect(sorted.map((e) => e.id)).toEqual(["sooner", "house", "president", "governor", "measure"]);
+  });
+
   it("keeps election date as the outer order under every sort, the sort within a date", () => {
     const entries = [
       entry("later-high", { election_date: "2026-11-03", vote_power_score: 99, title: "AAA", research_area_ids: ["a-1"] }),

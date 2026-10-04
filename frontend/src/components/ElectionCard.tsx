@@ -26,6 +26,7 @@ import {
   votePowerBand,
   resultChipTone,
   isDecidedChoice,
+  isFederalLeadRace,
   isRetentionRace,
   splitRetentionRaces,
   splitResearchAreasBySaved,
@@ -48,6 +49,10 @@ const RESULT_CHIP_CLASSES: Record<ResultChipTone, string> = {
 // (they are the personal signal), the cap applies to the whole row, and the
 // election page carries the full set.
 const MAX_AREA_CHIPS = 3;
+
+// The summary payload carries at most this many candidate names (the
+// backend's BALLOT_CARD_CANDIDATE_NAME_LIMIT).
+const MAX_CANDIDATE_NAMES = 4;
 
 // Research areas render as plain colored text, comma-separated — NOT boxed
 // chips. Boxed/pill styling is reserved for interactive elements; a bordered
@@ -167,16 +172,38 @@ function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
   return { label: `${label}: ${name}`, districtId: district.id };
 }
 
+// President, US Senate and US House races: the backend's vote-power sort
+// puts them first in each date, and the banded list keeps them there — one
+// run of cards above the bands, each carrying its own vote-power label.
+function isFederalLead(election: ElectionSummary): boolean {
+  return isFederalLeadRace(
+    election.race_type,
+    ballotLevel(
+      election.office?.scope,
+      election.district.district_type,
+      election.discovery_contest_family,
+      election.office?.canonical_name
+    )
+  );
+}
+
 // Visible bands, highest first (VOTE_POWER_BAND_ORDER); a race's band is
 // votePowerBand(rating) — the same normalization the rail's headings use.
+// The federal lead and retention races sit outside the bands.
 function splitVotePowerGroups(elections: ElectionSummary[]) {
   return VOTE_POWER_BAND_ORDER.map((rating) => ({
     rating,
     label: formatVotePowerLabel(rating),
     elections: elections.filter(
-      (election) => !isRetentionRace(election) && votePowerBand(election.vote_power.label) === rating
+      (election) =>
+        !isRetentionRace(election) && !isFederalLead(election) && votePowerBand(election.vote_power.label) === rating
     ),
   })).filter((group) => group.elections.length > 0);
+}
+
+// The federal lead of a banded date, in payload order.
+function federalLeadRaces(elections: ElectionSummary[]) {
+  return elections.filter((election) => !isRetentionRace(election) && isFederalLead(election));
 }
 
 /**
@@ -326,6 +353,7 @@ function groupListElections(elections: ElectionSummary[], votePowerDates?: Reado
     // Keep detail navigation and usage positions in the same order as
     // the displayed bands; a singleton retention stays a plain card.
     group.contested = [
+      ...federalLeadRaces(group.contested),
       ...splitVotePowerGroups(group.contested).flatMap((band) => band.elections),
       ...group.contested.filter(isRetentionRace),
     ];
@@ -530,6 +558,9 @@ export function ElectionList({
             </div>
           ) : votePowerDates.has(group.date) ? (
             <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
+              {federalLeadRaces(group.contested).length > 0 ? (
+                <div className="space-y-3 box:space-y-[11px]">{renderCards(federalLeadRaces(group.contested))}</div>
+              ) : null}
               {splitVotePowerGroups(group.contested).map((band) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}
@@ -665,6 +696,18 @@ function ElectionCard({
     myChoice && myChoice.picks.length > 0
       ? new Set(myChoice.picks.map((pick) => pick.candidate_id))
       : undefined;
+  // The card's "Running:" line. A retention card's title already names the
+  // judge, and a decided race's result chip names the winners. Past the cap
+  // one name gives way to the "+N more" count.
+  const candidateNames =
+    election.race_type === "ballot_measure" || isRetentionRace(election) || election.has_results
+      ? []
+      : (election.candidate_names ?? []);
+  const runningNames =
+    election.candidate_count > candidateNames.length
+      ? candidateNames.slice(0, MAX_CANDIDATE_NAMES - 1)
+      : candidateNames;
+  const hiddenCandidateCount = runningNames.length > 0 ? election.candidate_count - runningNames.length : 0;
   // Skip an empty chip row so the card doesn't carry stray spacing when a
   // race has no signals to show.
   const hasSignalChips =
@@ -720,6 +763,14 @@ function ElectionCard({
         <p className="mt-0.5 text-sm text-ink-soft">
           {showDistrict ? formatDistrictName(election.district.name) : null}
           {showDate ? <>{showDistrict ? " · " : ""}{formatElectionDate(election.election_date)}</> : null}
+        </p>
+      ) : null}
+      {runningNames.length > 0 ? (
+        // Who is on the ballot, so the reader need not open the race to
+        // learn it. Same label-then-list shape as the "Affects:" row.
+        <p className="mt-1.5 text-sm text-ink">
+          <span className="font-medium text-ink-soft">Running:</span> {runningNames.join(", ")}
+          {hiddenCandidateCount > 0 ? `, +${hiddenCandidateCount} more` : null}
         </p>
       ) : null}
       {hasSignalChips ? (
