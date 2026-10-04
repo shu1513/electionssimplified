@@ -1106,4 +1106,52 @@ describe("printedBallotTitle", () => {
     const office = input({ state_fips: "06", office_scope: "statewide", title: "Governor" });
     expect(printedBallotTitle(office, { countyFips: "06037" })).toBe("Governor");
   });
+
+  const measure = (state_fips: string, title: string, printed_ballot_label: string | null) => ({
+    ...input({
+      state_fips,
+      race_type: "ballot_measure",
+      office_scope: null,
+      district_type: "statewide",
+      election_stage: null,
+      title,
+    }),
+    printed_ballot_label,
+  });
+
+  it("a stored printed label replaces the stored title's leading label", () => {
+    expect(
+      printedBallotTitle(
+        measure("01", "Act 2026-341: Lieutenant Governor vacancy and legislative expenses", "Statewide Amendment 1")
+      )
+    ).toBe("Statewide Amendment 1: Lieutenant Governor vacancy and legislative expenses");
+    expect(
+      printedBallotTitle(
+        measure("31", "LR19CA: Legislative Term Limits Constitutional Amendment", "Proposed Amendment No. 1")
+      )
+    ).toBe("Proposed Amendment No. 1: Legislative Term Limits Constitutional Amendment");
+  });
+
+  it("a stored printed label is prefixed when the stored title has no label", () => {
+    expect(
+      printedBallotTitle(
+        measure("13", "Next Generation 9-1-1 Fund Amendment", "Proposed Constitutional Amendment 3")
+      )
+    ).toBe("Proposed Constitutional Amendment 3: Next Generation 9-1-1 Fund Amendment");
+  });
+
+  it("a null or blank printed label keeps the stored title", () => {
+    expect(printedBallotTitle(measure("13", "Next Generation 9-1-1 Fund Amendment", null))).toBe(
+      "Next Generation 9-1-1 Fund Amendment"
+    );
+    expect(printedBallotTitle(measure("13", "Next Generation 9-1-1 Fund Amendment", "  "))).toBe(
+      "Next Generation 9-1-1 Fund Amendment"
+    );
+  });
+
+  it("the county rule still applies on top of a stored printed label", () => {
+    const labeled = measure("06", "Senate Constitutional Amendment 1: Recall Elections", "Proposition 40");
+    expect(printedBallotTitle(labeled, { countyFips: "06073" })).toBe("Proposition 40: Recall Elections");
+    expect(printedBallotTitle(labeled, { countyFips: "06037" })).toBe("State Measure 40: Recall Elections");
+  });
 });

@@ -520,6 +520,46 @@ describe("applyBallotElectionOrdering", () => {
     expect(result.elections[0].official_ballot_title).toBe("State Measure 1: Housing Bonds");
   });
 
+  it("shows a stored printed label in place of the stored title's label", async () => {
+    const summary = makeSummary([
+      {
+        id: electionA,
+        race_type: "ballot_measure",
+        contest_family: "ballot_measure",
+        election_stage: null,
+        official_ballot_title: "Act 2026-341: Lieutenant Governor vacancy",
+      },
+    ]);
+    summary.elections[0].printed_ballot_label = "Statewide Amendment 1";
+    const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, summary, { sort: "vote_power" });
+    expect(result.elections[0].official_ballot_title).toBe("Statewide Amendment 1: Lieutenant Governor vacancy");
+    expect(result.elections[0].printed_ballot_label).toBe("Statewide Amendment 1");
+  });
+
+  it("breaks ties on the printed title, so numbered measures list in ballot order", async () => {
+    const measure = (id: string, official_ballot_title: string) => ({
+      id,
+      race_type: "ballot_measure" as const,
+      contest_family: "ballot_measure" as const,
+      election_stage: null,
+      official_ballot_title,
+    });
+    // Stored titles sort A, C, B; the printed numbers say A, B, C.
+    const summary = makeSummary([
+      measure(electionA, "Conservation Use Amendment"),
+      measure(electionB, "Nonpartisan Elections for Probate Judges Amendment"),
+      measure(electionC, "Next Generation 9-1-1 Fund Amendment"),
+    ]);
+    const labels: Record<string, string> = { [electionA]: "Amendment 1", [electionB]: "Amendment 2", [electionC]: "Amendment 3" };
+    for (const election of summary.elections) {
+      election.printed_ballot_label = labels[election.id];
+    }
+    for (const sort of ["vote_power", "state_baseline"] as const) {
+      const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, summary, { sort });
+      expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB, electionC]);
+    }
+  });
+
   it("state_baseline is positional: no followed-first grouping, no empty-race sink", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([{ election_id: electionB, candidate_id: candidateId, display_name: "Fol Lowed" }]) },

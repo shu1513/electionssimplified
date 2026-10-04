@@ -159,6 +159,9 @@ export type ElectionSummary = {
   district: BallotDistrict;
   race_type: string;
   official_ballot_title: string;
+  /** Label the paper ballot prints for this contest, when one is stored.
+   * Already applied to official_ballot_title in ordered ballot lists. */
+  printed_ballot_label?: string | null;
   /**
    * The seat's own ward/district designator ("Ward 3", "District 06") when the
    * office is one whose seats have separate electorates, else null. A ballot is
