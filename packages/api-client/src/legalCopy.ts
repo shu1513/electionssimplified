@@ -51,12 +51,14 @@ export const PRE_SEARCH_AGREEMENT_PARAGRAPHS = [
 // (user_terms_acceptances). They bind through the three named, linked
 // documents — no clause restatement here either; see PRE_SEARCH_CHECKBOX_LABEL
 // for the reasoning, which now applies to every gate.
+//
+// The signup label is the same one sentence as the anonymous gate. Its age,
+// electronic-consent and "not an official source" sentences were dropped on
+// 2026-10-04 (presentation only, no version bump): Terms of Use Sections 1
+// and 2 and the linked Disclaimer already say each of them.
 export const SIGNUP_CHECKBOX_LABEL =
-  "I am at least 18 years old, and I have read and agree to the Terms of Use, Privacy Policy, and AI " +
-  "Research and Election Information Disclaimer. I consent to enter this agreement electronically. I " +
-  "understand that Elections Simplified is not an official election source, does not register voters or cast ballots, " +
-  "and may display AI-assisted content that must be independently verified with official election " +
-  "authorities.";
+  "I have read and agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
+  "Disclaimer.";
 
 export const RENEWAL_CHECKBOX_LABEL =
   "I have read and agree to the updated Terms of Use, Privacy Policy, and AI Research and Election " +

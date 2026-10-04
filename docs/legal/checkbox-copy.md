@@ -31,6 +31,17 @@ paragraphs archived below) until it is revised separately; a 1.5 acceptance
 row cannot say which screen it came from, and the ambiguity only runs the
 safe way — every acceptor saw the checkbox naming and linking all three
 documents, some saw extra paragraphs above it.
+1.5 presentation revision (2026-10-04), SIGNUP ONLY. The signup label was cut
+to the same one sentence as the anonymous gate. It dropped three things, each
+already stated in a linked document: the age statement (Terms of Use
+"Eligibility": by using the Service you represent that you are 18 or older),
+the electronic-consent sentence (Terms of Use "Electronic communications and
+notices"; ticking the box is itself the electronic assent), and the "not an
+official election source" sentence (the Disclaimer, plus the verification
+line shown on results). No version bump — the three pinned documents are
+byte-identical. As with the 2026-08-31 trim, the ledger boundary is a
+per-client deploy boundary and only runs the safe way: older 1.5 acceptors
+saw the current sentence plus more.
 1.1 → 1.2 (2026-08-21): reviewed for the Terms 1.2 support-payments bump —
 every published string below is unchanged. One-time payments ride the
 three-document acceptance. Monthly memberships additionally carry their own
@@ -211,12 +222,8 @@ binds at all.
 
 ## Signup checkbox (account registration)
 
-> [ ] I am at least 18 years old, and I have read and agree to the
-> [Terms of Use], [Privacy Policy], and [AI Research and Election Information
-> Disclaimer]. I consent to enter this agreement electronically. I understand
-> that Elections Simplified is not an official election source, does not register voters
-> or cast ballots, and may display AI-assisted content that must be
-> independently verified with official election authorities.
+> [ ] I have read and agree to the [Terms of Use], [Privacy Policy], and
+> [AI Research and Election Information Disclaimer].
 
 ## Re-acceptance checkbox (signed-in interstitial after a version bump)
 
