@@ -1,4 +1,5 @@
-import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+import { hasMiddleNameConflict, personNamesMatchWithMiddleEvidence } from "../finance/personNameMiddleEvidence.js";
 
 export type CalAccessCampaignCoverRow = Record<string, string | null | undefined>;
 export type CalAccessFilerNameRow = Record<string, string | null | undefined>;
@@ -41,10 +42,14 @@ const CAL_ACCESS_OFFICE_CODE_LABELS: Record<string, readonly string[]> = {
   GOV: ["governor"],
   LTG: ["lieutenant governor", "lt governor"],
   SOS: ["secretary of state"],
+  // Cal-Access files Attorney General as ATT and Superintendent of Public
+  // Instruction as SUP (2026 F460 covers); ATG/SPI are kept for older rows.
+  ATT: ["attorney general"],
   ATG: ["attorney general"],
   CON: ["controller", "state controller", "comptroller"],
   TRE: ["treasurer", "state treasurer"],
   INS: ["insurance commissioner", "commissioner of insurance"],
+  SUP: ["superintendent of public instruction", "superintendent"],
   SPI: ["superintendent of public instruction", "superintendent"],
   SEN: ["state senator", "state senate"],
   ASM: [
@@ -149,7 +154,17 @@ function candidateMatches(input: {
     }
   }
   if (!keyMatched) {
-    return false;
+    // Recall fallback for call names: the roster says "Steve Hilton" or
+    // "Donald P. (Don) Wagner" while the F460 cover says STEPHEN / DON.
+    // Nicknames expand on the VoteApp side only (personFirstNameNicknames
+    // design rule), and the shared verdict still rejects middle conflicts.
+    return personNamesMatchWithMiddleEvidence({
+      candidateName: input.candidateName.replace(/"([^"]+)"/g, " ($1) "),
+      rowNames: [rowCandidateName],
+      normalizePersonName,
+      firstNamesEquivalent: (candidateFirst, rowFirst) =>
+        candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
+    });
   }
   // Key overlap collapses names to first+last, which would link
   // "John A. Smith" to a cover row naming "John B. Smith" as an "exact" match
@@ -242,6 +257,13 @@ function isCandidateCommitteeEvidenceRow(row: CalAccessCampaignCoverRow): boolea
   }
   const committeeType = value(row, "CMTTE_TYPE").toUpperCase();
   if (committeeType.length > 0 && committeeType !== "C") {
+    return false;
+  }
+  // A candidate-controlled ballot-measure committee ("Safe Communities,
+  // Strong Futures: A Nick Schultz Ballot Measure Committee") files CMTTE_TYPE
+  // "C" covers naming the candidate and office, so only its name tells it
+  // apart from the election committee.
+  if (/\bBALLOT MEASURE COMMITTEE\b/i.test(value(row, "FILER_NAML"))) {
     return false;
   }
   return true;
