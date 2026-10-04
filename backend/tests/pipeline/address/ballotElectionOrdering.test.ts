@@ -492,6 +492,34 @@ describe("applyBallotElectionOrdering", () => {
     expect(result.elections.map((e) => e.id)).toEqual([electionD, electionB, electionC, electionE, electionA]);
   });
 
+  it("shows a county's printed label for state measures under every sort", async () => {
+    const laCounty = {
+      id: districtId,
+      district_type: "county" as const,
+      geoid_compact: "06037",
+      name: "Los Angeles County",
+      state: "CA",
+      state_fips: "06",
+      representation_power_score: 50,
+      population: null,
+    };
+    const summary = makeSummary(
+      [
+        {
+          id: electionA,
+          race_type: "ballot_measure",
+          contest_family: "ballot_measure",
+          election_stage: null,
+          official_ballot_title: "Proposition 1: Housing Bonds",
+        },
+      ],
+      [laCounty]
+    );
+    summary.elections[0].district = { ...summary.elections[0].district, district_type: "statewide", geoid_compact: "06" };
+    const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, summary, { sort: "vote_power" });
+    expect(result.elections[0].official_ballot_title).toBe("State Measure 1: Housing Bonds");
+  });
+
   it("state_baseline is positional: no followed-first grouping, no empty-race sink", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([{ election_id: electionB, candidate_id: candidateId, display_name: "Fol Lowed" }]) },

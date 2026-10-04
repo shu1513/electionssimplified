@@ -4,6 +4,7 @@ import { stateBaselineContestRank } from "../../../src/pipeline/address/ballotCo
 import {
   OVERRIDDEN_COUNTY_FIPS,
   OVERRIDDEN_STATE_FIPS,
+  printedBallotTitle,
   stateBallotContestRank,
   withinTierOfficeRank,
   type StateRankableElection,
@@ -1065,5 +1066,44 @@ describe("withinTierOfficeRank", () => {
         input({ race_type: "ballot_measure", office_scope: null, district_type: "statewide", title: "Governor Recall" })
       )
     ).toBe(0);
+  });
+});
+
+describe("printedBallotTitle", () => {
+  const proposition = (state_fips: string) =>
+    input({
+      state_fips,
+      race_type: "ballot_measure",
+      office_scope: null,
+      district_type: "statewide",
+      election_stage: null,
+      title: "Proposition 39: Voter Identification and Citizenship Verification",
+    });
+
+  it("Los Angeles County prints state propositions as State Measure N", () => {
+    expect(printedBallotTitle(proposition("06"), { countyFips: "06037" })).toBe(
+      "State Measure 39: Voter Identification and Citizenship Verification"
+    );
+  });
+
+  it("keeps the stored title everywhere else", () => {
+    expect(printedBallotTitle(proposition("06"), { countyFips: "06073" })).toBe(
+      "Proposition 39: Voter Identification and Citizenship Verification"
+    );
+    expect(printedBallotTitle(proposition("06"))).toBe(
+      "Proposition 39: Voter Identification and Citizenship Verification"
+    );
+    // County and city measures, and offices, keep their titles in Los Angeles County.
+    const countyMeasure = input({
+      state_fips: "06",
+      race_type: "ballot_measure",
+      office_scope: null,
+      district_type: "county",
+      election_stage: null,
+      title: "Measure A: Charter Amendment",
+    });
+    expect(printedBallotTitle(countyMeasure, { countyFips: "06037" })).toBe("Measure A: Charter Amendment");
+    const office = input({ state_fips: "06", office_scope: "statewide", title: "Governor" });
+    expect(printedBallotTitle(office, { countyFips: "06037" })).toBe("Governor");
   });
 });

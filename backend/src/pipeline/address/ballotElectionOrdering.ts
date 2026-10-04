@@ -2,7 +2,12 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import type { BallotLookupElectionSummary, BallotSummaryResult } from "./ballotLookup.js";
-import { stateBallotContestRank, withinTierOfficeRank, type BallotOrderContext } from "./stateBallotOrderRules.js";
+import {
+  printedBallotTitle,
+  stateBallotContestRank,
+  withinTierOfficeRank,
+  type BallotOrderContext,
+} from "./stateBallotOrderRules.js";
 import {
   loadUserResearchAreaWeights,
   scoreResearchAreaMatch,
@@ -174,13 +179,13 @@ export async function applyBallotElectionOrdering(
     }
   }
 
-  sortBallotElections(
-    elections,
-    sort,
-    options.followedFirst ?? true,
-    areaScoresByElection,
-    ballotOrderContext(result)
-  );
+  const orderContext = ballotOrderContext(result);
+  sortBallotElections(elections, sort, options.followedFirst ?? true, areaScoresByElection, orderContext);
+
+  // After sorting, so the stored titles decide the order under every sort.
+  for (const election of elections) {
+    election.official_ballot_title = printedBallotTitle(election, orderContext);
+  }
 
   return { ...result, elections };
 }
