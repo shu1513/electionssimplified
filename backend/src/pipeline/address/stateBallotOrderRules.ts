@@ -1036,6 +1036,43 @@ export function withinTierOfficeRank(election: StateRankableElection): number {
   return ladder.length + (generic === -1 ? GENERIC_EXECUTIVE_LADDER.length : generic);
 }
 
+// ---------------------------------------------------------------------------
+// Printed labels. A county can print a statewide contest under a different
+// label than the stored title carries. The stored title stays the contest's
+// identity; this only changes what a voter in that county sees in the ballot
+// list, so it matches the paper ballot in hand.
+// ---------------------------------------------------------------------------
+type PrintedTitleRule = (election: StateRankableElection) => string | null;
+
+const COUNTY_PRINTED_TITLE_RULES: Record<string, PrintedTitleRule> = {
+  // Los Angeles County prints state propositions as "STATE MEASURE N"
+  // (Nov 2026 official ballot, style 2E634). Every other California county
+  // read prints "PROPOSITION N".
+  "06037": (election) => {
+    if (election.race_type !== "ballot_measure" || election.district.district_type !== "statewide") {
+      return null;
+    }
+    const match = /^Proposition (\d+)\b/.exec(election.official_ballot_title);
+    return match
+      ? `State Measure ${match[1]}${election.official_ballot_title.slice(match[0].length)}`
+      : null;
+  },
+};
+
+// Title to show for a contest on this voter's ballot: the county's printed
+// label where one is encoded, the stored title otherwise.
+export function printedBallotTitle(election: StateRankableElection, context: BallotOrderContext = {}): string {
+  const countyFips = context.countyFips ?? null;
+  if (
+    countyFips &&
+    countyFips.startsWith(election.district.state_fips) &&
+    Object.hasOwn(COUNTY_PRINTED_TITLE_RULES, countyFips)
+  ) {
+    return COUNTY_PRINTED_TITLE_RULES[countyFips](election) ?? election.official_ballot_title;
+  }
+  return election.official_ballot_title;
+}
+
 // FIPS codes carrying an override, exported for the tests' gate sweep.
 export const OVERRIDDEN_STATE_FIPS: readonly string[] = Object.keys(STATE_ORDER_RULES);
 
