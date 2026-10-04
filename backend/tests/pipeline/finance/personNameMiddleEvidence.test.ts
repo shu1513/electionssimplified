@@ -62,6 +62,13 @@ describe("personNameParseVariants", () => {
     expect(variants).toContainEqual({ first: "BILL", middles: [], last: "LEE", exact: true });
     expect(variants.length).toBeGreaterThan(1);
   });
+
+  it("expands a single-token alias as a first-name swap only, keeping the outer surname", () => {
+    expect(personNameParseVariants("Robert (Bob) Smith", normalizePersonName)).toEqual([
+      { first: "ROBERT", middles: [], last: "SMITH", exact: true },
+      { first: "BOB", middles: [], last: "SMITH", exact: true },
+    ]);
+  });
 });
 
 describe("middleNameEvidence", () => {
@@ -245,6 +252,24 @@ describe("personNamesMatchWithMiddleEvidence", () => {
 
   it("lets a conflict on one row name veto a weak alignment on another", () => {
     expect(matches("John A. Smith", ["John Smith", "Smith, John B."])).toBe(false);
+  });
+
+  it("never lets a call-name alias stand in for the surname", () => {
+    // A lone "(Bob)" used to parse as first AND last name, so it aligned with
+    // a surname-less "Bob" row and, under nickname equivalence, with a
+    // different person whose surname is Bob.
+    expect(matches("Robert (Bob) Smith", ["Bob"])).toBe(false);
+    expect(
+      personNamesMatchWithMiddleEvidence({
+        candidateName: "Robert (Bob) Smith",
+        rowNames: ["Robert Bob"],
+        normalizePersonName,
+        firstNamesEquivalent: (candidateFirst, rowFirst) =>
+          candidateFirst === rowFirst || (candidateFirst === "BOB" && rowFirst === "ROBERT"),
+      })
+    ).toBe(false);
+    // The call name still matches through the outer surname.
+    expect(matches("Robert (Bob) Smith", ["Smith, Bob"])).toBe(true);
   });
 
   it("rejects a contradiction hidden past a matching first middle", () => {
