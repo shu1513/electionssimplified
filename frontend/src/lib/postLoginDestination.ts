@@ -5,13 +5,18 @@ import { hasSeenWelcome } from "./welcomeSeen";
 
 // First-login onboarding hook-in, shared by password login, Google login,
 // and Google signup: a verified user with no saved research areas who hasn't
-// been through the welcome step gets routed there instead of the ballot. Any
-// lookup failure falls back to the ballot — login must never strand the user
-// on an error because an optional step couldn't be checked.
-export async function postLoginDestination(queryClient: QueryClient): Promise<string> {
+// been through the welcome step gets routed there first. `next` is the
+// return path of a visitor who signed in mid-task (e.g. from a prompt on
+// their ballot); the welcome step carries it and continues there when done.
+// Sessions are long, so waiting for a later plain login would mean most
+// people who sign up from a prompt never see the step. Any lookup failure
+// falls back to the return path or the ballot — login must never strand the
+// user on an error because an optional step couldn't be checked.
+export async function postLoginDestination(queryClient: QueryClient, next: string | null): Promise<string> {
+  const destination = next ?? "/me/ballot";
   const me = queryClient.getQueryData<Me | null>(["me"]);
   if (!me?.email_verified || hasSeenWelcome(me.email)) {
-    return "/me/ballot";
+    return destination;
   }
   try {
     // fetchQuery, not a bare request: it seeds the cache the welcome page
@@ -21,8 +26,11 @@ export async function postLoginDestination(queryClient: QueryClient): Promise<st
       queryFn: () => apiRequest<ResearchAreaPreferencesResult>("/api/me/research-area-preferences"),
       staleTime: 60_000,
     });
-    return prefs.preferences.length === 0 ? "/me/welcome" : "/me/ballot";
+    if (prefs.preferences.length > 0) {
+      return destination;
+    }
+    return next ? `/me/welcome?next=${encodeURIComponent(next)}` : "/me/welcome";
   } catch {
-    return "/me/ballot";
+    return destination;
   }
 }

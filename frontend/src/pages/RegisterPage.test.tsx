@@ -4,7 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RegisterPage } from "./RegisterPage";
-import { TERMS_VERSION } from "@voteapp/api-client";
+import { TERMS_VERSION, useMe } from "@voteapp/api-client";
+import { renderRoutes } from "../test/render";
+import { apiError, stubApiRoutes } from "../test/mockApi";
+import { ME_VERIFIED } from "../test/fixtures";
 
 function renderRegister(search = "") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -247,5 +250,56 @@ describe("RegisterPage clickwrap", () => {
       "href",
       "/login?next=%2Fcandidates%2Fc-1"
     );
+  });
+});
+
+// In the app the header keeps the ["me"] query mounted; the probe stands in
+// for it so the signup redirect sees the fresh user.
+function MeProbe() {
+  useMe();
+  return null;
+}
+
+describe("RegisterPage Google signup redirect", () => {
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("shows a new user the welcome step before the page they signed up from", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
+    const gis = stubGis();
+    let loggedIn = false;
+    stubApiRoutes({
+      "/api/auth/google": () => {
+        loggedIn = true;
+        return { body: { status: "ok" } };
+      },
+      "/api/me": () => (loggedIn ? { body: ME_VERIFIED } : apiError(401, "unauthorized", "Not logged in")),
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    const user = userEvent.setup();
+    const { router } = renderRoutes(
+      [
+        {
+          path: "/register",
+          element: (
+            <>
+              <MeProbe />
+              <RegisterPage />
+            </>
+          ),
+        },
+        { path: "/me/welcome", element: <p>Welcome placeholder</p> },
+        { path: "/ballot", element: <p>ballot page</p> },
+      ],
+      "/register?next=/ballot"
+    );
+    await waitFor(() => expect(gis.initialize).toHaveBeenCalled());
+
+    await user.click(screen.getByRole("checkbox"));
+    gis.fireCredential("google-jwt");
+
+    expect(await screen.findByText("Welcome placeholder")).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?next=%2Fballot");
   });
 });

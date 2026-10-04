@@ -49,11 +49,9 @@ export function LoginPage() {
       purgeAccountScopedQueries(queryClient);
       // Login returns only the session cookie; identity comes from /api/me.
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      // An explicit return path wins over the onboarding detour: the user
-      // logged in mid-task (e.g. to follow a candidate), so finish that —
-      // the welcome step catches them on a future plain login. ?? also
-      // short-circuits the preferences lookup when next is set.
-      navigate(next ?? (await postLoginDestination(queryClient)));
+      // A first-time user sees the welcome step before an explicit return
+      // path; the step then continues to that path.
+      navigate(await postLoginDestination(queryClient, next));
     },
   });
 
@@ -72,7 +70,7 @@ export function LoginPage() {
     onSuccess: async () => {
       purgeAccountScopedQueries(queryClient);
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      navigate(next ?? (await postLoginDestination(queryClient)));
+      navigate(await postLoginDestination(queryClient, next));
     },
   });
   const googleNeedsSignup =

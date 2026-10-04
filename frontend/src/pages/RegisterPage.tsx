@@ -96,7 +96,7 @@ export function RegisterPage() {
     onSuccess: async () => {
       purgeAccountScopedQueries(queryClient);
       await queryClient.invalidateQueries({ queryKey: ["me"] });
-      navigate(next ?? (await postLoginDestination(queryClient)));
+      navigate(await postLoginDestination(queryClient, next));
     },
   });
 

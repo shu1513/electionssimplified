@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import type { MetaFunction } from "react-router";
 import { useIsMutating, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { APP_NAME, apiRequest, useMe } from "@voteapp/api-client";
@@ -8,6 +8,7 @@ import { ResearchAreaPicker } from "../components/ResearchAreaPicker";
 import { toPreferenceInputs, type RankedResearchArea } from "../lib/rankedResearchAreas";
 import { ErrorNotice, LoadingNotice } from "../components/Status";
 import { markWelcomeSeen } from "../lib/welcomeSeen";
+import { safeInternalPath } from "../lib/safeInternalPath";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { countBucket, track } from "../lib/usage";
 
@@ -28,6 +29,11 @@ export function WelcomePage() {
   const { me, isLoading, isError: meError, refetch: refetchMe } = useMe();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // Where the step hands off when saved or skipped: the page a visitor
+  // signed in from mid-task (login forwards its ?next= here), else the
+  // ballot. Internal paths only, same as login.
+  const [searchParams] = useSearchParams();
+  const destination = safeInternalPath(searchParams.get("next")) ?? "/me/ballot";
   const [ranked, setRanked] = useState<RankedResearchArea[]>([]);
   const [step, setStep] = useState<Step>("pick");
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -75,7 +81,7 @@ export function WelcomePage() {
       void queryClient.invalidateQueries({ queryKey: ["me", "ballot-preferences"] });
       // replace, not push: the step is transient — Back from the ballot
       // must not reopen a blank welcome screen.
-      navigate("/me/ballot", { replace: true });
+      navigate(destination, { replace: true });
     },
   });
   // Cross-mount in-flight guard, same as the settings editor: these PUTs are
@@ -135,7 +141,7 @@ export function WelcomePage() {
     if (me) {
       markWelcomeSeen(me.email);
     }
-    navigate("/me/ballot", { replace: true });
+    navigate(destination, { replace: true });
   }
 
   function goTo(next: Step) {

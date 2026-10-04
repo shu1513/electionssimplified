@@ -179,10 +179,36 @@ describe("LoginPage Google sign-in", () => {
 });
 
 describe("LoginPage next-path return", () => {
-  it("returns to the internal next path after login, skipping the welcome step", async () => {
-    // Preferences endpoint deliberately unmocked: an explicit return path
-    // must win over the onboarding detour without even checking.
-    stubApiRoutes(sessionRoutes(ME_VERIFIED));
+  it("returns to the internal next path after login when the user has saved areas", async () => {
+    stubApiRoutes({
+      ...sessionRoutes(ME_VERIFIED),
+      "/api/me/research-area-preferences": { body: { preferences: [SAVED_PREFERENCE] } },
+    });
+    renderLogin("?next=/candidates/c-1");
+
+    await logIn();
+
+    expect(await screen.findByText("candidate page")).toBeInTheDocument();
+  });
+
+  it("sends a first-time user to the welcome step with the next path carried along", async () => {
+    stubApiRoutes({
+      ...sessionRoutes(ME_VERIFIED),
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    const { router } = renderLogin("?next=/candidates/c-1");
+
+    await logIn();
+
+    expect(await screen.findByText("Welcome placeholder")).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?next=%2Fcandidates%2Fc-1");
+  });
+
+  it("returns to the next path when the preferences lookup fails", async () => {
+    stubApiRoutes({
+      ...sessionRoutes(ME_VERIFIED),
+      "/api/me/research-area-preferences": apiError(500, "internal_error", "boom"),
+    });
     renderLogin("?next=/candidates/c-1");
 
     await logIn();
