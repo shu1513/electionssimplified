@@ -414,6 +414,97 @@ describe("californiaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches the ATT and SUP office codes Cal-Access files for Attorney General and Superintendent", () => {
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Rob Bonta",
+        officeName: "Attorney General",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({ FILER_ID: "1456428", FILER_NAML: "Rob Bonta for CA Attorney General 2026", CAND_NAML: "Bonta", CAND_NAMF: "Rob", OFFICE_CD: "ATT", OFFIC_DSCR: "" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", controlledCommitteeId: "1456428" });
+
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Sonja Shaw",
+        officeName: "Superintendent of Public Instruction",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({ FILER_ID: "1479719", FILER_NAML: "Shaw for Superintendent of Public Instruction 2026", CAND_NAML: "Shaw", CAND_NAMF: "Sonja", OFFICE_CD: "SUP", OFFIC_DSCR: "" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", controlledCommitteeId: "1479719" });
+  });
+
+  it("matches call names against the formal first name on the cover row", () => {
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Steve Hilton",
+        officeName: "Governor",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({ FILER_ID: "1480425", FILER_NAML: "Steve Hilton for Governor 2026", CAND_NAML: "Hilton", CAND_NAMF: "Stephen" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", controlledCommitteeId: "1480425" });
+
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Herb W Morgan",
+        officeName: "Comptroller",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({ FILER_ID: "1480103", FILER_NAML: "Herb Morgan For State Controller 2026", CAND_NAML: "Morgan", CAND_NAMF: "Herbert", OFFICE_CD: "CON", OFFIC_DSCR: "" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", controlledCommitteeId: "1480103" });
+
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Donald P. (Don) Wagner",
+        officeName: "Secretary of State",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({ FILER_ID: "1482695", FILER_NAML: "Wagner for Secretary Of State 2026", CAND_NAML: "Wagner", CAND_NAMF: "Don", OFFICE_CD: "SOS", OFFIC_DSCR: "" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", controlledCommitteeId: "1482695" });
+  });
+
+  it("never links a candidate-controlled ballot measure committee", () => {
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: 'Nicholas "Nick" Schultz',
+        officeName: "State Lower Chamber Legislator",
+        electionYear: 2026,
+        campaignCoverRows: [
+          coverRow({
+            FILER_ID: "1489929",
+            FILER_NAML: "Safe Communities, Strong Futures: A Nick Schultz Ballot Measure Committee",
+            CAND_NAML: "Schultz",
+            CAND_NAMF: "Nick",
+            OFFICE_CD: "ASM",
+            OFFIC_DSCR: "",
+            CONTROL_YN: "N",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
+  it("does not let a nickname bridge two different formal first names", () => {
+    expect(
+      resolveCaliforniaCandidateCommittee({
+        candidateName: "Steven Hilton",
+        officeName: "Governor",
+        electionYear: 2026,
+        campaignCoverRows: [coverRow({ CAND_NAML: "Hilton", CAND_NAMF: "Stephen" })],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
   it("validates required resolver inputs", () => {
     expect(() =>
       resolveCaliforniaCandidateCommittee({

@@ -74,10 +74,13 @@ export function parsePersonNameCandidates(
 // plus each parenthetical alias ("LEE, Bill (Bill Lee)") parsed on its own.
 // A single-token parenthetical is a call name substituting the FIRST name
 // ("Glenn A. (Mike) Prax", "Robert (Bob) Smith"), not a standalone person, so
-// it also yields the outer parses with the first token swapped — keeping the
+// it yields ONLY the outer parses with the first token swapped — keeping the
 // outer middles and surname so their evidence survives ("Mike A Prax" still
-// contradicts "Prax, Mike B"). Single characters are excluded: a lone letter
-// in parentheses is a party or ballot marker, not a call name.
+// contradicts "Prax, Mike B"). It is never parsed on its own: a lone token
+// reads as first AND last name, which let "(Bob)" align with a surname-less
+// "Bob" row or a different person surnamed Bob. Single characters are
+// excluded: a lone letter in parentheses is a party or ballot marker, not a
+// call name.
 export function personNameParseVariants(
   value: string,
   normalizePersonName: NormalizePersonName
@@ -89,14 +92,18 @@ export function personNameParseVariants(
     if (!match[1]) {
       continue;
     }
-    variants.push(...parsePersonNameCandidates(match[1], normalizePersonName));
     const aliasTokens = normalizePersonName(match[1]).split(" ").filter(Boolean);
-    const callName = aliasTokens.length === 1 && aliasTokens[0]!.length >= 2 ? aliasTokens[0]! : null;
-    if (callName) {
-      for (const outer of outerParses) {
-        if (callName !== outer.first) {
-          variants.push({ first: callName, middles: outer.middles, last: outer.last, exact: outer.exact });
-        }
+    if (aliasTokens.length !== 1) {
+      variants.push(...parsePersonNameCandidates(match[1], normalizePersonName));
+      continue;
+    }
+    const callName = aliasTokens[0]!;
+    if (callName.length < 2) {
+      continue;
+    }
+    for (const outer of outerParses) {
+      if (callName !== outer.first) {
+        variants.push({ first: callName, middles: outer.middles, last: outer.last, exact: outer.exact });
       }
     }
   }
