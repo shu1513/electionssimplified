@@ -14,7 +14,7 @@ const EMAIL_PREFERENCES = {
   email_member_newsletter: true,
 };
 
-function renderSettings() {
+function renderSettings(initialEntry = "/me/settings") {
   return renderRoutes(
     [
       { path: "/me/settings", element: <SettingsPage /> },
@@ -22,13 +22,15 @@ function renderSettings() {
       { path: "/login", element: <p /> },
       { path: "/me/ballot", element: <p>Saved ballot placeholder</p> },
     ],
-    "/me/settings"
+    initialEntry
   );
 }
 
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.unstubAllEnvs();
+  // @ts-expect-error test-installed stub, absent in stock jsdom
+  delete window.HTMLElement.prototype.scrollIntoView;
 });
 
 describe("SettingsPage", () => {
@@ -63,6 +65,42 @@ describe("SettingsPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Email notifications" })).toBeInTheDocument();
     expect(screen.getByText("My most important issues")).toBeInTheDocument();
+  });
+
+  it("scrolls to the issue editor when the link carries its hash", async () => {
+    const scrollIntoView = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
+      "/api/me/membership": { body: { enabled: false } },
+      "/api/research-areas": { body: { research_areas: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    renderSettings("/me/settings#my-issues");
+
+    const heading = await screen.findByRole("heading", { name: "My most important issues" });
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledWith({ block: "start" }));
+    // Every call targets the editor's own section, heading at the top.
+    const section = heading.closest("section");
+    expect(section).toHaveAttribute("id", "my-issues");
+    expect(scrollIntoView.mock.instances.every((instance) => instance === section)).toBe(true);
+  });
+
+  it("stays at the top of Settings without the hash", async () => {
+    const scrollIntoView = vi.fn();
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoView;
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
+      "/api/me/membership": { body: { enabled: false } },
+      "/api/research-areas": { body: { research_areas: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    renderSettings();
+
+    expect(await screen.findByRole("heading", { name: "Email notifications" })).toBeInTheDocument();
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
   it("carries no support box of its own — membership management lives on /me/membership", async () => {

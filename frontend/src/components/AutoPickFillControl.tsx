@@ -12,6 +12,7 @@ import {
   useMyResearchAreas,
 } from "@voteapp/api-client";
 import type { AutoPickElectionResult, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
+import { ISSUES_SETTINGS_PATH } from "../lib/issuesSettingsLink";
 import { countBucket, currentAttribution, errorCategoryOf, track } from "../lib/usage";
 import { HowItWorksPopover } from "./HowItWorksPopover";
 
@@ -135,7 +136,7 @@ export function AutoPickFillControl({
         <p role="status" className="mt-2 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-mid">
           Rank at least {MIN_AUTO_PICK_ISSUES} issues first, so the picks reflect what matters to you.{" "}
           <Link
-            to="/me/settings"
+            to={ISSUES_SETTINGS_PATH}
             className="font-medium underline decoration-dotted underline-offset-2 hover:text-ink"
           >
             Rank your issues
