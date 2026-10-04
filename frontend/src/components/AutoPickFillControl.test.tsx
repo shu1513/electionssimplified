@@ -208,7 +208,7 @@ describe("AutoPickFillControl", () => {
     await clickFill();
 
     expect(await screen.findByText(/Rank at least 3 issues first/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Rank your issues" })).toHaveAttribute("href", "/me/settings");
+    expect(screen.getByRole("link", { name: "Rank your issues" })).toHaveAttribute("href", "/me/settings#my-issues");
     expect(requestsTo(fetchMock, "/api/me/auto-picks")).toEqual([]);
   });
 

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import { useIsMutating, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@voteapp/api-client";
 import type { ResearchAreaCatalog, ResearchAreaPreferencesResult } from "@voteapp/api-client";
 import { ErrorNotice, LoadingNotice } from "./Status";
 import { ResearchAreaPicker } from "./ResearchAreaPicker";
+import { ISSUES_SECTION_ID } from "../lib/issuesSettingsLink";
 import {
   toPreferenceInputs,
   toRankedResearchAreas,
@@ -55,6 +57,23 @@ export function ResearchAreasSection() {
   // save() re-checks the mutation cache imperatively to close the gap before
   // this re-renders.)
   const saving = useIsMutating({ mutationKey: ["put-research-area-preferences"] }) > 0;
+
+  // Links that carry this section's hash ("Rank your issues") open the page
+  // scrolled to it. The router's own hash scroll can miss: this section
+  // mounts after the session loads, and grows once its queries settle — so
+  // it scrolls itself on mount and again when the editor appears. Guarded
+  // because jsdom elements have no scrollIntoView.
+  const { hash } = useLocation();
+  const loaded = !catalog.isPending && !prefs.isPending;
+  useEffect(() => {
+    if (hash !== `#${ISSUES_SECTION_ID}`) {
+      return;
+    }
+    const section = document.getElementById(ISSUES_SECTION_ID);
+    if (section && typeof section.scrollIntoView === "function") {
+      section.scrollIntoView({ block: "start" });
+    }
+  }, [hash, loaded]);
 
   if (catalog.isPending || prefs.isPending) {
     return (
@@ -111,9 +130,11 @@ export function ResearchAreasSection() {
 
 // Same card shell SettingsPage wraps its sections in; duplicated (8 lines)
 // rather than imported so a component does not reach into a page module.
+// The id is the scroll target for links into this section; the scroll margin
+// leaves a little air above the heading when it lands at the top.
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-line bg-surface p-4">
+    <section id={ISSUES_SECTION_ID} className="scroll-mt-4 rounded-xl border border-line bg-surface p-4">
       <h2 className="text-heading font-semibold">{title}</h2>
       {children}
     </section>

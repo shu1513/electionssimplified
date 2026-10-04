@@ -201,7 +201,7 @@ describe("AutoPickControl", () => {
     renderControl();
     await clickPickForMe();
     const link = await screen.findByRole("link", { name: "Rank your issues" });
-    expect(link).toHaveAttribute("href", "/me/settings");
+    expect(link).toHaveAttribute("href", "/me/settings#my-issues");
   });
 
   it("runs the engine and renders the why-this-pick panel for a winner", async () => {
