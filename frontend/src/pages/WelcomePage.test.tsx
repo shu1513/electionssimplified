@@ -14,14 +14,15 @@ const CATALOG = {
   ],
 };
 
-function renderWelcome() {
+function renderWelcome(search = "") {
   return renderRoutes(
     [
       { path: "/me/welcome", element: <WelcomePage /> },
       { path: "/login", element: <p>Login placeholder</p> },
       { path: "/me/ballot", element: <p>Saved ballot placeholder</p> },
+      { path: "/candidates/:candidateId", element: <p>candidate page</p> },
     ],
-    "/me/welcome"
+    `/me/welcome${search}`
   );
 }
 
@@ -141,5 +142,36 @@ describe("WelcomePage", () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([, init]) => init?.method === "PUT")).toBe(false);
     });
+  });
+
+  it("continues to the next path the visitor signed in from, after save or skip", async () => {
+    const user = userEvent.setup();
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/research-areas": { body: CATALOG },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    const saved = renderWelcome("?next=/candidates/c-1");
+    await user.click(await screen.findByRole("button", { name: "Housing" }));
+    await user.click(screen.getByRole("button", { name: "Next" }));
+    await user.click(screen.getByRole("button", { name: "Save and continue" }));
+    expect(await screen.findByText("candidate page")).toBeInTheDocument();
+    saved.unmount();
+
+    renderWelcome("?next=/candidates/c-1");
+    await user.click(await screen.findByRole("button", { name: "Skip for now" }));
+    expect(await screen.findByText("candidate page")).toBeInTheDocument();
+  });
+
+  it("ignores an external next instead of open-redirecting", async () => {
+    const user = userEvent.setup();
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/research-areas": { body: CATALOG },
+    });
+    renderWelcome(`?next=${encodeURIComponent("//evil.example/phish")}`);
+
+    await user.click(await screen.findByRole("button", { name: "Skip for now" }));
+    expect(await screen.findByText("Saved ballot placeholder")).toBeInTheDocument();
   });
 });
