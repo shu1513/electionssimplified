@@ -58,7 +58,6 @@ function makeSummary(
         discovery_contest_family: e.contest_family ?? "non_judicial_office",
         sources: [],
         candidate_count: e.candidate_count ?? 2,
-        candidate_names: [],
         ballot_measure_id: null,
         has_results: e.has_results ?? false,
         current_result_outcome: null,
@@ -126,50 +125,6 @@ describe("applyBallotElectionOrdering", () => {
 
     expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
     expect(result.elections.every((e) => e.followed_candidates.length === 0)).toBe(true);
-  });
-
-  it("leads each date with the federal office races under vote_power, above followed races", async () => {
-    const electionD = "dddddddd-4444-4444-8444-dddddddddddd";
-    const electionE = "eeeeeeee-5555-4555-8555-eeeeeeeeeeee";
-    const electionF = "ffffffff-6666-4666-8666-ffffffffffff";
-    const query = makeFollowsQuery([{ election_id: electionB, candidate_id: candidateId, display_name: "Jane Doe" }]);
-    const result = await applyBallotElectionOrdering(
-      { query },
-      makeSummary([
-        { id: electionA, vote_power_score: 95 },
-        { id: electionB, vote_power_score: 60 },
-        { id: electionC, vote_power_score: 10, office_scope: "us_house" },
-        { id: electionD, vote_power_score: 5, contest_family: "us_senate", office_scope: "statewide" },
-        // A state board seat elected per congressional district is a state
-        // office, and a measure is never an office race: neither leads.
-        { id: electionE, vote_power_score: 1, office_scope: "us_house", office_name: "State Board of Education Member" },
-        { id: electionF, vote_power_score: 2, office_scope: "us_house", race_type: "ballot_measure" },
-      ]),
-      { userId }
-    );
-
-    expect(result.elections.map((e) => e.id)).toEqual([
-      electionC,
-      electionD,
-      electionB,
-      electionA,
-      electionF,
-      electionE,
-    ]);
-  });
-
-  it("keeps the federal lead out of the district-size sorts", async () => {
-    const query = makeFollowsQuery([]);
-    const result = await applyBallotElectionOrdering(
-      { query },
-      makeSummary([
-        { id: electionA, population: 50_000, office_scope: "place" },
-        { id: electionB, population: 760_000, office_scope: "us_house" },
-      ]),
-      { sort: "district_size_smallest" }
-    );
-
-    expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB]);
   });
 
   it("sorts a null score (a retention race) after every scored race under vote_power", async () => {

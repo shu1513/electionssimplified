@@ -1,4 +1,4 @@
-import { BALLOT_LEVELS, isFederalLeadRace } from "./ballotLevel";
+import { BALLOT_LEVELS } from "./ballotLevel";
 import type { ResearchAreaWeight } from "./researchAreaScoring";
 import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 
@@ -9,8 +9,7 @@ import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 // tiebreak tail, the same fixed outer order by election date (every sort
 // only reorders entries that share a date — the list renders one section
 // per date), and the awaiting-candidates tail stays sunk under every sort
-// (the backend's hasNothingToRead sink), and the federal office races lead
-// each date under vote_power (isFederalLeadRace). district_size sorts are NOT
+// (the backend's hasNothingToRead sink). district_size sorts are NOT
 // offered — district population never reaches the client. Followed-first
 // grouping is deliberately not applied either: the rail is an organizing
 // view, and the authoritative order returns from the backend the moment
@@ -271,13 +270,6 @@ export function sortRailEntries<Entry extends RailSortEntry>(
       return compareTail(a, b);
     }
     if (sort === "vote_power") {
-      // The list's federal lead: President, US Senate and US House races
-      // head each date, ahead of every score.
-      const aLead = isFederalLeadRace(a.race_type, a.level) ? 0 : 1;
-      const bLead = isFederalLeadRace(b.race_type, b.level) ? 0 : 1;
-      if (aLead !== bLead) {
-        return aLead - bLead;
-      }
       const byPower = compareVotePower(a, b);
       if (byPower !== 0) {
         return byPower;
