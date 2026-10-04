@@ -91,13 +91,26 @@ describe("LoginPage first-login onboarding redirect", () => {
   });
 
   it("respects a completed or skipped welcome without even checking preferences", async () => {
-    markWelcomeSeen(ME_VERIFIED.user.email);
+    markWelcomeSeen(ME_VERIFIED.user.id);
     // Preferences endpoint deliberately unmocked: requesting it would fail
     // the test, proving the seen flag short-circuits the lookup.
     stubApiRoutes(sessionRoutes(ME_VERIFIED));
     renderLogin();
     await logIn();
     expect(await screen.findByText("Saved ballot placeholder")).toBeInTheDocument();
+  });
+
+  it("shows the welcome step to a new account that reuses a deleted account's email", async () => {
+    // The earlier account on this browser finished the step; the email was
+    // then deleted and registered again, which makes a new account id.
+    markWelcomeSeen("user-deleted");
+    stubApiRoutes({
+      ...sessionRoutes(ME_VERIFIED),
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    renderLogin();
+    await logIn();
+    expect(await screen.findByText("Welcome placeholder")).toBeInTheDocument();
   });
 
   it("sends unverified users to the ballot, where the verification notice lives", async () => {

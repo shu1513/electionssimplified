@@ -73,7 +73,7 @@ export function WelcomePage() {
       // the flag, clearing every preference in settings later would make
       // the next login mistake this user for a brand-new one.
       if (me) {
-        markWelcomeSeen(me.email);
+        markWelcomeSeen(me.id);
       }
       // The saved ballot is server-sorted by these preferences, and the
       // ballot-preferences default can flip to my_areas on first save.
@@ -139,7 +139,7 @@ export function WelcomePage() {
   function skip() {
     track("welcome_result", { action: "skip", step, ranked_count_bucket: countBucket(ranked.length) });
     if (me) {
-      markWelcomeSeen(me.email);
+      markWelcomeSeen(me.id);
     }
     navigate(destination, { replace: true });
   }
