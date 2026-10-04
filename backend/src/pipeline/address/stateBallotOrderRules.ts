@@ -68,13 +68,16 @@ type ContestFacts = {
   year: number;
   // The stored partisan flag; null when the row does not say.
   partisan: boolean | null;
+  // 5-digit FIPS of the voter's county, for the few state rules that carry
+  // a one-county exception; null when the ballot does not resolve to one.
+  county: string | null;
 };
 
 // A state's deviation map: rank for contests the state provably moves,
 // null for everything the baseline already places correctly.
 type StateOrderRule = (c: ContestFacts) => number | null;
 
-function contestFacts(election: StateRankableElection): ContestFacts {
+function contestFacts(election: StateRankableElection, countyFips: string | null = null): ContestFacts {
   const judicial = election.discovery_contest_family === "judicial_office";
   return {
     scope: election.office?.scope ?? election.district.district_type,
@@ -85,6 +88,7 @@ function contestFacts(election: StateRankableElection): ContestFacts {
     title: election.official_ballot_title,
     year: Number(election.election_date.slice(0, 4)),
     partisan: election.is_partisan ?? null,
+    county: countyFips,
   };
 }
 
@@ -381,12 +385,23 @@ const STATE_ORDER_RULES: Record<string, StateOrderRule> = {
   },
 
   // KY — the nonpartisan tail prints after the county offices: judges, then
-  // school boards, then city offices (Kenton, Warren, Fayette Nov 2026
-  // ballots on the Secretary of State site; the judge/school order flips in
-  // some counties, city always follows both).
+  // school boards, then city offices (Kenton and Warren Nov 2026 ballots on
+  // the Secretary of State site; the judge/school order flips in some
+  // counties, city follows both). The two merged city-county governments
+  // print differently on their Nov 2026 ballots:
+  //   Fayette (Lexington): judges, urban county mayor and council, school.
+  //   Jefferson (Louisville): the baseline office order (county, metro
+  //   mayor and council, school board, then the judicial ballot), with the
+  //   constitutional amendment right after US Senator.
   "21": (c) => {
+    if (c.county === "21111") {
+      return c.measure && c.scope === "statewide" ? 12 : null;
+    }
     if (c.judicial) {
       return 62 + c.court;
+    }
+    if (c.county === "21067" && c.scope === "place" && !c.measure) {
+      return 63;
     }
     if (school(c)) {
       return 64;
@@ -1035,7 +1050,7 @@ export function stateBallotContestRank(
   // Own-key lookups: the districts table does not enforce the FIPS format,
   // so a malformed value must miss instead of resolving an inherited
   // Object.prototype member.
-  const countyFips = context.countyFips;
+  const countyFips = context.countyFips ?? null;
   if (
     countyFips &&
     countyFips.startsWith(election.district.state_fips) &&
@@ -1048,7 +1063,7 @@ export function stateBallotContestRank(
       ? STATE_ORDER_RULES[election.district.state_fips]
       : undefined;
     if (rule) {
-      const override = rule(contestFacts(election));
+      const override = rule(contestFacts(election, countyFips));
       if (override !== null) {
         return override;
       }

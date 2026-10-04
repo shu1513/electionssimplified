@@ -6195,7 +6195,7 @@ the same order.
 | FL — Miami-Dade County | https://www.miamidade.gov/elections/library/2026-11-03-general-election-sample-ballot.pdf | Encoded: nonpartisan county offices and city offices in the nonpartisan section |
 | GA — Fulton County | https://www.fultoncountyga.gov/-/media/2026-Election/November-3-Election/Sample-Ballot--Consolidated--Nov-32026-General--Special-Election--9282026.pdf | Encoded: executives between US Senate and US House |
 | ID — Canyon County | https://elections.canyoncounty.id.gov/wp-content/uploads/2026/10/Sample-Ballot-November-2026.jpg | Matches the baseline |
-| KY — Kenton, Warren, Fayette, Jefferson | https://web.sos.ky.gov/electionballots/ (`<County> 2026G.pdf`; Jefferson precinct ballots on the county clerk site) | Encoded: judges and school boards after county offices, city offices last |
+| KY — Kenton, Warren, Fayette, Jefferson | https://web.sos.ky.gov/electionballots/ (`<County> 2026G.pdf`; Jefferson precinct ballots on the county clerk site) | Encoded: judges and school boards after county offices, city offices last. County exceptions: Fayette prints the urban county mayor and council between the judges and the school board; Jefferson prints county, metro mayor and council, school board, then the judicial ballot, with the constitutional amendment after US Senator (precinct ballot L216) |
 | MD — Montgomery County, Baltimore City | https://elections.maryland.gov/elections/2026/general_ballots/ | Matches |
 | MO — Kansas City | https://kceb.org/sample-ballot-for-november-3-2026-election/ | Encoded: executives before US House |
 | MS — statewide sample | https://www.sos.ms.gov/elections-voting (Sample Ballot 9-9-26) | Encoded: judicial after the legislature, before county and school |

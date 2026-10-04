@@ -866,6 +866,33 @@ describe("orders confirmed on printed November 2026 ballots", () => {
     );
   });
 
+  it("KY: Lexington prints its urban county government between the judges and the school board", () => {
+    const fayette = (overrides: InputOverrides) =>
+      stateBallotContestRank(input({ ...overrides, state_fips: "21" }), { countyFips: "21067" });
+    const judge = fayette({ office_scope: "county", contest_family: "judicial_office", title: "District Judge" });
+    const mayor = fayette({ office_scope: "place", title: "Mayor" });
+    const schoolBoard = fayette({ office_scope: "school_unified", title: "Board of Education Member" });
+    expect(mayor).toBeGreaterThan(judge);
+    expect(mayor).toBeLessThan(schoolBoard);
+  });
+
+  it("KY: Louisville prints county, metro government, school board, then judges; amendment after US Senator", () => {
+    const jefferson = (overrides: InputOverrides) =>
+      stateBallotContestRank(input({ ...overrides, state_fips: "21" }), { countyFips: "21111" });
+    const county = jefferson({ office_scope: "county", title: "Sheriff" });
+    const metro = jefferson({ office_scope: "place", title: "Louisville Metro Council" });
+    const schoolBoard = jefferson({ office_scope: "school_unified", title: "Jefferson County School Board" });
+    const judge = jefferson({ office_scope: "county", contest_family: "judicial_office", title: "District Judge" });
+    expect(metro).toBeGreaterThan(county);
+    expect(schoolBoard).toBeGreaterThan(metro);
+    expect(judge).toBeGreaterThan(schoolBoard);
+    const amendment = jefferson({ race_type: "ballot_measure", office_scope: null, district_type: "statewide" });
+    expect(amendment).toBeGreaterThan(
+      jefferson({ office_scope: "statewide", contest_family: "us_senate", title: "United States Senator" })
+    );
+    expect(amendment).toBeLessThan(jefferson({ office_scope: "us_house", title: "United States Representative" }));
+  });
+
   it("AL: Attorney General before the legislature; the other executives after the appellate courts", () => {
     const senate = rank("01", { office_scope: "state_upper", title: "State Senator" });
     const appeals = rank("01", {
