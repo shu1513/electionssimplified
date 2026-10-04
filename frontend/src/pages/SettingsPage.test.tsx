@@ -18,6 +18,7 @@ function renderSettings() {
   return renderRoutes(
     [
       { path: "/me/settings", element: <SettingsPage /> },
+      { path: "/", element: <p>Home placeholder</p> },
       { path: "/login", element: <p /> },
       { path: "/me/ballot", element: <p>Saved ballot placeholder</p> },
     ],
@@ -27,6 +28,7 @@ function renderSettings() {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 
 describe("SettingsPage", () => {
@@ -192,7 +194,7 @@ describe("SettingsPage", () => {
     expect(screen.queryByRole("link", { name: "Become an honorary member" })).not.toBeInTheDocument();
   });
 
-  it("swaps password-gated sections for the add-a-password hint on Google-only accounts", async () => {
+  it("swaps the password and email forms for the add-a-password hint on Google-only accounts", async () => {
     stubApiRoutes({
       "/api/me": { body: ME_GOOGLE_NO_PASSWORD },
       "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
@@ -204,12 +206,63 @@ describe("SettingsPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Add a password" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add a password" })).toHaveAttribute("href", "/forgot-password");
-    // The three password-gated forms are replaced, not left to fail.
+    // The two password-gated forms are replaced, not left to fail.
     expect(screen.queryByRole("heading", { name: "Change password" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Change email" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Delete account" })).not.toBeInTheDocument();
+    // Deletion stays available: it confirms with Google instead of a password.
+    expect(screen.getByRole("heading", { name: "Delete account" })).toBeInTheDocument();
     // Sign Out moved to the header account menu — not on this page anymore.
     expect(screen.queryByRole("button", { name: /sign out/i })).not.toBeInTheDocument();
+  });
+
+  it("deletes a Google-only account once Google confirms it, with no password field", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "test-client-id");
+    const initialize = vi.fn();
+    vi.stubGlobal("google", { accounts: { id: { initialize, renderButton: vi.fn() } } });
+    const user = userEvent.setup();
+    const fetchMock = stubApiRoutes({
+      "/api/me": (_url, init) =>
+        init?.method === "DELETE" ? { body: { status: "ok" } } : { body: ME_GOOGLE_NO_PASSWORD },
+      "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
+      "/api/me/membership": { body: { enabled: false } },
+      "/api/research-areas": { body: { research_areas: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    renderSettings();
+
+    await user.click(await screen.findByRole("button", { name: "Delete my account…" }));
+    expect(screen.getByText("Confirm with Google to permanently delete")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Confirm with your password")).not.toBeInTheDocument();
+    await waitFor(() => expect(initialize).toHaveBeenCalled());
+
+    // Nothing is deleted until Google hands back a credential.
+    const isDelete = ([, init]: [unknown, RequestInit?]) => init?.method === "DELETE";
+    expect(fetchMock.mock.calls.some(isDelete)).toBe(false);
+    const config = initialize.mock.calls.at(-1)?.[0] as { callback: (response: { credential?: string }) => void };
+    config.callback({ credential: "google-jwt" });
+
+    await waitFor(() => expect(fetchMock.mock.calls.some(isDelete)).toBe(true));
+    const deleteCall = fetchMock.mock.calls.find(isDelete);
+    expect(JSON.parse(String(deleteCall?.[1]?.body))).toEqual({ google_credential: "google-jwt" });
+    expect(await screen.findByText("Home placeholder")).toBeInTheDocument();
+  });
+
+  it("points a Google-only account at the password route when Google cannot load", async () => {
+    vi.stubEnv("VITE_GOOGLE_OAUTH_CLIENT_ID", "");
+    const user = userEvent.setup();
+    stubApiRoutes({
+      "/api/me": { body: ME_GOOGLE_NO_PASSWORD },
+      "/api/me/email-preferences": { body: EMAIL_PREFERENCES },
+      "/api/me/membership": { body: { enabled: false } },
+      "/api/research-areas": { body: { research_areas: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+    });
+    renderSettings();
+
+    await user.click(await screen.findByRole("button", { name: "Delete my account…" }));
+    expect(
+      screen.getByText("Google sign-in could not load. Add a password above, then delete your account with it.")
+    ).toBeInTheDocument();
   });
 
   it("keeps the password-gated sections for accounts with a password", async () => {

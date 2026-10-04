@@ -61,8 +61,9 @@ const GIS_BUTTON_HEIGHT = 40;
 const GIS_BUTTON_SCALE = 1.2;
 
 type GoogleSignInButtonProps = {
-  /** GIS button label variant: register page vs login page. */
-  text: "signup_with" | "signin_with";
+  /** GIS button label variant: register page, login page, or a
+   * re-confirmation of the signed-in account (settings). */
+  text: "signup_with" | "signin_with" | "continue_with";
   /** Blocks interaction (request in flight). The GIS button is an iframe
    * with no disabled state, so the wrapper goes inert. */
   disabled?: boolean;
@@ -70,6 +71,11 @@ type GoogleSignInButtonProps = {
   /** Rendered between the button and the trailing "or" divider (hints,
    * errors) — and therefore hidden with them when Google is unavailable. */
   children?: ReactNode;
+  /** False drops the trailing "or" divider, for a button with no form below it. */
+  divider?: boolean;
+  /** Rendered instead of the button when Google is unavailable (client ID
+   * unset, or the GIS script failed to load). */
+  fallback?: ReactNode;
 };
 
 export function GoogleSignInButton({
@@ -77,6 +83,8 @@ export function GoogleSignInButton({
   disabled = false,
   onCredential,
   children,
+  divider = true,
+  fallback = null,
 }: GoogleSignInButtonProps) {
   const clientId = getClientId();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -172,7 +180,7 @@ export function GoogleSignInButton({
   }, [clientId, text, availableWidth]);
 
   if (!clientId || failed) {
-    return null;
+    return fallback;
   }
 
   return (
@@ -201,11 +209,13 @@ export function GoogleSignInButton({
       {/* The divider lives here, not in the pages: it separates Google from
           the email form, so it must disappear with the button when the client
           ID is unset or the GIS script fails (adblockers). */}
-      <div className="mt-6 flex items-center gap-3" aria-hidden="true">
-        <span className="h-px flex-1 bg-line" />
-        <span className="text-xs font-medium uppercase text-ink-soft">or</span>
-        <span className="h-px flex-1 bg-line" />
-      </div>
+      {divider ? (
+        <div className="mt-6 flex items-center gap-3" aria-hidden="true">
+          <span className="h-px flex-1 bg-line" />
+          <span className="text-xs font-medium uppercase text-ink-soft">or</span>
+          <span className="h-px flex-1 bg-line" />
+        </div>
+      ) : null}
     </>
   );
 }

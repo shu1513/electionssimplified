@@ -825,6 +825,45 @@ describe("account management endpoints", () => {
     expect(response.headers["set-cookie"]).toContain(`${AUTH_SESSION_COOKIE_NAME}=;`);
   });
 
+  it("deletes the account on a Google confirmation", async () => {
+    const authService = createAuthServiceMock();
+    const resolveAuthenticatedUserId = vi.fn().mockReturnValue(SESSION_USER_ID);
+
+    const response = await invokeExpressApp(
+      createApiApp({ resolveAddress: vi.fn(), authService, resolveAuthenticatedUserId }),
+      {
+        method: "DELETE",
+        path: "/api/me",
+        body: JSON.stringify({ google_credential: "google-jwt" }),
+        headers: { "content-type": "application/json", "x-user-id": SESSION_USER_ID },
+      }
+    );
+
+    expect(response.statusCode).toBe(200);
+    expect(authService.deleteAccount).toHaveBeenCalledWith({
+      userId: SESSION_USER_ID,
+      googleCredential: "google-jwt",
+    });
+  });
+
+  it("refuses an account delete that carries both confirmations", async () => {
+    const authService = createAuthServiceMock();
+    const resolveAuthenticatedUserId = vi.fn().mockReturnValue(SESSION_USER_ID);
+
+    const response = await invokeExpressApp(
+      createApiApp({ resolveAddress: vi.fn(), authService, resolveAuthenticatedUserId }),
+      {
+        method: "DELETE",
+        path: "/api/me",
+        body: JSON.stringify({ password: "password-123", google_credential: "google-jwt" }),
+        headers: { "content-type": "application/json", "x-user-id": SESSION_USER_ID },
+      }
+    );
+
+    expect(response.statusCode).toBe(400);
+    expect(authService.deleteAccount).not.toHaveBeenCalled();
+  });
+
   it("logs out everywhere and clears the session cookie", async () => {
     const authService = createAuthServiceMock();
     const resolveAuthenticatedUserId = vi.fn().mockReturnValue(SESSION_USER_ID);

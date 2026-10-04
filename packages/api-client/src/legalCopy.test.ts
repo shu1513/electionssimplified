@@ -192,8 +192,12 @@ const PINNED_DOCUMENTS = [
     // 30-day abuse-monitoring retention stated; content-report free text
     // kept as written; Google Privacy Policy linked for Places. Ships with
     // the Terms 1.5 bump.
-    version: "1.8",
-    sha256: "f3e0782569084d4bc7ce0087f3049aeea48ac3e0f2cf350ecc234a23292ef363",
+    // 1.8 → 1.9 (2026-10-04): Section 6 — a Google-created account now
+    // confirms deletion by signing in with Google again instead of setting
+    // a password first. Nothing new collected — TERMS_VERSION stays 1.5,
+    // no re-acceptance.
+    version: "1.9",
+    sha256: "db7da2dd2420579f59c78bb7291507339fa745e35c728bc027a198e1eb599f8d",
   },
   {
     filename: "disclaimer.md",

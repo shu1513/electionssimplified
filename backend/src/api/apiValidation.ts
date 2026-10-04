@@ -309,9 +309,8 @@ export type MeEmailPayload = {
   password: string;
 };
 
-export type MeDeletePayload = {
-  password: string;
-};
+/** Exactly one of the two confirmations is present. */
+export type MeDeletePayload = { password: string } | { google_credential: string };
 
 export type MeUpdatePayload = {
   first_name: string;
@@ -798,6 +797,16 @@ export function parseMeEmailBodyValue(parsed: unknown): MeEmailPayload {
 }
 
 export function parseMeDeleteBodyValue(parsed: unknown): MeDeletePayload {
+  // Google-created accounts without a password confirm with a Google ID
+  // token instead; a body carrying both is ambiguous and refused.
+  if (typeof parsed === "object" && parsed !== null && "google_credential" in parsed) {
+    if ("password" in parsed) {
+      throw new RequestValidationError("Request body must include password or google_credential, not both");
+    }
+    return {
+      google_credential: parseStringField(parsed, "google_credential"),
+    };
+  }
   return {
     password: parseStringField(parsed, "password"),
   };

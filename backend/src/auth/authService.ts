@@ -117,9 +117,13 @@ export type AuthChangePasswordInput = {
   newPassword: string;
 };
 
+/** Confirmed by exactly one of: the account password, or a fresh Google ID
+ * token for the Google account linked to this user (the only confirmation a
+ * Google-created account without a password can give). */
 export type AuthDeleteAccountInput = {
   userId: string;
-  password: string;
+  password?: string;
+  googleCredential?: string;
 };
 
 export type AuthRequestEmailChangeInput = {
@@ -282,14 +286,15 @@ function normalizeUserId(userId: string): string {
   return normalized;
 }
 
-async function findActiveUserByIdForUpdate(db: Queryable, userId: string): Promise<AuthUserRow | null> {
-  const result = await db.query<AuthUserRow>(
+async function findActiveUserByIdForUpdate(db: Queryable, userId: string): Promise<GoogleAuthUserRow | null> {
+  const result = await db.query<GoogleAuthUserRow>(
     `
       SELECT
         id::text AS id,
         email::text AS email,
         first_name,
         password_hash,
+        google_sub,
         email_verified,
         session_epoch
       FROM public.users
@@ -1351,27 +1356,62 @@ export function createAuthService(options: AuthServiceOptions): AuthService {
 
     async deleteAccount(input) {
       const userId = normalizeUserId(input.userId);
-      if (typeof input.password !== "string" || input.password.length === 0) {
-        throw new RequestValidationError("password must be a non-empty string");
+      // Re-authentication, checked against the locked user row: the account
+      // password, or a Google ID token whose subject is the Google account
+      // linked to this user. The token is verified once, here, so no network
+      // call runs while the row is locked.
+      let isConfirmedBy: (user: GoogleAuthUserRow | null) => Promise<boolean>;
+      let rejectionMessage: string;
+      if (input.googleCredential !== undefined) {
+        if (input.password !== undefined) {
+          throw new RequestValidationError("Provide either password or googleCredential, not both");
+        }
+        if (typeof input.googleCredential !== "string" || input.googleCredential.trim().length === 0) {
+          throw new RequestValidationError("googleCredential must be a non-empty string");
+        }
+        if (!options.verifyGoogleIdToken) {
+          throw new RequestValidationError("Google sign-in is not configured");
+        }
+        let googleSub = "";
+        try {
+          const payload = await options.verifyGoogleIdToken(input.googleCredential);
+          googleSub = typeof payload.sub === "string" ? payload.sub.trim() : "";
+        } catch {
+          // Same generic 400 as loginWithGoogle for every library error.
+        }
+        if (googleSub.length === 0) {
+          throw new RequestValidationError("Google sign-in failed: invalid credential");
+        }
+        isConfirmedBy = async (user) => user !== null && user.google_sub === googleSub;
+        rejectionMessage = "That Google account is not the one linked to this account";
+      } else {
+        const password = input.password;
+        if (typeof password !== "string" || password.length === 0) {
+          throw new RequestValidationError("password must be a non-empty string");
+        }
+        // NULL hash (Google-only account) never matches — those confirm with Google.
+        isConfirmedBy = async (user) =>
+          user !== null && user.password_hash !== null && (await verifyPassword(user.password_hash, password));
+        rejectionMessage = "Password is incorrect";
       }
 
       // Membership cancellation is a precondition (Terms §14.3: deleting the
-      // account cancels the membership) with its own password check first: a
-      // wrong-password request must not be able to cancel a paid membership,
-      // and the Stripe network call must not run inside the delete
-      // transaction below, where it would hold the user row lock for up to a
-      // Stripe timeout. The delete transaction re-verifies the password; if
-      // it changed in between, the delete fails and all that happened is a
-      // cancel the (then-)authenticated request asked for.
+      // account cancels the membership) with its own confirmation check
+      // first: an unconfirmed request must not be able to cancel a paid
+      // membership, and the Stripe network call must not run inside the
+      // delete transaction below, where it would hold the user row lock for
+      // up to a Stripe timeout. The delete transaction re-checks the
+      // confirmation; if the password or Google link changed in between, the
+      // delete fails and all that happened is a cancel the
+      // (then-)authenticated request asked for.
       let membershipWasCanceled = false;
       if (options.cancelMembershipForAccountDeletion) {
         const precheckClient = await options.db.connect();
         try {
           await precheckClient.query("BEGIN");
           const user = await findActiveUserByIdForUpdate(precheckClient, userId);
-          // NULL hash (Google-only account) never matches — add a password first.
-          if (!user || user.password_hash === null || !(await verifyPassword(user.password_hash, input.password))) {
-            throw new RequestValidationError("Password is incorrect");
+          if (!(await isConfirmedBy(user))) {
+            throw new RequestValidationError(rejectionMessage);
           }
           // Pure check — release the row lock before any network call.
           await precheckClient.query("ROLLBACK");
@@ -1390,9 +1430,8 @@ export function createAuthService(options: AuthServiceOptions): AuthService {
       try {
         await client.query("BEGIN");
         const user = await findActiveUserByIdForUpdate(client, userId);
-        // NULL hash (Google-only account) never matches — add a password first.
-        if (!user || user.password_hash === null || !(await verifyPassword(user.password_hash, input.password))) {
-          throw new RequestValidationError("Password is incorrect");
+        if (!(await isConfirmedBy(user))) {
+          throw new RequestValidationError(rejectionMessage);
         }
 
         // Two tables outlive the user row and need explicit scrubbing before
@@ -1445,8 +1484,8 @@ export function createAuthService(options: AuthServiceOptions): AuthService {
       } catch (error) {
         await rollbackQuietly(client);
         // The Stripe cancellation already committed but the account survives
-        // (DB failure, or the password changed between precheck and the
-        // re-verification above). Retrying the delete self-heals — re-cancel
+        // (DB failure, or the password or Google link changed between
+        // precheck and the re-check above). Retrying the delete self-heals — re-cancel
         // is a no-op — but if the user never retries, their membership is
         // silently gone; this line is the operator's signal to reinstate or
         // reach out.

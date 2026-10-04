@@ -1495,7 +1495,7 @@ async function dispatchApiRequest(
       return;
     }
 
-    // Password-verifying endpoint: throttle per account (keyed by userId in
+    // Password- or Google-token-verifying endpoint: throttle per account (keyed by userId in
     // the shared auth buckets) so a hijacked session cannot brute-force the
     // re-entered password behind the per-IP cap alone.
     if (!(await enforceAuthRateLimit(options, request, response, userId))) {
@@ -1505,7 +1505,9 @@ async function dispatchApiRequest(
     const payload = parseMeDeleteBodyValue(request.body);
     await options.authService.deleteAccount({
       userId,
-      password: payload.password,
+      ...("google_credential" in payload
+        ? { googleCredential: payload.google_credential }
+        : { password: payload.password }),
     });
     sendApiResponse(response, {
       ...toJsonResponse(200, { status: "ok" }, corsHeaders),

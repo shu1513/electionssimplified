@@ -5,6 +5,7 @@ import { apiRequest } from "@voteapp/api-client";
 import type { MembershipStatus } from "@voteapp/api-client";
 import { ErrorNotice, LoadingNotice } from "../components/Status";
 import { EmailPreferenceToggles } from "../components/EmailPreferenceToggles";
+import { GoogleSignInButton } from "../components/GoogleSignInButton";
 import { ResearchAreasSection } from "../components/ResearchAreasSection";
 import { SavedAddressForm } from "../components/SavedAddressForm";
 import { SupportHistory } from "../components/SupportCheckout";
@@ -297,17 +298,17 @@ function EmailSection({ me }: { me: Me }) {
   );
 }
 
-// Google-created accounts have no password, and password change, email
-// change, and account deletion all demand one. Instead of letting those
-// forms fail with "password is incorrect", point at the existing
-// forgot-password flow: the account's email is verified, so the reset link
-// works today and doubles as "add a password".
+// Google-created accounts have no password, and password change and email
+// change both demand one. Instead of letting those forms fail with
+// "password is incorrect", point at the existing forgot-password flow: the
+// account's email is verified, so the reset link works today and doubles as
+// "add a password". (Account deletion does not need one — DangerSection
+// confirms with Google instead.)
 function AddPasswordSection({ me }: { me: Me }) {
   return (
     <Section title="Add a password">
       <p className="mt-1 text-sm text-ink-soft">
-        You signed in with Google, so this account has no password yet. Changing your email or deleting
-        your account requires one.
+        You signed in with Google, so this account has no password yet. Changing your email requires one.
       </p>
       <p className="mt-2 text-sm text-ink-soft">
         We&apos;ll email a link to <strong className="text-ink">{me.email}</strong> that lets you set one.
@@ -345,13 +346,17 @@ function EmailPreferencesSection() {
   );
 }
 
-function DangerSection() {
+// Deletion is re-confirmed: with the password when the account has one,
+// otherwise (Google-created account) with a fresh Google sign-in, which the
+// backend matches against the linked Google account.
+function DangerSection({ me }: { me: Me }) {
   const [password, setPassword] = useState("");
   const [confirming, setConfirming] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const deleteAccount = useMutation({
-    mutationFn: () => apiRequest<{ status: string }>("/api/me", { method: "DELETE", body: { password } }),
+    mutationFn: (confirmation: { password: string } | { google_credential: string }) =>
+      apiRequest<{ status: string }>("/api/me", { method: "DELETE", body: confirmation }),
     onSuccess: () => {
       queryClient.setQueryData(["me"], null);
       purgeAccountScopedQueries(queryClient);
@@ -373,12 +378,36 @@ function DangerSection() {
         >
           Delete my account…
         </button>
+      ) : !me.has_password ? (
+        <div className="mt-3 space-y-3">
+          <p className="text-sm font-medium text-ink">
+            {deleteAccount.isPending ? "Deleting…" : "Confirm with Google to permanently delete"}
+          </p>
+          <GoogleSignInButton
+            text="continue_with"
+            divider={false}
+            disabled={deleteAccount.isPending}
+            onCredential={(credential) => deleteAccount.mutate({ google_credential: credential })}
+            fallback={
+              <p className="text-sm text-ink-soft">
+                Google sign-in could not load. Add a password above, then delete your account with it.
+              </p>
+            }
+          />
+          <button
+            type="button"
+            onClick={() => setConfirming(false)}
+            className="rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink"
+          >
+            Cancel
+          </button>
+        </div>
       ) : (
         <form
           onSubmit={(event) => {
             event.preventDefault();
             if (password && !deleteAccount.isPending) {
-              deleteAccount.mutate();
+              deleteAccount.mutate({ password });
             }
           }}
           className="mt-3 space-y-3"
@@ -472,7 +501,7 @@ export function SettingsPage() {
       ) : (
         <AddPasswordSection me={me} />
       )}
-      {me.has_password ? <DangerSection /> : null}
+      <DangerSection me={me} />
     </div>
   );
 }
