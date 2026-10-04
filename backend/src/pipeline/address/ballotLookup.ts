@@ -99,6 +99,7 @@ import { loadSanFranciscoCandidateFinanceSummariesByCandidateElection } from "..
 import { loadSanJoseCandidateFinanceSummariesByCandidateElection } from "../sanJoseFinance/sanJoseBallotLookupFinanceLoader.js";
 import { loadSouthCarolinaCandidateFinanceSummariesByCandidateElection } from "../southCarolinaFinance/southCarolinaBallotLookupFinanceLoader.js";
 
+import { isOutsideAppellateElectorate } from "./appellateRetentionElectorate.js";
 import {
   electionYear,
   candidateElectionKey,
@@ -1778,6 +1779,13 @@ export async function lookupBallotSummariesByDistrictIds(
       ORDER BY e.election_date ASC, e.race_type ASC, e.official_ballot_title ASC, e.id ASC
     `,
     options.electionDate ? [ids, options.electionDate] : [ids]
+  );
+
+  // A statewide-row contest with a sub-state electorate (California Court of
+  // Appeal retention) is dropped for voters outside it, before any per-election
+  // loader runs.
+  electionResult.rows = electionResult.rows.filter(
+    (row) => !isOutsideAppellateElectorate(row, districtResult.rows)
   );
 
   const electionIds = electionResult.rows.map((row) => row.election_id);
