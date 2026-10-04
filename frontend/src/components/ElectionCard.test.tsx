@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ElectionList } from "./ElectionCard";
 import { renderRoutes } from "../test/render";
@@ -93,6 +93,31 @@ describe("ElectionCard", () => {
     // Every card names its district — generic titles ("Mayor", "Governor")
     // don't say where the race is.
     expect(screen.getByText("Alaska")).toBeInTheDocument();
+  });
+
+  it("names who is running, under the district", () => {
+    renderCard(electionSummary({ candidate_count: 2, candidate_names: ["Ann Ames", "Bo Burke"] }));
+    expect(screen.getByText("Running:").parentElement).toHaveTextContent("Running: Ann Ames, Bo Burke");
+  });
+
+  it("gives the last name slot to the overflow count on a long roster", () => {
+    renderCard(
+      electionSummary({ candidate_count: 9, candidate_names: ["Ann Ames", "Bo Burke", "Cy Cole", "Di Dunn"] })
+    );
+    expect(screen.getByText("Running:").parentElement).toHaveTextContent(
+      "Running: Ann Ames, Bo Burke, Cy Cole, +6 more"
+    );
+  });
+
+  it("omits the running line without names, on measures, and once a result is in", () => {
+    renderCard(electionSummary());
+    expect(screen.queryByText("Running:")).not.toBeInTheDocument();
+    cleanup();
+    renderCard(electionSummary({ race_type: "ballot_measure", candidate_names: ["Ann Ames"] }));
+    expect(screen.queryByText("Running:")).not.toBeInTheDocument();
+    cleanup();
+    renderCard(electionSummary({ has_results: true, candidate_names: ["Ann Ames", "Bo Burke"] }));
+    expect(screen.queryByText("Running:")).not.toBeInTheDocument();
   });
 
   it("omits candidate counts even for a lone candidate", () => {
@@ -1127,6 +1152,20 @@ describe("vote-power sections", () => {
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
     expect(screen.getByRole("button", { name: "My vote power: High(10)" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /^Elections awaiting candidate information/ })).not.toBeInTheDocument();
+  });
+
+  it("leads the bands with the federal office races, each card carrying its own vote power", () => {
+    const house = race("house", "medium", {
+      office: { id: "office-house", scope: "us_house", canonical_name: "United States Representative", summary: "" },
+    });
+    const elections = [house, ...Array.from({ length: 10 }, (_, i) => race(`e-${i}`, "high"))];
+    renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="vote_power" /> }], "/");
+    // Outside every band: no Average section, and the High band counts ten.
+    expect(screen.queryByRole("button", { name: /My vote power: Average/ })).not.toBeInTheDocument();
+    const high = screen.getByRole("button", { name: "My vote power: High(10)" });
+    const card = screen.getByRole("link", { name: /Race house/ });
+    expect(within(card).getByText("My vote power: Average")).toBeInTheDocument();
+    expect(card.compareDocumentPosition(high) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("orders populated bands highest first, combines the bottom two, and preserves card navigation order", async () => {

@@ -7,6 +7,7 @@ import {
   VOTE_POWER_BAND_ORDER,
   ballotSortForRailSort,
   competitivenessChip,
+  isFederalLeadRace,
   isRailDistrictSort,
   nearestDayPickProgress,
   railSortForBallotSort,
@@ -477,10 +478,13 @@ export function ElectionPage() {
   // lift a rating), so a pure score order would repeat a heading. A stable
   // sort keeps the score order inside each band; the tails (no band) stay
   // where sortRailEntries put them. Rail and pager both read this array.
+  // The federal lead keeps its place ahead of every band, as on the list.
   const bandRank = (contest: NavContest): number =>
     contest.vote_power_band === undefined
       ? Number.POSITIVE_INFINITY
-      : VOTE_POWER_BAND_ORDER.indexOf(contest.vote_power_band as (typeof VOTE_POWER_BAND_ORDER)[number]);
+      : isFederalLeadRace(contest.race_type, contest.level)
+        ? -1
+        : VOTE_POWER_BAND_ORDER.indexOf(contest.vote_power_band as (typeof VOTE_POWER_BAND_ORDER)[number]);
   const displayedContests =
     railVotePowerBands && sortedContests !== undefined
       ? [...sortedContests].sort((a, b) => bandRank(a) - bandRank(b))
@@ -616,7 +620,10 @@ export function ElectionPage() {
             // them; retention rows form the rail's fold-away tail.
             ...(isRailDistrictSort(railSort) && contest.group !== undefined
               ? { group: contest.group }
-              : railVotePowerBands && contest.vote_power_band !== undefined
+              : railVotePowerBands &&
+                  contest.vote_power_band !== undefined &&
+                  // The federal lead sits above the bands, under no heading.
+                  !isFederalLeadRace(contest.race_type, contest.level)
                 ? // "Vote power: High", not a bare "High": the district
                   // headings read "City: Berkeley", and a bare band word
                   // over a race reads as that race's label.
