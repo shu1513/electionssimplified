@@ -2,7 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
 import type { BallotLookupElectionSummary, BallotSummaryResult } from "./ballotLookup.js";
-import { stateBallotContestRank } from "./stateBallotOrderRules.js";
+import { stateBallotContestRank, withinTierOfficeRank, type BallotOrderContext } from "./stateBallotOrderRules.js";
 import {
   loadUserResearchAreaWeights,
   scoreResearchAreaMatch,
@@ -174,7 +174,13 @@ export async function applyBallotElectionOrdering(
     }
   }
 
-  sortBallotElections(elections, sort, options.followedFirst ?? true, areaScoresByElection);
+  sortBallotElections(
+    elections,
+    sort,
+    options.followedFirst ?? true,
+    areaScoresByElection,
+    ballotOrderContext(result)
+  );
 
   return { ...result, elections };
 }
@@ -248,6 +254,21 @@ function hasNothingToRead(election: OrderedBallotElectionSummary): boolean {
   return election.race_type !== "ballot_measure" && election.candidate_count === 0 && !election.has_results;
 }
 
+// Ballot-level facts for the positional sort: the voter's county (only when
+// the ballot resolves to exactly one) and the dates that carry a
+// general-stage contest.
+function ballotOrderContext(result: BallotSummaryResult): BallotOrderContext {
+  const counties = result.districts.filter((district) => district.district_type === "county");
+  return {
+    countyFips: counties.length === 1 ? counties[0].geoid_compact : null,
+    generalDates: new Set(
+      result.elections
+        .filter((election) => election.election_stage === "general")
+        .map((election) => election.election_date)
+    ),
+  };
+}
+
 // Stable, in-place ordering of the elections list. `Array.prototype.sort` is
 // stable, so the reader's SQL order (election_date, race_type, title, id) is
 // the deterministic tiebreak whenever the chosen keys are equal.
@@ -255,19 +276,25 @@ function sortBallotElections(
   elections: OrderedBallotElectionSummary[],
   sort: BallotSummarySort,
   followedFirst: boolean,
-  areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null
+  areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null,
+  orderContext: BallotOrderContext = {}
 ): void {
   // Positional ballot order: no followed-first grouping, no empty-race sink —
   // a race's slot on the sheet is the whole point of this sort. The rank is
   // the state's verified general-election order where an override exists
-  // (stateBallotOrderRules.ts), the generic baseline otherwise. Rank-first
+  // or its county prints its own order (stateBallotOrderRules.ts), the
+  // generic baseline otherwise. Rank-first
   // (not date-first) is fine even when the summary spans several election
   // dates: the preview renders one sheet per election_date and only relies
   // on the payload order WITHIN each date (BallotPreviewSheets).
   if (sort === "state_baseline") {
     elections.sort((a, b) => {
-      const byRank = stateBallotContestRank(a) - stateBallotContestRank(b);
-      return byRank !== 0 ? byRank : compareTail(a, b);
+      const byRank = stateBallotContestRank(a, orderContext) - stateBallotContestRank(b, orderContext);
+      if (byRank !== 0) {
+        return byRank;
+      }
+      const byOffice = withinTierOfficeRank(a) - withinTierOfficeRank(b);
+      return byOffice !== 0 ? byOffice : compareTail(a, b);
     });
     return;
   }

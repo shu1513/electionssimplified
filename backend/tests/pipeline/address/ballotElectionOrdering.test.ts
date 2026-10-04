@@ -24,13 +24,16 @@ type FakeElection = {
   office_scope?: string;
   office_name?: string;
   contest_family?: string;
-  election_stage?: string;
+  election_stage?: string | null;
 };
 
-function makeSummary(elections: FakeElection[]): BallotSummaryResult {
+function makeSummary(
+  elections: FakeElection[],
+  districts: BallotSummaryResult["districts"] = []
+): BallotSummaryResult {
   return {
     district_ids: [districtId],
-    districts: [],
+    districts,
     elections: elections.map(
       (e): BallotLookupElectionSummary => ({
         id: e.id,
@@ -48,7 +51,9 @@ function makeSummary(elections: FakeElection[]): BallotSummaryResult {
         race_type: e.race_type ?? "office",
         official_ballot_title: e.official_ballot_title ?? "Office",
         election_date: e.election_date ?? "2026-11-03",
-        election_stage: (e.election_stage ?? "general") as BallotLookupElectionSummary["election_stage"],
+        election_stage: (e.election_stage === undefined
+          ? "general"
+          : e.election_stage) as BallotLookupElectionSummary["election_stage"],
         is_partisan: false,
         discovery_contest_family: e.contest_family ?? "non_judicial_office",
         sources: [],
@@ -422,6 +427,69 @@ describe("applyBallotElectionOrdering", () => {
 
     // No override on a primary: US Senate leads under the generic baseline.
     expect(result.elections.map((e) => e.id)).toEqual([electionA, electionD]);
+  });
+
+  it("state_baseline gives stage-less measures the state order when they share a general ballot", async () => {
+    // Ballot measures are stored without a stage. Washington prints measures
+    // first, so on a general ballot the measure must lead the offices.
+    const washington = makeSummary([
+      { id: electionA, office_scope: "statewide", official_ballot_title: "Governor" },
+      { id: electionB, race_type: "ballot_measure", contest_family: "ballot_measure", election_stage: null },
+    ]);
+    for (const election of washington.elections) {
+      election.district = { ...election.district, state: "WA", state_fips: "53", geoid_compact: "53033" };
+    }
+    const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, washington, {
+      sort: "state_baseline",
+    });
+    expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
+
+    // No general contest on the date: the measure keeps the generic slot.
+    const alone = makeSummary([
+      { id: electionA, office_scope: "statewide", official_ballot_title: "Governor", election_stage: "special" },
+      { id: electionB, race_type: "ballot_measure", contest_family: "ballot_measure", election_stage: null },
+    ]);
+    for (const election of alone.elections) {
+      election.district = { ...election.district, state: "WA", state_fips: "53", geoid_compact: "53033" };
+    }
+    const unchanged = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, alone, {
+      sort: "state_baseline",
+    });
+    expect(unchanged.elections.map((e) => e.id)).toEqual([electionA, electionB]);
+  });
+
+  it("state_baseline uses the county's own order when the ballot sits in Los Angeles County", async () => {
+    const electionD = "dddddddd-4444-4444-8444-dddddddddddd";
+    const electionE = "eeeeeeee-5555-4555-8555-eeeeeeeeeeee";
+    const result = await applyBallotElectionOrdering(
+      { query: makeFollowsQuery([]) },
+      makeSummary(
+        [
+          { id: electionA, office_scope: "statewide", official_ballot_title: "Governor" },
+          { id: electionB, office_scope: "us_house", official_ballot_title: "United States Representative" },
+          { id: electionC, office_scope: "county", official_ballot_title: "Sheriff", election_stage: "runoff" },
+          { id: electionD, office_scope: "place", official_ballot_title: "Member of the City Council" },
+          { id: electionE, race_type: "ballot_measure", contest_family: "ballot_measure", election_stage: null },
+        ],
+        [
+          {
+            id: districtId,
+            district_type: "county",
+            geoid_compact: "06037",
+            name: "Los Angeles County",
+            state: "CA",
+            state_fips: "06",
+            representation_power_score: 50,
+            population: null,
+          },
+        ]
+      ),
+      { sort: "state_baseline" }
+    );
+
+    // Local first: city council, US House, then the county block (Sheriff,
+    // county measure), then the state block.
+    expect(result.elections.map((e) => e.id)).toEqual([electionD, electionB, electionC, electionE, electionA]);
   });
 
   it("state_baseline is positional: no followed-first grouping, no empty-race sink", async () => {
