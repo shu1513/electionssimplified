@@ -180,11 +180,18 @@ export async function applyBallotElectionOrdering(
   }
 
   const orderContext = ballotOrderContext(result);
-  sortBallotElections(elections, sort, options.followedFirst ?? true, areaScoresByElection, orderContext);
+  // The title tiebreak compares the printed titles, so numbered measures
+  // list in ballot order and the detail rail's client-side re-sort
+  // (api-client railSort.ts, which only sees the printed title) agrees with
+  // this list. The titles are swapped in after sorting because the state
+  // rank rules read the stored title.
+  const printedTitles = new Map(
+    elections.map((election) => [election.id, printedBallotTitle(election, orderContext)])
+  );
+  sortBallotElections(elections, sort, options.followedFirst ?? true, areaScoresByElection, orderContext, printedTitles);
 
-  // After sorting, so the stored titles decide the order under every sort.
   for (const election of elections) {
-    election.official_ballot_title = printedBallotTitle(election, orderContext);
+    election.official_ballot_title = printedTitles.get(election.id) ?? election.official_ballot_title;
   }
 
   return { ...result, elections };
@@ -282,7 +289,8 @@ function sortBallotElections(
   sort: BallotSummarySort,
   followedFirst: boolean,
   areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null,
-  orderContext: BallotOrderContext = {}
+  orderContext: BallotOrderContext = {},
+  printedTitles: ReadonlyMap<string, string> = new Map()
 ): void {
   // Positional ballot order: no followed-first grouping, no empty-race sink —
   // a race's slot on the sheet is the whole point of this sort. The rank is
@@ -299,7 +307,7 @@ function sortBallotElections(
         return byRank;
       }
       const byOffice = withinTierOfficeRank(a) - withinTierOfficeRank(b);
-      return byOffice !== 0 ? byOffice : compareTail(a, b);
+      return byOffice !== 0 ? byOffice : compareTail(a, b, printedTitles);
     });
     return;
   }
@@ -332,7 +340,7 @@ function sortBallotElections(
         return aFollowed - bFollowed;
       }
     }
-    return compareBySort(a, b, sort, areaScoresByElection);
+    return compareBySort(a, b, sort, areaScoresByElection, printedTitles);
   });
 }
 
@@ -347,7 +355,8 @@ function compareBySort(
   a: OrderedBallotElectionSummary,
   b: OrderedBallotElectionSummary,
   sort: BallotSummarySort,
-  areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null
+  areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null,
+  printedTitles: ReadonlyMap<string, string> = new Map()
 ): number {
   if (sort === "my_areas") {
     // Higher summed weight of matched saved areas first; among equal sums the
@@ -361,7 +370,7 @@ function compareBySort(
     if (aMatch.bestRank !== bMatch.bestRank) {
       return aMatch.bestRank - bMatch.bestRank;
     }
-    return compareBySort(a, b, "vote_power");
+    return compareBySort(a, b, "vote_power", null, printedTitles);
   }
   if (sort === "vote_power") {
     // Higher vote-power score first; unknown scores (null) sort last.
@@ -383,7 +392,7 @@ function compareBySort(
       return sort === "district_size" ? bPopulation - aPopulation : aPopulation - bPopulation;
     }
   }
-  return compareTail(a, b);
+  return compareTail(a, b, printedTitles);
 }
 
 // Government level of a race, biggest first. Mirrors ballotLevel in
@@ -428,18 +437,24 @@ function ballotLevelRank(election: OrderedBallotElectionSummary, sort: BallotSum
 }
 
 // The shared tiebreak for equal primary keys — the reader's SQL order:
-// earliest date first, then race_type, numeric-aware title, id. The date key
+// earliest date first, then race_type, numeric-aware printed title, id. The date key
 // is redundant under the list sorts (sortBallotElections already split by
 // date) but carries state_baseline's within-rank order.
-function compareTail(a: OrderedBallotElectionSummary, b: OrderedBallotElectionSummary): number {
+function compareTail(
+  a: OrderedBallotElectionSummary,
+  b: OrderedBallotElectionSummary,
+  printedTitles: ReadonlyMap<string, string>
+): number {
   if (a.election_date !== b.election_date) {
     return a.election_date < b.election_date ? -1 : 1;
   }
   if (a.race_type !== b.race_type) {
     return a.race_type < b.race_type ? -1 : 1;
   }
-  if (a.official_ballot_title !== b.official_ballot_title) {
-    const byTitle = BALLOT_TITLE_COLLATOR.compare(a.official_ballot_title, b.official_ballot_title);
+  const aTitle = printedTitles.get(a.id) ?? a.official_ballot_title;
+  const bTitle = printedTitles.get(b.id) ?? b.official_ballot_title;
+  if (aTitle !== bTitle) {
+    const byTitle = BALLOT_TITLE_COLLATOR.compare(aTitle, bTitle);
     if (byTitle !== 0) {
       return byTitle;
     }
