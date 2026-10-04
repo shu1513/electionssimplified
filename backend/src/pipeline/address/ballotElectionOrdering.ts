@@ -34,8 +34,7 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // list's fixed outer structure under every sort below (earliest date first —
 // the list pages render one "Elections on {date}" section per date); the
 // chosen sort orders the races WITHIN each date. `vote_power` (the default)
-// sorts by the computed vote-power score descending, with the federal office
-// races (President, US Senate, US House) leading each date; `district_size` sorts
+// sorts by the computed vote-power score descending; `district_size` sorts
 // by government level (presidential → federal → state → county → city, see
 // ballotLevelRank) and then by district population descending (largest
 // electorate first); `district_size_smallest` reverses both keys. Unknown
@@ -321,18 +320,6 @@ function sortBallotElections(
         return byLevel;
       }
     }
-    // Federal office races lead each date under the vote-power sort: they
-    // are the races a voter looks for first, and a safe US House seat scores
-    // low enough to land under every proposition and state office. The lead
-    // sits above the followed tier so the list pages can render it as one
-    // run ahead of the vote-power bands.
-    if (sort === "vote_power") {
-      const aLead = isFederalLeadRace(a) ? 0 : 1;
-      const bLead = isFederalLeadRace(b) ? 0 : 1;
-      if (aLead !== bLead) {
-        return aLead - bLead;
-      }
-    }
     if (followedFirst) {
       const aFollowed = a.followed_candidates.length > 0 ? 0 : 1;
       const bFollowed = b.followed_candidates.length > 0 ? 0 : 1;
@@ -433,13 +420,6 @@ function ballotLevelRank(election: OrderedBallotElectionSummary, sort: BallotSum
     return UNKNOWN_LEVEL_RANK;
   }
   return sort === "district_size_smallest" ? UNKNOWN_LEVEL_RANK - 1 - rank : rank;
-}
-
-// President, US Senate and US House office races — the vote-power sort's
-// lead. Mirrors isFederalLeadRace in packages/api-client (ballotLevel.ts),
-// which the list pages and the detail rail use to keep the same order.
-function isFederalLeadRace(election: OrderedBallotElectionSummary): boolean {
-  return election.race_type !== "ballot_measure" && ballotLevelRank(election, "vote_power") <= FEDERAL_LEVEL_RANK;
 }
 
 // The shared tiebreak for equal primary keys — the reader's SQL order:

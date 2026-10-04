@@ -113,7 +113,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
         ],
       })
       .mockResolvedValueOnce({
-        rows: [{ election_id: officeElectionId, candidate_count: 3, candidate_names: ["Ann Ames", "Bo Burke", "Cy Cole"] }],
+        rows: [{ election_id: officeElectionId, candidate_count: 3 }],
       })
       .mockResolvedValueOnce({
         rows: [{ election_id: measureElectionId, ballot_measure_id: ballotMeasureId }],
@@ -195,7 +195,6 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           discovery_contest_family: "non_judicial_office",
           sources: ["https://example.test/elections"],
           candidate_count: 3,
-          candidate_names: ["Ann Ames", "Bo Burke", "Cy Cole"],
           candidate_roster_status: null,
           ballot_measure_id: null,
           has_results: true,
@@ -251,7 +250,6 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           discovery_contest_family: "ballot_measure",
           sources: ["https://example.test/measure"],
           candidate_count: 0,
-          candidate_names: [],
           candidate_roster_status: null,
           ballot_measure_id: ballotMeasureId,
           has_results: false,

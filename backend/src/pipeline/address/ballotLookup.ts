@@ -376,9 +376,6 @@ export type BallotLookupElectionSummary = {
   discovery_contest_family: ElectionContestFamily | null;
   sources: string[];
   candidate_count: number;
-  // The first BALLOT_CARD_CANDIDATE_NAME_LIMIT names of the same roster
-  // candidate_count counts, so the ballot card can say who is running.
-  candidate_names: string[];
   candidate_roster_status: BallotLookupCandidateRosterStatus | null;
   ballot_measure_id: string | null;
   has_results: boolean;
@@ -452,12 +449,7 @@ type ElectionSummaryRow = ElectionRow & {
 type CandidateCountRow = {
   election_id: string;
   candidate_count: number;
-  candidate_names?: string[] | null;
 };
-
-// How many candidate names a ballot summary carries per election. The card
-// shows them all up to this many, and one fewer plus "+N more" beyond it.
-export const BALLOT_CARD_CANDIDATE_NAME_LIMIT = 4;
 
 type BallotMeasureSummaryRow = {
   election_id: string;
@@ -1809,15 +1801,7 @@ export async function lookupBallotSummariesByDistrictIds(
     `
       SELECT
         ce.election_id,
-        COUNT(*)::int AS candidate_count,
-        -- The first few names for the ballot card, in the election page's
-        -- roster order.
-        (array_agg(
-          COALESCE(NULLIF(trim(c.display_name), ''), trim(c.first_name || ' ' || c.last_name))
-          ORDER BY
-            lower(COALESCE(NULLIF(trim(c.display_name), ''), trim(c.first_name || ' ' || c.last_name))),
-            ce.id
-        ))[1:${BALLOT_CARD_CANDIDATE_NAME_LIMIT}] AS candidate_names
+        COUNT(*)::int AS candidate_count
       FROM public.candidate_elections AS ce
       JOIN public.candidates AS c
         ON c.id = ce.candidate_id
@@ -1920,9 +1904,6 @@ export async function lookupBallotSummariesByDistrictIds(
   const candidateCountsByElection = new Map(
     candidateCountResult.rows.map((row) => [row.election_id, row.candidate_count])
   );
-  const candidateNamesByElection = new Map(
-    candidateCountResult.rows.map((row) => [row.election_id, row.candidate_names ?? []])
-  );
   const ballotMeasureIdsByElection = new Map<string, string>();
   for (const row of ballotMeasureResult.rows) {
     if (!ballotMeasureIdsByElection.has(row.election_id)) {
@@ -2006,7 +1987,6 @@ export async function lookupBallotSummariesByDistrictIds(
       discovery_contest_family: row.discovery_contest_family,
       sources: parseStringArray(row.sources),
       candidate_count: candidateCount,
-      candidate_names: candidateNamesByElection.get(row.election_id) ?? [],
       candidate_roster_status: rosterStatusByElection.get(row.election_id) ?? null,
       ballot_measure_id: ballotMeasureIdsByElection.get(row.election_id) ?? null,
       has_results: currentResultOutcome !== null,
