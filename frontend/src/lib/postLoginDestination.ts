@@ -15,7 +15,7 @@ import { hasSeenWelcome } from "./welcomeSeen";
 export async function postLoginDestination(queryClient: QueryClient, next: string | null): Promise<string> {
   const destination = next ?? "/me/ballot";
   const me = queryClient.getQueryData<Me | null>(["me"]);
-  if (!me?.email_verified || hasSeenWelcome(me.email)) {
+  if (!me?.email_verified || hasSeenWelcome(me.id)) {
     return destination;
   }
   try {

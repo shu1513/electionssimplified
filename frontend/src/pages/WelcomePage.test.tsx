@@ -105,7 +105,7 @@ describe("WelcomePage", () => {
     });
     // Saving completes the step: a later login must not reopen it even if
     // the preferences are cleared afterwards.
-    expect(hasSeenWelcome(ME_VERIFIED.user.email)).toBe(true);
+    expect(hasSeenWelcome(ME_VERIFIED.user.id)).toBe(true);
     // The transient step replaces itself in history — Back from the ballot
     // must not land on a blank welcome screen.
     expect(router.state.historyAction).toBe("REPLACE");
@@ -138,7 +138,7 @@ describe("WelcomePage", () => {
 
     await user.click(await screen.findByRole("button", { name: "Skip for now" }));
     expect(await screen.findByText("Saved ballot placeholder")).toBeInTheDocument();
-    expect(hasSeenWelcome(ME_VERIFIED.user.email)).toBe(true);
+    expect(hasSeenWelcome(ME_VERIFIED.user.id)).toBe(true);
     await waitFor(() => {
       expect(fetchMock.mock.calls.some(([, init]) => init?.method === "PUT")).toBe(false);
     });
