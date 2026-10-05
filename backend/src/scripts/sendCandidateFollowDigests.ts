@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import { APP_NAME } from "../constants/brand.js";
 import { loadProjectEnv } from "../config/env.js";
 import { readPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 import { createEmailUnsubscribeToken } from "../pipeline/users/emailUnsubscribeToken.js";
 import {
   createConsoleCandidateFollowDigestMailer,
@@ -264,7 +265,7 @@ function toDigestItem(row: PendingEventRow): CandidateFollowDigestItem {
     candidateDisplayName: row.candidate_display_name,
     eventType: row.event_type,
     recordDescription: row.record_description,
-    electionTitle: row.election_title,
+    electionTitle: row.election_title === null ? null : displayElectionTitle(row.election_title),
     electionDate: row.election_date,
   };
 }

@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 import { STATE_NAME_BY_ABBREVIATION } from "../constants/usStates.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -225,7 +226,7 @@ export async function getBrowseDistrict(db: Queryable, districtId: string): Prom
     },
     elections: elections.rows.map((row) => ({
       id: row.id,
-      official_ballot_title: row.official_ballot_title,
+      official_ballot_title: displayElectionTitle(row.official_ballot_title),
       election_date: row.election_date,
       election_stage: row.election_stage,
       race_type: row.race_type,

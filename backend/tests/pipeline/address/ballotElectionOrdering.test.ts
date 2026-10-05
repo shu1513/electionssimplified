@@ -560,6 +560,28 @@ describe("applyBallotElectionOrdering", () => {
     }
   });
 
+  it("shows a title stored in capital letters in title case, under a printed label too", async () => {
+    const summary = makeSummary([
+      { id: electionA, vote_power_score: 90, official_ballot_title: "PITT COUNTY BOARD OF COMMISSIONERS DISTRICT 06" },
+      { id: electionB, vote_power_score: 80, official_ballot_title: "Pitt County Sheriff" },
+      {
+        id: electionC,
+        vote_power_score: 70,
+        race_type: "ballot_measure",
+        contest_family: "ballot_measure",
+        election_stage: null,
+        official_ballot_title: "NEXT GENERATION 9-1-1 FUND AMENDMENT",
+      },
+    ]);
+    summary.elections[2].printed_ballot_label = "Amendment 3";
+    const result = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, summary, { sort: "vote_power" });
+    expect(result.elections.map((e) => e.official_ballot_title)).toEqual([
+      "Pitt County Board of Commissioners District 06",
+      "Pitt County Sheriff",
+      "Amendment 3: Next Generation 9-1-1 Fund Amendment",
+    ]);
+  });
+
   it("state_baseline is positional: no followed-first grouping, no empty-race sink", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([{ election_id: electionB, candidate_id: candidateId, display_name: "Fol Lowed" }]) },

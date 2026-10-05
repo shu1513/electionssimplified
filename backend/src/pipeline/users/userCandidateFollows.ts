@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -167,7 +168,7 @@ function rowToFollow(row: CandidateFollowRow): UserCandidateFollow | null {
       row.active_election_id && row.active_election_title && row.active_election_date
         ? {
             election_id: row.active_election_id,
-            official_ballot_title: row.active_election_title,
+            official_ballot_title: displayElectionTitle(row.active_election_title),
             election_date: row.active_election_date,
           }
         : null,

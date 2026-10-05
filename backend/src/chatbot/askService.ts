@@ -42,6 +42,7 @@ import {
   scoreResearchAreaMatch,
   type UserResearchAreaWeights,
 } from "../pipeline/users/userResearchAreaScoring.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 
 export type AskOutcome = "template" | "retrieval" | "clarify" | "refuse_no_data" | "refuse_policy";
 
@@ -601,7 +602,11 @@ async function loadAskerBallotElections(
     return null;
   }
   const summary = await lookupBallotSummariesByDistrictIds(db, districtIds);
-  return summary.elections;
+  // The template answers print these titles, so they carry display casing.
+  return summary.elections.map((election) => ({
+    ...election,
+    official_ballot_title: displayElectionTitle(election.official_ballot_title),
+  }));
 }
 
 /** Shared "set up your ballot first" prompt for the personalized ballot

@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import { loadCanonicalElectionResults } from "../electionResults/canonicalElectionResults.js";
 import type { CanonicalElectionResultWinner } from "../electionResults/canonicalElectionResults.js";
 
@@ -350,7 +351,7 @@ export async function lookupPublicPickCard(db: Queryable, token: string): Promis
     if (!entry) {
       entry = {
         election_id: row.election_id,
-        official_ballot_title: row.official_ballot_title,
+        official_ballot_title: displayElectionTitle(row.official_ballot_title),
         race_type: row.race_type,
         district_name: row.district_name,
         picks: [],
