@@ -1047,17 +1047,35 @@ export function withinTierOfficeRank(election: StateRankableElection): number {
 type PrintedTitleRule = (election: StateRankableElection) => string | null;
 
 const COUNTY_PRINTED_TITLE_RULES: Record<string, PrintedTitleRule> = {
-  // Los Angeles County prints state propositions as "STATE MEASURE N"
-  // (Nov 2026 official ballot, style 2E634). Every other California county
-  // read prints "PROPOSITION N".
+  // Los Angeles County prints state propositions as "STATE MEASURE N" and
+  // its own measures as "COUNTY MEASURE A" (Nov 2026 official ballot, styles
+  // 2E633 and 2E634). Every other California county read prints
+  // "PROPOSITION N".
   "06037": (election) => {
+    if (election.race_type !== "ballot_measure") {
+      return null;
+    }
+    const title = election.official_ballot_title;
+    if (election.district.district_type === "statewide") {
+      const match = /^Proposition (\d+)\b/.exec(title);
+      return match ? `State Measure ${match[1]}${title.slice(match[0].length)}` : null;
+    }
+    if (election.district.district_type === "county") {
+      return /^Measure [A-Z]{1,3}\b/.test(title) ? `County ${title}` : null;
+    }
+    return null;
+  },
+
+  // San Diego County prints state propositions as "PROP N" (Nov 2026 sample
+  // ballot, type 111). Its own measures print as "MEASURE A", like the
+  // stored titles.
+  "06073": (election) => {
     if (election.race_type !== "ballot_measure" || election.district.district_type !== "statewide") {
       return null;
     }
-    const match = /^Proposition (\d+)\b/.exec(election.official_ballot_title);
-    return match
-      ? `State Measure ${match[1]}${election.official_ballot_title.slice(match[0].length)}`
-      : null;
+    const title = election.official_ballot_title;
+    const match = /^Proposition (\d+)\b/.exec(title);
+    return match ? `Prop ${match[1]}${title.slice(match[0].length)}` : null;
   },
 };
 

@@ -1086,14 +1086,7 @@ describe("printedBallotTitle", () => {
     );
   });
 
-  it("keeps the stored title everywhere else", () => {
-    expect(printedBallotTitle(proposition("06"), { countyFips: "06073" })).toBe(
-      "Proposition 39: Voter Identification and Citizenship Verification"
-    );
-    expect(printedBallotTitle(proposition("06"))).toBe(
-      "Proposition 39: Voter Identification and Citizenship Verification"
-    );
-    // County and city measures, and offices, keep their titles in Los Angeles County.
+  it("Los Angeles County prints its own measures as County Measure X", () => {
     const countyMeasure = input({
       state_fips: "06",
       race_type: "ballot_measure",
@@ -1102,7 +1095,34 @@ describe("printedBallotTitle", () => {
       election_stage: null,
       title: "Measure A: Charter Amendment",
     });
-    expect(printedBallotTitle(countyMeasure, { countyFips: "06037" })).toBe("Measure A: Charter Amendment");
+    expect(printedBallotTitle(countyMeasure, { countyFips: "06037" })).toBe("County Measure A: Charter Amendment");
+    // Another county's measure keeps its title.
+    expect(printedBallotTitle(countyMeasure, { countyFips: "06073" })).toBe("Measure A: Charter Amendment");
+  });
+
+  it("San Diego County prints state propositions as Prop N", () => {
+    expect(printedBallotTitle(proposition("06"), { countyFips: "06073" })).toBe(
+      "Prop 39: Voter Identification and Citizenship Verification"
+    );
+  });
+
+  it("keeps the stored title everywhere else", () => {
+    expect(printedBallotTitle(proposition("06"), { countyFips: "06083" })).toBe(
+      "Proposition 39: Voter Identification and Citizenship Verification"
+    );
+    expect(printedBallotTitle(proposition("06"))).toBe(
+      "Proposition 39: Voter Identification and Citizenship Verification"
+    );
+    // City measures and offices keep their titles in Los Angeles County.
+    const cityMeasure = input({
+      state_fips: "06",
+      race_type: "ballot_measure",
+      office_scope: null,
+      district_type: "place",
+      election_stage: null,
+      title: "Measure CR: Cannabis Tax",
+    });
+    expect(printedBallotTitle(cityMeasure, { countyFips: "06037" })).toBe("Measure CR: Cannabis Tax");
     const office = input({ state_fips: "06", office_scope: "statewide", title: "Governor" });
     expect(printedBallotTitle(office, { countyFips: "06037" })).toBe("Governor");
   });
@@ -1151,7 +1171,8 @@ describe("printedBallotTitle", () => {
 
   it("the county rule still applies on top of a stored printed label", () => {
     const labeled = measure("06", "Senate Constitutional Amendment 1: Recall Elections", "Proposition 40");
-    expect(printedBallotTitle(labeled, { countyFips: "06073" })).toBe("Proposition 40: Recall Elections");
+    expect(printedBallotTitle(labeled, { countyFips: "06083" })).toBe("Proposition 40: Recall Elections");
     expect(printedBallotTitle(labeled, { countyFips: "06037" })).toBe("State Measure 40: Recall Elections");
+    expect(printedBallotTitle(labeled, { countyFips: "06073" })).toBe("Prop 40: Recall Elections");
   });
 });
