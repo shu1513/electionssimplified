@@ -1065,6 +1065,18 @@ const COUNTY_PRINTED_TITLE_RULES: Record<string, PrintedTitleRule> = {
     }
     return null;
   },
+
+  // San Diego County prints state propositions as "PROP N" (Nov 2026 sample
+  // ballot, type 111). Its own measures print as "MEASURE A", like the
+  // stored titles.
+  "06073": (election) => {
+    if (election.race_type !== "ballot_measure" || election.district.district_type !== "statewide") {
+      return null;
+    }
+    const title = election.official_ballot_title;
+    const match = /^Proposition (\d+)\b/.exec(title);
+    return match ? `Prop ${match[1]}${title.slice(match[0].length)}` : null;
+  },
 };
 
 // Stored title with the paper ballot's label applied. The label replaces the
