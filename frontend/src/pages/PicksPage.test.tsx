@@ -998,7 +998,7 @@ describe("PicksPage nav context", () => {
   });
 });
 
-it("counts contested progress while keeping retention answers in a collapsed group", async () => {
+it("counts contested progress while keeping retention answers in their own open group", async () => {
   window.localStorage.clear();
   stubApiRoutes(verifiedRoutes({
     "/api/me/ballot": { body: ballotSummary([retentionElection("r-1"), electionSummary(), retentionElection("r-2")]) },
@@ -1008,11 +1008,14 @@ it("counts contested progress while keeping retention answers in a collapsed gro
   expect(await screen.findByRole("progressbar", { name: "1 of 1 race decided" })).toHaveAttribute("aria-valuemax", "1");
   expect(screen.getByRole("region", { name: /election draft milestone/ })).toHaveTextContent("Retention races are still open on your draft.");
   const group = screen.getByRole("button", { name: "Retention Races" });
-  expect(group).toHaveAttribute("aria-expanded", "false");
-  expect(screen.queryByRole("link", { name: /Shall Judge/ })).not.toBeInTheDocument();
-  await userEvent.click(group);
+  expect(group).toHaveAttribute("aria-expanded", "true");
   expect(screen.getAllByRole("link", { name: /Shall Judge/ })).toHaveLength(2);
   expect(screen.getByText("No")).toBeInTheDocument();
+  // One fill button under the date's progress bar, one under the group's.
+  expect(await screen.findAllByRole("button", { name: "Auto-fill empty picks by my issues" })).toHaveLength(2);
+  await userEvent.click(group);
+  expect(screen.queryByRole("link", { name: /Shall Judge/ })).not.toBeInTheDocument();
+  expect(screen.getAllByRole("button", { name: "Auto-fill empty picks by my issues" })).toHaveLength(2);
 });
 
 it("keeps a lone retention in the date progress", async () => {
@@ -1038,7 +1041,7 @@ it("keeps Share available for retention-only picks and omits an empty contested 
 });
 
 // Real detail navigation must preserve each date's disclosure state.
-it.each(["back link", "browser Back"])("restores signed-in retention expansion via %s", async (returnVia) => {
+it.each(["back link", "browser Back"])("restores a collapsed signed-in retention group via %s", async (returnVia) => {
   const elections = [electionSummary(), retentionElection("r-1"), retentionElection("r-2"),
     retentionElection("r-3", { election_date: "2027-11-02" }),
     retentionElection("r-4", { election_date: "2027-11-02" })];
@@ -1051,18 +1054,18 @@ it.each(["back link", "browser Back"])("restores signed-in retention expansion v
   ], "/me/picks");
   const groups = () => screen.getAllByRole("button", { name: "Retention Races" });
   await screen.findAllByRole("button", { name: "Retention Races" });
-  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
-  await user.click(groups()[0]);
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "true");
+  await user.click(groups()[1]);
   await user.click(screen.getByRole("link", { name: new RegExp(elections[1].official_ballot_title) }));
   const back = await screen.findByRole("link", { name: "Back to My Election Draft" });
   if (returnVia === "back link") await user.click(back);
   else await act(async () => { await router.navigate(-1); });
-  await waitFor(() => expect(groups()[0]).toHaveAttribute("aria-expanded", "true"));
-  expect(groups()[1]).toHaveAttribute("aria-expanded", "false");
+  await waitFor(() => expect(groups()[1]).toHaveAttribute("aria-expanded", "false"));
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "true");
   expect(screen.getByRole("link", { name: new RegExp(elections[1].official_ballot_title) })).toBeInTheDocument();
-  await user.click(groups()[0]);
-  expect(router.state.location.state.expandedRetentionDates).toEqual([]);
-  await user.click(groups()[0]);
+  await user.click(groups()[1]);
+  expect(router.state.location.state.sectionOpen).toEqual({ "2027-11-02:retention": true });
+  await user.click(groups()[1]);
   await act(async () => { await router.navigate("/me/picks", { state: null }); });
-  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "true");
 });

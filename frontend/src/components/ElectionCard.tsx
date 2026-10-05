@@ -240,6 +240,7 @@ export function RetentionGroup({
   choicesByElectionId,
   children,
   showProgress = false,
+  actions,
   open: controlledOpen,
   onOpenChange,
 }: {
@@ -247,6 +248,9 @@ export function RetentionGroup({
   choicesByElectionId?: Map<string, ElectionChoice>;
   children: ReactNode;
   showProgress?: boolean;
+  /** Shown under the heading (and the progress bar) whether or not the
+   * group is open — the draft card's auto-fill button. */
+  actions?: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
@@ -298,6 +302,7 @@ export function RetentionGroup({
           </span>
         </div>
       ) : null}
+      {actions}
       {open ? <div className="mt-2 space-y-3 box:mt-[6px] box:space-y-[11px]">{children}</div> : null}
     </section>
   );
