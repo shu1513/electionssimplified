@@ -491,6 +491,19 @@ export function PickDateCard({
             elections={retention}
             choicesByElectionId={choiceByElectionId}
             showProgress
+            // The same control as the one under the date's progress bar, so
+            // it does the same thing: fills (or clears) the whole date.
+            actions={
+              autoPickChoices !== undefined && !isPast ? (
+                <AutoPickFillControl
+                  date={date}
+                  elections={elections}
+                  choices={autoPickChoices}
+                  choiceByElectionId={choiceByElectionId}
+                  onResults={onAutoResults}
+                />
+              ) : null
+            }
             open={retentionOpen}
             onOpenChange={onRetentionOpenChange}
           >
@@ -641,7 +654,7 @@ function PicksLoginWall() {
 
 export function PicksPage() {
   useDocumentTitle("My Election Draft");
-  const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
+  const { listState, isSectionOpen, setSectionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...PICKS_NAV_STATE, ...(listState ? { listState } : {}) };
   const { me, isLoading } = useMe();
   const verified = me?.email_verified === true;
@@ -852,8 +865,8 @@ export function PicksPage() {
                     elections={byDate.get(date) ?? []}
                     choiceByElectionId={choiceByElectionId}
                     navState={navState}
-                    retentionOpen={expandedRetentionDates.includes(date)}
-                    onRetentionOpenChange={(open) => setRetentionOpen(date, open)}
+                    retentionOpen={isSectionOpen(`${date}:retention`)}
+                    onRetentionOpenChange={(open) => setSectionOpen(`${date}:retention`, open)}
                     autoPickChoices={choices ?? []}
                     autoResults={autoResultsByDate.get(date) ?? null}
                     onAutoResults={handleAutoResults(date)}

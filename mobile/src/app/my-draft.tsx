@@ -320,7 +320,7 @@ function PickDateCard({
   onAutoResults: (byElectionId: Map<string, AutoPickElectionResult> | null) => void;
 }) {
   const router = useRouter();
-  const [retentionOpen, setRetentionOpen] = useState(false);
+  const [retentionOpen, setRetentionOpen] = useState(true);
   const { contested, retention } = splitRetentionRaces(elections);
   const countPicks = (races: ElectionSummary[]) =>
     races.filter((election) => hasRenderablePick(choiceByElectionId?.get(election.id))).length;
@@ -408,6 +408,17 @@ function PickDateCard({
             <Text className="text-lg font-semibold text-ink">Retention Races</Text>
           </Pressable>
           <DraftProgressBar picked={countPicks(retention)} total={retention.length} retention />
+          {/* The same control as the one above, so it does the same thing:
+              fills (or clears) the whole date. */}
+          {!isPast ? (
+            <AutoPickFillControl
+              date={date}
+              elections={elections}
+              choices={choices}
+              choiceByElectionId={choiceByElectionId}
+              onResults={onAutoResults}
+            />
+          ) : null}
           {retentionOpen ? <View className="mt-3 border-t border-line">{renderRows(retention)}</View> : null}
         </View>
       ) : null}

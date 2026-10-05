@@ -125,7 +125,7 @@ export function DraftPage() {
   // Inside the newsroom box: list view only, and a "Save" button instead of
   // the sign-up line (its prompt carries the box's picks to the site).
   const embedSession = useEmbedSession();
-  const { listState, expandedRetentionDates, setRetentionOpen } = useElectionListState();
+  const { listState, isSectionOpen, setSectionOpen } = useElectionListState();
   const navState: ElectionNavState = { ...DRAFT_NAV_STATE, ...(listState ? { listState } : {}) };
   const districtIds = draft.district_ids;
   const [view, setView] = useState<"list" | "ballot">("list");
@@ -332,8 +332,8 @@ export function DraftPage() {
                         choiceByElectionId={choices}
                         share={false}
                         navState={navState}
-                        retentionOpen={expandedRetentionDates.includes(date)}
-                        onRetentionOpenChange={(open) => setRetentionOpen(date, open)}
+                        retentionOpen={isSectionOpen(`${date}:retention`)}
+                        onRetentionOpenChange={(open) => setSectionOpen(`${date}:retention`, open)}
                       />
                     ))}
                   </div>

@@ -358,15 +358,15 @@ it("refreshes the guest target and splits retention from date progress and rows"
   expect(progress.firstElementChild).toHaveStyle({ width: "50%" });
   expect(screen.queryByText("1/2")).not.toBeInTheDocument();
   const group = screen.getByRole("button", { name: "Retention Races" });
-  expect(group).toHaveAttribute("aria-expanded", "false");
-  expect(screen.queryByRole("link", { name: /Shall Judge/ })).not.toBeInTheDocument();
-  await userEvent.click(group);
+  expect(group).toHaveAttribute("aria-expanded", "true");
   expect(screen.getAllByRole("link", { name: /Shall Judge/ })).toHaveLength(2);
   expect(screen.getByText("Yes")).toBeInTheDocument();
+  await userEvent.click(group);
+  expect(screen.queryByRole("link", { name: /Shall Judge/ })).not.toBeInTheDocument();
 });
 
 // Exercise the actual detail back link, not a placeholder returning state.
-it.each(["back link", "browser Back"])("restores My Draft retention expansion via %s", async (returnVia) => {
+it.each(["back link", "browser Back"])("restores a collapsed My Draft retention group via %s", async (returnVia) => {
   const elections = [retentionElection("r-1"), retentionElection("r-2"),
     retentionElection("r-3", { election_date: "2027-11-02" }),
     retentionElection("r-4", { election_date: "2027-11-02" })];
@@ -380,19 +380,19 @@ it.each(["back link", "browser Back"])("restores My Draft retention expansion vi
   ], "/draft");
   const groups = () => screen.getAllByRole("button", { name: "Retention Races" });
   await screen.findAllByRole("button", { name: "Retention Races" });
-  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
-  await user.click(groups()[0]);
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "true");
+  await user.click(groups()[1]);
   await user.click(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) }));
   const back = await screen.findByRole("link", { name: "Back to My Draft" });
   expect(screen.queryByRole("link", { name: "Back to My Ballot Draft" })).not.toBeInTheDocument();
   if (returnVia === "back link") await user.click(back);
   else await act(async () => { await router.navigate(-1); });
-  await waitFor(() => expect(groups()[0]).toHaveAttribute("aria-expanded", "true"));
-  expect(groups()[1]).toHaveAttribute("aria-expanded", "false");
+  await waitFor(() => expect(groups()[1]).toHaveAttribute("aria-expanded", "false"));
+  expect(groups()[0]).toHaveAttribute("aria-expanded", "true");
   expect(screen.getByRole("link", { name: new RegExp(elections[0].official_ballot_title) })).toBeInTheDocument();
-  await user.click(groups()[0]);
-  expect(router.state.location.state.expandedRetentionDates).toEqual([]);
-  await user.click(groups()[0]);
+  await user.click(groups()[1]);
+  expect(router.state.location.state.sectionOpen).toEqual({ "2027-11-02:retention": true });
+  await user.click(groups()[1]);
   await act(async () => { await router.navigate("/draft", { state: null }); });
-  expect(groups()[0]).toHaveAttribute("aria-expanded", "false");
+  expect(groups()[1]).toHaveAttribute("aria-expanded", "true");
 });
