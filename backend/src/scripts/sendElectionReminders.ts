@@ -4,6 +4,7 @@ import { Pool } from "pg";
 
 import { loadProjectEnv } from "../config/env.js";
 import { readPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 import { assertUnsubscribeLinksConfigured, buildUnsubscribeUrlBuilderFromEnv } from "./sendCandidateFollowDigests.js";
 import { US_LATEST_LOCAL_DATE_SQL } from "../utils/usLocalDate.js";
 import {
@@ -162,7 +163,7 @@ async function selectReminderElections(
 
 function toReminderItem(row: ReminderElectionRow): ElectionReminderItem {
   return {
-    electionTitle: row.election_title,
+    electionTitle: displayElectionTitle(row.election_title),
     districtName: row.district_name,
   };
 }

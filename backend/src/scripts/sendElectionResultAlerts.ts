@@ -4,6 +4,7 @@ import { Pool } from "pg";
 
 import { loadProjectEnv } from "../config/env.js";
 import { readPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 import { assertUnsubscribeLinksConfigured, buildUnsubscribeUrlBuilderFromEnv } from "./sendCandidateFollowDigests.js";
 import {
   createConsoleElectionResultAlertMailer,
@@ -284,7 +285,7 @@ function parseWinnerNames(raw: unknown): string[] {
 
 function toAlertItem(row: PendingEventRow): ElectionResultAlertItem {
   return {
-    electionTitle: row.election_title,
+    electionTitle: displayElectionTitle(row.election_title),
     electionDate: row.election_date,
     districtName: row.district_name,
     outcome: row.outcome,

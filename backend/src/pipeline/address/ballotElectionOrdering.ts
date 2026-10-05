@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isCongressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import type { BallotLookupElectionSummary, BallotSummaryResult } from "./ballotLookup.js";
 import {
   printedBallotTitle,
@@ -190,8 +191,15 @@ export async function applyBallotElectionOrdering(
   );
   sortBallotElections(elections, sort, options.followedFirst ?? true, areaScoresByElection, orderContext, printedTitles);
 
+  // Display casing goes on last: a title stored in capital letters is shown
+  // in title case, while the rank rules and the tiebreak above read the
+  // stored one. The label is applied over the cased title so a labeled
+  // contest is cased too.
   for (const election of elections) {
-    election.official_ballot_title = printedTitles.get(election.id) ?? election.official_ballot_title;
+    election.official_ballot_title = printedBallotTitle(
+      { ...election, official_ballot_title: displayElectionTitle(election.official_ballot_title) },
+      orderContext
+    );
   }
 
   return { ...result, elections };

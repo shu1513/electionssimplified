@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
 import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js";
 import { loadCanonicalElectionResults } from "../electionResults/canonicalElectionResults.js";
@@ -242,7 +243,7 @@ function rowsToChoices(rows: ChoiceRow[]): UserElectionChoice[] {
       choice = {
         election_id: row.election_id,
         race_type: row.race_type,
-        official_ballot_title: row.official_ballot_title,
+        official_ballot_title: displayElectionTitle(row.official_ballot_title),
         election_date: row.election_date,
         seats_to_fill: row.seats_to_fill,
         picks: [],

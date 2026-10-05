@@ -11,6 +11,7 @@ import type {
 } from "../../types/election.js";
 import type { CandidateElectionStatus, ElectionResultPassType } from "../../types/electionResults.js";
 import { US_LATEST_LOCAL_DATE_SQL, usLatestLocalDateIso } from "../../utils/usLocalDate.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import {
   loadBallotMeasureFundingByMeasure,
   type BallotMeasureFundingView,
@@ -1616,7 +1617,7 @@ async function loadFullElectionDetails(
   for (const row of ballotMeasureResult.rows) {
     ballotMeasureByElection.set(row.election_id, {
       id: row.ballot_measure_id,
-      official_ballot_title: row.official_ballot_title,
+      official_ballot_title: displayElectionTitle(row.official_ballot_title),
       summary: row.summary,
       what_yes_means: row.what_yes_means,
       what_no_means: row.what_no_means,
@@ -2149,7 +2150,7 @@ async function loadElectionPreviews(
     if (!measures.has(row.election_id)) {
       measures.set(row.election_id, {
         id: row.ballot_measure_id,
-        official_ballot_title: row.official_ballot_title,
+        official_ballot_title: displayElectionTitle(row.official_ballot_title),
         summary: row.summary,
         what_yes_means: row.what_yes_means,
         what_no_means: row.what_no_means,
@@ -2373,6 +2374,9 @@ export async function lookupElectionDetailById(db: Queryable, electionId: string
       };
   return {
     ...detail,
+    // Cased for display here, after the vote-power input above read the
+    // stored title.
+    official_ballot_title: displayElectionTitle(detail.official_ballot_title),
     office,
     // Office links first, then ballot-measure tags not already present —
     // the same merge the summary list uses.

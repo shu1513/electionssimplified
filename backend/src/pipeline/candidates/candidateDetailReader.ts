@@ -3,6 +3,7 @@ import type { Pool, PoolClient } from "pg";
 import type { ElectionDistrictType, ElectionRaceType, ElectionStage, OfficeScope } from "../../types/election.js";
 import type { CandidateElectionStatus } from "../../types/electionResults.js";
 import { isUuid } from "../../utils/uuid.js";
+import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -367,7 +368,7 @@ async function lookupCandidateElections(
       state: row.district_state,
     },
     race_type: row.race_type,
-    official_ballot_title: row.official_ballot_title,
+    official_ballot_title: displayElectionTitle(row.official_ballot_title),
     election_date: row.election_date,
     election_stage: row.election_stage,
     is_partisan: row.is_partisan,

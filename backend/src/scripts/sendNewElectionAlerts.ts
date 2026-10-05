@@ -5,6 +5,7 @@ import { Pool } from "pg";
 import { APP_NAME } from "../constants/brand.js";
 import { loadProjectEnv } from "../config/env.js";
 import { readPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { displayElectionTitle } from "../utils/displayElectionTitle.js";
 import { assertUnsubscribeLinksConfigured, buildUnsubscribeUrlBuilderFromEnv } from "./sendCandidateFollowDigests.js";
 import { US_LATEST_LOCAL_DATE_SQL } from "../utils/usLocalDate.js";
 import {
@@ -208,7 +209,7 @@ async function selectPendingEvents(db: Queryable, userId: string): Promise<Pendi
 
 function toAlertItem(row: PendingEventRow): NewElectionAlertItem {
   return {
-    electionTitle: row.election_title,
+    electionTitle: displayElectionTitle(row.election_title),
     electionDate: row.election_date,
     districtName: row.district_name,
   };
