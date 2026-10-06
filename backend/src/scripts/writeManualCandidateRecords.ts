@@ -63,7 +63,7 @@ function usage(): string {
     'A zero-record payload, an all-neutral (general/integrity_and_ethics-only) label set, --confirmed-gap candidate_records.no_records_found, or --confirmed-gap candidate_records.only_general_labels asserts a FINISHED discovery sweep — in any mode, strict or not — and requires --evidence-file with the per-question evidence table: {"entries": [{"question": "...", "finding": "...", "question_id": "..."}, ...]}.',
     "A supplied --evidence-file on a stance-bearing FULL-history write is persisted too (candidate_record_sweep_confirmations with an empty claim set), so keep supplying the ledger — the output reports sweepEvidence.persisted (dry-run: wouldPersist).",
     "",
-    "Every full-history ledger must COVER its route's question list via question_id tags: judicial contests (discovery_contest_family=judicial_office) need cases, discipline, endorsements; officeholders (has EVER held public office) need rollcalls, sponsorship, executive, proceedings, leadership, outside_chamber, endorsements; never-held candidates need career, orgs_advocacy, court_legal, endorsements. Era-split sweeps tag several entries with the same question_id; extra entries (archive scans, office-area follow-ups) omit it. Non-judicial routing reads candidates.has_held_public_office; when that column is NULL the evidence file must carry a top-level \"has_held_public_office\": true|false, which the write persists.",
+    "Every full-history ledger must COVER its route's question list via question_id tags: judicial contests (discovery_contest_family=judicial_office) need cases, discipline, endorsements; officeholders (has EVER held public office) need rollcalls, sponsorship, executive, proceedings, leadership, outside_chamber, endorsements; never-held candidates need career, orgs_advocacy, court_legal, endorsements. Era-split sweeps tag several entries with the same question_id; extra entries (archive scans, office-area follow-ups) omit it. Non-judicial routing reads candidates.has_held_public_office; when that column is NULL the evidence file must carry a top-level \"has_held_public_office\": true|false, which the write persists — or null when every cited source is silent on office history, which routes to BOTH non-judicial lists (all ten ids) and persists nothing.",
     "",
     "One row per bill or action: the writer refuses a payload row that repeats another row or a stored row after bill numbers, dates and years are stripped (a re-filed bill, a later reading of the same amendment, a yearly repeat). Fold the sessions/stages into one description instead; --allow-repeats overrides for rows a human confirmed are distinct actions.",
     "",
@@ -939,6 +939,7 @@ async function main(): Promise<void> {
     let sweepEvidenceEntries: SweepEvidenceEntry[] | null = null;
     let sweepEvidenceEntryCount: number | null = null;
     let evidenceHasHeldPublicOffice: boolean | null = null;
+    let evidenceHasHeldPublicOfficeAnswered = false;
     if (evidenceFile) {
       const parsedEvidence = parseSweepEvidencePayload(await readJsonFile(evidenceFile));
       if (!parsedEvidence.ok) {
@@ -946,6 +947,7 @@ async function main(): Promise<void> {
       }
       sweepEvidenceEntryCount = parsedEvidence.entries.length;
       evidenceHasHeldPublicOffice = parsedEvidence.hasHeldPublicOffice;
+      evidenceHasHeldPublicOfficeAnswered = parsedEvidence.hasHeldPublicOfficeAnswered;
       if (
         retainSuppliedSweepEvidence({
           evidenceRequired: evidenceIsRequired,
@@ -981,6 +983,7 @@ async function main(): Promise<void> {
         candidateCurrentOffice: context.currentOffice,
         candidateHasHeldPublicOffice: context.hasHeldPublicOffice,
         evidenceHasHeldPublicOffice,
+        evidenceHasHeldPublicOfficeAnswered,
         entries: sweepEvidenceEntries,
       });
       sweepRoute = coverage.route;
