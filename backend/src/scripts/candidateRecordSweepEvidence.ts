@@ -18,7 +18,8 @@
  * template (first-time candidates were never asked the career question) and
  * their 4-entry ledgers passed this guard. Full-history completeness claims
  * now require each entry to be tagged with a question_id and the tagged set
- * to cover the candidate's route (officeholder / never-held / judicial) —
+ * to cover the candidate's route (officeholder / never-held / judicial, or
+ * both non-judicial lists when office history is researched-but-unknown) —
  * see resolveSweepRoute and listMissingSweepRouteQuestionIds. Era coverage
  * remains research-derived and unchecked.
  *
@@ -67,6 +68,26 @@ export const SWEEP_ROUTE_QUESTION_IDS = {
   ],
   never_held_office: ["career", "orgs_advocacy", "court_legal", "endorsements"],
   judicial: ["cases", "discipline", "endorsements"],
+  /**
+   * Office history researched and still unknown: candidates.has_held_public_office
+   * is NULL and the evidence file says `"has_held_public_office": null`
+   * (sources silent — the profile contract's explicit-null answer). Either
+   * non-judicial list could be the right one, so both must be worked: the
+   * union of officeholder and never_held_office. Nothing is persisted to the
+   * column; the profile quality gap keeps driving a later office-history pass.
+   */
+  unknown_office_history: [
+    "rollcalls",
+    "sponsorship",
+    "executive",
+    "proceedings",
+    "leadership",
+    "outside_chamber",
+    "endorsements",
+    "career",
+    "orgs_advocacy",
+    "court_legal",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type SweepRoute = keyof typeof SWEEP_ROUTE_QUESTION_IDS;
@@ -92,9 +113,17 @@ export type SweepEvidenceParseResult =
       /**
        * Top-level `has_held_public_office` from the evidence file: the
        * operator's research-derived routing answer, used (and persisted)
-       * only when candidates.has_held_public_office is still NULL.
+       * only when candidates.has_held_public_office is still NULL. Null for
+       * an explicit `null` (researched, unknown) AND for an absent key —
+       * hasHeldPublicOfficeAnswered tells the two apart.
        */
       hasHeldPublicOffice: boolean | null;
+      /**
+       * True when the key was present at all (true, false, or null). An
+       * absent key means the routing question was never answered and must
+       * not be read as "unknown".
+       */
+      hasHeldPublicOfficeAnswered: boolean;
     }
   | { ok: false; reason: string };
 
@@ -132,11 +161,13 @@ export function parseSweepEvidencePayload(payload: unknown): SweepEvidenceParseR
   }
   if (
     input.has_held_public_office !== undefined &&
+    input.has_held_public_office !== null &&
     typeof input.has_held_public_office !== "boolean"
   ) {
     return {
       ok: false,
-      reason: "evidence payload.has_held_public_office must be a boolean when present",
+      reason:
+        "evidence payload.has_held_public_office must be true, false, or null (researched, still unknown) when present",
     };
   }
   const entries: SweepEvidenceEntry[] = [];
@@ -186,7 +217,9 @@ export function parseSweepEvidencePayload(payload: unknown): SweepEvidenceParseR
   return {
     ok: true,
     entries,
-    hasHeldPublicOffice: (input.has_held_public_office as boolean | undefined) ?? null,
+    hasHeldPublicOffice:
+      typeof input.has_held_public_office === "boolean" ? input.has_held_public_office : null,
+    hasHeldPublicOfficeAnswered: input.has_held_public_office !== undefined,
   };
 }
 
@@ -275,6 +308,13 @@ export function resolveSweepRoute(input: {
   candidateCurrentOffice: string | null;
   candidateHasHeldPublicOffice: boolean | null;
   evidenceHasHeldPublicOffice: boolean | null;
+  /**
+   * True when the evidence file carried the key at all (true, false, or
+   * null). With a NULL column and a null answer, this is what separates
+   * "researched, unknown" (route unknown_office_history: both lists) from
+   * "never asked" (refused). Defaults to false.
+   */
+  evidenceHasHeldPublicOfficeAnswered?: boolean;
 }): SweepRouteResolution {
   const { candidateHasHeldPublicOffice, evidenceHasHeldPublicOffice } = input;
   const contradiction = hasHeldPublicOfficeContradiction({
@@ -301,11 +341,24 @@ export function resolveSweepRoute(input: {
   }
   const hasHeld = candidateHasHeldPublicOffice ?? evidenceHasHeldPublicOffice;
   if (hasHeld === null) {
-    return {
-      ok: false,
-      reason:
-        'Cannot route the sweep-completeness check: candidates.has_held_public_office is NULL and the evidence file has no top-level "has_held_public_office". Answer it from the profile research (has this candidate EVER held public office, current or former?) and add "has_held_public_office": true|false to the evidence file.',
-    };
+    if (input.evidenceHasHeldPublicOfficeAnswered !== true) {
+      return {
+        ok: false,
+        reason:
+          'Cannot route the sweep-completeness check: candidates.has_held_public_office is NULL and the evidence file has no top-level "has_held_public_office". Answer it from the profile research (has this candidate EVER held public office, current or former?) and add "has_held_public_office": true|false to the evidence file — or "has_held_public_office": null when every cited source is silent on office history, which routes to BOTH non-judicial question lists.',
+      };
+    }
+    // Explicit unknown. A set current_office makes it not unknown at all:
+    // holding an office now IS having held one, so the honest answer is
+    // true (same rule currentOfficeRoutingContradiction applies to false).
+    const office = input.candidateCurrentOffice?.trim() ?? "";
+    if (office !== "") {
+      return {
+        ok: false,
+        reason: `evidence file says has_held_public_office=null (unknown) but candidates.current_office ("${office}") is set — a candidate holding a public office now HAS held public office, so the answer is true, not unknown. If the office is real, write "has_held_public_office": true; if current_office is stale or holds an occupation, clear or replace it with a profile write (--clear-profile-fields current_office / --replace-profile-fields current_office), then rerun this records write.`,
+      };
+    }
+    return { ok: true, route: "unknown_office_history", persistHasHeldPublicOffice: null };
   }
   return {
     ok: true,
@@ -340,6 +393,7 @@ export function enforceSweepRouteCoverage(input: {
   candidateCurrentOffice: string | null;
   candidateHasHeldPublicOffice: boolean | null;
   evidenceHasHeldPublicOffice: boolean | null;
+  evidenceHasHeldPublicOfficeAnswered?: boolean;
   entries: readonly SweepEvidenceEntry[];
 }): { route: SweepRoute; persistHasHeldPublicOffice: boolean | null } {
   const resolution = resolveSweepRoute({
@@ -347,6 +401,7 @@ export function enforceSweepRouteCoverage(input: {
     candidateCurrentOffice: input.candidateCurrentOffice,
     candidateHasHeldPublicOffice: input.candidateHasHeldPublicOffice,
     evidenceHasHeldPublicOffice: input.evidenceHasHeldPublicOffice,
+    evidenceHasHeldPublicOfficeAnswered: input.evidenceHasHeldPublicOfficeAnswered,
   });
   if (!resolution.ok) {
     throw new Error(`Sweep evidence routing failed: ${resolution.reason}`);

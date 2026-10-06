@@ -189,7 +189,7 @@ describe("parseSweepEvidencePayload", () => {
     }
   });
 
-  it("parses a top-level has_held_public_office answer (absent means null)", () => {
+  it("parses a top-level has_held_public_office answer (absent means null, unanswered)", () => {
     const withAnswer = parseSweepEvidencePayload({
       has_held_public_office: false,
       entries: validEntries,
@@ -197,22 +197,37 @@ describe("parseSweepEvidencePayload", () => {
     expect(withAnswer.ok).toBe(true);
     if (withAnswer.ok) {
       expect(withAnswer.hasHeldPublicOffice).toBe(false);
+      expect(withAnswer.hasHeldPublicOfficeAnswered).toBe(true);
     }
     const withoutAnswer = parseSweepEvidencePayload({ entries: validEntries });
     expect(withoutAnswer.ok).toBe(true);
     if (withoutAnswer.ok) {
       expect(withoutAnswer.hasHeldPublicOffice).toBeNull();
+      expect(withoutAnswer.hasHeldPublicOfficeAnswered).toBe(false);
     }
   });
 
-  it("rejects a non-boolean has_held_public_office", () => {
+  it("accepts an explicit null has_held_public_office (researched, still unknown) as answered", () => {
+    const result = parseSweepEvidencePayload({
+      has_held_public_office: null,
+      entries: validEntries,
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.hasHeldPublicOffice).toBeNull();
+      expect(result.hasHeldPublicOfficeAnswered).toBe(true);
+    }
+  });
+
+  it("rejects a non-boolean, non-null has_held_public_office", () => {
     const result = parseSweepEvidencePayload({
       has_held_public_office: "yes",
       entries: validEntries,
     });
     expect(result).toEqual({
       ok: false,
-      reason: "evidence payload.has_held_public_office must be a boolean when present",
+      reason:
+        "evidence payload.has_held_public_office must be true, false, or null (researched, still unknown) when present",
     });
   });
 });
@@ -345,6 +360,73 @@ describe("resolveSweepRoute", () => {
     if (!result.ok) {
       expect(result.reason).toContain('"has_held_public_office": true|false');
     }
+  });
+
+  it("routes an explicit unknown answer on a NULL column to both non-judicial lists, persisting nothing", () => {
+    const result = resolveSweepRoute({
+      discoveryContestFamily: "non_judicial_office",
+      candidateCurrentOffice: null,
+      candidateHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOfficeAnswered: true,
+    });
+    expect(result).toEqual({
+      ok: true,
+      route: "unknown_office_history",
+      persistHasHeldPublicOffice: null,
+    });
+  });
+
+  it("still refuses an absent answer even when the answered flag is explicitly false", () => {
+    const result = resolveSweepRoute({
+      discoveryContestFamily: "non_judicial_office",
+      candidateCurrentOffice: null,
+      candidateHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOfficeAnswered: false,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toContain('"has_held_public_office": null');
+    }
+  });
+
+  it("refuses an explicit unknown answer against a set current_office", () => {
+    const result = resolveSweepRoute({
+      discoveryContestFamily: "non_judicial_office",
+      candidateCurrentOffice: "County Assessor",
+      candidateHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOfficeAnswered: true,
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toContain("has_held_public_office=null");
+      expect(result.reason).toContain('"County Assessor"');
+      expect(result.reason).toContain("--clear-profile-fields current_office");
+    }
+  });
+
+  it("routes from the stored column when the evidence file says unknown", () => {
+    const result = resolveSweepRoute({
+      discoveryContestFamily: "non_judicial_office",
+      candidateCurrentOffice: null,
+      candidateHasHeldPublicOffice: true,
+      evidenceHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOfficeAnswered: true,
+    });
+    expect(result).toEqual({ ok: true, route: "officeholder", persistHasHeldPublicOffice: null });
+  });
+
+  it("keeps the judicial route for an explicit unknown answer and persists nothing", () => {
+    const result = resolveSweepRoute({
+      discoveryContestFamily: "judicial_office",
+      candidateCurrentOffice: null,
+      candidateHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOffice: null,
+      evidenceHasHeldPublicOfficeAnswered: true,
+    });
+    expect(result).toEqual({ ok: true, route: "judicial", persistHasHeldPublicOffice: null });
   });
 
   it("still persists the officeholder answer on a judicial contest when the column is NULL", () => {
@@ -520,6 +602,41 @@ describe("enforceSweepRouteCoverage", () => {
       })
     ).toThrow(/missing question_id career/);
   });
+
+  const unknownHistoryEntries = SWEEP_ROUTE_QUESTION_IDS.unknown_office_history.map((id, index) => ({
+    question: `unknown-history question ${index}?`,
+    finding: "nothing found",
+    questionId: id,
+  }));
+
+  it("accepts an explicit unknown answer only when both non-judicial lists are covered", () => {
+    expect(
+      enforceSweepRouteCoverage({
+        discoveryContestFamily: "non_judicial_office",
+        candidateCurrentOffice: null,
+        candidateHasHeldPublicOffice: null,
+        evidenceHasHeldPublicOffice: null,
+        evidenceHasHeldPublicOfficeAnswered: true,
+        entries: unknownHistoryEntries,
+      })
+    ).toEqual({ route: "unknown_office_history", persistHasHeldPublicOffice: null });
+  });
+
+  it("refuses an explicit unknown answer whose ledger covers only one of the two lists", () => {
+    const officeholderOnly = unknownHistoryEntries.filter((entry) =>
+      (SWEEP_ROUTE_QUESTION_IDS.officeholder as readonly string[]).includes(entry.questionId)
+    );
+    expect(() =>
+      enforceSweepRouteCoverage({
+        discoveryContestFamily: "non_judicial_office",
+        candidateCurrentOffice: null,
+        candidateHasHeldPublicOffice: null,
+        evidenceHasHeldPublicOffice: null,
+        evidenceHasHeldPublicOfficeAnswered: true,
+        entries: officeholderOnly,
+      })
+    ).toThrow(/unknown_office_history question list: missing question_id career, orgs_advocacy, court_legal/);
+  });
 });
 
 describe("persistHasHeldPublicOfficeAnswer", () => {
@@ -564,6 +681,17 @@ describe("persistHasHeldPublicOfficeAnswer", () => {
     await expect(
       persistHasHeldPublicOfficeAnswer(client as never, "candidate-1", true)
     ).rejects.toThrow(/concurrent write landed first/);
+  });
+});
+
+describe("SWEEP_ROUTE_QUESTION_IDS", () => {
+  it("defines the unknown-history route as exactly the union of the two non-judicial lists", () => {
+    const union = new Set<string>([
+      ...SWEEP_ROUTE_QUESTION_IDS.officeholder,
+      ...SWEEP_ROUTE_QUESTION_IDS.never_held_office,
+    ]);
+    expect(new Set(SWEEP_ROUTE_QUESTION_IDS.unknown_office_history)).toEqual(union);
+    expect(SWEEP_ROUTE_QUESTION_IDS.unknown_office_history).toHaveLength(union.size);
   });
 });
 
