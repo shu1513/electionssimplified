@@ -31,8 +31,10 @@ export default function RankedChoiceVotingPage() {
         <p>
           Mark one candidate as your first choice, another as your second choice, and so on. You may
           rank as many or as few candidates as you like. Ranking a second choice never hurts your
-          first choice: your ballot counts for your second choice only if your first choice has been
-          eliminated. Do not give two candidates the same rank, and do not rank the same candidate
+          first choice. In a race for one seat, your ballot counts for your second choice only if
+          your first choice has been eliminated; in a race for several seats, part of it can also
+          move to your second choice when your first choice wins with votes to spare. Do not give
+          two candidates the same rank, and do not rank the same candidate
           twice; most ballots treat either one as a mistake for that rank. Some jurisdictions cap the
           number of rankings; the cap is printed on the ballot.
         </p>
