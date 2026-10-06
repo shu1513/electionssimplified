@@ -192,6 +192,18 @@ describe("ElectionCard", () => {
     expect(screen.queryByText(/candidates?/)).not.toBeInTheDocument();
   });
 
+  it("shows the ranked-choice notice only when the voting method is ranked_choice", () => {
+    renderCard(electionSummary({ voting_method: "ranked_choice" }));
+    const notice = screen.getByTestId("ranked-choice-notice");
+    expect(notice).toHaveTextContent("This race uses ranked-choice voting");
+    expect(within(notice).getByRole("link", { name: "How it works" })).toHaveAttribute("href", "/ranked-choice-voting");
+  });
+
+  it("shows no voting-method notice when the method is plurality or unrecorded", () => {
+    renderCard(electionSummary({ voting_method: "plurality" }));
+    expect(screen.queryByTestId("ranked-choice-notice")).not.toBeInTheDocument();
+  });
+
   it("caps unsaved research-area chips and counts the rest", () => {
     renderCard(
       electionSummary({

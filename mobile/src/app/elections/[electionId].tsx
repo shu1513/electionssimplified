@@ -259,6 +259,14 @@ export default function ElectionScreen() {
         {data.election_stage ? <> · {data.election_stage}</> : null}
         {data.seats_to_fill != null && data.seats_to_fill > 1 ? <> · {data.seats_to_fill} seats</> : null}
       </Text>
+      {data.voting_method === "ranked_choice" ? (
+        <Text className="mt-2 text-base text-ink">
+          This race uses ranked-choice voting. Rank the candidates in order of preference; you may
+          rank as many or as few as you like. If no one has a majority of first choices, the last-place
+          candidate is eliminated and those ballots count for their next choice, round by round, until
+          one candidate has a majority.
+        </Text>
+      ) : null}
       <View className="mt-2 flex-row flex-wrap gap-2">
         {data.vote_power.label !== "unknown" ? (
           // Colored text, not a tinted pill — same scale as the ballot cards.

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useLocation, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import type { BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
+import { RankedChoiceNotice } from "../components/RankedChoiceNotice";
 import {
   RAIL_SORTS,
   VOTE_POWER_BAND_ORDER,
@@ -867,6 +868,7 @@ export function ElectionPage() {
             </p>
           </div>
         </div>
+        <RankedChoiceNotice votingMethod={data.voting_method} className="text-body text-ink" />
         {/* The answer paragraph: what, where, when, who, and who won — the
             whole race in one self-contained passage a reader (or an answer
             engine) can take on its own. Every fact repeats a card below;

@@ -81,6 +81,11 @@ export function ElectionCard({
         <Text className="flex-1 font-semibold text-ink">{election.official_ballot_title}</Text>
         <Text className="shrink-0 text-sm text-ink-soft">{formatElectionDate(election.election_date)}</Text>
       </View>
+      {election.voting_method === "ranked_choice" ? (
+        <Text className="mt-1 text-sm text-ink">
+          This race uses ranked-choice voting: rank the candidates in order of preference.
+        </Text>
+      ) : null}
       <Text className="mt-1 text-sm text-ink-soft">
         {formatDistrictName(election.district.name)} · {formatDistrictType(election.district.district_type)}
         {election.office ? <> · {election.office.canonical_name}</> : null}

@@ -281,6 +281,8 @@ export type BallotLookupBallotMeasure = {
   funding: BallotMeasureFundingView | null;
 };
 
+export type ElectionVotingMethod = "ranked_choice" | "plurality" | "top_two" | "runoff";
+
 export type BallotLookupElection = {
   id: string;
   district_id: string;
@@ -298,6 +300,9 @@ export type BallotLookupElection = {
   is_partisan: boolean | null;
   // null = seat count never recorded (display treats null and 1 the same).
   seats_to_fill: number | null;
+  // How the contest is counted; null = never recorded. Readers show a
+  // ranked-choice notice only for 'ranked_choice'.
+  voting_method: ElectionVotingMethod | null;
   discovery_contest_family: ElectionContestFamily | null;
   sources: string[];
   candidates: BallotLookupCandidate[];
@@ -371,6 +376,8 @@ export type BallotLookupElectionSummary = {
   // Label the paper ballot prints for this contest ("Statewide Amendment 1")
   // when it differs from the stored title's own label. Null for most rows.
   printed_ballot_label: string | null;
+  // Mirrors BallotLookupElection.voting_method.
+  voting_method: ElectionVotingMethod | null;
   // Mirrors BallotLookupElection.sub_district_seat: the ballot list is where a
   // ward-level seat is most likely to be mistaken for a countywide one.
   sub_district_seat: string | null;
@@ -421,6 +428,8 @@ type ElectionRow = {
   race_type: ElectionRaceType;
   official_ballot_title: string;
   printed_ballot_label?: string | null;
+  // Absent on older row shapes and test fixtures; treated as null.
+  voting_method?: ElectionVotingMethod | null;
   election_date: string;
   election_stage: ElectionStage | null;
   is_partisan: boolean | null;
@@ -1665,6 +1674,7 @@ async function loadFullElectionDetails(
     election_stage: row.election_stage,
     is_partisan: row.is_partisan,
     seats_to_fill: row.seats_to_fill ?? null,
+    voting_method: row.voting_method ?? null,
     discovery_contest_family: row.discovery_contest_family,
     sources: parseStringArray(row.sources),
     candidates: candidatesByElection.get(row.election_id) ?? [],
@@ -1731,6 +1741,7 @@ export async function lookupBallotSummariesByDistrictIds(
         e.race_type,
         e.official_ballot_title,
         e.printed_ballot_label,
+        e.voting_method,
         e.election_date::text AS election_date,
         e.election_stage,
         e.is_partisan,
@@ -1983,6 +1994,7 @@ export async function lookupBallotSummariesByDistrictIds(
       race_type: row.race_type,
       official_ballot_title: row.official_ballot_title,
       printed_ballot_label: row.printed_ballot_label?.trim() || null,
+      voting_method: row.voting_method ?? null,
       sub_district_seat: extractSubDistrictSeat(row.official_ballot_title, row.office_canonical_name, {
         state: row.state,
         districtName: row.district_name,
@@ -2181,6 +2193,7 @@ async function loadElectionRowById(db: Queryable, electionId: string): Promise<E
         d.population,
         e.race_type,
         e.official_ballot_title,
+        e.voting_method,
         e.election_date::text AS election_date,
         e.election_stage,
         e.is_partisan,

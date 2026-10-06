@@ -11,6 +11,7 @@ import type {
   ResultChipTone,
 } from "@voteapp/api-client";
 import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
+import { RankedChoiceNotice } from "./RankedChoiceNotice";
 import { useElectionListState } from "../lib/useElectionListState";
 import {
   ballotLevel,
@@ -720,6 +721,7 @@ function ElectionCard({
           ) : null}
         </span>
       </div>
+      <RankedChoiceNotice votingMethod={election.voting_method} />
       {/* Keep the location unless the district-size heading supplies it. */}
       {showDistrict || showDate ? (
         <p className="mt-0.5 text-sm text-ink-soft">

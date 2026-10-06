@@ -79,6 +79,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
             representation_power_score: "72.5",
             race_type: "office",
             official_ballot_title: "Sheriff",
+            voting_method: "ranked_choice",
             election_date: "2026-06-02",
             election_stage: "primary",
             is_partisan: false,
@@ -189,6 +190,7 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           race_type: "office",
           official_ballot_title: "Sheriff",
           printed_ballot_label: null,
+          voting_method: "ranked_choice",
           // Countywide office with no seat designator, so nothing to flag.
           sub_district_seat: null,
           election_date: "2026-06-02",
@@ -245,6 +247,8 @@ describe("lookupBallotSummariesByDistrictIds", () => {
           race_type: "ballot_measure",
           official_ballot_title: "Measure H",
           printed_ballot_label: "County Measure H",
+          // Method never recorded for the measure row, so null, not a guess.
+          voting_method: null,
           // Measures have no office, so the seat gate never applies.
           sub_district_seat: null,
           election_date: "2026-06-02",
