@@ -196,7 +196,9 @@ describe("ElectionCard", () => {
     renderCard(electionSummary({ voting_method: "ranked_choice" }));
     const notice = screen.getByTestId("ranked-choice-notice");
     expect(notice).toHaveTextContent("This race uses ranked-choice voting");
-    expect(within(notice).getByRole("link", { name: "How it works" })).toHaveAttribute("href", "/ranked-choice-voting");
+    // The card body is one <Link>; a second anchor inside it would be invalid
+    // HTML and break hydration. The race page carries the explainer link.
+    expect(within(notice).queryByRole("link")).not.toBeInTheDocument();
   });
 
   it("shows no voting-method notice when the method is plurality or unrecorded", () => {

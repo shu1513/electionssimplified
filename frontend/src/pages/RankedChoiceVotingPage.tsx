@@ -52,12 +52,22 @@ export default function RankedChoiceVotingPage() {
           round can take days to tabulate after election day.
         </p>
 
+        <h2 className={h2}>What if the race elects more than one person?</h2>
+        <p>
+          Some ranked-choice races fill several seats at once, such as the three council seats in
+          each Portland, Oregon district. A candidate wins by reaching a share of the vote, not a
+          majority: with three seats the threshold is just over 25 percent. Votes a winner receives
+          beyond the threshold transfer to those ballots&rsquo; next choices, the last-place candidate
+          is eliminated when no one reaches it, and the rounds continue until every seat is filled.
+          The race page shows how many seats a contest fills.
+        </p>
+
         <h2 className={h2}>Which November 2026 races use it?</h2>
         <p>
           Maine uses ranked-choice voting for its U.S. Senate and U.S. House general elections but
           not for governor or the state legislature. Alaska uses it for every state and federal office
-          after its top-four primary. The District of Columbia uses it for all local offices and its
-          House delegate. Cities and counties using it include San Francisco, Oakland, Berkeley, San
+          after its top-four primary. The District of Columbia uses it in any contest with three or more
+          candidates, so some of its races rank and others say vote for one. Cities and counties using it include San Francisco, Oakland, Berkeley, San
           Leandro, and Albany in California; Boulder, Colorado (mayor); Portland, Maine; Portland,
           Corvallis, and Multnomah County in Oregon; and Arlington County, Virginia (county board).
           On {APP_NAME}, each of these races carries a ranked-choice note on its card and its page.

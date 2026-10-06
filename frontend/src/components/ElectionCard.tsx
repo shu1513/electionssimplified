@@ -721,7 +721,7 @@ function ElectionCard({
           ) : null}
         </span>
       </div>
-      <RankedChoiceNotice votingMethod={election.voting_method} />
+      <RankedChoiceNotice votingMethod={election.voting_method} linkToExplainer={false} />
       {/* Keep the location unless the district-size heading supplies it. */}
       {showDistrict || showDate ? (
         <p className="mt-0.5 text-sm text-ink-soft">

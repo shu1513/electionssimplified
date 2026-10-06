@@ -25,10 +25,30 @@ FROM districts d WHERE d.id = e.district_id AND d.state = 'AK' AND e.election_da
   AND e.race_type = 'office' AND d.district_type IN ('statewide', 'us_house', 'state_upper', 'state_lower')
   AND e.official_ballot_title !~* '^Shall ';
 
--- District of Columbia: Initiative 83 applies to every office on the ballot.
-UPDATE elections e SET voting_method = 'ranked_choice'
+-- District of Columbia: D.C. Code § 1-1001.08a uses ranked choice only in a
+-- contest "involving 3 or more qualified candidates"; with one or two the
+-- ballot says "Vote for no more than one". Decided per contest from the Board
+-- of Elections' official sample ballots for Wards 1, 3, 5 and 6 (dcboe.org,
+-- 2026 General Election), not from the stored roster: the Mayor contest ranks
+-- three candidates on the ballot while the roster here holds two. Caps are
+-- the ballot's own "Rank up to N choices". Every other DC office on those
+-- ballots (Attorney General, Ward 3 and Ward 6 Council, Ward 1, 3 and 5 State
+-- Board of Education) is vote-for-one and stays NULL.
+UPDATE elections e SET voting_method = 'ranked_choice', ranked_choice_max_rankings = v.cap
+FROM districts d, (VALUES
+    ('United States Representative, DC At-Large', 4),
+    ('Mayor', 4),
+    ('Ward 1 Member of the Council', 5),
+    ('Ward 5 Member of the Council', 4),
+    ('Ward 6 Member of the State Board of Education', 4)
+  ) AS v(title, cap)
+WHERE d.id = e.district_id AND d.state = 'DC' AND e.election_date = '2026-11-03'
+  AND e.race_type = 'office' AND e.official_ballot_title = v.title;
+UPDATE elections e SET voting_method = NULL, ranked_choice_max_rankings = NULL
 FROM districts d WHERE d.id = e.district_id AND d.state = 'DC' AND e.election_date = '2026-11-03'
-  AND e.race_type = 'office';
+  AND e.race_type = 'office' AND e.official_ballot_title NOT IN (
+    'United States Representative, DC At-Large', 'Mayor', 'Ward 1 Member of the Council',
+    'Ward 5 Member of the Council', 'Ward 6 Member of the State Board of Education');
 
 -- San Francisco: every city and county office; the school board is not ranked.
 UPDATE elections e SET voting_method = 'ranked_choice'
@@ -57,6 +77,14 @@ FROM districts d WHERE d.id = e.district_id AND d.state = 'CO' AND e.election_da
 UPDATE elections e SET voting_method = 'ranked_choice'
 FROM districts d WHERE d.id = e.district_id AND d.state = 'OR' AND e.election_date = '2026-11-03'
   AND e.race_type = 'office' AND d.district_type = 'place' AND d.name ~* '^(Portland|Corvallis) city';
+-- Portland's Districts 3 and 4 each elect three councilors in 2026 (their 2024
+-- winners drew two-year terms to stagger the council), counted by multi-winner
+-- ranked choice with a 25% threshold. The rows were stored without a seat
+-- count, so set it here.
+UPDATE elections e SET seats_to_fill = 3
+FROM districts d WHERE d.id = e.district_id AND d.state = 'OR' AND e.election_date = '2026-11-03'
+  AND e.race_type = 'office' AND d.district_type = 'place' AND d.name ~* '^Portland city'
+  AND e.official_ballot_title ~* '^City Councilor, District [34]$' AND e.seats_to_fill IS NULL;
 UPDATE elections e SET voting_method = 'ranked_choice'
 FROM districts d WHERE d.id = e.district_id AND d.state = 'OR' AND e.election_date = '2026-11-03'
   AND e.race_type = 'office' AND d.district_type = 'county' AND d.name ~* '^Multnomah County'
