@@ -28,6 +28,9 @@ export default [
     // report an error — the page engines read before citing the site.
     // Prerendered (react-router.config.ts) and edge-cached.
     route("methodology", "pages/MethodologyPage.tsx"),
+    // How a ranked-choice ballot is marked and counted; linked from every
+    // race whose voting_method is ranked_choice. Prerendered.
+    route("ranked-choice-voting", "pages/RankedChoiceVotingPage.tsx"),
     // Coverage statistics per state (backend siteStats.ts). Edge-cached.
     route("stats", "pages/StatsPage.tsx"),
     route("embed-instructions", "pages/EmbedGuidePage.tsx"),

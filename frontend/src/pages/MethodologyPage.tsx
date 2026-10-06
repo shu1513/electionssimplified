@@ -141,6 +141,33 @@ export default function MethodologyPage() {
           plus a plain statement of what a yes vote and a no vote each mean.
         </p>
 
+        <h2 className={h2}>How are issue labels assigned?</h2>
+        <p>
+          Each issue area has a one-sentence goal, such as &ldquo;ensure elections are secure, accurate,
+          auditable, and trusted by the public&rdquo; for Election Integrity. A record is labeled
+          &ldquo;for&rdquo; an area when the action it describes directly and materially advances that
+          goal, and &ldquo;against&rdquo; when it directly cuts against it. The label follows the direction
+          of the action, not the word yes or no: a vote against a bill that weakens audits is for
+          election integrity. A record that does not take a clear position on any area, or whose
+          effect is indirect or speculative, is filed under General with no stance. Changes to how
+          elections are run, such as adopting or banning ranked-choice voting, changing a primary
+          format, or moving an election date, are filed under General whichever side the candidate
+          took: they are positions on a voting method, not on whether elections are secure or
+          accurate. The same written rule is given to the AI labeler and to the people who review
+          its output, and the full prompt is in the public source code.
+        </p>
+
+        <h2 className={h2}>How is ranked-choice voting shown?</h2>
+        <p>
+          When a race is counted by ranked-choice voting, its card and its page say so and link to a
+          plain explanation of how to fill out the ballot and how the rounds are counted. Where the
+          voting method is not recorded, the race is shown without a note. See{" "}
+          <Link to="/ranked-choice-voting" className="font-semibold underline hover:text-ink">
+            ranked-choice voting
+          </Link>
+          .
+        </p>
+
         <h2 id="corrections" className={h2}>How do I report an error?</h2>
         <p>
           Every election page, candidate page, and individual record has a &ldquo;Report an issue&rdquo;

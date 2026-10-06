@@ -99,6 +99,7 @@ export function electionSummary(overrides: Partial<ElectionSummary> = {}): Elect
     election_date: "2026-11-03",
     election_stage: null,
     is_partisan: true,
+    voting_method: null,
     candidate_count: 2,
     candidate_roster_status: null,
     ballot_measure_id: null,
@@ -127,6 +128,7 @@ export function electionDetail(overrides: Partial<ElectionDetail> = {}): Electio
     election_stage: null,
     is_partisan: true,
     seats_to_fill: null,
+    voting_method: null,
     sources: ["https://elections.example.gov"],
     candidates: [
       {

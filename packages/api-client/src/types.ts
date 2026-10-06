@@ -153,6 +153,8 @@ export type CandidateRosterStatus = {
   check_after: string | null;
 };
 
+export type ElectionVotingMethod = "ranked_choice" | "plurality" | "top_two" | "runoff";
+
 export type ElectionSummary = {
   id: string;
   district_id: string;
@@ -162,6 +164,9 @@ export type ElectionSummary = {
   /** Label the paper ballot prints for this contest, when one is stored.
    * Already applied to official_ballot_title in ordered ballot lists. */
   printed_ballot_label?: string | null;
+  /** How the contest is counted; null or absent = never recorded. Cards show
+   * a ranked-choice notice only for "ranked_choice". */
+  voting_method?: ElectionVotingMethod | null;
   /**
    * The seat's own ward/district designator ("Ward 3", "District 06") when the
    * office is one whose seats have separate electorates, else null. A ballot is
@@ -540,6 +545,8 @@ export type ElectionDetail = {
   is_partisan: boolean | null;
   /** Seats this contest fills; null = never recorded (treat like 1). */
   seats_to_fill: number | null;
+  /** Same meaning as ElectionSummary.voting_method. */
+  voting_method?: ElectionVotingMethod | null;
   sources: string[];
   candidates: ElectionCandidate[];
   /** null unless race_type is "office" and candidates is empty. */
