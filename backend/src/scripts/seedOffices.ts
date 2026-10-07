@@ -1796,6 +1796,21 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     officeCanonicalName: "City Council Member",
     aliasText: "Council Member",
   },
+  // The District of Columbia elects its Council Chairman and at-large members
+  // citywide (D.C. Code § 1-204.01); both are council seats. Mirrors migration
+  // 316. The ward seats sit on state_upper rows and are not affected.
+  ...[
+    "Chairman of the Council",
+    "Chairman of the Council of the District of Columbia",
+    "Chairwoman of the Council",
+    "Chair of the Council",
+    "At-Large Member of the Council",
+    "At-Large Member of the Council of the District of Columbia",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "place",
+    officeCanonicalName: "City Council Member",
+    aliasText,
+  })),
   {
     scope: "place",
     officeCanonicalName: "City Council Member",
