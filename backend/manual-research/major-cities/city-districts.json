@@ -41699,6 +41699,222 @@
           "city_share": 1
         }
       ]
+    },
+    {
+      "name": "Santa Fe",
+      "state": "NM",
+      "population_2025": 89019,
+      "lat": 35.687,
+      "lon": -105.9378,
+      "built_at": "2026-10-06T22:31:11.112Z",
+      "place_geoid": "3570500",
+      "place_layer": "place",
+      "place_name": "Santa Fe city",
+      "sample_points": 3049,
+      "slivers_dropped": 0,
+      "districts": [
+        {
+          "district_type": "statewide",
+          "geoid_compact": "35",
+          "name": "NM",
+          "city_share": 1
+        },
+        {
+          "district_type": "place",
+          "geoid_compact": "3570500",
+          "name": "Santa Fe city",
+          "city_share": 1
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "3503",
+          "name": "Congressional District 3",
+          "city_share": 1
+        },
+        {
+          "district_type": "state_upper",
+          "geoid_compact": "35024",
+          "name": "State Senate District 24",
+          "city_share": 0.2571
+        },
+        {
+          "district_type": "state_upper",
+          "geoid_compact": "35039",
+          "name": "State Senate District 39",
+          "city_share": 0.1853
+        },
+        {
+          "district_type": "state_upper",
+          "geoid_compact": "35025",
+          "name": "State Senate District 25",
+          "city_share": 0.5576
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35045",
+          "name": "State House District 45",
+          "city_share": 0.2352
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35046",
+          "name": "State House District 46",
+          "city_share": 0.0925
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35043",
+          "name": "State House District 43",
+          "city_share": 0.1138
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35047",
+          "name": "State House District 47",
+          "city_share": 0.4159
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35048",
+          "name": "State House District 48",
+          "city_share": 0.1397
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "35050",
+          "name": "State House District 50",
+          "city_share": 0.003
+        },
+        {
+          "district_type": "county",
+          "geoid_compact": "35049",
+          "name": "Santa Fe County",
+          "city_share": 1
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "3502370",
+          "name": "Santa Fe Public Schools",
+          "city_share": 1
+        }
+      ]
+    },
+    {
+      "name": "Grapevine",
+      "state": "TX",
+      "population_2025": 51139,
+      "lat": 32.9343,
+      "lon": -97.0781,
+      "built_at": "2026-10-06T22:31:19.414Z",
+      "place_geoid": "4830644",
+      "place_layer": "place",
+      "place_name": "Grapevine city",
+      "sample_points": 2463,
+      "slivers_dropped": 4,
+      "districts": [
+        {
+          "district_type": "statewide",
+          "geoid_compact": "48",
+          "name": "TX",
+          "city_share": 1
+        },
+        {
+          "district_type": "place",
+          "geoid_compact": "4830644",
+          "name": "Grapevine city",
+          "city_share": 1
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4824",
+          "name": "Congressional District 24",
+          "city_share": 0.9988
+        },
+        {
+          "district_type": "us_house",
+          "geoid_compact": "4826",
+          "name": "Congressional District 26",
+          "city_share": 0.0012
+        },
+        {
+          "district_type": "state_upper",
+          "geoid_compact": "48009",
+          "name": "State Senate District 9",
+          "city_share": 0.0008
+        },
+        {
+          "district_type": "state_upper",
+          "geoid_compact": "48012",
+          "name": "State Senate District 12",
+          "city_share": 0.9992
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "48063",
+          "name": "State House District 63",
+          "city_share": 0.0012
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "48098",
+          "name": "State House District 98",
+          "city_share": 0.9829
+        },
+        {
+          "district_type": "state_lower",
+          "geoid_compact": "48115",
+          "name": "State House District 115",
+          "city_share": 0.0158
+        },
+        {
+          "district_type": "county",
+          "geoid_compact": "48121",
+          "name": "Denton County",
+          "city_share": 0.0012
+        },
+        {
+          "district_type": "county",
+          "geoid_compact": "48439",
+          "name": "Tarrant County",
+          "city_share": 0.9829
+        },
+        {
+          "district_type": "county",
+          "geoid_compact": "48113",
+          "name": "Dallas County",
+          "city_share": 0.0158
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "4827300",
+          "name": "Lewisville Independent School District",
+          "city_share": 0.0012
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "4815210",
+          "name": "Coppell Independent School District",
+          "city_share": 0.0158
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "4813020",
+          "name": "Carroll Independent School District",
+          "city_share": 0.0451
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "4833180",
+          "name": "Northwest Independent School District",
+          "city_share": 0.0065
+        },
+        {
+          "district_type": "school_unified",
+          "geoid_compact": "4821660",
+          "name": "Grapevine-Colleyville Independent School District",
+          "city_share": 0.9314
+        }
+      ]
     }
   ]
 }
