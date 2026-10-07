@@ -38,9 +38,9 @@ export default function MethodologyPage() {
 
         <h2 className={h2}>Who runs {APP_NAME}?</h2>
         <p>
-          {APP_NAME} is published by {ORGANIZATION_LEGAL_NAME}, a Delaware corporation. It is funded by
-          reader contributions and by its founders, and it takes no money from any candidate,
-          campaign, committee, or party. It endorses no one. The source code is public at{" "}
+          {APP_NAME} is published by {ORGANIZATION_LEGAL_NAME} and funded by reader
+          contributions and by its founders. It takes no money from any candidate, campaign,
+          committee, or party. It endorses no one. The source code is public at{" "}
           <a href={SOURCE_REPOSITORY_URL} target="_blank" rel="noopener noreferrer" className="font-semibold underline hover:text-ink">
             GitHub
           </a>
