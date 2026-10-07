@@ -38,6 +38,7 @@ UPDATE elections e SET voting_method = 'ranked_choice', ranked_choice_max_rankin
 FROM districts d, (VALUES
     ('United States Representative, DC At-Large', 4),
     ('Mayor', 4),
+    ('At-Large Member of the Council', 5),
     ('Ward 1 Member of the Council', 5),
     ('Ward 5 Member of the Council', 4),
     ('Ward 6 Member of the State Board of Education', 4)
@@ -47,8 +48,9 @@ WHERE d.id = e.district_id AND d.state = 'DC' AND e.election_date = '2026-11-03'
 UPDATE elections e SET voting_method = NULL, ranked_choice_max_rankings = NULL
 FROM districts d WHERE d.id = e.district_id AND d.state = 'DC' AND e.election_date = '2026-11-03'
   AND e.race_type = 'office' AND e.official_ballot_title NOT IN (
-    'United States Representative, DC At-Large', 'Mayor', 'Ward 1 Member of the Council',
-    'Ward 5 Member of the Council', 'Ward 6 Member of the State Board of Education');
+    'United States Representative, DC At-Large', 'Mayor', 'At-Large Member of the Council',
+    'Ward 1 Member of the Council', 'Ward 5 Member of the Council',
+    'Ward 6 Member of the State Board of Education');
 
 -- San Francisco: every city and county office; the school board is not ranked.
 UPDATE elections e SET voting_method = 'ranked_choice'
