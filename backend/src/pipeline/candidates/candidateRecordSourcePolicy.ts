@@ -557,6 +557,16 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19990508094955/http://www.wenatcheeworld.com:80/",
     ],
   },
+  "wgme.com": {
+    addedOn: "2026-10-07",
+    listingPath: "owner_directed",
+    rationale:
+      "WGME-TV is Portland, Maine's CBS affiliate, on air since 1954 and owned by Sinclair Broadcast Group, with a named local newsroom and I-Team investigative unit; the site has been live since 1998. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-10-07.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/WGME-TV",
+      "https://web.archive.org/web/19981202185540/http://www.wgme.com:80/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
