@@ -190,6 +190,109 @@ describe("runRetireSpuriousElection", () => {
     expect(calls.at(-1)?.text).toBe("ROLLBACK");
   });
 
+  describe("--allow-measure-detail", () => {
+    const MEASURE_ID = "d04f93b5-5330-47ce-842c-dd5aefc806b3";
+
+    // The FK scan now also reports ballot_measures (ON DELETE RESTRICT) with
+    // one detail row; the measure's own results/tags/funding are counted by
+    // the follow-up queries keyed below.
+    function measureResponses(overrides: Partial<Record<string, unknown[][]>> = {}) {
+      return happyResponses({
+        pg_constraint: [
+          [
+            { table_name: "public.ballot_measures", column_name: "election_id" },
+            { table_name: "public.candidate_elections", column_name: "election_id" },
+            { table_name: "public.manual_research_deferrals", column_name: "election_id" },
+          ],
+        ],
+        "count(*)::text AS n FROM public.ballot_measures": [[{ n: "1" }]],
+        "count(*)::text AS n FROM public.ballot_measure_results": [[{ n: "0" }]],
+        "SELECT id FROM public.ballot_measures": [[{ id: MEASURE_ID }]],
+        "FROM public.ballot_measure_research_area_tags": [[{ n: "3" }]],
+        "FROM public.ballot_measure_funding": [[{ n: "2" }]],
+        ...overrides,
+      });
+    }
+
+    it("still blocks on the measure detail row without the flag", async () => {
+      const { query, calls } = buildClient(measureResponses());
+
+      await expect(
+        runRetireSpuriousElection({ query }, { ...BASE_OPTIONS, dryRun: false })
+      ).rejects.toThrow(/public\.ballot_measures\.election_id \(1\)/);
+      expect(calls.some((call) => call.text.startsWith("DELETE"))).toBe(false);
+      expect(calls.at(-1)?.text).toBe("ROLLBACK");
+    });
+
+    it("deletes the measure detail before the election and reports the cascaded tags and funding", async () => {
+      const { query, calls } = buildClient(measureResponses());
+
+      const result = await runRetireSpuriousElection(
+        { query },
+        { ...BASE_OPTIONS, dryRun: false, allowMeasureDetail: true }
+      );
+
+      expect(result.measureDetailDeletes).toEqual({
+        ballotMeasureIds: [MEASURE_ID],
+        researchAreaTags: 3,
+        funding: 2,
+      });
+      expect(result.cascadeDeletes).toEqual([{ table: "manual_research_deferrals", rows: 1 }]);
+
+      const ledgerIndex = calls.findIndex((call) => call.text.includes("INSERT INTO public.retired_election_identities"));
+      const measureDeleteIndex = calls.findIndex((call) => call.text.includes("DELETE FROM public.ballot_measures"));
+      const electionDeleteIndex = calls.findIndex((call) => call.text.includes("DELETE FROM public.elections"));
+      expect(ledgerIndex).toBeGreaterThan(0);
+      expect(measureDeleteIndex).toBeGreaterThan(ledgerIndex);
+      expect(electionDeleteIndex).toBeGreaterThan(measureDeleteIndex);
+      expect(calls[measureDeleteIndex]?.values).toEqual([SPURIOUS]);
+      expect(calls.at(-1)?.text).toBe("COMMIT");
+    });
+
+    it("still blocks when a ballot_measure_results row exists, even with the flag", async () => {
+      const { query, calls } = buildClient(
+        measureResponses({
+          "count(*)::text AS n FROM public.ballot_measure_results": [[{ n: "1" }]],
+        })
+      );
+
+      await expect(
+        runRetireSpuriousElection({ query }, { ...BASE_OPTIONS, dryRun: false, allowMeasureDetail: true })
+      ).rejects.toThrow(/ballot_measure_results\.election_id \(1 — a recorded outcome means the measure was on the ballot/);
+      expect(calls.some((call) => call.text.startsWith("DELETE"))).toBe(false);
+      expect(calls.at(-1)?.text).toBe("ROLLBACK");
+    });
+
+    it("dry-run with the flag reports the measure deletions and rolls back", async () => {
+      const { query, calls } = buildClient(measureResponses());
+
+      const result = await runRetireSpuriousElection(
+        { query },
+        { ...BASE_OPTIONS, dryRun: true, allowMeasureDetail: true }
+      );
+
+      expect(result.dryRun).toBe(true);
+      expect(result.measureDetailDeletes).toEqual({
+        ballotMeasureIds: [MEASURE_ID],
+        researchAreaTags: 3,
+        funding: 2,
+      });
+      expect(calls.some((call) => call.text.startsWith("DELETE"))).toBe(false);
+      expect(calls.at(-1)?.text).toBe("ROLLBACK");
+    });
+
+    it("reports null measure deletions when the flag is on but no detail row exists", async () => {
+      const { query } = buildClient(happyResponses());
+
+      const result = await runRetireSpuriousElection(
+        { query },
+        { ...BASE_OPTIONS, dryRun: true, allowMeasureDetail: true }
+      );
+
+      expect(result.measureDetailDeletes).toBeNull();
+    });
+  });
+
   it("fails when the election does not exist", async () => {
     const { query } = buildClient({ "FOR UPDATE OF e": [[]] });
 

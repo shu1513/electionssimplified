@@ -35,6 +35,14 @@
 // - local-database guard (ALLOW_REMOTE_DB_WRITES=1 covers the deliberate
 //   production repair pass), row lock, single transaction, --dry-run.
 //
+// A ballot-measure shell carries a ballot_measures detail row (ON DELETE
+// RESTRICT), so by default it blocks like any other reference. The opt-in
+// --allow-measure-detail flag lets the detail row go with the shell: it is
+// deleted in the same transaction, before the election, and its research-area
+// tags and funding rows cascade from it (both are reported). A
+// ballot_measure_results row still blocks even with the flag — a recorded
+// outcome means the vote happened, so the measure was on the ballot.
+//
 // The delete leaves a tombstone: the same transaction inserts the contest's
 // identity (district, title key, date) into retired_election_identities with
 // the reason and the no-contest source. The elections writer skips any later
@@ -64,6 +72,14 @@ export type RetireSpuriousElectionOptions = {
   reason: string;
   noContestSource: string;
   dryRun: boolean;
+  /** Delete the ballot_measures detail row (and its tags/funding) with the shell. */
+  allowMeasureDetail?: boolean;
+};
+
+export type MeasureDetailDeletes = {
+  ballotMeasureIds: string[];
+  researchAreaTags: number;
+  funding: number;
 };
 
 export type RetireSpuriousElectionResult = {
@@ -76,6 +92,8 @@ export type RetireSpuriousElectionResult = {
   noContestSource: string;
   /** Allowlisted bookkeeping rows that go with the election via cascade. */
   cascadeDeletes: { table: string; rows: number; note?: string }[];
+  /** Measure detail removed under --allow-measure-detail; null when none was present or the flag was off. */
+  measureDetailDeletes: MeasureDetailDeletes | null;
   referencingTablesChecked: number;
   /** The tombstone written alongside the delete (ledgerId is null on a dry run). */
   retiredIdentity: {
@@ -119,7 +137,10 @@ function usage(): string {
     "Delete one spurious election row (a contest that does not exist) after verifying nothing meaningful references it.",
     "",
     "Usage:",
-    "  npm run manual:elections:retire-spurious -- --election-id uuid --reason text --no-contest-source url [--dry-run]",
+    "  npm run manual:elections:retire-spurious -- --election-id uuid --reason text --no-contest-source url [--allow-measure-detail] [--dry-run]",
+    "",
+    "--allow-measure-detail also deletes the row's ballot_measures detail (and its tags and funding rows).",
+    "A ballot_measure_results row still blocks: a recorded outcome means the measure was on the ballot.",
   ].join("\n");
 }
 
@@ -153,6 +174,7 @@ export async function runRetireSpuriousElection(
   // uppercase input cannot fail comparisons downstream.
   const electionId = options.electionId.toLowerCase();
   const { dryRun } = options;
+  const allowMeasureDetail = options.allowMeasureDetail === true;
 
   await client.query("BEGIN");
   try {
@@ -176,6 +198,7 @@ export async function runRetireSpuriousElection(
     const references = await listElectionFkReferences(client);
     const blocking: string[] = [];
     const cascadeDeletes: RetireSpuriousElectionResult["cascadeDeletes"] = [];
+    let measureDetailDeletes: MeasureDetailDeletes | null = null;
     for (const { table, column } of references) {
       const countResult = await client.query<{ n: string }>(
         `SELECT count(*)::text AS n FROM ${table} WHERE ${column} = $1::uuid`,
@@ -185,6 +208,52 @@ export async function runRetireSpuriousElection(
       if (n === 0) continue;
 
       const bareTable = stripPublicSchema(table);
+      if (bareTable === "ballot_measures" && allowMeasureDetail) {
+        // The detail row is research output about the invented measure and
+        // may go with it. A results row is different in kind: an outcome was
+        // recorded, so the measure was voted on and this is the wrong row.
+        // ballot_measure_results hangs off ballot_measures (composite FK), so
+        // the elections catalog scan above never sees it — check it here.
+        const resultsResult = await client.query<{ n: string }>(
+          `SELECT count(*)::text AS n FROM public.ballot_measure_results WHERE election_id = $1::uuid`,
+          [electionId]
+        );
+        const results = Number(resultsResult.rows[0]?.n ?? "0");
+        if (results > 0) {
+          blocking.push(
+            `public.ballot_measure_results.election_id (${results} — a recorded outcome means the measure was on the ballot; --allow-measure-detail does not cover it)`
+          );
+          continue;
+        }
+        const measureRows = await client.query<{ id: string }>(
+          `SELECT id FROM public.ballot_measures WHERE election_id = $1::uuid ORDER BY id`,
+          [electionId]
+        );
+        const tagsResult = await client.query<{ n: string }>(
+          `
+            SELECT count(*)::text AS n
+            FROM public.ballot_measure_research_area_tags t
+            JOIN public.ballot_measures bm ON bm.id = t.ballot_measure_id
+            WHERE bm.election_id = $1::uuid
+          `,
+          [electionId]
+        );
+        const fundingResult = await client.query<{ n: string }>(
+          `
+            SELECT count(*)::text AS n
+            FROM public.ballot_measure_funding f
+            JOIN public.ballot_measures bm ON bm.id = f.ballot_measure_id
+            WHERE bm.election_id = $1::uuid
+          `,
+          [electionId]
+        );
+        measureDetailDeletes = {
+          ballotMeasureIds: measureRows.rows.map((row) => row.id),
+          researchAreaTags: Number(tagsResult.rows[0]?.n ?? "0"),
+          funding: Number(fundingResult.rows[0]?.n ?? "0"),
+        };
+        continue;
+      }
       if (!CASCADE_ALLOWLIST.has(bareTable)) {
         blocking.push(`${table}.${column} (${n})`);
         continue;
@@ -260,6 +329,11 @@ export async function runRetireSpuriousElection(
         stagingIngestKey: stagingIngestKeys[0] ?? null,
       });
       ledgerId = ledger.id;
+      if (measureDetailDeletes) {
+        // Tags and funding cascade from ballot_measures; the elections FK
+        // is RESTRICT, so the detail row has to go first.
+        await client.query(`DELETE FROM public.ballot_measures WHERE election_id = $1::uuid`, [electionId]);
+      }
       await client.query(`DELETE FROM public.elections WHERE id = $1::uuid`, [electionId]);
       await client.query("COMMIT");
     } else {
@@ -275,6 +349,7 @@ export async function runRetireSpuriousElection(
       districtState: retired.district_state,
       noContestSource: options.noContestSource,
       cascadeDeletes,
+      measureDetailDeletes,
       referencingTablesChecked: references.length,
       retiredIdentity: {
         ledgerId,
@@ -293,6 +368,7 @@ async function main(): Promise<void> {
     { name: "--election-id", value: "space" },
     { name: "--reason", value: "space" },
     { name: "--no-contest-source", value: "space" },
+    { name: "--allow-measure-detail", value: "none" },
     { name: "--dry-run", value: "none" },
   ]);
   loadProjectEnv();
@@ -301,6 +377,7 @@ async function main(): Promise<void> {
   const reason = requireFlag("--reason");
   const noContestSource = requireFlag("--no-contest-source");
   const dryRun = process.argv.includes("--dry-run");
+  const allowMeasureDetail = process.argv.includes("--allow-measure-detail");
 
   if (!UUID_RE.test(electionId)) throw new Error(`Invalid --election-id: ${electionId}`);
   if (reason.length < 20) {
@@ -326,8 +403,9 @@ async function main(): Promise<void> {
       reason,
       noContestSource,
       dryRun,
+      allowMeasureDetail,
     });
-    console.log(JSON.stringify({ ...result, reason }, null, 2));
+    console.log(JSON.stringify({ ...result, reason, allowMeasureDetail }, null, 2));
   } finally {
     client.release();
     await pool.end();
