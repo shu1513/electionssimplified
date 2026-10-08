@@ -19,6 +19,7 @@ const databaseUrl = process.env.DATABASE_URL;
 const PIMA = "Pima County, Arizona";
 const CAPE_CORAL = "Cape Coral city, Florida";
 const CANYON = "Canyon County, Idaho";
+const OAKLAND = "Oakland County, Michigan";
 
 describe.skipIf(!databaseUrl)("missing-generals contest-key pairing (requires DATABASE_URL)", () => {
   let client: Client;
@@ -54,6 +55,14 @@ describe.skipIf(!databaseUrl)("missing-generals contest-key pairing (requires DA
       await sameSeat("cape coral city council district 6", "city of cape coral city council district 6", CAPE_CORAL)
     ).toBe(true);
     expect(await sameSeat("county commissioner district 1", "commissioner district 1", CANYON)).toBe(true);
+  });
+
+  it("accepts an ordinal seat token such as '6th circuit'", async () => {
+    // Oakland County MI primary 020aab3f (2026-08-04) vs general d68116e7 (2026-11-03).
+    const primary = "oakland county judge of circuit court 6th circuit non incumbent position";
+    expect(await sameSeat(primary, "judge of circuit court 6th circuit non incumbent position", OAKLAND)).toBe(true);
+    expect(await contestKey(primary, OAKLAND)).toBe("judge of circuit court 6th circuit non incumbent position");
+    expect(await sameSeat(primary, "judge of circuit court 7th circuit non incumbent position", OAKLAND)).toBe(false);
   });
 
   it("strips suffix and prefix down to the same contest key", async () => {

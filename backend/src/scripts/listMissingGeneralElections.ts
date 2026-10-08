@@ -124,8 +124,9 @@ export function contestKeySql(titleKeyExpr: string, districtNameExpr: string): s
 }
 
 // A contest key vouches only when it names a seat: a district, precinct,
-// ward, position or seat number. Without one, sibling seats could collapse.
-const SEAT_TOKEN_PATTERN = "\\m[0-9]+[a-z]?\\M";
+// ward, position or seat number ("district 6", "seat 2a", "6th circuit").
+// Without one, sibling seats could collapse.
+const SEAT_TOKEN_PATTERN = "\\m[0-9]+(st|nd|rd|th|[a-z])?\\M";
 
 /**
  * SQL predicate: the two title keys name the same seat once the district's
