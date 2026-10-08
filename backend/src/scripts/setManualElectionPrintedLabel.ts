@@ -4,7 +4,8 @@
 // state assigns for the paper ballot ("Statewide Amendment 1") cannot be
 // written by reinjecting a retitled election. This wrapper stores that label
 // in elections.printed_ballot_label on one exactly identified row; readers
-// apply it for display and the stored title is left untouched.
+// apply it for display and the stored title is left untouched. `--clear`
+// removes a label that was set by mistake.
 import { pathToFileURL } from "node:url";
 
 import { Pool, type PoolClient } from "pg";
@@ -26,7 +27,8 @@ export type ElectionPrintedLabelClient = Pick<PoolClient, "query"> & {
 
 export type ElectionPrintedLabelOptions = {
   electionId: string;
-  label: string;
+  // null clears the stored label.
+  label: string | null;
   sourceUrl: string;
   dryRun: boolean;
 };
@@ -43,7 +45,7 @@ export type ElectionPrintedLabelResult = {
   electionId: string;
   officialBallotTitle: string;
   previousLabel: string | null;
-  label: string;
+  label: string | null;
   displayedTitle: string;
   alreadySet: boolean;
   sourceAppended: boolean;
@@ -56,6 +58,7 @@ function usage(): string {
     "",
     "Usage:",
     '  npm run manual:election-printed-label:set -- --election-id uuid --label "Statewide Amendment 1" --source-url https://... --reason text [--dry-run]',
+    "  npm run manual:election-printed-label:set -- --election-id uuid --clear --source-url https://... --reason text [--dry-run]",
   ].join("\n");
 }
 
@@ -93,6 +96,19 @@ export function parsePrintedBallotLabel(value: string): string {
   return label;
 }
 
+// Readers show "<label>: <title after its colon>". A label the title already
+// starts with would print the heading twice ("X: X"), so it is refused; such a
+// title already carries its printed heading and needs no label.
+export function assertLabelNotRepeatedInTitle(title: string, label: string): void {
+  const colon = title.indexOf(":");
+  const rest = (colon === -1 ? title : title.slice(colon + 1)).trim().replace(/\s+/g, " ");
+  if (rest.toLowerCase().startsWith(label.toLowerCase())) {
+    throw new Error(
+      `The title already starts with "${label}", so the label would show twice. Leave the label unset.`
+    );
+  }
+}
+
 function assertHttpsSource(sourceUrl: string): void {
   let parsed: URL;
   try {
@@ -110,7 +126,7 @@ export async function runElectionPrintedLabelSet(
   options: ElectionPrintedLabelOptions
 ): Promise<ElectionPrintedLabelResult> {
   const { electionId, sourceUrl, dryRun } = options;
-  const label = parsePrintedBallotLabel(options.label);
+  const label = options.label === null ? null : parsePrintedBallotLabel(options.label);
   assertHttpsSource(sourceUrl);
 
   await client.query("BEGIN");
@@ -136,6 +152,8 @@ export async function runElectionPrintedLabelSet(
         `Election ${electionId} is race_type=${row.race_type}; only ballot measures are supported`
       );
     }
+
+    if (label !== null) assertLabelNotRepeatedInTitle(row.official_ballot_title, label);
 
     const alreadySet = row.printed_ballot_label === label;
     const { sources, appended: sourceAppended } = mergeElectionSource(row.sources, sourceUrl);
@@ -176,6 +194,7 @@ async function main(): Promise<void> {
   assertKnownCliFlags("manual:election-printed-label:set", process.argv.slice(2), [
     { name: "--election-id", value: "space" },
     { name: "--label", value: "space" },
+    { name: "--clear", value: "none" },
     { name: "--source-url", value: "space" },
     { name: "--reason", value: "space" },
     { name: "--dry-run", value: "none" },
@@ -183,7 +202,12 @@ async function main(): Promise<void> {
   loadProjectEnv();
 
   const electionId = requireFlag("--election-id");
-  const label = requireFlag("--label");
+  const clear = process.argv.includes("--clear");
+  const labelFlag = readFlag("--label");
+  if (clear === Boolean(labelFlag)) {
+    throw new Error(`Pass exactly one of --label or --clear.\n${usage()}`);
+  }
+  const label = clear ? null : labelFlag;
   const sourceUrl = requireFlag("--source-url");
   const reason = requireFlag("--reason");
   const dryRun = process.argv.includes("--dry-run");
