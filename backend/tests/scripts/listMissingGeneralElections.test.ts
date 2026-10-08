@@ -57,7 +57,7 @@ describe("listMissingGeneralElections", () => {
     // Contest-key identity: same seat titled with/without the district's
     // name (behaviour pinned in listMissingGeneralElectionsContestKey.db.test.ts).
     expect(sql).toContain("regexp_replace(lower(coalesce(d.name, ''))");
-    expect(sql).toContain("~ '\\m[0-9]+[a-z]?\\M'");
+    expect(sql).toContain("~ '\\m[0-9]+(st|nd|rd|th|[a-z])?\\M'");
     // Only Louisiana fall jungle primaries are terminal-stage — the exact
     // complement of listTerminalStagePrimaries, so a November or December
     // primary in any other state stays gap-eligible.
