@@ -117,6 +117,53 @@ describe("runElectionPrintedLabelSet", () => {
     expect(updateStatement(statements)?.values?.[1]).toBe("Statewide Amendment 1");
   });
 
+  it("clears a stored label when label is null", async () => {
+    const { client, statements } = fakeClient(
+      electionRow({ printed_ballot_label: "Statewide Amendment 1", sources: [SOURCE_URL] })
+    );
+
+    const result = await runElectionPrintedLabelSet(client, options({ label: null }));
+
+    expect(result.previousLabel).toBe("Statewide Amendment 1");
+    expect(result.label).toBeNull();
+    expect(result.displayedTitle).toBe(
+      "Act 2026-341: Lieutenant Governor vacancy and legislative expenses"
+    );
+    expect(updateStatement(statements)?.values?.[1]).toBeNull();
+    expect(lastStatement(statements)).toBe("COMMIT");
+  });
+
+  it("writes nothing when clearing an election that has no label", async () => {
+    const { client, statements } = fakeClient(electionRow({ sources: [SOURCE_URL] }));
+
+    const result = await runElectionPrintedLabelSet(client, options({ label: null }));
+
+    expect(result.alreadySet).toBe(true);
+    expect(updateStatement(statements)).toBeUndefined();
+    expect(lastStatement(statements)).toBe("ROLLBACK");
+  });
+
+  it("refuses a label the title already starts with", async () => {
+    const title = "City of Goodlettsville Sales and Use Tax Referendum";
+    const { client, statements } = fakeClient(electionRow({ official_ballot_title: title }));
+
+    await expect(runElectionPrintedLabelSet(client, options({ label: title }))).rejects.toThrow(
+      "would show twice"
+    );
+    expect(updateStatement(statements)).toBeUndefined();
+    expect(lastStatement(statements)).toBe("ROLLBACK");
+  });
+
+  it("refuses a label repeated after the title's colon", async () => {
+    const { client } = fakeClient(
+      electionRow({ official_ballot_title: "Measure A: measure a transportation sales tax" })
+    );
+
+    await expect(runElectionPrintedLabelSet(client, options({ label: "Measure A" }))).rejects.toThrow(
+      "would show twice"
+    );
+  });
+
   it("refuses office races, missing elections, and non-HTTPS sources", async () => {
     await expect(
       runElectionPrintedLabelSet(fakeClient(electionRow({ race_type: "office" })).client, options())
