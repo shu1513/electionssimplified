@@ -567,6 +567,47 @@ export const LISTED_SOURCE_DOMAIN_ADDITIONS: Readonly<
       "https://web.archive.org/web/19981202185540/http://www.wgme.com:80/",
     ],
   },
+  "newhampshirebulletin.com": {
+    addedOn: "2026-10-08",
+    listingPath: "owner_directed",
+    rationale:
+      "The New Hampshire Bulletin is States Newsroom's nonprofit New Hampshire statehouse outlet, launched in April 2021 under editor-in-chief Dana Wormald (formerly of the Concord Monitor and Union Leader), with named reporters on story bylines — the same network as listed member outlet michiganadvance.com. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-10-08.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/States_Newsroom",
+      "https://web.archive.org/web/20210408120223/https://www.newhampshirebulletin.com/",
+    ],
+  },
+  "elpasomatters.org": {
+    addedOn: "2026-10-08",
+    listingPath: "owner_directed",
+    rationale:
+      "El Paso Matters is a nonprofit El Paso newsroom founded in 2019 by former El Paso Times editor Robert Moore, with named editors and reporters on its staff page; it is an American Journalism Project grantee and a Texas Tribune reporting partner, and the site has been live since 2020. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-10-08.",
+    evidence: [
+      "https://www.texastribune.org/2025/04/11/five-newsrooms-texas-investigative-initative",
+      "https://fundjournalism.org/case-studies/strong-journalism-comes-first-how-el-paso-matters-launched-a-thriving-reader-donation-program/",
+      "https://web.archive.org/web/20200305163926/https://elpasomatters.org/",
+    ],
+  },
+  "whyy.org": {
+    addedOn: "2026-10-08",
+    listingPath: "owner_directed",
+    rationale:
+      "WHYY is Philadelphia's public radio and television broadcaster (WHYY-FM on air since 1954, owned by WHYY, Inc.), whose WHYY News department covers Pennsylvania, Delaware and New Jersey with a named editorial leadership team and reporters; the site has been live since 2001. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-10-08.",
+    evidence: [
+      "https://en.wikipedia.org/wiki/WHYY-FM",
+      "https://web.archive.org/web/20010118200600/http://www.whyy.org/",
+    ],
+  },
+  "delmarvapublicmedia.org": {
+    addedOn: "2026-10-08",
+    listingPath: "owner_directed",
+    rationale:
+      "Delmarva Public Media is the public radio service of Salisbury University and the University of Maryland Eastern Shore (stations WSCL, WSDL and WESM, formerly Delmarva Public Radio), formed in July 2020, with a named general manager and staff; the brand's site has been live since 2020 and its predecessor delmarvapublicradio.net since 2010. Listed via the OWNER-DIRECTED path: the repo owner reviewed the vetting evidence and directed the listing on 2026-10-08.",
+    evidence: [
+      "https://current.org/2020/06/three-maryland-stations-collaborate-to-form-delmarva-public-media/",
+      "https://web.archive.org/web/20201101061528/https://delmarvapublicmedia.org/",
+    ],
+  },
 };
 
 // Exported ONLY so the policy test can pin this list to exactly
