@@ -365,6 +365,10 @@ describe("matchesDamagingClaimPattern", () => {
       "Alongside Representative Gina Mitten, publicly released an ethics complaint alleging campaign-finance violations.",
       "Imposed the maximum 10-year sentence on a man convicted of second-degree assault.",
       "Has served as a Senior Deputy Prosecutor handling domestic violence, child abuse, and sexual assault cases.",
+      // Sentence-initial capital on the judge-as-actor verb (observed
+      // 2026-10-08): the named-defendant object must still exempt it.
+      "Sentenced Joel Kaufman to 156 years to life in prison after a jury convicted him of multiple counts of sexual assault.",
+      "Sentenced 12 defendants in the county's largest fraud case.",
     ];
     for (const description of actorRecords) {
       expect(matchesDamagingClaimPattern(description), description).toBe(false);
@@ -430,6 +434,11 @@ describe("matchesDamagingClaimPattern", () => {
       // exemption must not cancel it (bare \bsentenced\b bypass).
       "Was sentenced to 18 months in prison for tax fraud.",
       "Pleaded guilty to campaign-finance violations and was sentenced to probation.",
+      // A capitalized month or weekday after "sentenced" is a date, not a
+      // named defendant; the judge-as-actor exemption must not fire.
+      "Sentenced May 3 after being convicted of fraud.",
+      "Was sentenced Monday to 18 months in prison for wire fraud.",
+      "Sentenced October 12, 2024, to two years of probation after he pleaded guilty to perjury.",
       // Mixed descriptions: a legislative action in one sentence must not
       // cancel a personal accusation in another (or a ";"-joined clause).
       "Sponsored a highway funding bill in 2019. Was indicted on bribery charges in 2024.",
@@ -509,6 +518,24 @@ describe("evaluateCandidateRecordSourcePolicy", () => {
     if (!result.ok) {
       expect(result.reason).toContain("damaging claim");
       expect(result.reason).toContain("patriot-eagle-news-watch.com");
+    }
+  });
+
+  it("accepts a judge's own sentencing record starting with a capital verb from an unlisted news host", () => {
+    const result = evaluateCandidateRecordSourcePolicy({
+      description:
+        "Sentenced Joel Kaufman to 156 years to life in prison after a jury convicted him of multiple counts of sexual assault.",
+      sourceUrl: "https://www.greeleytribune.com/2026/03/12/kaufman-sentenced/",
+    });
+    expect(result.ok).toBe(true);
+
+    const dated = evaluateCandidateRecordSourcePolicy({
+      description: "Sentenced May 3 after being convicted of fraud.",
+      sourceUrl: "https://www.greeleytribune.com/2026/05/03/sentencing/",
+    });
+    expect(dated.ok).toBe(false);
+    if (!dated.ok) {
+      expect(dated.reason).toContain("damaging claim");
     }
   });
 
