@@ -434,6 +434,11 @@ describe("matchesDamagingClaimPattern", () => {
       // exemption must not cancel it (bare \bsentenced\b bypass).
       "Was sentenced to 18 months in prison for tax fraud.",
       "Pleaded guilty to campaign-finance violations and was sentenced to probation.",
+      // A capitalized month or weekday after "sentenced" is a date, not a
+      // named defendant; the judge-as-actor exemption must not fire.
+      "Sentenced May 3 after being convicted of fraud.",
+      "Was sentenced Monday to 18 months in prison for wire fraud.",
+      "Sentenced October 12, 2024, to two years of probation after he pleaded guilty to perjury.",
       // Mixed descriptions: a legislative action in one sentence must not
       // cancel a personal accusation in another (or a ";"-joined clause).
       "Sponsored a highway funding bill in 2019. Was indicted on bribery charges in 2024.",
@@ -523,6 +528,15 @@ describe("evaluateCandidateRecordSourcePolicy", () => {
       sourceUrl: "https://www.greeleytribune.com/2026/03/12/kaufman-sentenced/",
     });
     expect(result.ok).toBe(true);
+
+    const dated = evaluateCandidateRecordSourcePolicy({
+      description: "Sentenced May 3 after being convicted of fraud.",
+      sourceUrl: "https://www.greeleytribune.com/2026/05/03/sentencing/",
+    });
+    expect(dated.ok).toBe(false);
+    if (!dated.ok) {
+      expect(dated.reason).toContain("damaging claim");
+    }
   });
 
   it("accepts damaging claims from listed sources", () => {
