@@ -1136,6 +1136,15 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
+  // DC's statehood delegation offices ("Shadow United States Senator" and
+  // "Shadow United States Representative", migration 318) share every other
+  // word with the real federal seats. A title that does not itself say
+  // shadow or statehood is never one of them, so token overlap alone must not
+  // hand a plain "United States Representative" to the shadow office.
+  if (/\bshadow\b/.test(office.canonicalMatcherKey) && !/\b(?:shadow|statehood)\b/.test(titleMatcherKey)) {
+    return 0;
+  }
+
   // The catalogued marshal is the CITY COURT's marshal (Louisiana). A place
   // title that names neither a city nor a court is not evidence of that office:
   // Indiana and Colorado call the town's chief police officer a "Marshal", a

@@ -52,6 +52,39 @@ describe("OfficeMatcher", () => {
     });
   });
 
+  it("keeps DC's shadow delegation off the real Senate seat and plain federal titles off the shadow offices", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        statewide: [
+          { office_id: "office-shadow-senator", normalized_alias: "united states senator shadow" },
+          { office_id: "office-shadow-representative", normalized_alias: "united states representative shadow" },
+        ],
+      },
+      officesByScope: {
+        statewide: [
+          { id: "office-us-senator", canonical_name: "United States Senator" },
+          { id: "office-shadow-senator", canonical_name: "Shadow United States Senator" },
+          { id: "office-shadow-representative", canonical_name: "Shadow United States Representative" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+    const resolve = (officialBallotTitle: string) =>
+      matcher.resolve({
+        scope: "statewide",
+        districtName: "District of Columbia",
+        state: "DC",
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+
+    expect((await resolve("United States Senator (Shadow)")).officeId).toBe("office-shadow-senator");
+    expect((await resolve("United States Representative (Shadow)")).officeId).toBe("office-shadow-representative");
+    expect((await resolve("U.S. Shadow Senator")).officeId).toBe("office-shadow-senator");
+    expect((await resolve("United States Senator")).officeId).toBe("office-us-senator");
+    expect((await resolve("United States Representative")).officeId).not.toBe("office-shadow-representative");
+  });
+
   it("maps an Arkansas justice of the peace to County Commissioner over a learned JP alias", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {
