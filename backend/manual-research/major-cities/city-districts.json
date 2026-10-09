@@ -36849,7 +36849,7 @@
       "population_2025": 111390,
       "lat": 34.9333,
       "lon": -120.4333,
-      "built_at": "2026-09-16T18:21:24.217Z",
+      "built_at": "2026-10-09T00:46:24.639Z",
       "place_geoid": "0669196",
       "place_layer": "place",
       "place_name": "Santa Maria city",
@@ -36909,6 +36909,12 @@
           "geoid_compact": "0628710",
           "name": "Orcutt Union Elementary School District",
           "city_share": 0.1207
+        },
+        {
+          "district_type": "local_special",
+          "geoid_compact": "CA:AHJCCD",
+          "name": "Allan Hancock Joint Community College District",
+          "city_share": 0.9956
         }
       ]
     },
