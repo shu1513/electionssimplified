@@ -85,7 +85,8 @@ export type AddressResolutionResult = {
   } | null;
   /** "exact" = geocoded street address (all district types); "zip" =
    * crosswalk-resolved partial ballot (statewide, plus county when the ZCTA
-   * has exactly one county); "region" = area-selection partial ballot
+   * has exactly one county, plus the place / state legislative districts
+   * the ZCTA lies wholly inside); "region" = area-selection partial ballot
    * (statewide, plus the incorporated place when the locality name matches
    * exactly one). */
   scope: "exact" | "zip" | "region";
@@ -237,6 +238,35 @@ async function resolveZipToDistricts(db: Queryable, zip5: string): Promise<Addre
       source: "layer_name",
       layer_name: "zcta_place_crosswalk",
     });
+  }
+
+  // State legislative races when EVERY resident of the ZCTA lives in one
+  // district of the chamber — decided block by block at import
+  // (import:zcta-legislative-crosswalk), so a row's non-null column IS the
+  // proof. Each chamber stands on its own, and a NULL means the ZCTA's
+  // residents straddle a line (or the state has no such chamber).
+  const legislativeRow = await db.query<{ state_lower_geoid: string | null; state_upper_geoid: string | null }>(
+    `SELECT state_lower_geoid, state_upper_geoid FROM public.address_zcta_legislative WHERE zcta5 = $1`,
+    [zip5]
+  );
+  if (legislativeRow.rows.length === 1) {
+    const { state_lower_geoid, state_upper_geoid } = legislativeRow.rows[0];
+    if (state_lower_geoid !== null) {
+      districtKeys.push({
+        district_type: "state_lower",
+        geoid_compact: state_lower_geoid,
+        source: "layer_name",
+        layer_name: "zcta_legislative_crosswalk",
+      });
+    }
+    if (state_upper_geoid !== null) {
+      districtKeys.push({
+        district_type: "state_upper",
+        geoid_compact: state_upper_geoid,
+        source: "layer_name",
+        layer_name: "zcta_legislative_crosswalk",
+      });
+    }
   }
 
   const districtLookup = await lookupAddressDistricts(db, districtKeys);

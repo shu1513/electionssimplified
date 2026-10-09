@@ -431,13 +431,19 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     requested_geoid_compact: "48453",
   };
 
-  // Query order: county crosswalk, then place crosswalk, then district
-  // lookup (error branches stop after the first).
-  function dbReturning(countyGeoids: string[], districtRows: unknown[], placeGeoid: string | null = null) {
+  // Query order: county crosswalk, then place crosswalk, then legislative
+  // crosswalk, then district lookup (error branches stop after the first).
+  function dbReturning(
+    countyGeoids: string[],
+    districtRows: unknown[],
+    placeGeoid: string | null = null,
+    legislative: { state_lower_geoid: string | null; state_upper_geoid: string | null } | null = null
+  ) {
     return vi
       .fn()
       .mockResolvedValueOnce({ rows: countyGeoids.map((county_geoid) => ({ county_geoid })) })
       .mockResolvedValueOnce({ rows: placeGeoid === null ? [] : [{ place_geoid: placeGeoid }] })
+      .mockResolvedValueOnce({ rows: legislative === null ? [] : [legislative] })
       .mockResolvedValueOnce({ rows: districtRows });
   }
 
@@ -464,9 +470,11 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
 
     expect(geocodeAddress).not.toHaveBeenCalled();
     expect(query.mock.calls[0]?.[1]).toEqual(["78701"]);
-    // Second query is the place-containment lookup for the same ZIP.
+    // Second and third queries are the place and legislative containment
+    // lookups for the same ZIP.
     expect(query.mock.calls[1]?.[1]).toEqual(["78701"]);
-    expect(query.mock.calls[2]?.[1]).toEqual([
+    expect(query.mock.calls[2]?.[1]).toEqual(["78701"]);
+    expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county"],
       ["48", "48453"],
     ]);
@@ -496,7 +504,7 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     const result = await resolveAddressToDistricts({ query }, "78660", { allowPartial: true });
 
     // No county key at all — the visitor may live in either county.
-    expect(query.mock.calls[2]?.[1]).toEqual([["statewide"], ["48"]]);
+    expect(query.mock.calls[3]?.[1]).toEqual([["statewide"], ["48"]]);
     expect(result.scope).toBe("zip");
     expect(result.districts.map((district) => district.id)).toEqual(["district-tx"]);
   });
@@ -548,7 +556,7 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     const result = await resolveAddressToDistricts({ query }, "78701", { allowPartial: true });
 
     expect(query.mock.calls[1]?.[1]).toEqual(["78701"]);
-    expect(query.mock.calls[2]?.[1]).toEqual([
+    expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county", "place"],
       ["48", "48453", "4805000"],
     ]);
@@ -574,11 +582,70 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     const result = await resolveAddressToDistricts({ query }, "10001", { allowPartial: true });
 
     // No county key (ambiguous), but the city key rides along.
-    expect(query.mock.calls[2]?.[1]).toEqual([
+    expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "place"],
       ["36", "3651000"],
     ]);
     expect(result.districts.map((district) => district.id)).toEqual(["district-ny", "district-nyc"]);
+  });
+
+  it("adds the legislative districts the ZCTA's residents all live in", async () => {
+    const AK_STATEWIDE = { ...STATEWIDE_ROW, id: "district-ak", geoid_compact: "02", state: "AK", state_fips: "02" };
+    const AK_COUNTY = {
+      ...COUNTY_ROW,
+      id: "district-hoonah-angoon",
+      geoid_compact: "02105",
+      state: "AK",
+      state_fips: "02",
+      requested_geoid_compact: "02105",
+    };
+    const AK_HOUSE = {
+      ...AK_STATEWIDE,
+      id: "district-ak-hd3",
+      district_type: "state_lower",
+      geoid_compact: "02003",
+      requested_district_type: "state_lower",
+      requested_geoid_compact: "02003",
+    };
+    const AK_SENATE = { ...AK_HOUSE, id: "district-ak-sb", district_type: "state_upper", geoid_compact: "0200B" };
+    const query = dbReturning(["02105"], [AK_STATEWIDE, AK_COUNTY, AK_HOUSE, AK_SENATE], null, {
+      state_lower_geoid: "02003",
+      state_upper_geoid: "0200B",
+    });
+
+    const result = await resolveAddressToDistricts({ query }, "99826", { allowPartial: true });
+
+    expect(query.mock.calls[2]?.[1]).toEqual(["99826"]);
+    // A state_lower key also feeds the district_components lookup (New
+    // Hampshire floterials ride on their base House districts).
+    expect(query.mock.calls[3]?.[1]).toEqual([
+      ["statewide", "county", "state_lower", "state_upper"],
+      ["02", "02105", "02003", "0200B"],
+      ["state_lower"],
+      ["02003"],
+    ]);
+    expect(result.scope).toBe("zip");
+    expect(result.district_keys.filter((key) => key.layer_name === "zcta_legislative_crosswalk")).toHaveLength(2);
+    expect(result.districts.map((district) => district.id)).toEqual([
+      "district-ak",
+      "district-hoonah-angoon",
+      "district-ak-hd3",
+      "district-ak-sb",
+    ]);
+  });
+
+  it("adds only the chamber whose district is decided (one column NULL)", async () => {
+    const query = dbReturning(["48453"], [STATEWIDE_ROW, COUNTY_ROW], null, {
+      state_lower_geoid: null,
+      state_upper_geoid: "48014",
+    });
+
+    await resolveAddressToDistricts({ query }, "78701", { allowPartial: true });
+
+    expect(query.mock.calls[3]?.[1]).toEqual([
+      ["statewide", "county", "state_upper"],
+      ["48", "48453", "48014"],
+    ]);
   });
 
   it("leaves non-ZIP input on the exact pipeline even with allowPartial", async () => {
@@ -751,6 +818,7 @@ describe("resolveAddressToDistricts region partial path", () => {
       .fn()
       .mockResolvedValueOnce({ rows: [{ county_geoid: "06037" }] })
       .mockResolvedValueOnce({ rows: [] }) // place containment: none
+      .mockResolvedValueOnce({ rows: [] }) // legislative containment: none
       .mockResolvedValueOnce({ rows: [STATEWIDE_ROW] });
 
     const result = await resolveAddressToDistricts({ query }, "91706", {
