@@ -15,7 +15,8 @@
 -- office rather than a seat in Congress.
 --
 -- It also repoints any shadow alias a matcher run learned onto the wrong
--- office, and removes one alias a matcher run learned on a local database:
+-- office, repoints any DC statewide election already written on the real
+-- Senate office, and removes one alias a matcher run learned on a local database:
 -- "united states representative" pointing at the statewide United States
 -- Senator office. That alias is wrong in every state (a House seat is never a
 -- Senate seat) and no seed or migration created it.
@@ -115,6 +116,30 @@ FROM public.offices o,
 WHERE o.scope = 'statewide'
   AND o.canonical_name = 'Shadow United States Representative'
 ON CONFLICT (scope, normalized_alias) DO NOTHING;
+
+-- An election already written for a shadow contest before this migration
+-- would carry the real United States Senator office (the only statewide
+-- federal office the catalog had). The District of Columbia has no seat in
+-- the Senate and its House delegate sits on the us_house row, so on DC's
+-- statewide row every election on that office is a shadow contest. Repoint
+-- those rows by the chamber noun in their title. Nothing else runs this
+-- repair: manual:elections:repair-office-ids fixes NULL office_id only.
+UPDATE public.elections e
+SET office_id = shadow.id
+FROM public.districts d,
+     public.offices senate,
+     public.offices shadow
+WHERE d.id = e.district_id
+  AND d.state = 'DC'
+  AND d.district_type = 'statewide'
+  AND senate.scope = 'statewide'
+  AND senate.canonical_name = 'United States Senator'
+  AND e.office_id = senate.id
+  AND shadow.scope = 'statewide'
+  AND shadow.canonical_name = CASE
+    WHEN e.official_ballot_title ~* '\mrepresentative\M' THEN 'Shadow United States Representative'
+    ELSE 'Shadow United States Senator'
+  END;
 
 INSERT INTO public.office_research_areas (office_id, research_area_id)
 SELECT o.id, ra.id

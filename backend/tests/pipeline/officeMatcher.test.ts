@@ -82,7 +82,11 @@ describe("OfficeMatcher", () => {
     expect((await resolve("United States Representative (Shadow)")).officeId).toBe("office-shadow-representative");
     expect((await resolve("U.S. Shadow Senator")).officeId).toBe("office-shadow-senator");
     expect((await resolve("United States Senator")).officeId).toBe("office-us-senator");
-    expect((await resolve("United States Representative")).officeId).not.toBe("office-shadow-representative");
+    // A plain House title names neither the shadow office nor the Senate seat;
+    // statewide scope has no House office, so no match is the honest answer.
+    const plainHouse = await resolve("United States Representative");
+    expect(plainHouse.officeId).toBeNull();
+    expect(plainHouse.shouldPersistAlias).toBe(false);
   });
 
   it("overrides a stale learned alias that maps a shadow title to the real Senate seat (pre-migration-318 database)", async () => {
@@ -118,7 +122,7 @@ describe("OfficeMatcher", () => {
     const shadow = await resolve("United States Senator (Shadow)");
     expect(shadow.officeId).toBe("office-shadow-senator");
     expect(shadow.method).not.toBe("alias_exact");
-    expect((await resolve("United States Representative")).officeId).not.toBe("office-shadow-representative");
+    expect((await resolve("United States Representative")).officeId).toBeNull();
   });
 
   it("maps an Arkansas justice of the peace to County Commissioner over a learned JP alias", async () => {

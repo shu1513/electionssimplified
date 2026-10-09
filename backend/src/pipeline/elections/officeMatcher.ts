@@ -1147,6 +1147,26 @@ function scoreOfficeMatch(titleMatcherKey: string, titleTokens: string[], office
     return 0;
   }
 
+  // A title that names a House seat ("United States Representative") shares
+  // "united states" with the United States Senator office and scored 0.667
+  // into it on a statewide row, which taught the matcher the bad alias that
+  // migration 318 deletes. The chamber noun is authoritative: a title that
+  // says representative and not senator never names a Senate seat, and the
+  // reverse holds too. No match is the honest answer (House seats live at
+  // us_house scope).
+  const titleSaysRepresentative = /\brepresentative\b/.test(titleMatcherKey);
+  const titleSaysSenator = /\bsenator\b/.test(titleMatcherKey);
+  if (titleSaysRepresentative !== titleSaysSenator) {
+    const officeSaysSenator = /\bsenator\b/.test(office.canonicalMatcherKey);
+    const officeSaysRepresentative = /\brepresentative\b/.test(office.canonicalMatcherKey);
+    if (
+      (titleSaysRepresentative && officeSaysSenator && !officeSaysRepresentative) ||
+      (titleSaysSenator && officeSaysRepresentative && !officeSaysSenator)
+    ) {
+      return 0;
+    }
+  }
+
   // The catalogued marshal is the CITY COURT's marshal (Louisiana). A place
   // title that names neither a city nor a court is not evidence of that office:
   // Indiana and Colorado call the town's chief police officer a "Marshal", a
