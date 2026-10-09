@@ -27,7 +27,7 @@ import { STATE_FIPS_BY_ABBREVIATION } from "../constants/usStates.js";
 //
 // Sources, all 2020 Census blocks:
 // - ZCTA <-> block relationship file (which blocks make up each ZCTA);
-// - 2024 state legislative block equivalency files (which district each
+// - 2026 state legislative block equivalency files (which district each
 //   block belongs to, whole-block, as tabulated by the Census Bureau);
 // - 2020 Census P1_001N total population per block (Census Data API).
 //
