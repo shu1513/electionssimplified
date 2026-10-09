@@ -132,6 +132,22 @@ describe("address autocomplete API endpoints", () => {
     });
   });
 
+  it("answers a PO Box input with no suggestions instead of asking Google", async () => {
+    const resolveAddress = vi.fn();
+    const suggestAddresses = vi.fn();
+
+    const response = await invokeExpressApp(createApiApp({ resolveAddress, suggestAddresses }), {
+      method: "POST",
+      path: "/api/address/autocomplete",
+      body: JSON.stringify({ input: "P.O. Box 211, Gustavus", session_token: SESSION_TOKEN }),
+      headers: { "content-type": "application/json" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({ suggestions: [] });
+    expect(suggestAddresses).not.toHaveBeenCalled();
+  });
+
   it("rejects suggest input shorter than 3 characters", async () => {
     const resolveAddress = vi.fn();
     const suggestAddresses = vi.fn();

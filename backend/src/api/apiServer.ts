@@ -28,6 +28,7 @@ import {
 } from "./apiValidation.js";
 import type { AddressApiServerOptions } from "./addressApiTypes.js";
 import { mapErrorToResponse } from "./apiErrors.js";
+import { isPoBoxAddress } from "../pipeline/address/addressResolverService.js";
 import { createCorsRejectionLogThrottle, readHeader, resolveCorsHeaders, truncateForLog } from "./apiCors.js";
 import {
   ADDRESS_AUTOCOMPLETE_PATH,
@@ -2694,6 +2695,13 @@ async function dispatchApiRequest(
     }
 
     const payload = parseAutocompleteSuggestBodyValue(request.body);
+    // Google answers a PO Box with an unrelated house on a same-numbered
+    // street; no suggestion is better than a wrong one. The resolve
+    // endpoint serves the typed PO Box through its ZIP instead.
+    if (isPoBoxAddress(payload.input)) {
+      sendApiResponse(response, toJsonResponse(200, { suggestions: [] }, corsHeaders));
+      return;
+    }
     const suggestions = await options.suggestAddresses({
       input: payload.input,
       sessionToken: payload.session_token,
@@ -2793,7 +2801,8 @@ async function dispatchApiRequest(
     payload.coordinates,
     payload.allow_partial,
     payload.region_state,
-    payload.region_locality
+    payload.region_locality,
+    payload.region_postal_code
   );
   if (options.logDiagnostics) {
     try {

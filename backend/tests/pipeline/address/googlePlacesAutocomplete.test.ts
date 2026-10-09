@@ -386,6 +386,44 @@ describe("googlePlacesAutocomplete retrieve", () => {
     expect(address.locality).toBeNull();
   });
 
+  it("carries the ZIP on a street (route) selection but keeps it region, and never on other areas", () => {
+    // "14 Dickey Dr, Gustavus" — Google knows the street, not the house.
+    const street = parseGooglePlacesRetrievePayload({
+      formattedAddress: "Dickey Dr, Gustavus, AK 99826, USA",
+      location: { latitude: 58.41, longitude: -135.77 },
+      types: ["route"],
+      addressComponents: [
+        { longText: "Dickey Drive", shortText: "Dickey Dr", types: ["route"] },
+        { longText: "Gustavus", shortText: "Gustavus", types: ["locality", "political"] },
+        { longText: "Alaska", shortText: "AK", types: ["administrative_area_level_1", "political"] },
+        { longText: "99826", shortText: "99826", types: ["postal_code"] },
+      ],
+    });
+    // Like a neighborhood, a road can cross city lines: the ZIP rides along
+    // (its crosswalks decide what is safe), the locality does not.
+    expect(street).toMatchObject({
+      granularity: "region",
+      location: null,
+      postal_code: "99826",
+      state: "AK",
+      locality: null,
+    });
+
+    // A locality pick that happens to carry a postal_code component is a
+    // whole town, not a street: no ZIP rides along.
+    const town = parseGooglePlacesRetrievePayload({
+      formattedAddress: "Gustavus, AK 99826, USA",
+      types: ["locality", "political"],
+      addressComponents: [
+        { longText: "Gustavus", shortText: "Gustavus", types: ["locality", "political"] },
+        { longText: "Alaska", shortText: "AK", types: ["administrative_area_level_1", "political"] },
+        { longText: "99826", shortText: "99826", types: ["postal_code"] },
+      ],
+    });
+    expect(town.granularity).toBe("region");
+    expect(town.postal_code).toBeNull();
+  });
+
   it("keeps the location for street addresses and venues", () => {
     for (const types of [["street_address"], ["premise"], ["establishment", "point_of_interest", "stadium"]]) {
       const result = parseGooglePlacesRetrievePayload({

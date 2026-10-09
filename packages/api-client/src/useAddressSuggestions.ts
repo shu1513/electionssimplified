@@ -25,7 +25,9 @@ export type SelectedSuggestion = {
   /** Server-side classification (see AddressRetrieveResponse); a stale API
    * omitting it reads as "address", matching its old behavior. */
   granularity: "address" | "zip" | "region";
-  /** Five-digit ZIP when granularity is "zip"; null otherwise. */
+  /** Five-digit ZIP when granularity is "zip", or for a "region" street
+   * pick that names one (feeds resolve's region_postal_code); null
+   * otherwise. */
   postal_code: string | null;
   /** Two-letter state for "region" selections when the server named one;
    * null otherwise. Feeds resolve's region_state. */
@@ -207,7 +209,8 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
         // place's point must never ride into district resolution.
         location: granularity === "address" ? (response.location ?? null) : null,
         granularity,
-        postal_code: granularity === "zip" && typeof response.postal_code === "string" ? response.postal_code : null,
+        postal_code:
+          granularity !== "address" && typeof response.postal_code === "string" ? response.postal_code : null,
         state: granularity === "region" && typeof response.state === "string" ? response.state : null,
         locality: granularity === "region" && typeof response.locality === "string" ? response.locality : null,
       };

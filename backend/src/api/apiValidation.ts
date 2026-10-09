@@ -219,6 +219,10 @@ export type PublicAddressResolvePayload = AddressResolvePayload & {
   /** Locality name from the same region selection; only meaningful with
    * region_state — used to look for the matching incorporated place. */
   region_locality?: string;
+  /** Five-digit ZIP from the same region selection (a street pick); only
+   * meaningful with region_state — adds the ZIP crosswalks' county and
+   * legislative races to the region partial ballot. */
+  region_postal_code?: string;
 };
 
 export type AddressAutocompleteSuggestPayload = {
@@ -488,6 +492,14 @@ export function parsePublicAddressResolveBodyValue(parsed: unknown): PublicAddre
     throw new RequestValidationError("region_locality requires region_state");
   }
 
+  const regionPostalCode = (parsed as { region_postal_code?: unknown }).region_postal_code;
+  if (regionPostalCode !== undefined && (typeof regionPostalCode !== "string" || !/^\d{5}$/.test(regionPostalCode))) {
+    throw new RequestValidationError("region_postal_code must be a five-digit ZIP when present");
+  }
+  if (regionPostalCode !== undefined && regionState === undefined) {
+    throw new RequestValidationError("region_postal_code requires region_state");
+  }
+
   return {
     address,
     ...(acceptedVersion !== undefined ? { accepted_terms_version: acceptedVersion } : {}),
@@ -495,6 +507,7 @@ export function parsePublicAddressResolveBodyValue(parsed: unknown): PublicAddre
     allow_partial: allowPartial ?? false,
     ...(regionState !== undefined ? { region_state: regionState.toUpperCase() } : {}),
     ...(regionLocality !== undefined ? { region_locality: regionLocality.trim() } : {}),
+    ...(regionPostalCode !== undefined ? { region_postal_code: regionPostalCode } : {}),
   };
 }
 

@@ -57,7 +57,11 @@ export function AddressSearchForm({
   // Set right after the autocomplete selection was an area with a known
   // state (city, neighborhood, county): the search runs the region
   // partial-ballot path. Any edit clears it, like coordinates.
-  const [regionSelection, setRegionSelection] = useState<{ state: string; locality: string | null } | null>(null);
+  const [regionSelection, setRegionSelection] = useState<{
+    state: string;
+    locality: string | null;
+    postalCode: string | null;
+  } | null>(null);
   // True right after an area selection the server could not place in a state
   // (a country pick, a territory) — nothing to search, so the form shows
   // guidance instead of letting the submit die in the geocoder. Any edit
@@ -139,7 +143,7 @@ export function AddressSearchForm({
     mutationFn: async (input: {
       address: string;
       coordinates: AddressLocation | null;
-      region: { state: string; locality: string | null } | null;
+      region: { state: string; locality: string | null; postalCode: string | null } | null;
       /** This browser already holds a current terms acceptance. */
       termsAccepted: boolean;
     }) => {
@@ -168,6 +172,7 @@ export function AddressSearchForm({
               ? {
                   region_state: input.region.state,
                   ...(input.region.locality ? { region_locality: input.region.locality } : {}),
+                  ...(input.region.postalCode ? { region_postal_code: input.region.postalCode } : {}),
                 }
               : {}),
           },
