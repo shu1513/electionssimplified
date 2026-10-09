@@ -37,7 +37,7 @@ Scope tiers:
 | Input | Districts returned | How resolved |
 |---|---|---|
 | street address (today) | all 9 types | Census geocode — unchanged |
-| ZIP | `statewide`; + `county` only when the ZCTA has **exactly one** county relationship; + `place` only when the ZCTA lies **wholly inside one** legally incorporated place (migration 256 / `import:zcta-place-crosswalk`: exactly one place-overlap record, zero land outside it, CLASSFP C\* — CDPs never; 3,087 of 33,791 ZCTAs, incl. NYC/SF/DC/consolidated balances; the containment decision is baked at import) | local ZCTA↔county + ZCTA↔place crosswalks, **no geocoder call** |
+| ZIP | `statewide`; + `county` only when the ZCTA has **exactly one** county relationship; + `place` only when the ZCTA lies **wholly inside one** legally incorporated place (migration 256 / `import:zcta-place-crosswalk`: exactly one place-overlap record, zero land outside it, CLASSFP C\* — CDPs never; 3,087 of 33,791 ZCTAs, incl. NYC/SF/DC/consolidated balances; the containment decision is baked at import); + `state_lower` / `state_upper` (each on its own) only when **every resident** of the ZCTA lives in one district of that chamber (migration 317 / `import:zcta-legislative-crosswalk`, see below) | local ZCTA↔county + ZCTA↔place + ZCTA↔legislative crosswalks, **no geocoder call** |
 | region selection (city, neighborhood, county…) | `statewide`; + `place` only for a **locality** pick whose name + state matches **exactly one** incorporated place in `districts` | Google `addressComponents` state/locality relayed via `region_state`/`region_locality`; identity by exact Census name ("Los Angeles city, California"), CDPs excluded, **no geocoder call** |
 
 Conservative county rule (verified against the file, 2026-08-25):
@@ -57,6 +57,39 @@ Conservative county rule (verified against the file, 2026-08-25):
 - ZIP with no ZCTA row (~7k ZIPs, largely unique/PO-box ones without their
   own ZCTA — though 2020 ZCTAs *can* represent PO-box-only ZIPs) → friendly
   error suggesting the street address.
+
+State legislative rule (`address_zcta_legislative`, decided at import by
+`importZctaLegislativeCrosswalk.ts`):
+
+- Containment is measured in **residents, not land**. ZCTAs are built from
+  census blocks, and rural ZCTAs routinely include uninhabited blocks that
+  fall in a neighbouring district: 99826 (Gustavus, AK) has 19% of its land
+  in House District 2 but every resident in House District 3. The
+  Census ZCTA↔SLDL relationship file only carries land/water shares, so the
+  import joins the ZCTA↔block relationship file to the 2024 state legislative
+  **block equivalency files** and 2020 block populations (P1_001N via the
+  Census Data API, `CENSUS_API_KEY_*`).
+- A chamber is decided for a ZCTA only when the ZCTA has residents, every
+  block with residents maps to the same district, no block with residents is
+  unassigned (`ZZZ`, or a state without that chamber — Nebraska's House, DC),
+  and no block with residents is one the state's plan **splits** between
+  districts (the Bureau tabulates a split block whole; the real line runs
+  through it). One resident on the other side of a line → no district: a ZIP
+  ballot never carries someone else's legislative race.
+- Lower and upper chambers are decided independently, so a row can carry one
+  and not the other. A `state_lower` key also feeds the `district_components`
+  lookup, so New Hampshire floterials come along with their base district.
+- Yield (2026-10-08 build, 33,791 ZCTAs): 18,228 get a lower-chamber district
+  and 22,949 an upper-chamber one (24,132 rows). Land-share containment would
+  have given 17,495 / 22,336, and a 99.5%-of-residents threshold 19,167 /
+  23,934 — the threshold was rejected for the same reason as the county rule:
+  it would knowingly hand the remaining residents a neighbouring district's
+  race. 99826 itself has 2 of 657 residents in House District 2, so it stays
+  statewide + county until a street address is entered.
+- Re-run the import (with the matching equivalency files) whenever a state
+  redraws legislative lines; the 2024 files match the `(2024)` district rows.
+  Michigan (Senate), Minnesota and Mississippi adopted new plans for 2026
+  that neither the districts table nor this crosswalk reflects yet.
 
 ## Why this stays small
 
