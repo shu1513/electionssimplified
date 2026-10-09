@@ -365,6 +365,10 @@ describe("matchesDamagingClaimPattern", () => {
       "Alongside Representative Gina Mitten, publicly released an ethics complaint alleging campaign-finance violations.",
       "Imposed the maximum 10-year sentence on a man convicted of second-degree assault.",
       "Has served as a Senior Deputy Prosecutor handling domestic violence, child abuse, and sexual assault cases.",
+      // Sentence-initial capital on the judge-as-actor verb (observed
+      // 2026-10-08): the named-defendant object must still exempt it.
+      "Sentenced Joel Kaufman to 156 years to life in prison after a jury convicted him of multiple counts of sexual assault.",
+      "Sentenced 12 defendants in the county's largest fraud case.",
     ];
     for (const description of actorRecords) {
       expect(matchesDamagingClaimPattern(description), description).toBe(false);
@@ -510,6 +514,15 @@ describe("evaluateCandidateRecordSourcePolicy", () => {
       expect(result.reason).toContain("damaging claim");
       expect(result.reason).toContain("patriot-eagle-news-watch.com");
     }
+  });
+
+  it("accepts a judge's own sentencing record starting with a capital verb from an unlisted news host", () => {
+    const result = evaluateCandidateRecordSourcePolicy({
+      description:
+        "Sentenced Joel Kaufman to 156 years to life in prison after a jury convicted him of multiple counts of sexual assault.",
+      sourceUrl: "https://www.greeleytribune.com/2026/03/12/kaufman-sentenced/",
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("accepts damaging claims from listed sources", () => {

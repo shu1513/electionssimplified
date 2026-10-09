@@ -644,9 +644,12 @@ const DAMAGING_CLAIM_ACTOR_EXEMPT_PATTERNS: readonly RegExp[] = [
   // man", "sentenced JuJuan Parks", "sentenced 50 offenders"). A bare
   // \bsentenced\b would also exempt the passive "was sentenced to probation"
   // — the candidate being sentenced — and cancel the damaging check for any
-  // description containing the word.
+  // description containing the word. The capitalized-object form stays
+  // case-sensitive on the object (a capital = a named defendant), so only
+  // the verb accepts a sentence-initial capital ("Sentenced Joel Kaufman
+  // to 156 years").
   /\bsentenced\s+(?:a|an|the)\b/i,
-  /\bsentenced\s+(?:\d|[A-Z])/,
+  /\b[Ss]entenced\s+(?:\d|[A-Z])/,
   // Third-party subject directly attached to the accusation verb: "a man
   // convicted of...", "an officer who pleaded guilty", "people accused of".
   /\b(?:a|an|the|people|those)\s+(?:[\w-]+\s+){0,3}?(?:man|woman|men|women|people|caregiver|officers?|deput(?:y|ies)|defendants?|suspects?|residents?|retailers|operatives?)\b[^.;]{0,80}\b(?:pleaded|pled|convicted|accused|charged|arrested|indicted)\b/i,
