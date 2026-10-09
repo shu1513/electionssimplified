@@ -4,7 +4,7 @@ import { getStateNameByAbbreviation } from "../../constants/usStates.js";
 import type { ElectionContestFamily, ElectionDistrictType } from "../../types/election.js";
 import { normalizeElectionTitleKey } from "../../utils/normalizeElectionTitleKey.js";
 import { congressionalDistrictBoardOfficeName } from "../../utils/congressionalDistrictBoardOffice.js";
-import { isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
+import { isShadowDelegationTitle, isUsSenateOfficeTitle } from "../../utils/senateOffice.js";
 
 type OfficeAliasRow = {
   office_id: string;
@@ -45,6 +45,8 @@ export type OfficeMatchResult = {
 const MIN_CONFIDENCE = 0.56;
 const MIN_MARGIN = 0.12;
 const US_SENATE_CANONICAL_NAME = "United States Senator";
+const SHADOW_US_SENATOR_CANONICAL_NAME = "Shadow United States Senator";
+const SHADOW_US_REPRESENTATIVE_CANONICAL_NAME = "Shadow United States Representative";
 const US_HOUSE_CANONICAL_NAME = "United States Representative";
 const STATE_UPPER_CANONICAL_NAME = "State Senator";
 const STATE_LOWER_CANONICAL_NAME = "State Lower Chamber Legislator";
@@ -1337,6 +1339,31 @@ export class OfficeMatcher {
     const aliases = await this.loadAliases(input.scope);
     const titleMatcherKey = toMatcherKeyFromBallotTitle(input);
 
+    // Ahead of every alias: DC's statehood ("shadow") delegation (migration
+    // 318). A database whose matcher ran before the shadow offices existed may
+    // have learned "united states senator shadow" -> United States Senator,
+    // and an exact alias hit would return that seat in Congress. A shadow or
+    // statehood title names only the shadow office. Statewide-scoped and never
+    // persisted.
+    if (input.scope === "statewide" && isShadowDelegationTitle(input.officialBallotTitle)) {
+      const office = findSingleScopeOffice(
+        await this.loadOffices(input.scope),
+        /\brepresentative\b/.test(titleMatcherKey)
+          ? SHADOW_US_REPRESENTATIVE_CANONICAL_NAME
+          : SHADOW_US_SENATOR_CANONICAL_NAME
+      );
+      if (office) {
+        return {
+          officeId: office.id,
+          method: "deterministic_fallback",
+          confidence: 1,
+          normalizedAlias,
+          aliasMemoryKey: titleMatcherKey,
+          shouldPersistAlias: false,
+        };
+      }
+    }
+
     // Ahead of every alias: runs have learned "justice of the peace" -> the
     // judicial JP office, which is right everywhere except Arkansas. State-scoped
     // and never persisted, like the Washington clerk rule. Kentucky's magistrate
@@ -1468,6 +1495,16 @@ export class OfficeMatcher {
       // still carries one fails safe; the scorer then routes the title.
       const aliasTarget = (await this.loadOffices(input.scope)).find((office) => office.id === exactOfficeId);
       if (aliasTarget && isBoardOfReviewMismatch(titleMatcherKey || normalizedAlias, aliasTarget)) {
+        exactOfficeId = undefined;
+      }
+    }
+    if (exactOfficeId) {
+      // Mirror of the shadow route above: a learned alias could point a bare
+      // "United States Representative" at a shadow office. A title that says
+      // neither shadow nor statehood never names the shadow office, so drop
+      // the alias and let the scorer route the title.
+      const aliasTarget = (await this.loadOffices(input.scope)).find((office) => office.id === exactOfficeId);
+      if (aliasTarget && /\bshadow\b/.test(aliasTarget.canonicalMatcherKey)) {
         exactOfficeId = undefined;
       }
     }

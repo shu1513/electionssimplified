@@ -14,7 +14,8 @@
 -- printed words, and the code treats any shadow or statehood title as a DC
 -- office rather than a seat in Congress.
 --
--- It also removes one alias a matcher run learned on a local database:
+-- It also repoints any shadow alias a matcher run learned onto the wrong
+-- office, and removes one alias a matcher run learned on a local database:
 -- "united states representative" pointing at the statewide United States
 -- Senator office. That alias is wrong in every state (a House seat is never a
 -- Senate seat) and no seed or migration created it.
@@ -51,6 +52,39 @@ WHERE a.office_id = o.id
   AND a.normalized_alias = 'united states representative'
   AND o.scope = 'statewide'
   AND o.canonical_name = 'United States Senator';
+
+-- A database whose matcher ran before this migration may have LEARNED one of
+-- the shadow titles below as an alias of the real United States Senator
+-- office (the matcher persists confident matches, and an exact alias hit
+-- outranks the scorer). The inserts below use ON CONFLICT DO NOTHING, which
+-- would keep that wrong mapping and make seedOffices refuse the remap as a
+-- collision. Repoint any such alias at the shadow office first.
+UPDATE public.office_title_aliases a
+SET office_id = shadow.id,
+    updated_at = now()
+FROM public.offices shadow
+WHERE a.scope = 'statewide'
+  AND shadow.scope = 'statewide'
+  AND shadow.canonical_name = 'Shadow United States Senator'
+  AND a.office_id <> shadow.id
+  AND a.normalized_alias IN (
+    'united states senator shadow', 'shadow united states senator', 'united states shadow senator',
+    'u s shadow senator', 'shadow senator', 'statehood senator'
+  );
+
+UPDATE public.office_title_aliases a
+SET office_id = shadow.id,
+    updated_at = now()
+FROM public.offices shadow
+WHERE a.scope = 'statewide'
+  AND shadow.scope = 'statewide'
+  AND shadow.canonical_name = 'Shadow United States Representative'
+  AND a.office_id <> shadow.id
+  AND a.normalized_alias IN (
+    'united states representative shadow', 'shadow united states representative',
+    'united states shadow representative', 'u s shadow representative',
+    'shadow representative', 'statehood representative'
+  );
 
 INSERT INTO public.office_title_aliases (office_id, scope, alias_text, normalized_alias)
 SELECT o.id, 'statewide', v.alias_text, v.normalized_alias

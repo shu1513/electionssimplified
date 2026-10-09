@@ -85,6 +85,42 @@ describe("OfficeMatcher", () => {
     expect((await resolve("United States Representative")).officeId).not.toBe("office-shadow-representative");
   });
 
+  it("overrides a stale learned alias that maps a shadow title to the real Senate seat (pre-migration-318 database)", async () => {
+    // Before migration 318 the matcher could learn "United States Senator (Shadow)"
+    // -> United States Senator and persist it. The migration repoints such rows,
+    // but an exact alias hit returns before the scorer, so the matcher must also
+    // refuse the alias on its own.
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        statewide: [
+          { office_id: "office-us-senator", normalized_alias: "united states senator shadow" },
+          { office_id: "office-shadow-representative", normalized_alias: "united states representative" },
+        ],
+      },
+      officesByScope: {
+        statewide: [
+          { id: "office-us-senator", canonical_name: "United States Senator" },
+          { id: "office-shadow-senator", canonical_name: "Shadow United States Senator" },
+          { id: "office-shadow-representative", canonical_name: "Shadow United States Representative" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+    const resolve = (officialBallotTitle: string) =>
+      matcher.resolve({
+        scope: "statewide",
+        districtName: "District of Columbia",
+        state: "DC",
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+
+    const shadow = await resolve("United States Senator (Shadow)");
+    expect(shadow.officeId).toBe("office-shadow-senator");
+    expect(shadow.method).not.toBe("alias_exact");
+    expect((await resolve("United States Representative")).officeId).not.toBe("office-shadow-representative");
+  });
+
   it("maps an Arkansas justice of the peace to County Commissioner over a learned JP alias", async () => {
     const client = createMatcherDataClient({
       aliasesByScope: {
