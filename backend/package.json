@@ -101,6 +101,7 @@
     "manual:ballot-measure:write": "tsx src/scripts/writeManualBallotMeasure.ts",
     "manual:ballot-measure-funding:write": "tsx src/scripts/writeManualBallotMeasureFunding.ts",
     "manual:election-date:correct": "tsx src/scripts/correctManualElectionDate.ts",
+    "manual:election-title:correct": "tsx src/scripts/correctManualElectionTitle.ts",
     "manual:election-contest-family:correct": "tsx src/scripts/correctManualElectionContestFamily.ts",
     "manual:election-printed-label:set": "tsx src/scripts/setManualElectionPrintedLabel.ts",
     "manual:candidate-elections:move": "tsx src/scripts/moveManualCandidateElectionLink.ts",
