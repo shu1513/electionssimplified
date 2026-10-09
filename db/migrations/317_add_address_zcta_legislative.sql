@@ -1,12 +1,13 @@
 BEGIN;
 
 -- ZIP partial-ballot legislative upgrade (docs/plans/partial-address-scope.md):
--- one row per 2020 ZCTA whose residents ALL live in a single 2024 state
+-- one row per 2020 ZCTA whose residents ALL live in a single 2026 state
 -- legislative district (lower and/or upper chamber). Decided block by block
--- at import time from the Census ZCTA/block relationship file, the 2024
--- state legislative block equivalency files and 2020 block populations, so
--- a ZIP whose uninhabited land crosses a district line still qualifies while
--- a ZIP with even one resident in another district never does. Loaded by
+-- at import time from the Census ZCTA/block relationship file, the 2026
+-- state legislative block equivalency files (the plans the November 2026
+-- ballots use) and 2020 block populations, so a ZIP whose uninhabited land
+-- crosses a district line still qualifies while a ZIP with even one resident
+-- in another district never does. Loaded by
 -- `npm run import:zcta-legislative-crosswalk`; re-run after any legislative
 -- redistricting. Read-only for the API (SELECT arrives through the role's
 -- default privileges; docs/postgres-api-role.md).

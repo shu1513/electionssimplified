@@ -76,9 +76,18 @@ describe("parseBlockEquivalencyFile", () => {
     expect(parsed.lookup.size).toBe(5);
   });
 
+  it("reads the 2026 six-column layout (GEOID first, SLDUST last)", () => {
+    const parsed = parseBlockEquivalencyFile(
+      ["GEOID,STATEFP,COUNTYFP,TRACTCE,BLOCKCE,SLDUST", "261630001001000,26,163,000100,1000,005"].join("\n")
+    );
+
+    expect(parsed.geoids[parsed.lookup.get(261630001001000)!]).toBe("26005");
+  });
+
   it("rejects a foreign header, a malformed line, a bad block id and a duplicate block", () => {
     expect(() => parseBlockEquivalencyFile("BLOCKID,DISTRICT\n020130001001000,037")).toThrow(/header/);
-    expect(() => parseBlockEquivalencyFile("GEOID,SLDLST\n020130001001000,037,extra")).toThrow(/line 2/);
+    expect(() => parseBlockEquivalencyFile("SLDLST,GEOID\n037,020130001001000")).toThrow(/header/);
+    expect(() => parseBlockEquivalencyFile("GEOID,SLDLST\n020130001001000,037,extra")).toThrow(/line 2: expected 2 fields/);
     expect(() => parseBlockEquivalencyFile("GEOID,SLDLST\n02013000100100,037")).toThrow(/invalid block GEOID/);
     expect(() => parseBlockEquivalencyFile("GEOID,SLDLST\n020130001001000,03")).toThrow(/invalid district code/);
     expect(() =>
@@ -159,6 +168,17 @@ describe("ZctaLegislativeAccumulator", () => {
     expect(accumulator.rows()).toEqual([{ zcta5: "68001", state_lower_geoid: null, state_upper_geoid: "31001" }]);
     expect(accumulator.zctasSeen).toBe(3);
   });
+
+  it("treats an unknown block population as undecidable, not as zero", () => {
+    const accumulator = new ZctaLegislativeAccumulator();
+    accumulator.add({ zcta5: "99826", population: 655, lowerGeoid: "02003", upperGeoid: "0200B", isSplitBlock: false });
+    // The block that would hold the two HD2 residents is missing from the
+    // population source: without it nothing proves the ZCTA is all HD3.
+    accumulator.add({ zcta5: "99826", population: null, lowerGeoid: "02002", upperGeoid: "0200A", isSplitBlock: false });
+
+    expect(accumulator.rows()).toEqual([]);
+    expect(accumulator.zctasWithUnknownPopulation).toBe(1);
+  });
 });
 
 describe("buildZctaLegislativeRows", () => {
@@ -166,10 +186,12 @@ describe("buildZctaLegislativeRows", () => {
     const sources = {
       lower: parseBlockEquivalencyFile(SLDL_FILE),
       upper: parseBlockEquivalencyFile(SLDU_FILE),
+      // The Census API lists every block, water included, with its count.
       population: populationOf({
         [GUSTAVUS_BLOCKS.hd3Town]: 600,
         [GUSTAVUS_BLOCKS.hd3Harbor]: 55,
         [GUSTAVUS_BLOCKS.hd2Wilderness]: 0,
+        [GUSTAVUS_BLOCKS.water]: 0,
       }),
       splitBlocks: new Set<number>(),
     };
@@ -182,6 +204,8 @@ describe("buildZctaLegislativeRows", () => {
         relationshipLine("99826", GUSTAVUS_BLOCKS.hd2Wilderness),
         relationshipLine("99826", GUSTAVUS_BLOCKS.water),
         relationshipLine("", "020130001001000"),
+        // A Puerto Rico block: no population fetched, no districts, no row.
+        relationshipLine("00601", "720010001001000"),
         ""
       ),
       sources
@@ -189,8 +213,9 @@ describe("buildZctaLegislativeRows", () => {
 
     expect(built).toEqual({
       rows: [{ zcta5: "99826", state_lower_geoid: "02003", state_upper_geoid: "0200B" }],
-      zctas_seen: 1,
-      data_lines: 4,
+      zctas_seen: 2,
+      zctas_with_unknown_population: 1,
+      data_lines: 5,
     });
   });
 
@@ -215,7 +240,7 @@ describe("buildZctaLegislativeRows", () => {
 });
 
 describe("SPLIT_BLOCK_GEOIDS", () => {
-  it("lists well-formed, distinct block ids from the five states whose 2024 plans split blocks", () => {
+  it("lists well-formed, distinct block ids from the six states whose 2026 plans split blocks", () => {
     expect(SPLIT_BLOCK_GEOIDS.every((geoid) => /^[0-9]{15}$/.test(geoid))).toBe(true);
     expect(new Set(SPLIT_BLOCK_GEOIDS).size).toBe(SPLIT_BLOCK_GEOIDS.length);
     expect(new Set(SPLIT_BLOCK_GEOIDS.map((geoid) => geoid.slice(0, 2)))).toEqual(new Set(["08", "10", "27", "38", "42", "53"]));

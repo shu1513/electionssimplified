@@ -53,15 +53,17 @@ import { STATE_FIPS_BY_ABBREVIATION } from "../constants/usStates.js";
 export const ZCTA_BLOCK_RELATIONSHIP_URL =
   "https://www2.census.gov/geo/docs/maps-data/data/rel2020/zcta520/tab20_zcta520_tabblock20_natl.txt";
 
-// 2024 State Legislative District Block Equivalency Files; the "National"
-// member of each zip covers every state that has the chamber.
-// https://www.census.gov/geographies/mapping-files/2025/dec/rdo/2024-state-legislative-bef.html
+// 2026 State Legislative District Block Equivalency Files — the plans the
+// November 2026 ballots are drawn on (Michigan's Senate, Minnesota and
+// Mississippi changed since 2024). The "National" member of each zip covers
+// every state that has the chamber.
+// https://www.census.gov/geographies/mapping-files/2027/dec/rdo/2026-state-legislative-bef.html
 export const SLDL_BLOCK_EQUIVALENCY_ZIP_URL =
-  "https://www2.census.gov/programs-surveys/decennial/rdo/mapping-files/2025/2024-state-legislative-bef/sldl24.zip";
+  "https://www2.census.gov/programs-surveys/decennial/rdo/mapping-files/2027/2026-state-legislative-bef/sldl26.zip";
 export const SLDU_BLOCK_EQUIVALENCY_ZIP_URL =
-  "https://www2.census.gov/programs-surveys/decennial/rdo/mapping-files/2025/2024-state-legislative-bef/sldu24.zip";
-const SLDL_NATIONAL_MEMBER = "NationalSLDL24.txt";
-const SLDU_NATIONAL_MEMBER = "NationalSLDU24.txt";
+  "https://www2.census.gov/programs-surveys/decennial/rdo/mapping-files/2027/2026-state-legislative-bef/sldu26.zip";
+const SLDL_NATIONAL_MEMBER = "NationalSLDL26.txt";
+const SLDU_NATIONAL_MEMBER = "NationalSLDU26.txt";
 
 // 2020 Decennial Census Redistricting Data (P.L. 94-171): total population
 // of every block in one state. The geography must be written exactly like
@@ -72,8 +74,8 @@ function blockPopulationUrl(stateFips: string): string {
 
 const DOWNLOAD_TIMEOUT_MS = 20 * 60_000;
 
-// Blocks the 2024 plans split between two districts, from the Bureau's lists
-// (2024_SLDL_BlockSplits.pdf, 2024_SLDU_BlockSplits.pdf next to the
+// Blocks the 2026 plans split between two districts, from the Bureau's lists
+// (2026_SLDL_BlockSplits.pdf, 2026_SLDU_BlockSplits.pdf next to the
 // equivalency files: Colorado, Minnesota, North Dakota, Pennsylvania and
 // Washington lower; Colorado, Delaware, Minnesota, North Dakota and
 // Washington upper). Union of both chambers — a resident of any of these
@@ -88,8 +90,11 @@ export const SPLIT_BLOCK_GEOIDS: readonly string[] = [
   "080770013023019", "080770013023037", "080770013032004", "080770013032005",
   "080770013032012", "080770014023000", "080770019001044", "080770019001049",
   "080770019003049", "080770019003051", "081230007031028", "081230007052044",
-  "081230019141072", "081230021051054", "100030147051002", "270131713002003",
-  "270131713002009", "270530261032000", "380150106003011", "380150106003034",
+  "081230019141072", "081230021051054", "100030147051002", "270054507001040",
+  "270131701001046", "270131713002003", "270131713002009", "270370611101002",
+  "270370615023029", "270370615023032", "271090009022027", "271090009031058",
+  "271090009031092", "271390807002013", "271390807002014", "271450009011013",
+  "271630707041030", "271659502002010", "380150106003011", "380150106003034",
   "380150111051021", "380150111051027", "380150111051034", "380170405093011",
   "380350108061005", "380350109001000", "380350109001001", "380590203021025",
   "380590203021050", "380590204001095", "380590204001096", "380590204001139",
@@ -110,8 +115,8 @@ const LEGISLATIVE_GEOID = /^[0-9]{2}[0-9A-Z-]{3}$/;
 // The equivalency files mark blocks outside every district (water) with ZZZ.
 const UNASSIGNED_DISTRICT_CODE = "ZZZ";
 
-// Verified against the 2026-10-08 build: 33,791 ZCTAs, 24,132 rows — 18,228
-// with a lower-chamber district and 22,949 with an upper-chamber one. The
+// Verified against the 2026-10-08 build: 33,791 ZCTAs, 24,147 rows — 18,227
+// with a lower-chamber district and 22,967 with an upper-chamber one. The
 // guard band refuses to replace existing data with an implausible result —
 // a truncated download or a changed layout must fail loudly, not load
 // quietly.
@@ -196,10 +201,12 @@ export type BlockDistricts = {
 };
 
 /**
- * Parses one national block equivalency file ("GEOID,SLDLST" or
- * "GEOID,SLDUST" header, one block per line) into a block -> district lookup.
- * The district GEOID is the block's state FIPS plus the file's code, which
- * is how districts.geoid_compact spells the same district.
+ * Parses one national block equivalency file (one block per line; the 2026
+ * files are "GEOID,STATEFP,COUNTYFP,TRACTCE,BLOCKCE,SLDLST", the 2024 ones
+ * just "GEOID,SLDLST" — GEOID first and the SLDLST/SLDUST code last either
+ * way) into a block -> district lookup. The district GEOID is the block's
+ * state FIPS plus the file's code, which is how districts.geoid_compact
+ * spells the same district.
  */
 export function parseBlockEquivalencyFile(text: string): BlockDistricts {
   const withoutBom = text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
@@ -208,8 +215,9 @@ export function parseBlockEquivalencyFile(text: string): BlockDistricts {
     throw new Error("block equivalency file is empty");
   }
   const header = lines[0].split(",");
-  if (header.length !== 2 || header[0] !== "GEOID" || !/^SLD[LU]ST$/.test(header[1])) {
-    throw new Error(`block equivalency file header is not GEOID,SLDLST or GEOID,SLDUST; got: ${lines[0]}`);
+  const codeIndex = header.length - 1;
+  if (header.length < 2 || header[0] !== "GEOID" || !/^SLD[LU]ST$/.test(header[codeIndex])) {
+    throw new Error(`block equivalency file header must start with GEOID and end with SLDLST or SLDUST; got: ${lines[0]}`);
   }
 
   const geoids = new Float64Array(lines.length - 1);
@@ -218,11 +226,11 @@ export function parseBlockEquivalencyFile(text: string): BlockDistricts {
   const valueByDistrict = new Map<string, number>();
   for (let index = 1; index < lines.length; index += 1) {
     const fields = lines[index].split(",");
-    if (fields.length !== 2) {
-      throw new Error(`line ${index + 1}: expected 2 fields, got ${fields.length}`);
+    if (fields.length !== header.length) {
+      throw new Error(`line ${index + 1}: expected ${header.length} fields, got ${fields.length}`);
     }
     const blockGeoid = parseBlockGeoid(fields[0].trim(), `line ${index + 1}`);
-    const code = fields[1].trim();
+    const code = fields[codeIndex].trim();
     const districtGeoid = code === UNASSIGNED_DISTRICT_CODE ? null : `${fields[0].slice(0, 2)}${code}`;
     if (districtGeoid !== null && !LEGISLATIVE_GEOID.test(districtGeoid)) {
       throw new Error(`line ${index + 1}: invalid district code "${code}"`);
@@ -309,13 +317,16 @@ type ZctaTally = {
   population: number;
   /** Residents of blocks a plan splits between districts. */
   splitBlockPopulation: number;
+  /** True once a block's population is unknown (absent from the source). */
+  unknownPopulation: boolean;
   lower: ChamberTally;
   upper: ChamberTally;
 };
 
 export type ZctaBlockObservation = {
   zcta5: string;
-  population: number;
+  /** 2020 residents of the block; null when the population source lacks it. */
+  population: number | null;
   lowerGeoid: string | null;
   upperGeoid: string | null;
   isSplitBlock: boolean;
@@ -331,7 +342,9 @@ function tallyChamber(tally: ChamberTally, districtGeoid: string | null, populat
 
 /** The one district every resident lives in, or null when there is none. */
 function decideChamber(tally: ChamberTally, zcta: ZctaTally): string | null {
-  if (zcta.population === 0 || zcta.splitBlockPopulation > 0 || tally.unassigned > 0) {
+  // An unknown block population is not zero: those residents could live in
+  // any district, so nothing is decided for the ZCTA.
+  if (zcta.unknownPopulation || zcta.population === 0 || zcta.splitBlockPopulation > 0 || tally.unassigned > 0) {
     return null;
   }
   if (tally.byDistrict.size !== 1) {
@@ -345,6 +358,7 @@ function decideChamber(tally: ChamberTally, zcta: ZctaTally): string | null {
  * Accumulates one observation per (ZCTA, block) and decides each ZCTA's
  * districts. Blocks without residents never influence the decision: they are
  * exactly the wilderness and water that makes land-share containment fail.
+ * A block whose population is unknown blocks every decision for its ZCTA.
  */
 export class ZctaLegislativeAccumulator {
   private readonly tallies = new Map<string, ZctaTally>();
@@ -355,10 +369,15 @@ export class ZctaLegislativeAccumulator {
       tally = {
         population: 0,
         splitBlockPopulation: 0,
+        unknownPopulation: false,
         lower: { byDistrict: new Map(), unassigned: 0 },
         upper: { byDistrict: new Map(), unassigned: 0 },
       };
       this.tallies.set(observation.zcta5, tally);
+    }
+    if (observation.population === null) {
+      tally.unknownPopulation = true;
+      return;
     }
     if (observation.population === 0) {
       return;
@@ -373,6 +392,17 @@ export class ZctaLegislativeAccumulator {
 
   get zctasSeen(): number {
     return this.tallies.size;
+  }
+
+  /** ZCTAs no chamber can be decided for because a block's population is unknown. */
+  get zctasWithUnknownPopulation(): number {
+    let count = 0;
+    for (const tally of this.tallies.values()) {
+      if (tally.unknownPopulation) {
+        count += 1;
+      }
+    }
+    return count;
   }
 
   /** One row per ZCTA with at least one decided chamber, sorted by ZCTA. */
@@ -444,7 +474,7 @@ export function observeRelationshipLine(
   const upperValue = sources.upper.lookup.get(blockGeoid);
   accumulator.add({
     zcta5,
-    population: sources.population.get(blockGeoid) ?? 0,
+    population: sources.population.get(blockGeoid) ?? null,
     lowerGeoid: lowerValue === undefined ? null : sources.lower.geoids[lowerValue],
     upperGeoid: upperValue === undefined ? null : sources.upper.geoids[upperValue],
     isSplitBlock: sources.splitBlocks.has(blockGeoid),
@@ -513,8 +543,12 @@ async function loadBlockPopulations(dataDir: string | null, apiKeys: readonly st
         await writeFile(cachePath, JSON.stringify(payload));
       }
     }
+    const stateEntries = parseBlockPopulationResponse(payload, stateFips);
+    if (stateEntries.length === 0) {
+      throw new Error(`state ${stateFips}: population response has no blocks`);
+    }
     // No spread: a state has up to ~700k blocks, far past the argument limit.
-    for (const entry of parseBlockPopulationResponse(payload, stateFips)) {
+    for (const entry of stateEntries) {
       entries.push(entry);
     }
   }
@@ -545,7 +579,12 @@ async function relationshipLines(dataDir: string | null): Promise<AsyncIterable<
 export async function buildZctaLegislativeRows(
   lines: AsyncIterable<string>,
   sources: RelationshipSources
-): Promise<{ rows: ZctaLegislativeRow[]; zctas_seen: number; data_lines: number }> {
+): Promise<{
+  rows: ZctaLegislativeRow[];
+  zctas_seen: number;
+  zctas_with_unknown_population: number;
+  data_lines: number;
+}> {
   const accumulator = new ZctaLegislativeAccumulator();
   let columns: RelationshipColumnIndexes | null = null;
   let lineNumber = 0;
@@ -566,7 +605,12 @@ export async function buildZctaLegislativeRows(
   if (columns === null) {
     throw new Error("relationship file is empty");
   }
-  return { rows: accumulator.rows(), zctas_seen: accumulator.zctasSeen, data_lines: dataLines };
+  return {
+    rows: accumulator.rows(),
+    zctas_seen: accumulator.zctasSeen,
+    zctas_with_unknown_population: accumulator.zctasWithUnknownPopulation,
+    data_lines: dataLines,
+  };
 }
 
 async function main(): Promise<void> {
@@ -582,10 +626,10 @@ async function main(): Promise<void> {
 
   const cachePath = (name: string): string | null => (dataDir === null ? null : `${dataDir}/${name}`);
   const lower = parseBlockEquivalencyFile(
-    await readEquivalencyZip(SLDL_BLOCK_EQUIVALENCY_ZIP_URL, SLDL_NATIONAL_MEMBER, cachePath("sldl24.zip"))
+    await readEquivalencyZip(SLDL_BLOCK_EQUIVALENCY_ZIP_URL, SLDL_NATIONAL_MEMBER, cachePath("sldl26.zip"))
   );
   const upper = parseBlockEquivalencyFile(
-    await readEquivalencyZip(SLDU_BLOCK_EQUIVALENCY_ZIP_URL, SLDU_NATIONAL_MEMBER, cachePath("sldu24.zip"))
+    await readEquivalencyZip(SLDU_BLOCK_EQUIVALENCY_ZIP_URL, SLDU_NATIONAL_MEMBER, cachePath("sldu26.zip"))
   );
   console.log(`${lower.lookup.size} blocks with a lower-chamber district; ${upper.lookup.size} with an upper-chamber district`);
   const population = await loadBlockPopulations(dataDir, env.CENSUS_API_KEYS);
@@ -598,6 +642,9 @@ async function main(): Promise<void> {
   console.log(
     `${built.zctas_seen} ZCTAs in the file (${built.data_lines} block records); ${built.rows.length} rows: ${lowerCount} with a lower-chamber district, ${upperCount} with an upper-chamber district`
   );
+  // Expected only for the territories (no population fetched, no districts
+  // either); anything beyond that means a state's population came back short.
+  console.log(`${built.zctas_with_unknown_population} ZCTAs left undecided because a block's population is unknown`);
   if (built.rows.length < MIN_PLAUSIBLE_ROWS || built.rows.length > MAX_PLAUSIBLE_ROWS) {
     throw new Error(
       `built ${built.rows.length} rows, outside the plausible band [${MIN_PLAUSIBLE_ROWS}, ${MAX_PLAUSIBLE_ROWS}]; refusing to replace existing data`

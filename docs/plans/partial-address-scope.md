@@ -66,9 +66,11 @@ State legislative rule (`address_zcta_legislative`, decided at import by
   fall in a neighbouring district: 99826 (Gustavus, AK) has 19% of its land
   in House District 2 but every resident in House District 3. The
   Census ZCTA↔SLDL relationship file only carries land/water shares, so the
-  import joins the ZCTA↔block relationship file to the 2024 state legislative
-  **block equivalency files** and 2020 block populations (P1_001N via the
-  Census Data API, `CENSUS_API_KEY_*`).
+  import joins the ZCTA↔block relationship file to the **2026** state
+  legislative **block equivalency files** (the plans the November 2026
+  ballots are drawn on) and 2020 block populations (P1_001N via the Census
+  Data API, `CENSUS_API_KEY_*`). A block the population source lacks counts
+  as unknown, not zero: its ZCTA is left undecided.
 - A chamber is decided for a ZCTA only when the ZCTA has residents, every
   block with residents maps to the same district, no block with residents is
   unassigned (`ZZZ`, or a state without that chamber — Nebraska's House, DC),
@@ -79,17 +81,23 @@ State legislative rule (`address_zcta_legislative`, decided at import by
 - Lower and upper chambers are decided independently, so a row can carry one
   and not the other. A `state_lower` key also feeds the `district_components`
   lookup, so New Hampshire floterials come along with their base district.
-- Yield (2026-10-08 build, 33,791 ZCTAs): 18,228 get a lower-chamber district
-  and 22,949 an upper-chamber one (24,132 rows). Land-share containment would
-  have given 17,495 / 22,336, and a 99.5%-of-residents threshold 19,167 /
+- Yield (2026-10-08 build, 33,791 ZCTAs): 18,227 get a lower-chamber district
+  and 22,967 an upper-chamber one (24,147 rows; the 149 territory ZCTAs stay
+  undecided because no population is fetched for them). On the 2024 plans,
+  land-share containment would have given 17,495 / 22,336 against 18,228 /
+  22,949 for the residents rule, and a 99.5%-of-residents threshold 19,167 /
   23,934 — the threshold was rejected for the same reason as the county rule:
   it would knowingly hand the remaining residents a neighbouring district's
   race. 99826 itself has 2 of 657 residents in House District 2, so it stays
   statewide + county until a street address is entered.
 - Re-run the import (with the matching equivalency files) whenever a state
-  redraws legislative lines; the 2024 files match the `(2024)` district rows.
-  Michigan (Senate), Minnesota and Mississippi adopted new plans for 2026
-  that neither the districts table nor this crosswalk reflects yet.
+  redraws legislative lines. Michigan (Senate), Minnesota and Mississippi
+  adopted new plans for 2026; the 2026 files carry them, so e.g. 48186
+  (Westland, MI) is undecided for the Senate because 3,541 of its residents
+  moved to District 4. Known gap: the exact-address path geocodes with
+  vintage `ACS2024_Current`, whose legislative layers are still the 2024
+  lines, so a street address in those areas can land in the old district
+  until that vintage is moved to the 2026 layers.
 
 ## Why this stays small
 
