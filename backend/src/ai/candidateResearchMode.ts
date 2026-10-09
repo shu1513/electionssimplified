@@ -1,5 +1,5 @@
 import { namesCongressionalDistrictBoardSeat } from "../utils/congressionalDistrictBoardOffice.js";
-import { isUsSenateOfficeTitle } from "../utils/senateOffice.js";
+import { isShadowDelegationTitle, isUsSenateOfficeTitle } from "../utils/senateOffice.js";
 import { isPresidentialOfficeTitle } from "../utils/presidentialOffice.js";
 
 export type CandidateResearchMode = "federal_president" | "federal_us_senate" | "federal_us_house" | "state_level";
@@ -26,6 +26,12 @@ export function resolveCandidateResearchMode(input: {
 }): CandidateResearchMode {
   if (input.districtType === "presidential" || isPresidentialOfficeTitle(input.officialBallotTitle)) {
     return "federal_president";
+  }
+
+  // DC's statehood ("shadow") Senator and Representative are DC offices with
+  // no FEC filings, even though their titles name a federal seat.
+  if (isShadowDelegationTitle(input.officialBallotTitle)) {
+    return "state_level";
   }
 
   if (isUsSenateOfficeTitle(input.officialBallotTitle)) {

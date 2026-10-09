@@ -98,4 +98,12 @@ FROM districts d WHERE d.id = e.district_id AND d.state = 'VA' AND e.election_da
   AND e.race_type = 'office' AND d.district_type = 'county' AND d.name ~* '^Arlington County'
   AND e.official_ballot_title ~* 'County Board';
 
+-- Takoma Park, Maryland: the city runs its own November election (Mayor and
+-- six ward council seats) and counts every contest by ranked-choice voting
+-- under City Charter Article VI (takomaparkmd.gov/2534/City-Election-2026).
+UPDATE elections e SET voting_method = 'ranked_choice'
+FROM districts d WHERE d.id = e.district_id AND d.state = 'MD' AND e.election_date = '2026-11-03'
+  AND e.race_type = 'office' AND d.district_type = 'place' AND d.name ~* '^Takoma Park city'
+  AND e.official_ballot_title ~* '^(Mayor|City Council Ward [1-6])$';
+
 COMMIT;

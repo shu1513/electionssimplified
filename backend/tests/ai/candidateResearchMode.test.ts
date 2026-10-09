@@ -25,3 +25,16 @@ describe("resolveCandidateResearchMode on us_house rows", () => {
     }
   });
 });
+
+describe("resolveCandidateResearchMode for DC's statehood delegation", () => {
+  it("researches the shadow Senator and Representative as DC offices with no FEC filings", () => {
+    for (const title of ["United States Senator (Shadow)", "United States Representative (Shadow)"]) {
+      expect(resolveCandidateResearchMode({ districtType: "statewide", officialBallotTitle: title })).toBe(
+        "state_level"
+      );
+    }
+    expect(
+      resolveCandidateResearchMode({ districtType: "statewide", officialBallotTitle: "United States Senator" })
+    ).toBe("federal_us_senate");
+  });
+});

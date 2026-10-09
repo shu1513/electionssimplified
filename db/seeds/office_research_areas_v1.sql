@@ -3507,6 +3507,12 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('statewide', 'State Board of Regents Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
     ('statewide', 'State Level Judge', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'election_integrity', 'gun_control', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
     ('statewide', 'State Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
+    -- DC's statehood ("shadow") delegation (migration 318): their only job is
+    -- the push for DC statehood and voting representation in Congress, which
+    -- is the equal-access-to-voting half of civil_rights. anti_corruption
+    -- covers their conduct as DC public officials (D.C. Code § 1-123(e)).
+    ('statewide', 'Shadow United States Senator', ARRAY['anti_corruption', 'civil_rights']::text[]),
+    ('statewide', 'Shadow United States Representative', ARRAY['anti_corruption', 'civil_rights']::text[]),
     -- Executive Councilor (NH; migration 306): votes on judges (impartiality,
     -- legal_competence), state contracts (spending, efficiency, corruption;
     -- NH family-planning contracts are its best-known votes), and pardons.

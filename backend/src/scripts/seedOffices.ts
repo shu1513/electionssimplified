@@ -54,6 +54,21 @@ const SEED_OFFICES: SeedOffice[] = [
       "Confirming federal judges and Supreme Court justices",
     ].join("\n"),
   },
+  // The District of Columbia's statehood ("shadow") delegation: two Senators
+  // and one Representative elected by DC voters under D.C. Code § 1-123. They
+  // hold no seat or vote in Congress; the code gives them the statehood
+  // duties below (§ 1-123(f)). Migration 318.
+  ...["Shadow United States Senator", "Shadow United States Representative"].map(
+    (canonicalName): SeedOffice => ({
+      scope: "statewide",
+      canonicalName,
+      summary: [
+        "Pressing Congress to make the District of Columbia a state",
+        "Reporting to DC residents on how the push for statehood is going",
+        "Advising the DC government on policies that affect statehood",
+      ].join("\n"),
+    })
+  ),
   {
     scope: "statewide",
     canonicalName: "Governor",
@@ -1809,6 +1824,34 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "place",
     officeCanonicalName: "City Council Member",
+    aliasText,
+  })),
+  // DC's statehood delegation (D.C. Code § 1-123). The ballot prints the bare
+  // "United States Senator" / "United States Representative"; stored titles
+  // add "(Shadow)" so no code path mistakes them for seats in Congress.
+  // Mirrors migration 318.
+  ...[
+    "United States Senator (Shadow)",
+    "Shadow United States Senator",
+    "United States Shadow Senator",
+    "U.S. Shadow Senator",
+    "Shadow Senator",
+    "Statehood Senator",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "statewide",
+    officeCanonicalName: "Shadow United States Senator",
+    aliasText,
+  })),
+  ...[
+    "United States Representative (Shadow)",
+    "Shadow United States Representative",
+    "United States Shadow Representative",
+    "U.S. Shadow Representative",
+    "Shadow Representative",
+    "Statehood Representative",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "statewide",
+    officeCanonicalName: "Shadow United States Representative",
     aliasText,
   })),
   {
