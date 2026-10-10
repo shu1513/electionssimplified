@@ -595,7 +595,7 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
     });
   });
 
-  it("keeps the registration when a same-office blank-district committee lacks corroboration", () => {
+  it("recalls a same-office blank-district committee carrying the full name without corroboration", () => {
     expect(
       resolvePennsylvaniaCandidateCommittee({
         candidateName: "Rosemary Brown",
@@ -626,8 +626,8 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
       })
     ).toMatchObject({
       status: "matched",
-      filerId: "2026C0183",
-      filerType: "1",
+      filerId: "2010237",
+      filerType: "2",
     });
   });
 
@@ -731,7 +731,40 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
     });
   });
 
-  it("keeps the registration filer when a blank-OFFICE committee matches by name only", () => {
+  it("recalls a blank-OFFICE committee carrying the full name when no same-name stranger registered", () => {
+    // Live: "FRIENDS OF CAMERA BARTOLOTTA" files from Harrisburg (17108)
+    // while the senator's registration carries her home ZIP; neither ZIP
+    // nor phone corroborates, and the link sat on the $0 registration.
+    const rows = [
+      filerRow({
+        FILERID: "2026C0001",
+        FILERNAME: "DOE, JANE",
+        FILERTYPE: "1",
+        OFFICE: "GOV",
+        ZIPCODE: "15001",
+        PHONE: "4125550001",
+      }),
+      filerRow({
+        FILERID: "20240500",
+        FILERNAME: "FRIENDS OF JANE DOE",
+        FILERTYPE: "2",
+        OFFICE: "",
+        ZIPCODE: "19999",
+        PHONE: "2155559999",
+      }),
+    ];
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Jane Doe",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: rows,
+      })
+    ).toMatchObject({ status: "matched", filerId: "20240500", filerType: "2" });
+  });
+
+  it("keeps the registration filer when a same-name stranger registered for another race", () => {
     expect(
       resolvePennsylvaniaCandidateCommittee({
         candidateName: "Jane Doe",
@@ -739,29 +772,118 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
         officeName: "Governor",
         electionYear: 2026,
         filerRows: [
-          filerRow({
-            FILERID: "2026C0001",
-            FILERNAME: "DOE, JANE",
-            FILERTYPE: "1",
-            OFFICE: "GOV",
-            ZIPCODE: "15001",
-            PHONE: "4125550001",
-          }),
-          filerRow({
-            FILERID: "20240500",
-            FILERNAME: "FRIENDS OF JANE DOE",
-            FILERTYPE: "2",
-            OFFICE: "",
-            ZIPCODE: "19999",
-            PHONE: "2155559999",
-          }),
+          filerRow({ FILERID: "2026C0001", FILERNAME: "DOE, JANE", FILERTYPE: "1", OFFICE: "GOV", ZIPCODE: "15001" }),
+          filerRow({ FILERID: "2026C0777", FILERNAME: "DOE, JANE", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "12", ZIPCODE: "16001" }),
+          filerRow({ FILERID: "20240500", FILERNAME: "FRIENDS OF JANE DOE", FILERTYPE: "2", OFFICE: "", ZIPCODE: "19999" }),
         ],
       })
-    ).toMatchObject({
-      status: "matched",
-      filerId: "2026C0001",
-      filerType: "1",
+    ).toMatchObject({ status: "matched", filerId: "2026C0001", filerType: "1" });
+  });
+
+  it("treats two same-name registration ids for the race as one person only when they share a ZIP or phone", () => {
+    // Live: George Margetas is registered twice (2026C0025, 2026C1193) with
+    // one ZIP and phone; "FRIENDS OF GEORGE MARGETAS" files from Harrisburg.
+    const committee = filerRow({ FILERID: "20250186", FILERNAME: "FRIENDS OF GEORGE MARGETAS", FILERTYPE: "2", OFFICE: "", ZIPCODE: "", PHONE: "7173840123" });
+    const race = { candidateName: "George Margetas", officeScope: "state_lower", officeName: "State Lower Chamber Legislator", district: "196", electionYear: 2026 } as const;
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        ...race,
+        filerRows: [
+          filerRow({ FILERID: "2026C0025", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          filerRow({ FILERID: "2026C1193", FILERNAME: "GEORGE H. MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          committee,
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20250186", filerType: "2" });
+    // Same name, nothing shared: possibly two people. The name-only committee
+    // stays out and the registrations are left as the ambiguous evidence.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        ...race,
+        filerRows: [
+          filerRow({ FILERID: "2026C0025", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          filerRow({ FILERID: "2026C1193", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "15001", PHONE: "4125550001" }),
+          committee,
+        ],
+      })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_filers" });
+  });
+
+  it("recalls a surname-only blank-OFFICE committee only with ZIP or phone corroboration", () => {
+    // Live: "GAYDOS FOR PA" shares the registration ZIP 15143.
+    const registration = filerRow({
+      FILERID: "2026C0690",
+      FILERNAME: "VALERIE GAYDOS",
+      FILERTYPE: "1",
+      OFFICE: "STH",
+      DISTRICT: "44",
+      ZIPCODE: "15143",
     });
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Valerie Gaydos",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "44",
+        electionYear: 2026,
+        filerRows: [registration, filerRow({ FILERID: "20180071", FILERNAME: "GAYDOS FOR PA", FILERTYPE: "2", OFFICE: "", ZIPCODE: "15143" })],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20180071", filerType: "2" });
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Valerie Gaydos",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "44",
+        electionYear: 2026,
+        filerRows: [registration, filerRow({ FILERID: "20180071", FILERNAME: "GAYDOS FOR PA", FILERTYPE: "2", OFFICE: "", ZIPCODE: "17108" })],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0690", filerType: "1" });
+  });
+
+  it("matches a registration row filed under a surname committee name", () => {
+    // Live: Kerry Benninghoff's registration row is named
+    // "BENNINGHOFF FOR REPRESENTATIVE" (STH 171); the committee of the same
+    // name has a blank OFFICE and shares the ZIP.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Kerry Benninghoff",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "171",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0463", FILERNAME: "BENNINGHOFF FOR REPRESENTATIVE", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "171", ZIPCODE: "16823" }),
+          filerRow({ FILERID: "9600102", FILERNAME: "BENNINGHOFF FOR REPRESENTATIVE", FILERTYPE: "2", OFFICE: "", ZIPCODE: "16823" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "9600102", filerType: "2" });
+    // A plain person name on a registration row never matches by surname alone.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Kerry Benninghoff",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "171",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0464", FILERNAME: "BENNINGHOFF, DANA", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "171" })],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
+  it("keys apostrophes and parenthesized surnames the way PA files them", () => {
+    expect([...normalizePennsylvaniaCandidateNameKeys("La'Tasha Mayes")]).toEqual(["LATASHA MAYES"]);
+    expect([...normalizePennsylvaniaCandidateNameKeys("NATALIE NICOLE STUCK (MIHALEK)")]).toContain("NATALIE MIHALEK");
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Timothy O'Neal",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "48",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0324", FILERNAME: "ONEAL, TIMOTHY JON", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "48" })],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0324" });
   });
 
   it("never admits a committee whose OFFICE names a different race, even with a shared ZIP", () => {
@@ -879,5 +1001,162 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
         },
       ],
     });
+  });
+
+  it("matches a formal-name registration row through a nickname on the VoteApp side", () => {
+    // Live: Josh Shapiro files as "SHAPIRO, JOSHUA D"; before nickname
+    // expansion the governor stayed unlinked.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1" })],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0403", filerType: "1" });
+  });
+
+  it("does not stretch a nickname to an unrelated first name", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOHN D", FILERTYPE: "1" })],
+      })
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_filer_match" });
+  });
+
+  it("keeps nickname expansion off the storage key", () => {
+    expect([...normalizePennsylvaniaCandidateNameKeys("Josh Shapiro", { expandNicknames: true })]).toEqual([
+      "JOSH SHAPIRO",
+      "JOSHUA SHAPIRO",
+    ]);
+    expect([...normalizePennsylvaniaCandidateNameKeys("Josh Shapiro")]).toEqual(["JOSH SHAPIRO"]);
+  });
+
+  it("admits a surname-only committee whose own row names the race, beside the registration", () => {
+    // Live: "Shapiro for Pennsylvania" (OFFICE GOV) carries the money; the
+    // registration row 2026C0403 reports $0. Shares no ZIP or phone.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1", ZIPCODE: "19046", PHONE: "6306966485" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2", ZIPCODE: "19110", PHONE: "2025520221" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20160016", filerType: "2" });
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Stacy Garrity",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0735", FILERNAME: "GARRITY, STACY LORRAINE", FILERTYPE: "1" }),
+          filerRow({ FILERID: "20200025", FILERNAME: "Garrity for PA", FILERTYPE: "2", ZIPCODE: "17112" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20200025", filerType: "2" });
+  });
+
+  it("admits no surname-only filer when a same-surname rival registered for the race", () => {
+    const rows = [
+      filerRow({ FILERID: "2026C0001", FILERNAME: "SMITH, JOHN", FILERTYPE: "1", PARTY: "DEM" }),
+      filerRow({ FILERID: "2026C0002", FILERNAME: "SMITH, JANE", FILERTYPE: "1", PARTY: "REP" }),
+      filerRow({ FILERID: "20260300", FILERNAME: "Smith for Pennsylvania", FILERTYPE: "2" }),
+    ];
+    for (const candidateName of ["John Smith", "Jane Smith"]) {
+      const resolution = resolvePennsylvaniaCandidateCommittee({
+        candidateName,
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: rows,
+      });
+      expect(resolution).toMatchObject({ status: "matched", filerType: "1" });
+    }
+    // The rival also blocks a surname-only registration row.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Kerry Benninghoff",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "171",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0463", FILERNAME: "BENNINGHOFF FOR REPRESENTATIVE", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "171" }),
+          filerRow({ FILERID: "2026C0464", FILERNAME: "BENNINGHOFF, DANA", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "171" }),
+        ],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
+  it("collapses one committee filed under two ids with the same name", () => {
+    // Live: FRIENDS OF PAT HARKINS as 2005299 (four 2026 rows) and 8300058 (one).
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Patrick Harkins",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        district: "1",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0772", FILERNAME: "PATRICK J. HARKINS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "1", ZIPCODE: "16588" }),
+          filerRow({ FILERID: "2005299", FILERNAME: "FRIENDS OF PAT HARKINS C/O TREASURER SUSAN M. KOWALSKI", FILERTYPE: "2", OFFICE: "", ZIPCODE: "16506", SubmittedDate: "2026-05-08" }),
+          filerRow({ FILERID: "2005299", FILERNAME: "FRIENDS OF PAT HARKINS % TREASURER SUSAN M. KOWALSKI", FILERTYPE: "2", OFFICE: "", ZIPCODE: "16506", SubmittedDate: "2026-09-22" }),
+          filerRow({ FILERID: "8300058", FILERNAME: "FRIENDS OF PAT HARKINS % TREASURER SUSAN M. KOWALSKI", FILERTYPE: "2", OFFICE: "", ZIPCODE: "16506", SubmittedDate: "2026-04-07" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2005299", filerType: "2" });
+  });
+
+  it("never admits a surname-only committee without the candidate's registration row", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2" })],
+      })
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_filer_match" });
+  });
+
+  it("never admits a surname-only committee from a blank-OFFICE row", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1", ZIPCODE: "19046" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2", OFFICE: "", ZIPCODE: "19110" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0403", filerType: "1" });
+  });
+
+  it("stays ambiguous when two surname-only committees name the race", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2" }),
+          filerRow({ FILERID: "20160017", FILERNAME: "Friends of Shapiro", FILERTYPE: "2" }),
+        ],
+      })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_filers" });
   });
 });

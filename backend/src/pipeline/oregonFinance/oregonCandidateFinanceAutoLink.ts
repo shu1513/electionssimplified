@@ -106,7 +106,10 @@ export async function listOregonCandidateElectionsMissingFinanceLinks(
         AND election.election_date <= ($1::date + make_interval(days => $3::int))
         AND candidate_election.status NOT IN ('withdrawn', 'lost')
         AND (office.scope || '::' || office.canonical_name) = ANY($4::text[])
-      ORDER BY election.election_date ASC, candidate.display_name ASC, candidate.id ASC
+      -- Upcoming races first, then random: unmatched candidates never get a
+      -- link, so a stable order under a row cap retried the same prefix every
+      -- run and starved the tail (Katie Hobbs was never attempted).
+      ORDER BY (election.election_date < CURRENT_DATE) ASC, random()
       LIMIT $5::int
     `,
     [

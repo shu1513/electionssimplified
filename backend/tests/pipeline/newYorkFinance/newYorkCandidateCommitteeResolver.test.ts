@@ -144,13 +144,74 @@ describe("newYorkCandidateCommitteeResolver", () => {
     expect(resolution).toMatchObject({ status: "ambiguous", reason: "multiple_registered_candidates" });
   });
 
-  it("requires the committee name to contain both first and last name", () => {
-    const resolution = resolveNewYorkCandidateCommittee({
-      ...GOVERNOR_INPUT,
-      candidateFilers: [HOCHUL_CANDIDATE],
-      committeeFilers: [filer({ filerId: "555", filerName: "New Yorkers for Hochul" })],
-    });
-    expect(resolution).toMatchObject({ status: "unmatched", reason: "no_candidate_committee_match" });
+  it("requires the committee name to contain both first and last name unless it is the bare surname", () => {
+    expect(
+      resolveNewYorkCandidateCommittee({
+        ...GOVERNOR_INPUT,
+        candidateFilers: [HOCHUL_CANDIDATE],
+        committeeFilers: [filer({ filerId: "555", filerName: "Friends of Mary Hochul" })],
+      })
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_committee_match" });
+    // Live: "Blakeman for New York" and "James for NY 2026" carry no first name.
+    expect(
+      resolveNewYorkCandidateCommittee({
+        ...GOVERNOR_INPUT,
+        candidateName: "Bruce Blakeman",
+        candidateFilers: [filer({ filerId: "165157", filerName: "Bruce   Blakeman", complianceType: "CANDIDATE", committeeType: null, officeDesc: "Governor" })],
+        committeeFilers: [
+          filer({ filerId: "580499", filerName: "Blakeman for New York", committeeType: "Public Campaign Finance Committee" }),
+          // A second surname-only committee would make this ambiguous; a
+          // place name is not a wrapper, so "Blakeman for Nassau" is not one.
+          filer({ filerId: "165158", filerName: "Blakeman for Nassau" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "580499", confidence: "surname_committee" });
+    expect(
+      resolveNewYorkCandidateCommittee({
+        ...GOVERNOR_INPUT,
+        candidateName: "Bruce Blakeman",
+        candidateFilers: [filer({ filerId: "165157", filerName: "Bruce Blakeman", complianceType: "CANDIDATE", committeeType: null, officeDesc: "Governor" })],
+        committeeFilers: [
+          filer({ filerId: "580499", filerName: "Blakeman for New York" }),
+          filer({ filerId: "580500", filerName: "Friends of Blakeman" }),
+        ],
+      })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_committees" });
+    expect(
+      resolveNewYorkCandidateCommittee({
+        ...GOVERNOR_INPUT,
+        candidateName: "Letitia James",
+        officeName: "Attorney General",
+        candidateFilers: [filer({ filerId: "27937", filerName: "Letitia  James", complianceType: "CANDIDATE", committeeType: null, officeDesc: "Attorney General" })],
+        committeeFilers: [
+          filer({ filerId: "308810", filerName: "James for NY 2026", committeeType: "Public Campaign Finance Committee" }),
+          filer({ filerId: "320329", filerName: "James Schuler for NYS Assembly", committeeType: "Public Campaign Finance Committee" }),
+          filer({ filerId: "404128", filerName: "Friends of James Meyers", committeeType: "Public Campaign Finance Committee" }),
+          filer({ filerId: "591076", filerName: "Friends of Mariama James", committeeType: "Public Campaign Finance Committee" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "308810", confidence: "surname_committee" });
+  });
+
+  it("never admits a surname-only committee for a legislative race or one naming another office", () => {
+    expect(
+      resolveNewYorkCandidateCommittee({
+        ...GOVERNOR_INPUT,
+        candidateFilers: [HOCHUL_CANDIDATE],
+        committeeFilers: [filer({ filerId: "556", filerName: "Hochul for Assembly" })],
+      })
+    ).toMatchObject({ status: "unmatched" });
+    expect(
+      resolveNewYorkCandidateCommittee({
+        candidateName: "Bruce Blakeman",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "7",
+        electionYear: 2026,
+        candidateFilers: [filer({ filerId: "9", filerName: "Bruce Blakeman", complianceType: "CANDIDATE", committeeType: null, officeDesc: "State Senator", district: "7" })],
+        committeeFilers: [filer({ filerId: "580499", filerName: "Blakeman for New York" })],
+      })
+    ).toMatchObject({ status: "unmatched" });
   });
 
   it("skips when several committees contain the candidate name", () => {

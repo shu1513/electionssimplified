@@ -257,6 +257,23 @@ function rowObjectFromCells<TColumns extends readonly string[]>(
   return Object.fromEntries(entries) as MarylandCfsRowForColumns<TColumns>;
 }
 
+// CFS does not escape quotes: a quote appears inside unquoted fields
+// (O"Meara, McDonald"s) and inside quoted ones. A quote opens a quoted field
+// only at the start of a field, and ends one only when nothing but spaces
+// separates it from a comma, a line end, or the end of the text; any other
+// quote is content. Reading every quote as a delimiter put the parser out of
+// phase and failed the whole yearly load.
+function quoteEndsQuotedField(text: string, quoteIndex: number): boolean {
+  for (let index = quoteIndex + 1; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === " " || char === "\t") {
+      continue;
+    }
+    return char === "," || char === "\r" || char === "\n";
+  }
+  return true;
+}
+
 function parseCsvRows(csv: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -271,7 +288,7 @@ function parseCsvRows(csv: string): string[][] {
       if (char === '"' && next === '"') {
         field += '"';
         index += 1;
-      } else if (char === '"') {
+      } else if (char === '"' && quoteEndsQuotedField(csv, index)) {
         inQuotes = false;
       } else {
         field += char;
@@ -279,7 +296,7 @@ function parseCsvRows(csv: string): string[][] {
       continue;
     }
 
-    if (char === '"') {
+    if (char === '"' && field.length === 0) {
       inQuotes = true;
       continue;
     }
@@ -372,7 +389,9 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
     let row: string[] = [];
     let field = "";
     let inQuotes = false;
-    let pendingQuoteInQuotedField = false;
+    // A quote followed only by spaces at the end of a chunk cannot be judged
+    // until the next chunk shows what follows; it is carried over verbatim.
+    let carry = "";
     let settled = false;
 
     const rejectOnce = (error: Error): void => {
@@ -420,19 +439,11 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
       field = "";
     };
 
-    const processText = (text: string, isFinal = false): void => {
-      let index = 0;
-      if (pendingQuoteInQuotedField) {
-        pendingQuoteInQuotedField = false;
-        if (text[0] === '"') {
-          field += '"';
-          index = 1;
-        } else {
-          inQuotes = false;
-        }
-      }
+    const processText = (chunk: string, isFinal = false): void => {
+      const text = carry + chunk;
+      carry = "";
 
-      for (; index < text.length && !settled; index += 1) {
+      for (let index = 0; index < text.length && !settled; index += 1) {
         const char = text[index];
         const next = text[index + 1];
 
@@ -440,9 +451,10 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
           if (char === '"' && next === '"') {
             field += '"';
             index += 1;
-          } else if (char === '"' && next === undefined && !isFinal) {
-            pendingQuoteInQuotedField = true;
-          } else if (char === '"') {
+          } else if (char === '"' && !isFinal && /^[ \t]*$/.test(text.slice(index + 1))) {
+            carry = text.slice(index);
+            break;
+          } else if (char === '"' && quoteEndsQuotedField(text, index)) {
             inQuotes = false;
           } else {
             field += char;
@@ -450,7 +462,7 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
           continue;
         }
 
-        if (char === '"') {
+        if (char === '"' && field.length === 0) {
           inQuotes = true;
           continue;
         }
@@ -493,7 +505,7 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
       }
       try {
         processText(decoder.end(), true);
-        if (inQuotes || pendingQuoteInQuotedField) {
+        if (inQuotes) {
           rejectOnce(new Error("Maryland CFS CSV has an unterminated quoted field"));
           return;
         }

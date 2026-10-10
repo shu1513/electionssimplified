@@ -202,7 +202,10 @@ export async function listArizonaCandidateElectionsMissingFinanceLinks(
         AND candidate_election.status NOT IN ('withdrawn', 'lost')
         AND (office.scope || '::' || office.canonical_name) = ANY($5::text[])
         AND link.id IS NULL
-      ORDER BY election.election_date ASC, candidate_name ASC, candidate.id ASC
+      -- Upcoming races first, then random: unmatched candidates never get a
+      -- link, so a stable order under a row cap retried the same prefix every
+      -- run and starved the tail (Katie Hobbs was never attempted).
+      ORDER BY (election.election_date < CURRENT_DATE) ASC, random()
       LIMIT $4::int
     `,
     [

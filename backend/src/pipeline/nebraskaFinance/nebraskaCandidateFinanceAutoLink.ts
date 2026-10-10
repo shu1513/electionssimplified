@@ -67,9 +67,12 @@ function mapCandidateElectionRow(row: CandidateElectionQueryRow): NebraskaFinanc
 export function buildNebraskaCandidateNamePredicate(
   candidates: readonly NebraskaFinanceAutoLinkCandidateElection[]
 ): (row: NebraskaNadcContributionRow) => boolean {
+  // The pre-filter must admit every row the resolver could match, so it
+  // carries the same one-sided nickname keys ("Mike Hilgers" → MICHAEL
+  // HILGERS); keyed literally it dropped the rows before resolution.
   const candidateNameKeys = new Set<string>();
   for (const candidate of candidates) {
-    for (const key of normalizeNebraskaCandidateNameKeys(candidate.candidateName)) {
+    for (const key of normalizeNebraskaCandidateNameKeys(candidate.candidateName, { expandNicknames: true })) {
       candidateNameKeys.add(key);
     }
   }
@@ -141,7 +144,10 @@ export async function listNebraskaCandidateElectionsMissingFinanceLinks(
             AND link.election_id = election.id
             AND link.link_status = 'active'
         )
-      ORDER BY election.election_date ASC, candidate.display_name ASC NULLS LAST, candidate.id ASC
+      -- Upcoming races first, then random: unmatched candidates never get a
+      -- link, so a stable order under a row cap retried the same prefix every
+      -- run and starved the tail (Katie Hobbs was never attempted).
+      ORDER BY (election.election_date < CURRENT_DATE) ASC, random()
       LIMIT $2::int
     `,
     [

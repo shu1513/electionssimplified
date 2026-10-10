@@ -72,6 +72,31 @@ describe("Pennsylvania campaign finance export reader", () => {
     ]);
   });
 
+  it("keeps unescaped quotes inside quoted cells as content", () => {
+    // Live 2025/2026 exports: "Grace d"Alo", "MARINUCCI"S DELI", and
+    // "CAROLYN SUSIE" STEWART" — none escaped as "". The strict parser threw
+    // "unterminated quoted field" and the whole yearly load failed.
+    const rows = parsePennsylvaniaCampaignFinanceCsvRows({
+      csv: [
+        "ID,NAME,CITY,AMOUNT",
+        '1,"Grace d"Alo","Carlisle",100.00',
+        '2,"MARINUCCI"S DELI","PHILA",59.58',
+        '3,"CAROLYN SUSIE" STEWART","SYLVA",66.67',
+        '4,"Raise The Money, Inc.\nRaise the Money, Inc.","Little Rock",44.89',
+        '5,"Plain ""escaped"" quote","York",1.00',
+        '6,"Trailing space" ,"Erie",2.00',
+      ].join("\r\n"),
+    });
+    expect(rows.map((row) => [row.NAME, row.CITY, row.AMOUNT])).toEqual([
+      ['Grace d"Alo', "Carlisle", "100.00"],
+      ['MARINUCCI"S DELI', "PHILA", "59.58"],
+      ['CAROLYN SUSIE" STEWART', "SYLVA", "66.67"],
+      ["Raise The Money, Inc.\nRaise the Money, Inc.", "Little Rock", "44.89"],
+      ['Plain "escaped" quote', "York", "1.00"],
+      ["Trailing space", "Erie", "2.00"],
+    ]);
+  });
+
   it("lists extracted files and finds root or nested yearly tables", async () => {
     const dir = await makeTempDir();
     await writeFile(join(dir, "contrib_2026.txt"), "a\n", "utf8");
@@ -88,6 +113,44 @@ describe("Pennsylvania campaign finance export reader", () => {
     await expect(
       findPennsylvaniaCampaignFinanceTableFile({ extractedDir: dir, table: "filer", year: 2024 })
     ).resolves.toBe(join(dir, "2024", "filer_2024.txt"));
+  });
+
+  it("judges a quote at a stream chunk boundary by what follows in the next chunk", async () => {
+    // createReadStream hands the parser 64 KiB chunks. A quote followed only
+    // by spaces at the end of a chunk must wait for the next chunk: here it
+    // is an inner quote ("CAROLYN SUSIE" STEWART"), not the end of the cell.
+    const chunkSize = 64 * 1024;
+    const columns = [...PENNSYLVANIA_CAMPAIGN_FINANCE_CONTRIBUTION_COLUMNS];
+    const build = (quoteOffset: number): string => {
+      const cells = columns.map(() => "");
+      const set = (name: string, value: string): void => {
+        cells[columns.indexOf(name)] = value;
+      };
+      set("CampaignFinanceID", "1");
+      set("FilerID", "100");
+      set("EYEAR", "2026");
+      set("CONTDATE1", "20260101");
+      set("CONTAMT1", "66.67");
+      const header = `${columns.join(",")}\r\n`;
+      const nameIndex = columns.indexOf("CONTRIBUTOR");
+      const cityIndex = columns.indexOf("CITY");
+      const prefixLength = header.length + cells.slice(0, nameIndex).join(",").length + 1 + 1;
+      const pad = "X".repeat(quoteOffset - prefixLength - "CAROLYN SUSIE".length);
+      cells[nameIndex] = `"${pad}CAROLYN SUSIE" STEWART"`;
+      cells[cityIndex] = '"SYLVA"';
+      return `${header}${cells.join(",")}\r\n`;
+    };
+    for (const quoteOffset of [chunkSize - 1, chunkSize - 2]) {
+      const dir = await makeTempDir();
+      await mkdir(join(dir, "2026"));
+      const csv = build(quoteOffset);
+      expect(csv[quoteOffset]).toBe('"');
+      await writeFile(join(dir, "2026", "contrib_2026.txt"), csv, "latin1");
+      const rows = await readPennsylvaniaCampaignFinanceContributionRows({ extractedDir: dir, year: 2026 });
+      expect(rows).toHaveLength(1);
+      expect(rows[0]?.CONTRIBUTOR.endsWith('CAROLYN SUSIE" STEWART')).toBe(true);
+      expect(rows[0]?.CITY).toBe("SYLVA");
+    }
   });
 
   it("streams contribution rows with predicate and maxRows", async () => {

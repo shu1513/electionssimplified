@@ -240,6 +240,22 @@ function marylandCycleFilingYears(electionYear: number): number[] {
   return [electionYear - 1, electionYear];
 }
 
+// The CFS committee export for a filing year lists only committees REGISTERED
+// that year. Incumbents registered long ago ("Moore, Wes For Maryland",
+// April 2021) never appear in the cycle's two files, so committee rows are
+// read from every registration year since the previous cycle. Files older
+// than the cycle may be absent from the cache; only the cycle's own two are
+// required.
+const MARYLAND_COMMITTEE_REGISTRATION_LOOKBACK_YEARS = 6;
+
+function marylandCommitteeRegistrationYears(electionYear: number): number[] {
+  const years: number[] = [];
+  for (let year = electionYear - MARYLAND_COMMITTEE_REGISTRATION_LOOKBACK_YEARS; year <= electionYear; year += 1) {
+    years.push(year);
+  }
+  return years;
+}
+
 function marylandRowIdentity<Row extends Record<string, string>>(
   row: Row,
   columns: readonly string[]
@@ -259,13 +275,21 @@ async function readCycleArtifactData<Row>(input: {
   let filePath = "";
   let sourceUrl = MARYLAND_CFS_PUBLIC_EXPORT_API_URL;
   let foundMatchingRows = false;
-  for (const filingYear of marylandCycleFilingYears(input.electionYear)) {
+  const filingYears =
+    input.artifactKind === "committees"
+      ? marylandCommitteeRegistrationYears(input.electionYear)
+      : marylandCycleFilingYears(input.electionYear);
+  const requiredYears = new Set(marylandCycleFilingYears(input.electionYear));
+  for (const filingYear of filingYears) {
     const paths = getMarylandCfsArtifactCachePaths({
       cacheDir: rawDataCacheDir(input.rawDataCacheDir),
       filingYear,
       artifactKind: input.artifactKind,
     });
     if (!(await fileExists(paths.filePath))) {
+      if (!requiredYears.has(filingYear)) {
+        continue;
+      }
       throw new Error(`Maryland CFS ${kindLabel} artifact not found for ${filingYear}: ${paths.filePath}`);
     }
     const metadata = await readMarylandCfsArtifactCacheMetadata(paths.metadataPath);
