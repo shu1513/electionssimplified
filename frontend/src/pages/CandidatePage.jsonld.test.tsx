@@ -63,9 +63,9 @@ describe("CandidatePage structured data", () => {
     expect(person.sameAs).toEqual(["https://jordan.example", "https://x.com/jordanvoter", "https://ballotpedia.org/Jordan_Voter"]);
   });
 
-  // The answer paragraph: the header facts and the summary in one passage,
-  // and its opening sentences as the meta description.
-  it("opens with a one-paragraph answer that the meta description repeats", async () => {
+  // The page shows the plain summary; the stitched answer paragraph is only
+  // the meta description's source and never renders.
+  it("shows the plain summary and uses the answer paragraph as the meta description", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     const detail = {
       ...candidateDetail({
@@ -90,13 +90,8 @@ describe("CandidatePage structured data", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Jordan Voter" })).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Jordan Voter (Democratic) is running for Governor in Kentucky in the November 3, 2099 election. " +
-          "Jordan Voter currently serves as State Senator. A candidate summary. " +
-          "1 public record with sources, researched through June 1, 2026, is listed below."
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText("A candidate summary.")).toBeInTheDocument();
+    expect(screen.queryByText(/is running for Governor in Kentucky/)).not.toBeInTheDocument();
     // The route's meta export (the test router renders no <Meta/>): the
     // description is the paragraph's opening sentences, cut at a sentence end.
     const tags = meta({ data: detail, location: { pathname: "/candidates/c-1" } } as unknown as Parameters<typeof meta>[0]);

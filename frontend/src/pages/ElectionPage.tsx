@@ -209,9 +209,11 @@ export function ElectionPage() {
 
   const data = useLoaderData<typeof loader>();
   const competitiveness = competitivenessChip(data);
-  // The one-paragraph answer (electionAnswerText): opens the page, feeds the
-  // Event JSON-LD description, and its first sentences are the meta
-  // description — one text, three readers.
+  // The one-paragraph answer (electionAnswerText) feeds the Event JSON-LD
+  // description, and its first sentences are the meta description. It is
+  // not rendered on the page: every fact in it (title, place, date, roster,
+  // result, measure summary) already shows in the header and cards, so the
+  // paragraph only repeated them (user decision 2026-10-10).
   const answerText = electionAnswerText(data, usLatestLocalDate());
   // The ⓘ next to "Retention race": the one-line explanation is a tap
   // target, not a title tooltip (touch never sees tooltips). Component
@@ -869,11 +871,6 @@ export function ElectionPage() {
           </div>
         </div>
         <RankedChoiceNotice votingMethod={data.voting_method} className="text-body text-ink" />
-        {/* The answer paragraph: what, where, when, who, and who won — the
-            whole race in one self-contained passage a reader (or an answer
-            engine) can take on its own. Every fact repeats a card below;
-            the point is having them in one place, in sentences. */}
-        <p className="mt-3 text-body text-ink">{answerText}</p>
         {/* The detail page has room for the whole caveat, where the ballot card
             only has room to flag it. Same rule as ElectionCard: name the seat's
             area, say plainly that we cannot match an address to it, and never

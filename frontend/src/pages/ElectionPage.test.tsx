@@ -258,8 +258,8 @@ describe("ElectionPage", () => {
     renderElection(() => electionDetail({ seats_to_fill: 3 }));
 
     expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    // Header strip and the answer paragraph both name the seat count.
-    expect(screen.getAllByText(/3 seats/).length).toBeGreaterThan(0);
+    // The header strip names the seat count.
+    expect(screen.getByText(/3 seats/)).toBeInTheDocument();
   });
 
   it("shows no seat count when seats_to_fill is absent or 1", async () => {
@@ -1566,6 +1566,9 @@ describe("ElectionPage", () => {
     );
 
     await screen.findByRole("heading", { name: "What does this measure do?" });
+    // No answer paragraph: the summary already sits under the heading above,
+    // and the lead sentence would only repeat the title.
+    expect(screen.queryByText(/is a ballot measure in/)).not.toBeInTheDocument();
     expect(screen.queryByText("What does this office do?")).not.toBeInTheDocument();
     expect(screen.queryByText("Affects:")).not.toBeInTheDocument();
   });
