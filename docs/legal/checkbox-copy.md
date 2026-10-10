@@ -138,10 +138,14 @@ Freedom Financial Network):
   dialog to skip, and each search is its own assent. (The dialog era kept a
   90-day device memory so returning visitors were not re-asked; that code is
   gone with the dialog.)
-- The privacy note must stay beside the address field: the autocomplete
-  forwards typed fragments after three characters, so collection begins
-  before Search is ever pressed and notice has to arrive at or before
-  collection.
+- Notice at collection: the autocomplete forwards typed fragments after
+  three characters, so collection begins before Search is ever pressed. The
+  anonymous search field carries the "why full address" explainer in its own
+  label (which repeats the short privacy note and links the Privacy Policy),
+  and the agreement line under Search links the Privacy Policy by name. The
+  short note itself sits beside the signed-in address form. (Until
+  2026-10-10 a compressed copy of the note also sat under the anonymous
+  field; it was cut as a second copy of what the explainer says.)
 - The pre-search notice names the three documents and nothing else — see
   "Why arbitration is not named on any checkbox screen" below, and do not add
   a clause callout back to any label without reading that section first.
@@ -235,13 +239,13 @@ Prof. Code §17602(d) forbids extra steps in front of online cancellation, and
 consent extracted by blocking the exit is not consent. Everything else stays
 gated until the box is ticked.
 
-## Short privacy note (beside every address input)
+## Short privacy note (signed-in address form, and inside the explainer)
 
 This carries the address-specific points that matter at collection. It carries
 no Privacy Policy link of its own: the footer links the policy on every page,
-the explainer beside this note links it directly, and the search notice under
-the button links it by name — so a second inline copy sat next to the
-question people actually ask and crowded it out. The 14-day lookup cache
+the explainer links it directly, and the search notice under the button links
+it by name — so a second inline copy sat next to the question people actually
+ask and crowded it out. The 14-day lookup cache
 and the "not sold" assurance are carried by Privacy Policy Section 1 rather
 than repeated here, to keep this line to the two facts a visitor weighs while
 typing — what the address is used for, and that it does not end up on their
@@ -259,8 +263,8 @@ account, which stores district ids only.
 > The address is only used to find voting districts. We do NOT save it to
 > your account.
 
-Beside the anonymous-search note, **Why do we need the full address?** opens
-an informational dialog on web and mobile. One paragraph: the ballot depends
+In the anonymous search field's label, **(why full address)** opens an
+informational dialog on web and mobile. One paragraph: the ballot depends
 on which voting districts a home sits in, and those boundaries do not follow
 ZIP codes — they can split a neighborhood or a single street, so two homes in
 the same ZIP can vote in different races. The dialog repeats the

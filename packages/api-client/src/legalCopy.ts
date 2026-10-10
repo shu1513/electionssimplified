@@ -58,9 +58,10 @@ export const RENEWAL_CHECKBOX_LABEL =
   "Information Disclaimer.";
 
 /**
- * Sits beside the address field, where collection actually begins: the
- * autocomplete forwards what is typed after three characters, long before
- * anyone presses Search, and notice has to arrive at or before collection.
+ * Sits beside the signed-in address form and inside the "why full address"
+ * explainer that the anonymous search field links from its label. Collection
+ * begins as the autocomplete forwards what is typed, long before anyone
+ * presses Search, and notice has to arrive at or before collection.
  *
  * It replaced a longer PRIVACY_NOTICE that summarised the whole of Privacy
  * Policy Section 1 — address, account data, device and usage data, the

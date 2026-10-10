@@ -194,10 +194,20 @@ export default function HomeScreen() {
 
         <View className="mt-6 gap-4">
           <View>
-            {/* Instructional label for first-time visitors — same copy as
-                the web home. Signed-in surfaces keep "Your address". */}
+            {/* Instructional label for first-time visitors, naming ZIP as the
+                escape hatch and carrying the "why full address" explainer in
+                its parenthesis — same shape as the web home. Signed-in
+                surfaces keep "Your address". */}
             <Text className="text-sm font-medium text-ink">
-              Enter address to see which elections you can vote in:
+              Enter address or ZIP to see which elections you can vote in (
+              <Text
+                className="font-normal underline"
+                accessibilityRole="button"
+                onPress={() => setAddressExplanationVisible(true)}
+              >
+                why full address
+              </Text>
+              ):
             </Text>
             <AddressAutocomplete
               value={address}
@@ -209,7 +219,7 @@ export default function HomeScreen() {
               }}
               onRetrievePendingChange={setRetrievePending}
               placeholder="1600 Pennsylvania Avenue NW, Washington, DC 20500"
-              accessibilityLabel="Enter address to see which elections you can vote in:"
+              accessibilityLabel="Enter address or ZIP to see which elections you can vote in"
             />
             {regionUnsupported ? (
               <Text accessibilityRole="alert" className="mt-1 text-xs text-rausch-dark">
@@ -217,25 +227,6 @@ export default function HomeScreen() {
                 code from the suggestions.
               </Text>
             ) : null}
-            {/* Notice belongs at the field: the autocomplete forwards what is
-                typed after three characters, so collection starts while the
-                visitor types and long before Search. */}
-            {/* One link, not two — same as the web. The Privacy Policy is
-                still linked directly from the explainer below. */}
-            {/* Variant of ADDRESS_FIELD_PRIVACY_NOTE plus the coarse-input
-                hint — same as the web home; other surfaces keep the full
-                constant, and the explainer keeps the "never saved" promise. */}
-            <Text className="mt-1 text-xs text-ink-soft">
-              The address is only used to find voting districts. You can also search by ZIP or
-              city, with fewer local races.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setAddressExplanationVisible(true)}
-              className="mt-1 self-start"
-            >
-              <Text className="text-xs text-ink-soft underline">Why full address?</Text>
-            </Pressable>
           </View>
 
           <Pressable

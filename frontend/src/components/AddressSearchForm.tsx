@@ -285,16 +285,23 @@ export function AddressSearchForm({
                 address" — those users already know. "Home address" was
                 rejected as a demand for where you sleep, "Voting address"
                 read as the place you go to vote. */}
-            {/* The label promises the outcome; the parenthetical below the
-                field carries both reassurances — privacy, and that a ZIP or
-                city is enough — so the visitor who won't type where they
-                live learns the escape hatch BEFORE giving up. */}
-            <label
-              htmlFor="address"
-              className={landing ? "block pb-px pl-[18px] text-sm font-semibold text-ink-soft" : "block pb-1 text-sm font-semibold text-ink"}
-            >
-              {label}
-            </label>
+            {/* The label names ZIP as an alternative and carries the
+                "why full address" explainer in a parenthesis, so the visitor
+                who won't type where they live learns the escape hatch before
+                giving up. The explainer button sits beside the <label>, not
+                inside it: a button inside a label would join the field's
+                accessible name and is a labelable element in its own right. */}
+            <div className={landing ? "pb-px pl-[18px] text-sm font-semibold text-ink-soft" : "pb-1 text-sm font-semibold text-ink"}>
+              <label htmlFor="address">{label}</label>{" "}
+              <span className="whitespace-nowrap font-normal">
+                (
+                <FullAddressExplanation
+                  triggerLabel="why full address"
+                  onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
+                />
+                ):
+              </span>
+            </div>
             <AddressAutocomplete
               inputId="address"
               value={address}
@@ -329,27 +336,11 @@ export function AddressSearchForm({
                 code from the suggestions.
               </p>
             ) : null}
-            {/* Notice belongs here: the autocomplete forwards what is typed
-                after three characters, so collection starts while the
-                visitor types and long before Search. */}
-            {/* One link, not two. The Privacy Policy is still reachable at the
-                point of collection — the footer carries it on every page, and
-                the explainer below links it directly — so the inline copy of
-                it was noise beside the question people actually ask. */}
-            {/* Compressed variant of ADDRESS_FIELD_PRIVACY_NOTE plus the
-                coarse-input hint: same two promises (district lookup only,
-                never saved), short enough to be read. Other surfaces keep
-                the full constant. */}
-            <p className={landing ? "mt-3 text-center text-xs text-ink-soft" : "mt-2 text-xs text-ink-soft"}>
-              The address is only used to find voting districts. You can also search by ZIP or
-              city, with fewer local races.{" "}
-              <FullAddressExplanation
-                onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
-              />
-            </p>
-            {/* Google-sized: a small centered button under the privacy note,
-                not a full-width bar competing with the field. Box, note, button,
-                agreement line — the same order as the app home screen. */}
+            {/* Google-sized: a small centered button right under the pill box,
+                not a full-width bar competing with the field. The agreement
+                line sits under it. The address-handling promise lives in the
+                explainer (label) and the Privacy Policy link in the agreement
+                line, both at the point of collection. */}
             <div className={landing ? "mt-4 flex justify-center box:mt-[11px]" : "mt-2"}>
               <button
                 type="submit"

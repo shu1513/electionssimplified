@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PRE_SEARCH_NOTICE, TERMS_VERSION } from "@voteapp/api-client";
 import { HomePage } from "./HomePage";
 
-const ADDRESS_LABEL = "Enter address to see your elections and candidates:";
+const ADDRESS_LABEL = "Enter address or ZIP to see your elections and candidates";
 
 function renderHome() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -196,26 +196,24 @@ describe("HomePage pre-search notice", () => {
     expect(screen.queryByTestId("address-search-hint")).not.toBeInTheDocument();
   });
 
-  it("keeps the privacy note beside the address field, where collection starts", () => {
+  it("names ZIP in the field label and keeps the explainer link inside it", () => {
     renderHome();
-    // The autocomplete forwards what is typed before Search is ever pressed,
-    // so this notice may never move away from the field. The home page carries a
-    // compressed variant of ADDRESS_FIELD_PRIVACY_NOTE (same two promises:
-    // district lookup only, never saved) plus the ZIP/city hint.
-    expect(screen.getByText(/The address is only used to find voting districts/)).toBeInTheDocument();
-    expect(screen.getByText(/You can also search by ZIP or city/)).toBeInTheDocument();
-    // The policy is reachable without a second inline link — the footer
-    // carries it site-wide and the explainer links it directly — so the note
-    // offers the question people actually ask instead.
-    expect(screen.queryByRole("link", { name: "Privacy notice" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Why full address?" })).toBeInTheDocument();
+    // The label itself offers the escape hatch (ZIP) and the "why full
+    // address" explainer; the old note under the field is gone. The
+    // explainer and the agreement line under Search carry the privacy
+    // points at the point of collection.
+    expect(screen.getByLabelText(ADDRESS_LABEL)).toBeInTheDocument();
+    expect(screen.queryByText(/The address is only used to find voting districts/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/You can also search by ZIP or city/)).not.toBeInTheDocument();
+    const trigger = screen.getByRole("button", { name: "why full address" });
+    expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyfulladdress):");
   });
 
   it("explains why a full address is needed without treating the explanation as consent", async () => {
     const user = userEvent.setup();
     renderHome();
 
-    const trigger = screen.getByRole("button", { name: "Why full address?" });
+    const trigger = screen.getByRole("button", { name: "why full address" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     await user.click(trigger);

@@ -7,7 +7,12 @@ import { useState } from "react";
  * block of text to the landing page. This is informational, not consent, so
  * it deliberately has no checkbox or "Agree" action.
  */
-export function FullAddressExplanation({ onOpen }: { onOpen?: () => void } = {}) {
+export function FullAddressExplanation({
+  onOpen,
+  // The anonymous search puts the trigger inside its field label's
+  // parenthesis ("(why full address)"); other surfaces keep the question.
+  triggerLabel = "Why full address?",
+}: { onOpen?: () => void; triggerLabel?: string } = {}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +25,7 @@ export function FullAddressExplanation({ onOpen }: { onOpen?: () => void } = {})
         }}
         className="rounded-sm text-left underline hover:text-rausch focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rausch"
       >
-        Why full address?
+        {triggerLabel}
       </button>
 
       <Dialog open={open} onClose={setOpen} className="relative z-40">
