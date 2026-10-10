@@ -39,7 +39,7 @@ import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { useHydrated } from "../lib/useHydrated";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { partyColorClass, profilePartyLabel } from "@voteapp/api-client";
-import { candidateAnswerSnippet, candidateAnswerText, candidateProfileLinks, candidateSameAsUrls } from "@voteapp/api-client";
+import { candidateAnswerSnippet, candidateProfileLinks, candidateSameAsUrls } from "@voteapp/api-client";
 import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
@@ -281,9 +281,8 @@ export function CandidatePage() {
   const profileLinks = candidateProfileLinks(candidate);
   const sameAs = candidateSameAsUrls(candidate);
   const today = usLatestLocalDate();
-  // The one-paragraph answer (candidateAnswerText): opens the page and its
-  // first sentences are the meta description — one text, two readers.
-  const answerText = candidateAnswerText(candidate, today);
+  // The one-paragraph answer (candidateAnswerText) is the meta description's
+  // source (see meta). It is not rendered on the page.
   const ongoingElections = candidate.elections.filter((election) => election.election_date >= today);
   // The history list splits on the same date boundary: "is in" would misread
   // on a race that finished years ago. Within the ongoing bucket it also
@@ -634,14 +633,16 @@ export function CandidatePage() {
             ))}
           </p>
         ) : null}
-        {/* The answer paragraph: who, which race, office held, the profile
-            summary, and how much sourced record history follows — the whole
-            profile in one self-contained passage a reader (or an answer
-            engine) can take on its own. Replaces the bare summary line; the
-            summary is inside it verbatim. */}
-        <p ref={summaryRef} className="mt-3 text-body text-ink">
-          {answerText}
-        </p>
+        {/* The plain profile summary. The stitched answer paragraph
+            (candidateAnswerText) is for search engines only and is not
+            rendered: its other facts (race, office held, record count)
+            already show in the header and the sections below (user
+            decision 2026-10-10). */}
+        {candidate.summary ? (
+          <p ref={summaryRef} className="mt-3 text-body text-ink">
+            {candidate.summary}
+          </p>
+        ) : null}
 
         {/* Directly after the summary, before the pick rows — the same order
             as the measure page (explainer boxes, then choice buttons). */}
