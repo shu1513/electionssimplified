@@ -7,7 +7,7 @@ import { DraftHandoffGate } from "./components/DraftHandoffGate";
 import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
-import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
+import { APP_NAME, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
 import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
@@ -392,15 +392,6 @@ export function App() {
           document from every page, which is also what keeps the clickwrap's
           named documents permanently available rather than only at the gate. */}
       <footer className="mt-16 border-t border-line py-8 text-center text-xs text-ink-soft">
-        {/* Reaches everyone who sees results, including the people the
-            clickwrap never reached — a shared computer, someone else's phone,
-            a link from a text message. For a reliance claim this line carries
-            more weight than the agreement does, because it does not depend on
-            the reader having accepted anything. It used to sit above the
-            election list, where it read as an interruption; the footer keeps
-            it on every page instead of only the ballot, and beside the
-            Disclaimer link it already points at. Non-blocking by design. */}
-        <p className="mb-3 px-4">{VERIFY_WITH_OFFICIALS_NOTE}</p>
         <nav aria-label="Footer" className="flex flex-wrap justify-center gap-x-5 gap-y-2">
           {/* The header's Mission link has gaps (guests: absent on the
               landing and on phones beside a draft link; signed-in: in the
