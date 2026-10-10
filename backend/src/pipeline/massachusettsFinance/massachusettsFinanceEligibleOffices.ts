@@ -174,6 +174,26 @@ const MASSACHUSETTS_OCPF_STATEWIDE_OFFICE_DEFINITIONS = new Map<string, Massachu
       requiresDistrict: false,
     },
   ],
+  // OCPF's live label for the office (Deborah Goldberg, Elizabeth Dionne);
+  // "Statewide, Treasurer" alone matched no filer.
+  [
+    "STATEWIDE TREASURER OF THE COMMONWEALTH",
+    {
+      officeScope: "statewide",
+      officeCanonicalName: "State Treasurer",
+      ocpfOffice: "Statewide, Treasurer",
+      requiresDistrict: false,
+    },
+  ],
+  [
+    "TREASURER OF THE COMMONWEALTH",
+    {
+      officeScope: "statewide",
+      officeCanonicalName: "State Treasurer",
+      ocpfOffice: "Statewide, Treasurer",
+      requiresDistrict: false,
+    },
+  ],
   [
     "STATE TREASURER",
     {
