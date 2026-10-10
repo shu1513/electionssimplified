@@ -295,9 +295,16 @@ export async function runBallotMeasuresEnricher(options: EnricherOptions = {}): 
                   source_url,
                   official_measure_url,
                   last_researched,
-                  research_area_tags_researched_at
+                  research_area_tags_researched_at,
+                  proposed_by,
+                  proposed_by_about,
+                  proposed_by_source_url,
+                  proposed_by_researched_at
                 )
-                VALUES ($1, $2, $3, $4, $5, $6, NULL, $7::jsonb, $8, now(), now())
+                VALUES (
+                  $1, $2, $3, $4, $5, $6, NULL, $7::jsonb, $8, now(), now(),
+                  $10, $11, $12, CASE WHEN $9::boolean THEN now() ELSE NULL END
+                )
                 ON CONFLICT (election_id)
                 DO UPDATE SET
                   official_ballot_title = EXCLUDED.official_ballot_title,
@@ -308,6 +315,10 @@ export async function runBallotMeasuresEnricher(options: EnricherOptions = {}): 
                   official_measure_url = EXCLUDED.official_measure_url,
                   last_researched = now(),
                   research_area_tags_researched_at = now(),
+                  proposed_by = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by ELSE ballot_measures.proposed_by END,
+                  proposed_by_about = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by_about ELSE ballot_measures.proposed_by_about END,
+                  proposed_by_source_url = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by_source_url ELSE ballot_measures.proposed_by_source_url END,
+                  proposed_by_researched_at = CASE WHEN $9::boolean THEN now() ELSE ballot_measures.proposed_by_researched_at END,
                   updated_at = now()
                 RETURNING id
               `,
@@ -320,6 +331,10 @@ export async function runBallotMeasuresEnricher(options: EnricherOptions = {}): 
                 aiResult.whatNoMeans,
                 JSON.stringify(aiResult.researchUrls),
                 aiResult.officialMeasureUrl,
+                aiResult.proposedBy !== undefined,
+                aiResult.proposedBy?.name ?? null,
+                aiResult.proposedBy?.about ?? null,
+                aiResult.proposedBy?.source_url ?? null,
               ]
             );
             const ballotMeasureId = measureResult.rows[0]?.id;

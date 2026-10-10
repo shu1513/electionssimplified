@@ -6,6 +6,10 @@ import {
   type ResearchErrorCode,
 } from "./researchProviderClient.js";
 import { normalizeHttpUrl } from "../utils/normalizeHttpUrl.js";
+import {
+  parseOptionalBallotMeasureProposedBy,
+  type BallotMeasureProposedBy,
+} from "../contracts/ballotMeasureProposedByPayloadContract.js";
 import type { AiProvider } from "./types.js";
 import {
   BALLOT_MEASURE_SUMMARY_MAX_LENGTH,
@@ -45,6 +49,9 @@ type BallotMeasureValidationResult =
       whatNoMeans: string;
       researchAreaTags: BallotMeasureResearchAreaTag[];
       sources: string[];
+      // undefined = payload omitted the key (older payloads; stored columns
+      // are left alone). null = researched, no proposer could be sourced.
+      proposedBy: BallotMeasureProposedBy | null | undefined;
       officialMeasureUrlVerification: {
         status: number;
       };
@@ -90,6 +97,7 @@ export type BallotMeasureAiResult =
       whatYesMeans: string;
       whatNoMeans: string;
       researchAreaTags: BallotMeasureResearchAreaTag[];
+      proposedBy: BallotMeasureProposedBy | null | undefined;
       researchUrls: string[];
       aiRawDebug: Record<string, unknown> | null;
     }
@@ -148,6 +156,7 @@ export function parseBallotMeasureAiPayload(payload: unknown, allowedResearchAre
   whatNoMeans: string;
   researchAreaTags: BallotMeasureResearchAreaTag[];
   sources: string[];
+  proposedBy: BallotMeasureProposedBy | null | undefined;
 } | {
   ok: false;
   reason: string;
@@ -227,6 +236,11 @@ export function parseBallotMeasureAiPayload(payload: unknown, allowedResearchAre
     return { ok: false, reason: "sources must contain at least one URL" };
   }
 
+  const proposedBy = parseOptionalBallotMeasureProposedBy(input.proposed_by);
+  if (!proposedBy.ok) {
+    return { ok: false, reason: proposedBy.reason };
+  }
+
   return {
     ok: true,
     officialMeasureUrl,
@@ -235,6 +249,7 @@ export function parseBallotMeasureAiPayload(payload: unknown, allowedResearchAre
     whatNoMeans,
     researchAreaTags: researchAreaTags.tags,
     sources,
+    proposedBy: proposedBy.proposedBy,
   };
 }
 
@@ -372,6 +387,28 @@ export async function validateBallotMeasureAiPayload(
     .map((check) => (check.verification.ok ? check.verification.finalUrl : null))
     .filter((url): url is string => typeof url === "string");
 
+  // The proposer's source is shown to voters as the evidence for the name,
+  // so it gets the same reachability check as the measure's own sources.
+  let proposedBy = parsed.proposedBy;
+  if (proposedBy) {
+    const proposedByVerification = await verifyHttpUrlReachability(proposedBy.source_url, {
+      timeoutMs: Math.min(timeoutMs, 8_000),
+      allowStatusCodes: [403],
+    });
+    if (!proposedByVerification.ok) {
+      return {
+        ok: false,
+        reason: `proposed_by source_url is not reachable: ${proposedBy.source_url} (${proposedByVerification.reason})`,
+        blockedUrls: [proposedBy.source_url],
+        failureDebug: {
+          proposed_by_source_url: proposedBy.source_url,
+          proposed_by_source_url_verification_reason: proposedByVerification.reason,
+        },
+      };
+    }
+    proposedBy = { ...proposedBy, source_url: proposedByVerification.finalUrl };
+  }
+
   return {
     ok: true,
     officialMeasureUrl: officialVerification.finalUrl,
@@ -380,6 +417,7 @@ export async function validateBallotMeasureAiPayload(
     whatNoMeans: parsed.whatNoMeans,
     researchAreaTags: parsed.researchAreaTags,
     sources: [...new Set(normalizedSources)],
+    proposedBy,
     officialMeasureUrlVerification: {
       status: officialVerification.status,
     },
@@ -503,6 +541,7 @@ export async function enrichBallotMeasure(
         whatYesMeans: validation.whatYesMeans,
         whatNoMeans: validation.whatNoMeans,
         researchAreaTags: validation.researchAreaTags,
+        proposedBy: validation.proposedBy,
         researchUrls: (() => {
           const urls = new Set<string>();
           for (const url of validation.sources) {

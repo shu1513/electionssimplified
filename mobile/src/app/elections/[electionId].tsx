@@ -158,7 +158,13 @@ export default function ElectionScreen() {
   // Election-level sources the measure section did not already show (its
   // source_urls plus the official-measure link), mirroring the web page.
   const measureShownSources = new Set<string>(
-    measure ? [...measure.source_urls, ...(measure.official_measure_url ? [measure.official_measure_url] : [])] : []
+    measure
+      ? [
+          ...measure.source_urls,
+          ...(measure.official_measure_url ? [measure.official_measure_url] : []),
+          ...(measure.proposed_by ? [measure.proposed_by.source_url] : []),
+        ]
+      : []
   );
   const electionOnlySources = data.sources.filter((url) => !measureShownSources.has(url));
   // Pick gates, copied from the web ElectionPage. Controls render on
@@ -315,6 +321,17 @@ export default function ElectionScreen() {
             </View>
           ) : null}
           {measure.summary ? <Text className="mt-2 text-sm text-ink">{measure.summary}</Text> : null}
+          {/* Whose idea it was, with the plain-language explainer and its
+              source, mirroring the web page. */}
+          {measure.proposed_by ? (
+            <View className="mt-2">
+              <Text className="text-sm text-ink">
+                <Text className="font-medium text-ink-soft">Put on the ballot by:</Text> {measure.proposed_by.name}
+              </Text>
+              <Text className="text-xs text-ink-soft">{measure.proposed_by.about}</Text>
+              <SourceLine url={measure.proposed_by.source_url} />
+            </View>
+          ) : null}
           <View className="mt-3 gap-3">
             <View className="rounded border border-green-200 bg-green-50 p-3">
               <Text className="text-sm font-semibold text-green-900">A YES vote means</Text>
@@ -356,7 +373,9 @@ export default function ElectionScreen() {
             </Text>
           ) : null}
           <SourceFootnote
-            urls={measure.source_urls.filter((url) => url !== measure.official_measure_url)}
+            urls={measure.source_urls.filter(
+              (url) => url !== measure.official_measure_url && url !== measure.proposed_by?.source_url
+            )}
             className="mt-1"
           />
         </View>

@@ -472,6 +472,16 @@ export type BallotMeasureFunding = {
   oppose: BallotMeasureFundingSide;
 };
 
+/** Who put the measure on the ballot, with a plain-language explainer. */
+export type BallotMeasureProposedBy = {
+  /** Short and factual: "Louisiana Legislature (HB 300, Rep. Jane Smith)". */
+  name: string;
+  /** Who that is, in plain words: a sponsor's party and home, what a filing group is and who funds it. */
+  about: string;
+  /** The enabling bill page or the initiative filing that backs both lines. */
+  source_url: string;
+};
+
 export type BallotMeasure = {
   id: string;
   official_ballot_title: string;
@@ -482,6 +492,8 @@ export type BallotMeasure = {
   result: "passed" | "failed" | null;
   source_urls: string[];
   official_measure_url: string | null;
+  /** null = not researched or no sourced proposer. Absent on API builds older than this field. */
+  proposed_by?: BallotMeasureProposedBy | null;
   research_area_tags: { research_area_id: string; slug: string; name: string; stance: string | null }[];
   results: BallotMeasureResult[];
   /** null = not researched. Absent on API builds older than this field. */

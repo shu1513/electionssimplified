@@ -146,6 +146,8 @@ async function main(): Promise<void> {
             sources: validated.sources,
             researchAreaTagCount: validated.researchAreaTags.length,
             researchAreaTags: validated.researchAreaTags,
+            // "unchanged" = key absent from the payload; stored columns stay.
+            proposedBy: validated.proposedBy === undefined ? "unchanged" : validated.proposedBy,
           },
           null,
           2
@@ -170,9 +172,16 @@ async function main(): Promise<void> {
             source_url,
             official_measure_url,
             last_researched,
-            research_area_tags_researched_at
+            research_area_tags_researched_at,
+            proposed_by,
+            proposed_by_about,
+            proposed_by_source_url,
+            proposed_by_researched_at
           )
-          VALUES ($1, $2, $3, $4, $5, $6, NULL, $7::jsonb, $8, now(), now())
+          VALUES (
+            $1, $2, $3, $4, $5, $6, NULL, $7::jsonb, $8, now(), now(),
+            $10, $11, $12, CASE WHEN $9::boolean THEN now() ELSE NULL END
+          )
           ON CONFLICT (election_id)
           DO UPDATE SET
             official_ballot_title = EXCLUDED.official_ballot_title,
@@ -183,6 +192,12 @@ async function main(): Promise<void> {
             official_measure_url = EXCLUDED.official_measure_url,
             last_researched = now(),
             research_area_tags_researched_at = now(),
+            -- A payload without the proposed_by key leaves the stored
+            -- proposer alone (older payloads predate the field).
+            proposed_by = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by ELSE ballot_measures.proposed_by END,
+            proposed_by_about = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by_about ELSE ballot_measures.proposed_by_about END,
+            proposed_by_source_url = CASE WHEN $9::boolean THEN EXCLUDED.proposed_by_source_url ELSE ballot_measures.proposed_by_source_url END,
+            proposed_by_researched_at = CASE WHEN $9::boolean THEN now() ELSE ballot_measures.proposed_by_researched_at END,
             updated_at = now()
           RETURNING id
         `,
@@ -195,6 +210,10 @@ async function main(): Promise<void> {
           validated.whatNoMeans,
           JSON.stringify(validated.sources),
           validated.officialMeasureUrl,
+          validated.proposedBy !== undefined,
+          validated.proposedBy?.name ?? null,
+          validated.proposedBy?.about ?? null,
+          validated.proposedBy?.source_url ?? null,
         ]
       );
       const ballotMeasureId = measureResult.rows[0]?.id;
@@ -216,6 +235,7 @@ async function main(): Promise<void> {
             electionId,
             ballotMeasureId,
             tagsProcessed: tagResult.processed,
+            proposedBy: validated.proposedBy === undefined ? "unchanged" : validated.proposedBy,
           },
           null,
           2

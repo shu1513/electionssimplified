@@ -7,7 +7,7 @@ import { sourceLinkProps, track } from "../lib/usage";
 type SourceLineProps = {
   url: string;
   /** What the line documents, for the official_source_click usage event. */
-  kind?: "record_source" | "result_source";
+  kind?: "record_source" | "result_source" | "measure_proposed_by_source";
 };
 
 export function SourceLine({ url, kind = "record_source" }: SourceLineProps) {
