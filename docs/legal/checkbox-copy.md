@@ -119,39 +119,32 @@ Freedom Financial Network):
   version or needs a bump and re-acceptance.
 - Registration and the re-acceptance interstitial keep their checkbox INLINE
   on the page: both gate an explicit account action the visitor came to take.
-- The anonymous gate is DEFERRED instead: the home page carries no checkbox
-  and no legal box. On the web, pressing Search runs the lookup and the
-  elections page opens the terms dialog over the blurred results (since
-  2026-09-28; the mobile app still opens its sheet before searching). Assent
-  is asked for at the moment it gates something — reading the results — which
-  is where the clickwrap cases put it (Meyer v. Uber). Notice sitting apart
-  from the action is the weak pattern — Nicosia v. Amazon turned on exactly
-  that.
-- Anonymous acceptance is never stored, and since 2026-09-28 the web gate is
-  a frontend gate: POST /api/address/resolve serves a search that carries no
-  accepted_terms_version (a first web search) and refuses only a stale or
-  unknown one (a stale bundle). Before that date the endpoint refused any
-  search without a current acceptance. Nothing about the acceptance is
-  persisted either way — an anonymous visitor's IP and user agent are
-  deliberately NOT collected, so the evidence is this file plus the deployed
-  gate, not a row per search. Abuse of the endpoint is bounded by the per-IP
-  rate limit, which never depended on this field.
-- Acceptance IS remembered on the device for 90 days, keyed to the terms
-  version (frontend/src/lib/termsAcceptance.ts and the mobile port). Re-asking
-  a returning visitor on every search teaches click-through, which weakens
-  assent; the trigger that requires fresh consent is a version change, which
-  the version check enforces. Remembering may ONLY decide whether the dialog
-  opens. When a dialog opens its checkbox starts empty — a pre-ticked box shows
-  assent nobody gave, and that is the thing that must never come back.
-- The privacy note must stay beside the address field, not only inside the
-  dialog: the autocomplete forwards typed fragments after three characters, so
-  collection begins before Search is ever pressed and notice has to arrive at
-  or before collection.
-- The pre-search checkbox label is a SUMMARY; the sentences it does not carry
-  appear above it in the dialog. It names the three documents and nothing else
-  — see "Why arbitration is not named on any checkbox screen" below, and do
-  not add a clause callout back to any label without reading that section
-  first.
+- The anonymous gate is a SIGN-IN WRAP (since 2026-10-10): no checkbox, no
+  dialog. One sentence sits directly under the Search button, in the same
+  block as the button, naming and linking all three documents, and pressing
+  Search is the assent. That is the screen upheld in Meyer v. Uber. Notice
+  sitting apart from the action is the weak pattern — Nicosia v. Amazon
+  turned on exactly that — so the sentence may never move to the footer,
+  shrink to a bare "Terms" link, or lose a document link. It is rendered word
+  for word from PRE_SEARCH_NOTICE (packages/api-client/src/legalCopy.ts).
+- Anonymous acceptance is never stored. Every search sends the current
+  accepted_terms_version to POST /api/address/resolve; the endpoint serves a
+  search that carries none (an older bundle) and refuses a stale or unknown
+  one. Nothing about the acceptance is persisted — an anonymous visitor's IP
+  and user agent are deliberately NOT collected, so the evidence is this file
+  plus the deployed notice, not a row per search. Abuse of the endpoint is
+  bounded by the per-IP rate limit, which never depended on this field.
+- The device does not remember an anonymous acceptance either: there is no
+  dialog to skip, and each search is its own assent. (The dialog era kept a
+  90-day device memory so returning visitors were not re-asked; that code is
+  gone with the dialog.)
+- The privacy note must stay beside the address field: the autocomplete
+  forwards typed fragments after three characters, so collection begins
+  before Search is ever pressed and notice has to arrive at or before
+  collection.
+- The pre-search notice names the three documents and nothing else — see
+  "Why arbitration is not named on any checkbox screen" below, and do not add
+  a clause callout back to any label without reading that section first.
 - All of this copy lives in packages/api-client/src/legalCopy.ts, and
   legalCopy.test.ts asserts every string still appears in this file. That suite
   also pins arbitration and the class-action waiver OUT of every label, so the
@@ -160,32 +153,33 @@ Freedom Financial Network):
 
 # Checkbox and notice copy — Version 1.5
 
-## Anonymous terms dialog (web: over the first results; mobile: before search)
+## Anonymous search notice (web and mobile, since 2026-10-10)
 
-Web (since 2026-09-28): opens on the elections page when the search ran on a
-browser with no current acceptance, with the list blurred behind it. Heading:
-**Your elections are ready**. Body, in order: the short privacy note, then
-the checkbox and its three document links, then **Cancel** and **Agree and
-show results**.
+One sentence directly under the **Search** button, in the same block as the
+button, with all three documents linked. Pressing Search is the agreement:
+there is no checkbox, no dialog, and nothing to dismiss. On the web the links
+open in a new tab so the typed address is not lost; in the app they open the
+legal screens, and the address is still there on return.
 
-Mobile (unchanged): opened by pressing **Search**. Heading: **Before we
-search**. Body: the two "Dialog paragraphs" below, the short privacy note, the
-checkbox and links, then **Cancel** and **Agree and search**.
+> By clicking Search you agree to the [Terms of Use], [Privacy Policy], and
+> [AI Research and Election Information Disclaimer].
+
+### Archived: anonymous terms dialog (2026-08-30 to 2026-10-10)
+
+Kept for the acceptances made against it. Web (2026-09-28 to 2026-10-10):
+opened on the elections page when the search ran on a browser with no current
+acceptance, with the list blurred behind it. Heading: **Your elections are
+ready**. Body: the short privacy note, the checkbox and its three document
+links, then **Cancel** and **Agree and show results**. Web before 2026-09-28
+and mobile throughout: opened by pressing **Search**. Heading: **Before we
+search**. Body: the two paragraphs below, the short privacy note, the checkbox
+and links, then **Cancel** and **Agree and search**. The box was empty every
+time it opened and the agree button stayed disabled until it was ticked.
 
 > [ ] I have read and agree to the [Terms of Use], [Privacy Policy], and
 > [AI Research and Election Information Disclaimer].
 
-Rules for the dialog: the box is empty every time it opens; the agree button
-stays disabled until it is ticked and names what it does rather than saying
-"Continue"; the document links open in a new tab so reading one does not
-discard the dialog; Cancel, Escape, and the backdrop close it without agreeing
-— on the web that leaves the results page for the search form, results unread;
-on mobile it leaves the typed address alone; no forced scrolling through the
-documents.
-
-### Dialog paragraphs (mobile sheet only since 2026-09-28)
-
-Archived for the mobile sheet and the copy check in legalCopy.test.ts.
+Dialog paragraphs (web until 2026-09-28, mobile until 2026-10-10):
 
 > Elections Simplified provides AI-assisted informational research only. It is
 > not an official election source, and results may be inaccurate, incomplete,
@@ -241,13 +235,13 @@ Prof. Code §17602(d) forbids extra steps in front of online cancellation, and
 consent extracted by blocking the exit is not consent. Everything else stays
 gated until the box is ticked.
 
-## Short privacy note (beside every address input, and in the pre-search dialog)
+## Short privacy note (beside every address input)
 
 This carries the address-specific points that matter at collection. It carries
 no Privacy Policy link of its own: the footer links the policy on every page,
-the explainer beside this note links it directly, and the pre-search dialog
-links it in the row under the checkbox — so a second inline copy sat next to
-the question people actually ask and crowded it out. The 14-day lookup cache
+the explainer beside this note links it directly, and the search notice under
+the button links it by name — so a second inline copy sat next to the
+question people actually ask and crowded it out. The 14-day lookup cache
 and the "not sold" assurance are carried by Privacy Policy Section 1 rather
 than repeated here, to keep this line to the two facts a visitor weighs while
 typing — what the address is used for, and that it does not end up on their

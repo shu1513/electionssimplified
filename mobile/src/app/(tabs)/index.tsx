@@ -1,17 +1,15 @@
 import type { AddressLocation, AddressResolution } from "@voteapp/api-client";
 import { apiRequest, TERMS_VERSION, useMe } from "@voteapp/api-client";
 import { useMutation } from "@tanstack/react-query";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { AddressAutocomplete } from "../../components/AddressAutocomplete";
 import { FullAddressExplanation } from "../../components/FullAddressExplanation";
-import { PreSearchTermsSheet } from "../../components/PreSearchTermsSheet";
 import { ErrorNotice } from "../../components/Status";
 import { useLogout } from "../../lib/auth";
 import { setMatchedAddress } from "../../lib/matchedAddress";
 import { clearPendingDistrictIds, savePendingDistrictIds } from "../../lib/pendingDistricts";
-import { hasCurrentTermsAcceptance, rememberTermsAcceptance } from "../../lib/termsAcceptance";
 
 /**
  * Signed-in state / auth entry links. The account screens (saved ballot,
@@ -97,23 +95,14 @@ export default function HomeScreen() {
   // and 422 — same rule as the web home.
   const [retrievePending, setRetrievePending] = useState(false);
   const [addressExplanationVisible, setAddressExplanationVisible] = useState(false);
-  const [termsVisible, setTermsVisible] = useState(false);
-  // Set only while the visitor is off reading a linked document, so the sheet
-  // can be restored on return instead of treated as cancelled.
-  const [termsSuspended, setTermsSuspended] = useState(false);
-  // The sheet's checkbox. Reset to false every time the sheet opens, never
-  // seeded from storage: remembering decides whether the sheet opens and
-  // nothing more. A box that arrives pre-ticked shows assent nobody gave.
-  const [accepted, setAccepted] = useState(false);
-
   const resolve = useMutation({
     mutationFn: (input: {
       address: string;
       coordinates: AddressLocation | null;
       region: { state: string; locality: string | null } | null;
     }) =>
-      // The accepted version rides along because the endpoint enforces the
-      // clickwrap too, refusing a search without one. Nothing is stored
+      // Pressing Search under the agreement notice is the assent, so the
+      // accepted version rides along with every search. Nothing is stored
       // server-side — same rule as the web. Coordinates (from the
       // autocomplete selection, when present) let the backend resolve venue
       // addresses the Census street data lacks.
@@ -158,14 +147,6 @@ export default function HomeScreen() {
       // asked for. The matched address goes through the in-memory holder,
       // never navigation params — see lib/matchedAddress.ts.
       setMatchedAddress(resolution.matched_address, resolution.address_match_count, resolution.scope);
-      // Dismiss the sheet before navigating. A native Modal is a window-level
-      // overlay that the navigator does not clip, and pushing a screen leaves
-      // this one mounted, so a sheet left open would sit on top of the ballot
-      // it just opened — and would still be there, ticked, on the way back.
-      // The web needs no equivalent: navigating unmounts the page and takes
-      // the dialog and its state with it.
-      setTermsVisible(false);
-      setAccepted(false);
       router.push({
         pathname: "/ballot",
         params: {
@@ -176,20 +157,8 @@ export default function HomeScreen() {
         },
       });
     },
-    onError: () => {
-      // Show the failure on the screen behind rather than inside the sheet.
-      // The acceptance is already recorded, so a retry goes straight through.
-      setTermsVisible(false);
-    },
   });
 
-  // Reading acceptance is async here (AsyncStorage), and resolve.isPending
-  // only flips once the request is actually issued. Without a flag covering
-  // that gap the button stays live, so a double-tap re-enters, both reads
-  // report acceptance, and two searches fire — two ballot screens pushed and
-  // two handoff saves. The web has no equivalent gap: localStorage is
-  // synchronous.
-  const [checkingAcceptance, setCheckingAcceptance] = useState(false);
   // regionUnsupported: a stateless region selection can only fail (no
   // coordinates, no state, and the string is an area the geocoder can't
   // match) — Search disables while the guidance under the field explains;
@@ -197,71 +166,15 @@ export default function HomeScreen() {
   const canSearch =
     address.trim().length > 0 &&
     !resolve.isPending &&
-    !checkingAcceptance &&
     !regionUnsupported &&
     !retrievePending;
 
-  async function onSearchPress() {
+  function onSearchPress() {
     if (!canSearch) {
       return;
     }
-    // Captured before the await: the field stays editable while the read is
-    // in flight, and the search must use what was on screen when it started.
-    const searchAddress = address.trim();
-    const searchCoordinates = addressLocation;
-    const searchRegion = regionSelection;
-    setCheckingAcceptance(true);
-    try {
-      if (await hasCurrentTermsAcceptance()) {
-        resolve.mutate({ address: searchAddress, coordinates: searchCoordinates, region: searchRegion });
-        return;
-      }
-      setAccepted(false);
-      setTermsVisible(true);
-    } finally {
-      setCheckingAcceptance(false);
-    }
-  }
-
-  function agreeAndSearch() {
-    if (!accepted || resolve.isPending) {
-      return;
-    }
-    // Recorded before the request, so a failed search does not re-ask for an
-    // agreement already given. Fire-and-forget: never block the search on
-    // being able to remember it.
-    void rememberTermsAcceptance();
     resolve.mutate({ address: address.trim(), coordinates: addressLocation, region: regionSelection });
   }
-
-  function cancelTerms() {
-    if (resolve.isPending) {
-      return;
-    }
-    setTermsVisible(false);
-    setAccepted(false);
-    setTermsSuspended(false);
-    // The typed address is deliberately left alone.
-  }
-
-  // Reading one of the linked documents means leaving this screen, which a
-  // native Modal cannot survive. Closing the sheet for that is not the same
-  // as cancelling: the tick is kept and the sheet comes back when this screen
-  // is focused again, so reviewing what you are agreeing to does not send you
-  // back to pressing Search and ticking the box a second time.
-  function suspendTermsForDocument() {
-    setTermsVisible(false);
-    setTermsSuspended(true);
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      if (termsSuspended) {
-        setTermsSuspended(false);
-        setTermsVisible(true);
-      }
-    }, [termsSuspended])
-  );
 
   return (
     <KeyboardAvoidingView className="flex-1 bg-white" behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -327,7 +240,7 @@ export default function HomeScreen() {
 
           <Pressable
             disabled={!canSearch}
-            onPress={() => void onSearchPress()}
+            onPress={onSearchPress}
             accessibilityRole="button"
             className={
               canSearch ? "w-full rounded-md bg-rausch px-4 py-3 active:bg-rausch-dark" : "w-full rounded-md bg-line px-4 py-3"
@@ -337,6 +250,30 @@ export default function HomeScreen() {
               {resolve.isPending ? "Searching…" : "Search"}
             </Text>
           </Pressable>
+          {/* The agreement, in the same block as the button it names (sign-in
+              wrap, Meyer v. Uber): pressing Search is the assent. Wording is
+              PRE_SEARCH_NOTICE from legalCopy.ts word for word, with each
+              document name opening its legal screen — same as the web form.
+              The typed address is still here on the way back. */}
+          <Text className="text-center text-xs text-ink-soft">
+            By clicking Search you agree to the{" "}
+            <Text className="text-ink underline" accessibilityRole="link" onPress={() => router.push("/legal/terms")}>
+              Terms of Use
+            </Text>
+            ,{" "}
+            <Text className="text-ink underline" accessibilityRole="link" onPress={() => router.push("/legal/privacy")}>
+              Privacy Policy
+            </Text>
+            , and{" "}
+            <Text
+              className="text-ink underline"
+              accessibilityRole="link"
+              onPress={() => router.push("/legal/disclaimer")}
+            >
+              AI Research and Election Information Disclaimer
+            </Text>
+            .
+          </Text>
         </View>
 
         {resolve.isError ? (
@@ -346,15 +283,6 @@ export default function HomeScreen() {
         ) : null}
       </ScrollView>
 
-      <PreSearchTermsSheet
-        visible={termsVisible}
-        checked={accepted}
-        onCheckedChange={setAccepted}
-        onAgree={agreeAndSearch}
-        onCancel={cancelTerms}
-        onSuspendForDocument={suspendTermsForDocument}
-        pending={resolve.isPending}
-      />
       <FullAddressExplanation
         visible={addressExplanationVisible}
         onClose={() => setAddressExplanationVisible(false)}

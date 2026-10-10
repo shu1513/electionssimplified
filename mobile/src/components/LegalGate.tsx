@@ -8,9 +8,10 @@ import { Pressable, Text, View } from "react-native";
 //
 // Used by registration and the re-acceptance interstitial, both of which gate
 // an explicit account action and so keep the checkbox inline on the screen.
-// The anonymous pre-search gate does NOT use this — a search is a low-intent
-// action by a first-time visitor, so its clickwrap is deferred to the moment
-// Search is pressed. See PreSearchTermsSheet.
+// The anonymous search does NOT use this — a search is a low-intent action by
+// a first-time visitor, so its gate is a sign-in wrap: one sentence under the
+// Search button on the home screen, and pressing Search is the assent. See
+// app/(tabs)/index.tsx and PRE_SEARCH_NOTICE in legalCopy.ts.
 
 const DOCUMENT_LINKS = [
   { label: "Terms of Use", path: "/legal/terms" },
