@@ -329,9 +329,27 @@ export function AddressSearchForm({
                 code from the suggestions.
               </p>
             ) : null}
-            {/* Google-sized: a small centered button right under the pill box,
-                not a full-width bar competing with the field. The privacy note
-                sits below it so the box-and-button pair reads as one unit. */}
+            {/* Notice belongs here: the autocomplete forwards what is typed
+                after three characters, so collection starts while the
+                visitor types and long before Search. */}
+            {/* One link, not two. The Privacy Policy is still reachable at the
+                point of collection — the footer carries it on every page, and
+                the explainer below links it directly — so the inline copy of
+                it was noise beside the question people actually ask. */}
+            {/* Compressed variant of ADDRESS_FIELD_PRIVACY_NOTE plus the
+                coarse-input hint: same two promises (district lookup only,
+                never saved), short enough to be read. Other surfaces keep
+                the full constant. */}
+            <p className={landing ? "mt-3 text-center text-xs text-ink-soft" : "mt-2 text-xs text-ink-soft"}>
+              The address is only used to find voting districts. You can also search by ZIP or
+              city, with fewer local races.{" "}
+              <FullAddressExplanation
+                onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
+              />
+            </p>
+            {/* Google-sized: a small centered button under the privacy note,
+                not a full-width bar competing with the field. Box, note, button,
+                agreement line — the same order as the app home screen. */}
             <div className={landing ? "mt-4 flex justify-center box:mt-[11px]" : "mt-2"}>
               <button
                 type="submit"
@@ -356,24 +374,6 @@ export function AddressSearchForm({
             >
               By clicking Search you agree to the <NoticeLink doc="terms" />, <NoticeLink doc="privacy" />, and{" "}
               <NoticeLink doc="disclaimer" />.
-            </p>
-            {/* Notice belongs here: the autocomplete forwards what is typed
-                after three characters, so collection starts while the
-                visitor types and long before Search. */}
-            {/* One link, not two. The Privacy Policy is still reachable at the
-                point of collection — the footer carries it on every page, and
-                the explainer below links it directly — so the inline copy of
-                it was noise beside the question people actually ask. */}
-            {/* Compressed variant of ADDRESS_FIELD_PRIVACY_NOTE plus the
-                coarse-input hint: same two promises (district lookup only,
-                never saved), short enough to be read. Other surfaces keep
-                the full constant. */}
-            <p className={landing ? "mt-4 text-center text-xs text-ink-soft" : "mt-2 text-xs text-ink-soft"}>
-              The address is only used to find voting districts. You can also search by ZIP or
-              city, with fewer local races.{" "}
-              <FullAddressExplanation
-                onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
-              />
             </p>
           </div>
         </form>
