@@ -147,12 +147,20 @@ describe("ZctaLegislativeAccumulator", () => {
     expect(accumulator.rows()).toEqual([{ zcta5: "99826", state_lower_geoid: "02003", state_upper_geoid: "0200B" }]);
   });
 
-  it("refuses a chamber when even one resident lives in another district, independently per chamber", () => {
+  it("refuses a chamber when more than 0.5% of residents live in another district, independently per chamber", () => {
     const accumulator = new ZctaLegislativeAccumulator();
     accumulator.add({ zcta5: "78701", population: 900, lowerGeoid: "48049", upperGeoid: "48014", isSplitBlock: false });
-    accumulator.add({ zcta5: "78701", population: 1, lowerGeoid: "48046", upperGeoid: "48014", isSplitBlock: false });
+    accumulator.add({ zcta5: "78701", population: 5, lowerGeoid: "48046", upperGeoid: "48014", isSplitBlock: false });
 
     expect(accumulator.rows()).toEqual([{ zcta5: "78701", state_lower_geoid: null, state_upper_geoid: "48014" }]);
+  });
+
+  it("offers the district that holds nearly every resident: Gustavus keeps HD3 despite two HD2 residents", () => {
+    const accumulator = new ZctaLegislativeAccumulator();
+    accumulator.add({ zcta5: "99826", population: 655, lowerGeoid: "02003", upperGeoid: "0200B", isSplitBlock: false });
+    accumulator.add({ zcta5: "99826", population: 2, lowerGeoid: "02002", upperGeoid: "0200B", isSplitBlock: false });
+
+    expect(accumulator.rows()).toEqual([{ zcta5: "99826", state_lower_geoid: "02003", state_upper_geoid: "0200B" }]);
   });
 
   it("refuses a chamber whose residents include an unassigned block, and a ZCTA with a split block or no residents", () => {

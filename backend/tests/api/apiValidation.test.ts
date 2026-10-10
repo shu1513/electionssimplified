@@ -793,6 +793,20 @@ describe("parsePublicAddressResolveBodyValue", () => {
     expect(() => parsePublicAddressResolveBodyValue({ ...base, region_locality: "Los Angeles" })).toThrow(
       /region_locality requires region_state/
     );
+
+    // region_postal_code: exactly five digits, and only beside a state.
+    expect(
+      parsePublicAddressResolveBodyValue({ ...base, region_state: "AK", region_postal_code: "99826" }).region_postal_code
+    ).toBe("99826");
+    expect("region_postal_code" in parsePublicAddressResolveBodyValue({ ...base, region_state: "AK" })).toBe(false);
+    for (const region_postal_code of ["", "9982", "99826-1234", 99826, null]) {
+      expect(() =>
+        parsePublicAddressResolveBodyValue({ ...base, region_state: "AK", region_postal_code })
+      ).toThrow(/region_postal_code/);
+    }
+    expect(() => parsePublicAddressResolveBodyValue({ ...base, region_postal_code: "99826" })).toThrow(
+      /region_postal_code requires region_state/
+    );
   });
 
   it("passes through valid optional coordinates", async () => {

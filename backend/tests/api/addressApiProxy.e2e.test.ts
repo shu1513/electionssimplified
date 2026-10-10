@@ -303,6 +303,7 @@ describeE2e("address API auth proxy E2E", () => {
       undefined,
       false,
       undefined,
+      undefined,
       undefined
     );
     expect(initializeUserDistricts).not.toHaveBeenCalled();

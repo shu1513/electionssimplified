@@ -64,6 +64,7 @@ export type ZipDistrictResolutionErrorCode =
   | "zip_not_found"
   | "zip_multi_state"
   | "zip_unsupported_region"
+  | "zip_required_for_po_box"
   | "region_unsupported";
 
 export class ZipDistrictResolutionError extends Error {
@@ -147,6 +148,12 @@ export type AddressResolverServiceOptions = {
    * place's races; no match just means statewide only.
    */
   regionLocality?: string;
+  /**
+   * Five-digit ZIP from the same region selection, present when the pick
+   * was a street (Google `route`): the ZIP crosswalks then add the county
+   * and state legislative races a locality name cannot.
+   */
+  regionPostalCode?: string;
 };
 
 function effectiveGeocoderCacheContext(options: CensusAddressGeocoderOptions | undefined): {
@@ -165,9 +172,67 @@ function effectiveGeocoderCacheContext(options: CensusAddressGeocoderOptions | u
 // 78701, USA" — stays on the exact geocoder pipeline.
 const ZIP_INPUT_PATTERN = /^(\d{5})(?:-\d{4})?$/;
 
+// A post-office box ("PO Box 211", "P.O. Box 211", "Post Office Box 211").
+// No geocoder can place one — the box sits at the post office, not at the
+// voter's home — and Google autocomplete even "corrects" such input to an
+// unrelated house ("PO Box 211, Gustavus" became 211 Gustavus Rd). Rural
+// Alaska voters have ONLY a PO Box as a public address, so the input is
+// honest and common; the ZIP in it is the one location it really carries.
+export const PO_BOX_INPUT_PATTERN = /\b(?:p\.?\s*o\.?|post\s+office)\s*box\b/i;
+
+export function isPoBoxAddress(address: string): boolean {
+  return PO_BOX_INPUT_PATTERN.test(address);
+}
+
+// The ZIP of a PO Box input, with the box number blanked first so a
+// five-digit box ("PO Box 85106", "PO Box No. 85106", "PO Box: 85106") is
+// never mistaken for one.
+function extractPoBoxZip(address: string): string | null {
+  const withoutBoxNumber = address.replace(
+    /\b(?:p\.?\s*o\.?|post\s+office)\s*box\s*(?:#|no\.?|number|:)?\s*\d+/gi,
+    " "
+  );
+  const zips = withoutBoxNumber.match(/\b\d{5}(?=-\d{4}\b|\b)/g);
+  return zips ? zips[zips.length - 1] : null;
+}
+
 // The districts table covers 50 states + DC; these county-FIPS state
 // prefixes exist in the crosswalk (149 ZCTAs) but have no districts.
 const TERRITORY_STATE_FIPS = new Set(["60", "66", "69", "72", "78"]);
+
+// State legislative races when (nearly) every resident of the ZCTA lives in
+// one district of the chamber — decided block by block at import
+// (import:zcta-legislative-crosswalk), so a row's non-null column IS the
+// proof. Each chamber stands on its own, and a NULL means the ZCTA's
+// residents straddle a line (or the state has no such chamber).
+async function zctaLegislativeKeys(db: Queryable, zip5: string): Promise<AddressDistrictKey[]> {
+  const legislativeRow = await db.query<{ state_lower_geoid: string | null; state_upper_geoid: string | null }>(
+    `SELECT state_lower_geoid, state_upper_geoid FROM public.address_zcta_legislative WHERE zcta5 = $1`,
+    [zip5]
+  );
+  if (legislativeRow.rows.length !== 1) {
+    return [];
+  }
+  const keys: AddressDistrictKey[] = [];
+  const { state_lower_geoid, state_upper_geoid } = legislativeRow.rows[0];
+  if (state_lower_geoid !== null) {
+    keys.push({
+      district_type: "state_lower",
+      geoid_compact: state_lower_geoid,
+      source: "layer_name",
+      layer_name: "zcta_legislative_crosswalk",
+    });
+  }
+  if (state_upper_geoid !== null) {
+    keys.push({
+      district_type: "state_upper",
+      geoid_compact: state_upper_geoid,
+      source: "layer_name",
+      layer_name: "zcta_legislative_crosswalk",
+    });
+  }
+  return keys;
+}
 
 async function resolveZipToDistricts(db: Queryable, zip5: string): Promise<AddressResolutionResult> {
   const crosswalk = await db.query<{ county_geoid: string }>(
@@ -240,34 +305,7 @@ async function resolveZipToDistricts(db: Queryable, zip5: string): Promise<Addre
     });
   }
 
-  // State legislative races when EVERY resident of the ZCTA lives in one
-  // district of the chamber — decided block by block at import
-  // (import:zcta-legislative-crosswalk), so a row's non-null column IS the
-  // proof. Each chamber stands on its own, and a NULL means the ZCTA's
-  // residents straddle a line (or the state has no such chamber).
-  const legislativeRow = await db.query<{ state_lower_geoid: string | null; state_upper_geoid: string | null }>(
-    `SELECT state_lower_geoid, state_upper_geoid FROM public.address_zcta_legislative WHERE zcta5 = $1`,
-    [zip5]
-  );
-  if (legislativeRow.rows.length === 1) {
-    const { state_lower_geoid, state_upper_geoid } = legislativeRow.rows[0];
-    if (state_lower_geoid !== null) {
-      districtKeys.push({
-        district_type: "state_lower",
-        geoid_compact: state_lower_geoid,
-        source: "layer_name",
-        layer_name: "zcta_legislative_crosswalk",
-      });
-    }
-    if (state_upper_geoid !== null) {
-      districtKeys.push({
-        district_type: "state_upper",
-        geoid_compact: state_upper_geoid,
-        source: "layer_name",
-        layer_name: "zcta_legislative_crosswalk",
-      });
-    }
-  }
+  districtKeys.push(...(await zctaLegislativeKeys(db, zip5)));
 
   const districtLookup = await lookupAddressDistricts(db, districtKeys);
   return {
@@ -298,7 +336,7 @@ const INCORPORATED_PLACE_NAME_SUFFIXES = [
 
 async function resolveRegionToDistricts(
   db: Queryable,
-  input: { state: string; locality: string | null; matchedAddress: string }
+  input: { state: string; locality: string | null; postalCode: string | null; matchedAddress: string }
 ): Promise<AddressResolutionResult> {
   const stateFips = STATE_FIPS_BY_ABBREVIATION[input.state];
   if (!stateFips) {
@@ -349,6 +387,29 @@ async function resolveRegionToDistricts(
     }
   }
 
+  // A street pick names the ZIP it runs through. The ZIP crosswalks add what
+  // a locality cannot — the county and the state legislative races — under
+  // the same whole-ZCTA rules as a bare ZIP search, and only when the ZCTA
+  // lies inside the selected state (a ZIP on a state line proves nothing).
+  if (input.postalCode) {
+    const crosswalk = await db.query<{ county_geoid: string }>(
+      `SELECT county_geoid FROM public.address_zcta_county WHERE zcta5 = $1 ORDER BY county_geoid`,
+      [input.postalCode]
+    );
+    const countyGeoids = crosswalk.rows.map((row) => row.county_geoid);
+    if (countyGeoids.length > 0 && countyGeoids.every((geoid) => geoid.startsWith(stateFips))) {
+      if (countyGeoids.length === 1) {
+        districtKeys.push({
+          district_type: "county",
+          geoid_compact: countyGeoids[0],
+          source: "layer_name",
+          layer_name: "zcta_county_crosswalk",
+        });
+      }
+      districtKeys.push(...(await zctaLegislativeKeys(db, input.postalCode)));
+    }
+  }
+
   const districtLookup = await lookupAddressDistricts(db, districtKeys);
   return {
     matched_address: input.matchedAddress,
@@ -367,6 +428,25 @@ export async function resolveAddressToDistricts(
   address: string,
   options: AddressResolverServiceOptions = {}
 ): Promise<AddressResolutionResult> {
+  // A PO Box is a ZIP-only input in disguise: it takes the ZIP partial path
+  // (or, for exact-only callers, fails fast with copy that says why).
+  if (isPoBoxAddress(address)) {
+    if (!options.allowPartial) {
+      throw new ZipDistrictResolutionError(
+        "full_address_required",
+        "A PO Box cannot be located — a full street address is required"
+      );
+    }
+    const zip5 = extractPoBoxZip(address);
+    if (!zip5) {
+      throw new ZipDistrictResolutionError(
+        "zip_required_for_po_box",
+        "A PO Box cannot be located — add its ZIP code, or search by city"
+      );
+    }
+    return resolveZipToDistricts(db, zip5);
+  }
+
   const zipMatch = ZIP_INPUT_PATTERN.exec(address.trim());
   if (zipMatch) {
     if (!options.allowPartial) {
@@ -392,6 +472,7 @@ export async function resolveAddressToDistricts(
     return resolveRegionToDistricts(db, {
       state: options.regionState,
       locality: options.regionLocality ?? null,
+      postalCode: options.regionPostalCode ?? null,
       matchedAddress: address.trim(),
     });
   }

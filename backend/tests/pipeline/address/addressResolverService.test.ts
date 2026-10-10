@@ -498,6 +498,44 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     expect(result.matched_address).toBe("78701");
   });
 
+  it("serves a PO Box through its ZIP, ignoring a five-digit box number and a ZIP+4 suffix", async () => {
+    const geocodeAddress = vi.fn();
+    for (const input of [
+      "PO Box 211, Gustavus, AK 78701",
+      "P.O. Box 85106 Brevig Mission AK 78701-2401",
+      "Post Office Box 12, Austin TX 78701",
+    ]) {
+      const query = dbReturning(["48453"], [STATEWIDE_ROW, COUNTY_ROW]);
+
+      const result = await resolveAddressToDistricts({ query }, input, {
+        geocodeAddress,
+        allowPartial: true,
+        coordinates: { lat: 30.27, lng: -97.74 },
+      });
+
+      expect(query.mock.calls[0]?.[1]).toEqual(["78701"]);
+      expect(result).toMatchObject({ matched_address: "78701", scope: "zip", coordinates: null });
+    }
+    expect(geocodeAddress).not.toHaveBeenCalled();
+  });
+
+  it("rejects a PO Box without a ZIP, and any PO Box for exact-only callers, before touching the geocoder", async () => {
+    const geocodeAddress = vi.fn();
+    const query = vi.fn();
+
+    // A five-digit box number behind "No." or ":" is still a box number.
+    for (const input of ["PO Box 211, Gustavus, AK", "PO Box No. 78701, Gustavus, AK", "P.O. Box: 78701 Gustavus AK"]) {
+      await expect(
+        resolveAddressToDistricts({ query }, input, { geocodeAddress, allowPartial: true })
+      ).rejects.toMatchObject({ name: "ZipDistrictResolutionError", code: "zip_required_for_po_box" });
+    }
+    await expect(
+      resolveAddressToDistricts({ query }, "PO Box 211, Gustavus, AK 99826", { geocodeAddress })
+    ).rejects.toMatchObject({ name: "ZipDistrictResolutionError", code: "full_address_required" });
+    expect(geocodeAddress).not.toHaveBeenCalled();
+    expect(query).not.toHaveBeenCalled();
+  });
+
   it("returns statewide only for a same-state multi-county ZIP", async () => {
     const query = dbReturning(["48453", "48491"], [STATEWIDE_ROW]);
 
@@ -771,6 +809,50 @@ describe("resolveAddressToDistricts region partial path", () => {
     ]);
     expect(result.scope).toBe("region");
     expect(result.districts.map((district) => district.id)).toEqual(["district-ca", "district-la"]);
+  });
+
+  it("adds the ZIP crosswalks' county and legislative districts to a street pick that names a ZIP", async () => {
+    // A street pick carries no locality (a road can cross city lines), so no
+    // place-name query runs: county crosswalk, legislative crosswalk, lookup.
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [{ county_geoid: "02105" }] })
+      .mockResolvedValueOnce({ rows: [{ state_lower_geoid: "02003", state_upper_geoid: "0200B" }] })
+      .mockResolvedValueOnce({ rows: [STATEWIDE_ROW] });
+
+    const result = await resolveAddressToDistricts({ query }, "Dickey Dr, Gustavus, AK 99826, USA", {
+      allowPartial: true,
+      regionState: "AK",
+      regionPostalCode: "99826",
+    });
+
+    expect(query.mock.calls[0]?.[1]).toEqual(["99826"]);
+    expect(query.mock.calls[1]?.[1]).toEqual(["99826"]);
+    expect(query.mock.calls[2]?.[1]).toEqual([
+      ["statewide", "county", "state_lower", "state_upper"],
+      ["02", "02105", "02003", "0200B"],
+      ["state_lower"],
+      ["02003"],
+    ]);
+    expect(result.scope).toBe("region");
+    expect(result.district_keys.filter((key) => key.layer_name === "zcta_legislative_crosswalk")).toHaveLength(2);
+  });
+
+  it("ignores a street pick's ZIP when its ZCTA is not wholly inside the selected state", async () => {
+    const query = vi
+      .fn()
+      // Two counties, one of them across the state line: nothing from the ZIP.
+      .mockResolvedValueOnce({ rows: [{ county_geoid: "25005" }, { county_geoid: "44007" }] })
+      .mockResolvedValueOnce({ rows: [STATEWIDE_ROW] });
+
+    await resolveAddressToDistricts({ query }, "Main St, RI 02861, USA", {
+      allowPartial: true,
+      regionState: "RI",
+      regionPostalCode: "02861",
+    });
+
+    expect(query).toHaveBeenCalledTimes(2);
+    expect(query.mock.calls[1]?.[1]).toEqual([["statewide"], ["44"]]);
   });
 
   it("matches suffixless and city-and-borough place names (Carson City, Juneau)", async () => {

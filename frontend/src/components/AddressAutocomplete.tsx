@@ -24,7 +24,7 @@ type AddressAutocompleteProps = {
     value: string,
     location?: AddressLocation | null,
     granularity?: "address" | "zip" | "region",
-    region?: { state: string; locality: string | null }
+    region?: { state: string; locality: string | null; postalCode: string | null }
   ) => void;
   /** True while a selected suggestion's retrieve is in flight. The caller
    * must hold Search: the input already shows the picked description, but
@@ -107,7 +107,7 @@ export function AddressAutocomplete({
       retrieved.location,
       retrieved.granularity,
       retrieved.granularity === "region" && retrieved.state
-        ? { state: retrieved.state, locality: retrieved.locality }
+        ? { state: retrieved.state, locality: retrieved.locality, postalCode: retrieved.postal_code }
         : undefined
     );
   }

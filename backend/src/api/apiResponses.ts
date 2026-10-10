@@ -26,6 +26,7 @@ export type ApiErrorCode =
   | "zip_not_found"
   | "zip_multi_state"
   | "zip_unsupported_region"
+  | "zip_required_for_po_box"
   | "region_unsupported"
   | "districts_unavailable"
   | "upstream_unavailable"

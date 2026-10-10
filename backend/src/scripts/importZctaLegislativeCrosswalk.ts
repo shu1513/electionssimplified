@@ -21,9 +21,15 @@ import { STATE_FIPS_BY_ABBREVIATION } from "../constants/usStates.js";
 // Why residents and not land: ZCTAs are built from census blocks, and rural
 // ZCTAs routinely include uninhabited blocks (wilderness, water) that fall in
 // a neighbouring district — ZCTA 99826 (Gustavus, AK) has 19% of its land in
-// House District 2 and 100% of its residents in House District 3. Land-share
+// House District 2 and 655 of its 657 residents in House District 3. Land-share
 // containment would leave such ZIPs with no legislative race for no good
 // reason; population containment is exact for the people who actually vote.
+//
+// Why "nearly every" and not "every" resident: a handful of ZCTAs, Gustavus
+// among them, keep a stray block or two across a line — the 2 HD2 residents
+// would otherwise deny the other 655 their House race. A district that holds
+// LEGISLATIVE_CONTAINMENT_SHARE of the residents is offered; the stray few see
+// a neighbouring race, the price of a partial ballot stated on its banner.
 //
 // Sources, all 2020 Census blocks:
 // - ZCTA <-> block relationship file (which blocks make up each ZCTA);
@@ -33,9 +39,10 @@ import { STATE_FIPS_BY_ABBREVIATION } from "../constants/usStates.js";
 //
 // Rule (per ZCTA, per chamber; the chambers are decided independently):
 // - the ZCTA has at least one resident;
-// - every block with residents maps to the same district — a block with
-//   residents and no district (a state without that chamber, a "ZZZ"
-//   unassigned code, or a block the equivalency file lacks) disqualifies;
+// - one district holds at least LEGISLATIVE_CONTAINMENT_SHARE of the
+//   residents — a block with residents and no district (a state without
+//   that chamber, a "ZZZ" unassigned code, or a block the equivalency file
+//   lacks) disqualifies;
 // - no block with residents is one the state's plan SPLITS between
 //   districts (the Bureau allocates such a block whole to one district for
 //   tabulation; the real line runs through it, so residents on the far side
@@ -340,18 +347,26 @@ function tallyChamber(tally: ChamberTally, districtGeoid: string | null, populat
   tally.byDistrict.set(districtGeoid, (tally.byDistrict.get(districtGeoid) ?? 0) + population);
 }
 
-/** The one district every resident lives in, or null when there is none. */
+/** Share of a ZCTA's residents one district must hold to be offered. */
+export const LEGISLATIVE_CONTAINMENT_SHARE = 0.995;
+
+/** The district nearly every resident lives in, or null when there is none. */
 function decideChamber(tally: ChamberTally, zcta: ZctaTally): string | null {
   // An unknown block population is not zero: those residents could live in
   // any district, so nothing is decided for the ZCTA.
   if (zcta.unknownPopulation || zcta.population === 0 || zcta.splitBlockPopulation > 0 || tally.unassigned > 0) {
     return null;
   }
-  if (tally.byDistrict.size !== 1) {
+  let dominant: { geoid: string; population: number } | null = null;
+  for (const [geoid, population] of tally.byDistrict) {
+    if (dominant === null || population > dominant.population) {
+      dominant = { geoid, population };
+    }
+  }
+  if (dominant === null || dominant.population < zcta.population * LEGISLATIVE_CONTAINMENT_SHARE) {
     return null;
   }
-  const [districtGeoid] = tally.byDistrict.keys();
-  return districtGeoid;
+  return dominant.geoid;
 }
 
 /**

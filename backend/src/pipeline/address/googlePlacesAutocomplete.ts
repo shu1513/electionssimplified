@@ -103,7 +103,11 @@ export type RetrievedSuggestedAddress = {
    * five digits for the partial-ballot flow. "region": any other area (city,
    * neighborhood, county, state) — the region partial-ballot flow. */
   granularity: "address" | "zip" | "region";
-  /** Five-digit ZIP when granularity is "zip"; null otherwise. */
+  /** Five-digit ZIP when granularity is "zip", or when a "region" selection
+   * is a street (Google `route`) that carries a postal_code component — a
+   * house number Google cannot place still names its street's ZIP, and the
+   * resolver's ZIP crosswalks add the county and legislative races the
+   * locality alone cannot. Null otherwise. */
   postal_code: string | null;
   /** Two-letter state abbreviation for "region" selections, when Google's
    * administrative_area_level_1 component names one; null otherwise. Feeds
@@ -311,15 +315,17 @@ export function parseGooglePlacesRetrievePayload(payload: unknown): RetrievedSug
     }
     return null;
   };
-  if (isRegion && types.includes("postal_code")) {
+  if (isRegion && (types.includes("postal_code") || types.includes("route"))) {
     // The ZIP lives in the postal_code address component (its value may carry
     // ZIP+4; the partial-ballot flow works on the five-digit ZCTA). A
     // missing/odd value downgrades to "region" rather than inventing a ZIP.
     const rawPostalCode = componentText("postal_code", "longText");
     const match = rawPostalCode === null ? null : /^(\d{5})(?:-\d{4})?$/.exec(rawPostalCode);
     if (match) {
-      granularity = "zip";
       postalCode = match[1];
+      if (types.includes("postal_code")) {
+        granularity = "zip";
+      }
     }
   }
 
