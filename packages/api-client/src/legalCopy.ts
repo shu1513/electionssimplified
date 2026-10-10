@@ -5,50 +5,44 @@
 
 export const TERMS_VERSION = "1.5";
 
-// The anonymous clickwrap is a one-sentence label naming every document,
-// inside a dialog that opens at the moment of assent (web: over a first
-// search's results; mobile: before the search). Three paragraphs of small
-// print above the Search button was skimmed past, which is the failure mode a
-// clickwrap cannot afford; a short label the visitor actually reads, with the
-// full text one click away, is the pattern the clickwrap cases reward (Meyer
-// v. Uber; Berman v. Freedom Financial; Sellers v. JustAnswer).
+// The anonymous gate is a sign-in wrap: one sentence directly under the
+// Search button on the web home, the newsroom box, and the app's home screen,
+// naming and linking every document. Pressing Search is the act of assent.
+// The earlier clickwrap dialog (an empty checkbox over the first results on
+// the web, a sheet before the search in the app; 2026-08-30 to 2026-10-10)
+// asked for the same agreement with an extra box, a Cancel button, and
+// blurred results behind it, and it turned first-time visitors away before
+// they saw a single election. Presentation only, no version bump; see
+// docs/legal/checkbox-copy.md.
+//
+// What makes a sign-in wrap bind is notice placed where the action is taken:
+// the registration screen enforced in Meyer v. Uber, 868 F.3d 66 (2d Cir.
+// 2017) read "By creating an Uber account, you agree to the TERMS OF SERVICE
+// & PRIVACY POLICY" beside the button, and nothing more. The weak pattern is
+// notice sitting apart from the action (Nicosia v. Amazon), which is why this
+// sentence may never move to the footer, shrink to a bare "Terms" link, or
+// lose a document link. The search screens render it word for word, with
+// each document name as the link to that document.
 //
 // No label in this file names arbitration — not this one, not
 // SIGNUP_CHECKBOX_LABEL, not RENEWAL_CHECKBOX_LABEL. Section 12 lives in the
-// Terms of Use, and restating it beside every checkbox repeated a linked
+// Terms of Use, and restating it beside every gate repeated a linked
 // document and put a lawsuit warning on screens people came to for something
-// else. What the clickwrap cases require is conspicuous notice of the TERMS
-// plus an unambiguous act of assent, not a callout of any particular clause:
-// the registration screen enforced in Meyer v. Uber, 868 F.3d 66 (2d Cir.
-// 2017) said only "By creating an Uber account, you agree to the TERMS OF
-// SERVICE & PRIVACY POLICY"; the word "arbitration" was nowhere on it. An
-// empty checkbox that gates the action clears that bar by a wider margin than
-// Uber's click-to-continue did.
+// else. What the cases require is conspicuous notice of the TERMS plus an
+// unambiguous act of assent, not a callout of any particular clause; the word
+// "arbitration" was nowhere on Uber's screen.
 //
 // What must NOT be dropped is the Terms of Use link beside each label. With no
 // clause called out anywhere, the named, linked document at the moment of
 // assent IS the notice; those links are the whole basis on which Section 12
 // binds anyone.
-export const PRE_SEARCH_CHECKBOX_LABEL =
-  "I have read and agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
+export const PRE_SEARCH_NOTICE =
+  "By clicking Search you agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
   "Disclaimer.";
-
-/**
- * Body of the mobile pre-search terms sheet. The web dialog stopped rendering
- * these on 2026-09-28 (presentation only, no version bump): the linked
- * Disclaimer says the same thing. Kept here for mobile and for the archive check in
- * legalCopy.test.ts.
- */
-export const PRE_SEARCH_AGREEMENT_PARAGRAPHS = [
-  "Elections Simplified provides AI-assisted informational research only. It is not an official election " +
-    "source, and results may be inaccurate, incomplete, outdated, or misleading.",
-  "You must verify voting, registration, ballot, district, polling-place, deadline, and election-result " +
-    "information with official election authorities before relying on it.",
-] as const;
 
 // These are the acceptances the DB records against a terms version
 // (user_terms_acceptances). They bind through the three named, linked
-// documents — no clause restatement here either; see PRE_SEARCH_CHECKBOX_LABEL
+// documents — no clause restatement here either; see PRE_SEARCH_NOTICE
 // for the reasoning, which now applies to every gate.
 //
 // The signup label is the same one sentence as the anonymous gate. Its age,
@@ -64,10 +58,10 @@ export const RENEWAL_CHECKBOX_LABEL =
   "Information Disclaimer.";
 
 /**
- * Sits beside the address field, where collection actually begins: the
- * autocomplete forwards what is typed after three characters, long before
- * anyone presses Search, and notice has to arrive at or before collection.
- * Also the only privacy line in the pre-search dialog.
+ * Sits beside the signed-in address form and inside the "why full address"
+ * explainer that the anonymous search field links from its label. Collection
+ * begins as the autocomplete forwards what is typed, long before anyone
+ * presses Search, and notice has to arrive at or before collection.
  *
  * It replaced a longer PRIVACY_NOTICE that summarised the whole of Privacy
  * Policy Section 1 — address, account data, device and usage data, the
@@ -89,10 +83,9 @@ export const ADDRESS_FIELD_PRIVACY_NOTE =
 export const VERIFY_WITH_OFFICIALS_NOTE =
   "AI-assisted research. Verify voting information with official election authorities.";
 
-// Acceptance IS remembered, per terms version, with an expiry — see
-// frontend/src/lib/termsAcceptance.ts. What must never come back is the older
-// behaviour that stored acceptance and then returned repeat visitors a
-// PRE-TICKED box. Those are different things: a pre-ticked box shows assent
-// that was never given, while skipping a gate somebody already passed is what
-// every large site does. Remembering may therefore only ever decide whether
-// the dialog OPENS. If a dialog opens, its checkbox starts empty.
+// Anonymous acceptance is not stored anywhere, on the device or the server:
+// every search sends the current TERMS_VERSION to POST /api/address/resolve,
+// and the evidence of assent is docs/legal/checkbox-copy.md plus the deployed
+// notice. Signed-in acceptances are the user_terms_acceptances rows. Should a
+// checkbox ever come back on a search screen, it starts empty every time; a
+// pre-ticked box shows assent nobody gave.

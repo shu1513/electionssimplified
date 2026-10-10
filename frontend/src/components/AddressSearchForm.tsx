@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, TERMS_VERSION, useMe } from "@voteapp/api-client";
 import type { AddressLocation, AddressResolution } from "@voteapp/api-client";
@@ -7,8 +7,32 @@ import { AddressAutocomplete } from "./AddressAutocomplete";
 import { FullAddressExplanation } from "./FullAddressExplanation";
 import { ErrorNotice } from "./Status";
 import { clearPendingDistrictIds, savePendingDistrictIds } from "../lib/pendingDistricts";
-import { hasCurrentTermsAcceptance } from "../lib/termsAcceptance";
 import { errorCategoryOf, track } from "../lib/usage";
+
+// The three documents the search notice names, each name linking to its
+// document. The disclaimer keeps its full title so the reader knows the link
+// and the sentence mean the same document.
+const DOCUMENT_LINKS = {
+  terms: { href: "/terms", label: "Terms of Use" },
+  privacy: { href: "/privacy", label: "Privacy Policy" },
+  disclaimer: { href: "/disclaimer", label: "AI Research and Election Information Disclaimer" },
+} as const;
+
+function NoticeLink({ doc }: { doc: keyof typeof DOCUMENT_LINKS }) {
+  const document = DOCUMENT_LINKS[doc];
+  return (
+    // A new tab, so reading a document does not discard the typed address.
+    <Link
+      to={document.href}
+      target="_blank"
+      rel="noreferrer"
+      onClick={() => track("terms_doc_open", { doc })}
+      className="text-ink underline hover:text-rausch"
+    >
+      {document.label}
+    </Link>
+  );
+}
 
 // Below Tailwind's sm breakpoint the landing swaps the autofocused cursor
 // for the in-box search glyph. matchMedia is absent in SSR and jsdom, where
@@ -22,12 +46,13 @@ function isPhoneWidth(): boolean {
 }
 
 /**
- * The address search: field with suggestions, Search button, and the hop to
- * the ballot page. The search runs at once; on a browser with no terms
- * acceptance the ballot page opens the terms dialog over the results
- * (termsPending in router state). One component so the landing page and the
- * newsroom box run the SAME search (same partial-ballot paths, same usage
- * events).
+ * The address search: field with suggestions, Search button, the agreement
+ * notice under it, and the hop to the ballot page. Pressing Search is the
+ * visitor's assent to the three documents the notice names (a sign-in wrap:
+ * see PRE_SEARCH_NOTICE in legalCopy.ts), so every search carries the
+ * current terms version and nothing asks again. One component so the landing
+ * page and the newsroom box run the SAME search (same partial-ballot paths,
+ * same usage events, same notice).
  *
  * "landing" is the home page's centred, Google-style form with its focus
  * helpers; "compact" is a tighter form for the box, with no focus grabbing
@@ -144,8 +169,6 @@ export function AddressSearchForm({
       address: string;
       coordinates: AddressLocation | null;
       region: { state: string; locality: string | null; postalCode: string | null } | null;
-      /** This browser already holds a current terms acceptance. */
-      termsAccepted: boolean;
     }) => {
       // The address_result usage event is recorded here, inside the mutation
       // function, so it lands even if this page unmounts before the reply.
@@ -162,7 +185,9 @@ export function AddressSearchForm({
           method: "POST",
           body: {
             address: input.address,
-            ...(input.termsAccepted ? { accepted_terms_version: TERMS_VERSION } : {}),
+            // Pressing Search, with the notice under the button, is the
+            // assent this records. Nothing is stored server-side.
+            accepted_terms_version: TERMS_VERSION,
             // Opt in to the ZIP/region partial-ballot paths: this page renders
             // the partial banner and scope-aware errors, so a bare ZIP or a
             // picked city gets a partial ballot here instead of a dead-end 422.
@@ -191,7 +216,7 @@ export function AddressSearchForm({
         throw error;
       }
     },
-    onSuccess: (resolution, input) => {
+    onSuccess: (resolution) => {
       // Stash for the anonymous-to-account handoff: if this visitor signs up,
       // these districts become their saved ballot once they verify. Save only
       // when identity is KNOWN to be logged out or unverified — while /api/me
@@ -225,11 +250,6 @@ export function AddressSearchForm({
           // Lets the partial banner name the search ("ZIP code 91706" vs
           // "Los Angeles, CA, USA"); a bare link renders generic wording.
           scope: resolution.scope,
-          // No acceptance on this browser yet: the ballot page opens the
-          // terms dialog over the results. Router state like the address —
-          // a shared link never carries it, a refresh keeps it (and the
-          // page re-checks storage, so an agreement given since is honored).
-          termsPending: !input.termsAccepted,
         },
       });
     },
@@ -248,13 +268,10 @@ export function AddressSearchForm({
     }
     // Form submit, not the button: Enter and the click are the same intent.
     track("address_submit", { via_suggestion: lastGranularity.current !== null });
-    // Storage is read here, in the handler, and never during render: reading
-    // it while rendering would diverge from the server-rendered HTML.
     resolve.mutate({
       address: address.trim(),
       coordinates: addressLocation,
       region: regionSelection,
-      termsAccepted: hasCurrentTermsAcceptance(),
     });
   }
 
@@ -268,16 +285,23 @@ export function AddressSearchForm({
                 address" — those users already know. "Home address" was
                 rejected as a demand for where you sleep, "Voting address"
                 read as the place you go to vote. */}
-            {/* The label promises the outcome; the parenthetical below the
-                field carries both reassurances — privacy, and that a ZIP or
-                city is enough — so the visitor who won't type where they
-                live learns the escape hatch BEFORE giving up. */}
-            <label
-              htmlFor="address"
-              className={landing ? "block pb-px pl-[18px] text-sm font-semibold text-ink-soft" : "block pb-1 text-sm font-semibold text-ink"}
-            >
-              {label}
-            </label>
+            {/* The label names ZIP as an alternative and carries the
+                "why full address" explainer in a parenthesis, so the visitor
+                who won't type where they live learns the escape hatch before
+                giving up. The explainer button sits beside the <label>, not
+                inside it: a button inside a label would join the field's
+                accessible name and is a labelable element in its own right. */}
+            <div className={landing ? "pb-px pl-[18px] text-sm font-semibold text-ink-soft" : "pb-1 text-sm font-semibold text-ink"}>
+              <label htmlFor="address">{label}</label>{" "}
+              <span className="whitespace-nowrap font-normal">
+                (
+                <FullAddressExplanation
+                  triggerLabel="why full address"
+                  onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
+                />
+                ):
+              </span>
+            </div>
             <AddressAutocomplete
               inputId="address"
               value={address}
@@ -313,8 +337,10 @@ export function AddressSearchForm({
               </p>
             ) : null}
             {/* Google-sized: a small centered button right under the pill box,
-                not a full-width bar competing with the field. The privacy note
-                sits below it so the box-and-button pair reads as one unit. */}
+                not a full-width bar competing with the field. The agreement
+                line sits under it. The address-handling promise lives in the
+                explainer (label) and the Privacy Policy link in the agreement
+                line, both at the point of collection. */}
             <div className={landing ? "mt-4 flex justify-center box:mt-[11px]" : "mt-2"}>
               <button
                 type="submit"
@@ -326,23 +352,19 @@ export function AddressSearchForm({
                 {resolve.isPending ? "Searching…" : "Search"}
               </button>
             </div>
-            {/* Notice belongs here, not only in the dialog: the autocomplete
-                forwards what is typed after three characters, so collection
-                starts while the visitor types and long before Search. */}
-            {/* One link, not two. The Privacy Policy is still reachable at the
-                point of collection — the footer carries it on every page, and
-                the explainer below links it directly — so the inline copy of
-                it was noise beside the question people actually ask. */}
-            {/* Compressed variant of ADDRESS_FIELD_PRIVACY_NOTE plus the
-                coarse-input hint: same two promises (district lookup only,
-                never saved), short enough to be read. Other surfaces keep
-                the full constant. */}
-            <p className={landing ? "mt-4 text-center text-xs text-ink-soft" : "mt-2 text-xs text-ink-soft"}>
-              The address is only used to find voting districts. You can also search by ZIP or
-              city, with fewer local races.{" "}
-              <FullAddressExplanation
-                onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
-              />
+            {/* The agreement, in the same block as the button it names
+                (sign-in wrap, Meyer v. Uber): pressing Search is the assent.
+                Never a bare "Terms" link, never moved to the footer — notice
+                apart from the action is the pattern that fails (Nicosia v.
+                Amazon). Wording is PRE_SEARCH_NOTICE from legalCopy.ts word
+                for word, with each document name as its link;
+                HomePage.test.tsx checks the rendered text against it. */}
+            <p
+              data-testid="pre-search-notice"
+              className={landing ? "mt-2 text-center text-xs text-ink-soft" : "mt-2 text-xs text-ink-soft"}
+            >
+              By clicking Search you agree to the <NoticeLink doc="terms" />, <NoticeLink doc="privacy" />, and{" "}
+              <NoticeLink doc="disclaimer" />.
             </p>
           </div>
         </form>

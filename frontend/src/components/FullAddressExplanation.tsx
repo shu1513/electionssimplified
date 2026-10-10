@@ -7,7 +7,12 @@ import { useState } from "react";
  * block of text to the landing page. This is informational, not consent, so
  * it deliberately has no checkbox or "Agree" action.
  */
-export function FullAddressExplanation({ onOpen }: { onOpen?: () => void } = {}) {
+export function FullAddressExplanation({
+  onOpen,
+  // The anonymous search puts the trigger inside its field label's
+  // parenthesis ("(why full address)"); other surfaces keep the question.
+  triggerLabel = "Why full address?",
+}: { onOpen?: () => void; triggerLabel?: string } = {}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +25,7 @@ export function FullAddressExplanation({ onOpen }: { onOpen?: () => void } = {})
         }}
         className="rounded-sm text-left underline hover:text-rausch focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rausch"
       >
-        Why full address?
+        {triggerLabel}
       </button>
 
       <Dialog open={open} onClose={setOpen} className="relative z-40">
@@ -32,16 +37,10 @@ export function FullAddressExplanation({ onOpen }: { onOpen?: () => void } = {})
                 Why do you need the full address?
               </DialogTitle>
               <div className="mt-3 space-y-3 text-sm text-ink-soft">
+                {/* Wording approved 2026-10-10: two sentences, no ZIP-fallback
+                    paragraph (the field label already says "address or ZIP"). */}
                 <p>
-                  Your ballot depends on your voting districts, whose boundaries don’t follow ZIP
-                  codes — they can split a neighborhood or even a single street. Two homes in the same
-                  ZIP can vote in different races. Only a full street address can match you to the
-                  exact districts that apply to you.
-                </p>
-                <p>
-                  Prefer not to share your address? Enter just your ZIP code or city instead:
-                  you’ll get a partial ballot for that area. You can enter your street address
-                  later to see the remaining races.
+                  Voting districts don’t necessarily follow ZIP codes. Two homes in the same city or ZIP may vote in different races.
                 </p>
                 <p>
                   {ADDRESS_FIELD_PRIVACY_NOTE} Our source code is open and public{" "}

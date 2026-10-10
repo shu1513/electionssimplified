@@ -9,9 +9,10 @@ import { useAdoptPreHydrationChecked } from "../lib/preHydrationInput";
 // interstitial, both of which gate an explicit account action and so keep the
 // checkbox inline on the page.
 //
-// The anonymous pre-search gate does NOT use this: a search is a low-intent
-// action taken by first-time visitors, so its clickwrap is deferred to the
-// moment Search is pressed. See PreSearchTermsDialog.
+// The anonymous search does NOT use this: a search is a low-intent action by
+// a first-time visitor, so its gate is a sign-in wrap — one sentence under
+// the Search button, and pressing Search is the assent. See AddressSearchForm
+// and PRE_SEARCH_NOTICE in legalCopy.ts.
 
 type LegalGateProps = {
   label: string;
