@@ -1120,7 +1120,6 @@ export function ElectionPage() {
                       </p>
                       <SourceLine
                         url={result.source_url}
-                        researchedDate={result.retrieved_at.slice(0, 10)}
                         kind="result_source"
                       />
                     </li>
@@ -1503,7 +1502,6 @@ export function ElectionPage() {
                   ) : null}
                   <SourceLine
                     url={result.source_url}
-                    researchedDate={result.retrieved_at.slice(0, 10)}
                     kind="result_source"
                   />
                 </li>

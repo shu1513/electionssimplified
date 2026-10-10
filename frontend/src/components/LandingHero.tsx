@@ -32,12 +32,12 @@ export function LandingHero({ framed = false }: { framed?: boolean }) {
           what is left after the header's own padding (top) and the footer's
           mt-16 (bottom); the logo is a size larger from `sm` up, hence two
           top values. */}
-      <div className={`mx-auto max-w-2xl px-4 text-center ${framed ? "pt-7" : "pt-[26px] sm:pt-[57px]"}`}>
-        {/* One sentence, still the whole pitch. 23 -> 35px: one notch above
-            the shared text-title (22 -> 32px) because this is a masthead, not
-            a page heading; text-balance stops the centred wrap from ragging
+      <div className={`mx-auto max-w-[800px] px-4 text-center ${framed ? "pt-7" : "pt-[26px] sm:pt-[57px]"}`}>
+        {/* One sentence, still the whole pitch. 23 -> 52px: landing-size
+            display type, well above the shared text-title (22 -> 32px),
+            because this is a masthead, not a page heading; text-balance stops the centred wrap from ragging
             into a one-word last line. */}
-        <h1 className="text-balance text-[clamp(1.4375rem,1.1875rem+1.25vw,2.1875rem)] font-bold leading-[1.2]">
+        <h1 className="text-balance text-[clamp(1.4375rem,0.75rem+2.5vw,3.25rem)] font-bold leading-[1.2]">
           See who your candidates really are by their{" "}
           <span className="text-rausch">track records</span>
         </h1>

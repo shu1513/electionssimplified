@@ -346,19 +346,19 @@ export function App() {
             draft link at phone widths) the nav drops to its own line instead
             of the shrink-0 logo painting over it. ml-auto keeps the wrapped
             nav right-aligned. */}
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4 sm:px-6">
           <Link
             to="/"
-            className="flex shrink-0 items-center gap-[5px] text-base font-extrabold tracking-tight text-rausch sm:text-xl"
+            className="flex shrink-0 items-center gap-[5px] text-base font-extrabold tracking-tight text-rausch sm:text-[26px]"
           >
             {/* Trim the image's side padding so the gap measures from the visible ballot. */}
-            <span className="relative h-9 w-[22px] -translate-y-1.5 shrink-0 overflow-hidden sm:h-11 sm:w-[27px] sm:-translate-y-2">
+            <span className="relative h-9 w-[22px] -translate-y-1.5 shrink-0 overflow-hidden sm:h-[52px] sm:w-[32px] sm:-translate-y-2.5">
               <img
                 src="/ballot-logo.png"
                 alt=""
                 width={44}
                 height={44}
-                className="absolute -left-[7px] top-0 h-9 w-9 max-w-none sm:-left-[8.5px] sm:h-11 sm:w-11"
+                className="absolute -left-[7px] top-0 h-9 w-9 max-w-none sm:-left-[10px] sm:h-[52px] sm:w-[52px]"
               />
             </span>
             <span>{APP_NAME}</span>

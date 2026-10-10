@@ -285,7 +285,7 @@ link from a text message.
 
 ## Per-record source line (candidate records, measures, results)
 
-> Source: [link] · researched [date]
+> Source: [link]
 
 ## Notification email footer line
 

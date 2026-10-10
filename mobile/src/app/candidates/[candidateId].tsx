@@ -627,11 +627,6 @@ export default function CandidateScreen() {
         />
       ) : null}
 
-      {candidate.last_researched ? (
-        <Text className="mt-6 text-xs text-ink-soft">
-          Profile last researched {formatElectionDate(candidate.last_researched.slice(0, 10))}.
-        </Text>
-      ) : null}
       </ScrollView>
       {/* The screen's primary action ("Add to cart"): the footer pick card,
           only when the candidate is in exactly one pickable race (see
@@ -689,7 +684,7 @@ function RecordItem({ record, showTags = false }: { record: CandidateRecord; sho
           ? ` · ${record.research_area_tags.map((tag) => tag.name).join(", ")}`
           : ""}
       </Text>
-      <SourceLine url={record.source_url} researchedDate={record.created_at.slice(0, 10)} />
+      <SourceLine url={record.source_url} />
     </View>
   );
 }
