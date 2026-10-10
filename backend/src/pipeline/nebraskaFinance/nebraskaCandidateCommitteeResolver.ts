@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { NebraskaNadcContributionRow } from "./nebraskaNadcArtifactReader.js";
 import {
@@ -82,10 +83,26 @@ function normalizePersonName(value: string): string {
     .trim();
 }
 
-export function normalizeNebraskaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Mike Hilgers" → "MICHAEL HILGERS"): NADC lists the formal name
+// while VoteApp stores the campaign name. Expand the VoteApp side only
+// (personFirstNameNicknames.ts explains why); rows are keyed literally.
+export function normalizeNebraskaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const normalized = normalizePersonName(trimmed);
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+  const addFirstLast = (first: string, last: string): void => {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  };
   if (normalized) {
     keys.add(normalized);
   }
@@ -102,17 +119,24 @@ export function normalizeNebraskaCandidateNameKeys(value: string): Set<string> {
       keys.add(flipped);
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
-        keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
       }
+    }
+    for (const key of nicknameKeys) {
+      keys.add(key);
     }
     return keys;
   }
 
   const parts = normalized.split(" ").filter(Boolean);
   if (parts.length >= 2) {
-    keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+    addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
   }
 
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
 }
 
@@ -207,6 +231,8 @@ function rowMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: [rowCandidateName],
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 
@@ -255,7 +281,7 @@ export function resolveNebraskaCandidateCommittee(
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeNebraskaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeNebraskaCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeDistrict(input.district);
 

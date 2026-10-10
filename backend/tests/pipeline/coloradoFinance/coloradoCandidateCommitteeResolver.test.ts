@@ -193,4 +193,26 @@ describe("coloradoCandidateCommitteeResolver", () => {
       reason: "no_candidate_committee_match",
     });
   });
+
+  it("matches TRACER's formal first name through a VoteApp nickname", () => {
+    // Live: "PHIL WEISER FOR COLORADO" rows carry CandidateName "PHILIP WEISER".
+    expect(
+      resolveColoradoCandidateCommittee({
+        candidateName: "Phil Weiser",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ CO_ID: "20255047944", CommitteeName: "PHIL WEISER FOR COLORADO", CandidateName: "PHILIP WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2026-01-01 00:00:00" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "20255047944" });
+    expect(
+      resolveColoradoCandidateCommittee({
+        candidateName: "Phil Weiser",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ CO_ID: "1", CommitteeName: "WEISER FOR COLORADO", CandidateName: "PETER WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2026-01-01 00:00:00" }),
+        ],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
 });

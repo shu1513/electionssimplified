@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { personNamesMatchWithMiddleEvidence } from "../finance/personNameMiddleEvidence.js";
 import type { ColoradoTracerContributionRow } from "./coloradoTracerContributionReader.js";
 
@@ -97,10 +98,15 @@ function rowMatchesCandidateName(input: {
   // never overlaps and the link silently strands. Recover it through the
   // middle-evidence gate: first+last alignment matches unless the middles
   // contradict.
+  // TRACER carries the formal name ("PHILIP WEISER") while VoteApp stores
+  // the campaign name ("Phil Weiser"); nickname equivalence is one-sided,
+  // VoteApp → row (personFirstNameNicknames.ts explains why).
   return personNamesMatchWithMiddleEvidence({
     candidateName: input.candidateName,
     rowNames: [input.row.CandidateName],
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 

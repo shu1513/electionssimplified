@@ -67,9 +67,12 @@ function mapCandidateElectionRow(row: CandidateElectionQueryRow): NebraskaFinanc
 export function buildNebraskaCandidateNamePredicate(
   candidates: readonly NebraskaFinanceAutoLinkCandidateElection[]
 ): (row: NebraskaNadcContributionRow) => boolean {
+  // The pre-filter must admit every row the resolver could match, so it
+  // carries the same one-sided nickname keys ("Mike Hilgers" → MICHAEL
+  // HILGERS); keyed literally it dropped the rows before resolution.
   const candidateNameKeys = new Set<string>();
   for (const candidate of candidates) {
-    for (const key of normalizeNebraskaCandidateNameKeys(candidate.candidateName)) {
+    for (const key of normalizeNebraskaCandidateNameKeys(candidate.candidateName, { expandNicknames: true })) {
       candidateNameKeys.add(key);
     }
   }
