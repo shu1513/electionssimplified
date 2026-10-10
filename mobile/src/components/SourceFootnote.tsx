@@ -21,9 +21,9 @@ export function SourceFootnote({ urls, className, lead }: SourceFootnoteProps) {
   if (groups.length === 0) return null;
   const single = groups.length === 1 && groups[0].urls.length === 1;
   return (
-    <Text className={`text-xs text-ink-soft${className ? ` ${className}` : ""}`}>
+    <Text className={`text-sm text-ink-soft${className ? ` ${className}` : ""}`}>
       {lead ? `${lead} · ` : null}
-      {single ? "Source:" : "Sources:"}{" "}
+      <Text className="font-semibold">{single ? "Source:" : "Sources:"}</Text>{" "}
       {groups.map((group, index) => (
         <Fragment key={group.host}>
           {index > 0 ? " · " : null}
@@ -33,7 +33,7 @@ export function SourceFootnote({ urls, className, lead }: SourceFootnoteProps) {
           {group.urls.slice(1).map((url, extra) => (
             <Text
               key={url}
-              className="text-[10px] underline"
+              className="text-[11px] underline"
               accessibilityRole="link"
               accessibilityLabel={`${group.host}, page ${extra + 2}`}
               onPress={() => openExternalUrl(url)}

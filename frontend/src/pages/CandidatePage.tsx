@@ -793,12 +793,6 @@ export function CandidatePage() {
           />
         ) : null}
 
-        {candidate.last_researched ? (
-          <p className="mt-[29px] box:mt-[18px] text-xs text-ink-soft">
-            Profile last researched {formatElectionDate(candidate.last_researched.slice(0, 10))}.
-          </p>
-        ) : null}
-
         {/* Last on purpose: reporting is a reaction to reading the profile, not
             a headline action worth space above the record. Per-record report
             buttons stay on their cards. */}

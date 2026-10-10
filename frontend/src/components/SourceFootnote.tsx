@@ -9,7 +9,7 @@ const onSourceClick = (url: string) => () =>
 // once, linked to its first page; further pages from the same site hang off
 // it as small numbered links, so nothing is hidden but "elections.ny.gov"
 // never prints twice. Records and results keep SourceLine (their legal
-// per-record line carries a researched date); this is for the free-form
+// per-record line); this is for the free-form
 // election / measure source lists, which are not legally required and so
 // should cost the reader as little as possible.
 
@@ -26,9 +26,9 @@ export function SourceFootnote({ urls, className, lead }: SourceFootnoteProps) {
   if (groups.length === 0) return null;
   const single = groups.length === 1 && groups[0].urls.length === 1;
   return (
-    <p className={`text-xs text-ink-soft${className ? ` ${className}` : ""}`}>
+    <p className={`text-sm text-ink-soft${className ? ` ${className}` : ""}`}>
       {lead ? `${lead} · ` : null}
-      {single ? "Source:" : "Sources:"}{" "}
+      <span className="font-semibold">{single ? "Source:" : "Sources:"}</span>{" "}
       {groups.map((group, index) => (
         <Fragment key={group.host}>
           {index > 0 ? " · " : null}
@@ -49,7 +49,7 @@ export function SourceFootnote({ urls, className, lead }: SourceFootnoteProps) {
               rel="noopener noreferrer"
               aria-label={`${group.host}, page ${extra + 2}`}
               onClick={onSourceClick(url)}
-              className="ml-0.5 align-super text-[10px] underline hover:text-ink"
+              className="ml-0.5 align-super text-[11px] underline hover:text-ink"
             >
               {extra + 2}
             </a>

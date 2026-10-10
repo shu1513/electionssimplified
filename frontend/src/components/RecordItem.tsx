@@ -97,7 +97,7 @@ export function RecordItem({
           </span>
         ) : null}
       </p>
-      <SourceLine url={record.source_url} researchedDate={record.created_at.slice(0, 10)} />
+      <SourceLine url={record.source_url} />
       {relatedRecords && relatedRecords.length > 0 ? (
         <div className="mt-2 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink-soft">
           <p className="font-medium text-ink">Also on this bill</p>

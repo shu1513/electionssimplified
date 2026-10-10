@@ -559,7 +559,7 @@ export default function ElectionScreen() {
                       .join(", ")}
                   </Text>
                 ) : null}
-                <SourceLine url={result.source_url} researchedDate={result.retrieved_at.slice(0, 10)} />
+                <SourceLine url={result.source_url} />
               </View>
             ))}
           </View>

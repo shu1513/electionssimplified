@@ -1,20 +1,19 @@
-import { formatElectionDate, formatSourceHost } from "@voteapp/api-client";
+import { formatSourceHost } from "@voteapp/api-client";
 import { sourceLinkProps, track } from "../lib/usage";
 
 // Per-record provenance line required by the legal copy:
-// "Source: [link] · researched [date]".
+// "Source: [link]".
 
 type SourceLineProps = {
   url: string;
-  researchedDate?: string | null;
   /** What the line documents, for the official_source_click usage event. */
   kind?: "record_source" | "result_source";
 };
 
-export function SourceLine({ url, researchedDate, kind = "record_source" }: SourceLineProps) {
+export function SourceLine({ url, kind = "record_source" }: SourceLineProps) {
   return (
-    <p className="mt-1 text-xs text-ink-soft">
-      Source:{" "}
+    <p className="mt-1 text-sm text-ink-soft">
+      <span className="font-semibold">Source:</span>{" "}
       <a
         href={url}
         target="_blank"
@@ -24,7 +23,6 @@ export function SourceLine({ url, researchedDate, kind = "record_source" }: Sour
       >
         {formatSourceHost(url)}
       </a>
-      {researchedDate ? <> · researched {formatElectionDate(researchedDate)}</> : null}
     </p>
   );
 }
