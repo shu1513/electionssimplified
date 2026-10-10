@@ -264,12 +264,11 @@ account, which stores district ids only.
 > your account.
 
 In the anonymous search field's label, **(why full address)** opens an
-informational dialog on web and mobile. One paragraph: the ballot depends
-on which voting districts a home sits in, and those boundaries do not follow
-ZIP codes — they can split a neighborhood or a single street, so two homes in
-the same ZIP can vote in different races. The dialog repeats the
-address-handling summary, links to the Privacy Policy, and closes with **Got
-it**. It has no checkbox or agreement button because it explains the field
+informational dialog on web and mobile. Two sentences: the ballot depends on
+your voting districts, whose boundaries do not follow ZIP codes, so two homes
+in the same ZIP can vote in different races. The dialog then repeats the
+short privacy note (plus the open-source link), links to the Privacy Policy,
+and closes with **Got it**. It has no checkbox or agreement button because it explains the field
 rather than requesting consent.
 
 ## Results verification line (ballot and results screens)

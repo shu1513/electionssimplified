@@ -1,6 +1,6 @@
 import { ADDRESS_FIELD_PRIVACY_NOTE } from "@voteapp/api-client";
 import { useRouter } from "expo-router";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { Linking, Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 type FullAddressExplanationProps = {
   visible: boolean;
@@ -32,16 +32,20 @@ export function FullAddressExplanation({ visible, onClose }: FullAddressExplanat
           <ScrollView className="mt-3">
             <Text className="text-sm text-ink-soft">
               Your ballot depends on your voting districts, whose boundaries don’t follow ZIP
-              codes — they can split a neighborhood or even a single street. Two homes in the same
-              ZIP can vote in different races. Only a full street address can match you to the
-              exact districts that apply to you.
+              codes. Two homes in the same ZIP can vote in different races.
             </Text>
+            {/* Same paragraph as the web dialog, open-source link included. */}
             <Text className="mt-3 text-sm text-ink-soft">
-              Prefer not to share your address? Enter just your ZIP code or city instead: you’ll
-              get a partial ballot for that area. You can enter your street address later to see
-              the remaining races.
+              {ADDRESS_FIELD_PRIVACY_NOTE} Our source code is open and public{" "}
+              <Text
+                className="text-ink underline"
+                accessibilityRole="link"
+                onPress={() => void Linking.openURL("https://github.com/shu1513/electionssimplified")}
+              >
+                here
+              </Text>
+              .
             </Text>
-            <Text className="mt-3 text-sm text-ink-soft">{ADDRESS_FIELD_PRIVACY_NOTE}</Text>
             <Text
               className="mt-3 text-sm text-ink underline"
               accessibilityRole="link"

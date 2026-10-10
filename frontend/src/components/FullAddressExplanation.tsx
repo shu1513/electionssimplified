@@ -37,16 +37,11 @@ export function FullAddressExplanation({
                 Why do you need the full address?
               </DialogTitle>
               <div className="mt-3 space-y-3 text-sm text-ink-soft">
+                {/* Wording approved 2026-10-10: two sentences, no ZIP-fallback
+                    paragraph (the field label already says "address or ZIP"). */}
                 <p>
                   Your ballot depends on your voting districts, whose boundaries don’t follow ZIP
-                  codes — they can split a neighborhood or even a single street. Two homes in the same
-                  ZIP can vote in different races. Only a full street address can match you to the
-                  exact districts that apply to you.
-                </p>
-                <p>
-                  Prefer not to share your address? Enter just your ZIP code or city instead:
-                  you’ll get a partial ballot for that area. You can enter your street address
-                  later to see the remaining races.
+                  codes. Two homes in the same ZIP can vote in different races.
                 </p>
                 <p>
                   {ADDRESS_FIELD_PRIVACY_NOTE} Our source code is open and public{" "}
