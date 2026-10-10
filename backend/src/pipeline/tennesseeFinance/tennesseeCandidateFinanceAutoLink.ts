@@ -137,7 +137,10 @@ export async function listTennesseeCandidateElectionsMissingFinanceLinks(
             AND link.election_id = election.id
             AND link.link_status IN ('active', 'ambiguous')
         )
-      ORDER BY election.election_date ASC, candidate.display_name ASC NULLS LAST, candidate.id ASC
+      -- Upcoming races first, then random: unmatched candidates never get a
+      -- link, so a stable order under a row cap retried the same prefix every
+      -- run and starved the tail (Katie Hobbs was never attempted).
+      ORDER BY (election.election_date < CURRENT_DATE) ASC, random()
       LIMIT $2::int
     `,
     [
