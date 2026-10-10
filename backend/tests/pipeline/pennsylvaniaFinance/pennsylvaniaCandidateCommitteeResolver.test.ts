@@ -780,6 +780,35 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
     ).toMatchObject({ status: "matched", filerId: "2026C0001", filerType: "1" });
   });
 
+  it("treats two same-name registration ids for the race as one person only when they share a ZIP or phone", () => {
+    // Live: George Margetas is registered twice (2026C0025, 2026C1193) with
+    // one ZIP and phone; "FRIENDS OF GEORGE MARGETAS" files from Harrisburg.
+    const committee = filerRow({ FILERID: "20250186", FILERNAME: "FRIENDS OF GEORGE MARGETAS", FILERTYPE: "2", OFFICE: "", ZIPCODE: "", PHONE: "7173840123" });
+    const race = { candidateName: "George Margetas", officeScope: "state_lower", officeName: "State Lower Chamber Legislator", district: "196", electionYear: 2026 } as const;
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        ...race,
+        filerRows: [
+          filerRow({ FILERID: "2026C0025", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          filerRow({ FILERID: "2026C1193", FILERNAME: "GEORGE H. MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          committee,
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20250186", filerType: "2" });
+    // Same name, nothing shared: possibly two people. The name-only committee
+    // stays out and the registrations are left as the ambiguous evidence.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        ...race,
+        filerRows: [
+          filerRow({ FILERID: "2026C0025", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "17408", PHONE: "7174240122" }),
+          filerRow({ FILERID: "2026C1193", FILERNAME: "GEORGE MARGETAS", FILERTYPE: "1", OFFICE: "STH", DISTRICT: "196", ZIPCODE: "15001", PHONE: "4125550001" }),
+          committee,
+        ],
+      })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_filers" });
+  });
+
   it("recalls a surname-only blank-OFFICE committee only with ZIP or phone corroboration", () => {
     // Live: "GAYDOS FOR PA" shares the registration ZIP 15143.
     const registration = filerRow({

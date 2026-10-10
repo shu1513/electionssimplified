@@ -373,6 +373,15 @@ function toFilerMatch(input: {
   };
 }
 
+function sharesZipOrPhone(
+  left: readonly PennsylvaniaCampaignFinanceFilerRow[],
+  right: readonly PennsylvaniaCampaignFinanceFilerRow[]
+): boolean {
+  const zips = new Set(left.map((row) => zip5(row.ZIPCODE)).filter((zip) => zip.length === 5));
+  const phones = new Set(left.map((row) => phoneDigits(row.PHONE)).filter((phone) => phone.length >= 7));
+  return right.some((row) => zips.has(zip5(row.ZIPCODE)) || phones.has(phoneDigits(row.PHONE)));
+}
+
 // True when a person-name key of the row ends in the candidate's surname.
 function rowCarriesSurname(input: { row: PennsylvaniaCampaignFinanceFilerRow; surname: string }): boolean {
   if (!input.surname) {
@@ -563,6 +572,18 @@ export function resolvePennsylvaniaCandidateCommittee(
         !rowsByFiler.has(row.FILERID.trim().toUpperCase()) &&
         rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })
     );
+    // Two registration ids for THIS race under the candidate's name are one
+    // person re-registering (George Margetas, 2026C0025 and 2026C1193, same
+    // ZIP and phone) or two people with the same name. Without a shared ZIP
+    // or phone between them they count as possible homonyms, and a committee
+    // matched by name alone is not admitted for either.
+    const registrationFilers = [...rowsByFiler.values()].filter((accumulator) => accumulator.filerType === "1");
+    const homonymRegistrations =
+      registrationFilers.length > 1 &&
+      !registrationFilers.every((accumulator, index) =>
+        index === 0 || registrationFilers.slice(0, index).some((other) => sharesZipOrPhone(accumulator.rows, other.rows))
+      );
+    const nameOnlyCommitteeAllowed = !strangerRegistrationExists && !homonymRegistrations;
     const filerContextVerdicts = new Map<string, boolean>();
     const filerContextAgreesWithRace = (filerId: string): boolean => {
       const cached = filerContextVerdicts.get(filerId);
@@ -625,7 +646,7 @@ export function resolvePennsylvaniaCandidateCommittee(
       // this cycle; committees in Harrisburg rarely share the candidate's
       // home ZIP or phone. A surname-only committee ("GAYDOS FOR PA") still
       // needs the ZIP or phone corroboration.
-      if (!corroborated && !(fullNameMatch && !strangerRegistrationExists)) {
+      if (!corroborated && !(fullNameMatch && nameOnlyCommitteeAllowed)) {
         continue;
       }
 
