@@ -131,6 +131,7 @@ const FIRST_NAME_NICKNAME_GROUPS: readonly (readonly string[])[] = [
   ["VINCENT", "VINCE"],
   ["WALTER", "WALT"],
   ["WESLEY", "WES"],
+  ["WESTLEY", "WES"],
   ["WILLIAM", "BILL", "BILLY", "WILL"],
   ["ZACHARY", "ZACH", "ZACK"],
 ];

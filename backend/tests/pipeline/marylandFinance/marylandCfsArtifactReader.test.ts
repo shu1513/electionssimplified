@@ -69,6 +69,47 @@ function committeeCsv(
 }
 
 describe("Maryland CFS artifact reader", () => {
+  it("keeps unescaped quotes as content inside unquoted and quoted cells", () => {
+    // Live 2025/2026 TCON exports: O"Meara and McDonald"s in unquoted cells,
+    // 63 and 200 such lines; the strict parser threw and the yearly load
+    // failed for every linked candidate.
+    const columns = MARYLAND_CFS_CONTRIBUTION_COLUMNS;
+    const line = (committee: string, last: string, amount: string, address: string): string =>
+      columns
+        .map((column) => {
+          switch (column) {
+            case "Filing Entity Id":
+              return "1";
+            case "Committee Name":
+              return committee;
+            case "Contributor Last Name":
+              return last;
+            case "Transaction Amount":
+              return amount;
+            case "Contributor Mailing Address1":
+              return address;
+            default:
+              return "";
+          }
+        })
+        .join(",");
+    const rows = parseMarylandCfsContributionCsvRows(
+      [
+        columns.join(","),
+        line('"Feldman, Brian Citizens For"', 'O"Meara', "$250.00", '"1 Churchview Road, Suite 301"'),
+        line('"Beidle, Pam Friends of"', 'McDonald"s', "$250", '"Belt"s Transportation, Inc."'),
+        line("Plain Committee", '"Quoted ""escaped"" Name"', "$5.00", '"Trailing" '),
+      ].join("\r\n")
+    );
+    expect(
+      rows.map((row) => [row["Committee Name"], row["Contributor Last Name"], row["Transaction Amount"], row["Contributor Mailing Address1"]])
+    ).toEqual([
+      ["Feldman, Brian Citizens For", 'O"Meara', "$250.00", "1 Churchview Road, Suite 301"],
+      ["Beidle, Pam Friends of", 'McDonald"s', "$250", 'Belt"s Transportation, Inc.'],
+      ["Plain Committee", 'Quoted "escaped" Name', "$5.00", "Trailing"],
+    ]);
+  });
+
   it("normalizes headers, Excel strings, and money values", () => {
     expect(normalizeMarylandCfsHeader("\uFEFFFiling Entity Id ")).toBe("Filing Entity Id");
     expect(normalizeMarylandCfsExcelString('="20678-1234"')).toBe("20678-1234");
