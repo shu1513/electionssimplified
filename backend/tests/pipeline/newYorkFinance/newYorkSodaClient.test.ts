@@ -120,7 +120,7 @@ describe("newYorkSodaClient", () => {
     const url = new URL(String(fetchImpl.mock.calls[0][0]));
     // filer_type_desc='State' keeps same-name county committees out.
     expect(url.searchParams.get("$where")).toBe(
-      "compliance_type_desc='COMMITTEE' AND committee_type_desc='Authorized Single Candidate Committee' AND filer_status='ACTIVE' AND filer_type_desc='State' AND upper(filer_name) like '%HOCHUL%'"
+      "compliance_type_desc='COMMITTEE' AND committee_type_desc IN ('Authorized Single Candidate Committee','Public Campaign Finance Committee') AND filer_status='ACTIVE' AND filer_type_desc='State' AND upper(filer_name) like '%HOCHUL%'"
     );
     await expect(
       searchNewYorkActiveAuthorizedCommitteeFilers({ nameContains: "x" }, { fetchImpl })
