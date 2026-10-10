@@ -215,4 +215,23 @@ describe("coloradoCandidateCommitteeResolver", () => {
       })
     ).toMatchObject({ status: "unmatched" });
   });
+
+  it("collapses same-name committee ids to the one with the most cycle rows", () => {
+    const rows = [
+      contribution({ CO_ID: "20175032081", CommitteeName: "PHIL WEISER FOR COLORADO", CandidateName: "PHILIP JACOB WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2025-01-03 00:00:00" }),
+      contribution({ CO_ID: "20255047944", CommitteeName: "PHIL WEISER FOR COLORADO", CandidateName: "PHILIP WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2026-01-01 00:00:00" }),
+      contribution({ CO_ID: "20255047944", CommitteeName: "PHIL WEISER FOR COLORADO", CandidateName: "PHILIP WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2026-01-02 00:00:00" }),
+    ];
+    expect(resolveColoradoCandidateCommittee({ candidateName: "Phil Weiser", electionYear: 2026, contributionRows: rows })).toMatchObject({
+      status: "matched",
+      committeeId: "20255047944",
+    });
+    expect(
+      resolveColoradoCandidateCommittee({
+        candidateName: "Phil Weiser",
+        electionYear: 2026,
+        contributionRows: [...rows, contribution({ CO_ID: "1", CommitteeName: "FRIENDS OF PHIL WEISER", CandidateName: "PHILIP WEISER", CommitteeType: "Candidate Committee", ContributionDate: "2026-01-02 00:00:00" })],
+      })
+    ).toMatchObject({ status: "ambiguous" });
+  });
 });

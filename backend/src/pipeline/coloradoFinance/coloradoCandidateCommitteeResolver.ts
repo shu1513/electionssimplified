@@ -17,6 +17,7 @@ export type ColoradoCandidateCommitteeResolution =
 type CandidateCommitteeMatch = {
   committeeId: string;
   committeeName: string;
+  rowCount: number;
 };
 
 function normalizeTextKey(value: string): string {
@@ -138,20 +139,34 @@ export function resolveColoradoCandidateCommittee(input: {
     if (!rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })) {
       continue;
     }
+    const existing = matches.get(committeeId);
     matches.set(committeeId, {
       committeeId,
       committeeName,
+      rowCount: (existing?.rowCount ?? 0) + 1,
     });
   }
 
   if (matches.size === 0) {
     return { status: "unmatched", reason: "no_candidate_committee_match" };
   }
-  if (matches.size > 1) {
+  // TRACER keeps a candidate's retired committee id alive under the same
+  // name (Phil Weiser: 20175032081 with 44 late 2025 rows beside
+  // 20255047944 with 59,000). Same-name ids are one committee; the id with
+  // the most cycle rows is the live one. Different names stay ambiguous.
+  const byName = new Map<string, CandidateCommitteeMatch>();
+  for (const candidate of matches.values()) {
+    const nameKey = normalizeTextKey(candidate.committeeName);
+    const current = byName.get(nameKey);
+    if (!current || candidate.rowCount > current.rowCount) {
+      byName.set(nameKey, candidate);
+    }
+  }
+  if (byName.size > 1) {
     return { status: "ambiguous", reason: "multiple_matching_committees" };
   }
 
-  const match = [...matches.values()][0];
+  const match = [...byName.values()][0];
   if (!match) {
     return { status: "unmatched", reason: "no_candidate_committee_match" };
   }
