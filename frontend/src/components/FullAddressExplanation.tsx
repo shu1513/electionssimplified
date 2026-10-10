@@ -40,7 +40,7 @@ export function FullAddressExplanation({
                 {/* Wording approved 2026-10-10: two sentences, no ZIP-fallback
                     paragraph (the field label already says "address or ZIP"). */}
                 <p>
-                  Your voting districts don’t follow ZIP codes. Two homes in the same ZIP can vote in different races.
+                  Voting districts don’t necessarily follow ZIP codes. Two homes in the same city or ZIP may vote in different races.
                 </p>
                 <p>
                   {ADDRESS_FIELD_PRIVACY_NOTE} Our source code is open and public{" "}

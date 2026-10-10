@@ -219,8 +219,8 @@ describe("HomePage pre-search notice", () => {
     await user.click(trigger);
 
     const dialog = screen.getByRole("dialog", { name: "Why do you need the full address?" });
-    expect(dialog).toHaveTextContent("Your voting districts don’t follow ZIP codes.");
-    expect(dialog).toHaveTextContent("Two homes in the same ZIP can vote in different races.");
+    expect(dialog).toHaveTextContent("Voting districts don’t necessarily follow ZIP codes.");
+    expect(dialog).toHaveTextContent("Two homes in the same city or ZIP may vote in different races.");
     expect(dialog).toHaveTextContent("We do NOT save it to your account");
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 
