@@ -27,10 +27,9 @@ import { track } from "../lib/usage";
 //
 // The body carries the one privacy line and nothing else. The two disclaimer
 // paragraphs (PRE_SEARCH_AGREEMENT_PARAGRAPHS) came out on 2026-09-28: they
-// restated the linked Disclaimer as scare copy at the moment of assent, and
-// the same warning still reaches every reader on the results page
-// (VERIFY_WITH_OFFICIALS_NOTE) — the audience that never saw a dialog at
-// all. Presentation-only, no version bump; see docs/legal/checkbox-copy.md.
+// restated the linked Disclaimer as scare copy at the moment of assent; the
+// linked Disclaimer (reachable from every page's footer) says the same thing.
+// Presentation-only, no version bump; see docs/legal/checkbox-copy.md.
 //
 // Built on Headless UI's Dialog like ReportContentButton: focus trapping,
 // Escape, and scroll locking come from the library.

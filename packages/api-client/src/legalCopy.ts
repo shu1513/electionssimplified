@@ -36,8 +36,7 @@ export const PRE_SEARCH_CHECKBOX_LABEL =
 /**
  * Body of the mobile pre-search terms sheet. The web dialog stopped rendering
  * these on 2026-09-28 (presentation only, no version bump): the linked
- * Disclaimer says the same thing, and VERIFY_WITH_OFFICIALS_NOTE repeats it on
- * results for everyone. Kept here for mobile and for the archive check in
+ * Disclaimer says the same thing. Kept here for mobile and for the archive check in
  * legalCopy.test.ts.
  */
 export const PRE_SEARCH_AGREEMENT_PARAGRAPHS = [
@@ -83,10 +82,9 @@ export const ADDRESS_FIELD_PRIVACY_NOTE =
   "The address is only used to find voting districts. We do NOT save it to your account.";
 
 /**
- * Shown on results, where it reaches people who never passed the gate at all
- * — a shared computer, someone else's phone, a link from a text message. For
- * a reliance claim this line does more work than the agreement does, because
- * it does not depend on the reader having accepted anything.
+ * Shown on the mobile ballot screen and the web How-it-works page. The web
+ * site footer stopped rendering it on 2026-10-10 (presentation only, no
+ * version bump): the footer's Disclaimer link carries the same warning.
  */
 export const VERIFY_WITH_OFFICIALS_NOTE =
   "AI-assisted research. Verify voting information with official election authorities.";
