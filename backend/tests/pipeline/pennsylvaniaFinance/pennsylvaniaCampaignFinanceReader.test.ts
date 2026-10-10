@@ -72,6 +72,31 @@ describe("Pennsylvania campaign finance export reader", () => {
     ]);
   });
 
+  it("keeps unescaped quotes inside quoted cells as content", () => {
+    // Live 2025/2026 exports: "Grace d"Alo", "MARINUCCI"S DELI", and
+    // "CAROLYN SUSIE" STEWART" — none escaped as "". The strict parser threw
+    // "unterminated quoted field" and the whole yearly load failed.
+    const rows = parsePennsylvaniaCampaignFinanceCsvRows({
+      csv: [
+        "ID,NAME,CITY,AMOUNT",
+        '1,"Grace d"Alo","Carlisle",100.00',
+        '2,"MARINUCCI"S DELI","PHILA",59.58',
+        '3,"CAROLYN SUSIE" STEWART","SYLVA",66.67',
+        '4,"Raise The Money, Inc.\nRaise the Money, Inc.","Little Rock",44.89',
+        '5,"Plain ""escaped"" quote","York",1.00',
+        '6,"Trailing space" ,"Erie",2.00',
+      ].join("\r\n"),
+    });
+    expect(rows.map((row) => [row.NAME, row.CITY, row.AMOUNT])).toEqual([
+      ['Grace d"Alo', "Carlisle", "100.00"],
+      ['MARINUCCI"S DELI', "PHILA", "59.58"],
+      ['CAROLYN SUSIE" STEWART', "SYLVA", "66.67"],
+      ["Raise The Money, Inc.\nRaise the Money, Inc.", "Little Rock", "44.89"],
+      ['Plain "escaped" quote', "York", "1.00"],
+      ["Trailing space", "Erie", "2.00"],
+    ]);
+  });
+
   it("lists extracted files and finds root or nested yearly tables", async () => {
     const dir = await makeTempDir();
     await writeFile(join(dir, "contrib_2026.txt"), "a\n", "utf8");

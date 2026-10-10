@@ -201,6 +201,22 @@ function rowObjectFromCells(headers: readonly string[], cells: readonly string[]
   return row;
 }
 
+// PA does not escape quotes inside quoted fields ("Grace d"Alo",
+// "MARINUCCI"S DELI", "CAROLYN SUSIE" STEWART"). A quote ends the field only
+// when nothing but spaces separates it from a comma, a line end, or the end
+// of the text; any other quote is content. Reading every quote as the end
+// of the field put the parser out of phase and failed the whole yearly load.
+function quoteEndsQuotedField(text: string, quoteIndex: number): boolean {
+  for (let index = quoteIndex + 1; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === " " || char === "\t") {
+      continue;
+    }
+    return char === "," || char === "\r" || char === "\n";
+  }
+  return true;
+}
+
 export function parsePennsylvaniaCampaignFinanceCsvRows(input: {
   csv: string;
   requiredColumns?: readonly string[];
@@ -219,8 +235,10 @@ export function parsePennsylvaniaCampaignFinanceCsvRows(input: {
       if (char === '"' && next === '"') {
         field += '"';
         index += 1;
-      } else if (char === '"') {
+      } else if (char === '"' && quoteEndsQuotedField(input.csv, index)) {
         inQuotes = false;
+      } else if (char === '"') {
+        field += '"';
       } else {
         field += char;
       }
@@ -411,8 +429,10 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
         if (text[0] === '"') {
           field += '"';
           index = 1;
-        } else {
+        } else if (quoteEndsQuotedField(text, -1)) {
           inQuotes = false;
+        } else {
+          field += '"';
         }
       }
 
@@ -426,8 +446,10 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
             index += 1;
           } else if (char === '"' && next === undefined && !isFinal) {
             pendingQuoteInQuotedField = true;
-          } else if (char === '"') {
+          } else if (char === '"' && quoteEndsQuotedField(text, index)) {
             inQuotes = false;
+          } else if (char === '"') {
+            field += '"';
           } else {
             field += char;
           }

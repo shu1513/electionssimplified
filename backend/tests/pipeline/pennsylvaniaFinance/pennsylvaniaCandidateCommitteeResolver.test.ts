@@ -880,4 +880,110 @@ describe("pennsylvaniaCandidateCommitteeResolver", () => {
       ],
     });
   });
+
+  it("matches a formal-name registration row through a nickname on the VoteApp side", () => {
+    // Live: Josh Shapiro files as "SHAPIRO, JOSHUA D"; before nickname
+    // expansion the governor stayed unlinked.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1" })],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0403", filerType: "1" });
+  });
+
+  it("does not stretch a nickname to an unrelated first name", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOHN D", FILERTYPE: "1" })],
+      })
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_filer_match" });
+  });
+
+  it("keeps nickname expansion off the storage key", () => {
+    expect([...normalizePennsylvaniaCandidateNameKeys("Josh Shapiro", { expandNicknames: true })]).toEqual([
+      "JOSH SHAPIRO",
+      "JOSHUA SHAPIRO",
+    ]);
+    expect([...normalizePennsylvaniaCandidateNameKeys("Josh Shapiro")]).toEqual(["JOSH SHAPIRO"]);
+  });
+
+  it("admits a surname-only committee whose own row names the race, beside the registration", () => {
+    // Live: "Shapiro for Pennsylvania" (OFFICE GOV) carries the money; the
+    // registration row 2026C0403 reports $0. Shares no ZIP or phone.
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1", ZIPCODE: "19046", PHONE: "6306966485" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2", ZIPCODE: "19110", PHONE: "2025520221" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20160016", filerType: "2" });
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Stacy Garrity",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0735", FILERNAME: "GARRITY, STACY LORRAINE", FILERTYPE: "1" }),
+          filerRow({ FILERID: "20200025", FILERNAME: "Garrity for PA", FILERTYPE: "2", ZIPCODE: "17112" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "20200025", filerType: "2" });
+  });
+
+  it("never admits a surname-only committee without the candidate's registration row", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2" })],
+      })
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_filer_match" });
+  });
+
+  it("never admits a surname-only committee from a blank-OFFICE row", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1", ZIPCODE: "19046" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2", OFFICE: "", ZIPCODE: "19110" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "2026C0403", filerType: "1" });
+  });
+
+  it("stays ambiguous when two surname-only committees name the race", () => {
+    expect(
+      resolvePennsylvaniaCandidateCommittee({
+        candidateName: "Josh Shapiro",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        filerRows: [
+          filerRow({ FILERID: "2026C0403", FILERNAME: "SHAPIRO, JOSHUA D", FILERTYPE: "1" }),
+          filerRow({ FILERID: "20160016", FILERNAME: "Shapiro for Pennsylvania", FILERTYPE: "2" }),
+          filerRow({ FILERID: "20160017", FILERNAME: "Friends of Shapiro", FILERTYPE: "2" }),
+        ],
+      })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_filers" });
+  });
 });
