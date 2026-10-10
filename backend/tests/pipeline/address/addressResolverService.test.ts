@@ -523,9 +523,12 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     const geocodeAddress = vi.fn();
     const query = vi.fn();
 
-    await expect(
-      resolveAddressToDistricts({ query }, "PO Box 211, Gustavus, AK", { geocodeAddress, allowPartial: true })
-    ).rejects.toMatchObject({ name: "ZipDistrictResolutionError", code: "zip_required_for_po_box" });
+    // A five-digit box number behind "No." or ":" is still a box number.
+    for (const input of ["PO Box 211, Gustavus, AK", "PO Box No. 78701, Gustavus, AK", "P.O. Box: 78701 Gustavus AK"]) {
+      await expect(
+        resolveAddressToDistricts({ query }, input, { geocodeAddress, allowPartial: true })
+      ).rejects.toMatchObject({ name: "ZipDistrictResolutionError", code: "zip_required_for_po_box" });
+    }
     await expect(
       resolveAddressToDistricts({ query }, "PO Box 211, Gustavus, AK 99826", { geocodeAddress })
     ).rejects.toMatchObject({ name: "ZipDistrictResolutionError", code: "full_address_required" });

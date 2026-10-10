@@ -185,9 +185,13 @@ export function isPoBoxAddress(address: string): boolean {
 }
 
 // The ZIP of a PO Box input, with the box number blanked first so a
-// five-digit box ("PO Box 85106") is never mistaken for one.
+// five-digit box ("PO Box 85106", "PO Box No. 85106", "PO Box: 85106") is
+// never mistaken for one.
 function extractPoBoxZip(address: string): string | null {
-  const withoutBoxNumber = address.replace(/\b(?:p\.?\s*o\.?|post\s+office)\s*box\s*#?\s*\d+/gi, " ");
+  const withoutBoxNumber = address.replace(
+    /\b(?:p\.?\s*o\.?|post\s+office)\s*box\s*(?:#|no\.?|number|:)?\s*\d+/gi,
+    " "
+  );
   const zips = withoutBoxNumber.match(/\b\d{5}(?=-\d{4}\b|\b)/g);
   return zips ? zips[zips.length - 1] : null;
 }
