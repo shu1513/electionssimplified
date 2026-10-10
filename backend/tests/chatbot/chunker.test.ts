@@ -137,6 +137,11 @@ describe("chatbot chunker", () => {
         result: null,
         source_urls: ["https://example.gov/prop39"],
         official_measure_url: null,
+        proposed_by: {
+          name: "State Legislature (SB 5, Sen. Ada Lee)",
+          about: "Sen. Lee is a Democrat from Oakland.",
+          source_url: "https://legislature.example.gov/sb5",
+        },
         research_area_tags: [],
         results: [],
       },
@@ -145,6 +150,9 @@ describe("chatbot chunker", () => {
     const measure = chunks.find((chunk) => chunk.sourceType === "ballot_measure");
     expect(measure?.content).toContain("A yes vote means: The bond is issued.");
     expect(measure?.content).toContain("A no vote means: The bond is not issued.");
+    expect(measure?.content).toContain(
+      "It was put on the ballot by State Legislature (SB 5, Sen. Ada Lee): Sen. Lee is a Democrat from Oakland."
+    );
     // Measure cards link to the election page.
     expect(measure?.sourceId).toBe("11111111-1111-1111-1111-111111111111");
     expect(measure?.electionId).toBe("11111111-1111-1111-1111-111111111111");

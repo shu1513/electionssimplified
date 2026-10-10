@@ -281,7 +281,13 @@ export function ElectionPage() {
   // measure section shows source_urls (minus the official PDF, which has
   // its own link) and the official_measure_url link, so both are covered.
   const measureShownSources = new Set<string>(
-    measure ? [...measure.source_urls, ...(measure.official_measure_url ? [measure.official_measure_url] : [])] : []
+    measure
+      ? [
+          ...measure.source_urls,
+          ...(measure.official_measure_url ? [measure.official_measure_url] : []),
+          ...(measure.proposed_by ? [measure.proposed_by.source_url] : []),
+        ]
+      : []
   );
   const electionOnlySources = [...new Set(data.sources)].filter((url) => !measureShownSources.has(url));
   // "My choice" controls on upcoming elections only (the backend rejects
@@ -1050,6 +1056,19 @@ export function ElectionPage() {
               </div>
             ) : null}
             {measure.summary ? <p className="mt-2 text-body text-ink">{measure.summary}</p> : null}
+            {/* Whose idea it was. A title says what its author wants heard;
+                the proposer says who that author is. The explainer line
+                does for the proposer what the donor "about" line does on
+                the funding card, and the source link is the evidence. */}
+            {measure.proposed_by ? (
+              <div className="mt-2 text-sm">
+                <p className="text-ink">
+                  <span className="font-medium text-ink-soft">Put on the ballot by:</span> {measure.proposed_by.name}
+                </p>
+                <p className="text-xs text-ink-soft">{measure.proposed_by.about}</p>
+                <SourceLine url={measure.proposed_by.source_url} kind="measure_proposed_by_source" />
+              </div>
+            ) : null}
             {measure.official_measure_url ? (
               <p className="mt-2 text-sm">
                 <a
@@ -1131,7 +1150,9 @@ export function ElectionPage() {
               </p>
             ) : null}
             <SourceFootnote
-              urls={measure.source_urls.filter((url) => url !== measure.official_measure_url)}
+              urls={measure.source_urls.filter(
+                (url) => url !== measure.official_measure_url && url !== measure.proposed_by?.source_url
+              )}
               className="mt-1"
             />
             <div className="mt-3">

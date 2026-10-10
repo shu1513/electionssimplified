@@ -169,6 +169,9 @@ function ballotMeasureChunk(election: BallotLookupElection): ChunkDraft | null {
   }
   parts.push(`A yes vote means: ${measure.what_yes_means}`);
   parts.push(`A no vote means: ${measure.what_no_means}`);
+  if (measure.proposed_by) {
+    parts.push(`It was put on the ballot by ${measure.proposed_by.name}: ${measure.proposed_by.about}`);
+  }
   if (measure.result) {
     parts.push(`The measure ${measure.result}.`);
   }

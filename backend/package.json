@@ -100,6 +100,8 @@
     "manual:records:clear-stale-claims": "tsx src/scripts/clearStaleSweepCompletenessClaims.ts",
     "manual:ballot-measure:write": "tsx src/scripts/writeManualBallotMeasure.ts",
     "manual:ballot-measure-funding:write": "tsx src/scripts/writeManualBallotMeasureFunding.ts",
+    "manual:ballot-measure-proposed-by:due": "tsx src/scripts/manualBallotMeasureProposedBy.ts due",
+    "manual:ballot-measure-proposed-by:write": "tsx src/scripts/manualBallotMeasureProposedBy.ts write",
     "manual:election-date:correct": "tsx src/scripts/correctManualElectionDate.ts",
     "manual:election-title:correct": "tsx src/scripts/correctManualElectionTitle.ts",
     "manual:election-contest-family:correct": "tsx src/scripts/correctManualElectionContestFamily.ts",

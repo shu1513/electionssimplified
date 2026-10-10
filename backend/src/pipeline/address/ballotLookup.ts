@@ -266,6 +266,14 @@ export type BallotLookupBallotMeasureResult = {
   retrieved_at: string;
 };
 
+// Who put the measure on the ballot, with the plain-language explainer the
+// page prints under the name and the filing or bill page that backs it.
+export type BallotLookupBallotMeasureProposedBy = {
+  name: string;
+  about: string;
+  source_url: string;
+};
+
 export type BallotLookupBallotMeasure = {
   id: string;
   official_ballot_title: string;
@@ -275,6 +283,8 @@ export type BallotLookupBallotMeasure = {
   result: "passed" | "failed" | null;
   source_urls: string[];
   official_measure_url: string | null;
+  // null = not researched, or researched with no sourced proposer.
+  proposed_by: BallotLookupBallotMeasureProposedBy | null;
   research_area_tags: BallotLookupResearchAreaTag[];
   results: BallotLookupBallotMeasureResult[];
   // Who funds each side, from official filings; null = not researched.
@@ -622,6 +632,9 @@ type BallotMeasureRow = {
   result: "passed" | "failed" | null;
   source_url: unknown;
   official_measure_url: string | null;
+  proposed_by: string | null;
+  proposed_by_about: string | null;
+  proposed_by_source_url: string | null;
 };
 
 type BallotMeasureTagRow = {
@@ -1368,7 +1381,10 @@ async function loadFullElectionDetails(
           bm.what_no_means,
           bm.result,
           bm.source_url,
-          bm.official_measure_url
+          bm.official_measure_url,
+          bm.proposed_by,
+          bm.proposed_by_about,
+          bm.proposed_by_source_url
         FROM public.ballot_measures AS bm
         WHERE bm.election_id = ANY($1::uuid[])
         ORDER BY bm.election_id, bm.id
@@ -1633,6 +1649,12 @@ async function loadFullElectionDetails(
       result: row.result,
       source_urls: parseStringArray(row.source_url),
       official_measure_url: row.official_measure_url,
+      // The DB check keeps the three columns together; the guard covers
+      // query mocks that predate them.
+      proposed_by:
+        row.proposed_by && row.proposed_by_about && row.proposed_by_source_url
+          ? { name: row.proposed_by, about: row.proposed_by_about, source_url: row.proposed_by_source_url }
+          : null,
       research_area_tags: (ballotMeasureTagsByMeasure.get(row.ballot_measure_id) ?? []).map(mapResearchAreaTag),
       results: (ballotMeasureResultsByMeasure.get(row.ballot_measure_id) ?? []).map((result) => ({
         id: result.id,

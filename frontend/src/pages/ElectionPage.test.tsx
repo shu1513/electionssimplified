@@ -580,6 +580,41 @@ describe("ElectionPage", () => {
     expect(screen.queryByRole("button", { name: "Report an issue with election" })).not.toBeInTheDocument();
   });
 
+  it("shows who put a measure on the ballot with the explainer and its source", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() =>
+      electionDetail({
+        race_type: "ballot_measure",
+        candidates: [],
+        sources: ["https://legis.example.gov/HB300"],
+        ballot_measure: {
+          id: "m-1",
+          official_ballot_title: "Measure 1",
+          summary: "A measure.",
+          what_yes_means: "Yes approves the bond.",
+          what_no_means: "No rejects the bond.",
+          result: null,
+          source_urls: ["https://legis.example.gov/HB300"],
+          official_measure_url: null,
+          proposed_by: {
+            name: "State Legislature (HB 300, Rep. Jane Smith)",
+            about: "Rep. Smith is a Republican from Baton Rouge.",
+            source_url: "https://legis.example.gov/HB300",
+          },
+          research_area_tags: [],
+          results: [],
+        },
+      })
+    );
+
+    expect(await screen.findByText("Put on the ballot by:")).toBeInTheDocument();
+    expect(screen.getByText(/State Legislature \(HB 300, Rep\. Jane Smith\)/)).toBeInTheDocument();
+    expect(screen.getByText("Rep. Smith is a Republican from Baton Rouge.")).toBeInTheDocument();
+    // The proposer's source is its own evidence line; the same URL is not
+    // repeated in the measure footnote or under Election sources.
+    expect(screen.getAllByRole("link", { name: "legis.example.gov" })).toHaveLength(1);
+  });
+
   it("does not repeat a measure's source under Election sources", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() =>
