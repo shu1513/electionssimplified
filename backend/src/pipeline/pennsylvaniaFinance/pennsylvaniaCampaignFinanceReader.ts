@@ -373,7 +373,9 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
     let row: string[] = [];
     let field = "";
     let inQuotes = false;
-    let pendingQuoteInQuotedField = false;
+    // A quote followed only by spaces at the end of a chunk cannot be judged
+    // until the next chunk shows what follows; it is carried over verbatim.
+    let carry = "";
     let settled = false;
 
     const rejectOnce = (error: Error): void => {
@@ -422,21 +424,11 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
       field = "";
     };
 
-    const processText = (text: string, isFinal = false): void => {
-      let index = 0;
-      if (pendingQuoteInQuotedField) {
-        pendingQuoteInQuotedField = false;
-        if (text[0] === '"') {
-          field += '"';
-          index = 1;
-        } else if (quoteEndsQuotedField(text, -1)) {
-          inQuotes = false;
-        } else {
-          field += '"';
-        }
-      }
+    const processText = (chunk: string, isFinal = false): void => {
+      const text = carry + chunk;
+      carry = "";
 
-      for (; index < text.length && !settled; index += 1) {
+      for (let index = 0; index < text.length && !settled; index += 1) {
         const char = text[index];
         const next = text[index + 1];
 
@@ -444,8 +436,9 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
           if (char === '"' && next === '"') {
             field += '"';
             index += 1;
-          } else if (char === '"' && next === undefined && !isFinal) {
-            pendingQuoteInQuotedField = true;
+          } else if (char === '"' && !isFinal && /^[ \t]*$/.test(text.slice(index + 1))) {
+            carry = text.slice(index);
+            break;
           } else if (char === '"' && quoteEndsQuotedField(text, index)) {
             inQuotes = false;
           } else if (char === '"') {
@@ -473,11 +466,6 @@ async function streamPennsylvaniaCampaignFinanceCsvRows(input: {
           continue;
         }
         field += char;
-      }
-
-      if (isFinal && pendingQuoteInQuotedField) {
-        pendingQuoteInQuotedField = false;
-        inQuotes = false;
       }
     };
 

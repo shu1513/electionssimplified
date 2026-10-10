@@ -115,6 +115,44 @@ describe("Pennsylvania campaign finance export reader", () => {
     ).resolves.toBe(join(dir, "2024", "filer_2024.txt"));
   });
 
+  it("judges a quote at a stream chunk boundary by what follows in the next chunk", async () => {
+    // createReadStream hands the parser 64 KiB chunks. A quote followed only
+    // by spaces at the end of a chunk must wait for the next chunk: here it
+    // is an inner quote ("CAROLYN SUSIE" STEWART"), not the end of the cell.
+    const chunkSize = 64 * 1024;
+    const columns = [...PENNSYLVANIA_CAMPAIGN_FINANCE_CONTRIBUTION_COLUMNS];
+    const build = (quoteOffset: number): string => {
+      const cells = columns.map(() => "");
+      const set = (name: string, value: string): void => {
+        cells[columns.indexOf(name)] = value;
+      };
+      set("CampaignFinanceID", "1");
+      set("FilerID", "100");
+      set("EYEAR", "2026");
+      set("CONTDATE1", "20260101");
+      set("CONTAMT1", "66.67");
+      const header = `${columns.join(",")}\r\n`;
+      const nameIndex = columns.indexOf("CONTRIBUTOR");
+      const cityIndex = columns.indexOf("CITY");
+      const prefixLength = header.length + cells.slice(0, nameIndex).join(",").length + 1 + 1;
+      const pad = "X".repeat(quoteOffset - prefixLength - "CAROLYN SUSIE".length);
+      cells[nameIndex] = `"${pad}CAROLYN SUSIE" STEWART"`;
+      cells[cityIndex] = '"SYLVA"';
+      return `${header}${cells.join(",")}\r\n`;
+    };
+    for (const quoteOffset of [chunkSize - 1, chunkSize - 2]) {
+      const dir = await makeTempDir();
+      await mkdir(join(dir, "2026"));
+      const csv = build(quoteOffset);
+      expect(csv[quoteOffset]).toBe('"');
+      await writeFile(join(dir, "2026", "contrib_2026.txt"), csv, "latin1");
+      const rows = await readPennsylvaniaCampaignFinanceContributionRows({ extractedDir: dir, year: 2026 });
+      expect(rows).toHaveLength(1);
+      expect(rows[0]?.CONTRIBUTOR.endsWith('CAROLYN SUSIE" STEWART')).toBe(true);
+      expect(rows[0]?.CITY).toBe("SYLVA");
+    }
+  });
+
   it("streams contribution rows with predicate and maxRows", async () => {
     const dir = await makeTempDir();
     await mkdir(join(dir, "2024"));
