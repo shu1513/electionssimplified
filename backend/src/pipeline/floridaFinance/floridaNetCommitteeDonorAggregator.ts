@@ -139,7 +139,7 @@ export function aggregateFloridaNetCommitteeDonors(input: {
     if (resolution.committeeId === input.receivingCommitteeId) continue;
     let aggregate = aggregates.get(resolution.committeeId);
     if (!aggregate) {
-      aggregate = { identity: resolution, grossCents: 0, refundCents: 0, contributionCount: 0, refundCount: 0 };
+      aggregate = { identity: { ...resolution }, grossCents: 0, refundCents: 0, contributionCount: 0, refundCount: 0 };
       aggregates.set(resolution.committeeId, aggregate);
     } else if (exactName(aggregate.identity.committeeName) !== exactName(resolution.committeeName)
                || aggregate.identity.committeeType !== resolution.committeeType) {
