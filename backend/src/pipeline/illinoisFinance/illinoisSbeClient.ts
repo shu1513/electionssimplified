@@ -8,6 +8,7 @@ import type {
   IllinoisSbeExpenditureRecord,
   IllinoisSbeSupportOppose,
 } from "./illinoisSbeCsvReader.js";
+import { decodeIllinoisSbeWindows1252 } from "./illinoisSbeLegalCommitteeDonorMatcher.js";
 
 export {
   getIllinoisSbeExportCapStatus,
@@ -92,7 +93,9 @@ export type IllinoisSbeCommitteeContributionSearchInput = {
 };
 
 export type IllinoisSbeIndependentExpenditureSearchInput = IllinoisSbeDateWindow & {
-  candidateName: string;
+  candidateName?: string;
+  /** Explicit bounded discovery across all targets; rows still need current filing/target verification. */
+  allCandidates?: boolean;
   supportOppose?: IllinoisSbeSupportOppose | null;
   office?: string | null;
 };
@@ -117,8 +120,14 @@ function normalizeDate(value: string | null | undefined, fieldName: string): str
   if (!normalized) {
     return "";
   }
-  if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(normalized)) {
+  const parts = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(normalized);
+  if (!parts) {
     throw new IllinoisSbeClientError("invalid_request", `${fieldName} must use m/d/yyyy format`);
+  }
+  const [month, day, year] = parts.slice(1).map(Number);
+  const date = new Date(Date.UTC(year!, month! - 1, day!));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
+    throw new IllinoisSbeClientError("invalid_request", `${fieldName} must be a valid calendar date`);
   }
   return normalized;
 }
@@ -273,7 +282,7 @@ export function decodeIllinoisSbeText(buffer: ArrayBuffer): string {
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch {
     // The official bulk registry contains Windows-1252 names, not UTF-8.
-    return new TextDecoder("windows-1252").decode(bytes);
+    return decodeIllinoisSbeWindows1252(bytes);
   }
 }
 
@@ -564,6 +573,15 @@ export async function fetchIllinoisSbeIndependentExpendituresCsv(
   input: IllinoisSbeIndependentExpenditureSearchInput,
   options: IllinoisSbeClientOptions = {}
 ): Promise<string> {
+  if (input.allCandidates && (input.candidateName?.trim() || !input.fromDate?.trim() || !input.toDate?.trim())) {
+    throw new Error("Illinois SBE all-candidate expenditure search requires both date bounds and no candidate name");
+  }
+  const candidateName = input.allCandidates ? "" : requireNonEmpty(input.candidateName, "candidate name");
+  const fromDate = normalizeDate(input.fromDate, "fromDate");
+  const toDate = normalizeDate(input.toDate, "toDate");
+  if (input.allCandidates && new Date(fromDate).getTime() > new Date(toDate).getTime()) {
+    throw new IllinoisSbeClientError("invalid_request", "Illinois SBE all-candidate expenditure date bounds are reversed");
+  }
   const session = new IllinoisSbeSession(options);
   const page = await session.getText(ILLINOIS_SBE_EXPENDITURE_ALL_SEARCH_URL, "independent expenditure search page");
   const result = await submitAndDownloadCsv({
@@ -573,12 +591,12 @@ export async function fetchIllinoisSbeIndependentExpendituresCsv(
     fields: {
       "ctl00$ContentPlaceHolder1$ddlExpenditureType": "Independent Expenditures",
       "ctl00$ContentPlaceHolder1$ddlCandidateNameSearchType": "Contains",
-      "ctl00$ContentPlaceHolder1$txtCandidateName": requireNonEmpty(input.candidateName, "candidate name"),
+      "ctl00$ContentPlaceHolder1$txtCandidateName": candidateName,
       "ctl00$ContentPlaceHolder1$ddlOfficeSearchType": "Contains",
       "ctl00$ContentPlaceHolder1$txtOffice": input.office?.trim() ?? "",
       "ctl00$ContentPlaceHolder1$radSupportingOpposing": normalizeSupportOppose(input.supportOppose),
-      "ctl00$ContentPlaceHolder1$txtExpendedDate": normalizeDate(input.fromDate, "fromDate"),
-      "ctl00$ContentPlaceHolder1$txtExpendedDateThru": normalizeDate(input.toDate, "toDate"),
+      "ctl00$ContentPlaceHolder1$txtExpendedDate": fromDate,
+      "ctl00$ContentPlaceHolder1$txtExpendedDateThru": toDate,
     },
     submit: {
       name: "ctl00$ContentPlaceHolder1$btnSubmit",

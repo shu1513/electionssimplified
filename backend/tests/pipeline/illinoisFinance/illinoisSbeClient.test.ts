@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   fetchIllinoisSbeCandidateContributionsCsv,
   fetchIllinoisSbeCommitteeContributionsCsv,
+  fetchIllinoisSbeIndependentExpendituresCsv,
   decodeIllinoisSbeText,
   getIllinoisSbeExportCapStatus,
   hasIllinoisSbeExportCapWarning,
@@ -17,6 +18,50 @@ import {
 } from "../../../src/pipeline/illinoisFinance/illinoisSbeClient.js";
 
 describe("illinoisSbeClient", () => {
+  it("supports explicit bounded all-target IE discovery without posting Reset", async () => {
+    const controls = `<input type="hidden" name="__VIEWSTATE" value="state" />
+      <input type="submit" name="ctl00$ContentPlaceHolder1$btnSubmit" value="Search" />
+      <input type="submit" name="ctl00$ContentPlaceHolder1$btnReset" value="Reset" />`;
+    const csv = readFileSync(new URL("../../fixtures/illinoisFinance/expenditures-modern.csv", import.meta.url), "utf8");
+    const url = "https://www.elections.il.gov/CampaignDisclosure/ExpenditureSearchByAllExpenditures.aspx";
+    const response = (text: string) => {
+      const result = new Response(text);
+      Object.defineProperty(result, "url", { value: url });
+      return result;
+    };
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce(response(controls))
+      .mockResolvedValueOnce(response(`${controls}<a id="ContentPlaceHolder1_lnkDownloadList">Download</a>`))
+      .mockResolvedValueOnce(response(`${controls}<input id="ContentPlaceHolder1_btnCSV" />`))
+      .mockResolvedValueOnce(response(csv));
+    expect(await fetchIllinoisSbeIndependentExpendituresCsv({
+      allCandidates: true, fromDate: "1/1/2025", toDate: "12/31/2026",
+    }, { fetchImpl })).toBe(csv);
+    const body = new URLSearchParams(fetchImpl.mock.calls[1]![1].body);
+    expect(body.get("ctl00$ContentPlaceHolder1$txtCandidateName")).toBe("");
+    expect(body.get("ctl00$ContentPlaceHolder1$txtOffice")).toBe("");
+    expect(body.get("ctl00$ContentPlaceHolder1$radSupportingOpposing")).toBe("");
+    expect(body.get("ctl00$ContentPlaceHolder1$txtExpendedDate")).toBe("1/1/2025");
+    expect(body.get("ctl00$ContentPlaceHolder1$txtExpendedDateThru")).toBe("12/31/2026");
+    expect(body.has("ctl00$ContentPlaceHolder1$btnReset")).toBe(false);
+  });
+
+  it.each([
+    {},
+    { candidateName: "" },
+    { allCandidates: true },
+    { allCandidates: true, fromDate: "1/1/2025" },
+    { allCandidates: true, toDate: "12/31/2026" },
+    { allCandidates: true, candidateName: "Bailey", fromDate: "1/1/2025", toDate: "12/31/2026" },
+    { allCandidates: true, fromDate: "2025-01-01", toDate: "12/31/2026" },
+    { allCandidates: true, fromDate: "2/30/2025", toDate: "12/31/2026" },
+    { allCandidates: true, fromDate: "12/31/2026", toDate: "1/1/2025" },
+  ])("rejects missing identity, unbounded or invalid broad search before fetch: %j", async (input) => {
+    const fetchImpl = vi.fn();
+    await expect(fetchIllinoisSbeIndependentExpendituresCsv(input, { fetchImpl })).rejects.toThrow();
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("submits only the explicit Search button and excludes it from download postbacks", async () => {
     // Native committee form exposes both Search and Reset submit inputs.
     const controls = `<input type="hidden" name="__VIEWSTATE" value="state" />
@@ -72,6 +117,7 @@ describe("illinoisSbeClient", () => {
 
   it("decodes source Windows-1252 without corrupting valid UTF8 or UTF16", () => {
     expect(decodeIllinoisSbeText(Uint8Array.from([0x50, 0x65, 0xf1, 0x61]).buffer)).toBe("Peña");
+    expect(decodeIllinoisSbeText(Uint8Array.from([0x91, 0x50, 0x65, 0xf1, 0x61, 0x92]).buffer)).toBe("‘Peña’");
     expect(decodeIllinoisSbeText(new TextEncoder().encode("Peña — Illinois").buffer)).toBe("Peña — Illinois");
     const le = Uint8Array.from([0xff, 0xfe, 0x50, 0, 0x65, 0, 0xf1, 0, 0x61, 0]);
     const be = Uint8Array.from([0xfe, 0xff, 0, 0x50, 0, 0x65, 0, 0xf1, 0, 0x61]);
