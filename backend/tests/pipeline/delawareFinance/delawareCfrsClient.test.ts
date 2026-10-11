@@ -1,4 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+
+import { describe, expect, it, vi } from "vitest";
 
 import {
   DELAWARE_CFRS_BASE_URL,
@@ -14,6 +16,7 @@ import {
   isDelawareCfrsErrorBody,
   looksLikeDelawareCfrsHtml,
   type DelawareCfrsFetchFn,
+  type DelawareCfrsResponseCapture,
 } from "../../../src/pipeline/delawareFinance/delawareCfrsClient.js";
 
 type RecordedRequest = {
@@ -23,7 +26,10 @@ type RecordedRequest = {
   body: string | undefined;
 };
 
-function recordingFetch(responses: Response[]): { fetchImpl: DelawareCfrsFetchFn; requests: RecordedRequest[] } {
+function recordingFetch(responses: Response[]): {
+  fetchImpl: DelawareCfrsFetchFn;
+  requests: RecordedRequest[];
+} {
   const requests: RecordedRequest[] = [];
   const fetchImpl: DelawareCfrsFetchFn = (url, init) => {
     requests.push({ url, method: init.method, headers: init.headers, body: init.body });
@@ -84,12 +90,21 @@ describe("delawareCfrsClient", () => {
   });
 
   it("pins the expenses, committee, and filed-reports field sets", () => {
-    const expenses = buildDelawareExpensesSearchFields({ MemberId: "558171", CommitteeType: "04", FilingYear: "2026" });
+    const expenses = buildDelawareExpensesSearchFields({
+      MemberId: "558171",
+      CommitteeType: "04",
+      FilingYear: "2026",
+    });
     expect(expenses.Submit).toBe("Search");
     expect(Object.keys(expenses)).toHaveLength(29);
     expect(expenses).toMatchObject({
-      CommitteeType: "04", FilingYear: "2026", FilingPeriodName: "",
-      ddlPayeeType: "", ddlState: "", ddlExpenCategory: "", ddlExpensePurpose: "",
+      CommitteeType: "04",
+      FilingYear: "2026",
+      FilingPeriodName: "",
+      ddlPayeeType: "",
+      ddlState: "",
+      ddlExpenCategory: "",
+      ddlExpensePurpose: "",
     });
     // The portal's own misspelling is part of the contract.
     expect(expenses).toHaveProperty("expensePruposeData", "");
@@ -172,9 +187,11 @@ describe("delawareCfrsClient", () => {
     const { fetchImpl } = recordingFetch([new Response("x".repeat(64), { status: 200 })]);
     const session = createDelawareCfrsSession({ fetchImpl, sleep: noSleep, maxResponseBytes: 16 });
     await expect(session.get("https://example.com/steal")).rejects.toMatchObject({ code: "invalid_request" });
-    await expect(session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch))).rejects.toMatchObject({
-      code: "bad_response",
-    });
+    await expect(session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch))).rejects.toMatchObject(
+      {
+        code: "bad_response",
+      }
+    );
   });
 
   it("runs requests single-flight in submission order", async () => {
@@ -191,6 +208,250 @@ describe("delawareCfrsClient", () => {
       session.get(`${DELAWARE_CFRS_BASE_URL}/Public/b`),
     ]);
     expect(order).toEqual(["start a", "end a", "start b", "end b"]);
+  });
+
+  it("captures original binary bytes, safe scope, genuine times and SHA for each HTTP attempt", async () => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl, requests } = recordingFetch([
+      new Response("busy", { status: 503, headers: { "Content-Type": "text/html" } }),
+      new Response(new Uint8Array([0, 255, 128, 65]), {
+        status: 200,
+        headers: { "Content-Type": "application/pdf" },
+      }),
+    ]);
+    const session = createDelawareCfrsSession({
+      fetchImpl,
+      sleep: noSleep,
+      onResponseCapture: (capture) => {
+        captures.push(capture);
+      },
+    });
+    const started = Date.now();
+    await session.postForm(
+      buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsGridJson, { "Grid-size": "15", theme: "vista" }),
+      { page: "1", size: "500", MemberId: "458984" }
+    );
+    const completed = Date.now();
+    expect(requests).toHaveLength(2);
+    expect(captures.map((capture) => [capture.attempt, capture.status])).toEqual([
+      [1, 503],
+      [2, 200],
+    ]);
+    expect(captures[0]?.body.toString()).toBe("busy");
+    expect([...captures[1]!.body]).toEqual([0, 255, 128, 65]);
+    expect(captures[1]).toMatchObject({
+      method: "POST",
+      contentType: "application/pdf",
+      byteCount: 4,
+      financeFields: { page: "1", size: "500", MemberId: "458984" },
+      requestScopeRedacted: false,
+    });
+    for (const capture of captures) {
+      expect(capture.sha256).toBe(createHash("sha256").update(capture.body).digest("hex"));
+      expect(Date.parse(capture.startedAt)).toBeGreaterThanOrEqual(started);
+      expect(Date.parse(capture.completedAt)).toBeGreaterThanOrEqual(Date.parse(capture.startedAt));
+      expect(Date.parse(capture.completedAt)).toBeLessThanOrEqual(completed);
+    }
+    expect(Date.parse(captures[1]!.startedAt)).toBeGreaterThanOrEqual(Date.parse(captures[0]!.completedAt));
+  });
+
+  it.each([
+    { status: 403, body: "<html>denied</html>" },
+    { status: 404, body: "gone" },
+    { status: 200, body: "Unable to process the request." },
+  ])("captures bounded error body before rejection: %j", async ({ status, body }) => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl } = recordingFetch([htmlResponse(body, { status })]);
+    const session = createDelawareCfrsSession({
+      fetchImpl,
+      sleep: noSleep,
+      maxAttempts: 1,
+      onResponseCapture: (capture) => {
+        captures.push(capture);
+      },
+    });
+    await expect(session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry))).rejects.toThrow();
+    expect(captures).toHaveLength(1);
+    expect(captures[0]).toMatchObject({ status, byteCount: Buffer.byteLength(body), attempt: 1 });
+    expect(captures[0]?.body.toString()).toBe(body);
+  });
+
+  it("does not retry or silently replace evidence after observer failure", async () => {
+    const failure = new Error("journal unavailable");
+    const { fetchImpl, requests } = recordingFetch([
+      new Response("busy", { status: 503 }),
+      htmlResponse("ok"),
+    ]);
+    const observer = vi.fn(() => {
+      throw failure;
+    });
+    const session = createDelawareCfrsSession({ fetchImpl, sleep: noSleep, onResponseCapture: observer });
+    await expect(session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry))).rejects.toMatchObject({
+      code: "capture_error",
+      cause: failure,
+    });
+    expect(requests).toHaveLength(1);
+    expect(observer).toHaveBeenCalledTimes(1);
+  });
+
+  it("isolates caller/observer bytes and snapshots the submitted request fields", async () => {
+    const original = new Uint8Array([0, 255, 128, 65]);
+    const response = new Response(null, { status: 200 });
+    response.arrayBuffer = async () => original.buffer;
+    let captured: DelawareCfrsResponseCapture | undefined;
+    const fields = { MemberId: "458984", FilingYear: "2026" };
+    const options = {
+      fetchImpl: async () => response,
+      sleep: noSleep,
+      onResponseCapture: (capture: DelawareCfrsResponseCapture) => {
+        captured = capture;
+        capture.body[0] = 7;
+        original.fill(9);
+      },
+    };
+    const session = createDelawareCfrsSession(options);
+    const pending = session.postForm(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch), fields);
+    fields.FilingYear = "9999";
+    options.onResponseCapture = () => {
+      throw new Error("mutated observer");
+    };
+    const result = await pending;
+    expect([...result.body]).toEqual([0, 255, 128, 65]);
+    expect(captured?.financeFields).toEqual({ MemberId: "458984", FilingYear: "2026" });
+    expect(captured?.sha256).toBe(
+      createHash("sha256")
+        .update(new Uint8Array([0, 255, 128, 65]))
+        .digest("hex")
+    );
+    result.body[2] = 17;
+    expect(captured?.body[2]).toBe(128);
+    expect(captured?.body).not.toBe(result.body);
+  });
+
+  it("awaits capture before the next queued request starts", async () => {
+    const order: string[] = [];
+    let release!: () => void;
+    let ready!: () => void;
+    const firstCapture = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    const hold = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let count = 0;
+    const session = createDelawareCfrsSession({
+      sleep: noSleep,
+      fetchImpl: async () => {
+        order.push("fetch");
+        return htmlResponse("ok");
+      },
+      onResponseCapture: async () => {
+        count += 1;
+        order.push(`capture${count}`);
+        if (count === 1) {
+          ready();
+          await hold;
+        }
+        order.push(`saved${count}`);
+      },
+    });
+    const first = session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry));
+    const second = session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.committeeSearch));
+    await firstCapture;
+    expect(order).toEqual(["fetch", "capture1"]);
+    release();
+    await Promise.all([first, second]);
+    expect(order).toEqual(["fetch", "capture1", "saved1", "fetch", "capture2", "saved2"]);
+  });
+
+  it("never captures headers, unsafe query/body values, street filters or supplied timestamps", async () => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const messages: string[] = [];
+    const { fetchImpl } = recordingFetch([
+      new Response("ok", { headers: { "Set-Cookie": "ASP.NET_SessionId=secret-cookie" } }),
+      new Response("gone", { status: 404 }),
+    ]);
+    const session = createDelawareCfrsSession({
+      fetchImpl,
+      sleep: noSleep,
+      log: (message) => messages.push(message),
+      onResponseCapture: (capture) => {
+        captures.push(capture);
+      },
+      retrievedAt: new Date("1900-01-01"),
+    } as never);
+    await session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.committeeSearch));
+    await expect(
+      session.postForm(
+        buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, {
+          theme: "vista",
+          token: "secret-url",
+          fpath: "secret-opaque",
+        }),
+        {
+          MemberId: "458984",
+          FilingYear: "2026",
+          txtStreet: "secret-street",
+          Authorization: "secret-auth",
+          Cookie: "secret-cookie",
+          __RequestVerificationToken: "secret-csrf",
+          privateField: "secret-private",
+        },
+        { referer: "https://example.invalid/secret-referer", xhr: true }
+      )
+    ).rejects.toThrow();
+    expect(captures[1]).toMatchObject({
+      url: buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, { theme: "vista" }),
+      financeFields: { MemberId: "458984", FilingYear: "2026" },
+      requestScopeRedacted: true,
+    });
+    expect(captures[1]?.startedAt).not.toContain("1900");
+    expect(JSON.stringify(captures)).not.toContain("secret-");
+    expect(JSON.stringify(captures)).not.toContain("headers");
+    expect(messages.join(" ")).not.toContain("secret-");
+  });
+
+  it("preserves exact public report/SO URL identity and omits blank private form controls", async () => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl } = recordingFetch([htmlResponse("ok"), htmlResponse("ok"), htmlResponse("ok")]);
+    const session = createDelawareCfrsSession({
+      fetchImpl,
+      sleep: noSleep,
+      onResponseCapture: (capture) => {
+        captures.push(capture);
+      },
+    });
+    const soo = `${DELAWARE_CFRS_BASE_URL}/Public/ShowReview?memberID=739099&memVersID=1&cTypeCode=04&ftype=SO&fpath=&fname=&isPublic=true`;
+    const report = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportPdf, {
+      FileName: "CampaignFinanceReport_Prelim_739099_315_829eb639-f068-43f2-8f7a-38576c55fbc6.pdf",
+      CommitteeID: "739099",
+      FilingCalendarID: "315",
+    });
+    await session.get(soo);
+    await session.get(report);
+    await session.postForm(
+      buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch),
+      buildDelawareReceiptsSearchFields({ MemberId: "458984" })
+    );
+    expect(captures[0]).toMatchObject({ url: soo, financeFields: null, requestScopeRedacted: false });
+    expect(captures[1]).toMatchObject({ url: report, financeFields: null, requestScopeRedacted: false });
+    expect(captures[2]?.requestScopeRedacted).toBe(false);
+    expect(captures[2]?.financeFields).not.toHaveProperty("txtStreet");
+  });
+
+  it("does not hand oversize bytes to the observer", async () => {
+    const observer = vi.fn();
+    const { fetchImpl } = recordingFetch([htmlResponse("x".repeat(100))]);
+    const session = createDelawareCfrsSession({
+      fetchImpl,
+      sleep: noSleep,
+      maxResponseBytes: 10,
+      onResponseCapture: observer,
+    });
+    await expect(session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry))).rejects.toMatchObject({
+      code: "bad_response",
+    });
+    expect(observer).not.toHaveBeenCalled();
   });
 
   it("exposes the error class shape", () => {
