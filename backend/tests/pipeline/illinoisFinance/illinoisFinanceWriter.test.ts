@@ -292,7 +292,7 @@ describe("illinoisFinanceWriter", () => {
 
     const sql = db.client.query.mock.calls.map((call) => String(call[0]));
     expect(sql.some((statement) => statement.includes("INSERT INTO public.il_candidate_finance_summaries"))).toBe(true);
-    expect(sql.some((statement) => statement.includes("total_receipts = COALESCE(EXCLUDED.total_receipts"))).toBe(true);
+    expect(sql.some((statement) => statement.includes("ELSE COALESCE(EXCLUDED.total_receipts, il_candidate_finance_summaries.total_receipts) END"))).toBe(true);
     expect(
       sql.some(
         (statement) =>
@@ -317,6 +317,19 @@ describe("illinoisFinanceWriter", () => {
     );
     expect(outsideGroupCall?.[1]?.[2]).toBe("ILLINOIS CONSERVATION ACTION");
     expect(outsideBreakdownCall?.[1]?.[2]).toBe("ILLINOIS CONSERVATION ACTION");
+  });
+
+  it("replaces current D-2 totals, including unavailable ones, and keeps stored totals only when D-2 was omitted", async () => {
+    const summaryCall = (db: ReturnType<typeof createMockDb>) => db.client.query.mock.calls.find((call) =>
+      String(call[0]).includes("INSERT INTO public.il_candidate_finance_summaries"));
+    const current = createMockDb();
+    await replaceIllinoisCandidateFinanceSnapshot({ db: current, link: baseLink(), summary: { totalReceipts: 100, cashOnHand: null, d2Current: true } });
+    expect(String(summaryCall(current)?.[0])).toContain("cash_on_hand = CASE WHEN $12::boolean THEN EXCLUDED.cash_on_hand");
+    expect(summaryCall(current)?.[1]?.[5]).toBeNull();
+    expect(summaryCall(current)?.[1]?.[11]).toBe(true);
+    const omitted = createMockDb();
+    await replaceIllinoisCandidateFinanceSnapshot({ db: omitted, link: baseLink(), summary: { outsideSupportTotal: 5, outsideOpposeTotal: 0 } });
+    expect(summaryCall(omitted)?.[1]?.[11]).toBe(false);
   });
 
   it("stores signed ending cash while keeping flow amounts nonnegative", async () => {

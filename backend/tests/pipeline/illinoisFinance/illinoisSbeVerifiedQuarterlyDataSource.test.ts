@@ -113,6 +113,17 @@ describe("Illinois verified Quarterly datasource", () => {
     expect(d.d2ReportSummaries?.every((r) => r.totalDisbursements === null && r.cashOnHand === null && r.debtsOwed === null)).toBe(true);
     expect(d.pacDonors).toHaveLength(3);
   });
+  it("omits the outside replacement when a candidate-targeted row has no stance or an ambiguous target", async () => {
+    const f = await fixture();
+    await f.save("ie", csv(IE, [expense({ SupportingOpposing: "" }), expense({ Amount: "100", CandidateName: "Unlinked Person" })]));
+    let d = (await loadIllinoisSbeVerifiedQuarterlyDataSet(f.config)).loadCandidateData(due);
+    expect(d.outsideExpenditureRecords).toBeUndefined(); expect(d.diagnostics.join(" ")).toMatch(/Unresolved candidate-targeted/); expect(d.pacDonors).toHaveLength(3);
+    await f.save("candidates", tsv(CANDIDATES, [{ ID: "44444", LastName: "Balkema", FirstName: "Chris", Office: "State Senator", DistrictType: "Senate", District: "53" }, { ID: "55555", LastName: "Balkema", FirstName: "Chris", Office: "State Senator", DistrictType: "Senate", District: "53" }]));
+    await f.save("elections", tsv(ELECTIONS, [{ ID: "1", CandidateID: "44444", ElectionType: "GE", ElectionYear: "2026" }, { ID: "2", CandidateID: "55555", ElectionType: "GE", ElectionYear: "2026" }]));
+    await f.save("ie", csv(IE, [expense({ CandidateName: "Chris Balkema" }), expense({ Amount: "100", CandidateName: "Unlinked Person" })]));
+    d = (await loadIllinoisSbeVerifiedQuarterlyDataSet(f.config)).loadCandidateData(due);
+    expect(d.outsideExpenditureRecords).toBeUndefined(); expect(d.diagnostics.join(" ")).toMatch(/Unresolved candidate-targeted/); expect(d.d2ReportSummaries).toHaveLength(1);
+  });
   it("omits cash whose current schedule exceeds Raised without suppressing the independent summary", async () => {
     const f = await fixture(); await f.save("totals", tsv(TOTALS, [total({ TotalReceipts: "1200" }), ieTotal()]));
     const d = (await loadIllinoisSbeVerifiedQuarterlyDataSet(f.config)).loadCandidateData(due);

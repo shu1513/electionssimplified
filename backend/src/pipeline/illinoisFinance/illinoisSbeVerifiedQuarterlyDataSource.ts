@@ -293,10 +293,15 @@ export async function loadIllinoisSbeVerifiedQuarterlyDataSet(config: IllinoisSb
         }
       } else data.diagnostics.push("Verified complete cash CSV is unavailable");
       if (outsideDiagnostics.has("*")) data.diagnostics.push(...outsideDiagnostics.get("*")!);
-      const outside = finalIE.filter((r) => r.amount > 0 && day(r.expendedDate)! >= low && day(r.expendedDate)! <= high &&
-        r.supportOppose !== null && resolveTarget(r.candidateName ?? "", r.officeDistrict ?? "").status === "matched");
-      if (!outside.length) data.diagnostics.push("No verified positive Quarterly outside records; outside replacement omitted");
-      if (outside.length && !outsideDiagnostics.has("*")) {
+      const inCycle = finalIE.filter((r) => r.amount > 0 && day(r.expendedDate)! >= low && day(r.expendedDate)! <= high)
+        .map((row) => ({ row, status: resolveTarget(row.candidateName ?? "", row.officeDistrict ?? "").status }));
+      const outside = inCycle.filter((e) => e.status === "matched" && e.row.supportOppose !== null).map((e) => e.row);
+      // A row about this candidate with a blank stance, or one whose target is ambiguous, cannot be classified;
+      // replacing the stored groups without it would understate the headline, so the stored money stays.
+      const unresolved = inCycle.some((e) => e.status === "ambiguous" || (e.status === "matched" && e.row.supportOppose === null));
+      if (unresolved) data.diagnostics.push("Unresolved candidate-targeted Quarterly outside rows; outside replacement omitted");
+      else if (!outside.length) data.diagnostics.push("No verified positive Quarterly outside records; outside replacement omitted");
+      if (outside.length && !unresolved && !outsideDiagnostics.has("*")) {
         data.outsideExpenditureRecords = outside; data.outsideReportEvidence = finalReports;
         data.outsideExpenditureSourceUrl = ILLINOIS_SBE_EXPENDITURE_ALL_SEARCH_URL;
       }

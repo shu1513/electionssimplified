@@ -297,6 +297,7 @@ describe("syncIllinoisCandidateFinance", () => {
       null,
       SOURCE_URL,
       "2022-07-08T09:10:11.000Z",
+      false,
     ]);
     const statements = db.client.query.mock.calls.map((call) => String(call[0]));
     expect(statements.some((statement) => statement.includes("INSERT INTO public.il_candidate_finance_outside_groups"))).toBe(false);
@@ -360,6 +361,7 @@ describe("syncIllinoisCandidateFinance", () => {
       null,
       "https://www.elections.il.gov/CampaignDisclosure/CommitteeDetail.aspx?ID=201",
       "2022-07-08T09:10:11.000Z",
+      true,
     ]);
   });
 
@@ -576,6 +578,7 @@ describe("verified Quarterly sync source boundaries", () => {
       outsideSupportTotal: null, outsideOpposeTotal: null, totalReceipts: 5000, pacDonorsWritten: 1 });
     expect(outsideMutations(db)).toEqual([]);
     expect(summaryParams(db)?.slice(2, 9)).toEqual([5000, null, 2000, 3000, 0, null, null]);
+    expect(summaryParams(db)?.[11]).toBe(true);
     expect(db.client.query.mock.calls.some(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_pac_donors"))).toBe(true);
     expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
   });
@@ -602,6 +605,7 @@ describe("verified Quarterly sync source boundaries", () => {
       includedContributionRowCount: 0, outsideGroupsWritten: 0, outsideExpenditureDataAvailable: false,
       outsideSupportTotal: null, outsideOpposeTotal: null });
     expect(summaryParams(db)?.slice(2, 9)).toEqual([null, null, null, null, null, null, null]);
+    expect(summaryParams(db)?.[11]).toBe(false);
     expect(outsideMutations(db)).toEqual([]);
     expect(db.client.query.mock.calls.some(([sql]) => sql.includes("DELETE FROM public.il_candidate_finance_direct_breakdowns"))).toBe(false);
   });
@@ -628,6 +632,7 @@ describe("verified Quarterly sync source boundaries", () => {
       directBreakdownsWritten: 0, outsideGroupsWritten: 0, outsideExpenditureDataAvailable: false,
       outsideSupportTotal: null, outsideOpposeTotal: null });
     expect(summaryParams(db)?.slice(2, 9)).toEqual([5000, null, 2000, 3000, 0, null, null]);
+    expect(summaryParams(db)?.[11]).toBe(true);
     expect(outsideMutations(db)).toEqual([]);
     expect(db.client.query.mock.calls.some(([sql]) => /(?:INSERT INTO|DELETE FROM) public\.il_candidate_finance_(?:direct_breakdowns|pac_donors)/.test(sql))).toBe(false);
     expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");

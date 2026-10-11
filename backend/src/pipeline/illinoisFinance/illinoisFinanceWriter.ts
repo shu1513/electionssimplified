@@ -51,6 +51,8 @@ export type IllinoisFinanceSummaryInput = {
   outsideSupportTotal?: number | null;
   outsideOpposeTotal?: number | null;
   sourceUrl?: string | null;
+  /** True when the snapshot carries current D-2 coverage: null receipts, spending, cash and debt then replace stored values instead of keeping them. */
+  d2Current?: boolean;
 };
 
 export type IllinoisFinanceDirectBreakdownInput = {
@@ -588,11 +590,15 @@ async function upsertSummary(input: {
       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::timestamptz)
       ON CONFLICT (link_id, election_year)
       DO UPDATE SET
-        total_receipts = COALESCE(EXCLUDED.total_receipts, il_candidate_finance_summaries.total_receipts),
+        total_receipts = CASE WHEN $12::boolean THEN EXCLUDED.total_receipts
+          ELSE COALESCE(EXCLUDED.total_receipts, il_candidate_finance_summaries.total_receipts) END,
         direct_contribution_total = COALESCE(EXCLUDED.direct_contribution_total, il_candidate_finance_summaries.direct_contribution_total),
-        total_disbursements = COALESCE(EXCLUDED.total_disbursements, il_candidate_finance_summaries.total_disbursements),
-        cash_on_hand = COALESCE(EXCLUDED.cash_on_hand, il_candidate_finance_summaries.cash_on_hand),
-        debts_owed = COALESCE(EXCLUDED.debts_owed, il_candidate_finance_summaries.debts_owed),
+        total_disbursements = CASE WHEN $12::boolean THEN EXCLUDED.total_disbursements
+          ELSE COALESCE(EXCLUDED.total_disbursements, il_candidate_finance_summaries.total_disbursements) END,
+        cash_on_hand = CASE WHEN $12::boolean THEN EXCLUDED.cash_on_hand
+          ELSE COALESCE(EXCLUDED.cash_on_hand, il_candidate_finance_summaries.cash_on_hand) END,
+        debts_owed = CASE WHEN $12::boolean THEN EXCLUDED.debts_owed
+          ELSE COALESCE(EXCLUDED.debts_owed, il_candidate_finance_summaries.debts_owed) END,
         outside_support_total = COALESCE(
           EXCLUDED.outside_support_total,
           il_candidate_finance_summaries.outside_support_total
@@ -616,6 +622,7 @@ async function upsertSummary(input: {
       normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
       normalizeOptionalText(input.summary.sourceUrl),
       input.syncedAt.toISOString(),
+      input.summary.d2Current === true,
     ]
   );
 }

@@ -408,6 +408,7 @@ function toSummary(input: {
   debtsOwed: number | null;
   outsideFinance: IllinoisOutsideSpendingAggregationResult;
   outsideDataAvailable: boolean;
+  d2Current: boolean;
   fallbackSourceUrl?: string | null;
 }): IllinoisFinanceSummaryInput {
   return {
@@ -416,6 +417,7 @@ function toSummary(input: {
     totalDisbursements: input.totalDisbursements,
     cashOnHand: input.cashOnHand,
     debtsOwed: input.debtsOwed,
+    d2Current: input.d2Current,
     outsideSupportTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.supportTotal ?? 0 : null,
     outsideOpposeTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.opposeTotal ?? 0 : null,
     sourceUrl: input.fallbackSourceUrl ?? null,
@@ -529,6 +531,8 @@ export async function syncIllinoisCandidateFinance(
     debtsOwed: d2Finance?.debtsOwed ?? null,
     outsideFinance,
     outsideDataAvailable,
+    // With current D-2 coverage a null balance means the report has no usable value; without it, null means the component was omitted.
+    d2Current: d2Finance !== null,
     fallbackSourceUrl: d2Finance?.sourceUrl ?? input.sourceUrl ?? directSourceUrl ?? outsideSourceUrl ?? outsideGroupSourceUrl,
   });
   const summaryAvailable = input.verifiedQuarterly
