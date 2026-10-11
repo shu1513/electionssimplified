@@ -191,3 +191,37 @@ reader totals before caps. Backend typecheck and migration filename/status check
 pass. New temporal evidence distinguishes an exact effective day from source
 proof that an account was active or closed by a reviewed date; filing dates are
 not silently substituted for effective dates.
+
+### Ordinary local sync checkpoint, October 11
+
+The ordinary due-sync CLI ran for Botana with an explicit local Unix-socket
+database, fresh export/source artifacts, one candidate, the reviewed-date
+manifest and AI calls disabled. Its verified-source generation retained 160
+genuine HTTP 200 captures. Direct Raised changed from $86,700 to $113,700 over
+107 current cycle contribution occurrences. The independently gated committee
+component preserved at the FAIAPAC historical account collision: no accepted
+component or donor rows were written. The ordinary ballot reader returns Raised
+$113,700, omits an unknown PAC card, and retains NULL outside support/opposition.
+This proves the failure-preservation path, not positive PAC acceptance.
+
+Reviewed source bounds now cover Home Builders, Duke Energy and FAIAPAC account
+transitions. Exact effective dates remain distinct from active-by/closed-by
+evidence. The observed Duke street postdirectional NORTHWEST/NW projection is
+limited to its position after AVENUE, with unchanged suite and locality, following
+USPS Publication 28 section 233.22. Remaining donor identities must resolve for
+the complete component before another genuinely fresh ordinary sync can accept
+PAC money; no known-donor subset is written.
+
+All 549 Florida tests and 83 ballot-reader tests pass. Settled full backend
+typecheck/tests pass: 13,919 tests passed, 152 skipped. Mobile typecheck/lint pass
+with existing warnings; all 98 Worker tests pass. Frontend typecheck/lint pass;
+full frontend tests are being rerun with installed Node 23 after incompatible
+older/newer local runtimes failed. No Florida PR has been opened.
+
+Fresh bounded independent-expense discovery retains full Purpose but supplies
+no eligible local state-office positive. Jon Maples' $525 source witness is
+Special-election spending; actual local records contain only Primary/General,
+so neither may receive it. Partial spender discovery cannot use the legacy
+global outside-group replacement or infer zeros. Complete current expense proof
+and a scoped persistence path remain open work. Post-deadline fresh reruns above
+remain required even after present source coverage is accepted.
