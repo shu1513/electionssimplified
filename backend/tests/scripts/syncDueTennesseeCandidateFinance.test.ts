@@ -6,6 +6,15 @@ import {
 } from "../../src/scripts/syncDueTennesseeCandidateFinance.js";
 
 describe("syncDueTennesseeCandidateFinance script", () => {
+  it("parses scoped source-proof and fresh cohort flags", () => {
+    expect(parseSyncDueTennesseeCandidateFinanceScriptArgs(["--candidate-id=b13cdb24-792f-4f80-8231-64e83fe9118d",
+      "--election-year=2026","--raw-cache-dir=/tmp/tn-proof","--no-auto-link"])).toMatchObject({
+      candidateId:"b13cdb24-792f-4f80-8231-64e83fe9118d",electionYear:2026,rawCacheDir:"/tmp/tn-proof",autoLinkMissingLinks:false,
+    });
+    expect(()=>parseSyncDueTennesseeCandidateFinanceScriptArgs(["--candidate-id=invalid"])).toThrow("Invalid --candidate-id");
+    expect(()=>parseSyncDueTennesseeCandidateFinanceScriptArgs(["--election-year=2101"])).toThrow("Invalid --election-year");
+    expect(()=>parseSyncDueTennesseeCandidateFinanceScriptArgs(["--raw-cache-dir=relative"])).toThrow("must be absolute");
+  });
   it("parses optional flags", () => {
     expect(
       parseSyncDueTennesseeCandidateFinanceScriptArgs([
