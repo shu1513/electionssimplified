@@ -62,40 +62,33 @@ function TeamGrid() {
       <p>
         We are a few friends who came together from all walks of life and with very different
         political views. We all thought that the voting system itself could be much more
-        transparent, regardless of someone’s political view. We came together to do what we can, in
-        addition to our normal day jobs.
+        transparent, regardless of someone’s political view.
       </p>
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
         {TEAM.map((m) => (
-          <li key={m.name} className="flex items-center gap-4">
+          <li key={m.name}>
             <a
               href={m.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0"
+              className="group flex items-center gap-4 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-rausch"
               aria-label={`${m.name} on LinkedIn`}
             >
               <img
                 src={m.photo}
-                alt={m.name}
+                alt=""
                 width={96}
                 height={96}
                 loading="lazy"
-                className="h-24 w-24 rounded-full object-cover"
+                className="h-24 w-24 shrink-0 rounded-full object-cover"
               />
+              <span className="min-w-0">
+                <span className="block font-semibold text-navy transition-colors group-hover:text-rausch group-hover:underline">
+                  {m.name}
+                </span>
+                {m.role ? <span className="block text-sm text-ink-soft">{m.role}</span> : null}
+              </span>
             </a>
-            <div className="min-w-0">
-              <p className="font-semibold">{m.name}</p>
-              {m.role ? <p className="text-sm text-ink-soft">{m.role}</p> : null}
-              <a
-                href={m.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-semibold underline hover:text-ink"
-              >
-                LinkedIn
-              </a>
-            </div>
           </li>
         ))}
       </ul>
@@ -107,12 +100,11 @@ function TeamGrid() {
 // answer follows once opened).
 const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
-    question: `Who is behind ${APP_NAME}, and how is it funded?`,
+    question: `How is ${APP_NAME} funded?`,
     answer: (
       <p>
-        A few friends (see Our team above). We have no company sponsors. We offer an option for
-        contributions on the website, but so far our “funding” consists of our own Visa and
-        MasterCard.
+        We have no company sponsors. We offer an option for contributions on the website, but so far
+        our “funding” consists of our own Visa and MasterCard.
       </p>
     ),
   },

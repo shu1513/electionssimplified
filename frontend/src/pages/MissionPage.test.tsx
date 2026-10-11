@@ -119,7 +119,7 @@ describe("MissionPage", () => {
     expect(screen.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
     // Opening one question leaves the others closed.
     expect(
-      screen.getByText("Who is behind Elections Simplified, and how is it funded?").closest("details")
+      screen.getByText("How is Elections Simplified funded?").closest("details")
     ).not.toHaveAttribute("open");
   });
 
