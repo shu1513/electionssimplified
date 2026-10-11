@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import type { MetaFunction } from "react-router";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { APP_NAME, VERIFY_WITH_OFFICIALS_NOTE } from "@voteapp/api-client";
 import { ORGANIZATION_LEGAL_NAME, SOURCE_REPOSITORY_URL } from "../components/SiteJsonLd";
 import { CONTACT_EMAIL } from "../lib/embedPublisher";
@@ -24,9 +25,40 @@ export const meta: MetaFunction = () =>
 const h2 = "pt-2 text-heading font-semibold";
 const h3 = "pt-1 text-subheading font-semibold";
 
+// Back control. A link that arrives with `state.backTo` (the Mission page
+// does) gets a labeled "← Mission"; any other in-app arrival gets a plain
+// "← Back" that pops history. A cold load (no history to pop) shows nothing.
+function BackLink() {
+  const { state } = useLocation() as { state?: { backTo?: { path: string; label: string } } };
+  const navigate = useNavigate();
+  const [canGoBack, setCanGoBack] = useState(false);
+  useEffect(() => {
+    setCanGoBack(window.history.length > 1);
+  }, []);
+  const backTo = state?.backTo;
+  if (!backTo && !canGoBack) return null;
+  const className = "inline-block text-sm font-semibold text-ink-soft transition hover:text-ink";
+  return (
+    <nav aria-label="Back" className="mb-2">
+      {backTo ? (
+        <Link to={backTo.path} aria-label={`Back to ${backTo.label}`} className={className}>
+          <span aria-hidden="true">← </span>
+          {backTo.label}
+        </Link>
+      ) : (
+        <button type="button" onClick={() => navigate(-1)} className={className}>
+          <span aria-hidden="true">← </span>
+          Back
+        </button>
+      )}
+    </nav>
+  );
+}
+
 export default function MethodologyPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <BackLink />
       <section className="space-y-3 text-body text-ink">
         <h1 className="text-title font-bold">How {APP_NAME} works</h1>
         <p>

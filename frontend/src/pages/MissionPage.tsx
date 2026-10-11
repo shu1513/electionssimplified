@@ -23,6 +23,86 @@ export const meta: MetaFunction = () =>
 const memberCtaClass =
   "inline-block rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-800";
 
+// Team roster shown under "Our team". Photos live in frontend/public/team/.
+// An empty roster hides the section entirely.
+type TeamMember = { name: string; role?: string; photo: string; linkedin: string };
+const TEAM: TeamMember[] = [
+  {
+    name: "Shu Yang",
+    photo: "/team/shu-yang.jpg",
+    linkedin: "https://www.linkedin.com/in/shupresents",
+  },
+  {
+    name: "Ben Rodigas",
+    photo: "/team/ben-rodigas.jpg",
+    linkedin: "https://www.linkedin.com/in/benrodigas",
+  },
+  {
+    name: "Renee Mason",
+    photo: "/team/renee-mason.jpg",
+    linkedin: "https://www.linkedin.com/in/renee-mason-43ab1718b",
+  },
+  {
+    name: "Andrew Obler",
+    photo: "/team/andrew-obler.jpg",
+    linkedin: "https://www.linkedin.com/in/andrew-obler-480704267",
+  },
+  {
+    name: "April Baek",
+    photo: "/team/april-baek.jpg",
+    linkedin: "https://www.linkedin.com/in/aprilbaek",
+  },
+];
+
+function TeamGrid() {
+  if (TEAM.length === 0) return null;
+  return (
+    <>
+      <h2 className="pt-2 text-heading font-semibold">Our team</h2>
+      <p>
+        We are a few friends who came together from all walks of life and with very different
+        political views. We all thought that the voting system itself could be much more
+        transparent, regardless of someone’s political view. We came together to do what we can, in
+        addition to our normal day jobs.
+      </p>
+      <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+        {TEAM.map((m) => (
+          <li key={m.name} className="flex items-center gap-4">
+            <a
+              href={m.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0"
+              aria-label={`${m.name} on LinkedIn`}
+            >
+              <img
+                src={m.photo}
+                alt={m.name}
+                width={96}
+                height={96}
+                loading="lazy"
+                className="h-24 w-24 rounded-full object-cover"
+              />
+            </a>
+            <div className="min-w-0">
+              <p className="font-semibold">{m.name}</p>
+              {m.role ? <p className="text-sm text-ink-soft">{m.role}</p> : null}
+              <a
+                href={m.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold underline hover:text-ink"
+              >
+                LinkedIn
+              </a>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 // FAQ copy (user-approved wording; questions are the collapsed labels, the
 // answer follows once opened).
 const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
@@ -30,11 +110,9 @@ const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
     question: `Who is behind ${APP_NAME}, and how is it funded?`,
     answer: (
       <p>
-        We are actually just a few friends—everyday people from all walks of life and with very
-        different political views. We all thought the voting system itself could be much more
-        transparent, regardless of someone’s political view. So we all decided to work on this. We
-        have no company sponsors. We offer an option for contributions on the website, but so far
-        our “funding” consists of our own Visa and MasterCard.
+        A few friends (see Our team above). We have no company sponsors. We offer an option for
+        contributions on the website, but so far our “funding” consists of our own Visa and
+        MasterCard.
       </p>
     ),
   },
@@ -180,16 +258,22 @@ export default function MissionPage() {
         <p>
           The full method — where each kind of data comes from, how records are checked, and how the
           vote-power and competitiveness ratings are calculated — is on the{" "}
-          <Link to="/methodology" className="font-semibold underline hover:text-ink">
+          <Link
+            to="/methodology"
+            state={{ backTo: { path: "/mission", label: "Mission" } }}
+            className="font-semibold underline hover:text-ink"
+          >
             How it works
           </Link>{" "}
           page.
         </p>
+        <TeamGrid />
+
+        <h2 className="pt-2 text-heading font-semibold">How you can help</h2>
         <p>
           To keep this operation high quality and keep up with the newest elections, it takes
-          tremendous effort from our staff and costs a considerable amount of AI tokens.
+          tremendous effort from our team and costs a considerable amount of AI tokens.
         </p>
-
         <p>To help keep us literally alive, you can help in three ways.</p>
         <ol className="list-decimal space-y-4 pl-6">
           <li>
