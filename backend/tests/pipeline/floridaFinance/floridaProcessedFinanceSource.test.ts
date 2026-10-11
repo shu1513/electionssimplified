@@ -442,6 +442,26 @@ describe("Florida current processed source", () => {
       absent(i, "district mismatch");
     }
   });
+  it("accepts only receiving-label whitespace projection and retains the raw source label", () => {
+    const i = input();
+    i.context.genericRecipientName = "Candidate, Example (REP)(STR)";
+    const result = verifyFloridaProcessedFinanceSource(i);
+    expect(result.proof?.context.genericRecipientName).toBe(
+      "Candidate, Example (REP)(STR)",
+    );
+    expect(result.proof?.rows[0].recipientName).toBe(
+      "Candidate, Example  (REP)(STR)",
+    );
+    expect(result.proof?.sourceHashes).toContain(i.before.genericExport.sha256);
+    for (const wrong of [
+      "Candidate, Example (DEM)(STR)",
+      "Candidate, Example (REP)(STS)",
+    ]) {
+      const j = input();
+      j.context.genericRecipientName = wrong;
+      absent(j, "generic owner/window mismatch");
+    }
+  });
   it("requires exact account, official seat, and generic recipient", () => {
     const i = input();
     i.context = { ...context, district: "81" };

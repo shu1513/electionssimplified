@@ -710,7 +710,7 @@ function verifyPacket(
   if (
     rows.some(
       (row) =>
-        row.recipientName !== context.genericRecipientName ||
+        display(row.recipientName) !== display(context.genericRecipientName) ||
         row.contributionDate < windowStart ||
         row.contributionDate > windowEnd,
     )
