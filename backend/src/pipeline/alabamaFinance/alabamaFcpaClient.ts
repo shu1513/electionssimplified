@@ -106,7 +106,8 @@ async function requestAllPages<TRow>(
   page: string,
   params: Record<string, string>,
   pageSize: number,
-  options: AlabamaFcpaClientOptions
+  options: AlabamaFcpaClientOptions,
+  strict = false
 ): Promise<TRow[]> {
   const rows: TRow[] = [];
   let expected: number | null = null;
@@ -118,6 +119,10 @@ async function requestAllPages<TRow>(
       options
     );
     expected ??= result.totalRecords;
+    if (strict && (!Number.isSafeInteger(result.totalRecords) || result.totalRecords < 0
+      || result.list.length > pageSize || rows.length + result.list.length > result.totalRecords)) {
+      throw new AlabamaFcpaClientError("bad_response", `Alabama FCPA page ${page} has invalid complete-list coverage`);
+    }
     if (result.totalRecords !== expected) {
       throw new AlabamaFcpaClientError(
         "bad_response",
@@ -137,7 +142,7 @@ async function requestAllPages<TRow>(
     }
   }
   const shortfall = expected === null ? 0 : expected - rows.length;
-  if (shortfall > 0 && !(exhausted && shortfall === 1)) {
+  if (shortfall > 0 && !(!strict && exhausted && shortfall === 1)) {
     throw new AlabamaFcpaClientError(
       "bad_response",
       `Alabama FCPA page ${page} returned ${rows.length} of ${expected} rows`
@@ -480,6 +485,80 @@ export type AlabamaCommitteeFilingRow = {
   FILEDDATE: string | null;
   AMENDED: string | null;
 };
+
+/** Exact count and identity coverage for new authoritative source components. */
+export async function getAlabamaCompleteCommitteeFilings(
+  internalCommitteeId: number,
+  options: AlabamaFcpaClientOptions = {}
+): Promise<AlabamaCommitteeFilingRow[]> {
+  if (!Number.isSafeInteger(internalCommitteeId) || internalCommitteeId <= 0) {
+    throw new AlabamaFcpaClientError("invalid_request", "Invalid Alabama internal committee id");
+  }
+  const rows = await requestAllPages<AlabamaCommitteeFilingRow>(
+    "com.acf.common.page.committeeelectronicfilingsresults",
+    { sortDirection: "DESC", sortBy: "dueDate", committeeId: String(internalCommitteeId) },
+    50, options, true
+  );
+  const ids = new Set<number>();
+  for (const row of rows) {
+    if (!row || !Number.isSafeInteger(row.ID) || row.ID <= 0 || ids.has(row.ID)
+      || typeof row.DESCRIPTION !== "string"
+      || [row.PERIODBEGIN, row.PERIODEND, row.FILEDDATE, row.AMENDED].some((v) => v !== null && typeof v !== "string")) {
+      throw new AlabamaFcpaClientError("bad_response", "Alabama filing list has invalid or repeated identities");
+    }
+    ids.add(row.ID);
+  }
+  return rows;
+}
+
+export type AlabamaNativeContributionRow = {
+  TRANSACTIONID: number;
+  /** Internal receiving id; the request uses its public FCPA number. */
+  COMMITTEEID: number;
+  FILINGDATE: string;
+  CONTRIBUTOR: string;
+  CITYSTATE?: string | null;
+  ZIP?: string | null;
+  CONTRIBUTIONTYPE: string;
+  DESCRIPTION?: string | null;
+  AMOUNT: number;
+  TRANSACTIONDATE: string;
+  RECIPIENTNAME: string;
+};
+
+/** Filter 4 proves PAC contributor type; the JSON rows themselves omit it. */
+export async function getAlabamaNativeContributionRows(
+  input: { fcpaCommitteeNumber: string; internalCommitteeId: number; pacOnly?: boolean },
+  options: AlabamaFcpaClientOptions = {}
+): Promise<AlabamaNativeContributionRow[]> {
+  if (!/^[1-9]\d*$/.test(input.fcpaCommitteeNumber)
+    || !Number.isSafeInteger(Number(input.fcpaCommitteeNumber))
+    || !Number.isSafeInteger(input.internalCommitteeId) || input.internalCommitteeId <= 0) {
+    throw new AlabamaFcpaClientError("invalid_request", "Invalid Alabama receipt committee identity");
+  }
+  const criteria = [
+    { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: input.fcpaCommitteeNumber },
+    ...(input.pacOnly ? [{ field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "4" }] : []),
+  ];
+  const rows = await requestAllPages<AlabamaNativeContributionRow>(
+    "com.acf.common.page.contributionsearchresults",
+    { sortDirection: "DESC", sortBy: "transactionId", criteria: JSON.stringify(criteria) },
+    1000, options, true
+  );
+  const ids = new Set<number>();
+  for (const row of rows) {
+    if (!row || !Number.isSafeInteger(row.TRANSACTIONID) || row.TRANSACTIONID <= 0
+      || ids.has(row.TRANSACTIONID) || row.COMMITTEEID !== input.internalCommitteeId
+      || typeof row.AMOUNT !== "number" || !Number.isFinite(row.AMOUNT)
+      || [row.FILINGDATE, row.CONTRIBUTOR, row.CONTRIBUTIONTYPE, row.TRANSACTIONDATE, row.RECIPIENTNAME]
+        .some((v) => typeof v !== "string")
+      || [row.CITYSTATE, row.ZIP, row.DESCRIPTION].some((v) => v != null && typeof v !== "string")) {
+      throw new AlabamaFcpaClientError("bad_response", "Alabama receipt list has invalid or repeated identities");
+    }
+    ids.add(row.TRANSACTIONID);
+  }
+  return rows;
+}
 
 export async function getAlabamaCommitteeFilings(
   internalCommitteeId: number,
