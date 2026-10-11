@@ -21,6 +21,7 @@ import {
   type AlabamaCandidateFinanceSyncResult,
 } from "./alabamaCandidateFinanceSync.js";
 import type { AlabamaFcpaClientOptions } from "./alabamaFcpaClient.js";
+import { createAlabamaVerifiedPacLoader } from "./alabamaVerifiedPacLoader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -49,6 +50,7 @@ export type AlabamaCandidateFinanceBatchSyncInput = {
   autoLinkFn?: typeof autoLinkMissingAlabamaCandidateFinanceLinks;
   listDueRowsFn?: typeof listDueAlabamaCandidateFinanceSyncRows;
   syncCandidateFn?: typeof syncAlabamaCandidateFinance;
+  loadPacDonors?: ReturnType<typeof createAlabamaVerifiedPacLoader>;
 };
 
 export type AlabamaCandidateFinanceBatchSyncResult = {
@@ -84,6 +86,9 @@ export async function syncDueAlabamaCandidateFinance(
     clientOptions: input.clientOptions,
   });
   const loadCashRows = createAlabamaCashRowsLoader(input.cacheDir);
+  const loadPacDonors = input.loadPacDonors ?? createAlabamaVerifiedPacLoader({
+    loadCashRows, clientOptions: input.clientOptions,
+  });
 
   let autoLinkResults: AlabamaFinanceAutoLinkResult[] = [];
   if (!dryRun && input.autoLinkMissingLinks !== false) {
@@ -141,6 +146,7 @@ export async function syncDueAlabamaCandidateFinance(
         clientOptions: input.clientOptions,
         loadOfficeRaceContext,
         loadCashRows,
+        loadPacDonors,
       });
       succeeded += 1;
       candidates.push({ row, ok: true, result });

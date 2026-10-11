@@ -127,6 +127,70 @@ describe("alabamaBucketExtractYears", () => {
 });
 
 describe("syncAlabamaCandidateFinance", () => {
+  it("writes accepted PAC cash as a subset without changing current-cover Raised", async () => {
+    const { db, client } = writingDb();
+    const loadPacDonors = vi.fn(async () => ({
+      pacDonors: [{ committeeId: "24906", committeeName: "Electric Cooperatives of Alabama PAC",
+        committeeType: "Political Action Committee" as const, amount: 50, contributionCount: 1,
+        sourceUrl: "https://fcpa.alabamavotes.gov/" }], diagnostics: [],
+    }));
+    const result = await syncAlabamaCandidateFinance({
+      ...baseInput(db), loadOfficeRaceContext: officeContext([raceRow({})]),
+      loadCashRows: cashLoader({ 2026: [cashRow({})] }), loadPacDonors,
+    });
+    expect(result).toMatchObject({ totalReceipts: 125, directContributionTotal: 105,
+      pacDonorsAccepted: true, pacDonorsWritten: 1, pacDonorAmount: 50, pacDiagnostics: [] });
+    expect(loadPacDonors).toHaveBeenCalledWith({ internalCommitteeId: 7962, fcpaCommitteeNumber: "32837",
+      windowStart: "2023-01-01", windowEnd: "2026-12-31", extractYears: [2023, 2024, 2025, 2026],
+      coversCashCents: 10_000, authoritativeCoverCount: 2 });
+    const donor = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.al_candidate_finance_pac_donors"));
+    expect(donor?.[1]).toContain(50);
+    const summary = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.al_candidate_finance_summaries"));
+    expect(summary?.[1]?.[2]).toBe(125);
+  });
+
+  it("preserves prior PAC data after source failure while still refreshing independent direct totals", async () => {
+    const { db, client } = writingDb();
+    const result = await syncAlabamaCandidateFinance({
+      ...baseInput(db), loadOfficeRaceContext: officeContext([raceRow({})]),
+      loadCashRows: cashLoader({ 2026: [cashRow({})] }),
+      loadPacDonors: vi.fn(async () => { throw new Error("Current source changed"); }),
+    });
+    expect(result).toMatchObject({ totalReceipts: 125, summaryWritten: true,
+      pacDonorsAccepted: false, pacDonorsWritten: 0, pacDonorAmount: null });
+    expect(result.pacDiagnostics).toEqual(["pac_source_unavailable: Current source changed"]);
+    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("al_candidate_finance_pac_donors"))).toBe(false);
+  });
+
+  it("clears PAC rows only for an independently accepted empty component", async () => {
+    const { db, client } = writingDb();
+    const result = await syncAlabamaCandidateFinance({
+      ...baseInput(db), loadOfficeRaceContext: officeContext([raceRow({})]),
+      loadCashRows: cashLoader({ 2026: [cashRow({})] }),
+      loadPacDonors: vi.fn(async () => ({ pacDonors: [], diagnostics: [] })),
+    });
+    expect(result).toMatchObject({ totalReceipts: 125, pacDonorsAccepted: true,
+      pacDonorsWritten: 0, pacDonorAmount: 0 });
+    const cleanup = client.query.mock.calls.find(([sql]) => String(sql).includes("DELETE FROM public.al_candidate_finance_pac_donors"));
+    expect(cleanup?.[1]?.[2]).toEqual([]);
+    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.al_candidate_finance_outside"))).toBe(false);
+  });
+
+  it("reports accepted donor coverage on dry run without changing the database", async () => {
+    const { db } = writingDb();
+    const result = await syncAlabamaCandidateFinance({
+      ...baseInput(db), dryRun: true, loadOfficeRaceContext: officeContext([raceRow({})]),
+      loadCashRows: cashLoader({ 2026: [cashRow({})] }),
+      loadPacDonors: vi.fn(async () => ({ pacDonors: [{ committeeId: "24906", committeeName: "Some PAC",
+        committeeType: "Political Action Committee" as const, amount: 50, contributionCount: 1,
+        sourceUrl: "https://fcpa.alabamavotes.gov/" }], diagnostics: [] })),
+    });
+    expect(result).toMatchObject({ totalReceipts: 125, pacDonorsAccepted: true,
+      pacDonorAmount: 50, pacDonorsWritten: 0, summaryWritten: false });
+    expect(db.query).not.toHaveBeenCalled();
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
   it("writes the race-row summary and coverage-passing buckets", async () => {
     const { db, client } = writingDb();
     const loadCashRows = cashLoader({ 2026: [cashRow({})] });
