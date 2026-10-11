@@ -247,3 +247,28 @@ Report counts, full financial multiset and expense-cover totals must reconcile
 before target filtering. Native selectors and EFS report sequences are
 independently bound rather than equated. Scoped persistence and an eligible
 local positive remain separate subsequent gates.
+
+### Positive outside payer acquisition
+
+Before persistence, add a bounded all-status payer adapter. Only positive IEC
+discovery occurrences whose full observed Purpose matches the actual local
+candidate name, office and seat produce leads. Leads retain every occurrence
+and grant no election, money or zero authority. Generic vendor addresses never
+serve as payer addresses. Source payer annotations must exactly reconstruct the
+full registered legal name and class, preserving legal-name parentheses.
+
+Two distinct literal name prefixes and independently fresh closing queries and
+complete account details must remain stable. Acquire all exact legal-name
+accounts across classes/statuses, then require one exact annotated PAC/IXO
+account. Multiple accounts with that complete annotation remain unknown; active
+status alone does not resolve them. Numeric owner and full current expense
+proof remain separate gates. No legacy outside-group replacement receives
+partial discovery; no absent spender or opposite direction becomes zero.
+
+Next, compose candidate allocations by re-running the pure expense verifier on
+the full raw packet, then matching each native occurrence against its actual
+current EFS report and local race. Preserve a source election mismatch before
+allocation. A verified one-payer target component can be empty, but never
+authorizes a candidate-wide total or zero. Retain duplicate occurrences and
+complete source provenance. Atomic persistence must repeat this verification
+and local ownership under a lock; database provenance stores metadata only.
