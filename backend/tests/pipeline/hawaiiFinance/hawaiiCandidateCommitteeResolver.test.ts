@@ -27,6 +27,44 @@ function jsonResponse(payload: unknown): Response {
 }
 
 describe("hawaiiCandidateCommitteeResolver", () => {
+  const houseSummary = (overrides: Partial<HawaiiCscCandidateCommitteeSummary>) =>
+    summary({ office: "House", district: undefined, county: undefined, electionPeriod: "2024-2026", ...overrides });
+  const resolveHouse = (candidateName: string, district: string, summaries: HawaiiCscCandidateCommitteeSummary[]) =>
+    resolveHawaiiCandidateCommittee({
+      candidateName,
+      officeScope: "state_lower",
+      officeName: "State Lower Chamber Legislator",
+      electionYear: 2026,
+      district,
+      summaries,
+    });
+
+  it("matches current-cycle rows that leave the district blank (live: Evslin, Luke)", () => {
+    expect(resolveHouse("Luke Evslin", "16", [houseSummary({ candidateName: "Evslin, Luke", committeeId: "CC11346" })]))
+      .toMatchObject({ status: "matched", committeeId: "CC11346" });
+    // A row that names a different district is still rejected.
+    expect(
+      resolveHouse("Luke Evslin", "16", [houseSummary({ candidateName: "Evslin, Luke", district: "15" })])
+    ).toMatchObject({ status: "unmatched" });
+  });
+
+  it("matches formal CSC first names through nicknames and keeps okina names whole", () => {
+    // Live: "Lee, Michael" (Mike Lee), "Lee Loy, Susan" (Sue Lee Loy), "Kiakona, Paele" (Pa'ele Kiakona).
+    expect(resolveHouse("Mike Lee", "50", [houseSummary({ candidateName: "Lee, Michael", committeeId: "CC11820" })]))
+      .toMatchObject({ status: "matched", committeeId: "CC11820" });
+    expect(resolveHouse("Sue Lee Loy", "2", [houseSummary({ candidateName: "Lee Loy, Susan", committeeId: "CC11193" })]))
+      .toMatchObject({ status: "matched", committeeId: "CC11193" });
+    expect(resolveHouse("Pa'ele Kiakona", "14", [houseSummary({ candidateName: "Kiakona, Paele", committeeId: "CC12115" })]))
+      .toMatchObject({ status: "matched", committeeId: "CC12115" });
+    // Literal first: a literal "Mike" row wins over a "Michael" row.
+    expect(
+      resolveHouse("Mike Lee", "50", [
+        houseSummary({ candidateName: "Lee, Mike", committeeId: "CC1" }),
+        houseSummary({ candidateName: "Lee, Michael", committeeId: "CC2" }),
+      ])
+    ).toMatchObject({ status: "matched", committeeId: "CC1" });
+  });
+
   it("normalizes direct and comma-form candidate names", () => {
     expect([...normalizeHawaiiCandidateNameKeys("Green, Josh*")]).toEqual(["GREEN JOSH", "JOSH GREEN"]);
     expect(normalizeHawaiiCandidateNameKeys("Josh Green").has("JOSH GREEN")).toBe(true);

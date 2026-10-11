@@ -182,6 +182,8 @@ function normalizePersonName(value: string | undefined): string {
     .normalize("NFKD")
     .replace(/\p{Diacritic}/gu, "")
     .replace(/[*]/g, " ")
+    // Apostrophes and the okina stay inside the name ("Pa'ele" -> PAELE).
+    .replace(/['\u2018\u2019\u02bb`]/g, "")
     .replace(/[^a-zA-Z0-9,]+/g, " ")
     .trim()
     .replace(/\s+/g, " ")
@@ -414,7 +416,11 @@ export function buildHawaiiCscCandidateCommitteeSearchUrl(input: HawaiiCscCandid
     where.push(whereEqualText("office", office));
   }
   if (district) {
-    where.push(whereEqualText("district", district));
+    // Current-cycle CSC rows mostly leave district blank (2024-2026 House:
+    // 9 of ~6,000 rows carry one), so a strict district filter returned
+    // nothing for every 2026 legislator. Blank-district rows come back too;
+    // the resolver still rejects rows whose district disagrees.
+    where.push(`(${whereEqualText("district", district)} OR district IS NULL)`);
   }
 
   return buildHawaiiCscDatasetUrl(HAWAII_CSC_CANDIDATE_CONTRIBUTIONS_DATASET, {

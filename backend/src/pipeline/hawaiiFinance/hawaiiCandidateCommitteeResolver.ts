@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import {
   normalizeHawaiiCscPersonNameKeys,
@@ -7,6 +8,7 @@ import {
 } from "./hawaiiCscClient.js";
 import {
   normalizeHawaiiCscDistrict,
+  normalizeHawaiiCscOfficeLabel,
   mapHawaiiCscOffice,
   toHawaiiCscOfficeSearchInput,
 } from "./hawaiiFinanceEligibleOffices.js";
@@ -75,6 +77,9 @@ function normalizeTextKey(value: string): string {
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toUpperCase()
+    // Drop apostrophes and the Hawaiian okina inside names: "Pa'ele" must
+    // key as PAELE (CSC files "Kiakona, Paele"), not PA ELE.
+    .replace(/['\u2018\u2019\u02bb`]/g, "")
     .replace(/&/g, " AND ")
     .replace(/[^A-Z0-9]+/g, " ")
     .replace(/\b(THE|OF|FOR)\b/g, " ")
@@ -116,6 +121,25 @@ export function normalizeHawaiiCandidateNameKeys(value: string): Set<string> {
   return keys;
 }
 
+// CSC files the formal first name ("Lee, Michael", "Lee Loy, Susan") while
+// VoteApp stores the campaign name ("Mike Lee", "Sue Lee Loy"). Expand the
+// VoteApp side only (personFirstNameNicknames.ts explains why).
+function candidateNameKeysWithNicknames(value: string): Set<string> {
+  const keys = normalizeHawaiiCandidateNameKeys(value);
+  const parts = normalizePersonName(value.trim()).split(" ").filter(Boolean);
+  if (parts.length >= 2) {
+    const last = parts[parts.length - 1];
+    for (const variant of firstNameVariants(parts[0] ?? "")) {
+      keys.add(`${variant} ${last}`);
+    }
+  }
+  return keys;
+}
+
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
+}
+
 function candidateNameNormalized(value: string): string {
   return [...normalizeHawaiiCandidateNameKeys(value)][0] ?? normalizePersonName(value);
 }
@@ -124,6 +148,7 @@ function summaryMatchesCandidateName(input: {
   summary: HawaiiCscCandidateCommitteeSummary;
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
+  expandNicknames: boolean;
 }): boolean {
   let keyMatched = false;
   for (const key of normalizeHawaiiCandidateNameKeys(input.summary.candidateName)) {
@@ -143,6 +168,7 @@ function summaryMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: [input.summary.candidateName],
     normalizePersonName,
+    firstNamesEquivalent: input.expandNicknames ? nicknameFirstNamesEquivalent : undefined,
   });
 }
 
@@ -151,6 +177,14 @@ function summaryMatchesExpectedOffice(input: {
   expectedCscOffice: string;
   expectedDistrict: string | null;
 }): boolean {
+  // A blank district is unknown, not a mismatch: current-cycle CSC rows
+  // mostly omit it (live: "Evslin, Luke", House, 2024-2026, no district).
+  // Match on office alone there; a row that names a different district is
+  // still rejected below.
+  if (!input.summary.district?.trim()) {
+    const officeLabel = normalizeHawaiiCscOfficeLabel(input.summary.office);
+    return officeLabel !== null && officeLabel === normalizeHawaiiCscOfficeLabel(input.expectedCscOffice);
+  }
   const mappedOffice = mapHawaiiCscOffice({ office: input.summary.office, district: input.summary.district });
   if (!mappedOffice || mappedOffice.cscOffice !== input.expectedCscOffice) {
     return false;
@@ -179,11 +213,27 @@ function toCommitteeMatch(accumulator: CandidateCommitteeAccumulator): HawaiiCan
   };
 }
 
+// Literal names first; nickname equivalence only when nothing matches
+// literally, so a candidate filed under both "Mike" and "Michael" keeps the
+// literal committee instead of turning ambiguous (New Hampshire pattern).
 export function resolveHawaiiCandidateCommittee(
   input: HawaiiCandidateCommitteeResolverInput
 ): HawaiiCandidateCommitteeResolution {
+  const literal = resolveHawaiiCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveHawaiiCandidateCommitteeByName(input, true);
+}
+
+function resolveHawaiiCandidateCommitteeByName(
+  input: HawaiiCandidateCommitteeResolverInput,
+  expandNicknames: boolean
+): HawaiiCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
-  const candidateNameKeys = normalizeHawaiiCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = expandNicknames
+    ? candidateNameKeysWithNicknames(input.candidateName)
+    : normalizeHawaiiCandidateNameKeys(input.candidateName);
   const candidateNameKey = candidateNameNormalized(input.candidateName);
   const officeSearchInput = toHawaiiCscOfficeSearchInput({
     officeScope: input.officeScope,
@@ -233,7 +283,7 @@ export function resolveHawaiiCandidateCommittee(
     ) {
       continue;
     }
-    if (!summaryMatchesCandidateName({ summary, candidateName: input.candidateName, candidateNameKeys })) {
+    if (!summaryMatchesCandidateName({ summary, candidateName: input.candidateName, candidateNameKeys, expandNicknames })) {
       continue;
     }
 
