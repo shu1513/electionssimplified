@@ -10,6 +10,7 @@ import {
 import { loadProjectEnv } from "../config/env.js";
 import { loadCandidateFinanceSummariesByCandidateElection } from "../pipeline/address/ballotLookup.js";
 import { committeeLabelKey } from "../pipeline/address/financeCommitteeLabels.js";
+import { UNCLASSIFIED_PAC_INTEREST } from "../pipeline/finance/pacInterestClassifier.js";
 import {
   CANDIDATE_ELECTION_KEY_SEPARATOR,
   FINANCE_SUMMARY_SOURCES,
@@ -252,8 +253,14 @@ async function collectUpcomingCommittees(
       committees.set(committeeKey, entry);
     }
     // Committees named under "PAC money by interest" carry the same
-    // researched label under their name, so they queue the same way.
+    // researched label under their name. Only the "Not yet sorted" row
+    // queues: a PAC placed under an interest ("Labor unions") already tells
+    // the voter who it is, and queuing every sorted federal PAC would bury
+    // the real work under thousands of rows.
     for (const interest of summary.direct_campaign.pac_money_by_interest ?? []) {
+      if (interest.interest !== UNCLASSIFIED_PAC_INTEREST) {
+        continue;
+      }
       for (const pac of interest.pacs) {
         const committeeKey = committeeLabelKey(summary.source, pac.committee_id, summary.cycle);
         const entry = committees.get(committeeKey) ?? {
