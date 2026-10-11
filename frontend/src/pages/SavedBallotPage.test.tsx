@@ -91,7 +91,7 @@ describe("SavedBallotPage", () => {
     renderSavedBallot();
     expect(await screen.findByRole("heading", { name: "Set your address" })).toBeInTheDocument();
     expect(screen.getByText("Enter your address once to get the correct ballot.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Why full address?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Why address?" })).toBeInTheDocument();
   });
 
   it("renders the saved ballot under a date heading, without banner or subtitle", async () => {

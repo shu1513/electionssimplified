@@ -10,8 +10,8 @@ import { useState } from "react";
 export function FullAddressExplanation({
   onOpen,
   // The anonymous search puts the trigger inside its field label's
-  // parenthesis ("(why address?)"); other surfaces keep the question.
-  triggerLabel = "Why full address?",
+  // parenthesis ("(why address?)"); the saved-address form keeps the capitalised question.
+  triggerLabel = "Why address?",
 }: { onOpen?: () => void; triggerLabel?: string } = {}) {
   const [open, setOpen] = useState(false);
 
