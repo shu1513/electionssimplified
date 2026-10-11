@@ -55,7 +55,11 @@ export type MichiganMitnLegacyContributionRow = Record<
 export type MichiganMitnLegacyExpenditureRow = Record<
   (typeof MICHIGAN_MITN_LEGACY_EXPENDITURE_COLUMNS)[number],
   string
->;
+> & {
+  /** Modern MiTN explicitly names a target committee rather than a person. */
+  target_committee_name?: string;
+  target_office?: string;
+};
 
 // The legacy CFR bulk export was frozen when Michigan launched the new MiTN
 // system in April 2025: the 2025 archive was the final one, so election years

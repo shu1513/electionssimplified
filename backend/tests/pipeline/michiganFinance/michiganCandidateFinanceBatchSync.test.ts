@@ -199,6 +199,9 @@ describe("michiganCandidateFinanceBatchSync", () => {
         db,
         syncMichiganCandidateFinanceFn,
         mitnPublicSearchFetchFn: fetchFn,
+        currentContributionRowsFn: vi.fn(async (input) => input.rawRows),
+        fetchIndependentExpenditureRowsFn: vi.fn().mockRejectedValue(new Error("Michigan MiTN IE export failed: status 503")),
+        fetchCommitteeRegistryForNamesFn: vi.fn().mockResolvedValue([]),
         now: new Date("2026-07-26T00:00:00.000Z"),
       });
 
@@ -229,10 +232,11 @@ describe("michiganCandidateFinanceBatchSync", () => {
       // outside data available and would persist $0 totals
       expect("expenditureRows" in syncMichiganCandidateFinanceFn.mock.calls[0]![0]).toBe(false);
       const exportYears = fetchFn.mock.calls
-        .filter(([url]) => String(url).includes("action=export"))
+        .filter(([url]) => String(url).includes("page.miboeContributionPublicSearch") && String(url).includes("action=export"))
         .map(([, init]) => new URLSearchParams((init as { body: string }).body).get("form.campaignStatementYear"));
       expect(exportYears.sort()).toEqual(["69", "76"]);
       expect(result.syncedCandidateCount).toBe(1);
+      expect(result.outsideSpendingFetchErrors).toEqual({ "2026": "Michigan MiTN IE export failed: status 503" });
     } finally {
       vi.unstubAllEnvs();
     }
@@ -380,6 +384,133 @@ describe("michiganCandidateFinanceBatchSync", () => {
     // is the due-row listing, and nothing is inserted
     expect(db.query).toHaveBeenCalledTimes(1);
     expect(String(db.query.mock.calls[0]?.[0])).toContain("FROM public.mi_candidate_finance_links AS link");
+  });
+
+
+
+  it("includes active target committees beyond the selected due-link limit", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const db = { query: vi.fn()
+        .mockResolvedValueOnce({ rows: [dueRow()] })
+        .mockResolvedValueOnce({ rows: [
+          dueRow(), dueRow({ committee_id: "600002", committee_name: "Friends of Aric Nesbitt" }),
+        ] }) };
+      const empty = buildMitnExportXlsx([]);
+      const syncFn = vi.fn().mockResolvedValue({});
+      const registryFn = vi.fn(async (input: { names: readonly string[] }) =>
+        input.names.map((name) => ({ committeeId: name === "Friends of Aric Nesbitt" ? "600002" : "521877",
+          committeeName: name, committeeType: "Candidate", status: "Active" })));
+      await syncDueMichiganCandidateFinance({
+        db, autoLinkMissingLinks: false, maxCandidates: 1,
+        mitnPublicSearchFetchFn: vi.fn().mockResolvedValue({
+          ok: true, status: 200, text: async () => "",
+          arrayBuffer: async () => empty.buffer.slice(empty.byteOffset, empty.byteOffset + empty.byteLength),
+        }),
+        fetchIndependentExpenditureRowsFn: vi.fn().mockResolvedValue([
+          { target_committee_name: "ARIC NESBITT FOR GOVERNOR" },
+          { target_committee_name: "Friends of Aric Nesbitt" },
+        ]),
+        fetchCommitteeRegistryForNamesFn: registryFn, syncMichiganCandidateFinanceFn: syncFn,
+      });
+      expect(syncFn.mock.calls[0]![0].outsideTargetCommitteeNames).toEqual([
+        "ARIC NESBITT FOR GOVERNOR", "Friends of Aric Nesbitt",
+      ]);
+      expect(String(db.query.mock.calls[1]![0])).toContain("link.link_status = 'active'");
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("fetches each outside cycle once and verifies exact candidate registry identity", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const db = createMockDb([dueRow(), dueRow({ election_id: "33333333-3333-4333-8333-333333333333" })]);
+      const syncFn = vi.fn().mockResolvedValue({});
+      const outsideFn = vi.fn().mockResolvedValue([{
+        doc_seq_no: "26-1", doc_stmnt_year: "2026", doc_type_desc: "July CS",
+        com_legal_name: "Outside PAC", common_name: "", cfr_com_id: "700",
+        com_type: "IND", schedule_desc: "Independent Expenditures",
+        supp_opp: "S", can_or_ballot: "Candidate", _column_29: "", amount: "1000.00",
+        target_committee_name: "ARIC NESBITT FOR GOVERNOR", target_office: "Governor",
+      }]);
+      const registryFn = vi.fn().mockResolvedValue([{
+        committeeId: "0521877", committeeName: "ARIC NESBITT FOR GOVERNOR",
+        committeeType: "Candidate", status: "Active",
+      }]);
+      const empty = buildMitnExportXlsx([]);
+      const fetchFn = vi.fn().mockResolvedValue({
+        ok: true, status: 200, text: async () => "",
+        arrayBuffer: async () => empty.buffer.slice(empty.byteOffset, empty.byteOffset + empty.byteLength),
+      });
+      const result = await syncDueMichiganCandidateFinance({
+        db, autoLinkMissingLinks: false, mitnPublicSearchFetchFn: fetchFn,
+        fetchIndependentExpenditureRowsFn: outsideFn, fetchCommitteeRegistryForNamesFn: registryFn,
+        syncMichiganCandidateFinanceFn: syncFn, rawDataCacheDir: "/explicit/test-cache",
+        refreshSupplementalData: true,
+      });
+      expect(outsideFn).toHaveBeenCalledTimes(1);
+      expect(outsideFn).toHaveBeenCalledWith(expect.objectContaining({
+        statementYears: [2025, 2026], rawCacheDir: "/explicit/test-cache", refresh: true,
+      }));
+      expect(registryFn).toHaveBeenCalledTimes(1);
+      expect(syncFn).toHaveBeenCalledTimes(2);
+      expect(syncFn.mock.calls[0]![0]).toMatchObject({
+        outsideTargetCommitteeName: "ARIC NESBITT FOR GOVERNOR",
+        expenditureRows: expect.any(Array),
+        committeeRegistryRows: [],
+      });
+      expect(result.outsideSpendingFetchedYears).toEqual([2026]);
+      expect(result.outsideSpendingFetchErrors).toEqual({});
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("keeps receipts syncing and omits outside data when acquisition fails", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const empty = buildMitnExportXlsx([]);
+      const syncFn = vi.fn().mockResolvedValue({});
+      const result = await syncDueMichiganCandidateFinance({
+        db: createMockDb([dueRow()]), autoLinkMissingLinks: false,
+        mitnPublicSearchFetchFn: vi.fn().mockResolvedValue({
+          ok: true, status: 200, text: async () => "",
+          arrayBuffer: async () => empty.buffer.slice(empty.byteOffset, empty.byteOffset + empty.byteLength),
+        }),
+        fetchIndependentExpenditureRowsFn: vi.fn().mockRejectedValue(new Error("outside source HTTP 503")),
+        syncMichiganCandidateFinanceFn: syncFn,
+      });
+      expect(result.syncedCandidateCount).toBe(1);
+      expect(result.outsideSpendingFetchErrors).toEqual({ "2026": "outside source HTTP 503" });
+      expect(syncFn.mock.calls[0]![0]).not.toHaveProperty("expenditureRows");
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("preserves outside data for an ambiguous or wrong target registry identity", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const empty = buildMitnExportXlsx([]);
+      const syncFn = vi.fn().mockResolvedValue({});
+      const result = await syncDueMichiganCandidateFinance({
+        db: createMockDb([dueRow()]), autoLinkMissingLinks: false,
+        mitnPublicSearchFetchFn: vi.fn().mockResolvedValue({
+          ok: true, status: 200, text: async () => "",
+          arrayBuffer: async () => empty.buffer.slice(empty.byteOffset, empty.byteOffset + empty.byteLength),
+        }),
+        fetchIndependentExpenditureRowsFn: vi.fn().mockResolvedValue([{
+          target_committee_name: "ARIC NESBITT FOR GOVERNOR",
+        }]),
+        fetchCommitteeRegistryForNamesFn: vi.fn().mockResolvedValue([{
+          committeeId: "999999", committeeName: "ARIC NESBITT FOR GOVERNOR",
+          committeeType: "Candidate", status: "Active",
+        }]),
+        syncMichiganCandidateFinanceFn: syncFn,
+      });
+      expect(syncFn.mock.calls[0]![0]).not.toHaveProperty("expenditureRows");
+      expect(result.outsideSpendingFetchErrors?.["2026:521877"]).toContain("unique candidate registry match");
+      expect(result.syncedCandidateCount).toBe(1);
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it("validates positive integer options", async () => {

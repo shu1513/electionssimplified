@@ -26,6 +26,63 @@ function expenditure(overrides: Partial<MichiganMitnLegacyExpenditureRow> = {}):
 }
 
 describe("michiganOutsideSpendingAggregator", () => {
+
+
+  it("aggregates the union of verified target committees into one candidate snapshot", () => {
+    const result = aggregateMichiganOutsideSpending({
+      candidateName: "Joseph Fox", targetCommitteeNames: ["Joseph Fox for State Senator", "Friends of Joseph Fox"],
+      officeScope: "state_upper", officeName: "State Senator", district: "33", electionYear: 2026,
+      expenditureRows: [
+        expenditure({ doc_stmnt_year: "2026", target_committee_name: "Joseph Fox for State Senator",
+          target_office: "State Senate", amount: "100.00", supp_opp: "S" }),
+        expenditure({ doc_stmnt_year: "2026", target_committee_name: "Friends of Joseph Fox",
+          target_office: "State Senate", amount: "200.00", supp_opp: "S" }),
+      ],
+    });
+    expect(result.summary).toMatchObject({ supportTotal: 300, opposeTotal: 0,
+      groups: [expect.objectContaining({ amount: 300 })] });
+  });
+
+  it("matches modern exact verified committee targets with explicit office", () => {
+    const result = aggregateMichiganOutsideSpending({
+      candidateName: "Joseph Fox", targetCommitteeName: "Joseph Fox for State Senator",
+      officeScope: "state_upper", officeName: "State Senator", district: "33", electionYear: 2026,
+      expenditureRows: [
+        expenditure({
+          doc_stmnt_year: "2026", can_or_ballot: "Candidate",
+          target_committee_name: "Joseph Fox for State Senator", target_office: "State Senate",
+          _column_29: "", amount: "231165.00", supp_opp: "O",
+        }),
+        expenditure({
+          doc_stmnt_year: "2026", target_committee_name: "Joseph Fox for State Senator",
+          target_office: "State House", amount: "999999.00",
+        }),
+        expenditure({
+          doc_stmnt_year: "2026", target_committee_name: "Other Joseph Fox Committee",
+          target_office: "State Senate", amount: "999999.00",
+        }),
+      ],
+    });
+    expect(result.summary).toMatchObject({ supportTotal: 0, opposeTotal: 231165 });
+    expect(result.includedExpenditureRowCount).toBe(1);
+    expect(result.skippedExpenditureRowCount).toBe(1);
+  });
+
+  it("does not infer a modern target from a person name without registry validation", () => {
+    const result = aggregateMichiganOutsideSpending({
+      candidateName: "Joseph Fox", officeScope: "state_upper", officeName: "State Senator",
+      district: "33", electionYear: 2026, expenditureRows: [
+        expenditure({
+          doc_stmnt_year: "2026", can_or_ballot: "Joseph Fox",
+          target_committee_name: "Joseph Fox for State Senator", target_office: "State Senate",
+          _column_29: "State Senate 33", amount: "231165.00",
+        }),
+      ],
+    });
+    expect(result.summary).toBeNull();
+    expect(result.includedExpenditureRowCount).toBe(0);
+  });
+
   it("maps Michigan support/oppose values conservatively", () => {
     expect(supportOpposeFromMichiganSuppOpp("1")).toBe("support");
     expect(supportOpposeFromMichiganSuppOpp("support")).toBe("support");

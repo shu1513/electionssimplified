@@ -75,7 +75,11 @@ function requestHeaders(page: string): Record<string, string> {
 }
 
 export type MichiganMitnCommitteeSearchInput = {
-  candidateLastName: string;
+  candidateLastName?: string;
+  committeeName?: string;
+  committeeId?: string;
+  /** Omit for candidate searches; an empty value searches every registry type. */
+  committeeType?: string;
   candidateFirstName?: string | null;
   /** Canonical MiTN office label (a MICHIGAN_MITN_OFFICE_SOUGHT_IDS key). */
   officeSought?: string | null;
@@ -87,6 +91,8 @@ export type MichiganMitnCommitteeSearchRow = {
   committeeType: string;
   committeeName: string;
   status: string;
+  /** Source internal ID used only by the public Filings section. */
+  registryInternalId?: string;
 };
 
 /**
@@ -100,14 +106,14 @@ function committeeSearchBody(input: MichiganMitnCommitteeSearchInput): string {
   const params = new URLSearchParams([
     ["sortColumn", "createdOn"],
     ["sortDirection", "desc"],
-    ["form.committeeId", ""],
-    ["form.committeeType", MICHIGAN_MITN_COMMITTEE_TYPE_CANDIDATE],
+    ["form.committeeId", input.committeeId?.trim() ?? ""],
+    ["form.committeeType", input.committeeType ?? MICHIGAN_MITN_COMMITTEE_TYPE_CANDIDATE],
     ["form.committeeStatus", ""],
-    ["form.committeeName", ""],
+    ["form.committeeName", input.committeeName?.trim() ?? ""],
     ["form.committeeAcronym", ""],
     ["form.candidateFirstName", input.candidateFirstName?.trim() ?? ""],
     ["form.candidateMiddleName", ""],
-    ["form.candidateLastName", input.candidateLastName.trim()],
+    ["form.candidateLastName", input.candidateLastName?.trim() ?? ""],
     ["form.countyOfResidence", ""],
     ["form.party", ""],
     ["form.county", ""],
@@ -169,6 +175,10 @@ export function parseMichiganMitnCommitteeSearchHtml(html: string): MichiganMitn
       committeeType: committeeType ?? "",
       committeeName,
       status: status ?? "",
+      ...(() => {
+        const internalId = /parameters:\s*\{\s*id:\s*(\d+)\s*\}/.exec(rowMatch[0]);
+        return internalId ? { registryInternalId: internalId[1]! } : {};
+      })(),
     });
   }
   return rows;
@@ -207,8 +217,12 @@ export async function fetchMichiganMitnContributionExportXlsx(
     throw new Error(`Invalid Michigan MiTN committee id: ${input.committeeId}`);
   }
   const url = `${MICHIGAN_MITN_PUBLIC_SEARCH_BASE_URL}?page=${CONTRIBUTION_SEARCH_PAGE}&action=export`;
+  // The receipt export accepts numeric IDs, even where registry IDs retain
+  // leading zeros. An artificial padded link can otherwise return zero rows
+  // (verified Hawkins 0521495 vs 521495; Donni 608867 finds source 0608867).
+  const exportCommitteeId = committeeId.replace(/^0+(?=\d)/, "");
   const body = new URLSearchParams([
-    ["form.committeeId", committeeId],
+    ["form.committeeId", exportCommitteeId],
     ["form.contributionType", "individual"],
     ["form.campaignStatementYear", statementYearId],
   ]).toString();
@@ -447,6 +461,33 @@ export function dedupeMichiganMitnExportRows(rows: readonly (readonly string[])[
   ];
 }
 
+/** Minimum receipt schema; addresses and other descriptive columns are optional. */
+export const MICHIGAN_MITN_REQUIRED_CONTRIBUTION_HEADERS = [
+  "Record Type (1=Parent, 2=Child)",
+  "Receipt ID",
+  "Filing Status (C=Complete,I=Incomplete)",
+  "Document Type",
+  "Document Statement Year",
+  "Document Statement Type",
+  "Receiving Committee Name",
+  "Receiving Committee ID#",
+  "Receiving Committee Type",
+  "Type of Contribution",
+  "Contributor First Name",
+  "Organization Name/Contributor Last Name",
+  "Date of Contribution",
+  "Amount of Contribution",
+] as const;
+
+export function validateMichiganMitnContributionExportHeader(rows: readonly (readonly string[])[]): void {
+  const header = rows[0]?.map((name) => name.trim()) ?? [];
+  const names = new Set(header);
+  const missing = MICHIGAN_MITN_REQUIRED_CONTRIBUTION_HEADERS.filter((name) => !names.has(name));
+  if (missing.length || names.size !== header.length) {
+    throw new Error(`Michigan MiTN contribution export has missing or duplicate required headers: ${missing.join(", ")}`);
+  }
+}
+
 // --- Mapping to the legacy row shape --------------------------------------
 
 const EXPORT_HEADER_TO_FIELD: ReadonlyMap<string, keyof MichiganMitnLegacyContributionRow> = new Map([
@@ -518,9 +559,7 @@ function emptyLegacyContributionRow(): MichiganMitnLegacyContributionRow {
 export function michiganMitnExportRowsToLegacyContributionRows(
   rows: readonly (readonly string[])[]
 ): MichiganMitnLegacyContributionRow[] {
-  if (rows.length === 0) {
-    return [];
-  }
+  validateMichiganMitnContributionExportHeader(rows);
   const header = rows[0] ?? [];
   const fieldByColumn = new Map<number, keyof MichiganMitnLegacyContributionRow>();
   let committeeTypeColumn = -1;

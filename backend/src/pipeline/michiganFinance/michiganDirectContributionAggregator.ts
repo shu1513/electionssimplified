@@ -1,10 +1,12 @@
 import { normalizeMichiganMitnLegacyArchiveYear } from "./michiganMitnLegacyRowTypes.js";
 import type { MichiganMitnLegacyContributionRow } from "./michiganMitnLegacyRowTypes.js";
+import type { MichiganMitnCommitteeSearchRow } from "./michiganMitnPublicSearchClient.js";
 
 export type MichiganDirectContributionAggregationInput = {
   committeeId: string;
   electionYear: number;
   contributionRows: readonly MichiganMitnLegacyContributionRow[];
+  committeeRegistryRows?: readonly MichiganMitnCommitteeSearchRow[];
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
 };
@@ -27,9 +29,19 @@ export type MichiganFinanceDirectBreakdown = {
   sourceUrl: string | null;
 };
 
+export type MichiganFinancePacDonor = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: string;
+  amount: number;
+  contributionCount: number;
+  sourceUrl: string | null;
+};
+
 export type MichiganDirectContributionAggregationResult = {
   summary: MichiganDirectFinanceSummary;
   directBreakdowns: MichiganFinanceDirectBreakdown[];
+  pacDonors?: MichiganFinancePacDonor[];
   matchedContributionRowCount: number;
   includedContributionRowCount: number;
   skippedContributionRowCount: number;
@@ -61,7 +73,8 @@ function normalizePositiveInteger(value: number | undefined, fallback: number, f
 }
 
 function normalizeId(value: string): string {
-  return value.trim().toUpperCase();
+  const normalized = value.trim().toUpperCase();
+  return /^\d+$/.test(normalized) ? normalized.replace(/^0+(?=\d)/, "") : normalized;
 }
 
 function normalizeTextKey(value: string): string {
@@ -74,6 +87,48 @@ function normalizeTextKey(value: string): string {
     .replace(/\s+/g, " ")
     .trim();
 }
+
+// Exact labels from the official MiTN committee search's committeeTypes.
+// The contribution export's "Individual" means an itemized receipt, not an
+// individual person; only a unique typed registry identity establishes a PAC.
+const PAC_DONOR_COMMITTEE_TYPES = new Set([
+  "INDEPENDENT",
+  "INDEPENDENT EXPENDITURE",
+  "POLITICAL",
+  "CAUCUS",
+  "QUALIFYING POLITICAL PARTY",
+  "STATE POLITICAL PARTY",
+  "COUNTY POLITICAL PARTY",
+  "DISTRICT POLITICAL PARTY",
+]);
+
+function committeeRegistryByName(
+  rows: readonly MichiganMitnCommitteeSearchRow[]
+): Map<string, MichiganMitnCommitteeSearchRow | null> {
+  const byName = new Map<string, MichiganMitnCommitteeSearchRow | null>();
+  for (const row of rows) {
+    const name = normalizeTextKey(row.committeeName);
+    const committeeId = normalizeId(row.committeeId);
+    if (!name || !committeeId) {
+      continue;
+    }
+    const existing = byName.get(name);
+    if (existing === undefined) {
+      byName.set(name, row);
+    } else if (
+      existing !== null &&
+      (normalizeId(existing.committeeId) !== committeeId ||
+        normalizeTextKey(existing.committeeType) !== normalizeTextKey(row.committeeType))
+    ) {
+      // Include excluded types in ambiguity checks: a same-name candidate or
+      // ballot committee must not silently fall through to an allowed PAC.
+      byName.set(name, null);
+    }
+  }
+  return byName;
+}
+
+type PacDonorAggregate = Omit<MichiganFinancePacDonor, "amount"> & { amountCents: number };
 
 function parseAmountCents(raw: string): number | null {
   const normalized = raw.replace(/[$,]/g, "").trim();
@@ -268,6 +323,10 @@ export function aggregateMichiganDirectContributions(
   );
   const sourceUrl = input.sourceUrl ?? null;
   const aggregates = new Map<string, Aggregate>();
+  const registryByName = input.committeeRegistryRows === undefined
+    ? undefined
+    : committeeRegistryByName(input.committeeRegistryRows);
+  const pacDonors = new Map<string, PacDonorAggregate>();
   let matchedContributionRowCount = 0;
   let includedContributionRowCount = 0;
   let skippedContributionRowCount = 0;
@@ -298,6 +357,24 @@ export function aggregateMichiganDirectContributions(
 
     includedContributionRowCount += 1;
     directContributionTotalCents += amountCents;
+    const donorCommittee = registryByName?.get(normalizeTextKey([row.f_name, row.l_name_or_org].join(" ")));
+    if (donorCommittee && PAC_DONOR_COMMITTEE_TYPES.has(normalizeTextKey(donorCommittee.committeeType))) {
+      const donorCommitteeId = normalizeId(donorCommittee.committeeId);
+      const existing = pacDonors.get(donorCommitteeId);
+      if (existing) {
+        existing.amountCents += amountCents;
+        existing.contributionCount += 1;
+      } else {
+        pacDonors.set(donorCommitteeId, {
+          committeeId: donorCommitteeId,
+          committeeName: donorCommittee.committeeName.trim().replace(/\s+/g, " "),
+          committeeType: donorCommittee.committeeType.trim().replace(/\s+/g, " "),
+          amountCents,
+          contributionCount: 1,
+          sourceUrl,
+        });
+      }
+    }
     const contributorKey = contributorIdentityKey(row);
     addAggregate(aggregates, {
       categoryType: "occupation",
@@ -325,6 +402,12 @@ export function aggregateMichiganDirectContributions(
       sourceUrl,
       maxBreakdownsPerCategory,
     }),
+    ...(registryByName ? {
+      pacDonors: [...pacDonors.values()]
+        .sort((left, right) => right.amountCents - left.amountCents ||
+          left.committeeName.localeCompare(right.committeeName) || left.committeeId.localeCompare(right.committeeId))
+        .map(({ amountCents, ...donor }) => ({ ...donor, amount: centsToDollars(amountCents) })),
+    } : {}),
     matchedContributionRowCount,
     includedContributionRowCount,
     skippedContributionRowCount,

@@ -12,6 +12,7 @@ import {
   parseFinanceAmount,
   parseFinanceCount,
   type BallotLookupFinanceBreakdown,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
@@ -24,6 +25,8 @@ import {
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
+import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
+import { pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
 import { isMichiganFinanceEligibleOffice } from "./michiganFinanceEligibleOffices.js";
 
 const GENERIC_MICHIGAN_MITN_SOURCE_URL =
@@ -41,6 +44,94 @@ type MichiganFinanceOutsideIndustryRow = StateFinanceOutsideIndustryRow;
 type MichiganFinanceSummaryRow = StateFinanceSummaryRow;
 type MichiganFinanceOutsideGroupRow = StateFinanceOutsideGroupRow;
 type MichiganFinanceOutsideDonorEvidenceRow = StateFinanceOutsideDonorEvidenceRow;
+
+type MichiganFinancePacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  committee_type: string;
+  amount: string | number;
+  source_url: string | null;
+  industry_slug: string | null;
+  classification_source: string | null;
+  confidence: string | null;
+};
+
+// Official Michigan committee types, rather than PAC-like name tokens.
+// Candidate, Ballot Question and unknown types never enter this display.
+const PAC_DONOR_COMMITTEE_TYPES = new Set([
+  "independent",
+  "independent expenditure",
+  "political",
+  "caucus",
+  "qualifying political party",
+  "state political party",
+  "county political party",
+  "district political party",
+]);
+
+function groupPacDonorsByInterest(
+  rows: readonly MichiganFinancePacDonorRow[]
+): Map<string, BallotLookupFinancePacInterest[]> {
+  const grouped = new Map<string, Map<string, BallotLookupFinancePacInterest>>();
+  for (const row of rows) {
+    if (!PAC_DONOR_COMMITTEE_TYPES.has(row.committee_type.trim().toLowerCase())) {
+      continue;
+    }
+    const amount = parseFinanceAmount(row.amount);
+    if (amount === null || amount <= 0) {
+      continue;
+    }
+    const classification = classifyFinanceLabel({ rawLabel: row.committee_name, labelType: "committee" });
+    // Researched classifications override names; loose keyword matches do not
+    // turn an unknown committee into a claimed industry (same rule as PA).
+    const storedInterest =
+      row.industry_slug &&
+      (row.classification_source === "manual" ||
+        (row.confidence === "high" && ["rule", "ai"].includes(row.classification_source ?? "")))
+        ? row.industry_slug
+        : null;
+    const ruleInterest =
+      classification.classificationSource === "rule" && classification.confidence === "high"
+        ? classification.industrySlug
+        : null;
+    const interest = storedInterest ?? ruleInterest ?? UNCLASSIFIED_PAC_INTEREST;
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const interests = grouped.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
+    const entry = interests.get(interest) ?? {
+      interest,
+      interest_name: pacInterestDisplayName(interest),
+      amount: 0,
+      pac_count: 0,
+      pacs: [],
+    };
+    entry.amount = Math.round((entry.amount + amount) * 100) / 100;
+    entry.pac_count += 1;
+    entry.pacs.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      amount,
+      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_MICHIGAN_MITN_SOURCE_URL),
+    });
+    interests.set(interest, entry);
+    grouped.set(key, interests);
+  }
+  return new Map(
+    [...grouped].map(([key, interests]) => [
+      key,
+      [...interests.values()]
+        .map((entry) => ({
+          ...entry,
+          pacs: entry.pacs
+            .sort((left, right) => right.amount - left.amount || left.committee_name.localeCompare(right.committee_name))
+            .slice(0, 5),
+        }))
+        .sort((left, right) => right.amount - left.amount || left.interest.localeCompare(right.interest))
+        .slice(0, 5),
+    ])
+  );
+}
 
 export async function loadMichiganCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
@@ -388,6 +479,47 @@ export async function loadMichiganCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
+  const pacDonorResult = await db.query<MichiganFinancePacDonorRow>(
+    `
+      WITH selected AS (
+        SELECT candidate_id::uuid AS candidate_id, election_id::uuid AS election_id
+        FROM jsonb_to_recordset($1::jsonb) AS x(candidate_id text, election_id text)
+      ), grouped AS (
+        SELECT
+          selected.candidate_id::text AS candidate_id,
+          selected.election_id::text AS election_id,
+          donor.committee_id,
+          min(donor.committee_name) AS committee_name,
+          min(donor.committee_type) AS committee_type,
+          sum(donor.amount) AS amount,
+          min(donor.source_url) FILTER (WHERE donor.source_url IS NOT NULL) AS source_url
+        FROM selected
+        JOIN public.mi_candidate_finance_links AS link
+          ON link.candidate_id = selected.candidate_id
+         AND link.election_id = selected.election_id
+         AND link.link_status = 'active'
+        JOIN public.mi_candidate_finance_pac_donors AS donor
+          ON donor.link_id = link.id
+         AND donor.election_year = link.election_year
+        WHERE lower(btrim(donor.committee_type)) IN (
+          'independent', 'independent expenditure', 'political', 'caucus',
+          'qualifying political party', 'state political party', 'county political party', 'district political party'
+        )
+        -- Direct contributions to different receiving committees add together.
+        -- One donor gets one display row across the candidate's active links.
+        GROUP BY selected.candidate_id, selected.election_id, donor.committee_id
+      )
+      SELECT grouped.*, classification.industry_slug, classification.classification_source, classification.confidence
+      FROM grouped
+      LEFT JOIN public.finance_label_classifications AS classification
+        ON classification.label_type = 'committee'
+       AND classification.normalized_label = public.normalize_finance_label(grouped.committee_name)
+      ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
+    `,
+    [JSON.stringify(selectedRequests)]
+  );
+  const pacInterestsByCandidateElection = groupPacDonorsByInterest(pacDonorResult.rows);
+
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const contributionSizeBucketsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const summaryByCandidateElection = new Map(
@@ -493,14 +625,21 @@ export async function loadMichiganCandidateFinanceSummariesByCandidateElection(
             total_spent: parseFinanceAmount(row.total_disbursements),
             cash_on_hand: parseFinanceAmount(row.cash_on_hand),
             debts_owed: null,
+            direct_coverage_note:
+              "PAC donors include unique Michigan registry committee matches; unregistered or ambiguous organizations are omitted.",
             top_occupations: topDirectDonorOccupations,
             top_employers: [],
             top_industries: [],
             contribution_size_buckets: contributionSizeBuckets,
+            ...(pacInterestsByCandidateElection.has(key)
+              ? { pac_money_by_interest: pacInterestsByCandidateElection.get(key) }
+              : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),
             oppose_total: parseFinanceAmount(row.outside_oppose_total),
+            outside_coverage_note:
+              "Only itemized independent expenditures with a unique candidate committee and matching office are included. Unidentified or multi-candidate expenses are omitted.",
             top_supporting_groups: supportingGroupsByCandidateElection.get(key) ?? [],
             top_opposing_groups: opposingGroupsByCandidateElection.get(key) ?? [],
             top_supporting_industries: supportingIndustriesByCandidateElection.get(key) ?? [],
