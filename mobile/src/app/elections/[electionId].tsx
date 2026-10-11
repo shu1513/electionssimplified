@@ -372,7 +372,10 @@ export default function ElectionScreen() {
                 onPress={() => setProposerExpanded((current) => !current)}
                 accessibilityRole="button"
                 accessibilityState={{ expanded: proposerExpanded }}
-                accessibilityLabel="Proposed by"
+                // The label replaces the child text for screen readers, so
+                // it must carry the name; the visible row starts with a
+                // disclosure glyph that would otherwise be read aloud.
+                accessibilityLabel={`Proposed by: ${measure.proposed_by.name}`}
               >
                 <Text className="text-sm text-ink">
                   <Text className="font-medium text-ink-soft">{proposerExpanded ? "▾" : "▸"} Proposed by:</Text>{" "}
