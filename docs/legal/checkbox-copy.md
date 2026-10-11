@@ -260,8 +260,8 @@ the address is sent to the Census geocoder, held in an anonymous 14-day cache
 in its normalised form, and never written to the database or attached to an
 account, which stores district ids only.
 
-> The address is only used to find voting districts. We do NOT save it to
-> your account.
+> Address is only used to find voting districts. We do NOT save it to your
+> account.
 
 In the anonymous search field's label, **(why address?)** opens an
 informational dialog on web and mobile. Two sentences: voting districts do

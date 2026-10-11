@@ -203,7 +203,7 @@ describe("HomePage pre-search notice", () => {
     // explainer and the agreement line under Search carry the privacy
     // points at the point of collection.
     expect(screen.getByLabelText(ADDRESS_LABEL)).toBeInTheDocument();
-    expect(screen.queryByText(/The address is only used to find voting districts/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/is only used to find voting districts/)).not.toBeInTheDocument();
     expect(screen.queryByText(/You can also search by ZIP or city/)).not.toBeInTheDocument();
     const trigger = screen.getByRole("button", { name: "why address?" });
     expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyaddress?):");

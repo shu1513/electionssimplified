@@ -73,7 +73,7 @@ export const RENEWAL_CHECKBOX_LABEL =
  * disclosure stays one click away in the Privacy Policy.
  */
 export const ADDRESS_FIELD_PRIVACY_NOTE =
-  "The address is only used to find voting districts. We do NOT save it to your account.";
+  "Address is only used to find voting districts. We do NOT save it to your account.";
 
 /**
  * Shown on the mobile ballot screen and the web How-it-works page. The web
