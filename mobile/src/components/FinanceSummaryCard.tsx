@@ -8,6 +8,7 @@ import type {
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
+  FINANCE_SMALL_AMOUNT_THRESHOLD,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -18,7 +19,9 @@ import {
   formatSourceHost,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
+  meetsSmallAmountThreshold,
   shouldShowDirectCoverageNote,
+  showsDirectDonorDetail,
   sortContributionSizeBuckets,
   spendingExceedsCycleFunds,
 } from "@voteapp/api-client";
@@ -86,7 +89,8 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
  */
 function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
   const [openInterest, setOpenInterest] = useState<string | null>(null);
-  if (rows === undefined) {
+  // Not loaded, or under the small-amount threshold: render nothing.
+  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
   return (
@@ -158,7 +162,8 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
  * empty when none were reported.
  */
 function ConduitDonations({ rows }: { rows: FinanceConduitDonation[] | undefined }) {
-  if (rows === undefined) {
+  // Not loaded, or under the small-amount threshold: render nothing.
+  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
   return (
@@ -261,11 +266,11 @@ function OutsideSection({
   industries: (FinanceBreakdown | FinanceOutsideIndustrySupport)[];
 }) {
   const [groupsExpanded, setGroupsExpanded] = useState(false);
-  // An empty direction renders nothing rather than a bare header — a race
-  // often has disclosed support with no disclosed opposition. A disclosed
-  // $0 total counts as empty (the shared helper's rule): "$0 opposing this
-  // candidate" is noise, not information.
-  if (!hasOutsideDirectionContent(total, groups, industries)) {
+  // A direction under the small-amount threshold renders nothing rather than
+  // a bare header — a race often has disclosed support with no disclosed
+  // opposition, and "$445 opposing this candidate" is noise, not information
+  // (the shared helper's rule).
+  if (!hasOutsideDirectionContent(total, groups)) {
     return null;
   }
   const shownTotal = total !== null && total > 0 ? total : null;
@@ -379,7 +384,7 @@ function MemberCommunicationsSection({
   const rows = [
     { verb: "support", amount: supportTotal },
     { verb: "oppose", amount: opposeTotal },
-  ].filter((row) => (row.amount ?? 0) > 0);
+  ].filter((row) => (row.amount ?? 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD);
   if (rows.length === 0) {
     return null;
   }
@@ -461,20 +466,26 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
       {shouldShowDirectCoverageNote(summary) ? (
         <Text className="mt-1 text-xs text-ink-soft">{direct.direct_coverage_note}</Text>
       ) : null}
-      <BreakdownList
-        heading="Top disclosed occupations of direct donors"
-        rows={direct.top_occupations}
-        visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
-      />
-      <BreakdownList
-        heading="Industries represented among direct contributions"
-        rows={directIndustries}
-        visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
-      />
-      <BreakdownList
-        heading="Direct contributions by size"
-        rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])}
-      />
+      {/* Donor detail is secondary to the money row; a campaign under the
+          small-amount threshold keeps its Raised figure and nothing else. */}
+      {showsDirectDonorDetail(summary) ? (
+        <>
+          <BreakdownList
+            heading="Top disclosed occupations of direct donors"
+            rows={direct.top_occupations}
+            visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
+          />
+          <BreakdownList
+            heading="Industries represented among direct contributions"
+            rows={directIndustries}
+            visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
+          />
+          <BreakdownList
+            heading="Direct contributions by size"
+            rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])}
+          />
+        </>
+      ) : null}
 
       <PacMoneyByInterest rows={direct.pac_money_by_interest} />
       <ConduitDonations rows={direct.conduit_donations} />
