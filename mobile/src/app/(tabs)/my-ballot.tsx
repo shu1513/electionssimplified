@@ -253,7 +253,7 @@ function SavedBallotBody({ email }: { email: string }) {
           onPress={() => setAddressExplanationVisible(true)}
           className="mt-1 self-start"
         >
-          <Text className="text-sm text-ink-soft underline">Why full address?</Text>
+          <Text className="text-sm text-ink-soft underline">Why address?</Text>
         </Pressable>
         <View className="mt-4">
           <SavedAddressForm label="Your address" />

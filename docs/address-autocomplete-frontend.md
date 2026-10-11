@@ -122,8 +122,9 @@ free, and reused tokens are treated as no-session.
 - Selecting a suggestion: call retrieve, put the returned `address` string
   into the input, then run the **existing** flow unchanged:
   - anonymous: `POST /api/address/resolve` with
-    `{ "address": ..., "accepted_terms_version": TERMS_VERSION }` — the
-    clickwrap is enforced server-side, so the version is required
+    `{ "address": ..., "accepted_terms_version": TERMS_VERSION }` — pressing
+    Search is the assent (the notice under the button), and the version rides
+    along with every search
   - logged-in: `PUT /api/me/address` with `{ "address": ... }` (no clickwrap
     field: the account already carries its acceptance)
 - Autocomplete failing must never block the form — the input stays a plain

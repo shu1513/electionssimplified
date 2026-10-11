@@ -5,8 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ADDRESS_FIELD_PRIVACY_NOTE,
-  PRE_SEARCH_AGREEMENT_PARAGRAPHS,
-  PRE_SEARCH_CHECKBOX_LABEL,
+  PRE_SEARCH_NOTICE,
   RENEWAL_CHECKBOX_LABEL,
   SIGNUP_CHECKBOX_LABEL,
   TERMS_VERSION,
@@ -14,10 +13,8 @@ import {
 } from "./legalCopy";
 
 // docs/legal/checkbox-copy.md says the frontend must copy these strings
-// verbatim, and nothing checked it. Splitting the pre-search clickwrap into a
-// short label plus dialog paragraphs turned one string into five, so drift is
-// now easier — and the whole evidentiary value of the gate rests on the
-// shipped wording matching the archived wording.
+// verbatim, and nothing checked it. The whole evidentiary value of each gate
+// rests on the shipped wording matching the archived wording.
 // Walked up from the cwd rather than resolved from import.meta.url: the jsdom
 // environment hands this module a non-file URL, and the suite runs from either
 // the package or the repo root.
@@ -55,14 +52,11 @@ const normalizedDoc = normalize(CHECKBOX_COPY_DOC);
 
 describe("legal copy matches docs/legal/checkbox-copy.md", () => {
   it.each([
-    ["pre-search label", PRE_SEARCH_CHECKBOX_LABEL],
+    ["pre-search notice", PRE_SEARCH_NOTICE],
     ["signup label", SIGNUP_CHECKBOX_LABEL],
     ["renewal label", RENEWAL_CHECKBOX_LABEL],
     ["short privacy note", ADDRESS_FIELD_PRIVACY_NOTE],
     ["results verification line", VERIFY_WITH_OFFICIALS_NOTE],
-    ...PRE_SEARCH_AGREEMENT_PARAGRAPHS.map(
-      (paragraph, index) => [`full-agreement paragraph ${index + 1}`, paragraph] as const
-    ),
   ])("archives the %s", (_name, copy) => {
     expect(normalizedDoc).toContain(normalize(copy));
   });
@@ -76,14 +70,11 @@ describe("legal copy matches docs/legal/checkbox-copy.md", () => {
   // people came to for something else (2026-08-30 trimmed the pre-search gate,
   // 2026-08-31 the signup and renewal labels). Pinned so the restatement does
   // not creep back one label at a time. The reasoning is in legalCopy.ts above
-  // PRE_SEARCH_CHECKBOX_LABEL.
+  // PRE_SEARCH_NOTICE.
   it.each([
-    ["pre-search label", PRE_SEARCH_CHECKBOX_LABEL],
+    ["pre-search notice", PRE_SEARCH_NOTICE],
     ["signup label", SIGNUP_CHECKBOX_LABEL],
     ["renewal label", RENEWAL_CHECKBOX_LABEL],
-    ...PRE_SEARCH_AGREEMENT_PARAGRAPHS.map(
-      (paragraph, index) => [`full-agreement paragraph ${index + 1}`, paragraph] as const
-    ),
   ])("leaves arbitration out of the %s", (_name, copy) => {
     expect(copy).not.toContain("arbitration");
     expect(copy).not.toContain("class-action");
@@ -91,9 +82,9 @@ describe("legal copy matches docs/legal/checkbox-copy.md", () => {
 
   // Dropping the arbitration callout leaves the linked documents carrying the
   // whole of the notice, so every label must still name all three — the
-  // dialogs hard-code that same list as links beside it.
+  // screens render that same list as links beside (or inside) it.
   it.each([
-    ["pre-search", PRE_SEARCH_CHECKBOX_LABEL],
+    ["pre-search", PRE_SEARCH_NOTICE],
     ["signup", SIGNUP_CHECKBOX_LABEL],
     ["renewal", RENEWAL_CHECKBOX_LABEL],
   ])("names all three documents in the %s label", (_name, copy) => {
