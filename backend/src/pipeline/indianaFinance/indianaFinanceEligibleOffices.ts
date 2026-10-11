@@ -7,6 +7,9 @@ export const INDIANA_FINANCE_ELIGIBLE_OFFICE_KEYS = [
   "statewide::Attorney General",
   "statewide::State Treasurer",
   "statewide::State Auditor",
+  // Indiana renamed the Auditor of State to Comptroller in 2023; VoteApp
+  // stores the office under its current name.
+  "statewide::Comptroller",
   "statewide::Superintendent of Public Instruction",
   "state_upper::State Senator",
   "state_lower::State Lower Chamber Legislator",

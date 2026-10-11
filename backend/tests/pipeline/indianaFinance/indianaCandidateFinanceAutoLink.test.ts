@@ -245,4 +245,21 @@ describe("indianaCandidateFinanceAutoLink", () => {
     expect(predicate(contribution({ CandidateName: "MORALES, CESAR DIEGO" }))).toBe(true);
     expect(predicate(contribution({ CandidateName: "Other Person" }))).toBe(false);
   });
+
+  it("admits formal-name rows for a VoteApp nickname in the pre-filter", () => {
+    // Live: Greg Ballard's rows carry CandidateName "Gregory Alan Ballard".
+    const predicate = buildIndianaCandidateNamePredicate([
+      {
+        candidateId: CANDIDATE_ID,
+        electionId: ELECTION_ID,
+        candidateName: "Greg Ballard",
+        electionYear: 2026,
+        officeScope: "statewide",
+        officeName: "Secretary of State",
+        district: null,
+      },
+    ]);
+
+    expect(predicate(contribution({ CandidateName: "Gregory Alan Ballard" }))).toBe(true);
+  });
 });

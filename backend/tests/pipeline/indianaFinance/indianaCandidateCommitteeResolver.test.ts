@@ -70,6 +70,40 @@ describe("indianaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches the filed formal first name through a VoteApp nickname", () => {
+    // Live: "Greg for Indiana" rows carry CandidateName "Gregory Alan Ballard".
+    expect(
+      resolveIndianaCandidateCommittee({
+        candidateName: "Greg Ballard",
+        officeScope: "statewide",
+        officeName: "Secretary of State",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ FileNumber: "8001", Committee: "Greg for Indiana", CandidateName: "Gregory Alan Ballard" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "8001" });
+    expect([...normalizeIndianaCandidateNameKeys("Greg Ballard")]).toEqual(["GREG BALLARD"]);
+    expect([...normalizeIndianaCandidateNameKeys("Greg Ballard", { expandNicknames: true })]).toEqual([
+      "GREG BALLARD",
+      "GREGORY BALLARD",
+    ]);
+  });
+
+  it("accepts the Comptroller, Indiana's renamed Auditor of State", () => {
+    expect(
+      resolveIndianaCandidateCommittee({
+        candidateName: "Elise Nieshalla",
+        officeScope: "statewide",
+        officeName: "Comptroller",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ FileNumber: "8002", Committee: "Friends for Elise Nieshalla", CandidateName: "Elise Nieshalla" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "8002" });
+  });
+
   it("rejects a same-race row whose middle name contradicts the candidate", () => {
     // Same office, district, and cycle — only the middle evidence differs.
     // Without the middle gate this row linked as an "exact" match and attached
