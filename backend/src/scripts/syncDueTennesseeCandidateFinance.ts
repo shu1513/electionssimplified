@@ -19,6 +19,7 @@ import {
 export type SyncDueTennesseeCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  refresh?: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -42,6 +43,7 @@ export function parseSyncDueTennesseeCandidateFinanceScriptArgs(
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    ...(args.includes("--refresh") ? { refresh: true } : {}),
     maxCandidates: parseTennesseeFinancePositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: parseTennesseeFinancePositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: parseTennesseeFinancePositiveIntegerFlag(args, "--lookback-days"),
@@ -98,6 +100,7 @@ async function main(): Promise<void> {
       db: pool,
       now: startedAt,
       dryRun: options.dryRun,
+      refresh: options.refresh,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,

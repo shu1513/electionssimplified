@@ -1,4 +1,4 @@
-const TENNESSEE_FINANCE_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--no-ai-classify-industries", "--no-auto-link"]);
+const TENNESSEE_FINANCE_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--no-ai-classify-industries", "--no-auto-link", "--refresh"]);
 const TENNESSEE_FINANCE_VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",

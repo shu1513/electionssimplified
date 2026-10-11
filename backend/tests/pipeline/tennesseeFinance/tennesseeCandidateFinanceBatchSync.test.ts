@@ -92,6 +92,14 @@ describe("tennesseeCandidateFinanceBatchSync", () => {
     await expect(syncDueTennesseeCandidateFinance({db,now:NOW,candidateId:CANDIDATE_ID,verifiedFinanceLoader:{loadBatch} as never})).rejects.toThrow("exceeds acquisition bound");
     expect(loadBatch).not.toHaveBeenCalled();
   });
+  it("refreshes recent observations through ordinary due eligibility without changing default staleness", async () => {
+    const db=createMockDb();
+    const result=await syncDueTennesseeCandidateFinance({db,now:NOW,refresh:true,autoLinkMissingLinks:false});
+    expect(db.query.mock.calls[0][1]).toEqual([NOW.toISOString(),0,25,1,730,expect.any(Array)]);
+    expect(result).toMatchObject({refresh:true,staleAfterDays:7,selectedCandidateCount:0});
+    expect(String(db.query.mock.calls[0][0])).toContain("link.link_status = 'active'");
+    expect(String(db.query.mock.calls[0][0])).toContain("candidate_election.status NOT IN ('withdrawn', 'lost')");
+  });
   it("lists active Tennessee finance links that are due for sync", async () => {
     const db = createMockDb([dueRow()]);
 

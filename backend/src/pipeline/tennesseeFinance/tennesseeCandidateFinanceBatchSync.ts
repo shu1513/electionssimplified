@@ -71,6 +71,7 @@ export type TennesseeCandidateFinanceBatchSyncInput = {
   db: Queryable;
   now?: Date;
   dryRun?: boolean;
+  refresh?: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -100,6 +101,7 @@ export type TennesseeCandidateFinanceBatchSyncItemResult = {
 
 export type TennesseeCandidateFinanceBatchSyncResult = {
   dryRun: boolean;
+  refresh?: boolean;
   now: string;
   staleAfterDays: number;
   maxCandidates: number;
@@ -440,7 +442,7 @@ export async function syncDueTennesseeCandidateFinance(
 
   const due = await listDueTennesseeCandidateFinanceSyncRows(input.db, {
     now,
-    staleAfterDays,
+    staleAfterDays: input.refresh ? 0 : staleAfterDays,
     maxCandidates: scoped ? 10_000 : maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
@@ -543,6 +545,7 @@ export async function syncDueTennesseeCandidateFinance(
 
   return {
     dryRun,
+    ...(input.refresh ? { refresh: true } : {}),
     now: now.toISOString(),
     staleAfterDays,
     maxCandidates,

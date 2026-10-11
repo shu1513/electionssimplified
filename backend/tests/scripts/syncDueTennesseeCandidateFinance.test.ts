@@ -42,6 +42,9 @@ describe("syncDueTennesseeCandidateFinance script", () => {
       force: false,
     });
   });
+  it("explicitly selects a fresh source refresh without conflating feature enable", () => {
+    expect(parseSyncDueTennesseeCandidateFinanceScriptArgs(["--refresh"])).toMatchObject({refresh:true,force:false});
+  });
 
   it("rejects malformed numeric flags strictly", () => {
     expect(() => parseSyncDueTennesseeCandidateFinanceScriptArgs(["--max-candidates=10abc"])).toThrow(
