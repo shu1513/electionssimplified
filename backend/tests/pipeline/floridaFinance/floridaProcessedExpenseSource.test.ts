@@ -85,6 +85,21 @@ function verify(before = packet(), after = packet(true)) {
 }
 
 describe("Florida current processed expense proof", () => {
+  it.each([false, true])("compares full legal owner through rotating protected email transport (changed=%s)", changed => {
+    const before = packet(), after = packet(true);
+    const encoded = (value: string, key: number) => Buffer.from([key, ...Buffer.from(value).map(byte => byte ^ key)]).toString("hex");
+    for (const [phase, p] of [before, after].entries()) {
+      const email = phase === 1 && changed ? "changed@example.org" : "contact@example.org";
+      const span = encoded(email, phase ? 20 : 10), link = encoded(email, phase ? 21 : 11);
+      change(p.ownership, body => body.replace("</table>", '<tr><td>Email:</td><td><a href="/cdn-cgi/l/email-protection#' + link + '"><span class="__cf_email__" data-cfemail="' + span + '">[email&#160;protected]</span></a></td></tr></table>'));
+    }
+    const result = verify(before, after);
+    if (changed) expect(result.proof).toBeUndefined();
+    else {
+      expect(result.proof).toBeDefined();
+      expect(result.proof?.owner.fullFields.__sourceAccountTables).toContain(encoded("contact@example.org", 20));
+    }
+  });
   it("closes whole amended current reports with exact native/EFS coverage and duplicate occurrence parity", () => {
     const result = verify();
     expect(result.proof?.rows).toHaveLength(3);

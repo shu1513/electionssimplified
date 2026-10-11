@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { createFloridaOutsidePayerSource, selectFloridaOutsidePayerLeads } from "../../../src/pipeline/floridaFinance/floridaOutsidePayerSource.js";
+import { createFloridaOutsidePayerSource, selectFloridaOutsidePayerLeads, verifyFloridaOutsidePayerIdentity } from "../../../src/pipeline/floridaFinance/floridaOutsidePayerSource.js";
 import { decodeFloridaExpenditureDiscoveryTsv, FLORIDA_EXPENDITURE_DISCOVERY_HEADERS } from "../../../src/pipeline/floridaFinance/floridaIndependentExpenditureDiscovery.js";
 import type { FloridaLocalFinanceContext } from "../../../src/pipeline/floridaFinance/floridaLocalFinanceContext.js";
 import type { FloridaCommitteeRegistryRequest } from "../../../src/pipeline/floridaFinance/floridaCommitteeRegistrySource.js";
@@ -64,6 +64,19 @@ describe("Florida outside payer discovery leads", () => {
 });
 
 describe("Florida exact annotated outside payer source", () => {
+  it("replays captured identity and rejects changed or unused packet evidence", async () => {
+    const result = await createFloridaOutsidePayerSource(mock([current])).load({ payerLabel: label });
+    expect(result.status).toBe("resolved");
+    if (result.status !== "resolved") return;
+    expect(await verifyFloridaOutsidePayerIdentity(result)).toEqual(result);
+    for (const mode of ["hash", "order", "extra"]) {
+      const evidence = structuredClone(result.rawSource);
+      if (mode === "hash") evidence[0].sha256 = "a".repeat(64);
+      if (mode === "order") evidence.reverse();
+      if (mode === "extra") evidence.push(evidence[0]);
+      expect(await verifyFloridaOutsidePayerIdentity({ payerLabel: label, rawSource: evidence })).toMatchObject({ status: "preserve" });
+    }
+  });
   it("acquires all exact-name classes; annotation binds legal-name parentheses and numeric owner", async () => {
     const source = mock([{ ...current, id: "90000", type: "CCE", status: "Closed" }, current]);
     const result = await createFloridaOutsidePayerSource(source).load({ payerLabel: label });

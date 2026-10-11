@@ -17,7 +17,8 @@ const SEARCH = "https://dos.elections.myflorida.com/committees/ComLkupByName.asp
 type Metadata = Omit<FloridaProcessedRawEvidence, "bytesRaw"> & { byteCount: number };
 export type FloridaOutsidePayerResult =
   | { status: "resolved"; authority: "payer_identity_only"; owner: FloridaCommitteeDetail;
-      payerType: "PAC" | "IXO"; payerLabel: string; sourceMetadata: readonly Metadata[] }
+      payerType: "PAC" | "IXO"; payerLabel: string; sourceMetadata: readonly Metadata[];
+      rawSource: readonly FloridaProcessedRawEvidence[] }
   | { status: "preserve"; diagnostics: readonly string[] };
 
 /** Discovery leads retain occurrences. Name/office/seat matching supplies no
@@ -70,6 +71,7 @@ export function createFloridaOutsidePayerSource(options: {
         const name = label[1]!, payerType = label[2]!.toUpperCase() as "PAC" | "IXO";
         const prefixes = buildFloridaCommitteeDonorPrefixes(name);
         const metadata: Metadata[] = [];
+        const rawSource: FloridaProcessedRawEvidence[] = [];
         let openingEnd = 0;
         async function request(req: FloridaCommitteeRegistryRequest, closing: boolean) {
           const raw = structuredClone(await options.request(req, { savedFirst: !closing && !options.refresh }));
@@ -78,6 +80,7 @@ export function createFloridaOutsidePayerSource(options: {
           if (!closing) openingEnd = Math.max(openingEnd, Date.parse(raw.completedAt));
           const { bytesRaw, ...source } = raw;
           metadata.push({ ...source, byteCount: bytesRaw.length });
+          rawSource.push(structuredClone(raw));
           return raw;
         }
         async function search(prefix: string, closing: boolean) {
@@ -110,10 +113,37 @@ export function createFloridaOutsidePayerSource(options: {
           exact(`${owner.committeeName} (${owner.committeeType})`) === exact(payerLabel));
         if (matches.length !== 1) throw new Error("full annotated payer account is absent or ambiguous");
         return { status: "resolved", authority: "payer_identity_only", owner: matches[0]!, payerType,
-          payerLabel, sourceMetadata: metadata };
+          payerLabel, sourceMetadata: metadata, rawSource };
       } catch (error) {
         return { status: "preserve", diagnostics: [error instanceof Error ? error.message : "Payer identity unavailable."] };
       }
     },
   };
+}
+
+/** Replays genuine captured registry evidence through the acquisition checks.
+ * This is validation of original source times, not a fresh fetch. No arbitrary
+ * resolved object can supply payer uniqueness to an atomic writer.
+ */
+export async function verifyFloridaOutsidePayerIdentity(input: {
+  payerLabel: string;
+  rawSource: readonly FloridaProcessedRawEvidence[];
+}): Promise<FloridaOutsidePayerResult> {
+  try {
+    input = structuredClone(input);
+    if (!Array.isArray(input.rawSource) || input.rawSource.length > 164)
+      throw new Error("invalid bounded payer source packet");
+    let index = 0;
+    const result = await createFloridaOutsidePayerSource({ request: async expected => {
+      const raw = input.rawSource[index++];
+      const fields = (value: Readonly<Record<string, string>> | null) => JSON.stringify(value && Object.entries(value).sort());
+      if (!raw || raw.url !== expected.url || raw.method !== expected.method ||
+        fields(raw.financeFields) !== fields(expected.financeFields)) throw new Error("payer source packet request order/scope mismatch");
+      return raw;
+    } }).load({ payerLabel: input.payerLabel });
+    if (index !== input.rawSource.length) throw new Error("extra unused payer source evidence");
+    return result;
+  } catch (error) {
+    return { status: "preserve", diagnostics: [error instanceof Error ? error.message : "Payer source replay failed."] };
+  }
 }

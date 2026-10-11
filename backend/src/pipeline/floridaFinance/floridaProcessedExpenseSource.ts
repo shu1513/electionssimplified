@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import {
   decodeFloridaCommitteeDetail,
+  fingerprintFloridaCommitteeDetailSemantics,
   type FloridaCommitteeDetail,
 } from "./floridaCommitteeRegistrySource.js";
 import {
@@ -301,7 +302,8 @@ export function verifyFloridaProcessedExpenseSource(input: {
     if (Math.max(...allRaw(input.before).map(raw => Date.parse(raw.completedAt))) >
       Math.min(...allRaw(input.after).map(raw => Date.parse(raw.startedAt)))) fail("closing predates completed opening");
     const semantic = (result: ReturnType<typeof verifyPacket>) => ({
-      owner: result.owner, reports: result.reports.map(r => JSON.stringify(r)).sort(), fingerprint: result.financialFingerprint,
+      owner: fingerprintFloridaCommitteeDetailSemantics(result.owner),
+      reports: result.reports.map(r => JSON.stringify(r)).sort(), fingerprint: result.financialFingerprint,
     });
     if (JSON.stringify(semantic(before)) !== JSON.stringify(semantic(after))) fail("changed current expense generation");
     return {
