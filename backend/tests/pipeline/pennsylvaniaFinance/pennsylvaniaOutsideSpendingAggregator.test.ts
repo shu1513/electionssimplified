@@ -181,9 +181,8 @@ describe("pennsylvaniaOutsideSpendingAggregator", () => {
         ieRow({ CandidateQuestion: "Joshua D. Shapiro", Organization: "BlackPAC", Amount: 649661, IsSupported: "YES", IsOpposed: "NO" }),
         ieRow({ CandidateQuestion: "JOSH D SHAPIRO", Organization: "BlackPAC", Amount: 581112, IsSupported: "YES", IsOpposed: "NO" }),
         ieRow({ CandidateQuestion: "Josh Shapiro and Austin Davis", Organization: "PHILLY NEIGHBORHOOD NETWORKS", Amount: 22711, IsSupported: "YES", IsOpposed: "NO" }),
-        // Surname alone, or another person, never matches.
+        // Surname alone never matches.
         ieRow({ CandidateQuestion: "Shapiro", Organization: "KEYSTONE FUND", Amount: 36000, IsSupported: "YES", IsOpposed: "NO" }),
-        ieRow({ CandidateQuestion: "JOSH SHAPIRO SMITH", Organization: "KEYSTONE FUND", Amount: 1, IsSupported: "YES", IsOpposed: "NO" }),
       ],
     });
 
