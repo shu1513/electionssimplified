@@ -23,7 +23,8 @@ import {
 } from "./tennesseeCandidateFinanceSync.js";
 import { aggregateTennesseeOutsideSpending } from "./tennesseeOutsideSpendingAggregator.js";
 import { TENNESSEE_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./tennesseeFinanceEligibleOffices.js";
-import type { TennesseeFinanceLinkSource } from "./tennesseeFinanceWriter.js";
+import type { TennesseeFinanceLinkInput, TennesseeFinanceLinkSource } from "./tennesseeFinanceWriter.js";
+import { createTennesseeVerifiedFinanceLoader, type TennesseeVerifiedFinanceRawEvent } from "./tennesseeVerifiedFinanceLoader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type TennesseeCampContributionFetchResult = {
@@ -70,11 +71,16 @@ export type TennesseeCandidateFinanceBatchSyncInput = {
   db: Queryable;
   now?: Date;
   dryRun?: boolean;
+  refresh?: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   autoLinkMissingLinks?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  onRawResponse?: (event: TennesseeVerifiedFinanceRawEvent) => void | Promise<void>;
+  verifiedFinanceLoader?: Pick<ReturnType<typeof createTennesseeVerifiedFinanceLoader>, "loadBatch">;
   clientOptions?: TennesseeCampClientOptions;
   financeIndustryClassifier?: FinanceIndustryClassifier;
   aiClassificationMinAmount?: number;
@@ -95,6 +101,7 @@ export type TennesseeCandidateFinanceBatchSyncItemResult = {
 
 export type TennesseeCandidateFinanceBatchSyncResult = {
   dryRun: boolean;
+  refresh?: boolean;
   now: string;
   staleAfterDays: number;
   maxCandidates: number;
@@ -378,7 +385,14 @@ export async function syncDueTennesseeCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
-  const shouldAutoLinkMissingLinks = !dryRun && input.autoLinkMissingLinks !== false;
+  if (input.candidateId !== undefined && !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(input.candidateId)) {
+    throw Error("Invalid Tennessee finance candidateId");
+  }
+  if (input.electionYear !== undefined && (!Number.isInteger(input.electionYear) || input.electionYear < 2000 || input.electionYear > 2100)) {
+    throw Error("Invalid Tennessee finance electionYear");
+  }
+  const scoped = input.candidateId !== undefined || input.electionYear !== undefined;
+  const shouldAutoLinkMissingLinks = !dryRun && !scoped && input.autoLinkMissingLinks !== false;
   const syncFn = input.syncTennesseeCandidateFinanceFn ?? syncTennesseeCandidateFinance;
   const exportCache = input.loadContributionDataForCandidate ? undefined : createTennesseeCandidateFinanceExportCache();
   const loadContributionData =
@@ -428,21 +442,55 @@ export async function syncDueTennesseeCandidateFinance(
 
   const due = await listDueTennesseeCandidateFinanceSyncRows(input.db, {
     now,
-    staleAfterDays,
-    maxCandidates,
+    staleAfterDays: input.refresh ? 0 : staleAfterDays,
+    maxCandidates: scoped ? 10_000 : maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
   });
 
+  if (scoped && due.totalDueRows > 10_000) throw Error("Scoped Tennessee due selection exceeds acquisition bound");
+  const matching = due.rows.filter(row => (input.candidateId === undefined || row.candidateId === input.candidateId)
+    && (input.electionYear === undefined || row.electionYear === input.electionYear));
+  const selected = matching.slice(0,maxCandidates);
+  const toLink = (row: TennesseeCandidateFinanceDueRow): TennesseeFinanceLinkInput => ({
+    candidateId:row.candidateId,electionId:row.electionId,electionYear:row.electionYear,
+    candidateNameNormalized:row.candidateName.trim().replace(/\s+/g," ").toUpperCase(),officeName:row.officeName,district:row.district,
+    campCandidateId:row.campCandidateId,ownerName:row.ownerName,committeeName:row.committeeName,
+    linkSource:row.linkSource,linkStatus:"active",sourceUrl:row.sourceUrl,reportListUrl:row.reportListUrl,
+  });
+  // All source opening/closing rounds finish before the first candidate write.
+  // The legacy adapter remains available only when a caller explicitly injects it.
+  let prepared: Awaited<ReturnType<ReturnType<typeof createTennesseeVerifiedFinanceLoader>["loadBatch"]>> = [];
+  if (!input.loadContributionDataForCandidate && selected.length) {
+    const prior = await input.db.query<{candidate_id:string;election_id:string;camp_candidate_id:string;
+      pac_source_provenance:unknown;outside_report_provenance:unknown}>(`
+      SELECT link.candidate_id,link.election_id,link.camp_candidate_id,
+        summary.pac_source_provenance,summary.outside_report_provenance
+      FROM public.tn_candidate_finance_links link
+      LEFT JOIN public.tn_candidate_finance_summaries summary ON summary.link_id=link.id AND summary.election_year=link.election_year
+      WHERE link.candidate_id=ANY($1::uuid[]) AND link.election_id=ANY($2::uuid[]) AND link.link_status='active'
+    `,[selected.map(row=>row.candidateId),selected.map(row=>row.electionId)]);
+    const loader = input.verifiedFinanceLoader ?? createTennesseeVerifiedFinanceLoader({
+      clientOptions:input.clientOptions,onRawResponse:input.onRawResponse,
+    });
+    prepared = await loader.loadBatch(selected.map(row => {
+      const existing=prior.rows.find(p=>p.candidate_id===row.candidateId && p.election_id===row.electionId && p.camp_candidate_id===row.campCandidateId);
+      return {link:toLink(row),priorPacProvenance:existing?.pac_source_provenance,priorOutsideReportProvenance:existing?.outside_report_provenance};
+    }));
+    if (prepared.length!==selected.length || prepared.some((p,index)=>p.link.candidateId!==selected[index]!.candidateId
+      || p.link.electionId!==selected[index]!.electionId || p.link.campCandidateId!==selected[index]!.campCandidateId)) {
+      throw Error("Verified Tennessee batch does not match selected links");
+    }
+  }
   const results: TennesseeCandidateFinanceBatchSyncItemResult[] = [];
-  for (const row of due.rows) {
+  for (const [index,row] of selected.entries()) {
     try {
-      const contributionData = await loadContributionData({
+      const contributionData = input.loadContributionDataForCandidate ? await loadContributionData({
         candidateName: row.candidateName,
         ownerName: row.ownerName,
         electionYear: row.electionYear,
         clientOptions: input.clientOptions,
-      });
+      }) : undefined;
       const result = await syncFn({
         db: input.db,
         candidateId: row.candidateId,
@@ -457,12 +505,12 @@ export async function syncDueTennesseeCandidateFinance(
         linkSource: row.linkSource,
         sourceUrl: row.sourceUrl,
         reportListUrl: row.reportListUrl,
-        contributions: contributionData.contributions,
-        contributionSourceUrl: contributionData.sourceUrl,
-        expenditures: contributionData.expenditures,
-        expenditureSourceUrl: contributionData.expenditureSourceUrl,
-        outsideGroupContributionRecords: contributionData.outsideGroupContributionRecords,
-        outsideContributionSourceUrl: contributionData.outsideContributionSourceUrl,
+        ...(contributionData ? {
+          contributions:contributionData.contributions,contributionSourceUrl:contributionData.sourceUrl,
+          expenditures:contributionData.expenditures,expenditureSourceUrl:contributionData.expenditureSourceUrl,
+          outsideGroupContributionRecords:contributionData.outsideGroupContributionRecords,
+          outsideContributionSourceUrl:contributionData.outsideContributionSourceUrl,
+        } : {verifiedFinance:prepared[index]}),
         financeIndustryClassifier: input.financeIndustryClassifier,
         aiClassificationMinAmount: input.aiClassificationMinAmount,
         now,
@@ -497,11 +545,12 @@ export async function syncDueTennesseeCandidateFinance(
 
   return {
     dryRun,
+    ...(input.refresh ? { refresh: true } : {}),
     now: now.toISOString(),
     staleAfterDays,
     maxCandidates,
-    dueCandidateCount: due.totalDueRows,
-    selectedCandidateCount: due.rows.length,
+    dueCandidateCount: scoped ? matching.length : due.totalDueRows,
+    selectedCandidateCount: selected.length,
     syncedCandidateCount: results.filter((result) => result.ok).length,
     failedCandidateCount: results.filter((result) => !result.ok).length,
     autoLinkAttemptedCount,

@@ -4,6 +4,7 @@ import {
   listDueTennesseeCandidateFinanceSyncRows,
   syncDueTennesseeCandidateFinance,
 } from "../../../src/pipeline/tennesseeFinance/tennesseeCandidateFinanceBatchSync.js";
+import * as verifiedLoaderModule from "../../../src/pipeline/tennesseeFinance/tennesseeVerifiedFinanceLoader.js";
 
 const NOW = new Date("2026-06-01T00:00:00.000Z");
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
@@ -39,6 +40,66 @@ function createMockDb(rows: unknown[] = []) {
 }
 
 describe("tennesseeCandidateFinanceBatchSync", () => {
+  it("prepares the normal verified batch with prior authority before any sync writes", async () => {
+    const rows=[dueRow({election_year:2026}),dueRow({candidate_id:"33333333-3333-4333-8333-333333333333",camp_candidate_id:"7000",election_year:2026})];
+    const db=createMockDb(rows);
+    db.query.mockResolvedValueOnce({rows,rowCount:2}).mockResolvedValueOnce({rows:[{
+      candidate_id:CANDIDATE_ID,election_id:ELECTION_ID,camp_candidate_id:"6496",
+      pac_source_provenance:{saved:"PAC"},outside_report_provenance:{saved:"outside"},
+    }],rowCount:1});
+    const order:string[]=[];
+    const loadBatch=vi.fn(async requests => {
+      order.push("prepare complete");
+      return requests.map(request=>({link:request.link,diagnostics:[],coverage:{},summary:{directContributionTotal:10}}));
+    });
+    const factory=vi.spyOn(verifiedLoaderModule,"createTennesseeVerifiedFinanceLoader").mockReturnValue({loadBatch} as never);
+    const sync=vi.fn(async()=>{order.push("write");return {summaryWritten:true};});
+    await syncDueTennesseeCandidateFinance({db,now:NOW,maxCandidates:2,autoLinkMissingLinks:false,syncTennesseeCandidateFinanceFn:sync as never});
+    expect(factory).toHaveBeenCalledOnce();
+    expect(order).toEqual(["prepare complete","write","write"]);
+    expect(loadBatch.mock.calls[0][0][0]).toMatchObject({priorPacProvenance:{saved:"PAC"},priorOutsideReportProvenance:{saved:"outside"}});
+    expect(sync.mock.calls[0][0]).toHaveProperty("verifiedFinance.summary.directContributionTotal",10);
+    expect(sync.mock.calls[0][0]).not.toHaveProperty("contributions");
+    expect(sync.mock.calls[0][0].verifiedFinance.summary).not.toHaveProperty("outsideSupportTotal");
+    factory.mockRestore();
+  });
+
+  it("filters scoped due rows before limiting and skips unrelated auto-link acquisition", async () => {
+    const rows=[dueRow({candidate_id:"33333333-3333-4333-8333-333333333333",total_due_rows:"2",election_year:2026}),
+      dueRow({total_due_rows:"2",election_year:2026})];
+    const db=createMockDb(rows);
+    const loadBatch=vi.fn(async requests=>requests.map(request=>({link:request.link,diagnostics:[],coverage:{}})));
+    const sync=vi.fn(async()=>({summaryWritten:false}));
+    const result=await syncDueTennesseeCandidateFinance({db,now:NOW,maxCandidates:1,candidateId:CANDIDATE_ID,electionYear:2026,
+      verifiedFinanceLoader:{loadBatch} as never,syncTennesseeCandidateFinanceFn:sync as never});
+    expect(db.query.mock.calls[0][1][2]).toBe(10_000);
+    expect(loadBatch.mock.calls[0][0]).toHaveLength(1);
+    expect(loadBatch.mock.calls[0][0][0].link.candidateId).toBe(CANDIDATE_ID);
+    expect(result).toMatchObject({selectedCandidateCount:1,dueCandidateCount:1,autoLinkAttemptedCount:0});
+  });
+
+  it("rejects mismatched prepared links before any sync", async () => {
+    const db=createMockDb([dueRow()]);
+    const sync=vi.fn();
+    await expect(syncDueTennesseeCandidateFinance({db,now:NOW,autoLinkMissingLinks:false,syncTennesseeCandidateFinanceFn:sync as never,
+      verifiedFinanceLoader:{loadBatch:async()=>[{link:{candidateId:"wrong"}}]} as never})).rejects.toThrow("does not match selected links");
+    expect(sync).not.toHaveBeenCalled();
+  });
+
+  it("fails a truncated scoped due list before source or writes", async () => {
+    const db=createMockDb([dueRow({total_due_rows:"10001"})]);
+    const loadBatch=vi.fn();
+    await expect(syncDueTennesseeCandidateFinance({db,now:NOW,candidateId:CANDIDATE_ID,verifiedFinanceLoader:{loadBatch} as never})).rejects.toThrow("exceeds acquisition bound");
+    expect(loadBatch).not.toHaveBeenCalled();
+  });
+  it("refreshes recent observations through ordinary due eligibility without changing default staleness", async () => {
+    const db=createMockDb();
+    const result=await syncDueTennesseeCandidateFinance({db,now:NOW,refresh:true,autoLinkMissingLinks:false});
+    expect(db.query.mock.calls[0][1]).toEqual([NOW.toISOString(),0,25,1,730,expect.any(Array)]);
+    expect(result).toMatchObject({refresh:true,staleAfterDays:7,selectedCandidateCount:0});
+    expect(String(db.query.mock.calls[0][0])).toContain("link.link_status = 'active'");
+    expect(String(db.query.mock.calls[0][0])).toContain("candidate_election.status NOT IN ('withdrawn', 'lost')");
+  });
   it("lists active Tennessee finance links that are due for sync", async () => {
     const db = createMockDb([dueRow()]);
 
