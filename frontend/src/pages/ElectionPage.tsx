@@ -1056,19 +1056,6 @@ export function ElectionPage() {
               </div>
             ) : null}
             {measure.summary ? <p className="mt-2 text-body text-ink">{measure.summary}</p> : null}
-            {/* Whose idea it was. A title says what its author wants heard;
-                the proposer says who that author is. The explainer line
-                does for the proposer what the donor "about" line does on
-                the funding card, and the source link is the evidence. */}
-            {measure.proposed_by ? (
-              <div className="mt-2 text-sm">
-                <p className="text-ink">
-                  <span className="font-medium text-ink-soft">Proposed by:</span> {measure.proposed_by.name}
-                </p>
-                <p className="text-xs text-ink-soft">{measure.proposed_by.about}</p>
-                <SourceLine url={measure.proposed_by.source_url} kind="measure_proposed_by_source" />
-              </div>
-            ) : null}
             {measure.official_measure_url ? (
               <p className="mt-2 text-sm">
                 <a
@@ -1088,6 +1075,25 @@ export function ElectionPage() {
                     : "More about this measure"}
                 </a>
               </p>
+            ) : null}
+            {/* Whose idea it was. A title says what its author wants heard;
+                the proposer says who that author is. Collapsed by default,
+                like the finance section: reference material that should not
+                push the Yes/No boxes down. The explainer line does for the
+                proposer what the donor "about" line does on the funding
+                card, and the source link is the evidence. */}
+            {measure.proposed_by ? (
+              <details
+                className="mt-2 text-sm"
+                onToggle={(event) =>
+                  track("detail_control", { control: "proposed_by_toggle", value: event.currentTarget.open ? "open" : "close" })
+                }
+              >
+                <summary className="cursor-pointer select-none font-medium text-ink-soft">Proposed by</summary>
+                <p className="mt-1 text-ink">{measure.proposed_by.name}</p>
+                <p className="mt-1 text-xs text-ink-soft">{measure.proposed_by.about}</p>
+                <SourceLine url={measure.proposed_by.source_url} kind="measure_proposed_by_source" />
+              </details>
             ) : null}
             <div ref={measureYesNoRef} className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded border border-green-200 bg-green-50 p-3">
