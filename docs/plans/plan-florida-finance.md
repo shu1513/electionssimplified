@@ -215,8 +215,10 @@ PAC money; no known-donor subset is written.
 All 549 Florida tests and 83 ballot-reader tests pass. Settled full backend
 typecheck/tests pass: 13,919 tests passed, 152 skipped. Mobile typecheck/lint pass
 with existing warnings; all 98 Worker tests pass. Frontend typecheck/lint pass;
-full frontend tests are being rerun with installed Node 23 after incompatible
-older/newer local runtimes failed. No Florida PR has been opened.
+installed Node 23 full frontend run passed 1,222 tests with one pager timing
+failure; an isolated rerun of that complete file passed all 113 tests. Earlier
+Node 20/24 runtime failures remain recorded outside Git. No Florida PR has been
+opened.
 
 Fresh bounded independent-expense discovery retains full Purpose but supplies
 no eligible local state-office positive. Jon Maples' $525 source witness is
