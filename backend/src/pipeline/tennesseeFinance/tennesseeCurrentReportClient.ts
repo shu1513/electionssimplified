@@ -211,16 +211,35 @@ function closedRows(table: string): string[] {
   if ((table.match(/<tr\b/gi) ?? []).length !== matches.length) return bad("Unclosed Tennessee table row");
   return matches.map(m => m[1]);
 }
-function nextHref(html: string, base: string, campId: string, expectedPage: number): string | null {
+// Observed public Report List transport: UTF8 U+0092 reflects as source CP1252
+// byte 0x92, decoded canonically as U+2019. Legal names remain unchanged.
+function manifestOwnerTransport(ownerName: string): string {
+  return ownerName.replace(/\u2019/g, "\u0092");
+}
+function nextHref(html: string, base: string, campId: string, ownerName: string, expectedPage: number): string | null {
   const block = /<span\b[^>]*class=["']pagelinks["'][^>]*>([\s\S]*?)<\/span>/i.exec(html)?.[1] ?? "";
   const next = [...block.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)]
     .find(m => plain(m[2]) === "Next");
   if (!next) return null;
   const u = officialUrl(next[1], base, PUBLIC + "replist.htm");
-  if (u.searchParams.get("id") !== campId ||
-      u.searchParams.get("d-1341904-p") !== String(expectedPage)) {
+  if (u.searchParams.getAll("id").length !== 1 || u.searchParams.get("id") !== campId ||
+      u.searchParams.getAll("owner").length !== 1 ||
+      u.searchParams.getAll("d-1341904-p").length !== 1 ||
+      u.searchParams.get("d-1341904-p") !== String(expectedPage) ||
+      [...u.searchParams.keys()].some(key => !["id","owner","d-1341904-p"].includes(key))) {
     return bad("Invalid Tennessee manifest pagination identity");
   }
+  const requestedOwner = u.searchParams.get("owner");
+  // The observed Next href serializes the apostrophe as raw percent92, which
+  // WHATWG URL decoding cannot represent. Repair only this exact reversible
+  // source wire value, then require full canonical owner equality.
+  const rawOwner = /(?:^|&)owner=([^&]*)/.exec(u.search.slice(1))?.[1];
+  const sourceOwner = rawOwner === undefined ? null :
+    new URLSearchParams("owner=" + rawOwner.replace(/%92/gi,"%E2%80%99")).get("owner");
+  if (requestedOwner !== ownerName && requestedOwner !== manifestOwnerTransport(ownerName) && sourceOwner !== ownerName) {
+    return bad("Invalid Tennessee manifest pagination owner");
+  }
+  u.searchParams.set("owner",manifestOwnerTransport(ownerName));
   return u.toString();
 }
 
@@ -248,7 +267,9 @@ export function parseTennesseeCurrentReportManifestPage(input: {
 }): { rows: TennesseeCurrentReportManifestRow[]; total: number; nextUrl: string | null } {
   assertHtml(input.html);
   const u = officialUrl(input.sourceUrl, ORIGIN, PUBLIC + "replist.htm");
-  if (u.searchParams.get("id") !== input.campId || u.searchParams.get("owner") !== input.ownerName) {
+  if (u.searchParams.getAll("id").length !== 1 || u.searchParams.get("id") !== input.campId ||
+      u.searchParams.getAll("owner").length !== 1 ||
+      ![input.ownerName,manifestOwnerTransport(input.ownerName)].includes(u.searchParams.get("owner") ?? "")) {
     return bad("Tennessee manifest CAMP/owner request mismatch");
   }
   const ownerHeading = /<h1\b[^>]*>([\s\S]*?)<\/h1>/i.exec(input.html);
@@ -256,10 +277,11 @@ export function parseTennesseeCurrentReportManifestPage(input: {
     return bad("Tennessee manifest receiver heading mismatch");
   }
   const totalMatch = /([\d,]+) results found(?:, displaying ([\d,]+) to ([\d,]+))?\./i.exec(input.html);
+  const allMatch = /([\d,]+) results found, displaying all results\./i.exec(input.html);
   const one = /One result found\./i.test(input.html);
   const none = /(?:No results found|No results were found)\./i.test(input.html);
-  if (!totalMatch && !one && !none) return bad("Missing Tennessee manifest complete count");
-  const total = totalMatch ? Number(totalMatch[1].replace(/,/g, "")) : one ? 1 : 0;
+  if (!totalMatch && !allMatch && !one && !none) return bad("Missing Tennessee manifest complete count");
+  const total = totalMatch ? Number(totalMatch[1].replace(/,/g, "")) : allMatch ? Number(allMatch[1].replace(/,/g, "")) : one ? 1 : 0;
   if (!Number.isSafeInteger(total) || total < 0) return bad("Unsafe Tennessee manifest count");
   const table = /<table\b[^>]*id=["']results["'][^>]*>([\s\S]*?)<\/table>/i.exec(input.html);
   if (!table) return bad("Missing Tennessee report manifest table");
@@ -289,7 +311,11 @@ export function parseTennesseeCurrentReportManifestPage(input: {
     if (start !== (input.pageNumber - 1) * 50 + 1 || end !== start + rows.length - 1 ||
         end > total || rows.length > 50) return bad("Tennessee manifest range/count mismatch");
   } else if (rows.length !== total) return bad("Tennessee manifest count mismatch");
-  return { rows, total, nextUrl: nextHref(input.html, input.sourceUrl, input.campId, input.pageNumber + 1) };
+  const nextUrl = nextHref(input.html, input.sourceUrl, input.campId, input.ownerName, input.pageNumber + 1);
+  if (allMatch && (total <= 0 || input.pageNumber !== 1 || rows.length !== total || nextUrl !== null)) {
+    return bad("Tennessee All manifest is not a complete first-page count");
+  }
+  return { rows, total, nextUrl };
 }
 
 function sectionBefore(html: string, index: number): string {
@@ -501,7 +527,7 @@ export function createTennesseeCurrentReportClient(
       }
       await bootstrap();
       const start = new URL(ORIGIN + PUBLIC + "replist.htm");
-      start.searchParams.set("id", input.campId); start.searchParams.set("owner", input.ownerName);
+      start.searchParams.set("id", input.campId); start.searchParams.set("owner", manifestOwnerTransport(input.ownerName));
       let url: string | null = start.toString(), page = 1, total: number | null = null;
       const rows: TennesseeCurrentReportManifestRow[] = [], rawPages: TennesseeCurrentReportRawSource[] = [];
       const visited = new Set<string>(), ids = new Set<string>();

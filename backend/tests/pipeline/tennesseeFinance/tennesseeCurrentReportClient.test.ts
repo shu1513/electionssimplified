@@ -303,6 +303,59 @@ describe("Tennessee current report source client", () => {
     expect(result.fingerprint).not.toBe(parse(html.replace("&#146;", "’"), changedRow).fingerprint);
   });
 
+  it.each([3,10])("accepts only the observed complete All banner with %s exact rows", count => {
+    const html=manifest(Array.from({length:count},(_,i)=>({id:String(128000+i)})))
+      .replace(/\d+ results found, displaying \d+ to \d+\./,""+count+" results found, displaying all results.");
+    expect(parseTennesseeCurrentReportManifestPage(manifestInput(html))).toMatchObject({total:count,nextUrl:null});
+    expect(parseTennesseeCurrentReportManifestPage(manifestInput(html)).rows).toHaveLength(count);
+  });
+  it.each(["wrong count","next","page2","zero"] as const)("rejects incomplete All source: %s", kind => {
+    let html=manifest([{id:"128000"},{id:"128001"},{id:"128002"}],3,1,kind==="next")
+      .replace(/\d+ results found, displaying \d+ to \d+\./,"3 results found, displaying all results.");
+    if(kind==="wrong count")html=html.replace("3 results found","4 results found");
+    if(kind==="zero")html=manifest([],0).replace("No results found.","0 results found, displaying all results.");
+    expect(()=>parseTennesseeCurrentReportManifestPage(manifestInput(html,kind==="page2"?2:1))).toThrow(/count|complete/);
+  });
+  it("uses reversible observed C1 transport on both pages while retaining canonical payer identity", async () => {
+    const owner="TENNESSEE MEDICAL ASSOCIATION’S PAC (TMA PAC)";
+    const page=(start:number,count:number,pageNumber:number,next:boolean)=>{
+      const html=manifest(Array.from({length:count},(_,i)=>({id:String(128000+start+i),label:"Pre-Primary 2026"})),92,pageNumber,next)
+        .replaceAll("CROWE, RUSTY",owner).replaceAll("id=794","id=136")
+        .replaceAll("owner=CROWE%2C+RUSTY","owner=TENNESSEE+MEDICAL+ASSOCIATION%92S+PAC+%28TMA+PAC%29");
+      return new Uint8Array(Buffer.from(html.replace("’","\x92"),"latin1"));
+    };
+    const fetchImpl=vi.fn().mockResolvedValueOnce(response("<html>Search Candidates</html>"))
+      .mockResolvedValueOnce(new Response(page(0,50,1,true),{headers:{"content-type":"text/html"}}))
+      .mockResolvedValueOnce(new Response(page(50,42,2,false),{headers:{"content-type":"text/html"}}));
+    const result=await createTennesseeCurrentReportClient({fetchImpl}).fetchManifest({campId:"136",ownerName:owner});
+    expect(result.rows).toHaveLength(92);
+    expect(result.rows.every(row=>row.ownerName===owner)).toBe(true);
+    expect(result.rawPages.map(page=>page.encoding)).toEqual(["windows-1252","windows-1252"]);
+    for(const call of fetchImpl.mock.calls.slice(1)){
+      const requested=new URL(call[0]);
+      expect(requested.searchParams.get("owner")).toBe(owner.replace("’","\u0092"));
+      expect(String(call[0])).toContain("%C2%92");
+    }
+    expect(new URL(fetchImpl.mock.calls[2][0]).searchParams.get("d-1341904-p")).toBe("2");
+  });
+  it.each(["bogus Next owner","raw percent92 request","literal question heading","duplicate owner"] as const)(
+    "rejects unproven owner transport: %s", kind => {
+      const owner="TENNESSEE MEDICAL ASSOCIATION’S PAC (TMA PAC)";
+      let html=manifest(Array.from({length:50},(_,i)=>({id:String(128000+i)})),92,1,true)
+        .replaceAll("CROWE, RUSTY",owner).replaceAll("id=794","id=136")
+        .replaceAll("owner=CROWE%2C+RUSTY","owner=TENNESSEE+MEDICAL+ASSOCIATION%92S+PAC+%28TMA+PAC%29");
+      let sourceUrl="https://apps.tn.gov/tncamp/public/replist.htm?id=136&owner="+
+        new URLSearchParams({owner:owner.replace("’","\u0092")}).get("owner");
+      const u=new URL("https://apps.tn.gov/tncamp/public/replist.htm");
+      u.searchParams.set("id","136");u.searchParams.set("owner",owner.replace("’","\u0092"));
+      sourceUrl=u.toString();
+      if(kind==="bogus Next owner")html=html.replace("owner=TENNESSEE+MEDICAL+ASSOCIATION%92S+PAC+%28TMA+PAC%29","owner=OTHER");
+      if(kind==="raw percent92 request")sourceUrl=sourceUrl.replace("%C2%92","%92");
+      if(kind==="literal question heading")html=html.replace("’","?");
+      if(kind==="duplicate owner")sourceUrl+="&owner=OTHER";
+      expect(()=>parseTennesseeCurrentReportManifestPage({html,campId:"136",ownerName:owner,sourceUrl,pageNumber:1}))
+        .toThrow(/owner|heading|request/);
+    });
   it("journals bounded bootstrap/report bodies without headers or cookies", async () => {
     const onRawResponse = vi.fn();
     const fetchImpl = vi.fn().mockResolvedValueOnce(response("<html>Search Candidates</html>", { "set-cookie": "private=session" }))
