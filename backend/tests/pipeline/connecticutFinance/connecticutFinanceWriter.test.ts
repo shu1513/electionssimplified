@@ -98,6 +98,7 @@ describe("connecticutFinanceWriter", () => {
       summaryWritten: true,
       directBreakdownsWritten: 2,
       outsideGroupsWritten: 0,
+      pacDonorsWritten: 0,
     });
     expect(db.connect).toHaveBeenCalledTimes(1);
     expect(db.query).not.toHaveBeenCalled();
@@ -145,6 +146,7 @@ describe("connecticutFinanceWriter", () => {
       summaryWritten: true,
       directBreakdownsWritten: 0,
       outsideGroupsWritten: 0,
+      pacDonorsWritten: 0,
     });
     const sql = db.query.mock.calls.map((call) => String(call[0]));
     const summarySql = sql.find((statement) => statement.includes("INSERT INTO public.ct_candidate_finance_summaries"));
@@ -183,6 +185,7 @@ describe("connecticutFinanceWriter", () => {
       summaryWritten: true,
       directBreakdownsWritten: 0,
       outsideGroupsWritten: 1,
+      pacDonorsWritten: 0,
     });
     const summaryCall = db.query.mock.calls.find((call) =>
       String(call[0]).includes("INSERT INTO public.ct_candidate_finance_summaries")
@@ -376,5 +379,48 @@ describe("connecticutFinanceWriter pool boundary", () => {
     ).rejects.toThrow("Connecticut finance snapshot writes must receive a Pool, not a PoolClient");
     expect(client.query).not.toHaveBeenCalled();
     expect(client.connect).not.toHaveBeenCalled();
+  });
+});
+
+describe("Connecticut atomic committee donor snapshots", () => {
+  const donor = { committeeId: "PAC1", committeeName: "Local PAC", committeeType: null, amount: 125, contributionCount: 1, sourceUrl: null };
+
+  it("preserves omitted donors and clears a successful empty set", async () => {
+    const db = createMockDb();
+    await replaceConnecticutCandidateFinanceSnapshot({ db, link: baseLink() });
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes("ct_candidate_finance_pac_donors"))).toBe(false);
+    const result = await replaceConnecticutCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [] });
+    expect(result.pacDonorsWritten).toBe(0);
+    const deleted = db.query.mock.calls.find(([sql]) => String(sql).includes("DELETE FROM public.ct_candidate_finance_pac_donors"));
+    expect(deleted?.[1]).toEqual([LINK_ID, 2026, []]);
+  });
+
+  it("upserts source type and removes stale donor keys within the transaction", async () => {
+    const db = createMockDb();
+    const result = await replaceConnecticutCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [donor] });
+    expect(result.pacDonorsWritten).toBe(1);
+    const inserted = db.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.ct_candidate_finance_pac_donors"));
+    expect(inserted?.[1]?.slice(0, 8)).toEqual([LINK_ID, 2026, "PAC1", "Local PAC", null, 125, 1, null]);
+    expect(db.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("rolls back summary changes when a donor write fails", async () => {
+    const db = createMockDb();
+    db.query.mockImplementation(async (sql) => {
+      if (String(sql).includes("INSERT INTO public.ct_candidate_finance_pac_donors")) throw new Error("donor write failed");
+      return { rows: [{ id: LINK_ID }], rowCount: 1 };
+    });
+    await expect(replaceConnecticutCandidateFinanceSnapshot({
+      db, link: baseLink(), summary: { totalReceipts: 125 }, pacDonors: [donor],
+    })).rejects.toThrow("donor write failed");
+    expect(db.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
+    expect(db.query.mock.calls.some(([sql]) => sql === "COMMIT")).toBe(false);
+  });
+
+  it.each([0, -1, Number.NaN])("rejects invalid donor amount %s", async (amount) => {
+    const db = createMockDb();
+    await expect(replaceConnecticutCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [{ ...donor, amount }] }))
+      .rejects.toThrow("Connecticut committee donor amount must be positive");
+    expect(db.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
   });
 });

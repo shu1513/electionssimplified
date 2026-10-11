@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { parseRefreshConnecticutEcrisRawDataScriptArgs } from "../../src/scripts/refreshConnecticutEcrisRawData.js";
+const refreshMocks = vi.hoisted(() => ({ receipts: vi.fn(), independent: vi.fn() }));
+vi.mock("../../src/pipeline/connecticutFinance/connecticutEcrisArtifactCache.js", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../src/pipeline/connecticutFinance/connecticutEcrisArtifactCache.js")>(),
+  refreshConnecticutEcrisArtifactCache: refreshMocks.receipts,
+}));
+vi.mock("../../src/scripts/refreshConnecticutEcrisIndependentExpenditures.js", () => ({
+  runRefreshConnecticutEcrisIndependentExpendituresScript: refreshMocks.independent,
+}));
+
+import { runRefreshConnecticutEcrisRawDataScript, parseRefreshConnecticutEcrisRawDataScriptArgs } from "../../src/scripts/refreshConnecticutEcrisRawData.js";
 
 describe("refreshConnecticutEcrisRawData script", () => {
   it("parses default candidate receipt CSV refresh options", () => {
@@ -64,5 +73,51 @@ describe("refreshConnecticutEcrisRawData script", () => {
         "--period=calendar",
       ])
     ).toThrow("candidate/exploratory artifacts use election-year files");
+  });
+});
+
+describe("candidate receipt refresh includes independent expenditures", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    refreshMocks.receipts.mockResolvedValue({ status: "refreshed", filePath: "/cache/receipts.csv" });
+    refreshMocks.independent.mockResolvedValue({ file_path: "/cache/2026_independent_expenditures.json", row_count: 2 });
+  });
+
+  it.each(["refreshed", "unchanged"])("refreshes IE when receipts are %s", async (status) => {
+    refreshMocks.receipts.mockResolvedValue({ status });
+    const options = parseRefreshConnecticutEcrisRawDataScriptArgs(["--year=2026", "--cache-dir=/cache"]);
+    const now = new Date("2026-10-11T12:00:00Z");
+    const output = await runRefreshConnecticutEcrisRawDataScript({ options, now });
+    expect(refreshMocks.independent).toHaveBeenCalledWith({ options, fetchImpl: undefined, now });
+    expect(output).toMatchObject({ status, independent_expenditures: { status: "refreshed", row_count: 2 } });
+  });
+
+  it("reports failed IE without losing successful receipts", async () => {
+    refreshMocks.independent.mockRejectedValue(new Error("HTTP 503"));
+    const output = await runRefreshConnecticutEcrisRawDataScript({
+      options: parseRefreshConnecticutEcrisRawDataScriptArgs(["--year=2026"]),
+    });
+    expect(output).toMatchObject({
+      status: "refreshed", independent_expenditures: { status: "failed", error: "HTTP 503" },
+    });
+  });
+
+  it.each([
+    ["--transaction-type=disbursements"],
+    ["--committee-type=party_pac", "--period=calendar"],
+  ])("skips IE for noncandidate receipt modes %j", async (...args) => {
+    const output = await runRefreshConnecticutEcrisRawDataScript({
+      options: parseRefreshConnecticutEcrisRawDataScriptArgs(["--year=2026", ...args]),
+    });
+    expect(refreshMocks.independent).not.toHaveBeenCalled();
+    expect(output.independent_expenditures).toBeNull();
+  });
+
+  it("does not fetch IE after a failed receipt refresh", async () => {
+    refreshMocks.receipts.mockRejectedValue(new Error("Bad receipt artifact"));
+    await expect(runRefreshConnecticutEcrisRawDataScript({
+      options: parseRefreshConnecticutEcrisRawDataScriptArgs(["--year=2026"]),
+    })).rejects.toThrow("Bad receipt artifact");
+    expect(refreshMocks.independent).not.toHaveBeenCalled();
   });
 });

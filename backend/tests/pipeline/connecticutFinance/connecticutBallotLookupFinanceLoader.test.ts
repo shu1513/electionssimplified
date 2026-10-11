@@ -10,12 +10,13 @@ const KEY = candidateElectionKey(CANDIDATE_ID, ELECTION_ID);
 const candidateRows = [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID }];
 const electionRows = [{ election_id: ELECTION_ID, state: "CT" }];
 
-function mockDb(input: { summaries: unknown[]; direct?: unknown[]; outside?: unknown[] }) {
+function mockDb(input: { summaries: unknown[]; direct?: unknown[]; outside?: unknown[]; donors?: unknown[] }) {
   return {
     query: vi.fn(async (sql: string) => {
       if (sql.includes("FROM public.ct_candidate_finance_outside_groups") || sql.includes("AS outside_group")) {
         return { rows: input.outside ?? [] };
       }
+      if (sql.includes("ct_candidate_finance_pac_donors")) return { rows: input.donors ?? [] };
       if (sql.includes("AS breakdown")) {
         return { rows: input.direct ?? [] };
       }
@@ -75,7 +76,7 @@ describe("connecticutBallotLookupFinanceLoader", () => {
 
     const result = await loadConnecticutCandidateFinanceSummariesByCandidateElection(db, candidateRows, electionRows);
 
-    expect(db.query).toHaveBeenCalledTimes(3);
+    expect(db.query).toHaveBeenCalledTimes(4);
     const outsideSql = String(db.query.mock.calls[2]?.[0]);
     expect(outsideSql).toContain("JOIN public.ct_candidate_finance_links AS link");
     expect(outsideSql).toContain("JOIN public.ct_candidate_finance_outside_groups AS outside_group");
@@ -138,6 +139,39 @@ describe("connecticutBallotLookupFinanceLoader", () => {
       top_supporting_groups: [],
       top_opposing_groups: [],
     });
+  });
+
+  it("shows unsorted committees and excludes candidate/exploratory and ambiguous transfers", async () => {
+    const donor = { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "X", committee_name: "Nutmeg Tomorrow", committee_type: null, amount: "125.50", source_url: null };
+    const db = mockDb({
+      summaries: [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, election_year: 2026, total_receipts: "25175.50", source_url: null }],
+      donors: [
+        donor,
+        { ...donor, committee_id: "101", committee_name: "Khan 2026", committee_type: "Exploratory Committee", amount: 20000 },
+        { ...donor, committee_id: "102", committee_name: "Erin 2026", committee_type: "Candidate Committee", amount: 5000 },
+        { ...donor, committee_id: "103", committee_name: "Shared Name", committee_type: "Ambiguous Committee", amount: 50 },
+        { ...donor, committee_id: "104", committee_name: "Shore Winds, LLC", amount: 50 },
+      ],
+    });
+    const result = await loadConnecticutCandidateFinanceSummariesByCandidateElection(db, candidateRows, electionRows);
+    expect(result.get(KEY)?.direct_campaign.pac_money_by_interest).toEqual([{
+      interest: "unclassified", interest_name: "Not yet sorted", amount: 125.5, pac_count: 1,
+      pacs: [{ committee_id: "X", committee_name: "Nutmeg Tomorrow", amount: 125.5, source_url: "https://seec.ct.gov/portal/ecris/CurPreYears" }],
+    }]);
+    expect(result.get(KEY)?.direct_campaign.total_raised).toBe(25175.5);
+    const sql = String(db.query.mock.calls[3]?.[0]);
+    expect(sql).toContain("sum(donor.amount)");
+    expect(sql).toContain("donor.election_year = link.election_year");
+    expect(sql).toContain("link.link_status = 'active'");
+  });
+
+  it("keeps positively registered PACs even when their names have a business suffix", async () => {
+    const db = mockDb({
+      summaries: [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, election_year: 2026, total_receipts: 50 }],
+      donors: [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "PAC", committee_name: "Nutmeg LLC", committee_type: "Political Committee", amount: 50, source_url: null }],
+    });
+    const result = await loadConnecticutCandidateFinanceSummariesByCandidateElection(db, candidateRows, electionRows);
+    expect(result.get(KEY)?.direct_campaign.pac_money_by_interest?.[0]?.pacs[0]?.committee_name).toBe("Nutmeg LLC");
   });
 
   it("returns nothing when the module is disabled or no Connecticut election is requested", async () => {
