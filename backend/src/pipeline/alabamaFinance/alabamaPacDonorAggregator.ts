@@ -2,6 +2,7 @@ import type { AlabamaCashRow } from "./alabamaFcpaCsv.js";
 import type { AlabamaCommitteeRegistryRow } from "./alabamaFcpaClient.js";
 
 export type AlabamaFinancePacDonor = {
+  /** Numeric verified public FCPA ID, or reported:<normalized source name>. */
   committeeId: string;
   committeeName: string;
   committeeType: "Political Action Committee";
@@ -88,7 +89,16 @@ export function aggregateAlabamaPacDonors(input: {
 
   const seenContributions = new Map<string, string>();
   let totalPacCents = 0;
-  const totals = new Map<string, { registry: AlabamaCommitteeRegistryRow; cents: number; count: number }>();
+  const totals = new Map<string, { committeeId: string; committeeName: string; sourceUrl: string; cents: number; count: number }>();
+  const reportedSourceUrl = "https://fcpa.alabamavotes.gov/page.request.do?" + new URLSearchParams({
+    page: "com.acf.common.page.contributionsearchresults",
+    sortDirection: "DESC", sortBy: "transactionId",
+    criteria: JSON.stringify([
+      { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: input.fcpaCommitteeNumber },
+      { field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "4" },
+    ]),
+    pageNumber: "1", pageSize: "1000",
+  }).toString();
   for (const row of input.cashRows) {
     if (row.committeeId !== input.fcpaCommitteeNumber) continue;
     const date = isoDate(row.contributionDate);
@@ -116,30 +126,38 @@ export function aggregateAlabamaPacDonors(input: {
     }
     if (type !== "CASH (ITEMIZED)" || donorType !== "PAC" || row.amountCents === 0) continue;
     if (!row.lastName.trim() || row.firstName.trim()) return unavailable("Invalid Alabama PAC organization identity");
-    const matches = byName.get(legalName(row.lastName));
-    if (!matches || matches.size !== 1) return unavailable("Unmatched or ambiguous Alabama PAC donor identity");
-    const registry = [...matches.values()][0]!;
-    if (registry.committeeId === input.fcpaCommitteeNumber || registry.committeeType !== "2") continue;
-    const current = totals.get(registry.committeeId) ?? { registry, cents: 0, count: 0 };
+    const nameKey = legalName(row.lastName);
+    if (!nameKey) return unavailable(`Invalid Alabama reported PAC identity: contribution ${row.contributionId}, donor ${row.lastName}`);
+    const matches = [...(byName.get(nameKey)?.values() ?? [])];
+    if (matches.length > 1 && matches.some((match) => match.committeeType !== "2"
+      || match.committeeId === input.fcpaCommitteeNumber)) {
+      return unavailable(`Ambiguous Alabama PAC donor type or self identity: contribution ${row.contributionId}, donor ${row.lastName}`);
+    }
+    const registry = matches.length === 1 ? matches[0] : undefined;
+    if (registry && (registry.committeeId === input.fcpaCommitteeNumber || registry.committeeType !== "2")) continue;
+    // Explicit source PAC typing is independently verified by the caller's native filter4.
+    // A reported name does not claim a resolved legal registry ID or merge aliases.
+    const committeeId = registry ? registry.committeeId : `reported:${nameKey}`;
+    const committeeName = registry ? registry.committeeName!.trim() : row.lastName;
+    const sourceUrl = registry ? "https://fcpa.alabamavotes.gov/page.request.do?" + new URLSearchParams({
+      page: "page.acfPublicCommitteeDetails", type: Buffer.from("pac").toString("base64"),
+      id: Buffer.from(String(registry.id)).toString("base64"),
+    }).toString() : reportedSourceUrl;
+    const current = totals.get(committeeId) ?? { committeeId, committeeName, sourceUrl, cents: 0, count: 0 };
     current.cents += row.amountCents;
     totalPacCents += row.amountCents;
     current.count += 1;
     if (!Number.isSafeInteger(current.cents) || !Number.isSafeInteger(current.count) || !Number.isSafeInteger(totalPacCents)) {
       return unavailable("Unsafe Alabama PAC aggregate cents or contribution count");
     }
-    totals.set(registry.committeeId, current);
+    totals.set(committeeId, current);
   }
   return {
-    pacDonors: [...totals.values()].map(({ registry, cents, count }) => ({
-      committeeId: registry.committeeId,
-      committeeName: registry.committeeName!.trim(),
+    pacDonors: [...totals.values()].map(({ committeeId, committeeName, sourceUrl, cents, count }) => ({
+      committeeId, committeeName, sourceUrl,
       committeeType: "Political Action Committee" as const,
       amount: cents / 100,
       contributionCount: count,
-      sourceUrl: "https://fcpa.alabamavotes.gov/page.request.do?" + new URLSearchParams({
-        page: "page.acfPublicCommitteeDetails", type: Buffer.from("pac").toString("base64"),
-        id: Buffer.from(String(registry.id)).toString("base64"),
-      }).toString(),
     })).sort((a, b) => b.amount - a.amount || a.committeeId.localeCompare(b.committeeId)),
     diagnostics: [],
   };

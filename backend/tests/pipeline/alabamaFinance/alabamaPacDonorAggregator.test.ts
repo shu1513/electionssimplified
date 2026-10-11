@@ -21,15 +21,53 @@ describe("aggregateAlabamaPacDonors", () => {
   it.each([{ amountCents: 149_999 }, { lastName: "OTHER PAC" }, { contributorType: "Individual" }, { contributionDate: "09/18/2026" }, { amended: "Y" }])("preserves conflicting contribution ID: %j", (change) => preserved(aggregate([gift(), gift(change)])));
   it("retains dissolved PAC and normalized exact name, but does not strip PAC suffix", () => {
     expect(aggregate([gift({ lastName: "  Electric   Cooperatives of Alabama PAC " })], [{ ...pac, committeeStatus: "Dissolved" }, pcc]).pacDonors?.[0]?.amount).toBe(1500);
-    preserved(aggregate([gift({ lastName: "Electric Cooperatives of Alabama" })]));
+    expect(aggregate([gift({ lastName: "Electric Cooperatives of Alabama" })]).pacDonors?.[0]).toMatchObject({ committeeId: "reported:ELECTRIC COOPERATIVES OF ALABAMA", amount: 1500 });
   });
   it("checks all-types/all-status name ambiguity before eligibility", () => {
     preserved(aggregate([gift()], [pac, { ...pcc, committeeName: pac.committeeName, committeeStatus: "Dissolved" }]));
-    preserved(aggregate([gift()], [pac, { ...pac, id: 34, committeeId: "24907", committeeStatus: "Dissolved" }, pcc]));
+    expect(aggregate([gift()], [pac, { ...pac, id: 34, committeeId: "24907", committeeStatus: "Dissolved" }, pcc]).pacDonors?.[0]).toMatchObject({ committeeId: "reported:ELECTRIC COOPERATIVES OF ALABAMA PAC", amount: 1500 });
   });
-  it("preserves the whole component for one unknown or malformed explicit PAC donor", () => {
-    preserved(aggregate([gift(), gift({ contributionId: "2", lastName: "UNREGISTERED PAC" })]));
+  it("retains reported source PACs and preserves malformed organization identities", () => {
+    expect(aggregate([gift(), gift({ contributionId: "2", lastName: "UNREGISTERED PAC" })]).pacDonors).toHaveLength(2);
     preserved(aggregate([gift({ firstName: "Joe" })]));
+  });
+  it("identifies the public source donor and contribution in preservation diagnostics", () => {
+    expect(aggregate([gift({ contributionId: "1871302" })], [pac, { ...pcc, committeeName: pac.committeeName }]).diagnostics[0]).toContain("contribution 1871302, donor ELECTRIC COOPERATIVES OF ALABAMA PAC");
+  });
+  it("retains realistic Jackson source aliases without guessing their legal registry IDs", () => {
+    const realtors = { ...pac, id: 219, committeeId: "25092", committeeName: "ALABAMA REALTORS POLITICAL ACTION COMMITTEE" };
+    const care = { ...pac, id: 220, committeeId: "25093", committeeName: "ALABAMA NURSING HOME ASSOCIATION CARE PAC" };
+    const result = aggregate([
+      gift({ contributionId: "1", lastName: "ALABAMA REALTORS PAC", amountCents: 200_000 }),
+      gift({ contributionId: "2", lastName: "CAREPAC", amountCents: 100_000 }),
+      gift({ contributionId: "3", lastName: "CAREPAC", amountCents: 100_000 }),
+      gift({ contributionId: "4", lastName: realtors.committeeName, amountCents: 50_000 }),
+    ], [pcc, realtors, care]);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.pacDonors?.map((donor) => [donor.committeeId, donor.committeeName, donor.amount, donor.contributionCount])).toEqual([
+      ["reported:ALABAMA REALTORS PAC", "ALABAMA REALTORS PAC", 2000, 1],
+      ["reported:CAREPAC", "CAREPAC", 2000, 2],
+      ["25092", realtors.committeeName, 500, 1],
+    ]);
+    const url = new URL(result.pacDonors![0]!.sourceUrl);
+    expect(url.searchParams.get("page")).toBe("com.acf.common.page.contributionsearchresults");
+    expect(JSON.parse(url.searchParams.get("criteria")!)).toEqual([
+      { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: "25079" },
+      { field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "4" },
+    ]);
+    expect(url.searchParams.has("id")).toBe(false);
+  });
+  it("keeps all-PAC same-name legal ambiguity as reported, including dissolved registrations", () => {
+    const hospital = { ...pac, id: 34, committeeId: "24907", committeeName: "ALABAMA HOSPITAL ASSOCIATION PAC" };
+    expect(aggregate([gift({ lastName: hospital.committeeName })], [pcc, hospital, { ...hospital, id: 35, committeeId: "24908", committeeStatus: "Dissolved" }]).pacDonors?.[0]).toMatchObject({ committeeId: "reported:ALABAMA HOSPITAL ASSOCIATION PAC", committeeName: hospital.committeeName, amount: 1500 });
+  });
+  it("normalizes reported IDs while retaining the original displayed source label", () => {
+    const display = "ＣＡＲＥ—Pac Équipe";
+    expect(aggregate([gift({ lastName: display })]).pacDonors?.[0]).toMatchObject({ committeeId: "reported:CARE PAC ÉQUIPE", committeeName: display, amount: 1500 });
+    preserved(aggregate([gift({ lastName: "---" })]));
+  });
+  it("never promotes an unregistered Business donor based on its PAC-like name", () => {
+    expect(aggregate([gift({ lastName: "CAREPAC", contributorType: "Group/Business/Corporation" })]).pacDonors).toEqual([]);
   });
   it("excludes known PCC, self, business, individual, in-kind and nonitemized cash", () => {
     expect(aggregate([
