@@ -1063,7 +1063,7 @@ export function ElectionPage() {
             {measure.proposed_by ? (
               <div className="mt-2 text-sm">
                 <p className="text-ink">
-                  <span className="font-medium text-ink-soft">Put on the ballot by:</span> {measure.proposed_by.name}
+                  <span className="font-medium text-ink-soft">Proposed by:</span> {measure.proposed_by.name}
                 </p>
                 <p className="text-xs text-ink-soft">{measure.proposed_by.about}</p>
                 <SourceLine url={measure.proposed_by.source_url} kind="measure_proposed_by_source" />

@@ -326,7 +326,7 @@ export default function ElectionScreen() {
           {measure.proposed_by ? (
             <View className="mt-2">
               <Text className="text-sm text-ink">
-                <Text className="font-medium text-ink-soft">Put on the ballot by:</Text> {measure.proposed_by.name}
+                <Text className="font-medium text-ink-soft">Proposed by:</Text> {measure.proposed_by.name}
               </Text>
               <Text className="text-xs text-ink-soft">{measure.proposed_by.about}</Text>
               <SourceLine url={measure.proposed_by.source_url} />
