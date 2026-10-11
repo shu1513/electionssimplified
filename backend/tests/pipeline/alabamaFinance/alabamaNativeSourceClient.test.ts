@@ -42,16 +42,25 @@ describe("Alabama authoritative native source client", () => {
     expect(await getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never })).toEqual([historical]);
   });
 
-  it("rejects a nameless receipt in the source-typed PAC filter", async () => {
-    const fetchImpl = vi.fn(async () => response(1, [{ ...row, CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" }]));
+  it("retains an omitted donor field for historical non-itemized cash without filling it", async () => {
+    const { CONTRIBUTOR: _donor, ...withoutDonor } = row;
+    const historical = { ...withoutDonor, CONTRIBUTIONTYPE: "Cash (Non-Itemized)", TRANSACTIONDATE: "08/09/2018" };
+    const fetchImpl = vi.fn(async () => response(1, [historical]));
+    const result = await getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never });
+    expect(result).toEqual([historical]);
+    expect(Object.hasOwn(result[0]!, "CONTRIBUTOR")).toBe(false);
+  });
+
+  it.each([null, undefined])("rejects a nameless receipt in the source-typed PAC filter: %s", async (CONTRIBUTOR) => {
+    const fetchImpl = vi.fn(async () => response(1, [{ ...row, CONTRIBUTOR, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" }]));
     await expect(getAlabamaNativeContributionRows({ ...input, pacOnly: true }, { fetchImpl: fetchImpl as never })).rejects.toThrow("invalid or repeated identities");
   });
 
   it.each([
     { CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Unknown" },
     { CONTRIBUTOR: null, CONTRIBUTIONTYPE: "In-Kind (Non-Itemized)" },
-    { CONTRIBUTOR: undefined, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" },
-  ])("does not extend the observed null schema to other missing donor fields: %j", async (change) => {
+    { CONTRIBUTOR: undefined, CONTRIBUTIONTYPE: "Cash (Itemized)" },
+  ])("does not extend the observed non-itemized schema to other missing donor fields: %j", async (change) => {
     const fetchImpl = vi.fn(async () => response(1, [{ ...row, ...change }]));
     await expect(getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never })).rejects.toThrow("invalid or repeated identities");
   });

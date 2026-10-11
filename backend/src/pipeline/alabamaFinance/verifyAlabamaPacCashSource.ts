@@ -96,12 +96,12 @@ export function verifyAlabamaPacCashSource(input: AlabamaPacCashSourceInput): Al
     if (row.COMMITTEEID !== input.internalCommitteeId || typeof row.TRANSACTIONDATE !== "string"
       || typeof row.CONTRIBUTIONTYPE !== "string"
       || (typeof row.CONTRIBUTOR !== "string"
-        && !(row.CONTRIBUTOR === null && row.CONTRIBUTIONTYPE === "Cash (Non-Itemized)"))
+        && !(row.CONTRIBUTOR == null && row.CONTRIBUTIONTYPE === "Cash (Non-Itemized)"))
       || typeof row.RECIPIENTNAME !== "string" || typeof row.FILINGDATE !== "string") return fail("Invalid Alabama native receiving or transaction identity");
     const when = date(row.TRANSACTIONDATE);
     if (!when) return fail("Invalid Alabama native transaction date");
     if (when < start || when > end) continue;
-    if (row.CONTRIBUTOR === null) return fail("Unresolved Alabama current non-itemized donor identity");
+    if (row.CONTRIBUTOR == null) return fail("Unresolved Alabama current non-itemized donor identity");
     const category = row.CONTRIBUTIONTYPE.trim();
     if (IN_KIND.has(category) || NON_CASH.has(category)) continue;
     if (!CASH.has(category)) return fail("Unresolved Alabama native cash, refund or return category");
@@ -127,7 +127,7 @@ export function verifyAlabamaPacCashSource(input: AlabamaPacCashSourceInput): Al
   let sum = 0;
   for (const [id, bulk] of bulkCash) {
     const native = nativeCash.get(id)!;
-    if (native.CONTRIBUTOR === null) return fail("Unresolved Alabama current non-itemized donor identity");
+    if (native.CONTRIBUTOR == null) return fail("Unresolved Alabama current non-itemized donor identity");
     if (cents(native.AMOUNT) !== bulk.amountCents || date(native.TRANSACTIONDATE) !== date(bulk.contributionDate)
       || native.CONTRIBUTIONTYPE.trim() !== bulk.contributionType.trim()) return fail("Alabama current cash date, category or cents disagree");
     const isPac = bulk.contributorType.trim() === "PAC";

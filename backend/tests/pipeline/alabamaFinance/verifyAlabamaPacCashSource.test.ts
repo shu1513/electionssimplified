@@ -24,8 +24,17 @@ describe("verifyAlabamaPacCashSource", () => {
     preserve(sourceRows([native, { ...historical, TRANSACTIONDATE: "06/32/2018" }], [cash], 150_000));
   });
 
-  it("preserves current null non-itemized donors until an explicit anonymous identity contract is verified", () => {
-    const anonymous = { ...native, TRANSACTIONID: 2, CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)", AMOUNT: 100 };
+  it("retains historical omitted donors while distinguishing absent and null metadata", () => {
+    const { CONTRIBUTOR: _donor, ...withoutDonor } = native;
+    const historical = { ...withoutDonor, TRANSACTIONID: 845793, TRANSACTIONDATE: "08/09/2018", CONTRIBUTIONTYPE: "Cash (Non-Itemized)" };
+    const input = sourceRows([native, historical], [cash], 150_000);
+    expect(verifyAlabamaPacCashSource(input).pacDonors?.[0]?.amount).toBe(1500);
+    preserve({ ...input, nativeAllAfter: [native, { ...historical, CONTRIBUTOR: null }] });
+    preserve(sourceRows([native, { ...historical, TRANSACTIONDATE: "08/32/2018" }], [cash], 150_000));
+  });
+
+  it.each([null, undefined])("preserves current unnamed non-itemized donors until an explicit anonymous identity contract is verified: %s", (CONTRIBUTOR) => {
+    const anonymous = { ...native, TRANSACTIONID: 2, CONTRIBUTOR, CONTRIBUTIONTYPE: "Cash (Non-Itemized)", AMOUNT: 100 };
     const bulk = { ...cash, contributionId: "2", lastName: "", contributionType: "Cash (Non-Itemized)", contributorType: "Anonymous", amountCents: 10_000 };
     const result = verifyAlabamaPacCashSource(sourceRows([native, anonymous], [cash, bulk], 160_000));
     expect(result.pacDonors).toBeUndefined();
