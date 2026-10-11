@@ -174,6 +174,7 @@ function groupAutoLinkCandidatesByYear(
 async function loadFairElectionsDataForYear(input: {
   year: number;
   now: Date;
+  electionLookbackDays: number;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
 }): Promise<
   Pick<
@@ -183,7 +184,7 @@ async function loadFairElectionsDataForYear(input: {
 > {
   try {
     const data = await downloadDistrictOfColumbiaFairElectionsData(
-      { electionYear: input.year, now: input.now },
+      { electionYear: input.year, now: input.now, finishedSpecialGraceDays: input.electionLookbackDays },
       input.ocfClientOptions
     );
     return {
@@ -200,6 +201,7 @@ async function loadFairElectionsDataForYear(input: {
 async function loadPrincipalContributionDataForYear(input: {
   year: number;
   now: Date;
+  electionLookbackDays: number;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
 }): Promise<DistrictOfColumbiaContributionDataForYear> {
   const [principalContributionRecords, fairElectionsData] = await Promise.all([
@@ -224,6 +226,7 @@ function allContributionRecords(data: DistrictOfColumbiaContributionDataForYear 
 async function loadOcfDataForYear(input: {
   year: number;
   now: Date;
+  electionLookbackDays: number;
   // Contribution data the auto-link pass already downloaded this run.
   principalData?: DistrictOfColumbiaContributionDataForYear;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
@@ -251,6 +254,7 @@ async function loadOcfDataForYear(input: {
 async function getOrLoadOcfDataForYear(input: {
   year: number;
   now: Date;
+  electionLookbackDays: number;
   dataByYear: Map<number, DistrictOfColumbiaOcfDataForYear>;
   principalDataByYear: Map<number, DistrictOfColumbiaContributionDataForYear>;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
@@ -262,6 +266,7 @@ async function getOrLoadOcfDataForYear(input: {
   const loaded = await loadOcfDataForYear({
     year: input.year,
     now: input.now,
+    electionLookbackDays: input.electionLookbackDays,
     principalData: input.principalDataByYear.get(input.year),
     ocfClientOptions: input.ocfClientOptions,
   });
@@ -272,6 +277,7 @@ async function getOrLoadOcfDataForYear(input: {
 async function getOrLoadPrincipalContributionDataForYear(input: {
   year: number;
   now: Date;
+  electionLookbackDays: number;
   dataByYear: Map<number, DistrictOfColumbiaOcfDataForYear>;
   principalDataByYear: Map<number, DistrictOfColumbiaContributionDataForYear>;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
@@ -287,6 +293,7 @@ async function getOrLoadPrincipalContributionDataForYear(input: {
   const loaded = await loadPrincipalContributionDataForYear({
     year: input.year,
     now: input.now,
+    electionLookbackDays: input.electionLookbackDays,
     ocfClientOptions: input.ocfClientOptions,
   });
   input.principalDataByYear.set(input.year, loaded);
@@ -363,6 +370,7 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
           const data = await getOrLoadPrincipalContributionDataForYear({
             year,
             now,
+            electionLookbackDays,
             dataByYear: ocfDataByYear,
             principalDataByYear,
             ocfClientOptions: input.ocfClientOptions,
@@ -421,6 +429,7 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
         await getOrLoadOcfDataForYear({
           year,
           now,
+          electionLookbackDays,
           dataByYear: ocfDataByYear,
           principalDataByYear,
           ocfClientOptions: input.ocfClientOptions,

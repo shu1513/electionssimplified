@@ -149,6 +149,21 @@ describe("districtOfColumbiaFairElectionsClient", () => {
     ).toEqual([11, 9, 8]);
   });
 
+  it("keeps a finished special for the batch sync's post-election grace days", () => {
+    // Election night in D.C. (10pm ET on June 16) is already June 17 in UTC.
+    const electionNight = new Date("2026-06-17T02:00:00Z");
+    expect(selectDistrictOfColumbiaFairElectionsElections(ELECTIONS, electionNight).map((e) => e.electionId)).toEqual([9, 8]);
+    expect(selectDistrictOfColumbiaFairElectionsElections(ELECTIONS, electionNight, 1).map((e) => e.electionId)).toEqual([
+      11, 9, 8,
+    ]);
+    expect(
+      selectDistrictOfColumbiaFairElectionsElections(ELECTIONS, new Date("2026-06-17T23:59:00Z"), 1).map((e) => e.electionId)
+    ).toEqual([11, 9, 8]);
+    expect(
+      selectDistrictOfColumbiaFairElectionsElections(ELECTIONS, new Date("2026-06-18T00:00:00Z"), 1).map((e) => e.electionId)
+    ).toEqual([9, 8]);
+  });
+
   it("resolves Fair Elections candidates to one committee each", () => {
     const contributionRecords = records();
     expect(

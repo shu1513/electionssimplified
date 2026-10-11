@@ -299,27 +299,34 @@ export async function fetchDistrictOfColumbiaFairElectionsElections(
 // primary committee carries on into the general. Skipping finished specials
 // keeps a candidate who ran in both (Silverman: June at-large special, then
 // the November general) from matching two committees for one race.
+//
+// `finishedSpecialGraceDays` keeps a special for as many days past its date as
+// the batch sync still treats that election as due (its election lookback).
+// Dropping it sooner would sync an already-linked special-election committee
+// against no rows and overwrite its stored totals with zeros.
 export function selectDistrictOfColumbiaFairElectionsElections(
   elections: readonly DistrictOfColumbiaFairElectionsElection[],
-  now: Date
+  now: Date,
+  finishedSpecialGraceDays = 0
 ): DistrictOfColumbiaFairElectionsElection[] {
-  const today = now.toISOString().slice(0, 10);
+  const cutoff = new Date(now.getTime() - finishedSpecialGraceDays * 86_400_000).toISOString().slice(0, 10);
   return elections.filter((election) => {
     if (election.electionTypeCode?.trim().toUpperCase() !== "SE") {
       return true;
     }
     const electionDate = election.electionDate?.slice(0, 10) ?? "";
-    return electionDate >= today;
+    return electionDate >= cutoff;
   });
 }
 
 export async function downloadDistrictOfColumbiaFairElectionsData(
-  input: { electionYear: number; now?: Date },
+  input: { electionYear: number; now?: Date; finishedSpecialGraceDays?: number },
   options: DistrictOfColumbiaOcfClientOptions & { pageSize?: number } = {}
 ): Promise<DistrictOfColumbiaFairElectionsData> {
   const elections = selectDistrictOfColumbiaFairElectionsElections(
     await fetchDistrictOfColumbiaFairElectionsElections(input.electionYear, options),
-    input.now ?? new Date()
+    input.now ?? new Date(),
+    input.finishedSpecialGraceDays
   );
   const contributionRecords: DistrictOfColumbiaOcfContributionRecord[] = [];
   const expenditureRecords: DistrictOfColumbiaOcfExpenditureRecord[] = [];
