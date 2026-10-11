@@ -43,6 +43,44 @@ describe("Florida source-qualified committee donor identity", () => {
       sourceUrl: url("60813"), includedInCommitteeDonorScope: true, resolution: "dated_exact_address",
     });
   });
+  it("uses reviewed closedBy/activeBy bounds for a later same-name receipt without inventing effective dates", () => {
+    const historical = old();
+    historical.disbandment = { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, closedBy: "2013-08-01" };
+    const current = row({ registration: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, activeBy: "2013-08-01" } });
+    expect(resolveFloridaCommitteeDonorIdentity(input([historical, current])).identity?.committeeId).toBe("60813");
+    expect(historical.disbandment).not.toHaveProperty("effectiveDate");
+    expect(current.registration).not.toHaveProperty("effectiveDate");
+    for (const transactionDate of ["2013-07-31", "2013-08-01"]) {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([historical, current]), transactionDate }).status).toBe("unresolved");
+    }
+  });
+  it("accepts activeBy day but keeps earlier unique Active receipts uncertain", () => {
+    const r = row({ registration: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, activeBy: "2013-08-01" } });
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([r]), transactionDate: "2013-08-01" }).status).toBe("resolved");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([r]), transactionDate: "2013-07-31" }).status).toBe("unresolved");
+  });
+  it("does not exclude a competing future activeBy account as if its registration began on that day", () => {
+    const uncertain = row({ committeeId: "77777", sourceUrl: url("77777"),
+      registration: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, activeBy: "2027-01-01" } });
+    expect(resolveFloridaCommitteeDonorIdentity(input([row(), uncertain])).status).toBe("unresolved");
+  });
+  it("does not establish past activity of a Closed account from closedBy alone", () => {
+    const r = old(); r.registration = evidence("2010-01-01");
+    r.disbandment = { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, closedBy: "2013-08-01" };
+    for (const transactionDate of ["2012-05-14", "2013-08-01", "2013-08-02"]) {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([r]), transactionDate }).status).toBe("unresolved");
+    }
+  });
+  it.each([
+    { registration: { ...evidence("2013-08-01"), activeBy: "2013-08-01" } },
+    { registration: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, closedBy: "2013-08-01" } },
+    { disbandment: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, activeBy: "2013-08-01" } },
+    { registration: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, activeBy: "2013-02-30" } },
+    { registration: evidence("2014-01-01"), disbandment: { sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256, closedBy: "2013-08-01" } },
+  ])("preserves invalid, mixed, wrong-kind or contradictory temporal bounds %#", change => {
+    const invalid = row(change as unknown as Partial<FloridaCommitteeDonorRegistration>);
+    expect(resolveFloridaCommitteeDonorIdentity(input([invalid])).status).toBe("unresolved");
+  });
   it("retains unknown before effective dissolution, even though the old account is Closed now", () => {
     const r = input([old(), row()]);
     r.transactionDate = "2013-08-20";

@@ -24,8 +24,14 @@ export type FloridaCommitteeRegistryRequest = {
 /** Human-reviewed account/date binding; this adapter does not infer PDF identity or dates. */
 export type FloridaReviewedCommitteeDates = {
   committeeId: string;
-  registration?: { effectiveDate: string; document: FloridaProcessedRawEvidence };
-  disbandment?: { effectiveDate: string; document: FloridaProcessedRawEvidence };
+  registration?: (
+    | { effectiveDate: string; activeBy?: never }
+    | { activeBy: string; effectiveDate?: never }
+  ) & { document: FloridaProcessedRawEvidence };
+  disbandment?: (
+    | { effectiveDate: string; closedBy?: never }
+    | { closedBy: string; effectiveDate?: never }
+  ) & { document: FloridaProcessedRawEvidence };
 };
 export type FloridaCommitteeRegistryLookupResult = FloridaCommitteeDonorIdentityResult & {
   sourceHashes: readonly string[];
@@ -259,7 +265,16 @@ function reviewedDate(account: string, kind: "registration" | "disbandment", rec
   if (u.pathname !== "/campaign-docs/PDFHandler.ashx" || [...u.searchParams.keys()].length !== 2 ||
     !u.searchParams.has("AcctType") || !/^[1-9][0-9]*$/.test(u.searchParams.get("TrackNum") ?? "")) fail("wrong reviewed account PDF reference");
   checkedRaw(entry.document, { url: entry.document.url, method: "GET", financeFields: null }, true);
-  return { effectiveDate: entry.effectiveDate, sourceUrl: entry.document.url, sha256: entry.document.sha256 };
+  const fields = ["effectiveDate", "activeBy", "closedBy"].filter(k => Object.hasOwn(entry, k));
+  if (fields.length !== 1 || (kind === "registration" && fields[0] === "closedBy") ||
+    (kind === "disbandment" && fields[0] === "activeBy")) fail("invalid reviewed temporal-bound kind");
+  const field = fields[0]!;
+  const bound = (entry as unknown as Record<string, unknown>)[field];
+  if (typeof bound !== "string") fail("invalid reviewed temporal bound");
+  const source = { sourceUrl: entry.document.url, sha256: entry.document.sha256 };
+  if (field === "effectiveDate") return { ...source, effectiveDate: bound };
+  if (field === "activeBy") return { ...source, activeBy: bound };
+  return { ...source, closedBy: bound };
 }
 export function createFloridaCommitteeRegistrySource(options: {
   request: (request: FloridaCommitteeRegistryRequest) => Promise<FloridaProcessedRawEvidence>;

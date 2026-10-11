@@ -142,6 +142,32 @@ describe("Florida bounded all-status registry source", () => {
     ];
     expect((await createFloridaCommitteeRegistrySource({...mock([historical,current]),reviewedDates}).lookupDonor(receipt)).identity?.resolution).toBe("dated_exact_address");
   });
+  it("passes reviewed temporal bounds with untouched official PDF hashes and no guessed effective date", async () => {
+    const pdf=(n:number)=>({...envelope("%PDF-source-shaped-reviewed-fixture",{url:origin+
+      "/campaign-docs/PDFHandler.ashx?AcctType=08/01/13&TrackNum="+n,method:"GET",financeFields:null}),contentType:"application/pdf"});
+    const registrationDocument=pdf(100207220);
+    const closureDocument=pdf(100207222);
+    const reviewedDates:FloridaReviewedCommitteeDates[]=[
+      {committeeId:"1997",disbandment:{closedBy:"2013-08-01",document:closureDocument}},
+      {committeeId:"60813",registration:{activeBy:"2013-08-01",document:registrationDocument}},
+    ];
+    const result=await createFloridaCommitteeRegistrySource({...mock([historical,current]),reviewedDates}).lookupDonor(receipt);
+    expect(result.identity?.resolution).toBe("dated_exact_address");
+    expect(result.registrations?.find(r=>r.committeeId==="60813")?.registration).toEqual({
+      activeBy:"2013-08-01",sourceUrl:registrationDocument.url,sha256:registrationDocument.sha256});
+    expect(result.registrations?.find(r=>r.committeeId==="1997")?.disbandment).toEqual({
+      closedBy:"2013-08-01",sourceUrl:closureDocument.url,sha256:closureDocument.sha256});
+    const onBound=await createFloridaCommitteeRegistrySource({...mock([historical,current]),reviewedDates})
+      .lookupDonor({...receipt,transactionDate:"2013-08-01"});
+    expect(onBound.status).toBe("unresolved");
+  });
+  it("rejects caller supplied mixed temporal bounds before donor acceptance", async () => {
+    const document={...envelope("%PDF-reviewed-fixture",{url:origin+
+      "/campaign-docs/PDFHandler.ashx?AcctType=08/01/13&TrackNum=100207220",method:"GET",financeFields:null}),contentType:"application/pdf"};
+    const reviewedDates=[{committeeId:"60813",registration:{effectiveDate:"2013-08-01",activeBy:"2013-08-01",document}}];
+    const result=await createFloridaCommitteeRegistrySource({...mock([current]),reviewedDates:reviewedDates as unknown as FloridaReviewedCommitteeDates[]}).lookupDonor(receipt);
+    expect(result.status).toBe("unresolved");
+  });
   it.each(["query","detail","transport","old_capture"])("preserves failed/changed closing %s", async mode => {
     const m=mock([current],(raw,req,n)=>{
       if(req.phase!=="closing")return raw;

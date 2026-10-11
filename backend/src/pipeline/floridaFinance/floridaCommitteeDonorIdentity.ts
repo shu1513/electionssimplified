@@ -1,8 +1,11 @@
 import { createHash } from "node:crypto";
 
 export type FloridaCommitteeDonorType = "PAC" | "CCE" | "PTY" | "PAP";
-export type FloridaCommitteeDateEvidence = {
-  effectiveDate: string;
+export type FloridaCommitteeDateBound =
+  | { effectiveDate: string; activeBy?: never; closedBy?: never }
+  | { activeBy: string; effectiveDate?: never; closedBy?: never }
+  | { closedBy: string; effectiveDate?: never; activeBy?: never };
+export type FloridaCommitteeDateEvidence = FloridaCommitteeDateBound & {
   sourceUrl: string;
   sha256: string;
 };
@@ -76,9 +79,13 @@ function accountUrl(value: string, committeeId: string): boolean {
   return Boolean(u && u.pathname === "/committees/ComDetail.asp" &&
     [...u.searchParams.keys()].length === 1 && u.searchParams.get("account") === committeeId);
 }
-function dateEvidence(value: FloridaCommitteeDateEvidence | null): boolean {
+function dateEvidence(value: FloridaCommitteeDateEvidence | null, kind: "registration" | "disbandment"): boolean {
   if (value === null) return true;
-  if (!value || !day(value.effectiveDate) || !HASH.test(value.sha256)) return false;
+  if (!value || !HASH.test(value.sha256)) return false;
+  const fields = ["effectiveDate", "activeBy", "closedBy"].filter(k => Object.hasOwn(value, k));
+  if (fields.length !== 1 || (kind === "registration" && fields[0] === "closedBy") ||
+    (kind === "disbandment" && fields[0] === "activeBy") ||
+    !day(value[fields[0] as keyof FloridaCommitteeDateBound] as string)) return false;
   const u = officialUrl(value.sourceUrl);
   return Boolean(u && u.pathname === "/campaign-docs/PDFHandler.ashx" &&
     u.searchParams.has("AcctType") && /^[1-9][0-9]*$/.test(u.searchParams.get("TrackNum") ?? ""));
@@ -87,10 +94,12 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
   return r && ACCOUNT.test(r.committeeId) && [r.committeeName, r.committeeType, r.status,
     r.address, r.cityStateZip, r.sourceUrl].every(v => typeof v === "string") &&
     Boolean(exactText(r.committeeName)) && Boolean(exactText(r.committeeType)) &&
-    accountUrl(r.sourceUrl, r.committeeId) && dateEvidence(r.registration) &&
-    dateEvidence(r.disbandment) &&
+    accountUrl(r.sourceUrl, r.committeeId) && dateEvidence(r.registration, "registration") &&
+    dateEvidence(r.disbandment, "disbandment") &&
     !(r.registration && r.disbandment &&
-      r.registration.effectiveDate > r.disbandment.effectiveDate);
+      r.registration.effectiveDate &&
+      (r.disbandment.effectiveDate || r.disbandment.closedBy) &&
+      r.registration.effectiveDate > (r.disbandment.effectiveDate ?? r.disbandment.closedBy!));
 }
 
 /** USPS Pub28 C1 DRIVE/DR only. No street/unit/punctuation/locality fields are removed. */
@@ -105,13 +114,18 @@ function sameAddress(
     exactText(r.cityStateZip) === exactText(cityStateZip);
 }
 function outsideKnownLifetime(r: FloridaCommitteeDonorRegistration, date: string): boolean {
-  return Boolean((r.registration && date < r.registration.effectiveDate) ||
-    (r.disbandment && date >= r.disbandment.effectiveDate));
+  return Boolean((r.registration?.effectiveDate && date < r.registration.effectiveDate) ||
+    (r.disbandment?.effectiveDate && date >= r.disbandment.effectiveDate) ||
+    (r.disbandment?.closedBy && date > r.disbandment.closedBy));
+}
+function registrationSupportsDate(r: FloridaCommitteeDonorRegistration, date: string): boolean {
+  const bound = r.registration?.effectiveDate ?? r.registration?.activeBy;
+  return Boolean(bound && date >= bound);
 }
 
 /**
  * Identity policy only: source acquisition must establish the paired all-status
- * query neighborhood and effective-date evidence. This does not establish an
+ * query neighborhood and reviewed exact-date or temporal-bound evidence. This does not establish an
  * exhaustive statewide registry, financial currentness, refunds or cash totals.
  */
 export function resolveFloridaCommitteeDonorIdentity(input: {
@@ -160,7 +174,7 @@ export function resolveFloridaCommitteeDonorIdentity(input: {
     resolution = "unique_exact_name";
   } else {
     const viable = identities.filter(r => !outsideKnownLifetime(r, input.transactionDate));
-    if (viable.length !== 1 || !viable[0]!.registration ||
+    if (viable.length !== 1 || !registrationSupportsDate(viable[0]!, input.transactionDate) ||
       !sameAddress(viable[0]!, input.reportedAddress, input.reportedCityStateZip)) {
       return unknown("Same-name accounts lack unique source-dated full-address identity.");
     }
@@ -169,10 +183,12 @@ export function resolveFloridaCommitteeDonorIdentity(input: {
   }
   const status = exactText(selected.status);
   const historicalClosedLifetime = status === "CLOSED" && selected.registration &&
-    selected.disbandment && selected.registration.effectiveDate <= input.transactionDate &&
+    selected.disbandment?.effectiveDate && registrationSupportsDate(selected, input.transactionDate) &&
     input.transactionDate < selected.disbandment.effectiveDate;
   if ((status !== "ACTIVE" && !historicalClosedLifetime) ||
-    outsideKnownLifetime(selected, input.transactionDate)) {
+    outsideKnownLifetime(selected, input.transactionDate) ||
+    (selected.registration?.activeBy && !registrationSupportsDate(selected, input.transactionDate)) ||
+    selected.disbandment?.closedBy) {
     return unknown("Closed, unknown-status, or out-of-lifetime account at receipt date.");
   }
   const included = COMMITTEE_TYPES.has(selected.committeeType) &&
