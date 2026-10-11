@@ -351,7 +351,9 @@ async function autoLinkMichiganCandidatesViaMitnPublicSearch(input: {
  * Loads a committee's contribution rows from the MiTN public-search exports
  * for the cycle's statement years, deduped ACROSS years (amendments repeat
  * receipts, and can restate a prior year's statement), then mapped onto the
- * legacy row shape. Raw exports are memoized per committee within one run.
+ * legacy row shape. Only successfully reconciled snapshots are memoized per
+ * canonical committee ID and election year within one run. Failed attempts
+ * retain no raw tables, so a retry acquires a fresh, coherent source snapshot.
  *
  * The cycle's own statement years (election year - 1 and the election year)
  * are REQUIRED — a missing year-id mapping throws rather than silently
@@ -363,10 +365,15 @@ async function loadMitnPublicSearchContributionRows(input: {
   committeeId: string;
   electionYear: number;
   fetchFn: MichiganMitnFetchFn;
-  cache: Map<string, string[][]>;
+  cache: Map<string, MichiganMitnLegacyContributionRow[]>;
   rawCacheDir?: string;
   currentContributionRowsFn?: typeof fetchMichiganMitnCurrentContributionRows;
 }): Promise<MichiganMitnLegacyContributionRow[]> {
+  const canonicalCommitteeId = input.committeeId.trim().replace(/^0+(?=\d)/, "");
+  const cacheKey = `${canonicalCommitteeId}:${input.electionYear}`;
+  const cachedSnapshot = input.cache.get(cacheKey);
+  if (cachedSnapshot !== undefined) return cachedSnapshot;
+
   const requiredStatementYears = [input.electionYear - 1, input.electionYear];
   for (const year of requiredStatementYears) {
     if (!MICHIGAN_MITN_STATEMENT_YEAR_IDS.has(year)) {
@@ -381,18 +388,12 @@ async function loadMitnPublicSearchContributionRows(input: {
 
   const combinedRows: string[][] = [];
   for (const statementYear of statementYears) {
-    const cacheKey = `${input.committeeId}:${statementYear}`;
-    let rawRows = input.cache.get(cacheKey);
-    if (!rawRows) {
-      const xlsx = await fetchMichiganMitnContributionExportXlsx({
-        committeeId: input.committeeId,
-        statementYear,
-        fetchFn: input.fetchFn,
-      });
-      rawRows = parseMichiganMitnExportXlsxRows(xlsx);
-      validateMichiganMitnContributionExportHeader(rawRows);
-      input.cache.set(cacheKey, rawRows);
-    }
+    const xlsx = await fetchMichiganMitnContributionExportXlsx({
+      committeeId: input.committeeId,
+      statementYear,
+      fetchFn: input.fetchFn,
+    });
+    const rawRows = parseMichiganMitnExportXlsxRows(xlsx);
     validateMichiganMitnContributionExportHeader(rawRows);
     if (combinedRows.length && JSON.stringify(combinedRows[0]) !== JSON.stringify(rawRows[0])) {
       throw new Error("Michigan MiTN contribution exports disagree on header ordering");
@@ -410,7 +411,9 @@ async function loadMitnPublicSearchContributionRows(input: {
     committeeId: input.committeeId, statementYears, rawRows: combinedRows,
     rawCacheDir: input.rawCacheDir, fetchFn: input.fetchFn,
   });
-  return michiganMitnExportRowsToLegacyContributionRows(dedupeMichiganMitnExportRows(currentRows));
+  const snapshot = michiganMitnExportRowsToLegacyContributionRows(dedupeMichiganMitnExportRows(currentRows));
+  input.cache.set(cacheKey, snapshot);
+  return snapshot;
 }
 
 
@@ -502,7 +505,7 @@ export async function syncDueMichiganCandidateFinance(
   });
 
   const results: MichiganCandidateFinanceBatchSyncItemResult[] = [];
-  const publicSearchExportCache = new Map<string, string[][]>();
+  const publicSearchContributionSnapshotCache = new Map<string, MichiganMitnLegacyContributionRow[]>();
   const publicSearchFetchFn = input.mitnPublicSearchFetchFn ?? defaultMitnPublicSearchFetchFn();
 
 
@@ -605,7 +608,7 @@ export async function syncDueMichiganCandidateFinance(
         committeeId: row.committeeId,
         electionYear: row.electionYear,
         fetchFn: publicSearchFetchFn,
-        cache: publicSearchExportCache,
+        cache: publicSearchContributionSnapshotCache,
         rawCacheDir: input.rawDataCacheDir,
         currentContributionRowsFn: input.currentContributionRowsFn,
       });

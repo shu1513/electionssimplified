@@ -421,6 +421,124 @@ describe("michiganCandidateFinanceBatchSync", () => {
     } finally { vi.unstubAllEnvs(); }
   });
 
+  it("reuses one reconciled snapshot across primary and general links to the same canonical committee", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const db = createMockDb([
+        dueRow(),
+        dueRow({ election_id: "33333333-3333-4333-8333-333333333333", committee_id: "0521877" }),
+      ]);
+      const original = ["1", "26-1", "C", "Original Campaign Statements", "2026", "July CS",
+        "ARIC NESBITT FOR GOVERNOR", "521877", "Candidate", "ARIC", "NESBITT",
+        "Direct Contributions", "RAYMOND", "KOUZA", "RETIRED", "", "06/24/2026", "1000.00", "1000.00"];
+      const amended = [...original];
+      amended[3] = "Amended Campaign Statements";
+      amended[17] = "2500.00";
+      const exports = [buildMitnExportXlsx([]), buildMitnExportXlsx([original, amended])];
+      const fetchFn = vi.fn(async () => {
+        const bytes = exports.shift();
+        if (!bytes) throw new Error("A shared snapshot must not reacquire exports");
+        return new Response(bytes);
+      });
+      const policyFn = vi.fn(async (input: { rawRows: readonly (readonly string[])[] }) => [
+        [...input.rawRows[0]!],
+        ...input.rawRows.slice(1).filter((row) => row[3] === "Amended Campaign Statements").map((row) => [...row]),
+      ]);
+      const syncFn = vi.fn().mockResolvedValue({});
+
+      const result = await syncDueMichiganCandidateFinance({
+        db, autoLinkMissingLinks: false, fetchOutsideSpending: false, fetchCommitteeRegistry: false,
+        mitnPublicSearchFetchFn: fetchFn, currentContributionRowsFn: policyFn,
+        syncMichiganCandidateFinanceFn: syncFn,
+      });
+
+      expect(result.syncedCandidateCount).toBe(2);
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+      expect(policyFn).toHaveBeenCalledTimes(1);
+      expect(policyFn.mock.calls[0]![0].rawRows).toHaveLength(3);
+      expect(syncFn).toHaveBeenCalledTimes(2);
+      const primary = syncFn.mock.calls[0]![0];
+      const general = syncFn.mock.calls[1]![0];
+      expect(primary.electionId).not.toBe(general.electionId);
+      expect(primary.trustedCommittee.committeeId).toBe("521877");
+      expect(general.trustedCommittee.committeeId).toBe("0521877");
+      expect(primary.contributionRows).toHaveLength(1);
+      expect(primary.contributionRows[0].amount).toBe("2500.00");
+      expect(general.contributionRows).toBe(primary.contributionRows);
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("reacquires every export after failed reconciliation and never syncs the failed snapshot", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const db = createMockDb([
+        dueRow(),
+        dueRow({ election_id: "33333333-3333-4333-8333-333333333333", committee_id: "0521877" }),
+      ]);
+      const receipt = ["1", "26-1", "C", "Original Campaign Statements", "2026", "July CS",
+        "ARIC NESBITT FOR GOVERNOR", "521877", "Candidate", "ARIC", "NESBITT",
+        "Direct Contributions", "RAYMOND", "KOUZA", "RETIRED", "", "06/24/2026", "1000.00", "1000.00"];
+      const updated = [...receipt];
+      updated[17] = "2500.00";
+      const exports = [buildMitnExportXlsx([]), buildMitnExportXlsx([receipt]),
+        buildMitnExportXlsx([]), buildMitnExportXlsx([updated])];
+      const fetchFn = vi.fn(async () => {
+        const bytes = exports.shift();
+        if (!bytes) throw new Error("Unexpected export acquisition");
+        return new Response(bytes);
+      });
+      const policyFn = vi.fn(async (input: { rawRows: readonly (readonly string[])[] }) => {
+        if (input.rawRows[1]![17] === "1000.00") throw new Error("Unresolved filing amendment");
+        return input.rawRows.map((row) => [...row]);
+      });
+      const syncFn = vi.fn().mockResolvedValue({});
+
+      const result = await syncDueMichiganCandidateFinance({
+        db, autoLinkMissingLinks: false, fetchOutsideSpending: false, fetchCommitteeRegistry: false,
+        mitnPublicSearchFetchFn: fetchFn, currentContributionRowsFn: policyFn,
+        syncMichiganCandidateFinanceFn: syncFn,
+      });
+
+      expect(result.failedCandidateCount).toBe(1);
+      expect(result.syncedCandidateCount).toBe(1);
+      expect(result.results[0]).toMatchObject({ ok: false, error: "Unresolved filing amendment" });
+      expect(fetchFn).toHaveBeenCalledTimes(4);
+      expect(policyFn).toHaveBeenCalledTimes(2);
+      expect(policyFn.mock.calls[0]![0].rawRows[1]![17]).toBe("1000.00");
+      expect(policyFn.mock.calls[1]![0].rawRows[1]![17]).toBe("2500.00");
+      expect(syncFn).toHaveBeenCalledTimes(1);
+      expect(syncFn.mock.calls[0]![0].electionId).toBe("33333333-3333-4333-8333-333333333333");
+      expect(syncFn.mock.calls[0]![0].contributionRows[0].amount).toBe("2500.00");
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("reuses a successfully reconciled empty snapshot across election links", async () => {
+    vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
+    try {
+      const db = createMockDb([dueRow(), dueRow({ election_id: "33333333-3333-4333-8333-333333333333" })]);
+      const empty = buildMitnExportXlsx([]);
+      const fetchFn = vi.fn(async () => new Response(empty));
+      const policyFn = vi.fn(async (input: { rawRows: readonly (readonly string[])[] }) =>
+        input.rawRows.map((row) => [...row]));
+      const syncFn = vi.fn().mockResolvedValue({});
+
+      const result = await syncDueMichiganCandidateFinance({
+        db, autoLinkMissingLinks: false, fetchOutsideSpending: false, fetchCommitteeRegistry: false,
+        mitnPublicSearchFetchFn: fetchFn, currentContributionRowsFn: policyFn,
+        syncMichiganCandidateFinanceFn: syncFn,
+      });
+
+      expect(result.syncedCandidateCount).toBe(2);
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+      expect(policyFn).toHaveBeenCalledTimes(1);
+      expect(syncFn.mock.calls[0]![0].contributionRows).toEqual([]);
+      expect(syncFn.mock.calls[1]![0].contributionRows).toBe(syncFn.mock.calls[0]![0].contributionRows);
+    } finally { vi.unstubAllEnvs(); }
+  });
+
   it("fetches each outside cycle once and verifies exact candidate registry identity", async () => {
     vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MICHIGAN_MITN_RAW_DATA_REFRESH_ENABLED", "true");
