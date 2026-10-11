@@ -411,8 +411,9 @@ export async function syncTennesseeCandidateFinance(
     linkSourceUrl: link.sourceUrl,
     maxGroups: input.outsideMaxGroups ?? DEFAULT_OUTSIDE_MAX_GROUPS,
   });
-  const outsideGroups = outsideFinance.summary ? toOutsideGroups(outsideFinance.summary.groups) : [];
-  const rawOutsideGroupBreakdowns = input.outsideGroupContributionRecords
+  // Discovery absence cannot prove a complete candidate outside zero.
+  const outsideGroups = outsideFinance.summary ? toOutsideGroups(outsideFinance.summary.groups) : undefined;
+  const rawOutsideGroupBreakdowns = outsideGroups && input.outsideGroupContributionRecords
     ? aggregateTennesseeOutsideGroupContributions({
         electionYear,
         outsideGroups: outsideFinance.summary?.groups ?? [],
@@ -440,8 +441,8 @@ export async function syncTennesseeCandidateFinance(
       syncedAt,
       summary: {
         ...directFinance.summary,
-        outsideSupportTotal: outsideFinance.summary?.supportTotal ?? null,
-        outsideOpposeTotal: outsideFinance.summary?.opposeTotal ?? null,
+        outsideSupportTotal: outsideFinance.summary?.supportTotal,
+        outsideOpposeTotal: outsideFinance.summary?.opposeTotal,
         sourceUrl: directFinance.summary.sourceUrl ?? outsideFinance.summary?.sourceUrl ?? null,
       },
       directBreakdowns: directFinance.directBreakdowns,
@@ -459,7 +460,7 @@ export async function syncTennesseeCandidateFinance(
     linkWritten: !dryRun,
     summaryWritten: !dryRun,
     directBreakdownsWritten: dryRun ? 0 : directFinance.directBreakdowns.length,
-    outsideGroupsWritten: dryRun ? 0 : outsideGroups.length,
+    outsideGroupsWritten: dryRun ? 0 : (outsideGroups?.length ?? 0),
     outsideGroupBreakdownsWritten: dryRun ? 0 : (outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0),
     totalReceipts: directFinance.summary.totalReceipts,
     directContributionTotal: directFinance.summary.directContributionTotal,
@@ -474,6 +475,6 @@ export async function syncTennesseeCandidateFinance(
     matchedOutsideContributionRowCount: rawOutsideGroupBreakdowns?.matchedContributionRowCount ?? 0,
     includedOutsideContributionRowCount: rawOutsideGroupBreakdowns?.includedContributionRowCount ?? 0,
     skippedOutsideContributionRowCount: rawOutsideGroupBreakdowns?.skippedContributionRowCount ?? 0,
-    outsideGroupCount: outsideGroups.length,
+    outsideGroupCount: outsideGroups?.length ?? 0,
   };
 }

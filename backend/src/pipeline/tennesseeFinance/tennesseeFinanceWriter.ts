@@ -285,8 +285,10 @@ async function upsertSummary(input: {
       DO UPDATE SET
         total_receipts = EXCLUDED.total_receipts,
         direct_contribution_total = EXCLUDED.direct_contribution_total,
-        outside_support_total = EXCLUDED.outside_support_total,
-        outside_oppose_total = EXCLUDED.outside_oppose_total,
+        outside_support_total = CASE WHEN $9::boolean THEN EXCLUDED.outside_support_total
+          ELSE tn_candidate_finance_summaries.outside_support_total END,
+        outside_oppose_total = CASE WHEN $10::boolean THEN EXCLUDED.outside_oppose_total
+          ELSE tn_candidate_finance_summaries.outside_oppose_total END,
         source_url = EXCLUDED.source_url,
         last_synced_at = EXCLUDED.last_synced_at
     `,
@@ -299,6 +301,8 @@ async function upsertSummary(input: {
       normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
       normalizeOptionalText(input.summary.sourceUrl),
       input.syncedAt.toISOString(),
+      input.summary.outsideSupportTotal !== undefined,
+      input.summary.outsideOpposeTotal !== undefined,
     ]
   );
 }

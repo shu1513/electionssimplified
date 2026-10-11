@@ -129,7 +129,7 @@ describe("tennesseeFinanceWriter", () => {
     const summaryCall = db.query.mock.calls.find((call) =>
       String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries")
     );
-    expect(String(summaryCall?.[0])).toContain("outside_support_total = EXCLUDED.outside_support_total");
+    expect(String(summaryCall?.[0])).toContain("outside_support_total = CASE WHEN $9::boolean THEN EXCLUDED.outside_support_total");
     expect(String(summaryCall?.[0])).not.toContain("outside_support_total = COALESCE");
     expect(summaryCall?.[1]).toEqual([
       LINK_ID,
@@ -140,6 +140,8 @@ describe("tennesseeFinanceWriter", () => {
       5000,
       "https://apps.tn.gov/tncamp/public/ceresults.htm?d-1341904-e=1&6578706f7274=1",
       "2026-07-08T09:10:11.000Z",
+      true,
+      true,
     ]);
     const outsideGroupCall = db.query.mock.calls.find((call) =>
       String(call[0]).includes("INSERT INTO public.tn_candidate_finance_outside_groups")
@@ -184,6 +186,30 @@ describe("tennesseeFinanceWriter", () => {
     );
     expect(staleBreakdownDelete).toBeDefined();
     expect(staleBreakdownDelete?.[1]).toEqual([LINK_ID, 2026, "[]"]);
+  });
+
+  it("preserves outside scalars, groups and breakdowns on a direct-only update", async () => {
+    const db = createMockDb();
+    await replaceTennesseeCandidateFinanceSnapshot({
+      db, link: baseLink(), summary: { totalReceipts: 1000, directContributionTotal: 1000 },
+    });
+    const summaryCall = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries"));
+    expect(summaryCall?.[1]?.slice(4, 6)).toEqual([null, null]);
+    expect(summaryCall?.[1]?.slice(8)).toEqual([false, false]);
+    expect(String(summaryCall?.[0])).toContain("ELSE tn_candidate_finance_summaries.outside_support_total END");
+    expect(String(summaryCall?.[0])).toContain("ELSE tn_candidate_finance_summaries.outside_oppose_total END");
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tn_candidate_finance_outside"))).toBe(false);
+  });
+
+  it("distinguishes explicit removal from unavailable scalars instead of coalescing old money", async () => {
+    const db = createMockDb();
+    await replaceTennesseeCandidateFinanceSnapshot({
+      db, link: baseLink(), summary: { outsideSupportTotal: null }, outsideGroups: [],
+    });
+    const summaryCall = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries"));
+    expect(summaryCall?.[1]?.slice(8)).toEqual([true, false]);
+    expect(String(summaryCall?.[0])).not.toContain("outside_support_total = COALESCE");
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tn_candidate_finance_outside_groups"))).toBe(true);
   });
 });
 

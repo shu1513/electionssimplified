@@ -182,5 +182,19 @@ describe("tennesseeCandidateFinanceSync", () => {
       String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries")
     );
     expect(summaryCall?.[1]?.slice(4, 6)).toEqual([null, null]);
+    expect(summaryCall?.[1]?.slice(8)).toEqual([false, false]);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tn_candidate_finance_outside"))).toBe(false);
+  });
+
+  it("does not clear outside evidence from an empty discovery search or its empty donor search", async () => {
+    const db = createMockDb();
+    await syncTennesseeCandidateFinance({
+      db, candidateId: "candidate-1", electionId: "election-1", candidateName: "Bill Lee",
+      electionYear: 2022, officeName: "Governor", campCandidateId: "6496", ownerName: "LEE, BILL",
+      contributions: [contribution()], expenditures: [], outsideGroupContributionRecords: [],
+    });
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tn_candidate_finance_outside"))).toBe(false);
+    const summaryCall = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries"));
+    expect(summaryCall?.[1]?.slice(8)).toEqual([false, false]);
   });
 });
