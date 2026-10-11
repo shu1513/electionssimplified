@@ -1,4 +1,5 @@
-import { personNamesMatchWithMiddleEvidence } from "../finance/personNameMiddleEvidence.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+import { personNameParseVariants, personNamesMatchWithMiddleEvidence } from "../finance/personNameMiddleEvidence.js";
 import type { MaineCfisContributionRow } from "./maineCfisArtifactReader.js";
 import { isMaineFinanceEligibleOffice } from "./maineFinanceEligibleOffices.js";
 
@@ -99,6 +100,35 @@ export function normalizeMaineCandidateNameKeys(value: string): Set<string> {
   }
 
   return keys;
+}
+
+// First+last keys for every parse of a name ("David G. Haggan" and
+// "Haggan, David" both give DAVID HAGGAN). The auto-link pre-filter uses them
+// so it admits every row the resolver's middle-evidence fallback could match.
+// expandNicknames adds the first name's nickname variants ("Mike Smith" ->
+// MICHAEL SMITH). Expand the VoteApp side only and read the source literally
+// (personFirstNameNicknames.ts explains why).
+export function maineCandidateFirstLastKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
+  const keys = new Set<string>();
+  for (const parse of personNameParseVariants(value, normalizePersonName)) {
+    if (!parse.first || !parse.last) {
+      continue;
+    }
+    keys.add(`${parse.first} ${parse.last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(parse.first)) {
+        keys.add(`${variant} ${parse.last}`);
+      }
+    }
+  }
+  return keys;
+}
+
+function maineFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
 }
 
 export function normalizeMaineCandidateNameForStorage(value: string): string {
@@ -212,6 +242,7 @@ function rowMatchesCandidateName(input: {
   row: MaineCfisContributionRow;
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
+  expandNicknames: boolean;
 }): boolean {
   for (const key of normalizeMaineCandidateNameKeys(input.row["Candidate Name"])) {
     if (input.candidateNameKeys.has(key)) {
@@ -227,6 +258,7 @@ function rowMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: [input.row["Candidate Name"]],
     normalizePersonName,
+    ...(input.expandNicknames ? { firstNamesEquivalent: maineFirstNamesEquivalent } : {}),
   });
 }
 
@@ -259,8 +291,23 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal first name first, nicknames only when nothing matched literally: a
+// "Mike" candidate must not turn ambiguous because a different "Michael" with
+// the same surname also filed, and a candidate filed under both forms keeps
+// the literal committee (georgia pattern).
 export function resolveMaineCandidateCommittee(
   input: MaineCandidateCommitteeResolverInput
+): MaineCandidateCommitteeResolution {
+  const literal = resolveMaineCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveMaineCandidateCommitteeByName(input, true);
+}
+
+function resolveMaineCandidateCommitteeByName(
+  input: MaineCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): MaineCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
   const officeScope = normalizeOfficeScope(input.officeScope);
@@ -311,7 +358,7 @@ export function resolveMaineCandidateCommittee(
     if (!isElectionCycleContribution(row, electionYear)) {
       continue;
     }
-    if (!rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })) {
+    if (!rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys, expandNicknames })) {
       continue;
     }
     if (!rowMatchesOffice({ row, officeCanonicalName })) {
