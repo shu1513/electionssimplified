@@ -1,4 +1,5 @@
-import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+import { hasMiddleNameConflict, personNameParseVariants } from "../finance/personNameMiddleEvidence.js";
 import {
   searchTennesseeCampCandidates,
   type TennesseeCampCandidateRecord,
@@ -141,27 +142,115 @@ function candidateNameNormalized(value: string): string {
   return [...normalizeTennesseeCandidateNameKeys(value)][0] ?? normalizePersonName(value);
 }
 
-function lastNameSearchToken(candidateName: string): string {
-  const trimmed = candidateName.replace(/\([^()]+\)/g, " ").trim();
+// Quoted call names ('Dewey "Rusty" Crowe') read like the parenthetical form
+// the shared parser already understands ("Dewey (Rusty) Crowe").
+function quotedAliasToParenthetical(value: string): string {
+  return value.replace(
+    /(^|\s)["\u201c]([A-Za-z][A-Za-z .-]{1,40})["\u201d](?=\s|$)/g,
+    (_match, prefix: string, alias: string) => `${prefix}(${alias})`
+  );
+}
+
+function normalizeSearchToken(value: string): string {
+  return value
+    .replace(/\b(JR|SR|II|III|IV)\.?(?=\s|,|$)/gi, " ")
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+// CAMP's candidate search is a last-name PREFIX search on the filed name, so
+// the token keeps hyphens and apostrophes ("PIERRE-GRIFFIN", "D'APOLITO"):
+// normalized to "GRIFFIN" or "APOLITO" it finds nothing. A three-word
+// VoteApp name may hide an unhyphenated compound surname ("Esther Helton
+// Haynes" files as HELTON-HAYNES), so the word before the last is a second
+// search token, tried only when the first finds no match.
+export function tennesseeCampLastNameSearchTokens(candidateName: string): string[] {
+  // A trailing ", Jr." is a suffix, not a "Last, First" comma.
+  const trimmed = quotedAliasToParenthetical(candidateName)
+    .replace(/\([^()]+\)/g, " ")
+    .trim()
+    .replace(/,?\s*\b(JR|SR|II|III|IV)\.?$/i, "")
+    .trim();
   if (trimmed.includes(",")) {
-    const commaFirst = normalizePersonName(trimmed.split(",", 1)[0]);
+    const commaFirst = normalizeSearchToken(trimmed.split(",", 1)[0] ?? "");
     if (commaFirst) {
-      return commaFirst;
+      return [commaFirst];
     }
   }
-  const normalized = normalizePersonName(trimmed);
-  return normalized.split(/\s+/).filter(Boolean).at(-1) ?? trimmed;
+  const words = normalizeSearchToken(trimmed).split(/\s+/).filter(Boolean);
+  const tokens = [words.at(-1) ?? trimmed.toUpperCase()];
+  const beforeLast = words.length >= 3 ? words.at(-2) : undefined;
+  if (beforeLast && beforeLast.replace(/[^A-Z]/g, "").length > 1) {
+    tokens.push(beforeLast);
+  }
+  return tokens;
+}
+
+// How far a name may stray from the literal first+last key. Tried in order,
+// each only when the previous tier matched nothing:
+//   literal  - first+last keys, including one-word call names given in
+//              parentheses or quotes ("BULSO, EUGENE N. (GINO)" -> GINO BULSO);
+//   nickname - the VoteApp first name expands to its nickname variants
+//              ("Mike Sparks" -> MICHAEL SPARKS); the CAMP name is read
+//              literally (personFirstNameNicknames.ts);
+//   middle   - the candidate goes by a middle name: VoteApp "Brian Stewart"
+//              is filed as "STEWART, CHRISTOPHER BRIAN", and "R. Jason
+//              Goodman" as "GOODMAN, RALPH JASON".
+// Office, district, and year already agree before names are compared.
+type NameMatchTier = "literal" | "nickname" | "middle";
+
+function parseVariants(value: string) {
+  return personNameParseVariants(quotedAliasToParenthetical(value), normalizePersonName);
+}
+
+function candidateTierKeys(candidateName: string, tier: NameMatchTier): Set<string> {
+  const keys = normalizeTennesseeCandidateNameKeys(candidateName);
+  for (const variant of parseVariants(candidateName)) {
+    keys.add(`${variant.first} ${variant.last}`);
+    if (tier === "nickname") {
+      for (const nickname of firstNameVariants(variant.first)) {
+        keys.add(`${nickname} ${variant.last}`);
+      }
+    }
+    const firstMiddle = variant.middles[0];
+    if (tier === "middle" && variant.first.length === 1 && firstMiddle && firstMiddle.length > 1) {
+      keys.add(`${firstMiddle} ${variant.last}`);
+    }
+  }
+  return keys;
+}
+
+function rowTierKeys(rowName: string, tier: NameMatchTier): Set<string> {
+  const keys = normalizeTennesseeCandidateNameKeys(rowName);
+  for (const variant of parseVariants(rowName)) {
+    keys.add(`${variant.first} ${variant.last}`);
+    if (tier === "middle") {
+      for (const middle of variant.middles) {
+        if (middle.length > 1) {
+          keys.add(`${middle} ${variant.last}`);
+        }
+      }
+    }
+  }
+  return keys;
+}
+
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
 }
 
 function recordMatchesCandidateName(input: {
   record: TennesseeCampCandidateRecord;
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
+  tier: NameMatchTier;
 }): boolean {
   const names = [input.record.name, input.record.ownerName].filter(Boolean);
   let keyMatched = false;
   for (const name of names) {
-    for (const key of normalizeTennesseeCandidateNameKeys(name)) {
+    for (const key of rowTierKeys(name, input.tier)) {
       if (input.candidateNameKeys.has(key)) {
         keyMatched = true;
         break;
@@ -182,6 +271,7 @@ function recordMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: names,
     normalizePersonName,
+    firstNamesEquivalent: input.tier === "nickname" ? nicknameFirstNamesEquivalent : undefined,
   });
 }
 
@@ -213,8 +303,22 @@ function recordMatchesDistrict(input: {
 export function resolveTennesseeCandidateCommittee(
   input: TennesseeCandidateCommitteeResolverInput
 ): TennesseeCandidateCommitteeResolution {
+  let resolution = resolveTennesseeCandidateCommitteeByName(input, "literal");
+  for (const tier of ["nickname", "middle"] as const) {
+    if (resolution.status !== "unmatched" || resolution.reason !== "no_candidate_committee_match") {
+      break;
+    }
+    resolution = resolveTennesseeCandidateCommitteeByName(input, tier);
+  }
+  return resolution;
+}
+
+function resolveTennesseeCandidateCommitteeByName(
+  input: TennesseeCandidateCommitteeResolverInput,
+  tier: NameMatchTier
+): TennesseeCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
-  const candidateNameKeys = normalizeTennesseeCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = candidateTierKeys(input.candidateName, tier);
   const candidateNameKey = candidateNameNormalized(input.candidateName);
   const officeSearch = toTennesseeCampOfficeSearchInput({
     officeScope: input.officeScope,
@@ -269,7 +373,7 @@ export function resolveTennesseeCandidateCommittee(
     if (!recordMatchesDistrict({ record, expectedDistrict })) {
       continue;
     }
-    if (!recordMatchesCandidateName({ record, candidateName: input.candidateName, candidateNameKeys })) {
+    if (!recordMatchesCandidateName({ record, candidateName: input.candidateName, candidateNameKeys, tier })) {
       continue;
     }
     const accumulator = matches.get(campCandidateId) ?? {
@@ -318,13 +422,20 @@ export async function searchAndResolveTennesseeCandidateCommittee(
   if (!officeSearch) {
     return resolveTennesseeCandidateCommittee({ ...input, candidateRecords: [] });
   }
-  const candidateRecords = await searchTennesseeCampCandidates(
-    {
-      candidateName: lastNameSearchToken(input.candidateName),
-      electionYear: input.electionYear,
-      officeSelection: officeSearch.officeSelection,
-    },
-    options
-  );
-  return resolveTennesseeCandidateCommittee({ ...input, candidateRecords });
+  let resolution: TennesseeCandidateCommitteeResolution | null = null;
+  for (const token of tennesseeCampLastNameSearchTokens(input.candidateName)) {
+    const candidateRecords = await searchTennesseeCampCandidates(
+      {
+        candidateName: token,
+        electionYear: input.electionYear,
+        officeSelection: officeSearch.officeSelection,
+      },
+      options
+    );
+    resolution = resolveTennesseeCandidateCommittee({ ...input, candidateRecords });
+    if (resolution.status !== "unmatched" || resolution.reason !== "no_candidate_committee_match") {
+      return resolution;
+    }
+  }
+  return resolution ?? resolveTennesseeCandidateCommittee({ ...input, candidateRecords: [] });
 }
