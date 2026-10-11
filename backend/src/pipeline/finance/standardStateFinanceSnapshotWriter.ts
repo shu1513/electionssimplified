@@ -90,6 +90,11 @@ export type StandardStateFinanceSnapshotInput<
   // Writes a state-only summary column inside the same transaction, right
   // after the shared summary upsert (D.C. public_funds_received).
   afterSummaryWrite?: (input: { db: Queryable; linkId: string; electionYear: number }) => Promise<void>;
+  // State-only snapshot rows, including when no summary was supplied.
+  // Runs inside the existing transaction; failure rolls back every write.
+  afterSnapshotWrite?: (input: {
+    db: Queryable; linkId: string; electionYear: number; syncedAt: Date;
+  }) => Promise<void>;
 };
 
 export type StandardStateFinanceSnapshotWriteResult = {
@@ -914,6 +919,8 @@ export function createStandardStateFinanceSnapshotWriter<
       for (const classification of input.classifications ?? []) {
         await upsertFinanceLabelClassification({ db, classification });
       }
+
+      await input.afterSnapshotWrite?.({ db, linkId, electionYear, syncedAt });
 
       return {
         linkId,

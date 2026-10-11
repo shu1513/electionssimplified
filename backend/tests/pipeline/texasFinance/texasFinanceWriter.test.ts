@@ -376,6 +376,94 @@ describe("texasFinanceWriter", () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it("stores TEC and namespaced out-of-state donor identities atomically with the current summary", async () => {
+    const db = createMockDb();
+    const syncedAt = new Date("2026-10-11T10:00:00.000Z");
+    const result = await replaceTexasCandidateFinanceSnapshot({
+      db, link: baseLink(), syncedAt, summary: { directContributionTotal: 5000 },
+      pacDonors: [
+        { committeeId: "00015672", committeeName: "Wholesale Beer Distributors of Texas PAC",
+          committeeType: "MPAC", totalAmount: 2500, contributionCount: 1 },
+        { committeeId: "fec:C00032979", committeeName: "DRIVE Committee", committeeType: "OOS_PAC",
+          totalAmount: 2500, contributionCount: 1, sourceUrl: " https://www.ethics.state.tx.us/search/cf/ " },
+      ],
+    });
+    expect(result).toMatchObject({ summaryWritten: true, pacDonorsWritten: 2 });
+    const calls = db.query.mock.calls;
+    expect(calls[0]![0]).toBe("BEGIN");
+    expect(calls.at(-1)![0]).toBe("COMMIT");
+    const donorWrites = calls.filter((call) => String(call[0]).includes("INSERT INTO public.tx_candidate_finance_pac_donors"));
+    expect(donorWrites).toHaveLength(2);
+    expect(String(donorWrites[0]![0])).toContain("ON CONFLICT (link_id, election_year, committee_id)");
+    expect(donorWrites[0]![1]).toEqual([LINK_ID, 2026, "00015672", "Wholesale Beer Distributors of Texas PAC",
+      "MPAC", 2500, 1, null, syncedAt.toISOString()]);
+    expect(donorWrites[1]![1]).toEqual([LINK_ID, 2026, "fec:C00032979", "DRIVE Committee",
+      "OOS_PAC", 2500, 1, "https://www.ethics.state.tx.us/search/cf/", syncedAt.toISOString()]);
+    const cleanup = calls.find((call) => String(call[0]).includes("DELETE FROM public.tx_candidate_finance_pac_donors"));
+    expect(cleanup![1]).toEqual([LINK_ID, 2026, ["00015672", "fec:C00032979"]]);
+    expect(String(cleanup![0])).toContain("AND NOT (donor.committee_id = ANY($3::text[]))");
+  });
+
+  it("preserves omitted PAC donors and clears an explicit empty PAC-only snapshot without creating a summary", async () => {
+    const db = createMockDb();
+    const omitted = await replaceTexasCandidateFinanceSnapshot({ db, link: baseLink() });
+    expect(omitted).not.toHaveProperty("pacDonorsWritten");
+    expect(db.query.mock.calls.some((call) => String(call[0]).includes("tx_candidate_finance_pac_donors"))).toBe(false);
+    db.query.mockClear();
+    const cleared = await replaceTexasCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [] });
+    expect(cleared).toMatchObject({ summaryWritten: false, pacDonorsWritten: 0 });
+    const calls = db.query.mock.calls;
+    expect(calls[0]![0]).toBe("BEGIN");
+    expect(calls.at(-1)![0]).toBe("COMMIT");
+    expect(calls.some((call) => String(call[0]).includes("INSERT INTO public.tx_candidate_finance_summaries"))).toBe(false);
+    const cleanup = calls.find((call) => String(call[0]).includes("DELETE FROM public.tx_candidate_finance_pac_donors"));
+    expect(cleanup![1]).toEqual([LINK_ID, 2026, []]);
+  });
+
+  it.each(["INSERT INTO public.tx_candidate_finance_pac_donors", "DELETE FROM public.tx_candidate_finance_pac_donors"])(
+    "rolls back summary and donor writes if %s fails", async (failedSql) => {
+      const client = { query: vi.fn(async (sql: string) => {
+        if (sql.includes(failedSql)) throw new Error("PAC write failed");
+        return { rows: [{ id: LINK_ID }], rowCount: 1 };
+      }), release: vi.fn() };
+      const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+      await expect(replaceTexasCandidateFinanceSnapshot({
+        db, link: baseLink(), summary: { directContributionTotal: 2500 },
+        pacDonors: [{ committeeId: "00015672", committeeName: "Wholesale Beer Distributors of Texas PAC",
+          committeeType: "MPAC", totalAmount: 2500, contributionCount: 1 }],
+      })).rejects.toThrow("PAC write failed");
+      const sql = client.query.mock.calls.map((call) => String(call[0]));
+      expect(sql.some((statement) => statement.includes("INSERT INTO public.tx_candidate_finance_summaries"))).toBe(true);
+      expect(sql.at(-1)).toBe("ROLLBACK");
+      expect(sql).not.toContain("COMMIT");
+      expect(client.release).toHaveBeenCalledTimes(1);
+      expect(db.query).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each([
+    { totalAmount: -1 }, { totalAmount: 0 }, { totalAmount: Number.NaN },
+    { contributionCount: -1 }, { contributionCount: 0 }, { contributionCount: 1.5 },
+    { committeeId: " " }, { committeeName: " " }, { committeeType: " " },
+  ])("rejects invalid PAC donor data before starting a transaction: %j", async (invalid) => {
+    const db = createMockDb();
+    await expect(replaceTexasCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [{
+      committeeId: "00015672", committeeName: "Source PAC", committeeType: "MPAC",
+      totalAmount: 2500, contributionCount: 1, ...invalid,
+    }] })).rejects.toThrow(/Texas PAC donor/);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it("rejects duplicate donor identities before replacing a snapshot", async () => {
+    const db = createMockDb();
+    const donor = { committeeId: "00015672", committeeName: "Source PAC", committeeType: "MPAC",
+      totalAmount: 2500, contributionCount: 1 };
+    await expect(replaceTexasCandidateFinanceSnapshot({ db, link: baseLink(),
+      pacDonors: [donor, { ...donor, committeeId: " 00015672 " }],
+    })).rejects.toThrow("duplicate committee ids");
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid election years", async () => {
     const db = createMockDb();
 

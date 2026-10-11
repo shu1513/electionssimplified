@@ -4173,6 +4173,13 @@ describe("lookupElectionDetailById", () => {
         ],
       });
 
+    query.mockResolvedValueOnce({ rows: [{
+      candidate_id: candidateId, election_id: officeElectionId,
+      committee_id: "00015672", committee_name: "Example Civic Committee",
+      committee_type: "MPAC", amount: "4000.00", source_url: null,
+      industry_slug: null, classification_source: null, confidence: null,
+    }] });
+
     // Trailing committee-labels lookup (applyFinanceCommitteeLabels):
     // none researched, so the groups stay unlabeled.
     query.mockResolvedValueOnce({ rows: [] });
@@ -4185,6 +4192,12 @@ describe("lookupElectionDetailById", () => {
       controlled_committee_id: "TX100",
       last_synced_at: "2026-06-21 04:05:00+00",
       direct_campaign: {
+        direct_coverage_note: "Regular TEC reports only; late pre-election reports are not included. Committee donors require a unique typed registry match or explicit out-of-state PAC identification.",
+        pac_money_by_interest: [{
+          interest: "unclassified", interest_name: "Not yet sorted", amount: 4000, pac_count: 1,
+          pacs: [{ committee_id: "00015672", committee_name: "Example Civic Committee",
+            amount: 4000, source_url: "https://www.ethics.state.tx.us/search/cf/" }],
+        }],
         total_raised: 95000,
         total_spent: 30000,
         cash_on_hand: 65000,
@@ -4209,6 +4222,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
       outside_spending: {
+        outside_coverage_note: "Only current regular reports with one identified beneficiary and verified support or opposition are included. Shared expenses and campaign contributions are omitted.",
         support_total: 80000,
         oppose_total: 2000,
         top_supporting_groups: [
@@ -4278,7 +4292,8 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(14);
+    expect(query).toHaveBeenCalledTimes(15);
+    expect(query.mock.calls[12]?.[0]).toContain("public.tx_candidate_finance_pac_donors");
     expect(query.mock.calls[7]?.[0]).toContain("public.tx_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.tx_candidate_finance_direct_breakdowns");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type IN ('occupation', 'contribution_size')");
