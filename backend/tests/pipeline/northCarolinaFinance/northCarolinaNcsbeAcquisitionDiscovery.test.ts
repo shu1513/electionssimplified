@@ -30,6 +30,12 @@ function fixture(name: string): string {
   );
 }
 
+// The legacy cover fixture predates the anti-forgery token the transaction
+// handlers now require; the acquisition reads it from the cover page.
+function withAntiForgeryToken(html: string): string {
+  return `${html}<input name="__RequestVerificationToken" type="hidden" value="test-token" />`;
+}
+
 // A minimal committee-search page in the portal's embedded-JSON shape.
 function searchPage(rows: object[]): string {
   return `<html><script>var data = ${JSON.stringify(rows)};</script></html>`;
@@ -80,12 +86,12 @@ function fakeTransport(state: { requests: string[] }, searchPages: Record<string
         return fixture("document-inventory-gadson.html");
       }
       if (url.includes("/ReportDetail/")) {
-        return fixture("report-cover-gadson-229931.html");
+        return withAntiForgeryToken(fixture("report-cover-gadson-229931.html"));
       }
-      if (url.includes("GetReceipts")) {
+      if (url.includes("handler=ReadReceipts")) {
         return fixture("receipts-gadson-229931-p0.json");
       }
-      if (url.includes("GetExpenditures")) {
+      if (url.includes("handler=ReadExpenditures")) {
         return fixture("ie-expenditures-carolina-federation-p0.json");
       }
       if (url.includes("/CFDocLkup/DocumentResult/")) {
@@ -452,12 +458,12 @@ describe("acquireNcsbeRosterCycleArtifacts", () => {
           return fixture("document-inventory-gadson.html");
         }
         if (url.includes("/ReportDetail/")) {
-          return fixture("report-cover-gadson-229931.html");
+          return withAntiForgeryToken(fixture("report-cover-gadson-229931.html"));
         }
-        if (url.includes("GetReceipts")) {
+        if (url.includes("handler=ReadReceipts")) {
           return fixture("receipts-gadson-229931-p0.json");
         }
-        if (url.includes("GetExpenditures")) {
+        if (url.includes("handler=ReadExpenditures")) {
           return fixture("ie-expenditures-carolina-federation-p0.json");
         }
         if (url.includes("/CFDocLkup/DocumentResult/")) {

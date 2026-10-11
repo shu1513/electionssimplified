@@ -34,8 +34,9 @@ export const DEFAULT_NCSBE_REQUEST_SPACING_MS = 2_000;
 export const DEFAULT_NCSBE_REQUEST_TIMEOUT_MS = 90_000;
 
 // The server ignores pageSize and always serves 300-row pages (spike results
-// item 1). The parameter is still required — a bare call returns an HTML
-// error page — so it is sent with the observed fixed size.
+// item 1; still true of the redesigned grid handlers, checked live
+// 2026-10-10 on a 121,132-row report). It is sent with the observed fixed
+// size anyway.
 export const NCSBE_TRANSACTION_PAGE_SIZE = 300;
 
 // The three IE doc-type codes (decision 3): unregistered IE reports,
@@ -96,24 +97,48 @@ export function ncsbeReportDetailUrl(reportId: string): string {
   return `${NCSBE_PORTAL_BASE_URL}/CFOrgLkup/ReportDetail/?RID=${requireNcsbeReportId(reportId)}&TP=ALL`;
 }
 
-export function ncsbeReceiptsUrl(reportId: string, page: number): string {
-  if (!Number.isInteger(page) || page < 0) {
-    throw new Error(`Invalid NCSBE receipts page: ${page}`);
-  }
+// Transaction rows come from the report page's own Kendo grid read handlers
+// (portal redesign seen live 2026-10-10; the old GetReceipts/GetExpenditures
+// routes now 404). They only answer a POST carrying the page number and an
+// anti-forgery token — query-string paging is ignored — so the page lives in
+// the form (ncsbeTransactionForm), not the URL.
+export function ncsbeReceiptsUrl(reportId: string): string {
+  return `${NCSBE_PORTAL_BASE_URL}/CFOrgLkup/ReportDetail?rid=${requireNcsbeReportId(reportId)}&handler=ReadReceipts`;
+}
+
+export function ncsbeExpendituresUrl(reportId: string): string {
   return (
-    `${NCSBE_PORTAL_BASE_URL}/CFOrgLkup/GetReceipts?ReportID=${requireNcsbeReportId(reportId)}` +
-    `&page=${page}&pageSize=${NCSBE_TRANSACTION_PAGE_SIZE}`
+    `${NCSBE_PORTAL_BASE_URL}/CFOrgLkup/ReportDetail?rid=${requireNcsbeReportId(reportId)}` +
+    "&handler=ReadExpenditures"
   );
 }
 
-export function ncsbeExpendituresUrl(reportId: string, page: number): string {
+// `page` is the 0-based cache page index. The handler numbers pages from 1
+// and serves page 1 for page 0, so sending the index unshifted would fetch
+// the first page twice.
+export function ncsbeTransactionForm(page: number, antiForgeryToken: string): NcsbeFormBody {
   if (!Number.isInteger(page) || page < 0) {
-    throw new Error(`Invalid NCSBE expenditures page: ${page}`);
+    throw new Error(`Invalid NCSBE transaction page: ${page}`);
   }
-  return (
-    `${NCSBE_PORTAL_BASE_URL}/CFOrgLkup/GetExpenditures?ReportID=${requireNcsbeReportId(reportId)}` +
-    `&ShowIEColumns=true&page=${page}&pageSize=${NCSBE_TRANSACTION_PAGE_SIZE}`
-  );
+  if (antiForgeryToken.trim().length === 0) {
+    throw new Error("NCSBE transaction fetch needs an anti-forgery token");
+  }
+  return {
+    page: String(page + 1),
+    pageSize: String(NCSBE_TRANSACTION_PAGE_SIZE),
+    __RequestVerificationToken: antiForgeryToken,
+  };
+}
+
+// The report page's hidden form token. The grid handlers reject a POST
+// without it (HTTP 400); it is paired with the antiforgery cookie the same
+// GET set, which the default transport keeps.
+export function extractNcsbeAntiForgeryToken(html: string): string {
+  const match = /name="__RequestVerificationToken"[^>]*\svalue="([^"]+)"/.exec(html);
+  if (!match) {
+    throw new Error("NCSBE report page has no anti-forgery token");
+  }
+  return match[1]!;
 }
 
 export function ncsbeCsvExportUrl(reportId: string, title: string): string {
@@ -136,19 +161,41 @@ export type NcsbeHttpResponse = {
   body: string;
 };
 
-export type NcsbeFetchFn = (url: string) => Promise<NcsbeHttpResponse>;
+// Present = POST these fields form-encoded; absent = GET.
+export type NcsbeFormBody = Record<string, string>;
+
+export type NcsbeFetchFn = (url: string, form?: NcsbeFormBody) => Promise<NcsbeHttpResponse>;
 
 export type NcsbeTransport = {
-  fetchText: (url: string) => Promise<string>;
+  fetchText: (url: string, form?: NcsbeFormBody) => Promise<string>;
 };
 
+// Keeps the portal's cookies (the antiforgery cookie the grid handlers check)
+// for the life of the transport.
 function defaultNcsbeFetch(userAgent: string, timeoutMs: number): NcsbeFetchFn {
-  return async (url: string) => {
+  const cookies = new Map<string, string>();
+  return async (url: string, form?: NcsbeFormBody) => {
+    const headers: Record<string, string> = { "User-Agent": userAgent, Accept: "*/*" };
+    if (cookies.size > 0) {
+      headers.Cookie = [...cookies].map(([name, value]) => `${name}=${value}`).join("; ");
+    }
+    if (form) {
+      headers["Content-Type"] = "application/x-www-form-urlencoded";
+    }
     const response = await fetch(url, {
-      headers: { "User-Agent": userAgent, Accept: "*/*" },
+      method: form ? "POST" : "GET",
+      headers,
+      body: form ? new URLSearchParams(form).toString() : undefined,
       redirect: "follow",
       signal: AbortSignal.timeout(timeoutMs),
     });
+    for (const setCookie of response.headers.getSetCookie()) {
+      const pair = setCookie.split(";", 1)[0]!;
+      const separator = pair.indexOf("=");
+      if (separator > 0) {
+        cookies.set(pair.slice(0, separator).trim(), pair.slice(separator + 1).trim());
+      }
+    }
     return { status: response.status, body: await response.text() };
   };
 }
@@ -184,7 +231,7 @@ export function createNcsbeTransport(
   let anyRequestStarted = false;
 
   return {
-    fetchText: (url: string) => {
+    fetchText: (url: string, form?: NcsbeFormBody) => {
       const run = queue.then(async () => {
         let lastError: Error | null = null;
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -193,7 +240,7 @@ export function createNcsbeTransport(
           }
           anyRequestStarted = true;
           try {
-            const response = await fetchFn(url);
+            const response = await fetchFn(url, form);
             if (response.status === 200) {
               return response.body;
             }
@@ -268,6 +315,7 @@ export async function fetchNcsbeReportDetail(
 }
 
 export type NcsbeTransactionPageFetch = {
+  // 0-based cache page index (the wire page is page + 1).
   page: number;
   url: string;
   body: string;
@@ -289,18 +337,18 @@ export type NcsbeTransactionFetchResult<Row> = {
 // layout downstream page math would misread.
 async function fetchNcsbeTransactionPagesInternal<Row>(
   transport: NcsbeTransport,
-  input: { reportId: string; kind: "receipts" | "expenditures" },
-  urlFor: (reportId: string, page: number) => string,
+  input: { reportId: string; kind: "receipts" | "expenditures"; antiForgeryToken: string },
+  urlFor: (reportId: string) => string,
   parsePage: (body: string) => { recordCount: number; rows: Row[] }
 ): Promise<NcsbeTransactionFetchResult<Row>> {
   const reportId = requireNcsbeReportId(input.reportId);
   const pages: NcsbeTransactionPageFetch[] = [];
   const rows: Row[] = [];
   let recordCount: number | null = null;
+  const url = urlFor(reportId);
 
   for (let page = 0; ; page += 1) {
-    const url = urlFor(reportId, page);
-    const body = await transport.fetchText(url);
+    const body = await transport.fetchText(url, ncsbeTransactionForm(page, input.antiForgeryToken));
     const parsed = parsePage(body);
     if (recordCount === null) {
       if (parsed.recordCount > NCSBE_MAX_TRANSACTION_ROWS) {
@@ -338,13 +386,16 @@ async function fetchNcsbeTransactionPagesInternal<Row>(
   }
 }
 
+// `antiForgeryToken` comes from the same transport's report page fetch
+// (extractNcsbeAntiForgeryToken on fetchNcsbeReportDetail's body).
 export function fetchNcsbeReceiptPages(
   transport: NcsbeTransport,
-  reportId: string
+  reportId: string,
+  antiForgeryToken: string
 ): Promise<NcsbeTransactionFetchResult<NcsbeReceiptRow>> {
   return fetchNcsbeTransactionPagesInternal(
     transport,
-    { reportId, kind: "receipts" },
+    { reportId, kind: "receipts", antiForgeryToken },
     ncsbeReceiptsUrl,
     parseNcsbeReceiptsPage
   );
@@ -352,11 +403,12 @@ export function fetchNcsbeReceiptPages(
 
 export function fetchNcsbeExpenditurePages(
   transport: NcsbeTransport,
-  reportId: string
+  reportId: string,
+  antiForgeryToken: string
 ): Promise<NcsbeTransactionFetchResult<NcsbeExpenditureRow>> {
   return fetchNcsbeTransactionPagesInternal(
     transport,
-    { reportId, kind: "expenditures" },
+    { reportId, kind: "expenditures", antiForgeryToken },
     ncsbeExpendituresUrl,
     parseNcsbeExpendituresPage
   );

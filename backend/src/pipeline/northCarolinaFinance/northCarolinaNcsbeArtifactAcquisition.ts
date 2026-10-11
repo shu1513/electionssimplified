@@ -1,4 +1,5 @@
 import {
+  extractNcsbeAntiForgeryToken,
   fetchNcsbeDocumentInventory,
   fetchNcsbeExpenditurePages,
   fetchNcsbeIeDocTypeInventory,
@@ -192,8 +193,9 @@ export async function acquireNcsbeReport(input: {
 
   // Phase 1: fetch everything. Nothing is written yet.
   const cover = await fetchNcsbeReportDetail(input.transport, reportId);
-  const receipts = await fetchNcsbeReceiptPages(input.transport, reportId);
-  const expenditures = await fetchNcsbeExpenditurePages(input.transport, reportId);
+  const antiForgeryToken = extractNcsbeAntiForgeryToken(cover.body);
+  const receipts = await fetchNcsbeReceiptPages(input.transport, reportId, antiForgeryToken);
+  const expenditures = await fetchNcsbeExpenditurePages(input.transport, reportId, antiForgeryToken);
 
   // Phase 2: install. Only local validated writes remain; a crash here still
   // leaves per-page import dates that isNcsbeReportCached refuses to skip.
