@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { syncTexasCandidateFinance } from "../../../src/pipeline/texasFinance/texasCandidateFinanceSync.js";
+import { TEXAS_TEC_PURPOSE_COLUMNS } from "../../../src/pipeline/texasFinance/texasTecCsvDatabaseReader.js";
 import type {
+  TexasTecPurposeRow,
   TexasTecCandidateRow,
   TexasTecContributionRow,
   TexasTecExpenditureRow,
@@ -73,6 +75,9 @@ function contribution(overrides: Partial<TexasTecContributionRow> = {}): TexasTe
 function candidate(overrides: Partial<TexasTecCandidateRow> = {}): TexasTecCandidateRow {
   return {
     recordType: "CAND",
+    reportInfoIdent: "R1",
+    infoOnlyFlag: "N",
+    schedFormTypeCd: "F1",
     filerIdent: "7001",
     filerTypeCd: "SPAC",
     filerName: "Texans for Example",
@@ -101,7 +106,7 @@ function expenditure(overrides: Partial<TexasTecExpenditureRow> = {}): TexasTecE
     schedFormTypeCd: "F1",
     reportInfoIdent: "R1",
     receivedDt: "20261016",
-    infoOnlyFlag: "",
+    infoOnlyFlag: "N",
     filerIdent: "7001",
     filerTypeCd: "SPAC",
     filerName: "Texans for Example",
@@ -111,7 +116,7 @@ function expenditure(overrides: Partial<TexasTecExpenditureRow> = {}): TexasTecE
     expendDescr: "Direct campaign expenditure",
     expendCatCd: "ADV",
     expendCatDescr: "Advertising",
-    politicalExpendCd: "DIRECT",
+    politicalExpendCd: "",
     payeePersentTypeCd: "ENTITY",
     payeeNameOrganization: "Vendor LLC",
     payeeNameLast: "",
@@ -145,6 +150,7 @@ function spac(overrides: Partial<TexasTecSpacRow> = {}): TexasTecSpacRow {
 
 function baseInput() {
   return {
+    purposeRows: [],
     candidateId: CANDIDATE_ID,
     electionId: ELECTION_ID,
     candidateName: "Greg Abbott",
@@ -671,4 +677,58 @@ describe("texasCandidateFinanceSync", () => {
       "2026-02-03T04:05:06.000Z",
     ]);
   });
+  it("preserves outside snapshots when PURPOSE was not acquired", async () => {
+    const db = createMockDb();
+    const result = await syncTexasCandidateFinance({
+      db, ...baseInput(), purposeRows: undefined, filerRows: [filer()],
+      contributionRows: [contribution()], candidateRows: [candidate()],
+      expenditureRows: [expenditure()], spacRows: [spac()],
+    });
+    expect(result.outsideSupportTotal).toBeNull();
+    expect(db.query.mock.calls.some(call => /INSERT|DELETE/.test(String(call[0])) &&
+      String(call[0]).includes("tx_candidate_finance_outside"))).toBe(false);
+  });
+
+  it("clears outside groups and breakdowns only with complete valid empty data", async () => {
+    const db = createMockDb();
+    const result = await syncTexasCandidateFinance({
+      db, ...baseInput(), filerRows: [filer()], contributionRows: [contribution()],
+      candidateRows: [], expenditureRows: [], spacRows: [], purposeRows: [],
+    });
+    expect(result.outsideSupportTotal).toBe(0);
+    expect(result.outsideOpposeTotal).toBe(0);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tx_candidate_finance_outside_groups"))).toBe(true);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tx_candidate_finance_outside_group_breakdowns"))).toBe(true);
+    expect(db.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("rejects a verified applicable GPAC expense missing its current EXPN without writing", async () => {
+    const db = createMockDb();
+    const purpose = Object.fromEntries(TEXAS_TEC_PURPOSE_COLUMNS.map(column => [column, ""]));
+    await expect(syncTexasCandidateFinance({
+      db, ...baseInput(), filerRows: [filer()], contributionRows: [contribution()],
+      candidateRows: [candidate({ filerTypeCd: "GPAC" })], expenditureRows: [], spacRows: [],
+      purposeRows: [{ ...purpose, recordType: "PURPOSE", reportInfoIdent: "R1", infoOnlyFlag: "N",
+        filerIdent: "7001", filerTypeCd: "GPAC", subjectCategoryCd: "CANDIDATE",
+        subjectPositionCd: "SUPPORT", commActivityName: "Abbott, Greg", activitySeekOfficeCd: "GOVERNOR" } as TexasTecPurposeRow],
+    })).rejects.toThrow(/missing|Missing/);
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it("passes typed donor rows to the writer without adding PAC amounts to receipts twice", async () => {
+    const db = createMockDb();
+    const result = await syncTexasCandidateFinance({
+      db, ...baseInput(), filerRows: [filer()],
+      contributionRows: [contribution({ contributionAmount: "2500.00", contributorPersentTypeCd: "ENTITY",
+        contributorNameOrganization: "Example Civic Committee", contributorNameFirst: "", contributorNameLast: "" })],
+      committeeRegistryRows: [filer({ filerIdent: "00015672", filerTypeCd: "MPAC",
+        filerName: "Example Civic Committee", filerNameOrganization: "Example Civic Committee" })],
+    });
+    expect(result.directContributionTotal).toBe(2500);
+    expect(result.totalReceipts).toBe(2500);
+    const inserts = db.query.mock.calls.filter(call => String(call[0]).includes("INSERT INTO public.tx_candidate_finance_pac_donors"));
+    expect(inserts).toHaveLength(1);
+    expect(inserts[0]?.[1]).toEqual(expect.arrayContaining(["00015672", "MPAC", 2500, 1]));
+  });
+
 });

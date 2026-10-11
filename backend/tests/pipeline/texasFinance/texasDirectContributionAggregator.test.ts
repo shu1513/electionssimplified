@@ -6,7 +6,9 @@ import {
   isTexasTotalReceipt,
   texasElectionCycleStartYear,
 } from "../../../src/pipeline/texasFinance/texasDirectContributionAggregator.js";
-import type { TexasTecContributionRow } from "../../../src/pipeline/texasFinance/texasTecCsvDatabaseReader.js";
+import { TEXAS_TEC_FILER_COLUMNS, type TexasTecFilerRow, type TexasTecContributionRow } from "../../../src/pipeline/texasFinance/texasTecCsvDatabaseReader.js";
+
+let fixtureReceiptId = 10000;
 
 function contribution(overrides: Partial<TexasTecContributionRow> = {}): TexasTecContributionRow {
   return {
@@ -19,7 +21,7 @@ function contribution(overrides: Partial<TexasTecContributionRow> = {}): TexasTe
     filerIdent: "00012345",
     filerTypeCd: "COH",
     filerName: "ABBOTT, GREG",
-    contributionInfoId: "1001",
+    contributionInfoId: String(fixtureReceiptId++),
     contributionDt: "20260915",
     contributionAmount: "250.00",
     contributionDescr: "",
@@ -378,5 +380,117 @@ describe("texasDirectContributionAggregator", () => {
         maxBreakdownsPerCategory: 0,
       })
     ).toThrow("Invalid Texas direct contribution aggregation maxBreakdownsPerCategory");
+  });
+});
+
+describe("Texas typed direct PAC donors", () => {
+  function registry(overrides: Partial<TexasTecFilerRow> = {}): TexasTecFilerRow {
+    return {
+      ...Object.fromEntries(TEXAS_TEC_FILER_COLUMNS.map((field) => [field, ""])),
+      filerIdent: "00015672", filerTypeCd: "MPAC", filerName: "Wholesale Beer Distributors of Texas PAC",
+      filerNameOrganization: "Wholesale Beer Distributors of Texas PAC", committeeStatusCd: "ACTIVE",
+      ...overrides,
+    } as TexasTecFilerRow;
+  }
+  function pacReceipt(overrides: Partial<TexasTecContributionRow> = {}) {
+    return contribution({
+      contributionInfoId: "149504415", reportInfoIdent: "101030822", contributionDt: "20260401",
+      contributionAmount: "2500", infoOnlyFlag: "N", contributorPersentTypeCd: "ENTITY",
+      contributorNameOrganization: "Wholesale Beer Distributors of Texas PAC", contributorNameFirst: "",
+      contributorNameLast: "", contributorOccupation: "", contributorEmployer: "",
+      contributorOosPacFlag: "N", contributorPacFein: "", ...overrides,
+    });
+  }
+  function aggregate(rows: TexasTecContributionRow[], committeeRegistryRows: TexasTecFilerRow[] | undefined = [registry()]) {
+    return aggregateTexasDirectContributions({ committeeId: "00012345", electionYear: 2026,
+      contributionRows: rows, committeeRegistryRows, sourceUrl: "official-source" });
+  }
+
+  it("identifies a unique typed MPAC while keeping raised and contribution-size totals unchanged", () => {
+    const rows = [pacReceipt(), pacReceipt({ contributionInfoId: "149504416", contributionAmount: "1250" }), contribution()];
+    const result = aggregate(rows);
+    expect(result.summary).toEqual(aggregateTexasDirectContributions({ committeeId: "00012345", electionYear: 2026,
+      contributionRows: rows, sourceUrl: "official-source" }).summary);
+    expect(result.summary.totalReceipts).toBe(4000);
+    expect(result.pacDonors).toEqual([{ committeeId: "00015672", committeeName: "Wholesale Beer Distributors of Texas PAC",
+      committeeType: "MPAC", totalAmount: 3750, contributionCount: 2, sourceUrl: "official-source" }]);
+    expect(result.directBreakdowns.filter((row) => row.categoryType === "contribution_size").reduce((sum, row) => sum + row.amount, 0)).toBe(4000);
+  });
+
+  it.each(["GPAC", "MPAC", "SPAC", "JSPC", "SCPC", "CEC", "MCEC", "PTYCORP", "LEG"])("accepts authoritative committee type %s", (type) => {
+    expect(aggregate([pacReceipt()], [registry({ filerTypeCd: type, committeeStatusCd: "TERMINATED" })]).pacDonors)
+      .toEqual([expect.objectContaining({ committeeType: type, totalAmount: 2500 })]);
+  });
+
+  it.each(["ASIFSPAC", "DCE", "COH", "JCOH", "SCC", "SPK", "ENTITY"])("excludes donor type %s", (type) => {
+    expect(aggregate([pacReceipt()], [registry({ filerTypeCd: type })]).pacDonors).toEqual([]);
+  });
+
+  it("tests uniqueness before type or status filtering, including the same ID with different types", () => {
+    for (const competing of [registry({ filerIdent: "00099999" }), registry({ filerTypeCd: "COH" }),
+      registry({ filerIdent: "00099999", filerTypeCd: "COH", committeeStatusCd: "TERMINATED" })]) {
+      expect(aggregate([pacReceipt()], [registry(), competing]).pacDonors).toEqual([]);
+    }
+    expect(aggregate([pacReceipt()], [registry(), registry()]).pacDonors).toHaveLength(1);
+  });
+
+  it("matches exact normalized full registry name/organization aliases and keeps generic entities unresolved", () => {
+    const rows = [pacReceipt({ contributorNameOrganization: "  Wholesale Beer Distributors of Texas PAC!! " }),
+      pacReceipt({ contributionInfoId: "other", contributorNameOrganization: "Unregistered PAC" }),
+      contribution({ contributorEmployer: "Wholesale Beer Distributors of Texas PAC" })];
+    expect(aggregate(rows, [registry({ filerName: "Another registered display name" })]).pacDonors)
+      .toEqual([expect.objectContaining({ totalAmount: 2500, contributionCount: 1 })]);
+  });
+
+  it("uses explicit source OOS PAC flag plus valid FEC identity independently of ambiguous TEC names", () => {
+    const result = aggregate([pacReceipt({ contributorNameOrganization: "DRIVE Committee",
+      contributorOosPacFlag: "Y", contributorPacFein: "C00032979" })], [
+        registry({ filerName: "DRIVE Committee", filerNameOrganization: "", filerIdent: "00032979" }),
+        registry({ filerName: "DRIVE Committee", filerNameOrganization: "", filerIdent: "00099999" }),
+      ]);
+    expect(result.pacDonors).toEqual([{ committeeId: "fec:C00032979", committeeName: "DRIVE Committee",
+      committeeType: "OOS_PAC", totalAmount: 2500, contributionCount: 1, sourceUrl: "official-source" }]);
+  });
+
+  it.each([
+    { contributorOosPacFlag: "Y", contributorPacFein: "" },
+    { contributorOosPacFlag: "Y", contributorPacFein: "123456789" },
+    { contributorOosPacFlag: "Y", contributorPacFein: "C1234567" },
+    { contributorOosPacFlag: "N", contributorPacFein: "C00032979" },
+    { contributorOosPacFlag: "", contributorPacFein: "C00032979" },
+    { contributorOosPacFlag: "YES", contributorPacFein: "C00032979" },
+    { contributorOosPacFlag: "Y", contributorPacFein: "C00032979", contributorNameOrganization: "" },
+  ])("keeps contradictory or incomplete OOS evidence unresolved: %j", (fields) => {
+    expect(aggregate([pacReceipt(fields)]).pacDonors).toEqual([]);
+  });
+
+  it("preserves output when registry unavailable, but permits OOS identification with an explicitly complete empty registry", () => {
+    const rows = [pacReceipt({ contributorOosPacFlag: "Y", contributorPacFein: "C00032979" })];
+    const unavailable = aggregateTexasDirectContributions({ committeeId: "00012345", electionYear: 2026, contributionRows: rows });
+    expect(unavailable).not.toHaveProperty("pacDonors");
+    expect(aggregate(rows, []).pacDonors).toEqual([expect.objectContaining({ committeeId: "fec:C00032979" })]);
+    expect(aggregate([pacReceipt()], []).pacDonors).toEqual([]);
+  });
+
+  it("does not classify excluded dates, superseded, negative, zero or wrong receiving committee receipts", () => {
+    expect(aggregate([
+      pacReceipt({ contributionDt: "20241231" }), pacReceipt({ infoOnlyFlag: "Y" }),
+      pacReceipt({ contributionAmount: "-100" }), pacReceipt({ contributionAmount: "0" }),
+      pacReceipt({ filerIdent: "other" }),
+    ]).pacDonors).toEqual([]);
+  });
+
+  it("deduplicates current receipt IDs across report copies and counts two distinct gifts once each", () => {
+    const row = pacReceipt();
+    const result = aggregate([row, { ...row, reportInfoIdent: "101099999", receivedDt: "20261011" },
+      pacReceipt({ contributionInfoId: "149504416" }), { ...row, infoOnlyFlag: "Y", contributionAmount: "9999" }]);
+    expect(result.summary.totalReceipts).toBe(5000);
+    expect(result.pacDonors).toEqual([expect.objectContaining({ totalAmount: 5000, contributionCount: 2 })]);
+    expect(result.includedContributionRowCount).toBe(2);
+  });
+
+  it("rejects conflicting current receipt identities rather than choosing an amount or donor", () => {
+    expect(() => aggregate([pacReceipt(), pacReceipt({ contributionAmount: "9999" })])).toThrow("Conflicting current Texas receipt");
+    expect(() => aggregate([pacReceipt(), pacReceipt({ contributorNameOrganization: "Different donor" })])).toThrow("Conflicting current Texas receipt");
   });
 });

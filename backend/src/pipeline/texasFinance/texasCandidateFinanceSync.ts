@@ -41,6 +41,7 @@ import type {
   TexasTecContributionRow,
   TexasTecExpenditureRow,
   TexasTecFilerRow,
+  TexasTecPurposeRow,
   TexasTecSpacRow,
 } from "./texasTecCsvDatabaseReader.js";
 
@@ -63,6 +64,8 @@ export type TexasCandidateFinanceSyncInput = {
   district?: string | null;
   filerRows: readonly TexasTecFilerRow[];
   contributionRows: readonly TexasTecContributionRow[];
+  committeeRegistryRows?: readonly TexasTecFilerRow[];
+  purposeRows?: readonly TexasTecPurposeRow[];
   candidateRows?: readonly TexasTecCandidateRow[];
   expenditureRows?: readonly TexasTecExpenditureRow[];
   spacRows?: readonly TexasTecSpacRow[];
@@ -195,6 +198,7 @@ function aggregateDirect(input: {
   committeeIds?: readonly string[];
   electionYear: number;
   contributionRows: readonly TexasTecContributionRow[];
+  committeeRegistryRows?: readonly TexasTecFilerRow[];
   contributionSourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
 }): TexasDirectContributionAggregationResult {
@@ -203,6 +207,7 @@ function aggregateDirect(input: {
     committeeIds: input.committeeIds,
     electionYear: input.electionYear,
     contributionRows: input.contributionRows,
+    committeeRegistryRows: input.committeeRegistryRows,
     sourceUrl: input.contributionSourceUrl ?? null,
     maxBreakdownsPerCategory: input.maxBreakdownsPerCategory,
   });
@@ -211,6 +216,7 @@ function aggregateDirect(input: {
 function aggregateOutside(input: {
   candidateName: string;
   candidateCommitteeId: string;
+  candidateCommitteeIds?: readonly string[];
   electionYear: number;
   officeScope: string;
   officeName: string;
@@ -218,12 +224,14 @@ function aggregateOutside(input: {
   candidateRows: readonly TexasTecCandidateRow[];
   expenditureRows: readonly TexasTecExpenditureRow[];
   spacRows: readonly TexasTecSpacRow[];
+  purposeRows: readonly TexasTecPurposeRow[];
   outsideSourceUrl?: string | null;
   maxGroups?: number;
 }): TexasOutsideSpendingAggregationResult {
   return aggregateTexasOutsideSpending({
     candidateName: input.candidateName,
     candidateCommitteeId: input.candidateCommitteeId,
+    candidateCommitteeIds: input.candidateCommitteeIds,
     officeScope: input.officeScope,
     officeName: input.officeName,
     electionYear: input.electionYear,
@@ -231,6 +239,7 @@ function aggregateOutside(input: {
     candidateRows: input.candidateRows,
     expenditureRows: input.expenditureRows,
     spacRows: input.spacRows,
+    purposeRows: input.purposeRows,
     sourceUrl: input.outsideSourceUrl ?? null,
     maxGroups: input.maxGroups,
   });
@@ -500,8 +509,10 @@ function hasOutsideRows(input: TexasCandidateFinanceSyncInput): input is TexasCa
   candidateRows: readonly TexasTecCandidateRow[];
   expenditureRows: readonly TexasTecExpenditureRow[];
   spacRows: readonly TexasTecSpacRow[];
+  purposeRows: readonly TexasTecPurposeRow[];
 } {
-  return input.candidateRows !== undefined && input.expenditureRows !== undefined && input.spacRows !== undefined;
+  return input.candidateRows !== undefined && input.expenditureRows !== undefined && input.spacRows !== undefined
+    && input.purposeRows !== undefined;
 }
 
 export async function syncTexasCandidateFinance(
@@ -561,6 +572,7 @@ export async function syncTexasCandidateFinance(
     committeeIds: resolution.receiptCommitteeIds,
     electionYear,
     contributionRows: input.contributionRows,
+    committeeRegistryRows: input.committeeRegistryRows,
     contributionSourceUrl: input.contributionSourceUrl ?? resolution.sourceUrl,
     maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory,
   });
@@ -568,6 +580,7 @@ export async function syncTexasCandidateFinance(
     ? aggregateOutside({
         candidateName,
         candidateCommitteeId: resolution.committeeId,
+        candidateCommitteeIds: resolution.receiptCommitteeIds,
         electionYear,
         officeScope,
         officeName,
@@ -575,6 +588,7 @@ export async function syncTexasCandidateFinance(
         candidateRows: input.candidateRows,
         expenditureRows: input.expenditureRows,
         spacRows: input.spacRows,
+        purposeRows: input.purposeRows,
         outsideSourceUrl: input.outsideSourceUrl,
         maxGroups: input.outsideMaxGroups,
       })
@@ -616,7 +630,7 @@ export async function syncTexasCandidateFinance(
 
   const outsideGroups = hasOutsideRows(input) ? toOutsideGroups(outsideFinance) ?? [] : undefined;
   const outsideGroupBreakdowns = toOutsideGroupBreakdowns({
-    outsideGroups: outsideFinance.summary?.groups,
+    outsideGroups: outsideDataAvailable ? outsideFinance.summary?.groups ?? [] : undefined,
     contributionRows: input.contributionRows,
     contributionSourceUrl: input.contributionSourceUrl,
     electionYear,
@@ -656,6 +670,7 @@ export async function syncTexasCandidateFinance(
       syncedAt,
       summary,
       directBreakdowns: directFinance.directBreakdowns,
+      ...(directFinance.pacDonors !== undefined ? { pacDonors: directFinance.pacDonors } : {}),
       outsideGroups,
       outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
       classifications: outsideIndustryFinance.classifications,
