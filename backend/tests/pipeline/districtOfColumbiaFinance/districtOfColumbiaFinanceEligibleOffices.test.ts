@@ -15,8 +15,12 @@ describe("districtOfColumbiaFinanceEligibleOffices", () => {
     expect(DISTRICT_OF_COLUMBIA_FINANCE_ELIGIBLE_OFFICE_KEYS).toEqual([
       "place::Mayor",
       "place::City Council Member",
+      "state_upper::City Council Member",
       "statewide::Attorney General",
     ]);
+    expect(
+      isDistrictOfColumbiaFinanceEligibleOffice({ officeScope: "state_upper", officeCanonicalName: "State Senator" })
+    ).toBe(false);
   });
 
   it("allows every explicit eligible office and rejects broad-scope guesses", () => {
@@ -138,6 +142,14 @@ describe("districtOfColumbiaFinanceEligibleOffices", () => {
         seat: "Ward 2",
       })
     ).toEqual({ ocfOffice: "Councilmember", seat: "WARD 2" });
+    // Ward seats sit on DC's state_upper ward rows (migration 320).
+    expect(
+      toDistrictOfColumbiaOcfOfficeSearchInput({
+        officeScope: "state_upper",
+        officeCanonicalName: "City Council Member",
+        seat: "Ward 5 Member of the Council Ward 5 (2024); District of Columbia",
+      })
+    ).toEqual({ ocfOffice: "Councilmember", seat: "WARD 5" });
     expect(
       toDistrictOfColumbiaOcfOfficeSearchInput({
         officeScope: "place",

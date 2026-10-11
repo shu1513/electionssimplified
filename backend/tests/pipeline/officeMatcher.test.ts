@@ -89,6 +89,37 @@ describe("OfficeMatcher", () => {
     expect(plainHouse.shouldPersistAlias).toBe(false);
   });
 
+  it("routes DC ward Council titles to the state_upper Council office, even over a learned State Senator alias", async () => {
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        state_upper: [{ office_id: "office-state-senator", normalized_alias: "member of the council" }],
+      },
+      officesByScope: {
+        state_upper: [
+          { id: "office-state-senator", canonical_name: "State Senator" },
+          { id: "office-ward-council", canonical_name: "City Council Member" },
+          { id: "office-ward-sboe", canonical_name: "State Board of Education Member" },
+        ],
+      },
+    });
+    const matcher = new OfficeMatcher(client as never);
+    const resolve = (state: string, officialBallotTitle: string) =>
+      matcher.resolve({
+        scope: "state_upper",
+        districtName: state === "DC" ? "Ward 5 (2024); District of Columbia" : "State Senate District 5",
+        state,
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+
+    const ward = await resolve("DC", "Ward 5 Member of the Council");
+    expect(ward.officeId).toBe("office-ward-council");
+    expect(ward.shouldPersistAlias).toBe(false);
+    expect((await resolve("DC", "Ward 5 Member of the State Board of Education")).officeId).toBe("office-ward-sboe");
+    // Other states keep the chamber seat.
+    expect((await resolve("VA", "State Senator")).officeId).toBe("office-state-senator");
+  });
+
   it("overrides a stale learned alias that maps a shadow title to the real Senate seat (pre-migration-318 database)", async () => {
     // Before migration 318 the matcher could learn "United States Senator (Shadow)"
     // -> United States Senator and persist it. The migration repoints such rows,

@@ -225,9 +225,21 @@ function recordMatchesOffice(input: {
 
   const committeeName = normalizeTextKey(input.record.committeeName ?? "");
   if (input.expectedSeat === "AT-LARGE") {
-    return /\bAT\s+LARGE\b/.test(committeeName);
+    if (/\bAT\s+LARGE\b/.test(committeeName)) {
+      return true;
+    }
+  } else if (committeeName.includes(input.expectedSeat)) {
+    return true;
   }
-  return committeeName.includes(input.expectedSeat);
+
+  // OCF's contribution export carries no office or seat, and a ward
+  // committee's name often omits the ward (live: "Committee to Re - Elect
+  // Zachary Parker 2026", Ward 5, 612 rows). A row that names the candidate
+  // and says nothing about any seat cannot contradict the ward, so accept it;
+  // the name and cycle checks still apply. A row that names some other seat
+  // stays out.
+  const namesAnySeat = rowSeat !== null || /\bWARD\s*\d\b|\bAT\s+LARGE\b/.test(committeeName);
+  return !namesAnySeat && Boolean(input.record.candidateName?.trim());
 }
 
 function toCommitteeMatch(input: {
@@ -248,7 +260,10 @@ function isSeatRequiredInput(input: {
   officeScope: string;
   officeName: string;
 }): boolean {
-  return input.officeScope === "place" && input.officeName.trim() === "City Council Member";
+  return (
+    (input.officeScope === "place" || input.officeScope === "state_upper") &&
+    input.officeName.trim() === "City Council Member"
+  );
 }
 
 export function resolveDistrictOfColumbiaCandidateCommittee(
