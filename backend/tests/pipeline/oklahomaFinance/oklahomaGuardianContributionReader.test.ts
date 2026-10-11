@@ -15,6 +15,7 @@ import {
 type ZipFixtureEntry = {
   fileName: string;
   content?: string;
+  contentBytes?: Buffer;
   compressionMethod?: 0 | 8;
 };
 
@@ -27,7 +28,7 @@ function makeZip(entries: readonly ZipFixtureEntry[]): Buffer {
 
   for (const entry of entries) {
     const fileName = Buffer.from(entry.fileName, "utf8");
-    const content = Buffer.from(entry.content ?? "", "utf8");
+    const content = entry.contentBytes ?? Buffer.from(entry.content ?? "", "utf8");
     const compressionMethod = entry.compressionMethod ?? 0;
     const compressed = compressionMethod === 8 ? deflateRawSync(content) : content;
 
@@ -151,6 +152,16 @@ describe("Oklahoma Guardian contribution reader", () => {
 
     const zipPath = await writeFixtureZip([{ fileName: "2026_ContributionLoanExtract.csv", compressionMethod: 8, content: csv }]);
     await expect(readOklahomaGuardianContributionRows({ zipPath, year: 2026 })).resolves.toEqual(expected);
+  });
+
+  it("decodes the extract as Windows-1252 (live: CHAUNT\xC9 GILMORE)", async () => {
+    const csv = contributionCsv([{ "Receipt ID": "1", "Org ID": "12246", "Candidate Name": "CHAUNTÉ GILMORE" }]);
+    // latin1 writes É as the single byte 0xC9, as Guardian does.
+    const zipPath = await writeFixtureZip([
+      { fileName: "2026_ContributionLoanExtract.csv", compressionMethod: 8, contentBytes: Buffer.from(csv, "latin1") },
+    ]);
+    const rows = await readOklahomaGuardianContributionRows({ zipPath, year: 2026 });
+    expect(rows[0]?.["Candidate Name"]).toBe("CHAUNTÉ GILMORE");
   });
 
   it("recovers rows whose inner quotes Guardian left undoubled", async () => {

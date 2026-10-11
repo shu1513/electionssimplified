@@ -522,4 +522,21 @@ describe("oklahomaCandidateFinanceAutoLink", () => {
     expect(predicate(contribution({ "Candidate Name": "DISHMAN, C. BRENT" }))).toBe(true);
     expect(predicate(contribution({ "Candidate Name": "Other Person" }))).toBe(false);
   });
+
+  it("prefilter admits formal-name rows for a nickname candidate (live: Josh Cantrell)", () => {
+    const predicate = buildOklahomaCandidateNamePredicate([
+      {
+        candidateId: CANDIDATE_ID,
+        electionId: ELECTION_ID,
+        candidateName: "Josh Cantrell",
+        electionYear: 2026,
+        officeScope: "state_lower",
+        officeName: "State Representative",
+        district: "49",
+      },
+    ]);
+
+    expect(predicate(contribution({ "Candidate Name": "JOSHUA CANTRELL" }))).toBe(true);
+    expect(predicate(contribution({ "Candidate Name": "JORDAN CANTRELL" }))).toBe(false);
+  });
 });

@@ -89,6 +89,45 @@ describe("oklahomaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches a formal Guardian name through the VoteApp nickname (live: Jerry Griffin)", () => {
+    expect(
+      resolveOklahomaCandidateCommittee({
+        candidateName: "Jerry Griffin",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        contributionRows: [contribution({ "Org ID": "12220", "Committee Name": "", "Candidate Name": "GERALD RAY GRIFFIN" })],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "12220" });
+  });
+
+  it("ignores a DR. title on the Guardian name (live: Max E. Burchett Jr)", () => {
+    expect(
+      resolveOklahomaCandidateCommittee({
+        candidateName: "Max E. Burchett Jr",
+        officeScope: "state_lower",
+        officeName: "State Representative",
+        district: "33",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ "Org ID": "12291", "Committee Name": "", "Candidate Name": "DR. MAX EUGENE BURCHETT JR" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "12291" });
+  });
+
+  it("does not expand nicknames on the Guardian side", () => {
+    expect(
+      resolveOklahomaCandidateCommittee({
+        candidateName: "Gerald Griffin",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        contributionRows: [contribution({ "Org ID": "12220", "Candidate Name": "JERRYLEE GRIFFIN" })],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
   it("falls back to candidate name when Guardian omits committee name", () => {
     expect(
       resolveOklahomaCandidateCommittee({
