@@ -16,6 +16,7 @@ import {
 } from "./delawareCandidateFinanceAutoLink.js";
 import {
   listDueDelawareCandidateFinanceSyncRows,
+  validateDelawareFinanceSyncScope,
   type DelawareCandidateFinanceDueRow,
 } from "./delawareCandidateFinanceDueList.js";
 import {
@@ -36,6 +37,10 @@ export type DelawareCandidateFinanceBatchSyncInput = {
   now?: Date;
   maxCandidates?: number;
   staleAfterDays?: number;
+  candidateId?: string;
+  electionYear?: number;
+  /** Select recently synced eligible links too; does not authorize live fetches. */
+  refresh?: boolean;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   dryRun?: boolean;
@@ -73,13 +78,25 @@ export type DelawareCandidateFinanceBatchSyncResult = {
 export async function syncDueDelawareCandidateFinance(
   input: DelawareCandidateFinanceBatchSyncInput
 ): Promise<DelawareCandidateFinanceBatchSyncResult> {
+  validateDelawareFinanceSyncScope(input);
   const now = input.now ?? new Date();
+  if (Number.isNaN(now.getTime())) throw new Error("Invalid Delaware finance sync timestamp");
   const log = input.log ?? ((message: string) => console.log(message));
   const maxCandidates = input.maxCandidates ?? DEFAULT_MAX_CANDIDATES;
   const staleAfterDays = input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
   const electionLookbackDays =
     input.electionLookbackDays ?? DELAWARE_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
+  for (const [name, value] of Object.entries({
+    maxCandidates,
+    staleAfterDays,
+    electionLookbackDays,
+    electionLookaheadDays,
+  })) {
+    if (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)
+      throw new Error(`Invalid Delaware finance ${name}`);
+  }
+  const scoped = input.candidateId !== undefined || input.electionYear !== undefined;
   const dryRun = input.dryRun === true;
 
   let autoLinkResults: DelawareFinanceAutoLinkResult[] = [];
@@ -90,7 +107,7 @@ export async function syncDueDelawareCandidateFinance(
         "DELAWARE_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED (or a per-run force) — syncing cache-only"
     );
   }
-  if (!dryRun && input.autoLinkMissingLinks !== false && liveCfrsAllowed) {
+  if (!dryRun && !scoped && input.autoLinkMissingLinks !== false && liveCfrsAllowed) {
     const autoLink = input.autoLinkFn ?? autoLinkMissingDelawareCandidateFinanceLinks;
     try {
       autoLinkResults = await autoLink({
@@ -114,6 +131,9 @@ export async function syncDueDelawareCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    ...(input.candidateId === undefined ? {} : { candidateId: input.candidateId }),
+    ...(input.electionYear === undefined ? {} : { electionYear: input.electionYear }),
+    ...(input.refresh === true ? { refresh: true } : {}),
   });
 
   const acquireArtifacts = input.acquireArtifactsFn ?? acquireDelawareCfrsCommitteeArtifacts;

@@ -56,7 +56,10 @@ describe("syncDueDelawareCandidateFinance", () => {
 
     expect(autoLinkFn).toHaveBeenCalledTimes(1);
     expect(acquireArtifactsFn).toHaveBeenCalledTimes(2);
-    expect(acquireArtifactsFn.mock.calls[0]?.[0]).toMatchObject({ cfId: "01009999", cacheDir: "/tmp/de-cache" });
+    expect(acquireArtifactsFn.mock.calls[0]?.[0]).toMatchObject({
+      cfId: "01009999",
+      cacheDir: "/tmp/de-cache",
+    });
     expect(result.attempted).toBe(2);
     expect(result.succeeded).toBe(1);
     expect(result.failed).toBe(1);
@@ -145,8 +148,108 @@ describe("syncDueDelawareCandidateFinance", () => {
     expect(acquireArtifactsFn).not.toHaveBeenCalled();
     expect(syncCandidateFn).toHaveBeenCalledTimes(1);
     expect(result.autoLinkResults).toEqual([]);
-    expect(messages.some((message) => message.includes("live CFRS passes (auto-link, artifact acquisition) skipped"))).toBe(
-      true
-    );
+    expect(
+      messages.some((message) =>
+        message.includes("live CFRS passes (auto-link, artifact acquisition) skipped")
+      )
+    ).toBe(true);
+  });
+  it.each([{ candidateId: "11111111-1111-4111-8111-111111111111" }, { electionYear: 2026 }])(
+    "skips unrelated autolink and passes explicit SQL scope: %j",
+    async (scope) => {
+      vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+      const autoLinkFn = vi.fn();
+      const acquireArtifactsFn = vi.fn().mockResolvedValue({});
+      const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: false });
+      const listDueRowsFn = vi.fn().mockResolvedValue({ rows: [dueRow()], totalDueRows: 1 });
+      await syncDueDelawareCandidateFinance({
+        db,
+        ...scope,
+        refresh: true,
+        electionLookbackDays: 100,
+        forceRawDataRefresh: true,
+        autoLinkFn,
+        acquireArtifactsFn,
+        syncCandidateFn,
+        listDueRowsFn,
+        log: () => {},
+      });
+      expect(autoLinkFn).not.toHaveBeenCalled();
+      expect(listDueRowsFn.mock.calls[0]?.[1]).toMatchObject({
+        ...scope,
+        refresh: true,
+        electionLookbackDays: 100,
+      });
+      expect(acquireArtifactsFn).toHaveBeenCalledTimes(1);
+    }
+  );
+
+  it("refresh does not authorize the live portal and force does not request refresh", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const autoLinkFn = vi.fn();
+    const acquireArtifactsFn = vi.fn();
+    const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: false });
+    const listDueRowsFn = vi.fn().mockResolvedValue({ rows: [dueRow()], totalDueRows: 1 });
+    await syncDueDelawareCandidateFinance({
+      db,
+      refresh: true,
+      autoLinkFn,
+      acquireArtifactsFn,
+      syncCandidateFn,
+      listDueRowsFn,
+      log: () => {},
+    });
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(acquireArtifactsFn).not.toHaveBeenCalled();
+    expect(listDueRowsFn.mock.calls[0]?.[1]).toMatchObject({ refresh: true, electionLookbackDays: 39 });
+    listDueRowsFn.mockClear();
+    await syncDueDelawareCandidateFinance({
+      db,
+      forceRawDataRefresh: true,
+      autoLinkMissingLinks: false,
+      listDueRowsFn,
+      acquireArtifactsFn: vi.fn().mockResolvedValue({}),
+      syncCandidateFn,
+      log: () => {},
+    });
+    expect(listDueRowsFn.mock.calls[0]?.[1]).not.toHaveProperty("refresh");
+  });
+
+  it("a scoped refresh dry run never auto-links, acquires or writes", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const autoLinkFn = vi.fn();
+    const acquireArtifactsFn = vi.fn();
+    const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: true });
+    await syncDueDelawareCandidateFinance({
+      db,
+      candidateId: "11111111-1111-4111-8111-111111111111",
+      electionYear: 2026,
+      refresh: true,
+      dryRun: true,
+      forceRawDataRefresh: true,
+      autoLinkFn,
+      acquireArtifactsFn,
+      syncCandidateFn,
+      listDueRowsFn: vi.fn().mockResolvedValue({ rows: [dueRow()], totalDueRows: 1 }),
+      log: () => {},
+    });
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(acquireArtifactsFn).not.toHaveBeenCalled();
+    expect(syncCandidateFn.mock.calls[0]?.[0]).toMatchObject({ dryRun: true });
+  });
+
+  it.each([
+    { candidateId: "bad" },
+    { electionYear: 2025 },
+    { maxCandidates: 0 },
+    { electionLookbackDays: -1 },
+  ])("rejects bad selection before source calls: %j", async (scope) => {
+    const autoLinkFn = vi.fn();
+    const listDueRowsFn = vi.fn();
+    await expect(
+      syncDueDelawareCandidateFinance({ db, ...scope, forceRawDataRefresh: true, autoLinkFn, listDueRowsFn })
+    ).rejects.toThrow("Invalid Delaware finance");
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(listDueRowsFn).not.toHaveBeenCalled();
   });
 });
