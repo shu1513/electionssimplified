@@ -1,0 +1,45 @@
+import { describe, expect, it } from "vitest";
+import { arkansasFinancialDate, arkansasFinancialMoney, inspectArkansasCheckboxOperators, parseArkansasFinancialReportPdf, type ArkansasPdfCell, type ArkansasPdfPage, type ArkansasFinancialPdfExtraction } from "../../../src/pipeline/arkansasFinance/arkansasFinancialReportPdfParser.js";
+const H="a".repeat(64);
+const cell=(text:string,x:number,y:number,height=9):ArkansasPdfCell=>({text,x,y,height});
+const page=(n:number,cells:ArkansasPdfCell[]):ArkansasPdfPage=>({pageNumber:n,width:595,height:842,cells,checkedBoxes:[],squareBoxes:[]});
+function cover():ArkansasPdfPage{return page(1,[cell("CAMPAIGN CONTRIBUTION AND EXPENDITURE REPORT",130,821),cell("1.Name of Candidate",41,660),cell("Jane Doe",41,644),cell("Office Sought",41,585),cell("District",410,585),cell("State Senate",41,570),cell("7",410,570),cell("07/20/2026 10:00:00 AM",432,527),cell("2. Type of Election:",45,461),cell("General",111,461),cell("Year of Election:",225,461),cell("2026",282,461),cell("3. Type of Report:",37,441),cell("2026 June Monthly Report - General covering 06/01/2026 through 06/30/2026",103,441),cell("6. Total Loans (enter total from line 12)",37,383),cell("$0.00",434,383),cell("$50,000.00",516,383),cell("7. Total Monetary Contributions (enter total from line 18)",37,370),cell("$100.00",434,370),cell("$900.00",516,370),cell("8. Total Expenditures (enter total from line 27)",37,356),cell("$0.00",434,356),cell("$700.00",516,356),cell("10.",37,327),cell("NO ACTIVITY",65.47,327.26)]);}
+function cashPage(n:number,starts:{y:number;name:string;address?:string;amount?:string}[]):ArkansasPdfPage{
+ const cells=[cell("Filer ID : 7",510,809),cell("15. ITEMIZED MONETARY CONTRIBUTIONS OVER $200",98,786),cell("Date of",44,760),cell("Receipt",44,750),cell("Full Name and Address of",87,760),cell("Description",234,760),cell("Place Of Business/",325,760),cell("Employer/Occupation",319,750),cell("Election",414,760),cell("Amount of",456,760),cell("Contribution",452,750),cell("Cumulative",508,760),cell("Total from",510,750),cell("this",525,739),cell("Contributor",508,729)];
+ for(const r of starts){cells.push(cell("06/15/2026",37.5,r.y),cell(r.name,84.8,r.y),cell(r.amount??"$100.00",465,r.y),cell(r.amount??"$100.00",517,r.y),cell("General",414,r.y));if(r.address)cells.push(cell(r.address,84.8,r.y-10.5));}
+ return page(n,cells);
+}
+function base():ArkansasFinancialPdfExtraction{
+ const p=cashPage(4,[{y:716,name:"Example PAC",address:"PO Box 1, Little Rock, AR 72201"}]);
+ (p.cells as ArkansasPdfCell[]).push(cell("16. TOTAL ITEMIZED MONETARY CONTRIBUTIONS OVER $200",37,500),cell("$100.00",456,500),cell("17. TOTAL NONITEMIZED MONETARY CONTRIBUTIONS",37,480),cell("$0.00",477,480),cell("18. TOTAL MONETARY CONTRIBUTIONS THIS REPORT",37,460),cell("$100.00",456,460));
+ return{sha256:H,byteCount:100,pages:[cover(),page(2,[cell("11. LOAN INFORMATION",200,800),cell("NO DATA ENTERED",250,720)]),page(3,[cell("13. NONMONEY CONTRIBUTIONS",170,797),cell("NO DATA ENTERED",250,724),cell("14. TOTAL NONMONEY CONTRIBUTIONS",250,694),cell("$0.00",442,694)]),p,page(5,[cell("19. CAMPAIGN EXPENDITURES BY CATEGORY",126,773),cell("Returned Contributions",39,423),cell("$0.00",532,423)]),page(6,[cell("23. ITEMIZED CAMPAIGN EXPENDITURES OVER $100",104,786),cell("NO DATA ENTERED",250,722),...[24,25,26,27].flatMap((n,i)=>[cell(`${n}. TOTAL EXPENDITURES`,37,700-i*20),cell("$0.00",523,700-i*20)])])]};
+}
+
+describe("Arkansas positioned PDF form contract (synthetic, no donor PII)",()=>{
+ it("takes current cover amount and preserves full wrapped monetary cells",()=>{const p=parseArkansasFinancialReportPdf(base());expect(p.currentCashCents).toBe(10000);expect(p.cashRows[0]?.cumulativeCents).toBe(10000);expect(p.cashRows[0]?.nameAddress).toBe("Example PAC PO Box 1, Little Rock, AR 72201");expect(p.ownerName).toBe("Jane Doe");expect(p.returnedCashCents).toBe(0);});
+ it("supports source current-total baseline offset without using cumulative amounts",()=>{const x=base();const c=x.pages[0]!.cells.find(c=>c.text==="$100.00")!;c.y-=5.6;expect(parseArkansasFinancialReportPdf(x).currentCashCents).toBe(10000);});
+ it("joins only a same-section next-page continuation before its first new date",()=>{const x=base();const first=cashPage(4,[{y:64.49,name:"Example PAC"}]);const second=cashPage(5,[{y:703.49,name:"Second PAC",address:"PO Box 2, Little Rock, AR 72201"}]);(second.cells as ArkansasPdfCell[]).push(cell("PO Box 1, Little Rock, AR 72201",84.8,716.24),cell("Legal footer starts outside name column",31,710,7.5),cell("16. TOTAL ITEMIZED MONETARY CONTRIBUTIONS OVER $200",37,500),cell("$200.00",456,500),cell("17. TOTAL NONITEMIZED MONETARY CONTRIBUTIONS",37,480),cell("$0.00",477,480),cell("18. TOTAL MONETARY CONTRIBUTIONS THIS REPORT",37,460),cell("$200.00",456,460));x.pages=[...x.pages.slice(0,3),first,second,...x.pages.slice(4).map(p=>({...p,pageNumber:p.pageNumber+1}))];const p=parseArkansasFinancialReportPdf(x);expect(p.cashRows).toHaveLength(2);expect(p.cashRows[0]?.nameAddress).toBe("Example PAC PO Box 1, Little Rock, AR 72201");expect(p.cashRows[1]?.nameAddress).toContain("Second PAC");expect(p.cashRows[0]?.nameAddress).not.toContain("footer");});
+ it("separates observed legacy employer cells at x246.4 from donor identity",()=>{
+  const x=base(),p=x.pages[3]!;(p as any).cells=p.cells.filter(c=>c.text!=="Description");
+  const amount=p.cells.find(c=>c.text==="$100.00"&&c.x<500)!;amount.x=439.13;
+  (p.cells as ArkansasPdfCell[]).push(cell("Retired",246.4,716),cell("Retired",246.4,705.5));
+  expect(parseArkansasFinancialReportPdf(x).cashRows[0]?.nameAddress).toBe("Example PAC PO Box 1, Little Rock, AR 72201");
+  expect(parseArkansasFinancialReportPdf(x).cashRows[0]?.employment).toBe("Retired Retired");
+ });
+ it("rejects an orphan continuation rather than assigning it to a new donor",()=>{const x=base();(x.pages[3]!.cells as ArkansasPdfCell[]).push(cell("Orphan street",84.8,723));expect(()=>parseArkansasFinancialReportPdf(x)).toThrow("orphan");});
+ it("requires positive checked-noactivity evidence with cash/loans/expenses zero",()=>{const c=cover();for(const item of c.cells)if(item.x>=350&&item.x<480&&item.text.startsWith("$"))item.text="$0.00";c.squareBoxes=[{x:53.01,y:327.26,size:9.75}];c.checkedBoxes=[{x:57,y:333}];expect(parseArkansasFinancialReportPdf({sha256:H,byteCount:100,pages:[c]}).noActivity).toBe("checked_vector");c.checkedBoxes=[];expect(()=>parseArkansasFinancialReportPdf({sha256:H,byteCount:100,pages:[c]})).toThrow("certified");});
+ it("does not treat a check elsewhere on the page as noactivity",()=>{const c=cover();c.squareBoxes=[{x:53.01,y:327.26,size:9.75}];c.checkedBoxes=[{x:294,y:569}];expect(()=>parseArkansasFinancialReportPdf({sha256:H,byteCount:100,pages:[c]})).toThrow("noactivity");});
+ it.each(["missing_section","missing_total","wrong_geometry_content","invalid_amount","ambiguous_total"])("rejects %s before any empty interpretation",reason=>{const x=base();if(reason==="missing_section")x.pages=x.pages.filter(p=>p.pageNumber!==5);if(reason==="missing_total")(x.pages[3] as any).cells=x.pages[3]!.cells.filter(c=>!c.text.startsWith("17."));if(reason==="wrong_geometry_content")(x.pages[0] as any).cells=x.pages[0]!.cells.filter(c=>!c.text.includes("CAMPAIGN CONTRIBUTION"));if(reason==="invalid_amount")x.pages[0]!.cells.find(c=>c.text==="$100.00")!.text="$100.001";if(reason==="ambiguous_total")(x.pages[3]!.cells as ArkansasPdfCell[]).push(cell("$99.00",450,500));expect(()=>parseArkansasFinancialReportPdf(x)).toThrow();});
+});
+
+describe("Arkansas exact source checkmark graphics-state recognition",()=>{
+ const codes={save:1,restore:2,transform:3,constructPath:4,fill:5,eoFill:6};
+ const path=[13,14,14,15,14,14,15,14,15,18],coords=[0,0,.066,-.026,.137,-.15,.259,.081,.46,.391,.553,.461,.604,.489,.703,.492,.543,.312,.255,-.205,.154,-.439,.069,-.399,.035,-.293,-.039,-.136,-.091,-.057];
+ function operators(){return{fnArray:[1,4,3,3,4,5,2],argsArray:[null,[[19],[53.01,327.26,9.75,9.75]], [8.25,0,0,8.25,53.76,328.01],[.8,0,0,.8,.3,.5],[path,[...coords]],null,null]};}
+ it("recognizes exact filled source vector under its actual transforms",()=>{const r=inspectArkansasCheckboxOperators(operators(),codes);expect(r.checkedBoxes).toHaveLength(1);expect(r.squareBoxes[0]?.size).toBe(9.75);expect(r.checkedBoxes[0]!.x).toBeGreaterThan(53.01);});
+ it("rejects an altered vector and an unfilled identical path",()=>{const altered=operators();((altered.argsArray[4] as any)[1] as number[])[2]=.067;expect(inspectArkansasCheckboxOperators(altered,codes).checkedBoxes).toHaveLength(0);const unfilled=operators();unfilled.fnArray[5]=2;unfilled.fnArray.pop();expect(inspectArkansasCheckboxOperators(unfilled,codes).checkedBoxes).toHaveLength(0);});
+});
+describe("Arkansas strict financial scalar parsing",()=>{
+ it.each(["02/30/2026","2026-13-01","2026-02-29","01/01/1800"])("rejects invalid date %s",d=>expect(()=>arkansasFinancialDate(d)).toThrow());
+ it.each(["$1.001","$1,00.00","-$1.00","$90071992547409.92"])("rejects unsafe money %s",n=>expect(()=>arkansasFinancialMoney(n)).toThrow());
+});
