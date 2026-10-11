@@ -6,8 +6,8 @@
 // closed (plan acceptance list): committee identity, CSV count == stored
 // search total, per-report cash identity + chain (inventory), per-period
 // cover reconciliation, unambiguous window, no unrecognized contribution
-// types. Outside fields are never written (hard fact 7) — the loader
-// publishes them as null with a coverage note.
+// types. This direct-only path has no accepted outside component; the writer
+// preserves stored outside data and the loader states incomplete coverage.
 
 import type { Pool, PoolClient } from "pg";
 

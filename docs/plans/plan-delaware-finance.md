@@ -65,11 +65,25 @@ split. Keep statutory `windowEnd` separate from `publishedThrough`.
 [§8030(g)](https://delcode.delaware.gov/title15/c080/sc04/index.html) permits
 eight-day expense detail deferral; timely reports cannot establish full absence.
 
-`--force` currently enables flags, not due refresh. Planned scoped refresh must
-select beforeLIMIT and support100-day post-election lookback soJan21 selects
-theNov3 race. Record exact implemented options here when available. Never fake
-time/last_synced_at. State flags and `AI_API_CALLS_ALLOWED=false` stay inline,
-never in `.env`. No production, providers, deployment or automatic reminders.
+Selection implemented: `--candidate-id UUID`, `--election-year 2026`, `--refresh`,
+`--lookback-days 100`. Scope and refresh apply beforeSQLLIMIT; scoped runs skip
+unrelated autolink. `--force` enables source/write flags, not due refresh;
+`--refresh` bypasses staleness, not source authorization. January21 requires
+the100-day lookback (79 days afterNov3). Eligible-link rules still exclude
+lost/withdrawn candidates; this is not full historical coverage.
+
+Once full source verification is integrated, mandatory fresh rerun form:
+
+```sh
+DATABASE_URL='postgresql:///voteapp?host=/tmp&connect_timeout=5' AI_API_CALLS_ALLOWED=false DELAWARE_CAMPAIGN_FINANCE_ENABLED=true npm run delaware-candidates:finance:sync-due -- --election-year 2026 --refresh --force --write --no-auto-link --max 100 --lookback-days 100 --cache-dir /absolute/restricted/cache
+```
+
+Use this afterOct28 andJan20 deadlines; increase/process the eligible cohort
+until every due scope has an explicit result. Current positive-component proof
+and ordinary sync validation remain pending. Dry-run omits `--write` and never
+acquires or writes; it only inspects existing cache. Never fake time or
+last_synced_at. Flags stay inline, never in `.env`. No production, providers,
+deployment or automatic reminders.
 
 ## Historical initial adapter plan
 

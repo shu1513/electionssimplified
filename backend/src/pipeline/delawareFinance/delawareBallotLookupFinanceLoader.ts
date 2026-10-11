@@ -1,6 +1,6 @@
 // Delaware ballot-lookup finance loader: thin config wrapper over the
-// standard loader. Outside totals are never stored (plan hard fact 7), so
-// they surface as null with the coverage note — never $0. Occupation
+// standard loader. Outside coverage remains incomplete; unavailable totals
+// surface as null, while previously stored groups remain readable. Occupation
 // breakdowns are the voluntarily disclosed values only (hard fact 1), named
 // as such by the direct coverage note.
 
@@ -22,7 +22,7 @@ const DELAWARE_CFRS_SOURCE_URL = "https://cfrs.elections.delaware.gov/";
 const DELAWARE_DIRECT_COVERAGE_NOTE =
   "Delaware does not require donor occupation disclosure; occupation charts reflect voluntarily disclosed contributions only.";
 const DELAWARE_OUTSIDE_COVERAGE_NOTE =
-  "Delaware filings do not link each outside expenditure to a candidate and position, so outside spending totals are unavailable rather than zero.";
+  "Delaware outside spending coverage is incomplete. Unavailable totals do not mean zero.";
 
 export async function loadDelawareCandidateFinanceSummariesByCandidateElection(
   db: Queryable,

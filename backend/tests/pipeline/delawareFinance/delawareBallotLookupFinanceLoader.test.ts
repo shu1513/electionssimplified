@@ -18,6 +18,6 @@ describe("delawareBallotLookupFinanceLoader", () => {
     directCoverageNote:
       "Delaware does not require donor occupation disclosure; occupation charts reflect voluntarily disclosed contributions only.",
     outsideCoverageNote:
-      "Delaware filings do not link each outside expenditure to a candidate and position, so outside spending totals are unavailable rather than zero.",
+      "Delaware outside spending coverage is incomplete. Unavailable totals do not mean zero.",
   });
 });
