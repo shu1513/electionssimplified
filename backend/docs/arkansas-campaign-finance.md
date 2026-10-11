@@ -1,5 +1,7 @@
 # Arkansas campaign finance — feasibility (probed 2026-08-26)
 
+October11,2026 update: normal sync now verifies explicit typed PAC cash and positive candidate-specific outside allocations from complete current Original electronic report/PDF/native-ledger evidence. Initial outside scope is explicit 2026primary rows with exact target/stance/office/seat; unknown, amended or failed components preserve stored evidence and never establish overall zero. Full source policy, local witness requirements and fresh post-deadline reruns are recorded in [the implementation plan](../../docs/plans/plan-arkansas-finance.md). The feasibility observations below describe the earlier probe, not complete current coverage.
+
 Verdict: **buildable for Nov 2026**. Totals raised/spent YES (two independent
 routes), donor occupation YES (structured, ~87% filled — better than NH),
 outside-spending stance PARTIAL (free text only; small volume).
