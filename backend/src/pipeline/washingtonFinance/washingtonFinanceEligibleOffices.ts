@@ -32,6 +32,7 @@ export const WASHINGTON_FINANCE_ELIGIBLE_OFFICE_KEYS = [
   "statewide::Land Commissioner",
   "statewide::Commissioner of Insurance",
   "statewide::Superintendent of Public Instruction",
+  "statewide::State Level Judge",
   "state_upper::State Senator",
   "state_lower::State Lower Chamber Legislator",
   "place::Mayor",
@@ -142,6 +143,20 @@ const WASHINGTON_PDC_OFFICE_DEFINITIONS = new Map<string, WashingtonPdcOfficeDef
       officeScope: "statewide",
       officeCanonicalName: "Superintendent of Public Instruction",
       pdcOffice: "SUPERINTENDENT OF PUBLIC INSTRUCTION",
+      requiresLegislativeDistrict: false,
+      requiresJurisdiction: false,
+    },
+  ],
+  // VoteApp's statewide "State Level Judge" in Washington is the Supreme
+  // Court; PDC files those races as "STATE SUPREME COURT JUSTICE" (2026:
+  // Colleen Melody, Ian Birk, Dave Larson, ...). Name + office + year pick
+  // the committee; the position number is not needed.
+  [
+    "STATE SUPREME COURT JUSTICE",
+    {
+      officeScope: "statewide",
+      officeCanonicalName: "State Level Judge",
+      pdcOffice: "STATE SUPREME COURT JUSTICE",
       requiresLegislativeDistrict: false,
       requiresJurisdiction: false,
     },

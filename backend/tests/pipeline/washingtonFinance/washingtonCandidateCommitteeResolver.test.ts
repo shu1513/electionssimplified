@@ -174,6 +174,61 @@ describe("washingtonCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches Supreme Court justices filed as STATE SUPREME COURT JUSTICE", () => {
+    // Live PDC 2026 row for VoteApp "Colleen Melody" (statewide State Level Judge).
+    expect(
+      resolveWashingtonCandidateCommittee({
+        candidateName: "Colleen Melody",
+        officeScope: "statewide",
+        officeName: "State Level Judge",
+        electionYear: 2026,
+        summaries: [
+          summary({
+            filerId: "MELOC--109",
+            committeeId: "40001",
+            filerName: "Colleen M. Melody (Colleen Melody)",
+            office: "STATE SUPREME COURT JUSTICE",
+            jurisdiction: "SUPREME COURT",
+            position: "1",
+            electionYear: 2026,
+          }),
+          summary({
+            filerId: "EDWAS--001",
+            committeeId: "40002",
+            filerName: "Scott M. Edwards (Scott Edwards)",
+            office: "STATE SUPREME COURT JUSTICE",
+            jurisdiction: "SUPREME COURT",
+            position: "1",
+            electionYear: 2026,
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", filerId: "MELOC--109", committeeId: "40001" });
+  });
+
+  it("matches a filer name with doubled spaces", () => {
+    // Live PDC 2026: "DEBRA Jean  ENTENMAN (DEBRA ENTENMAN)", LD 47.
+    expect(
+      resolveWashingtonCandidateCommittee({
+        candidateName: "Debra Jean Entenman",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        legislativeDistrict: "47",
+        electionYear: 2026,
+        summaries: [
+          summary({
+            filerId: "ENTED--001",
+            committeeId: "40003",
+            filerName: "DEBRA Jean  ENTENMAN (DEBRA ENTENMAN)",
+            office: "STATE REPRESENTATIVE",
+            legislativeDistrict: "47",
+            electionYear: 2026,
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "40003" });
+  });
+
   it("matches legislative committees only when the expected district matches", () => {
     expect(
       resolveWashingtonCandidateCommittee({
