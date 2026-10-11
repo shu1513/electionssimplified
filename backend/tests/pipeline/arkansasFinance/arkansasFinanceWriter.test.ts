@@ -97,6 +97,7 @@ describe("arkansasFinanceWriter", () => {
       directBreakdownsWritten: 2,
       outsideGroupsWritten: 0,
       outsideGroupBreakdownsWritten: 0,
+      pacDonorsWritten: 0,
     });
 
     const calls = client.query.mock.calls;
