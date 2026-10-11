@@ -1089,8 +1089,11 @@ export function ElectionPage() {
                   track("detail_control", { control: "proposed_by_toggle", value: event.currentTarget.open ? "open" : "close" })
                 }
               >
-                <summary className="cursor-pointer select-none font-medium text-ink-soft">Proposed by</summary>
-                <p className="mt-1 text-ink">{measure.proposed_by.name}</p>
+                {/* The name stays visible; only the explainer and its
+                    source fold away. */}
+                <summary className="cursor-pointer select-none text-ink">
+                  <span className="font-medium text-ink-soft">Proposed by:</span> {measure.proposed_by.name}
+                </summary>
                 <p className="mt-1 text-xs text-ink-soft">{measure.proposed_by.about}</p>
                 <SourceLine url={measure.proposed_by.source_url} kind="measure_proposed_by_source" />
               </details>

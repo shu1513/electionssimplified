@@ -374,11 +374,13 @@ export default function ElectionScreen() {
                 accessibilityState={{ expanded: proposerExpanded }}
                 accessibilityLabel="Proposed by"
               >
-                <Text className="text-sm font-medium text-ink-soft">{proposerExpanded ? "▾" : "▸"} Proposed by</Text>
+                <Text className="text-sm text-ink">
+                  <Text className="font-medium text-ink-soft">{proposerExpanded ? "▾" : "▸"} Proposed by:</Text>{" "}
+                  {measure.proposed_by.name}
+                </Text>
               </Pressable>
               {proposerExpanded ? (
                 <>
-                  <Text className="mt-1 text-sm text-ink">{measure.proposed_by.name}</Text>
                   <Text className="mt-1 text-xs text-ink-soft">{measure.proposed_by.about}</Text>
                   <SourceLine url={measure.proposed_by.source_url} />
                 </>
