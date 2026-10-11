@@ -32,8 +32,9 @@
 //   employer field too — the parser flags it unreliable on those rows.
 
 import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
-import type { WestVirginiaTransactionRow } from "./westVirginiaCfrsClient.js";
+import type { WestVirginiaCommitteeRow, WestVirginiaTransactionRow } from "./westVirginiaCfrsClient.js";
 import type { WestVirginiaContributionCsvRow, WestVirginiaExpenditureCsvRow } from "./westVirginiaCfrsCsv.js";
+import { normalizeWestVirginiaCommitteeDonorName, westVirginiaCommitteeDonorRegistryType } from "./westVirginiaCommitteeDonorReconciliation.js";
 import { apiAmountToCents } from "./westVirginiaPhaseZero.js";
 import { isWestVirginiaDateInWindow, type WestVirginiaCycleWindow } from "./westVirginiaReportingCycleWindows.js";
 
@@ -86,7 +87,19 @@ export type WestVirginiaFinanceDirectBreakdown = {
   contributorCount: number;
 };
 
+export type WestVirginiaFinancePacDonor = {
+  committeeId: string;
+  committeeName: string;
+  /** Exact CFRS registry class; 102 PAC, 103 party/caucus. */
+  committeeType: "102" | "103";
+  totalAmount: number;
+  contributionCount: number;
+  sourceUrl: string;
+};
+
 export type WestVirginiaDirectFinanceAggregationResult = {
+  /** Omitted without an authoritative registry; [] is a successful empty replacement. */
+  pacDonors?: WestVirginiaFinancePacDonor[];
   /** Signed sum of every recognized contribution-file row in the window. */
   totalReceiptsCents: number;
   /** Donor money only (see the money model above). */
@@ -141,6 +154,51 @@ export function normalizeWestVirginiaOccupationLabel(value: string | null): stri
   return label;
 }
 
+function aggregateCommitteeDonors(input: {
+  entityId: string;
+  window: Pick<WestVirginiaCycleWindow, "windowStart" | "windowEnd">;
+  contributionRows: readonly WestVirginiaContributionCsvRow[];
+  committeeRegistryRows: readonly WestVirginiaCommitteeRow[];
+}): WestVirginiaFinancePacDonor[] {
+  // Include every type/status/year in name uniqueness BEFORE accepting source classes.
+  const registryByName = new Map<string, Map<string, WestVirginiaCommitteeRow>>();
+  for (const committee of input.committeeRegistryRows) {
+    const name = normalizeWestVirginiaCommitteeDonorName(committee.orgName ?? "");
+    if (!name) continue;
+    const identities = registryByName.get(name) ?? new Map<string, WestVirginiaCommitteeRow>();
+    // Repeated registry rows describe one donor only when all source identity
+    // fields agree; status/election labels do not create another legal entity.
+    const identity = JSON.stringify([committee.entityId, committee.orgTypeCode, committee.orgID]);
+    if (!identities.has(identity)) identities.set(identity, committee);
+    registryByName.set(name, identities);
+  }
+  const donors = new Map<string, { committee: WestVirginiaCommitteeRow; committeeType: "102" | "103"; cents: number; count: number }>();
+  for (const row of input.contributionRows) {
+    if (row.registrantId !== input.entityId || !isWestVirginiaDateInWindow(row.transactionDate, input.window)) continue;
+    const committeeType = westVirginiaCommitteeDonorRegistryType(row.contributorType);
+    if (!committeeType || ![CATEGORY_MONETARY, CATEGORY_IN_KIND, CATEGORY_RETURN].includes(row.transactionCategory)) continue;
+    if (!Number.isSafeInteger(row.amountCents) || row.amountCents < 0 || (row.transactionCategory === CATEGORY_RETURN && row.amountCents === 0)) {
+      throw new Error(`Invalid West Virginia committee donor amount for ${input.entityId}`);
+    }
+    const matches = [...(registryByName.get(normalizeWestVirginiaCommitteeDonorName(row.contributorName))?.values() ?? [])];
+    if (matches.length !== 1 || matches[0]!.orgTypeCode !== committeeType) continue;
+    const committee = matches[0]!;
+    const entry = donors.get(committee.entityId) ?? { committee, committeeType, cents: 0, count: 0 };
+    if (row.transactionCategory === CATEGORY_RETURN) entry.cents -= row.amountCents;
+    else {
+      entry.cents += row.amountCents;
+      if (row.amountCents > 0) entry.count += 1;
+    }
+    if (!Number.isSafeInteger(entry.cents)) throw new Error(`Unsafe West Virginia committee donor total for ${committee.entityId}`);
+    donors.set(committee.entityId, entry);
+  }
+  return [...donors.values()].flatMap(({ committee, committeeType, cents, count }) => {
+    if (cents < 0) throw new Error(`Negative West Virginia committee donor total for ${committee.entityId}`);
+    if (cents === 0) return [];
+    return [{ committeeId: committee.entityId, committeeName: committee.orgName!, committeeType, totalAmount: cents / 100, contributionCount: count, sourceUrl: "https://cfrs.wvsos.gov/" }];
+  }).sort((left, right) => right.totalAmount - left.totalAmount || left.committeeId.localeCompare(right.committeeId));
+}
+
 export function aggregateWestVirginiaDirectFinance(input: {
   entityId: string;
   window: Pick<WestVirginiaCycleWindow, "windowStart" | "windowEnd">;
@@ -148,6 +206,7 @@ export function aggregateWestVirginiaDirectFinance(input: {
   expenditureRows: readonly WestVirginiaExpenditureCsvRow[];
   apiRows: readonly WestVirginiaTransactionRow[];
   maxOccupationBreakdowns?: number;
+  committeeRegistryRows?: readonly WestVirginiaCommitteeRow[];
 }): WestVirginiaDirectFinanceAggregationResult {
   const maxOccupationBreakdowns = input.maxOccupationBreakdowns ?? 50;
   let totalReceiptsCents = 0;
@@ -286,6 +345,7 @@ export function aggregateWestVirginiaDirectFinance(input: {
   push("contribution_size", bucketTotals);
 
   return {
+    ...(input.committeeRegistryRows === undefined ? {} : { pacDonors: aggregateCommitteeDonors({ ...input, committeeRegistryRows: input.committeeRegistryRows }) }),
     totalReceiptsCents,
     directContributionCents,
     returnedContributionCents,

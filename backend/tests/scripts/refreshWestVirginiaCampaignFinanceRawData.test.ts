@@ -67,6 +67,14 @@ describe("refreshWestVirginiaCampaignFinanceRawData script", () => {
     };
     const result = await runRefreshWestVirginiaCampaignFinanceRawDataScript({
       options: { electionYears: [2026], cacheDir: "/cache", force: true, acceptEmpty: false, timeoutMs: undefined },
+      refreshRegistry: vi.fn(async () => ({
+        status: "downloaded", filePath: "/cache/REGISTRY.hash.json",
+        current: { recordCount: 2977, sha256: "1".repeat(64), downloadedAt: "2026-10-11T00:00:00Z", sourceUrl: "official-registry" },
+      })) as never,
+      refreshIE: vi.fn(async () => ({
+        status: "downloaded", filePath: "/cache/ELECTRONIC_IE.hash.json",
+        current: { scope: "electronic_regular_report_ie", years: [2025, 2026], recordCount: 1, sha256: "2".repeat(64), registrySha256: "1".repeat(64) },
+      })) as never,
       fetchCatalog: vi.fn(async () => []),
       refreshBulk: vi.fn(async (input: { kind: string; year: number }) => fakeRefresh(input.kind, input.year)) as never,
       refreshApi: vi.fn(async (input: { year: number }) => fakeRefresh("api_contributions", input.year)) as never,
@@ -94,4 +102,80 @@ describe("refreshWestVirginiaCampaignFinanceRawData script", () => {
     ]);
     expect(result.artifacts).toHaveLength(9);
   });
+
+  it("refreshes one year-independent registry snapshot across multiple election years", async () => {
+    const refreshIE = vi.fn(async () => ({
+      status: "downloaded", filePath: "/cache/ELECTRONIC_IE.hash.json",
+      current: { scope: "electronic_regular_report_ie", years: [2025, 2026, 2027, 2028, 2029], recordCount: 1, sha256: "2".repeat(64), registrySha256: "1".repeat(64) },
+    })) as never;
+    const refreshRegistry = vi.fn(async () => ({
+      status: "downloaded", filePath: "/cache/REGISTRY.hash.json",
+      current: { recordCount: 2977, sha256: "1".repeat(64), downloadedAt: "2026-10-11T00:00:00Z", sourceUrl: "official-registry" },
+    })) as never;
+    const refreshBulk = vi.fn(async ({ kind, year }: { kind: string; year: number }) => ({
+      status: "downloaded", filePath: `/cache/${kind}_${year}`,
+      current: { artifact: { kind, year }, recordCount: 1, recoveredRowCount: 0, sha256: "0".repeat(64) },
+    })) as never;
+    const result = await runRefreshWestVirginiaCampaignFinanceRawDataScript({
+      options: { electionYears: [2026, 2028], cacheDir: "/cache", force: true, acceptEmpty: false, timeoutMs: 1234 },
+      clientOptions: { userAgent: "test-agent" },
+      fetchCatalog: vi.fn(async () => []), refreshRegistry, refreshBulk, refreshIE,
+      refreshApi: vi.fn(async ({ year }: { year: number }) => ({
+        status: "downloaded", filePath: `/cache/api_${year}`,
+        current: { artifact: { kind: "api_contributions", year }, recordCount: 1, recoveredRowCount: 0, sha256: "0".repeat(64) },
+      })) as never,
+      readBulk: vi.fn(async ({ year }: { year: number }) => ({
+        csvText: `${REPS_HEADER}\n${year < 2027 ? 2026 : 2028} Election,${year < 2027 ? 2026 : 2028} Candidate Election Cycle,${year} Quarter,Campaign Financial Statement,Quarterly,${year}-01-01,${year}-12-31,${year + 1}-01-07\n`,
+      })) as never,
+    });
+    expect(refreshIE).toHaveBeenCalledTimes(1);
+    expect(refreshIE).toHaveBeenCalledWith({
+      years: [2025, 2026, 2027, 2028, 2029], cacheDir: "/cache", clientOptions: { userAgent: "test-agent", timeoutMs: 1234 },
+    });
+    expect(result.electronic_ie).toMatchObject({ scope: "electronic_regular_report_ie", record_count: 1 });
+    expect(refreshRegistry).toHaveBeenCalledTimes(1);
+    expect(refreshRegistry).toHaveBeenCalledWith({ cacheDir: "/cache", clientOptions: { userAgent: "test-agent", timeoutMs: 1234 } });
+    expect(result.registry).toEqual({ status: "downloaded", file_path: "/cache/REGISTRY.hash.json", record_count: 2977,
+      sha256: "1".repeat(64), downloaded_at: "2026-10-11T00:00:00Z", source_url: "official-registry" });
+    expect(result.registry).not.toHaveProperty("year");
+    expect(result.artifacts.some((artifact) => String(artifact.kind) === "committee_registry")).toBe(false);
+  });
+
+  it("fails visibly before year artifacts when registry acquisition fails", async () => {
+    const refreshBulk = vi.fn();
+    await expect(runRefreshWestVirginiaCampaignFinanceRawDataScript({
+      options: { electionYears: [2026], cacheDir: "/cache", force: true, acceptEmpty: true, timeoutMs: undefined },
+      refreshIE: vi.fn(async () => ({
+        status: "downloaded", filePath: "/cache/ELECTRONIC_IE.hash.json",
+        current: { scope: "electronic_regular_report_ie", years: [2025, 2026], recordCount: 1, sha256: "2".repeat(64), registrySha256: "1".repeat(64) },
+      })) as never,
+      fetchCatalog: vi.fn(async () => []),
+      refreshRegistry: vi.fn(async () => { throw new Error("registry source incomplete"); }),
+      refreshBulk,
+    })).rejects.toThrow("registry source incomplete");
+    expect(refreshBulk).not.toHaveBeenCalled();
+  });
+
+  it("fails visibly after direct artifacts if the electronic IE generation is inconsistent", async () => {
+    const refreshIE = vi.fn(async () => { throw new Error("IE generation changed"); });
+    const bulk = vi.fn(async ({ kind, year }: { kind: string; year: number }) => ({
+      status: "downloaded", filePath: "/cache/mock",
+      current: { artifact: { kind, year }, recordCount: 1, recoveredRowCount: 0, sha256: "0".repeat(64) },
+    })) as never;
+    await expect(runRefreshWestVirginiaCampaignFinanceRawDataScript({
+      options: { electionYears: [2026], cacheDir: "/cache", force: true, acceptEmpty: true, timeoutMs: undefined },
+      fetchCatalog: vi.fn(async () => []),
+      refreshRegistry: vi.fn(async () => ({ status: "downloaded", filePath: "/cache/registry",
+        current: { recordCount: 1, sha256: "1".repeat(64), downloadedAt: "2026-10-11", sourceUrl: "official" } })) as never,
+      refreshIE, refreshBulk: bulk,
+      refreshApi: vi.fn(async ({ year }: { year: number }) => ({
+        status: "downloaded", filePath: "/cache/api",
+        current: { artifact: { kind: "api_contributions", year }, recordCount: 1, recoveredRowCount: 0, sha256: "0".repeat(64) },
+      })) as never,
+      readBulk: vi.fn(async ({ year }: { year: number }) => ({ csvText: SCHEDULE_CSV[year]! })) as never,
+    })).rejects.toThrow("IE generation changed");
+    expect(refreshIE).toHaveBeenCalledOnce();
+    expect(bulk).toHaveBeenCalled();
+  });
+
 });
