@@ -9,7 +9,17 @@ export type IllinoisSbeSupportOppose = "support" | "oppose";
 
 export type IllinoisSbeCsvRow = Record<string, string>;
 
-export type IllinoisSbeContributionRecord = {
+export type IllinoisSbeReportSourceFields = {
+  /** Exact source committee identifier; receiving ownership must be verified separately. */
+  committeeId?: string | null;
+  documentName?: string | null;
+  reportingPeriodStart?: string | null;
+  reportingPeriodEnd?: string | null;
+  /** Populated only after the complete all-version metadata join verifies an exact current report. */
+  sourceDocumentId?: string | null;
+};
+
+export type IllinoisSbeContributionRecord = IllinoisSbeReportSourceFields & {
   contributorName: string | null;
   contributorAddress: string | null;
   occupation: string | null;
@@ -25,7 +35,7 @@ export type IllinoisSbeContributionRecord = {
   sourceUrl: string;
 };
 
-export type IllinoisSbeExpenditureRecord = {
+export type IllinoisSbeExpenditureRecord = IllinoisSbeReportSourceFields & {
   payeeName: string | null;
   payeeAddress: string | null;
   amount: number;
@@ -141,7 +151,13 @@ export function parseIllinoisSbeCsvRows(csv: string): IllinoisSbeCsvRow[] {
     return [];
   }
   const headers = headerRow.map(normalizeHeader);
+  if (headers.some((header) => !header) || new Set(headers).size !== headers.length) {
+    throw new Error("Illinois SBE CSV has empty or duplicate headers");
+  }
   return rows.slice(1).map((fields) => {
+    if (fields.length !== headers.length) {
+      throw new Error("Illinois SBE CSV row width does not match its header");
+    }
     const row: IllinoisSbeCsvRow = {};
     for (let index = 0; index < headers.length; index += 1) {
       const header = headers[index];
@@ -164,15 +180,63 @@ function getString(row: IllinoisSbeCsvRow, ...keys: string[]): string | null {
 }
 
 function parseAmount(value: string | null): number | null {
-  if (!value) {
-    return null;
+  if (!value) return null;
+  const normalized = value.trim();
+  const parentheses = /^\(.*\)$/.test(normalized);
+  const unsigned = parentheses ? normalized.slice(1, -1) : normalized;
+  if (!/^-?\$?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{1,2})?$/.test(unsigned)) return null;
+  const parsed = Number(unsigned.replace(/[$,]/g, ""));
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(Math.round(parsed * 100)) || (parentheses && parsed < 0)) return null;
+  return parentheses ? -parsed : parsed;
+}
+
+const MODERN_CONTRIBUTION_HEADERS = [
+  "CommitteeID", "CommitteeName", "ContributedBy", "RcvdDate", "Amount", "LoanAmount", "Occupation", "Employer",
+  "Address1", "Address2", "City", "State", "Zip", "D2Part", "Description", "VendorName", "VendorAddress1",
+  "VendorAddress2", "VendorCity", "VendorState", "VendorZip", "DocName", "Election", "RptPdBegDate", "RptPdEndDate", "FiledRcvdDate",
+];
+const MODERN_EXPENDITURE_HEADERS = [
+  "CommitteeID", "ReceivedBy", "ExpndDate", "Amount", "Address1", "Address2", "City", "State", "Zip",
+  "ExpendedByType", "Purpose", "Beneficiary", "CandidateName", "OfficeDistrict", "SupportingOpposing", "DocName",
+  "Election", "RptPdBegDate", "RptPdEndDate", "RptRcvdDate", "ExpendedBy",
+];
+
+function validatedExportRows(csv: string, kind: "contribution" | "expenditure"): IllinoisSbeCsvRow[] {
+  if (hasIllinoisSbeExportCapWarning(csv)) throw new Error("Illinois SBE export is capped");
+  const table = parseCsvRows(csv);
+  const headers = table[0]?.map(normalizeHeader) ?? [];
+  const modern = headers.includes("committeeid");
+  const required = modern
+    ? (kind === "contribution" ? MODERN_CONTRIBUTION_HEADERS : MODERN_EXPENDITURE_HEADERS)
+    : (kind === "contribution"
+      ? ["Contributed By", "Received By", "Amount", "Amount Received Date", "Report Received Date"]
+      : ["Received By", "Expended By", "Amount", "Expended By Date", "Report Received Date", "Candidate Name", "Office - District", "Supporting / Opposing"]);
+  if (!required.every((header) => headers.includes(normalizeHeader(header))) || (modern && headers.length !== required.length)) {
+    throw new Error(`Illinois SBE ${kind} export has an unrecognized schema`);
   }
-  const isParenthesized = value.includes("(") && value.includes(")");
-  const parsed = Number(value.replace(/[$,()]/g, "").trim());
-  if (!Number.isFinite(parsed)) {
-    return null;
+  const rows = parseIllinoisSbeCsvRows(csv);
+  if (rows.length >= ILLINOIS_SBE_EXPORT_ROW_CAP) throw new Error("Illinois SBE export is capped");
+  if (modern && rows.length === 0) {
+    throw new Error("Illinois SBE modern header-only export does not establish complete empty coverage");
   }
-  return isParenthesized ? -parsed : parsed;
+  return rows;
+}
+
+function modernReportFields(row: IllinoisSbeCsvRow): IllinoisSbeReportSourceFields {
+  if (!("committeeid" in row)) return {};
+  const committeeId = getString(row, "CommitteeID");
+  if (!committeeId || !/^\d+$/.test(committeeId)) throw new Error("Illinois SBE CSV has an invalid committee ID");
+  return {
+    committeeId,
+    documentName: getString(row, "DocName"),
+    reportingPeriodStart: getString(row, "RptPdBegDate"),
+    reportingPeriodEnd: getString(row, "RptPdEndDate"),
+  };
+}
+
+function modernAddress(row: IllinoisSbeCsvRow, prefix = ""): string | null {
+  return ["Address1", "Address2", "City", "State", "Zip"]
+    .map((field) => getString(row, `${prefix}${field}`)).filter(Boolean).join("\n") || null;
 }
 
 function splitMultilineCell(value: string | null): string[] {
@@ -242,21 +306,23 @@ export function illinoisSbeContributionRecordFromRow(
   if (amount === null) {
     return null;
   }
-  const contributor = parseNameAddressOccupationEmployer(getString(row, "Contributed By"));
+  const modern = "committeeid" in row;
+  const contributor = parseNameAddressOccupationEmployer(getString(row, "Contributed By", "ContributedBy"));
   const recipient = parseTypeAndCommittee(getString(row, "Received By"));
   return {
     contributorName: contributor.name,
-    contributorAddress: contributor.address,
-    occupation: contributor.occupation,
-    employer: contributor.employer,
+    contributorAddress: modern ? modernAddress(row) : contributor.address,
+    occupation: modern ? getString(row, "Occupation") : contributor.occupation,
+    employer: modern ? getString(row, "Employer") : contributor.employer,
     amount,
-    receivedDate: getString(row, "Amount Received Date", "Contribution Received Date", "Received Date"),
-    reportReceivedDate: getString(row, "Report Received Date"),
-    contributionType: recipient.type,
-    recipientCommitteeName: recipient.committeeName,
+    receivedDate: getString(row, "Amount Received Date", "Contribution Received Date", "Received Date", "RcvdDate"),
+    reportReceivedDate: getString(row, "Report Received Date", "FiledRcvdDate"),
+    contributionType: modern ? getString(row, "D2Part") : recipient.type,
+    recipientCommitteeName: modern ? getString(row, "CommitteeName") : recipient.committeeName,
     description: getString(row, "Description"),
-    vendorName: getString(row, "Vendor Name"),
-    vendorAddress: getString(row, "Vendor Address"),
+    vendorName: getString(row, "Vendor Name", "VendorName"),
+    vendorAddress: modern ? modernAddress(row, "Vendor") : getString(row, "Vendor Address"),
+    ...modernReportFields(row),
     sourceUrl,
   };
 }
@@ -269,20 +335,22 @@ export function illinoisSbeExpenditureRecordFromRow(
   if (amount === null) {
     return null;
   }
-  const payee = parseNameAddressOccupationEmployer(getString(row, "Received By"));
+  const modern = "committeeid" in row;
+  const payee = parseNameAddressOccupationEmployer(getString(row, "Received By", "ReceivedBy"));
   const spender = parseTypeAndCommittee(getString(row, "Expended By"));
   return {
     payeeName: payee.name,
-    payeeAddress: payee.address,
+    payeeAddress: modern ? modernAddress(row) : payee.address,
     amount,
-    expendedDate: getString(row, "Expended By Date", "Date Expended"),
-    reportReceivedDate: getString(row, "Report Received Date"),
-    expenditureType: spender.type,
-    expendingCommitteeName: spender.committeeName,
+    expendedDate: getString(row, "Expended By Date", "Date Expended", "ExpndDate"),
+    reportReceivedDate: getString(row, "Report Received Date", "RptRcvdDate"),
+    expenditureType: modern ? getString(row, "ExpendedByType") : spender.type,
+    expendingCommitteeName: modern ? getString(row, "ExpendedBy") : spender.committeeName,
     purpose: getString(row, "Purpose / Beneficiary", "Purpose", "Beneficiary"),
-    candidateName: getString(row, "Candidate Name"),
-    officeDistrict: getString(row, "Office - District", "Office Being Sought"),
-    supportOppose: parseSupportOppose(getString(row, "Supporting / Opposing")),
+    candidateName: getString(row, "Candidate Name", "CandidateName"),
+    officeDistrict: getString(row, "Office - District", "Office Being Sought", "OfficeDistrict"),
+    supportOppose: parseSupportOppose(getString(row, "Supporting / Opposing", "SupportingOpposing")),
+    ...modernReportFields(row),
     sourceUrl,
   };
 }
@@ -291,18 +359,22 @@ export function parseIllinoisSbeContributionRecordsCsv(
   csv: string,
   sourceUrl = ILLINOIS_SBE_CONTRIBUTION_CANDIDATE_SEARCH_URL
 ): IllinoisSbeContributionRecord[] {
-  return parseIllinoisSbeCsvRows(csv)
-    .map((row) => illinoisSbeContributionRecordFromRow(row, sourceUrl))
-    .filter((row): row is IllinoisSbeContributionRecord => row !== null);
+  return validatedExportRows(csv, "contribution").map((row) => {
+    const record = illinoisSbeContributionRecordFromRow(row, sourceUrl);
+    if (!record) throw new Error("Illinois SBE contribution export has an invalid amount");
+    return record;
+  });
 }
 
 export function parseIllinoisSbeExpenditureRecordsCsv(
   csv: string,
   sourceUrl = ILLINOIS_SBE_EXPENDITURE_ALL_SEARCH_URL
 ): IllinoisSbeExpenditureRecord[] {
-  return parseIllinoisSbeCsvRows(csv)
-    .map((row) => illinoisSbeExpenditureRecordFromRow(row, sourceUrl))
-    .filter((row): row is IllinoisSbeExpenditureRecord => row !== null);
+  return validatedExportRows(csv, "expenditure").map((row) => {
+    const record = illinoisSbeExpenditureRecordFromRow(row, sourceUrl);
+    if (!record) throw new Error("Illinois SBE expenditure export has an invalid amount");
+    return record;
+  });
 }
 
 export function hasIllinoisSbeExportCapWarning(text: string): boolean {

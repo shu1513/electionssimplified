@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+import { readFile } from "node:fs/promises";
 
 import { Pool } from "pg";
 
@@ -16,6 +17,8 @@ import {
 } from "../pipeline/illinoisFinance/illinoisSbeArtifactDataSource.js";
 import { parseFlagValue, parseFlagValues } from "./illinoisCandidateFinanceScriptArgs.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
+import { loadIllinoisSbeVerifiedQuarterlyDataSet,
+  type IllinoisSbeVerifiedQuarterlyConfig } from "../pipeline/illinoisFinance/illinoisSbeVerifiedQuarterlyDataSource.js";
 
 export type SyncDueIllinoisCandidateFinanceScriptOptions = {
   dryRun: boolean;
@@ -31,6 +34,7 @@ export type SyncDueIllinoisCandidateFinanceScriptOptions = {
   expenditureSourceUrl?: string;
   normalizedArtifactPath?: string;
   receiptsTsvPath?: string;
+  verifiedQuarterlyConfigPath?: string;
 };
 
 function parsePositiveIntegerFlag(args: readonly string[], name: string): number | undefined {
@@ -45,7 +49,7 @@ function parsePositiveIntegerFlag(args: readonly string[], name: string): number
 }
 
 const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
-const KNOWN_VALUE_FLAGS = new Set(["--contributions-csv", "--contributions-url", "--expenditures-csv", "--expenditures-url", "--lookahead-days", "--lookback-days", "--max-candidates", "--normalized-artifact", "--receipts-tsv", "--stale-after-days", "--timeout-ms"]);
+const KNOWN_VALUE_FLAGS = new Set(["--verified-quarterly-config", "--contributions-csv", "--contributions-url", "--expenditures-csv", "--expenditures-url", "--lookahead-days", "--lookback-days", "--max-candidates", "--normalized-artifact", "--receipts-tsv", "--stale-after-days", "--timeout-ms"]);
 
 export function parseSyncDueIllinoisCandidateFinanceScriptArgs(
   args: readonly string[]
@@ -57,6 +61,11 @@ export function parseSyncDueIllinoisCandidateFinanceScriptArgs(
   const expenditureSourceUrl = parseFlagValue(args, "--expenditures-url") || undefined;
   const normalizedArtifactPath = parseFlagValue(args, "--normalized-artifact") || undefined;
   const receiptsTsvPath = parseFlagValue(args, "--receipts-tsv") || undefined;
+  const verifiedQuarterlyConfigPath = parseFlagValue(args, "--verified-quarterly-config") || undefined;
+  if (verifiedQuarterlyConfigPath && (contributionCsvPaths.length || expenditureCsvPaths.length ||
+      contributionSourceUrl || expenditureSourceUrl || normalizedArtifactPath || receiptsTsvPath)) {
+    throw new Error("Verified Quarterly config cannot be combined with legacy Illinois artifact flags");
+  }
   // --receipts-tsv is deliberately absent from this guard: the normalized
   // artifact it requires may arrive via ILLINOIS_SBE_NORMALIZED_ARTIFACT_PATH,
   // which argument parsing cannot see. The data-set loader raises the
@@ -82,6 +91,7 @@ export function parseSyncDueIllinoisCandidateFinanceScriptArgs(
     expenditureSourceUrl,
     normalizedArtifactPath,
     receiptsTsvPath,
+    verifiedQuarterlyConfigPath,
   };
 }
 
@@ -109,7 +119,8 @@ export function toSyncDueIllinoisCandidateFinanceScriptOutput(input: {
     started_at: input.startedAt.toISOString(),
     dry_run: input.options.dryRun,
     data_source:
-      input.options.contributionCsvPaths.length > 0 || normalizedArtifactPath ? "artifact" : "live",
+      input.options.verifiedQuarterlyConfigPath ? "verified_quarterly" :
+        input.options.contributionCsvPaths.length > 0 || normalizedArtifactPath ? "artifact" : "live",
     artifact_contribution_csv_count: input.options.contributionCsvPaths.length,
     artifact_expenditure_csv_count: input.options.expenditureCsvPaths.length,
     normalized_artifact: Boolean(normalizedArtifactPath),
@@ -137,6 +148,10 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString: getDatabaseUrl() });
 
   try {
+    const verified = options.verifiedQuarterlyConfigPath
+      ? await loadIllinoisSbeVerifiedQuarterlyDataSet(JSON.parse(
+          await readFile(options.verifiedQuarterlyConfigPath, "utf8")) as IllinoisSbeVerifiedQuarterlyConfig)
+      : null;
     const normalizedArtifactPath =
       options.normalizedArtifactPath ??
       (process.env.ILLINOIS_SBE_NORMALIZED_ARTIFACT_PATH?.trim() || undefined);
@@ -146,7 +161,7 @@ async function main(): Promise<void> {
     // path must either load or fail loudly (the data set requires the
     // normalized artifact alongside it), never fall through to live loading.
     const artifacts =
-      options.contributionCsvPaths.length > 0 || normalizedArtifactPath || receiptsTsvPath
+      !verified && (options.contributionCsvPaths.length > 0 || normalizedArtifactPath || receiptsTsvPath)
         ? await loadIllinoisSbeArtifactDataSet({
             contributionCsvPaths: options.contributionCsvPaths,
             expenditureCsvPaths: options.expenditureCsvPaths,
@@ -173,10 +188,21 @@ async function main(): Promise<void> {
       electionLookaheadDays: options.electionLookaheadDays,
       sbeClientOptions: options.timeoutMs ? { timeoutMs: options.timeoutMs } : undefined,
       resolveCandidateCommittee: artifactCandidateCommitteeResolver,
-      loadIllinoisFinanceDataFn: artifacts
+      autoLinkMissingLinks: verified ? false : undefined,
+      loadIllinoisFinanceDataFn: verified
+        ? async (row) => {
+            const data = verified.loadCandidateData(row);
+            return { ...data, verifiedQuarterly: true, sourceDiagnostics: data.diagnostics };
+          }
+        : artifacts
         ? async (row) => loadIllinoisFinanceDataForDueRowFromArtifacts({ row, artifacts })
         : undefined,
     });
+
+    if (verified) console.log(JSON.stringify({ type: "illinois_verified_quarterly_sources",
+      sources: verified.sources, accepted_ie_reports: verified.acceptedIEReports.length,
+      direct_unknown: Object.fromEntries(verified.diagnostics.direct),
+      outside_unknown: Object.fromEntries(verified.diagnostics.outside) }));
 
     console.log(
       JSON.stringify(

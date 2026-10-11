@@ -1,12 +1,14 @@
 import {
   parseIllinoisSbeContributionRecordsCsv,
   parseIllinoisSbeExpenditureRecordsCsv,
+  hasIllinoisSbeExportCapWarning,
 } from "./illinoisSbeCsvReader.js";
 import type {
   IllinoisSbeContributionRecord,
   IllinoisSbeExpenditureRecord,
   IllinoisSbeSupportOppose,
 } from "./illinoisSbeCsvReader.js";
+import { decodeIllinoisSbeWindows1252 } from "./illinoisSbeLegalCommitteeDonorMatcher.js";
 
 export {
   getIllinoisSbeExportCapStatus,
@@ -30,6 +32,7 @@ export type {
   IllinoisSbeExpenditureRecord,
   IllinoisSbePartitionAmountWindow,
   IllinoisSbePartitionDateWindow,
+  IllinoisSbeReportSourceFields,
   IllinoisSbeSupportOppose,
 } from "./illinoisSbeCsvReader.js";
 
@@ -90,7 +93,9 @@ export type IllinoisSbeCommitteeContributionSearchInput = {
 };
 
 export type IllinoisSbeIndependentExpenditureSearchInput = IllinoisSbeDateWindow & {
-  candidateName: string;
+  candidateName?: string;
+  /** Explicit bounded discovery across all targets; rows still need current filing/target verification. */
+  allCandidates?: boolean;
   supportOppose?: IllinoisSbeSupportOppose | null;
   office?: string | null;
 };
@@ -115,8 +120,14 @@ function normalizeDate(value: string | null | undefined, fieldName: string): str
   if (!normalized) {
     return "";
   }
-  if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(normalized)) {
+  const parts = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(normalized);
+  if (!parts) {
     throw new IllinoisSbeClientError("invalid_request", `${fieldName} must use m/d/yyyy format`);
+  }
+  const [month, day, year] = parts.slice(1).map(Number);
+  const date = new Date(Date.UTC(year!, month! - 1, day!));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) {
+    throw new IllinoisSbeClientError("invalid_request", `${fieldName} must be a valid calendar date`);
   }
   return normalized;
 }
@@ -267,7 +278,12 @@ export function decodeIllinoisSbeText(buffer: ArrayBuffer): string {
   if (sample.length > 20 && nullOddCount > sample.length / 4) {
     return new TextDecoder("utf-16le").decode(bytes);
   }
-  return new TextDecoder("utf-8").decode(bytes);
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    // The official bulk registry contains Windows-1252 names, not UTF-8.
+    return decodeIllinoisSbeWindows1252(bytes);
+  }
 }
 
 function htmlDecode(value: string): string {
@@ -304,6 +320,10 @@ function readInputFields(html: string): HtmlFormFields {
       continue;
     }
     const type = attributes.type?.toLowerCase() ?? "text";
+    // A browser submits only the clicked button; Search is added explicitly below.
+    if (["submit", "reset", "button", "image", "file"].includes(type) || "disabled" in attributes) {
+      continue;
+    }
     if ((type === "radio" || type === "checkbox") && !("checked" in attributes)) {
       continue;
     }
@@ -365,7 +385,7 @@ class IllinoisSbeSession {
   async getText(url: string, context: string): Promise<{ text: string; url: string }> {
     const headers = new Headers({
       accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "user-agent": "voteApp Illinois campaign finance probe/1.0",
+      "user-agent": "Mozilla/5.0 (compatible; voteApp Illinois campaign finance/1.0)",
     });
     if (this.cookieHeader) {
       headers.set("cookie", this.cookieHeader);
@@ -405,7 +425,7 @@ class IllinoisSbeSession {
       "content-type": "application/x-www-form-urlencoded",
       origin: ILLINOIS_SBE_BASE_URL,
       referer: url,
-      "user-agent": "voteApp Illinois campaign finance probe/1.0",
+      "user-agent": "Mozilla/5.0 (compatible; voteApp Illinois campaign finance/1.0)",
     });
     if (this.cookieHeader) {
       headers.set("cookie", this.cookieHeader);
@@ -479,6 +499,9 @@ async function submitAndDownloadCsv(input: {
     fields: input.fields,
     submit: input.submit,
   });
+  if (hasIllinoisSbeExportCapWarning(result.text)) {
+    throw new IllinoisSbeClientError("bad_response", "Illinois SBE search export is capped");
+  }
   const downloadPage = await openDownloadList({
     session: input.session,
     resultUrl: result.url,
@@ -515,6 +538,7 @@ export async function fetchIllinoisSbeCandidateContributionsCsv(
       value: "Search",
     },
   });
+  parseIllinoisSbeContributionRecordsCsv(result.csv);
   return result.csv;
 }
 
@@ -541,6 +565,7 @@ export async function fetchIllinoisSbeCommitteeContributionsCsv(
       value: "Search",
     },
   });
+  parseIllinoisSbeContributionRecordsCsv(result.csv);
   return result.csv;
 }
 
@@ -548,6 +573,15 @@ export async function fetchIllinoisSbeIndependentExpendituresCsv(
   input: IllinoisSbeIndependentExpenditureSearchInput,
   options: IllinoisSbeClientOptions = {}
 ): Promise<string> {
+  if (input.allCandidates && (input.candidateName?.trim() || !input.fromDate?.trim() || !input.toDate?.trim())) {
+    throw new Error("Illinois SBE all-candidate expenditure search requires both date bounds and no candidate name");
+  }
+  const candidateName = input.allCandidates ? "" : requireNonEmpty(input.candidateName, "candidate name");
+  const fromDate = normalizeDate(input.fromDate, "fromDate");
+  const toDate = normalizeDate(input.toDate, "toDate");
+  if (input.allCandidates && new Date(fromDate).getTime() > new Date(toDate).getTime()) {
+    throw new IllinoisSbeClientError("invalid_request", "Illinois SBE all-candidate expenditure date bounds are reversed");
+  }
   const session = new IllinoisSbeSession(options);
   const page = await session.getText(ILLINOIS_SBE_EXPENDITURE_ALL_SEARCH_URL, "independent expenditure search page");
   const result = await submitAndDownloadCsv({
@@ -557,18 +591,19 @@ export async function fetchIllinoisSbeIndependentExpendituresCsv(
     fields: {
       "ctl00$ContentPlaceHolder1$ddlExpenditureType": "Independent Expenditures",
       "ctl00$ContentPlaceHolder1$ddlCandidateNameSearchType": "Contains",
-      "ctl00$ContentPlaceHolder1$txtCandidateName": requireNonEmpty(input.candidateName, "candidate name"),
+      "ctl00$ContentPlaceHolder1$txtCandidateName": candidateName,
       "ctl00$ContentPlaceHolder1$ddlOfficeSearchType": "Contains",
       "ctl00$ContentPlaceHolder1$txtOffice": input.office?.trim() ?? "",
       "ctl00$ContentPlaceHolder1$radSupportingOpposing": normalizeSupportOppose(input.supportOppose),
-      "ctl00$ContentPlaceHolder1$txtExpendedDate": normalizeDate(input.fromDate, "fromDate"),
-      "ctl00$ContentPlaceHolder1$txtExpendedDateThru": normalizeDate(input.toDate, "toDate"),
+      "ctl00$ContentPlaceHolder1$txtExpendedDate": fromDate,
+      "ctl00$ContentPlaceHolder1$txtExpendedDateThru": toDate,
     },
     submit: {
       name: "ctl00$ContentPlaceHolder1$btnSubmit",
       value: "Search",
     },
   });
+  parseIllinoisSbeExpenditureRecordsCsv(result.csv);
   return result.csv;
 }
 

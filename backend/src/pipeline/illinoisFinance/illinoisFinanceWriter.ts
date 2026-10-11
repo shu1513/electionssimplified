@@ -51,6 +51,8 @@ export type IllinoisFinanceSummaryInput = {
   outsideSupportTotal?: number | null;
   outsideOpposeTotal?: number | null;
   sourceUrl?: string | null;
+  /** True when the snapshot carries current D-2 coverage: null receipts, spending, cash and debt then replace stored values instead of keeping them. */
+  d2Current?: boolean;
 };
 
 export type IllinoisFinanceDirectBreakdownInput = {
@@ -66,6 +68,26 @@ export type IllinoisFinanceOutsideGroupInput = {
   committeeName: string;
   supportOppose: IllinoisFinanceSupportOppose;
   amount: number;
+  sourceUrl?: string | null;
+  sourceReports?: readonly IllinoisFinanceOutsideReportEvidence[];
+};
+
+export type IllinoisFinanceOutsideReportEvidence = {
+  committeeId: string;
+  filedDocId: string;
+  periodStart: string;
+  periodEnd: string;
+  receivedAt: string;
+  fingerprint: string;
+  supersededDocumentIds?: readonly string[];
+};
+
+export type IllinoisFinancePacDonorInput = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: "Political Action" | "Political Party";
+  totalAmount: number;
+  contributionCount: number;
   sourceUrl?: string | null;
 };
 
@@ -85,7 +107,11 @@ export type IllinoisFinanceSnapshotInput = {
   syncedAt?: Date;
   summary?: IllinoisFinanceSummaryInput;
   directBreakdowns?: readonly IllinoisFinanceDirectBreakdownInput[];
+  /** Omitted preserves accepted donors; only a complete validated cash scope may supply []. */
+  pacDonors?: readonly IllinoisFinancePacDonorInput[];
   outsideGroups?: readonly IllinoisFinanceOutsideGroupInput[];
+  /** Complete current report evidence; supplied only by the verified Quarterly source path. */
+  outsideReportEvidence?: readonly IllinoisFinanceOutsideReportEvidence[];
   outsideGroupBreakdowns?: readonly IllinoisFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
 };
@@ -96,6 +122,8 @@ export type IllinoisFinanceSnapshotWriteResult = {
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
+  pacDonorsWritten?: number;
+  outsidePreserved?: boolean;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -193,6 +221,58 @@ function validateIllinoisFinanceLinkInput(link: IllinoisFinanceLinkInput): void 
 
 function validateIllinoisFinanceSnapshotInput(input: IllinoisFinanceSnapshotInput): void {
   validateIllinoisFinanceLinkInput(input.link);
+  for (const donor of input.pacDonors ?? []) {
+    if (!/^[1-9]\d*$/.test(donor.committeeId) || !Number.isSafeInteger(Number(donor.committeeId)) ||
+        !["Political Action", "Political Party"].includes(donor.committeeType)) {
+      throw new Error("Illinois committee donor requires an exact typed legal committee ID");
+    }
+    requireNonEmpty(donor.committeeName, "Illinois committee donor name");
+    if (!Number.isFinite(donor.totalAmount) || donor.totalAmount <= 0 ||
+        !Number.isSafeInteger(Math.round(donor.totalAmount * 100)) ||
+        Math.abs(donor.totalAmount * 100 - Math.round(donor.totalAmount * 100)) > 0.00001) {
+      throw new Error("Illinois committee donor amount must be positive safe cents");
+    }
+    if (!Number.isSafeInteger(donor.contributionCount) || donor.contributionCount <= 0) {
+      throw new Error("Illinois committee donor count must be a positive integer");
+    }
+    if (input.link.committeeKey.trim().toUpperCase() === `SBE:${donor.committeeId}`) {
+      throw new Error("Illinois committee donor cannot be its receiving committee");
+    }
+  }
+  if (new Set((input.pacDonors ?? []).map((donor) => donor.committeeId)).size !== (input.pacDonors?.length ?? 0)) {
+    throw new Error("Illinois committee donor snapshot contains duplicate IDs");
+  }
+  if (input.outsideReportEvidence !== undefined && input.outsideGroups !== undefined) {
+    if (input.outsideGroups.length === 0) throw new Error("Illinois empty IE snapshot requires independent current empty proof");
+    const keys = new Set<string>();
+    const totals = { support: 0, oppose: 0 };
+    for (const report of input.outsideReportEvidence) {
+      if (!validOutsideReport(report)) throw new Error("Illinois outside report evidence is invalid");
+    }
+    for (const group of input.outsideGroups) {
+      const key = `${normalizeCommitteeKey(group.committeeKey)}\u0000${group.supportOppose}`;
+      const amountCents = Math.round(group.amount * 100);
+      if (!Number.isFinite(group.amount) || group.amount <= 0 || !Number.isSafeInteger(amountCents) ||
+          Math.abs(group.amount * 100 - amountCents) > 0.00001 ||
+          !["support", "oppose"].includes(group.supportOppose) || keys.has(key)) {
+        throw new Error("Illinois verified outside groups require unique keys and positive safe cents");
+      }
+      keys.add(key);
+      totals[group.supportOppose] += amountCents;
+      if (!group.sourceReports?.length || group.sourceReports.some((report) =>
+        !validOutsideReport(report) || normalizeCommitteeKey(group.committeeKey) !== `SBE:${report.committeeId}` ||
+        !input.outsideReportEvidence!.some((current) => sameOutsideReport(current, report)))) {
+        throw new Error("Illinois outside group requires matching current report evidence");
+      }
+    }
+    for (const stance of ["support", "oppose"] as const) {
+      const amount = stance === "support" ? input.summary?.outsideSupportTotal : input.summary?.outsideOpposeTotal;
+      if (amount === undefined || amount === null || !Number.isFinite(amount) ||
+          !Number.isSafeInteger(totals[stance]) || Math.abs(amount * 100 - totals[stance]) > 0.00001) {
+        throw new Error("Illinois verified outside headline must equal its complete group total");
+      }
+    }
+  }
   const outsideBreakdownCount = input.outsideGroupBreakdowns?.length ?? 0;
   const outsideGroupCount = input.outsideGroups?.length ?? 0;
   if (outsideBreakdownCount > 0 && outsideGroupCount === 0) {
@@ -212,6 +292,43 @@ function validateIllinoisFinanceSnapshotInput(input: IllinoisFinanceSnapshotInpu
       }
     }
   }
+}
+
+function validOutsideReport(value: unknown): value is IllinoisFinanceOutsideReportEvidence {
+  if (!value || typeof value !== "object") return false;
+  const report = value as IllinoisFinanceOutsideReportEvidence;
+  return typeof report.committeeId === "string" && /^[1-9]\d*$/.test(report.committeeId) &&
+    typeof report.filedDocId === "string" && /^[1-9]\d*$/.test(report.filedDocId) &&
+    typeof report.periodStart === "string" && /^\d{4}-\d{2}-\d{2}$/.test(report.periodStart) &&
+    typeof report.periodEnd === "string" && /^\d{4}-\d{2}-\d{2}$/.test(report.periodEnd) && report.periodStart <= report.periodEnd &&
+    typeof report.receivedAt === "string" && report.receivedAt.trim().length > 0 &&
+    typeof report.fingerprint === "string" && /^[a-f0-9]{64}$/.test(report.fingerprint) &&
+    (report.supersededDocumentIds === undefined || (Array.isArray(report.supersededDocumentIds) &&
+      report.supersededDocumentIds.every((id) => typeof id === "string" && /^[1-9]\d*$/.test(id))));
+}
+
+function sameOutsideReport(left: IllinoisFinanceOutsideReportEvidence, right: IllinoisFinanceOutsideReportEvidence): boolean {
+  return left.committeeId === right.committeeId && left.filedDocId === right.filedDocId &&
+    left.periodStart === right.periodStart && left.periodEnd === right.periodEnd &&
+    left.receivedAt === right.receivedAt && left.fingerprint === right.fingerprint;
+}
+
+async function mustPreserveOutside(db: Queryable, input: IllinoisFinanceSnapshotInput): Promise<boolean> {
+  await db.query("SELECT pg_advisory_xact_lock(hashtext($1))", [`IL:${input.link.candidateId}:${input.link.electionId}`]);
+  const previous = await db.query<{ source_reports: unknown }>(`
+    SELECT groups.source_reports
+    FROM public.il_candidate_finance_outside_groups AS groups
+    JOIN public.il_candidate_finance_links AS link ON link.id = groups.link_id
+    WHERE link.candidate_id = $1::uuid AND link.election_id = $2::uuid
+      AND groups.election_year = $3
+    FOR UPDATE OF groups
+  `, [input.link.candidateId, input.link.electionId, input.link.electionYear]);
+  const current = input.outsideReportEvidence ?? [];
+  return previous.rows.some((row) => !Array.isArray(row.source_reports) || row.source_reports.length === 0 ||
+    row.source_reports.some((old: unknown) => !validOutsideReport(old) || !current.some((next) =>
+      sameOutsideReport(next, old) || (next.committeeId === old.committeeId && next.filedDocId !== old.filedDocId &&
+        next.periodStart === old.periodStart && next.periodEnd === old.periodEnd &&
+        next.supersededDocumentIds?.includes(old.filedDocId)))));
 }
 
 async function withIllinoisFinanceTransaction<T>(db: Queryable, work: (tx: Queryable) => Promise<T>): Promise<T> {
@@ -473,11 +590,15 @@ async function upsertSummary(input: {
       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::timestamptz)
       ON CONFLICT (link_id, election_year)
       DO UPDATE SET
-        total_receipts = EXCLUDED.total_receipts,
-        direct_contribution_total = EXCLUDED.direct_contribution_total,
-        total_disbursements = EXCLUDED.total_disbursements,
-        cash_on_hand = EXCLUDED.cash_on_hand,
-        debts_owed = EXCLUDED.debts_owed,
+        total_receipts = CASE WHEN $12::boolean THEN EXCLUDED.total_receipts
+          ELSE COALESCE(EXCLUDED.total_receipts, il_candidate_finance_summaries.total_receipts) END,
+        direct_contribution_total = COALESCE(EXCLUDED.direct_contribution_total, il_candidate_finance_summaries.direct_contribution_total),
+        total_disbursements = CASE WHEN $12::boolean THEN EXCLUDED.total_disbursements
+          ELSE COALESCE(EXCLUDED.total_disbursements, il_candidate_finance_summaries.total_disbursements) END,
+        cash_on_hand = CASE WHEN $12::boolean THEN EXCLUDED.cash_on_hand
+          ELSE COALESCE(EXCLUDED.cash_on_hand, il_candidate_finance_summaries.cash_on_hand) END,
+        debts_owed = CASE WHEN $12::boolean THEN EXCLUDED.debts_owed
+          ELSE COALESCE(EXCLUDED.debts_owed, il_candidate_finance_summaries.debts_owed) END,
         outside_support_total = COALESCE(
           EXCLUDED.outside_support_total,
           il_candidate_finance_summaries.outside_support_total
@@ -501,6 +622,7 @@ async function upsertSummary(input: {
       normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
       normalizeOptionalText(input.summary.sourceUrl),
       input.syncedAt.toISOString(),
+      input.summary.d2Current === true,
     ]
   );
 }
@@ -562,15 +684,17 @@ async function upsertOutsideGroup(input: {
         support_oppose,
         amount,
         source_url,
-        last_synced_at
+        last_synced_at,
+        source_reports
       )
-      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::timestamptz)
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::timestamptz, $9::jsonb)
       ON CONFLICT (link_id, election_year, committee_key, support_oppose)
       DO UPDATE SET
         committee_name = EXCLUDED.committee_name,
         amount = EXCLUDED.amount,
         source_url = EXCLUDED.source_url,
-        last_synced_at = EXCLUDED.last_synced_at
+        last_synced_at = EXCLUDED.last_synced_at,
+        source_reports = EXCLUDED.source_reports
     `,
     [
       requireNonEmpty(input.linkId, "Illinois finance link id"),
@@ -581,6 +705,7 @@ async function upsertOutsideGroup(input: {
       normalizeAmount(input.group.amount, "outside group amount"),
       normalizeOptionalText(input.group.sourceUrl),
       input.syncedAt.toISOString(),
+      input.group.sourceReports === undefined ? null : JSON.stringify(input.group.sourceReports),
     ]
   );
 }
@@ -737,8 +862,13 @@ export async function replaceIllinoisCandidateFinanceSnapshot(
 
   return await withIllinoisFinanceTransaction(input.db, async (db) => {
     const { linkId } = await upsertIllinoisFinanceLink({ db, link: input.link });
+    const verifiedOutside = input.outsideReportEvidence !== undefined && input.outsideGroups !== undefined;
+    const outsidePreserved = verifiedOutside && await mustPreserveOutside(db, input);
+    const outsideGroups = outsidePreserved ? undefined : input.outsideGroups;
+    const outsideBreakdowns = outsidePreserved ? undefined : input.outsideGroupBreakdowns;
     if (input.summary) {
-      await upsertSummary({ db, linkId, electionYear, summary: input.summary, syncedAt });
+      await upsertSummary({ db, linkId, electionYear, summary: outsidePreserved
+        ? { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null } : input.summary, syncedAt });
     }
 
     for (const breakdown of input.directBreakdowns ?? []) {
@@ -748,22 +878,65 @@ export async function replaceIllinoisCandidateFinanceSnapshot(
       await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
     }
 
-    for (const group of input.outsideGroups ?? []) {
+    for (const donor of input.pacDonors ?? []) {
+      await db.query(`
+        INSERT INTO public.il_candidate_finance_pac_donors (
+          link_id, election_year, committee_id, committee_name, committee_type,
+          amount, contribution_count, source_url, last_synced_at
+        ) VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz)
+        ON CONFLICT (link_id, election_year, committee_id)
+        DO UPDATE SET committee_name = EXCLUDED.committee_name,
+          committee_type = EXCLUDED.committee_type, amount = EXCLUDED.amount,
+          contribution_count = EXCLUDED.contribution_count, source_url = EXCLUDED.source_url,
+          last_synced_at = EXCLUDED.last_synced_at
+      `, [linkId, electionYear, donor.committeeId, donor.committeeName.trim(), donor.committeeType,
+        donor.totalAmount, donor.contributionCount, normalizeOptionalText(donor.sourceUrl), syncedAt.toISOString()]);
+    }
+    if (input.pacDonors !== undefined) {
+      await db.query(`
+        DELETE FROM public.il_candidate_finance_pac_donors
+        WHERE link_id = $1::uuid AND election_year = $2
+          AND NOT (committee_id = ANY($3::text[]))
+      `, [linkId, electionYear, input.pacDonors.map((donor) => donor.committeeId)]);
+    }
+
+    if (verifiedOutside && !outsidePreserved) {
+      // IE belongs to the candidate/election, even when direct receipts use several receiving links.
+      await db.query(`
+        DELETE FROM public.il_candidate_finance_outside_group_breakdowns
+        WHERE link_id IN (SELECT id FROM public.il_candidate_finance_links
+          WHERE candidate_id = $1::uuid AND election_id = $2::uuid)
+          AND election_year = $3
+      `, [input.link.candidateId, input.link.electionId, electionYear]);
+      await db.query(`
+        DELETE FROM public.il_candidate_finance_outside_groups
+        WHERE link_id IN (SELECT id FROM public.il_candidate_finance_links
+          WHERE candidate_id = $1::uuid AND election_id = $2::uuid AND id <> $3::uuid)
+          AND election_year = $4
+      `, [input.link.candidateId, input.link.electionId, linkId, electionYear]);
+      await db.query(`
+        UPDATE public.il_candidate_finance_summaries SET outside_support_total = NULL, outside_oppose_total = NULL
+        WHERE link_id IN (SELECT id FROM public.il_candidate_finance_links
+          WHERE candidate_id = $1::uuid AND election_id = $2::uuid AND id <> $3::uuid)
+          AND election_year = $4
+      `, [input.link.candidateId, input.link.electionId, linkId, electionYear]);
+    }
+    for (const group of outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
-    for (const breakdown of input.outsideGroupBreakdowns ?? []) {
+    for (const breakdown of outsideBreakdowns ?? []) {
       await upsertOutsideGroupBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
     }
-    if (input.outsideGroupBreakdowns) {
+    if (outsideBreakdowns) {
       await deleteStaleOutsideGroupBreakdowns({
         db,
         linkId,
         electionYear,
-        breakdowns: input.outsideGroupBreakdowns,
+        breakdowns: outsideBreakdowns,
       });
     }
-    if (input.outsideGroups) {
-      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups });
+    if (outsideGroups) {
+      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: outsideGroups });
     }
 
     for (const classification of input.classifications ?? []) {
@@ -774,8 +947,10 @@ export async function replaceIllinoisCandidateFinanceSnapshot(
       linkId,
       summaryWritten: Boolean(input.summary),
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
-      outsideGroupsWritten: input.outsideGroups?.length ?? 0,
-      outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
+      outsideGroupsWritten: outsideGroups?.length ?? 0,
+      outsideGroupBreakdownsWritten: outsideBreakdowns?.length ?? 0,
+      ...(input.pacDonors === undefined ? {} : { pacDonorsWritten: input.pacDonors.length }),
+      ...(verifiedOutside ? { outsidePreserved } : {}),
     };
   });
 }
