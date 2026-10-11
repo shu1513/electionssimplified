@@ -9,6 +9,18 @@ import {
   type ManualProtectedLinkRow,
 } from "../finance/manualLinkProtection.js";
 import { assertSnapshotDbIsNotPoolClient } from "../finance/financeWriterPoolGuard.js";
+import {
+  validateTennesseePacSourceProvenance,
+  type TennesseeFinancePacDonor,
+  type TennesseePacSourceProvenance,
+} from "./tennesseePacDonorAggregator.js";
+import {
+  mergeTennesseeOutsideReportEvidence,
+  summarizeTennesseeOutsideReportProvenance,
+  type TennesseeOutsideCandidateContext,
+  type TennesseeVerifiedOutsideReportEvidence,
+  type TennesseeOutsideEvidenceUpdate,
+} from "./tennesseeOutsideReportEvidence.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & {
@@ -82,6 +94,12 @@ export type TennesseeFinanceSnapshotInput = {
   outsideGroups?: readonly TennesseeFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly TennesseeFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  pacDonors?: readonly TennesseeFinancePacDonor[];
+  pacSourceProvenance?: TennesseePacSourceProvenance;
+  outsideReportEvidence?: {
+    candidateContext: TennesseeOutsideCandidateContext;
+    verifiedReports: readonly TennesseeVerifiedOutsideReportEvidence[];
+  };
 };
 
 export type TennesseeFinanceSnapshotWriteResult = {
@@ -90,6 +108,9 @@ export type TennesseeFinanceSnapshotWriteResult = {
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
+  pacDonorsWritten: number;
+  outsideEvidenceAccepted?: boolean;
+  outsideEvidenceDiagnostics?: string[];
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -158,6 +179,28 @@ function outsideGroupKey(group: Pick<TennesseeFinanceOutsideGroupInput, "committ
 }
 
 function validateTennesseeFinanceSnapshotInput(input: TennesseeFinanceSnapshotInput): void {
+  if (input.outsideReportEvidence) {
+    const context = input.outsideReportEvidence.candidateContext;
+    if (input.outsideGroups !== undefined || input.outsideGroupBreakdowns !== undefined
+      || input.summary?.outsideSupportTotal !== undefined || input.summary?.outsideOpposeTotal !== undefined) {
+      throw new Error("Tennessee verified outside reports cannot mix with an unverified outside snapshot");
+    }
+    if (context.candidateId !== input.link.candidateId || context.electionId !== input.link.electionId
+      || context.campCandidateId !== input.link.campCandidateId || context.electionYear !== input.link.electionYear
+      || context.officeName !== input.link.officeName || context.district !== (input.link.district ?? null)) {
+      throw new Error("Tennessee outside report context does not match its finance link");
+    }
+  }
+  if ((input.pacDonors !== undefined) !== (input.pacSourceProvenance !== undefined)) {
+    throw new Error("Tennessee PAC donors require source provenance in the same snapshot");
+  }
+  if (input.pacDonors !== undefined && input.pacSourceProvenance !== undefined) {
+    validateTennesseePacSourceProvenance({
+      provenance: input.pacSourceProvenance, donors: input.pacDonors,
+      candidateId: input.link.candidateId, electionId: input.link.electionId,
+      campCandidateId: input.link.campCandidateId, electionYear: input.link.electionYear,
+    });
+  }
   if (input.outsideGroupBreakdowns && !input.outsideGroups) {
     throw new Error("Tennessee outside group breakdowns require outside groups in the same snapshot");
   }
@@ -205,6 +248,9 @@ export async function upsertTennesseeFinanceLink(input: {
 }): Promise<{ linkId: string }> {
   const result = await input.db.query<ManualProtectedLinkRow>(
     `
+      WITH link_write_lock AS (
+        SELECT pg_advisory_xact_lock(hashtextextended($1::uuid::text || ':' || $2::uuid::text,0))
+      )
       INSERT INTO public.tn_candidate_finance_links (
         candidate_id,
         election_id,
@@ -221,7 +267,8 @@ export async function upsertTennesseeFinanceLink(input: {
         report_list_url,
         last_verified_at
       )
-      VALUES ($1::uuid, $2::uuid, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::timestamptz)
+      SELECT $1::uuid, $2::uuid, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::timestamptz
+      FROM link_write_lock
       ON CONFLICT (candidate_id, election_id, camp_candidate_id)
       DO UPDATE SET
         candidate_name_normalized = EXCLUDED.candidate_name_normalized,
@@ -283,13 +330,16 @@ async function upsertSummary(input: {
       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::timestamptz)
       ON CONFLICT (link_id, election_year)
       DO UPDATE SET
-        total_receipts = EXCLUDED.total_receipts,
-        direct_contribution_total = EXCLUDED.direct_contribution_total,
+        total_receipts = CASE WHEN $11::boolean THEN EXCLUDED.total_receipts
+          ELSE tn_candidate_finance_summaries.total_receipts END,
+        direct_contribution_total = CASE WHEN $12::boolean THEN EXCLUDED.direct_contribution_total
+          ELSE tn_candidate_finance_summaries.direct_contribution_total END,
         outside_support_total = CASE WHEN $9::boolean THEN EXCLUDED.outside_support_total
           ELSE tn_candidate_finance_summaries.outside_support_total END,
         outside_oppose_total = CASE WHEN $10::boolean THEN EXCLUDED.outside_oppose_total
           ELSE tn_candidate_finance_summaries.outside_oppose_total END,
-        source_url = EXCLUDED.source_url,
+        source_url = CASE WHEN $13::boolean THEN EXCLUDED.source_url
+          ELSE tn_candidate_finance_summaries.source_url END,
         last_synced_at = EXCLUDED.last_synced_at
     `,
     [
@@ -303,6 +353,9 @@ async function upsertSummary(input: {
       input.syncedAt.toISOString(),
       input.summary.outsideSupportTotal !== undefined,
       input.summary.outsideOpposeTotal !== undefined,
+      input.summary.totalReceipts !== undefined,
+      input.summary.directContributionTotal !== undefined,
+      input.summary.sourceUrl !== undefined,
     ]
   );
 }
@@ -527,6 +580,80 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
   );
 }
 
+type StoredOutsideOwner = {
+  id: string;
+  election_year: number;
+  outside_support_total: string | number | null;
+  outside_oppose_total: string | number | null;
+  outside_report_provenance: unknown;
+  has_outside_money: boolean;
+};
+
+function storedOutsideCents(value: string | number | null): number | null {
+  if (value === null) return null;
+  const match = /^(\d+)(?:\.(\d{1,2}))?$/.exec(String(value));
+  if (!match) throw new Error("Invalid stored Tennessee outside amount");
+  const cents = BigInt(match[1]!) * 100n + BigInt((match[2] ?? "").padEnd(2, "0") || "0");
+  if (cents > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error("Unsafe stored Tennessee outside amount");
+  return Number(cents);
+}
+
+async function prepareOutsideEvidenceUpdate(input: {
+  db: Queryable;
+  linkId: string;
+  link: TennesseeFinanceLinkInput;
+  evidence: NonNullable<TennesseeFinanceSnapshotInput["outsideReportEvidence"]>;
+}): Promise<{ update?: TennesseeOutsideEvidenceUpdate; diagnostics: string[] }> {
+  const preserve = (message: string) => ({ diagnostics: [`Outside evidence preserved: ${message}`] });
+  if (!input.evidence.verifiedReports.length) return preserve("no verified current report closures");
+  const owners = await input.db.query<StoredOutsideOwner>(`
+    SELECT link.id::text,link.election_year,summary.outside_support_total,summary.outside_oppose_total,
+      summary.outside_report_provenance,
+      (coalesce(summary.outside_support_total,0)>0 OR coalesce(summary.outside_oppose_total,0)>0
+        OR EXISTS (SELECT 1 FROM public.tn_candidate_finance_outside_groups g
+          WHERE g.link_id=link.id AND g.election_year=link.election_year AND g.amount>0)
+        OR EXISTS (SELECT 1 FROM public.tn_candidate_finance_outside_group_breakdowns b
+          WHERE b.link_id=link.id AND b.election_year=link.election_year AND b.amount>0)) AS has_outside_money
+    FROM public.tn_candidate_finance_links link LEFT JOIN public.tn_candidate_finance_summaries summary
+      ON summary.link_id=link.id AND summary.election_year=link.election_year
+    WHERE link.candidate_id=$1::uuid AND link.election_id=$2::uuid AND link.link_status='active'
+    ORDER BY link.id FOR UPDATE OF link`, [input.link.candidateId,input.link.electionId]);
+  if (owners.rows.length !== 1 || owners.rows[0]?.id !== input.linkId
+    || owners.rows[0].election_year !== input.link.electionYear) return preserve("outside owner is ambiguous across active links");
+  const owner = owners.rows[0]!;
+  if (owner.outside_report_provenance == null && owner.has_outside_money) {
+    return preserve("legacy positive outside money lacks compatible report provenance");
+  }
+  if (owner.outside_report_provenance != null) {
+    const expected = summarizeTennesseeOutsideReportProvenance(owner.outside_report_provenance);
+    if (!expected.result) return { diagnostics: expected.diagnostics };
+    const groups = await input.db.query<{
+      committee_key: string; committee_name: string; support_oppose: string; amount: string | number;
+      expenditure_count: number | null; source_url: string | null;
+    }>(`SELECT committee_key,committee_name,support_oppose,amount,expenditure_count,source_url
+      FROM public.tn_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2`,
+    [input.linkId,input.link.electionYear]);
+    try {
+      const groupKey = (group: { committeeKey: string; supportOppose: string }) => `${group.committeeKey}:${group.supportOppose}`;
+      const stored = groups.rows.map(row => ({ committeeKey: row.committee_key, committeeName: row.committee_name,
+        supportOppose: row.support_oppose, cents: storedOutsideCents(row.amount), expenditureCount: row.expenditure_count,
+        sourceUrl: row.source_url })).sort((a, b) => groupKey(a).localeCompare(groupKey(b)));
+      const expectedGroups = expected.result.outsideGroups.map(({ amount, ...group }) => ({ ...group, cents: storedOutsideCents(amount) }))
+        .sort((a, b) => groupKey(a).localeCompare(groupKey(b)));
+      // Compare values independently of object key insertion order.
+      const project = (group: typeof stored[number]) => [group.committeeKey,group.committeeName,group.supportOppose,
+        group.cents,group.expenditureCount,group.sourceUrl];
+      if (storedOutsideCents(owner.outside_support_total) !== storedOutsideCents(expected.result.supportTotal)
+        || storedOutsideCents(owner.outside_oppose_total) !== storedOutsideCents(expected.result.opposeTotal)
+        || JSON.stringify(stored.map(project)) !== JSON.stringify(expectedGroups.map(project))
+        || (owner.has_outside_money && !expected.result.outsideGroups.length)) {
+        return preserve("stored outside materialization disagrees with its report authority");
+      }
+    } catch { return preserve("stored outside materialization is invalid"); }
+  }
+  return mergeTennesseeOutsideReportEvidence({ ...input.evidence, prior: owner.outside_report_provenance });
+}
+
 export async function replaceTennesseeCandidateFinanceSnapshot(
   input: TennesseeFinanceSnapshotInput
 ): Promise<TennesseeFinanceSnapshotWriteResult> {
@@ -539,8 +666,20 @@ export async function replaceTennesseeCandidateFinanceSnapshot(
 
   return await withTennesseeFinanceTransaction(input.db, async (db) => {
     const { linkId } = await upsertTennesseeFinanceLink({ db, link: input.link });
-    if (input.summary) {
-      await upsertSummary({ db, linkId, electionYear, summary: input.summary, syncedAt });
+    const evidence = input.outsideReportEvidence ? await prepareOutsideEvidenceUpdate({
+      db,linkId,link: input.link,evidence: input.outsideReportEvidence,
+    }) : undefined;
+    const summary = evidence?.update ? { ...input.summary,
+      outsideSupportTotal: evidence.update.supportTotal, outsideOpposeTotal: evidence.update.opposeTotal } : input.summary;
+    const outsideGroups = evidence?.update?.outsideGroups ?? input.outsideGroups;
+    // Changed report authority invalidates an independently unbound old spender breakdown.
+    const outsideGroupBreakdowns = evidence?.update ? [] : input.outsideGroupBreakdowns;
+    if (summary) {
+      await upsertSummary({ db, linkId, electionYear, summary, syncedAt });
+    }
+    if (evidence?.update) {
+      await db.query(`UPDATE public.tn_candidate_finance_summaries SET outside_report_provenance=$3::jsonb
+        WHERE link_id=$1::uuid AND election_year=$2`, [linkId,electionYear,JSON.stringify(evidence.update.provenance)]);
     }
     for (const breakdown of input.directBreakdowns ?? []) {
       await upsertDirectBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
@@ -548,22 +687,45 @@ export async function replaceTennesseeCandidateFinanceSnapshot(
     if (input.directBreakdowns) {
       await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
     }
-    for (const group of input.outsideGroups ?? []) {
+    for (const group of outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
-    for (const breakdown of input.outsideGroupBreakdowns ?? []) {
+    for (const breakdown of outsideGroupBreakdowns ?? []) {
       await upsertOutsideGroupBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
     }
-    if (input.outsideGroupBreakdowns || input.outsideGroups) {
+    if (outsideGroupBreakdowns || outsideGroups) {
       await deleteStaleOutsideGroupBreakdowns({
         db,
         linkId,
         electionYear,
-        breakdowns: input.outsideGroupBreakdowns ?? [],
+        breakdowns: outsideGroupBreakdowns ?? [],
       });
     }
-    if (input.outsideGroups) {
-      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups });
+    if (outsideGroups) {
+      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: outsideGroups });
+    }
+
+    if (input.pacDonors !== undefined && input.pacSourceProvenance !== undefined) {
+      await db.query(`INSERT INTO public.tn_candidate_finance_summaries
+        (link_id,election_year,pac_source_provenance,last_synced_at)
+        VALUES ($1::uuid,$2,$3::jsonb,$4::timestamptz)
+        ON CONFLICT (link_id,election_year) DO UPDATE SET
+          pac_source_provenance=EXCLUDED.pac_source_provenance`,
+      [linkId, electionYear, JSON.stringify(input.pacSourceProvenance), syncedAt.toISOString()]);
+      for (const donor of input.pacDonors) {
+        await db.query(`INSERT INTO public.tn_candidate_finance_pac_donors
+          (link_id,election_year,committee_id,committee_name,committee_type,amount,contribution_count,source_url,last_synced_at)
+          VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9::timestamptz)
+          ON CONFLICT (link_id,election_year,committee_id) DO UPDATE SET
+            committee_name=EXCLUDED.committee_name,committee_type=EXCLUDED.committee_type,
+            amount=EXCLUDED.amount,contribution_count=EXCLUDED.contribution_count,
+            source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
+        [linkId,electionYear,donor.committeeId,donor.committeeName,donor.committeeType,
+          donor.amount,donor.contributionCount,donor.sourceUrl,syncedAt.toISOString()]);
+      }
+      await db.query(`DELETE FROM public.tn_candidate_finance_pac_donors
+        WHERE link_id=$1::uuid AND election_year=$2 AND NOT (committee_id = ANY($3::text[]))`,
+      [linkId,electionYear,input.pacDonors.map(donor => donor.committeeId)]);
     }
 
     for (const classification of input.classifications ?? []) {
@@ -572,10 +734,12 @@ export async function replaceTennesseeCandidateFinanceSnapshot(
 
     return {
       linkId,
-      summaryWritten: Boolean(input.summary),
+      summaryWritten: Boolean(summary),
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
-      outsideGroupsWritten: input.outsideGroups?.length ?? 0,
-      outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
+      outsideGroupsWritten: outsideGroups?.length ?? 0,
+      outsideGroupBreakdownsWritten: outsideGroupBreakdowns?.length ?? 0,
+      pacDonorsWritten: input.pacDonors?.length ?? 0,
+      ...(evidence ? { outsideEvidenceAccepted: Boolean(evidence.update), outsideEvidenceDiagnostics: evidence.diagnostics } : {}),
     };
   });
 }
