@@ -46,6 +46,50 @@ describe("human-reviewed committee date artifacts", () => {
       committeeId: "60813", registration: { ...registration, metadataPath: join(directory, "pdf.json") },
     }] }))).toHaveLength(1);
   });
+  it("retains reviewed activeBy/closedBy bounds without inventing effective dates", async () => {
+    const rows = await loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "60678", registration: { activeBy: "2013-08-01", metadataPath: "pdf.json" },
+    }, {
+      committeeId: "4529", disbandment: { closedBy: "2013-08-01", metadataPath: "pdf.json" },
+    }] }));
+    expect(rows[0]!.registration).toMatchObject({ activeBy: "2013-08-01", document: { url } });
+    expect(rows[0]!.registration).not.toHaveProperty("effectiveDate");
+    expect(rows[1]!.disbandment).toMatchObject({ closedBy: "2013-08-01", document: { url } });
+    expect(rows[1]!.disbandment).not.toHaveProperty("effectiveDate");
+    expect(Buffer.from(rows[0]!.registration!.document.bytesRaw)).toEqual(pdf);
+  });
+  it("leaves overlapping conservative bounds for the donor resolver", async () => {
+    const rows = await loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "60813", registration: { activeBy: "2013-09-01", metadataPath: "pdf.json" },
+      disbandment: { closedBy: "2013-08-01", metadataPath: "pdf.json" },
+    }] }));
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.registration).toHaveProperty("activeBy", "2013-09-01");
+  });
+  it("rejects exact registration later than a proven closure bound", async () => {
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "60813", registration,
+      disbandment: { closedBy: "2013-08-01", metadataPath: "pdf.json" },
+    }] }))).rejects.toThrow("predates registration");
+  });
+  it.each([
+    { registration: { effectiveDate: "2013-08-01", activeBy: "2013-08-01", metadataPath: "pdf.json" } },
+    { registration: { closedBy: "2013-08-01", metadataPath: "pdf.json" } },
+    { registration: { activeBy: "2013-02-29", metadataPath: "pdf.json" } },
+    { registration: { metadataPath: "pdf.json" } },
+    { disbandment: { effectiveDate: "2013-08-01", closedBy: "2013-08-01", metadataPath: "pdf.json" } },
+    { disbandment: { activeBy: "2013-08-01", metadataPath: "pdf.json" } },
+  ])("rejects ambiguous or wrong-kind bounds %j", async entry => {
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1,
+      records: [{ committeeId: "60813", ...entry }],
+    }))).rejects.toThrow();
+  });
+  it("rejects corrupt source bytes equally for bounded date evidence", async () => {
+    await writeFile(join(directory, "pdf.raw"), Buffer.from("%PDF-1.4 corrupted"));
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "60678", registration: { activeBy: "2013-08-01", metadataPath: "pdf.json" },
+    }] }))).rejects.toThrow("mismatch");
+  });
   it("exposes only public provenance fields, not arbitrary cache headers", async () => {
     await metadata({ headers: { cookie: "not-a-product-field" }, requestKey: "cache bookkeeping" });
     const rows = await loadFloridaReviewedCommitteeDates(await manifest());

@@ -108,13 +108,30 @@ export async function loadFloridaReviewedCommitteeDates(manifestPath: string): P
     for (const kind of ["registration", "disbandment"] as const) {
       if (!(kind in record)) continue;
       const entry = object(record[kind], `${kind} entry`);
-      keys(entry, ["effectiveDate", "metadataPath"], `${kind} entry`);
-      const effectiveDate = date(entry.effectiveDate);
+      const boundField = kind === "registration" ? "activeBy" : "closedBy";
+      keys(entry, ["effectiveDate", boundField, "metadataPath"], `${kind} entry`);
+      const dateFields = ["effectiveDate", boundField].filter(field => field in entry);
+      if (dateFields.length !== 1) fail("provide exactly one reviewed date or temporal bound");
+      const dateField = dateFields[0]!;
+      const reviewedDate = date(entry[dateField]);
       const metadataPath = path(entry.metadataPath, dirname(absolutePath));
-      output[kind] = { effectiveDate, document: await loadPdf(metadataPath) };
+      const document = await loadPdf(metadataPath);
+      if (kind === "registration") {
+        output.registration = dateField === "effectiveDate"
+          ? { effectiveDate: reviewedDate, document }
+          : { activeBy: reviewedDate, document };
+      } else {
+        output.disbandment = dateField === "effectiveDate"
+          ? { effectiveDate: reviewedDate, document }
+          : { closedBy: reviewedDate, document };
+      }
     }
     if (!output.registration && !output.disbandment) fail("record has no reviewed date");
-    if (output.registration && output.disbandment && output.registration.effectiveDate > output.disbandment.effectiveDate)
+    const exactRegistration = output.registration && "effectiveDate" in output.registration
+      ? output.registration.effectiveDate : undefined;
+    const closureBy = output.disbandment && ("effectiveDate" in output.disbandment
+      ? output.disbandment.effectiveDate : output.disbandment.closedBy);
+    if (exactRegistration && closureBy && exactRegistration > closureBy)
       fail("disbandment predates registration");
     result.push(output);
   }
