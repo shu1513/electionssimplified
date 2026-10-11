@@ -99,7 +99,7 @@ describe("Florida source-qualified committee donor identity", () => {
     { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Suite 201" },
     { reportedAddress: "1302 Pennsylvania Avenue NORTHWEST Suite 200" },
     { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Suite 200." },
-    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST, Suite 200" },
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST,, Suite 200" },
     { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Apt 200" },
     { reportedAddress: "1301 Pennsylvania Avenue NORTHEAST Suite 200" },
     { reportedCityStateZip: "Washington DC 20004" },
@@ -275,6 +275,33 @@ describe("distinct source-fixed CCE certification revocation", () => {
     const third = row({ committeeId: "77777", sourceUrl: url("77777"), registration: current().registration });
     expect(resolveFloridaCommitteeDonorIdentity(input([historical(), current(), third])).status).toBe("unresolved");
     expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), certificationRevocation: undefined }, current()])).status)
+      .toBe("unresolved");
+  });
+});
+
+describe("observed terminal suite delimiter", () => {
+  const current = () => row({ address: "100 Full Street SUITE 200" });
+  it("binds exact comma/no-comma suite forms and retains full source fingerprints", () => {
+    const rows = [old(), current()], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input(rows), reportedAddress: "100 FULL STREET, SUITE 200" })
+      .identity?.committeeId).toBe("60813");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), row({ address: "100 Full Street, SUITE 200" })]),
+      reportedAddress: "100 FULL STREET SUITE 200" }).identity?.committeeId).toBe("60813");
+    expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+    expect(rows[1]!.address).toBe("100 Full Street SUITE 200");
+  });
+  it.each(["100 FULL STREET, SUITE 201", "100 FULL STREET, SUITE", "100 FULL STREET",
+    "100 FULL STREET, UNIT 200", "100 FULL STREET, SUITE 200 EXTRA", "100 FULL, STREET SUITE 200",
+    "100 FULL STREET; SUITE 200", "100 FULL STREET,, SUITE 200", "100 FULL STREET SUITE 20-0"])(
+    "preserves changed or unsupported full street/unit %s", reportedAddress => {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), current()]), reportedAddress }).status)
+        .toBe("unresolved");
+    });
+  it("does not change locality or legal-name punctuation to pass suite binding", () => {
+    const i = { ...input([old(), current()]), reportedAddress: "100 FULL STREET, SUITE 200" };
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedCityStateZip: "Wrong City, FL 32308" }).status)
+      .toBe("unresolved");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedName: "Florida Home-Builders PAC" }).status)
       .toBe("unresolved");
   });
 });

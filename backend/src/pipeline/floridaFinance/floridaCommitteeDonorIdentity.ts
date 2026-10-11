@@ -125,9 +125,11 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
 }
 
 /** USPS Pub28 C1 DRIVE/DR and §233.22 observed AVENUE NORTHWEST/NW
- * postdirectional only. No street/unit/punctuation/locality fields are removed. */
+ * postdirectional and §222 terminal SUITE delimiter comma only.
+ * All other street/unit/punctuation/locality fields are retained. */
 function street(value: string): string {
-  return exactText(value).replace(/(^| )DRIVE$/u, "$1DR")
+  return exactText(value).replace(/, SUITE (?=[A-Z0-9-]+$)/u, " SUITE ")
+    .replace(/(^| )DRIVE$/u, "$1DR")
     .replace(/ AVENUE NORTHWEST(?=$| SUITE [A-Z0-9-]+$)/u, " AVENUE NW");
 }
 function sameAddress(
