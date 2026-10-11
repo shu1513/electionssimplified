@@ -7525,7 +7525,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(15);
+    expect(query).toHaveBeenCalledTimes(16);
     expect(query.mock.calls[7]?.[0]).toContain("public.or_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.or_candidate_finance_direct_breakdowns");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type IN ('occupation', 'contribution_size')");
@@ -7539,6 +7539,7 @@ describe("lookupElectionDetailById", () => {
     expect(query.mock.calls[11]?.[0]).toContain("public.finance_label_classifications");
     expect(query.mock.calls[11]?.[0]).toContain("classification.normalized_label");
     expect(query.mock.calls[11]?.[0]).not.toContain("classification.raw_label = breakdown.category_name");
+    expect(query.mock.calls[12]?.[0]).toContain("public.or_candidate_finance_pac_donors");
   });
 
   it("does not query Oregon finance tables when Oregon campaign finance is disabled", async () => {
