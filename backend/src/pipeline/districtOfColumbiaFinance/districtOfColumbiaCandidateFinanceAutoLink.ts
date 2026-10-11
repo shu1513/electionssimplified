@@ -7,6 +7,7 @@ import {
 } from "./districtOfColumbiaCandidateCommitteeResolver.js";
 import {
   DISTRICT_OF_COLUMBIA_FINANCE_ELIGIBLE_OFFICE_KEYS,
+  isCouncilChairSeatText,
   normalizeDistrictOfColumbiaOcfSeat,
 } from "./districtOfColumbiaFinanceEligibleOffices.js";
 import { upsertDistrictOfColumbiaFinanceLink } from "./districtOfColumbiaFinanceWriter.js";
@@ -74,8 +75,20 @@ function mapCandidateElectionRow(row: CandidateElectionQueryRow): DistrictOfColu
     electionYear: row.election_year,
     officeScope: row.office_scope,
     officeName: row.office_name,
-    seat: normalizeDistrictOfColumbiaOcfSeat(row.seat_text),
+    seat: candidateElectionSeat(row.seat_text),
   };
+}
+
+// The Council Chairman race has no ward or at-large seat, so normalizing the
+// ballot title to a seat dropped it to null and the resolver reported
+// missing_seat (live: Phil Mendelson, "Chairman of the Council of the
+// District of Columbia"). Keep the chair label so the resolver can route it.
+function candidateElectionSeat(seatText: string | null): string | null {
+  const seat = normalizeDistrictOfColumbiaOcfSeat(seatText);
+  if (seat === null && isCouncilChairSeatText(seatText)) {
+    return "Chairman of the Council";
+  }
+  return seat;
 }
 
 export async function listDistrictOfColumbiaCandidateElectionsMissingFinanceLinks(

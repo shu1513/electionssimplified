@@ -5,7 +5,10 @@ import {
   autoLinkMissingDistrictOfColumbiaCandidateFinanceLinks,
   listDistrictOfColumbiaCandidateElectionsMissingFinanceLinks,
 } from "../../../src/pipeline/districtOfColumbiaFinance/districtOfColumbiaCandidateFinanceAutoLink.js";
-import type { DistrictOfColumbiaCandidateCommitteeResolution } from "../../../src/pipeline/districtOfColumbiaFinance/districtOfColumbiaCandidateCommitteeResolver.js";
+import {
+  resolveDistrictOfColumbiaCandidateCommittee,
+  type DistrictOfColumbiaCandidateCommitteeResolution,
+} from "../../../src/pipeline/districtOfColumbiaFinance/districtOfColumbiaCandidateCommitteeResolver.js";
 
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
 const ELECTION_ID = "22222222-2222-4222-8222-222222222222";
@@ -34,6 +37,45 @@ function matchedResolution(
 }
 
 describe("districtOfColumbiaCandidateFinanceAutoLink", () => {
+  it("keeps the Council Chairman race routable instead of dropping its seat (live: Phil Mendelson)", async () => {
+    const db = createMockDb([
+      {
+        candidate_id: CANDIDATE_ID,
+        election_id: ELECTION_ID,
+        candidate_name: "Phil Mendelson",
+        election_year: 2026,
+        office_scope: "place",
+        office_name: "City Council Member",
+        seat_text: "Chairman of the Council of the District of Columbia Washington city, District of Columbia",
+      },
+    ]);
+    const [row] = await listDistrictOfColumbiaCandidateElectionsMissingFinanceLinks(db, {
+      now: NOW,
+      maxCandidates: 25,
+      electionLookbackDays: 1,
+      electionLookaheadDays: 730,
+    });
+    expect(row?.seat).toBe("Chairman of the Council");
+
+    const resolution = resolveDistrictOfColumbiaCandidateCommittee({
+      candidateName: row!.candidateName,
+      officeScope: row!.officeScope,
+      officeName: row!.officeName,
+      electionYear: 2026,
+      seat: row!.seat,
+      contributionRecords: [
+        {
+          candidateName: "Phil Mendelson",
+          committeeName: "Mendelson for Chairman 2026",
+          committeeKey: "MENDELSON CHAIRMAN 2026",
+          amount: 100,
+          date: "03/01/2026",
+        },
+      ],
+    });
+    expect(resolution).toMatchObject({ status: "matched", committeeName: "Mendelson for Chairman 2026" });
+  });
+
   it("lists eligible D.C. candidate elections missing active finance links", async () => {
     const db = createMockDb([
       {
