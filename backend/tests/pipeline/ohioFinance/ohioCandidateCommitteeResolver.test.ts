@@ -121,6 +121,50 @@ describe("resolveOhioCandidateCommittee", () => {
     ).toMatchObject({ status: "matched", committeeId: "12345" });
   });
 
+  it("matches the list's formal first name through a VoteApp nickname", () => {
+    // Live: "MATT HUFFMAN FOR OHIO" lists the candidate as MATTHEW HUFFMAN,
+    // and "FRIENDS OF BILL DEMORA" lists BILL where VoteApp has William.
+    expect(
+      resolveOhioCandidateCommittee({
+        candidateName: "Matt Huffman",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        electionYear: 2026,
+        district: "78",
+        candidateListRows: [
+          listRow({
+            committeeName: "MATT HUFFMAN FOR OHIO",
+            masterKey: "10592",
+            candidateFirstName: "MATTHEW",
+            candidateLastName: "HUFFMAN",
+            office: "HOUSE",
+            district: "78",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "10592" });
+    expect(
+      resolveOhioCandidateCommittee({
+        candidateName: "William DeMora",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        electionYear: 2026,
+        district: "25",
+        candidateListRows: [
+          listRow({
+            committeeName: "FRIENDS OF BILL DEMORA",
+            masterKey: "15716",
+            candidateFirstName: "BILL",
+            candidateLastName: "DEMORA",
+            office: "SENATE",
+            district: "25",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "15716" });
+    expect([...normalizeOhioCandidateNameKeys("Matt Huffman")]).toEqual(["MATT HUFFMAN"]);
+  });
+
   it("ignores the junk district values statewide list rows carry", () => {
     expect(
       resolveOhioCandidateCommittee({

@@ -27,10 +27,12 @@
 // refusal would be pure loss.
 const FIRST_NAME_NICKNAME_GROUPS: readonly (readonly string[])[] = [
   ["ABRAHAM", "ABE"],
+  ["ALAN", "AL"],
   ["ALBERT", "AL"],
   ["ALEXANDER", "ALEX"],
   ["ALEXANDRA", "ALEX"],
   ["ALFRED", "AL"],
+  ["ALLEN", "AL"],
   ["AMANDA", "MANDY"],
   ["ANDREW", "ANDY", "DREW"],
   ["ANGELA", "ANGIE"],
