@@ -32,11 +32,13 @@ import {
   readTexasTecContributionRows,
   readTexasTecExpenditureRows,
   readTexasTecFilerRows,
+  readTexasTecPurposeRows,
   readTexasTecSpacRows,
   type TexasTecCandidateRow,
   type TexasTecContributionRow,
   type TexasTecExpenditureRow,
   type TexasTecFilerRow,
+  type TexasTecPurposeRow,
   type TexasTecSpacRow,
 } from "./texasTecCsvDatabaseReader.js";
 
@@ -52,6 +54,7 @@ export type TexasTecDataForBatchSync = {
   expenditureRows: TexasTecExpenditureRow[];
   filerRows: TexasTecFilerRow[];
   spacRows: TexasTecSpacRow[];
+  purposeRows?: TexasTecPurposeRow[];
   receiptCommitteeIdsByCandidateElectionKey: Map<string, string[]>;
 };
 
@@ -330,9 +333,27 @@ async function loadTexasTecDataForDueRows(input: {
     filerRows,
     sourceUrl,
   });
-  const candidateRows = await readTexasTecCandidateRows({
+  const targetCandidateRows = await readTexasTecCandidateRows({
     zipPath,
     predicate: buildTexasCandidateRowPredicate(input.dueRows),
+  });
+  // CAND repeats the full expense for every beneficiary. Retain all siblings
+  // of target expenses, including candidates outside this batch, so an
+  // unallocated shared expense cannot look like single-candidate support.
+  const expenseKey = (row: TexasTecCandidateRow) =>
+    [row.filerIdent, row.reportInfoIdent ?? "", row.expendInfoId].map(normalizeId).join("\0");
+  const targetExpenseKeys = new Set(targetCandidateRows.map(expenseKey));
+  const candidateRows = targetExpenseKeys.size
+    ? await readTexasTecCandidateRows({
+        zipPath, predicate: (row) => targetExpenseKeys.has(expenseKey(row)),
+      })
+    : [];
+  const reportKeys = new Set(candidateRows.map((row) =>
+    [row.filerIdent, row.reportInfoIdent ?? ""].map(normalizeId).join("\0")
+  ));
+  const purposeRows = await readTexasTecPurposeRows({
+    zipPath,
+    predicate: (row) => reportKeys.has([row.filerIdent, row.reportInfoIdent].map(normalizeId).join("\0")),
   });
   const spacCandidateCommitteeIds = new Set<string>();
   for (const row of input.dueRows) {
@@ -373,6 +394,7 @@ async function loadTexasTecDataForDueRows(input: {
     expenditureRows,
     filerRows,
     spacRows,
+    purposeRows,
     receiptCommitteeIdsByCandidateElectionKey,
   };
 }
@@ -529,6 +551,8 @@ export async function syncDueTexasCandidateFinance(
         contributionSourceUrl: tecData.sourceUrl,
         outsideSourceUrl: tecData.sourceUrl,
         filerRows: [],
+        committeeRegistryRows: tecData.filerRows,
+        purposeRows: tecData.purposeRows,
         contributionRows: tecData.contributionRows,
         candidateRows: tecData.candidateRows,
         expenditureRows: tecData.expenditureRows,

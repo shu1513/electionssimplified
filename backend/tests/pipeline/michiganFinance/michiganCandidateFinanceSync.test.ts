@@ -84,6 +84,48 @@ function baseInput() {
 }
 
 describe("michiganCandidateFinanceSync", () => {
+
+  it("writes typed committee donors through the normal snapshot without changing raised totals", async () => {
+    const db = createMockDb();
+    const result = await syncMichiganCandidateFinance({
+      db, ...baseInput(),
+      contributionRows: [contribution({
+        f_name: "", l_name_or_org: "UAW Michigan Voluntary Political Action Committee",
+        occupation: "", employer: "", amount: "12250.00",
+      })],
+      committeeRegistryRows: [{
+        committeeId: "508347", committeeName: "UAW Michigan Voluntary Political Action Committee",
+        committeeType: "Independent", status: "Active",
+      }],
+    });
+    expect(result).toMatchObject({ directContributionTotal: 12250, pacDonorsWritten: 1 });
+    const donorInsert = db.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.mi_candidate_finance_pac_donors"));
+    expect(donorInsert?.[1]).toEqual(expect.arrayContaining(["508347", "Independent", 12250, 1]));
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.mi_candidate_finance_outside_groups"))).toBe(false);
+  });
+
+  it("keeps PAC donors omitted when registry acquisition is unavailable", async () => {
+    const db = createMockDb();
+    const result = await syncMichiganCandidateFinance({
+      db, ...baseInput(), contributionRows: [contribution()],
+    });
+    expect(result).not.toHaveProperty("pacDonorsWritten");
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes("mi_candidate_finance_pac_donors"))).toBe(false);
+  });
+
+  it("clears stale PAC donors and outside breakdowns only after explicit available-empty data", async () => {
+    const db = createMockDb();
+    const result = await syncMichiganCandidateFinance({
+      db, ...baseInput(), contributionRows: [contribution()],
+      committeeRegistryRows: [], expenditureRows: [],
+    });
+    expect(result).toMatchObject({ pacDonorsWritten: 0, outsideSupportTotal: 0, outsideOpposeTotal: 0 });
+    const sql = db.query.mock.calls.map(([statement]) => String(statement));
+    expect(sql.some((statement) => statement.includes("DELETE FROM public.mi_candidate_finance_pac_donors"))).toBe(true);
+    expect(sql.some((statement) => statement.includes("DELETE FROM public.mi_candidate_finance_outside_group_breakdowns"))).toBe(true);
+    expect(sql.some((statement) => statement.includes("DELETE FROM public.mi_candidate_finance_outside_groups"))).toBe(true);
+  });
+
   it("resolves a candidate committee, aggregates direct and outside data, and writes a snapshot", async () => {
     const db = createMockDb();
 
@@ -366,5 +408,29 @@ describe("michiganCandidateFinanceSync", () => {
     });
     const params = db.query.mock.calls.map((call) => call[1]).filter(Array.isArray);
     expect(params.some((paramList) => paramList.includes("real_estate"))).toBe(true);
+  });
+});
+
+describe("verified outside target coverage", () => {
+  it.each([
+    { name: "complete available-empty snapshot", expenditureRows: [] as MichiganMitnLegacyExpenditureRow[], outsideTargetCommitteeNames: ["WHITMER FOR GOVERNOR"], expected: true },
+    { name: "failed expenditure acquisition", expenditureRows: undefined, outsideTargetCommitteeNames: ["WHITMER FOR GOVERNOR"], expected: false },
+    { name: "unverified target coverage", expenditureRows: [] as MichiganMitnLegacyExpenditureRow[], outsideTargetCommitteeNames: undefined, expected: false },
+  ])("propagates siblings only with $name", async ({ expenditureRows, outsideTargetCommitteeNames, expected }) => {
+    const db = createMockDb();
+    await syncMichiganCandidateFinance({
+      db, ...baseInput(), contributionRows: [contribution()],
+      expenditureRows, outsideTargetCommitteeNames,
+    });
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes("SELECT id::text AS id"))).toBe(expected);
+  });
+
+  it("does not propagate a legacy single-target refresh", async () => {
+    const db = createMockDb();
+    await syncMichiganCandidateFinance({
+      db, ...baseInput(), contributionRows: [contribution()], expenditureRows: [],
+      outsideTargetCommitteeName: "WHITMER FOR GOVERNOR",
+    });
+    expect(db.query.mock.calls.some(([sql]) => String(sql).includes("SELECT id::text AS id"))).toBe(false);
   });
 });

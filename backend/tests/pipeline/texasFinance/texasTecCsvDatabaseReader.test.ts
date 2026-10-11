@@ -137,7 +137,11 @@ describe("Texas TEC CSV database reader", () => {
     expect(normalizeTexasTecCsvPartition(7)).toBe("07");
     expect(texasTecContributionCsvFileName(12)).toBe("contribs_12.csv");
     expect(texasTecExpenditureCsvFileName(3)).toBe("expend_03.csv");
-    expect(() => normalizeTexasTecCsvPartition(100)).toThrow("Invalid Texas TEC CSV partition");
+    expect(normalizeTexasTecCsvPartition(100)).toBe("100");
+    expect(texasTecContributionCsvFileName(111)).toBe("contribs_111.csv");
+    expect(texasTecExpenditureCsvFileName(100)).toBe("expend_100.csv");
+    expect(() => normalizeTexasTecCsvPartition(-1)).toThrow("Invalid Texas TEC CSV partition");
+    expect(() => normalizeTexasTecCsvPartition(Number.MAX_SAFE_INTEGER + 1)).toThrow("Invalid Texas TEC CSV partition");
   });
 
   it("lists ZIP entries and partitioned contribution/expenditure files", async () => {
@@ -549,5 +553,34 @@ describe("Texas TEC CSV database reader", () => {
     await expect(readTexasTecContributionRows({ zipPath, fileName: "contribs_00.csv" })).rejects.toThrow(
       "Missing required Texas TEC contribution CSV column: formTypeCd"
     );
+  });
+});
+
+describe("complete Texas partition and donor-field contract", () => {
+  it("reads partitions 100 and 111 in numeric order for both contributions and expenditures", async () => {
+    const zipPath = await writeFixtureZip([
+      { fileName: "contribs_111.csv", compressionMethod: 8, content: csv(TEXAS_TEC_CONTRIBUTION_COLUMNS, [{ contributionInfoId: "111", contributorOosPacFlag: "Y", contributorPacFein: "C00032979" }]) },
+      { fileName: "contribs_100.csv", content: csv(TEXAS_TEC_CONTRIBUTION_COLUMNS, [{ contributionInfoId: "100" }]) },
+      { fileName: "contribs_99.csv", content: csv(TEXAS_TEC_CONTRIBUTION_COLUMNS, [{ contributionInfoId: "99" }]) },
+      { fileName: "expend_111.csv", content: csv(TEXAS_TEC_EXPENDITURE_COLUMNS, [{ expendInfoId: "111" }]) },
+      { fileName: "expend_100.csv", compressionMethod: 8, content: csv(TEXAS_TEC_EXPENDITURE_COLUMNS, [{ expendInfoId: "100" }]) },
+      { fileName: "expend_99.csv", content: csv(TEXAS_TEC_EXPENDITURE_COLUMNS, [{ expendInfoId: "99" }]) },
+      { fileName: "cont_t.csv", content: "rapid receipts are separate" },
+      { fileName: "expn_t.csv", content: "rapid expenses are separate" },
+      { fileName: "contribs_bad.csv", content: "invalid" },
+    ]);
+    expect(await listTexasTecContributionCsvFileNames(zipPath)).toEqual(["contribs_99.csv", "contribs_100.csv", "contribs_111.csv"]);
+    expect(await listTexasTecExpenditureCsvFileNames(zipPath)).toEqual(["expend_99.csv", "expend_100.csv", "expend_111.csv"]);
+    expect(await readTexasTecContributionRows({ zipPath, fileName: "contribs_100.csv" })).toEqual([expect.objectContaining({ contributionInfoId: "100" })]);
+    expect(await readTexasTecContributionRows({ zipPath, fileName: "contribs_111.csv" })).toEqual([expect.objectContaining({ contributionInfoId: "111", contributorOosPacFlag: "Y", contributorPacFein: "C00032979" })]);
+    expect(await readTexasTecExpenditureRows({ zipPath, fileName: "expend_100.csv" })).toEqual([expect.objectContaining({ expendInfoId: "100" })]);
+    expect(await readTexasTecExpenditureRows({ zipPath, fileName: "expend_111.csv" })).toEqual([expect.objectContaining({ expendInfoId: "111" })]);
+  });
+
+  it.each(["contributorOosPacFlag", "contributorPacFein"])("requires official contribution header %s", async (column) => {
+    const zipPath = await writeFixtureZip([{ fileName: "contribs_100.csv",
+      content: csv(TEXAS_TEC_CONTRIBUTION_COLUMNS.filter((field) => field !== column), []) }]);
+    await expect(readTexasTecContributionRows({ zipPath, fileName: "contribs_100.csv" }))
+      .rejects.toThrow(`Missing required Texas TEC contribution CSV column: ${column}`);
   });
 });

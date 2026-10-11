@@ -94,6 +94,9 @@ function filer(overrides: Partial<TexasTecFilerRow> = {}): TexasTecFilerRow {
 function candidate(overrides: Partial<TexasTecCandidateRow> = {}): TexasTecCandidateRow {
   return {
     recordType: "CAND",
+    reportInfoIdent: "R1",
+    infoOnlyFlag: "N",
+    schedFormTypeCd: "F1",
     filerIdent: "7001",
     filerTypeCd: "SPAC",
     filerName: "Texans for Example",
@@ -122,7 +125,7 @@ function expenditure(overrides: Partial<TexasTecExpenditureRow> = {}): TexasTecE
     schedFormTypeCd: "F1",
     reportInfoIdent: "R1",
     receivedDt: "20261016",
-    infoOnlyFlag: "",
+    infoOnlyFlag: "N",
     filerIdent: "7001",
     filerTypeCd: "SPAC",
     filerName: "Texans for Example",
@@ -132,7 +135,7 @@ function expenditure(overrides: Partial<TexasTecExpenditureRow> = {}): TexasTecE
     expendDescr: "Direct campaign expenditure",
     expendCatCd: "ADV",
     expendCatDescr: "Advertising",
-    politicalExpendCd: "DIRECT",
+    politicalExpendCd: "",
     payeePersentTypeCd: "ENTITY",
     payeeNameOrganization: "Vendor LLC",
     payeeNameLast: "",
@@ -173,6 +176,7 @@ function tecData(overrides: Partial<TexasTecDataForBatchSync> = {}): TexasTecDat
     expenditureRows: [expenditure()],
     filerRows: [],
     spacRows: [spac()],
+    purposeRows: [],
     receiptCommitteeIdsByCandidateElectionKey: new Map(),
     ...overrides,
   };
@@ -328,6 +332,8 @@ describe("texasCandidateFinanceBatchSync", () => {
         candidateRows: data.candidateRows,
         expenditureRows: data.expenditureRows,
         spacRows: data.spacRows,
+        purposeRows: data.purposeRows,
+        committeeRegistryRows: data.filerRows,
         trustedCommittee: {
           committeeId: "00012345",
           committeeName: "ABBOTT, GREG",

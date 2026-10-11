@@ -22,6 +22,8 @@ import {
   getWestVirginiaDataDownloadCatalog,
   type WestVirginiaCfrsClientOptions,
 } from "../pipeline/westVirginiaFinance/westVirginiaCfrsClient.js";
+import { refreshWestVirginiaElectronicOutsideSpendingArtifact } from "../pipeline/westVirginiaFinance/westVirginiaElectronicOutsideSpendingCache.js";
+import { refreshWestVirginiaCommitteeRegistryArtifact } from "../pipeline/westVirginiaFinance/westVirginiaCfrsRegistryCache.js";
 import { parseWestVirginiaReportingScheduleCsv } from "../pipeline/westVirginiaFinance/westVirginiaCfrsCsv.js";
 import {
   resolveWestVirginiaCandidateCycleWindow,
@@ -99,6 +101,8 @@ export async function runRefreshWestVirginiaCampaignFinanceRawDataScript(input: 
   clientOptions?: WestVirginiaCfrsClientOptions;
   refreshBulk?: typeof refreshWestVirginiaBulkArtifact;
   refreshApi?: typeof refreshWestVirginiaApiContributionsArtifact;
+  refreshRegistry?: typeof refreshWestVirginiaCommitteeRegistryArtifact;
+  refreshIE?: typeof refreshWestVirginiaElectronicOutsideSpendingArtifact;
   fetchCatalog?: typeof getWestVirginiaDataDownloadCatalog;
   readBulk?: typeof readWestVirginiaBulkArtifact;
 }) {
@@ -113,6 +117,19 @@ export async function runRefreshWestVirginiaCampaignFinanceRawDataScript(input: 
   // One catalog read for the whole run.
   const catalog = await (input.fetchCatalog ?? getWestVirginiaDataDownloadCatalog)({}, clientOptions);
 
+  // Registry identity is not scoped to a candidate election year. Fetch the
+  // complete all-type/status snapshot once for the whole acquisition run.
+  const registryRefresh = await (input.refreshRegistry ?? refreshWestVirginiaCommitteeRegistryArtifact)({
+    cacheDir, clientOptions,
+  });
+  const registry = {
+    status: registryRefresh.status,
+    file_path: registryRefresh.filePath,
+    record_count: registryRefresh.current.recordCount,
+    sha256: registryRefresh.current.sha256,
+    downloaded_at: registryRefresh.current.downloadedAt,
+    source_url: registryRefresh.current.sourceUrl,
+  };
   const artifacts: ReturnType<typeof summarize>[] = [];
   const windows = [];
   const refreshedBulk = new Set<string>();
@@ -156,11 +173,21 @@ export async function runRefreshWestVirginiaCampaignFinanceRawDataScript(input: 
       }
     }
   }
+  const ieRefresh = await (input.refreshIE ?? refreshWestVirginiaElectronicOutsideSpendingArtifact)({
+    years: [...refreshedApi].sort((left, right) => left - right), cacheDir, clientOptions,
+  });
+  const electronicIe = {
+    status: ieRefresh.status, scope: ieRefresh.current.scope, years: ieRefresh.current.years,
+    file_path: ieRefresh.filePath, record_count: ieRefresh.current.recordCount,
+    sha256: ieRefresh.current.sha256, registry_sha256: ieRefresh.current.registrySha256,
+  };
   return {
     type: "west_virginia_cfrs_raw_data_refresh",
     ts: new Date().toISOString(),
     cache_dir: cacheDir,
     windows,
+    registry,
+    electronic_ie: electronicIe,
     artifacts,
   };
 }

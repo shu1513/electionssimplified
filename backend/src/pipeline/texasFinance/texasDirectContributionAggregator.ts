@@ -1,10 +1,11 @@
-import type { TexasTecContributionRow } from "./texasTecCsvDatabaseReader.js";
+import type { TexasTecContributionRow, TexasTecFilerRow } from "./texasTecCsvDatabaseReader.js";
 
 export type TexasDirectContributionAggregationInput = {
   committeeId: string;
   committeeIds?: readonly string[];
   electionYear: number;
   contributionRows: readonly TexasTecContributionRow[];
+  committeeRegistryRows?: readonly TexasTecFilerRow[];
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
 };
@@ -25,11 +26,72 @@ export type TexasFinanceDirectBreakdown = {
 
 export type TexasDirectContributionAggregationResult = {
   summary: TexasDirectFinanceSummary;
+  pacDonors?: TexasFinancePacDonor[];
   directBreakdowns: TexasFinanceDirectBreakdown[];
   matchedContributionRowCount: number;
   includedContributionRowCount: number;
   skippedContributionRowCount: number;
 };
+
+
+export type TexasFinancePacDonor = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: string;
+  totalAmount: number;
+  contributionCount: number;
+  sourceUrl: string | null;
+};
+
+const PAC_COMMITTEE_TYPES = new Set(["GPAC", "MPAC", "SPAC", "JSPC", "SCPC", "CEC", "MCEC", "PTYCORP", "LEG"]);
+
+function committeeRegistryByName(rows: readonly TexasTecFilerRow[]): Map<string, Map<string, TexasTecFilerRow>> {
+  const names = new Map<string, Map<string, TexasTecFilerRow>>();
+  for (const row of rows) {
+    // Preserve excluded and historical identities while establishing uniqueness.
+    const identity = JSON.stringify([normalizeId(row.filerIdent), normalizeId(row.filerTypeCd)]);
+    for (const alias of [row.filerName, row.filerNameOrganization]) {
+      const key = normalizeTextKey(alias);
+      if (!key) continue;
+      const identities = names.get(key) ?? new Map<string, TexasTecFilerRow>();
+      if (!identities.has(identity)) identities.set(identity, row);
+      names.set(key, identities);
+    }
+  }
+  return names;
+}
+
+function pacDonorIdentity(row: TexasTecContributionRow, names: ReturnType<typeof committeeRegistryByName>): {
+  committeeId: string; committeeName: string; committeeType: string;
+} | null {
+  const donorName = row.contributorNameOrganization.trim() ||
+    [row.contributorNameFirst, row.contributorNameLast].map((name) => name.trim()).filter(Boolean).join(" ");
+  if (!donorName) return null;
+  const flag = (row.contributorOosPacFlag ?? "").trim().toUpperCase();
+  const fecId = (row.contributorPacFein ?? "").trim().toUpperCase();
+  if (flag === "Y" && /^C[0-9]{8}$/.test(fecId)) {
+    return { committeeId: `fec:${fecId}`, committeeName: donorName, committeeType: "OOS_PAC" };
+  }
+  // Contradictory/incomplete explicit OOS evidence must remain unresolved.
+  if (fecId || (flag && flag !== "N")) return null;
+  const identities = names.get(normalizeTextKey(donorName));
+  if (identities?.size !== 1) return null;
+  const committee = identities.values().next().value as TexasTecFilerRow;
+  const committeeId = committee.filerIdent.trim();
+  const committeeType = committee.filerTypeCd.trim().toUpperCase();
+  if (!committeeId || !PAC_COMMITTEE_TYPES.has(committeeType)) return null;
+  return { committeeId, committeeName: committee.filerNameOrganization.trim() || committee.filerName.trim(), committeeType };
+}
+
+function currentReceiptFingerprint(row: TexasTecContributionRow, amountCents: number): string {
+  // IDs persist across report copies. Filing metadata does not create new money.
+  const economicFields = Object.entries(row)
+    .filter(([field]) => !["reportInfoIdent", "receivedDt", "infoOnlyFlag", "contributionAmount"].includes(field))
+    .filter(([, value]) => value?.trim())
+    .map(([field, value]) => [field, value.trim()])
+    .sort(([left], [right]) => left!.localeCompare(right!));
+  return JSON.stringify([amountCents, economicFields]);
+}
 
 type Aggregate = {
   categoryType: TexasFinanceDirectBreakdown["categoryType"];
@@ -287,6 +349,9 @@ export function aggregateTexasDirectContributions(
   );
   const sourceUrl = input.sourceUrl ?? null;
   const aggregates = new Map<string, Aggregate>();
+  const registryNames = input.committeeRegistryRows === undefined ? undefined : committeeRegistryByName(input.committeeRegistryRows);
+  const pacDonors = new Map<string, TexasFinancePacDonor & { amountCents: number }>();
+  const currentReceipts = new Map<string, string>();
   let matchedContributionRowCount = 0;
   let includedContributionRowCount = 0;
   let skippedContributionRowCount = 0;
@@ -312,6 +377,16 @@ export function aggregateTexasDirectContributions(
       continue;
     }
 
+    const receiptId = requireNonEmpty(row.contributionInfoId, "Texas current contribution id");
+    const receiptKey = JSON.stringify([rowCommitteeId, receiptId]);
+    const fingerprint = currentReceiptFingerprint(row, amountCents);
+    const previous = currentReceipts.get(receiptKey);
+    if (previous !== undefined) {
+      if (previous !== fingerprint) throw new Error(`Conflicting current Texas receipt: ${rowCommitteeId}:${receiptId}`);
+      skippedContributionRowCount += 1;
+      continue;
+    }
+    currentReceipts.set(receiptKey, fingerprint);
     totalReceiptsCents += amountCents;
     if (rowCommitteeId === primaryCommitteeId && !isTexasDirectDonorSupportReceipt({ row, electionYear })) {
       skippedContributionRowCount += 1;
@@ -320,6 +395,17 @@ export function aggregateTexasDirectContributions(
 
     includedContributionRowCount += 1;
     directContributionTotalCents += amountCents;
+    if (registryNames !== undefined) {
+      const donor = pacDonorIdentity(row, registryNames);
+      if (donor) {
+        const key = JSON.stringify([donor.committeeId, donor.committeeType]);
+        const existing = pacDonors.get(key);
+        if (existing) {
+          existing.amountCents += amountCents;
+          existing.contributionCount += 1;
+        } else pacDonors.set(key, { ...donor, totalAmount: 0, amountCents, contributionCount: 1, sourceUrl });
+      }
+    }
     const contributorKey = contributorIdentityKey(row);
     addAggregate(aggregates, {
       categoryType: "occupation",
@@ -346,6 +432,9 @@ export function aggregateTexasDirectContributions(
       sourceUrl,
       maxBreakdownsPerCategory,
     }),
+    ...(registryNames !== undefined ? { pacDonors: [...pacDonors.values()]
+      .map(({ amountCents, ...donor }) => ({ ...donor, totalAmount: centsToDollars(amountCents) }))
+      .sort((left, right) => right.totalAmount - left.totalAmount || left.committeeId.localeCompare(right.committeeId)) } : {}),
     matchedContributionRowCount,
     includedContributionRowCount,
     skippedContributionRowCount,

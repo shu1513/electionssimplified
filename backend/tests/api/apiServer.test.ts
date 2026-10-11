@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createApiApp } from "../../src/api/apiServer.js";
 import { MAX_INITIALIZE_DISTRICT_IDS } from "../../src/api/apiValidation.js";
 import { CURRENT_TERMS_VERSION, GRACE_TERMS_VERSIONS } from "../../src/constants/legal.js";
-import type { CandidateElectionFinanceResult } from "../../src/pipeline/address/ballotLookup.js";
+import { lookupCandidateElectionFinanceSummaryById, type CandidateElectionFinanceResult } from "../../src/pipeline/address/ballotLookup.js";
 import { CensusAddressGeocoderError } from "../../src/pipeline/address/censusAddressGeocoder.js";
 import {
   ZipDistrictResolutionError,
@@ -4205,6 +4205,150 @@ describe("createApiApp", () => {
       expect(response.body).toEqual(financeResult);
       expect(lookupCandidateElectionFinance).toHaveBeenCalledWith(electionId, candidateId);
       expect(lookupElectionDetail).not.toHaveBeenCalled();
+    });
+
+    it("serves typed West Virginia PAC donors and scoped electronic IE through the production finance lookup", async () => {
+      vi.stubEnv("AI_API_CALLS_ALLOWED", "false");
+      vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "false");
+      for (const state of [
+        "ALABAMA", "ALASKA", "ARIZONA", "ARKANSAS", "CALIFORNIA", "COLORADO", "CONNECTICUT", "DELAWARE", "FLORIDA", "GEORGIA",
+        "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA", "KANSAS", "KENTUCKY", "LOUISIANA", "MAINE", "MARYLAND",
+        "MASSACHUSETTS", "MICHIGAN", "MINNESOTA", "MISSISSIPPI", "MISSOURI", "MONTANA", "NEBRASKA", "NEVADA", "NEW_HAMPSHIRE", "NEW_JERSEY",
+        "NEW_MEXICO", "NEW_YORK", "NORTH_CAROLINA", "NORTH_DAKOTA", "OHIO", "OKLAHOMA", "OREGON", "PENNSYLVANIA", "RHODE_ISLAND", "SOUTH_CAROLINA",
+        "SOUTH_DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT", "VIRGINIA", "WASHINGTON", "WISCONSIN", "WYOMING", "DENVER", "AUSTIN", "HOUSTON",
+      ]) vi.stubEnv(`${state}_CAMPAIGN_FINANCE_ENABLED`, "false");
+      vi.stubEnv("WEST_VIRGINIA_CAMPAIGN_FINANCE_ENABLED", "true");
+      const sourceUrl = "https://cfrs.wvsos.gov/";
+      const outsideSourceUrl = "https://cfrs.wvsos.gov/common/retrieveDocument?documentID=F5BA3496AFAF45AE";
+      const identities = { candidate_id: candidateId, election_id: electionId };
+      // Reader fixture combines proven donor amounts and an electronic-IE amount;
+      // it does not assert that the two source examples refer to the same live candidate.
+      const query = vi.fn(async (sql: string, _params?: unknown[]) => {
+        if (sql.includes("public.wv_candidate_finance_summaries")) return { rows: [{
+          ...identities, committee_id: "1010003884", election_year: 2026, total_receipts: "5850.00",
+          direct_contribution_total: "5850.00", total_disbursements: "120.00", cash_on_hand: null,
+          outside_support_total: "897.10", outside_oppose_total: null, source_url: sourceUrl, last_synced_at: "2026-10-11T00:00:00Z",
+        }] };
+        if (sql.includes("public.wv_candidate_finance_pac_donors")) return { rows: [
+          { ...identities, committee_id: "1020001470", committee_name: "West Virginia Trial Lawyers Association (LAWPAC)",
+            committee_type: "102", amount: "5600.00", source_url: sourceUrl,
+            industry_slug: null, classification_source: null, confidence: null },
+          { ...identities, committee_id: "1020001446", committee_name: "United Mine Workers of America Coal Miners PAC (UMWA PAC)",
+            committee_type: "102", amount: "250.00", source_url: sourceUrl,
+            industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+        ] };
+        if (sql.includes("public.wv_candidate_finance_outside_group_breakdowns")) return { rows: [] };
+        if (sql.includes("public.wv_candidate_finance_outside_groups")) return { rows: [{
+          ...identities, committee_id: "1040002875", committee_name: "Strong for West Virginia",
+          support_oppose: "support", amount: "897.10", source_url: outsideSourceUrl,
+        }] };
+        return { rows: [] };
+      })
+        .mockResolvedValueOnce({ rows: [{ election_id: electionId, state: "WV", district_type: "state_lower", geoid_compact: "54",
+          office_scope: "state_lower", office_canonical_name: "State Lower Chamber Legislator", race_type: "office" }] })
+        .mockResolvedValueOnce({ rows: [{ ...identities, fec_ids: [] }] });
+      const lookupCandidateElectionFinance = vi.fn((requestedElectionId: string, requestedCandidateId: string) =>
+        lookupCandidateElectionFinanceSummaryById({ query }, requestedElectionId, requestedCandidateId));
+      try {
+        const response = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), lookupCandidateElectionFinance }), {
+          method: "GET", path: financePath,
+        });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({ finance_summary: {
+          source: "WEST_VIRGINIA_CFRS", cycle: 2026, controlled_committee_id: "1010003884",
+          direct_campaign: {
+            total_raised: 5850, total_spent: 120, cash_on_hand: null,
+            direct_coverage_note: expect.stringContaining("ambiguous and unregistered donors are omitted"),
+            pac_money_by_interest: [
+              { interest: "unclassified", interest_name: "Not yet sorted", amount: 5600, pac_count: 1,
+                pacs: [{ committee_id: "1020001470", committee_name: "West Virginia Trial Lawyers Association (LAWPAC)", amount: 5600, source_url: sourceUrl }] },
+              { interest: "labor_unions", interest_name: "Labor unions", amount: 250, pac_count: 1,
+                pacs: [{ committee_id: "1020001446", amount: 250, source_url: sourceUrl }] },
+            ],
+          },
+          outside_spending: { support_total: 897.1, oppose_total: null,
+            outside_coverage_note: expect.stringContaining("Scanned paper and rapid reports are omitted"),
+            top_supporting_groups: [{ committee_id: "1040002875", amount: 897.1, source_url: outsideSourceUrl }],
+            top_supporting_industries: [],
+          },
+        } });
+        const body = response.body as CandidateElectionFinanceResult;
+        expect(body.finance_summary?.direct_campaign.pac_money_by_interest?.reduce((sum, interest) => sum + interest.amount, 0)).toBe(5850);
+        const pacQuery = query.mock.calls.find(([sql]) => sql.includes("public.wv_candidate_finance_pac_donors"));
+        expect(pacQuery?.[0]).toContain("sum(donor.amount) AS amount");
+        expect(pacQuery?.[0]).toContain("link.link_status = 'active'");
+        expect(pacQuery?.[0]).toContain("donor.election_year = link.election_year");
+        expect(pacQuery?.[0]).toContain("GROUP BY selected.candidate_id, selected.election_id, donor.committee_id");
+        expect(pacQuery?.[0]).toContain("classification.label_type = 'committee'");
+        expect(pacQuery?.[1]).toEqual([JSON.stringify([identities])]);
+        expect(query.mock.calls.filter(([sql]) => sql.includes("public.wv_candidate_finance_pac_donors"))).toHaveLength(1);
+        expect(query.mock.calls.some(([sql]) => /public\.(?:mi_candidate_finance|tx_candidate_finance|candidate_finance)/.test(sql))).toBe(false);
+        expect(lookupCandidateElectionFinance).toHaveBeenCalledWith(electionId, candidateId);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
+    it("serves Michigan PAC interests from the real ballot finance lookup without changing campaign or IE totals", async () => {
+      vi.stubEnv("AI_API_CALLS_ALLOWED", "false");
+      vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "false");
+      vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+      const pacSourceUrl = "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboeContributionPublicSearch";
+      const identities = { candidate_id: candidateId, election_id: electionId };
+      const query = vi.fn(async (sql: string, _params?: unknown[]) => {
+        if (sql.includes("public.mi_candidate_finance_summaries")) return { rows: [{
+          ...identities, committee_id: null, election_year: 2026, total_receipts: "250000.00",
+          direct_contribution_total: "200000.00", candidate_loan_total: "45000.00",
+          total_disbursements: "90000.00", cash_on_hand: "110000.00", outside_support_total: "80000.00",
+          outside_oppose_total: "12500.00", source_url: pacSourceUrl, last_synced_at: "2026-10-11T00:00:00Z",
+        }] };
+        if (sql.includes("public.mi_candidate_finance_pac_donors")) return { rows: [
+          { ...identities, committee_id: "508347", committee_name: "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE",
+            committee_type: "Independent", amount: "12250.00", source_url: pacSourceUrl,
+            industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+          { ...identities, committee_id: "unknown-pac", committee_name: "Great Lakes Neighbors PAC",
+            committee_type: "Political", amount: "750.00", source_url: null,
+            industry_slug: null, classification_source: null, confidence: null },
+          { ...identities, committee_id: "candidate-committee", committee_name: "Other Candidate for Governor",
+            committee_type: "Candidate", amount: "9000.00", source_url: null,
+            industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+        ] };
+        return { rows: [] };
+      })
+        .mockResolvedValueOnce({ rows: [{ election_id: electionId, state: "MI", district_type: "statewide", geoid_compact: "26",
+          office_scope: "statewide", office_canonical_name: "Governor", race_type: "office" }] })
+        .mockResolvedValueOnce({ rows: [{ ...identities, fec_ids: [] }] });
+      const lookupCandidateElectionFinance = vi.fn((requestedElectionId: string, requestedCandidateId: string) =>
+        lookupCandidateElectionFinanceSummaryById({ query }, requestedElectionId, requestedCandidateId));
+      try {
+        const response = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), lookupCandidateElectionFinance }), {
+          method: "GET", path: financePath,
+        });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({ finance_summary: {
+          source: "MICHIGAN_MITN", cycle: 2026, controlled_committee_id: null,
+          direct_campaign: {
+            total_raised: 200000, loans_received: 45000, total_spent: 90000, cash_on_hand: 110000,
+            direct_coverage_note: expect.stringContaining("unregistered or ambiguous"),
+            pac_money_by_interest: [
+              { interest: "labor_unions", interest_name: "Labor unions", amount: 12250, pac_count: 1,
+                pacs: [{ committee_id: "508347", amount: 12250, source_url: pacSourceUrl }] },
+              { interest: "unclassified", interest_name: "Not yet sorted", amount: 750, pac_count: 1,
+                pacs: [{ committee_id: "unknown-pac", amount: 750, source_url: expect.stringContaining("michigan.gov") }] },
+            ],
+          },
+          outside_spending: { support_total: 80000, oppose_total: 12500,
+            outside_coverage_note: expect.stringContaining("Unidentified or multi-candidate expenses are omitted.") },
+        } });
+        const pacQuery = query.mock.calls.find(([sql]) => sql.includes("public.mi_candidate_finance_pac_donors"));
+        expect(pacQuery?.[0]).toContain("sum(donor.amount) AS amount");
+        expect(pacQuery?.[0]).toContain("link.link_status = 'active'");
+        expect(pacQuery?.[0]).toContain("donor.election_year = link.election_year");
+        expect(pacQuery?.[1]).toEqual([JSON.stringify([identities])]);
+        expect(lookupCandidateElectionFinance).toHaveBeenCalledWith(electionId, candidateId);
+      } finally {
+        vi.unstubAllEnvs();
+      }
     });
 
     it("serves an explicit null finance summary for a covered pairing without finance data", async () => {

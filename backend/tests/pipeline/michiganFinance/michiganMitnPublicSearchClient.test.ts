@@ -9,6 +9,8 @@ import {
   parseMichiganMitnExportXlsxRows,
   resolveMichiganMitnCommitteeViaSearch,
   splitMichiganCandidateNameForSearch,
+  validateMichiganMitnContributionExportHeader,
+  MICHIGAN_MITN_REQUIRED_CONTRIBUTION_HEADERS,
 } from "../../../src/pipeline/michiganFinance/michiganMitnPublicSearchClient.js";
 
 import { MITN_EXPORT_HEADER, buildZip, sheetXml } from "./mitnXlsxTestFixture.js";
@@ -26,6 +28,23 @@ const COMMITTEE_RESULT_HTML = `
 // --- tests -----------------------------------------------------------------
 
 describe("michiganMitnPublicSearchClient", () => {
+
+  it("retains public filing lookup IDs and supports an exact all-type registry search", async () => {
+    const html = '<table><tr x-bind:hx-vals="JSON.stringify({ parameters: { id: 20991 } })"><td>508347</td><td>Independent</td><td>UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE</td><td>Active</td></tr></table>';
+    const fetchFn = vi.fn().mockResolvedValue({
+      ok: true, status: 200, text: async () => html, arrayBuffer: async () => new ArrayBuffer(0),
+    });
+    const rows = await fetchMichiganMitnCommitteeSearch({
+      committeeId: "508347", committeeName: "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE",
+      committeeType: "", fetchFn,
+    });
+    expect(rows[0]).toMatchObject({ committeeId: "508347", registryInternalId: "20991" });
+    const body = new URLSearchParams(fetchFn.mock.calls[0]![1].body);
+    expect(body.get("form.committeeId")).toBe("508347");
+    expect(body.get("form.committeeType")).toBe("");
+    expect(body.get("form.candidateLastName")).toBe("");
+  });
+
   it("parses committee search result rows", () => {
     expect(parseMichiganMitnCommitteeSearchHtml(COMMITTEE_RESULT_HTML)).toEqual([
       { committeeId: "521877", committeeType: "Candidate", committeeName: "ARIC NESBITT FOR GOVERNOR", status: "Active" },
@@ -105,6 +124,19 @@ describe("michiganMitnPublicSearchClient", () => {
     expect(body.get("form.campaignStatementYear")).toBe("76");
     expect(body.get("form.contributionType")).toBe("individual");
   });
+
+  it.each([["0521495", "521495"], ["0608867", "608867"]])(
+    "uses numeric receipt export ID %s while preserving the registry spelling",
+    async (sourceId, exportId) => {
+      const zip = buildZip([{ name: "xl/worksheets/sheet1.xml", content: sheetXml([EXPORT_HEADER]) }]);
+      const fetchFn = vi.fn().mockImplementation(async () => new Response(zip));
+      await fetchMichiganMitnContributionExportXlsx({ committeeId: sourceId, statementYear: 2026, fetchFn });
+      expect(new URLSearchParams(fetchFn.mock.calls[0]![1].body).get("form.committeeId")).toBe(exportId);
+      fetchFn.mockImplementation(async () => new Response("<table></table>"));
+      await fetchMichiganMitnCommitteeSearch({ committeeId: sourceId, committeeType: "", fetchFn });
+      expect(new URLSearchParams(fetchFn.mock.calls[1]![1].body).get("form.committeeId")).toBe(sourceId);
+    }
+  );
 
   it("rejects non-xlsx export responses and unknown statement years", async () => {
     const fetchFn = vi.fn().mockResolvedValue({
@@ -284,7 +316,24 @@ describe("michiganMitnPublicSearchClient", () => {
   it("skips blank export rows and requires recognized headers", () => {
     expect(michiganMitnExportRowsToLegacyContributionRows([EXPORT_HEADER, ["", "", ""]])).toEqual([]);
     expect(() => michiganMitnExportRowsToLegacyContributionRows([["Nothing", "Recognized"], ["a", "b"]])).toThrow(
-      "no recognized header columns"
+      "missing or duplicate required headers"
     );
+  });
+});
+
+
+describe("Michigan receipt export schema", () => {
+  it("accepts the existing 19-column and official extended headers, including header-only empties", () => {
+    expect(() => validateMichiganMitnContributionExportHeader([EXPORT_HEADER])).not.toThrow();
+    expect(michiganMitnExportRowsToLegacyContributionRows([EXPORT_HEADER])).toEqual([]);
+    expect(() => validateMichiganMitnContributionExportHeader([[...EXPORT_HEADER, "Contributor Address", "Contributor City"]])).not.toThrow();
+  });
+  it.each(MICHIGAN_MITN_REQUIRED_CONTRIBUTION_HEADERS)("rejects a missing %s even in a header-only export", (name) => {
+    const partial = EXPORT_HEADER.filter((column) => column !== name);
+    expect(() => michiganMitnExportRowsToLegacyContributionRows([partial])).toThrow("required headers");
+  });
+  it("rejects missing and duplicate schemas rather than mapping a zero snapshot", () => {
+    expect(() => michiganMitnExportRowsToLegacyContributionRows([])).toThrow("required headers");
+    expect(() => michiganMitnExportRowsToLegacyContributionRows([[...EXPORT_HEADER, "Receiving Committee ID#"]])).toThrow("required headers");
   });
 });

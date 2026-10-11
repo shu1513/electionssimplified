@@ -75,6 +75,15 @@ export type MichiganFinanceOutsideGroupBreakdownInput = {
   sourceUrl?: string | null;
 };
 
+export type MichiganFinancePacDonorInput = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: string;
+  amount: number;
+  contributionCount: number;
+  sourceUrl?: string | null;
+};
+
 export type MichiganFinanceSnapshotInput = {
   db: Queryable;
   link: MichiganFinanceLinkInput;
@@ -84,6 +93,10 @@ export type MichiganFinanceSnapshotInput = {
   outsideGroups?: readonly MichiganFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly MichiganFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  /** Verified outside totals cover every active target committee for this candidate/election. */
+  candidateElectionOutsideSnapshot?: boolean;
+  /** Omitted preserves prior PAC donors; an empty list clears them. */
+  pacDonors?: readonly MichiganFinancePacDonorInput[];
 };
 
 export type MichiganFinanceSnapshotWriteResult = {
@@ -92,6 +105,7 @@ export type MichiganFinanceSnapshotWriteResult = {
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
+  pacDonorsWritten?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -151,6 +165,13 @@ function normalizeNullableCount(value: number | null | undefined): number | null
   return value;
 }
 
+function normalizePacDonorCount(value: number): number {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error("Michigan PAC donor contribution count must be a nonnegative integer");
+  }
+  return value;
+}
+
 function canOpenTransaction(db: Queryable): db is PoolLikeQueryable & { connect: () => Promise<PoolClient> } {
   return (
     typeof (db as PoolLikeQueryable).connect === "function" &&
@@ -175,6 +196,13 @@ function validateMichiganFinanceLinkInput(link: MichiganFinanceLinkInput): void 
 
 function validateMichiganFinanceSnapshotInput(input: MichiganFinanceSnapshotInput): void {
   validateMichiganFinanceLinkInput(input.link);
+  for (const donor of input.pacDonors ?? []) {
+    requireNonEmpty(donor.committeeId, "Michigan PAC donor committee id");
+    requireNonEmpty(donor.committeeName, "Michigan PAC donor committee name");
+    requireNonEmpty(donor.committeeType, "Michigan PAC donor committee type");
+    normalizeAmount(donor.amount, "PAC donor amount");
+    normalizePacDonorCount(donor.contributionCount);
+  }
   const outsideBreakdownCount = input.outsideGroupBreakdowns?.length ?? 0;
   const outsideGroupCount = input.outsideGroups?.length ?? 0;
   if (outsideBreakdownCount > 0 && outsideGroupCount === 0) {
@@ -417,6 +445,68 @@ async function upsertDirectBreakdown(input: {
   );
 }
 
+async function upsertPacDonor(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donor: MichiganFinancePacDonorInput;
+  syncedAt: Date;
+}): Promise<void> {
+  await input.db.query(
+    `
+      INSERT INTO public.mi_candidate_finance_pac_donors (
+        link_id,
+        election_year,
+        committee_id,
+        committee_name,
+        committee_type,
+        amount,
+        contribution_count,
+        source_url,
+        last_synced_at
+      )
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz)
+      ON CONFLICT (link_id, election_year, committee_id)
+      DO UPDATE SET
+        committee_name = EXCLUDED.committee_name,
+        committee_type = EXCLUDED.committee_type,
+        amount = EXCLUDED.amount,
+        contribution_count = EXCLUDED.contribution_count,
+        source_url = EXCLUDED.source_url,
+        last_synced_at = EXCLUDED.last_synced_at
+    `,
+    [
+      requireNonEmpty(input.linkId, "Michigan finance link id"),
+      normalizeElectionYear(input.electionYear),
+      requireNonEmpty(input.donor.committeeId, "Michigan PAC donor committee id"),
+      requireNonEmpty(input.donor.committeeName, "Michigan PAC donor committee name"),
+      requireNonEmpty(input.donor.committeeType, "Michigan PAC donor committee type"),
+      normalizeAmount(input.donor.amount, "PAC donor amount"),
+      normalizePacDonorCount(input.donor.contributionCount),
+      normalizeOptionalText(input.donor.sourceUrl),
+      input.syncedAt.toISOString(),
+    ]
+  );
+}
+
+async function deleteStalePacDonors(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donors: readonly MichiganFinancePacDonorInput[];
+}): Promise<void> {
+  const keep = input.donors.map((donor) => requireNonEmpty(donor.committeeId, "Michigan PAC donor committee id"));
+  await input.db.query(
+    `
+      DELETE FROM public.mi_candidate_finance_pac_donors
+      WHERE link_id = $1::uuid
+        AND election_year = $2
+        AND NOT (committee_id = ANY($3::text[]))
+    `,
+    [requireNonEmpty(input.linkId, "Michigan finance link id"), normalizeElectionYear(input.electionYear), keep]
+  );
+}
+
 async function upsertOutsideGroup(input: {
   db: Queryable;
   linkId: string;
@@ -597,6 +687,50 @@ async function deleteStaleOutsideGroups(input: {
   );
 }
 
+async function propagateCandidateElectionOutsideSnapshot(input: {
+  db: Queryable; link: MichiganFinanceLinkInput; selectedLinkId: string;
+  electionYear: number; supportTotal: number; opposeTotal: number;
+  groups: readonly MichiganFinanceOutsideGroupInput[];
+  breakdowns: readonly MichiganFinanceOutsideGroupBreakdownInput[]; syncedAt: Date;
+}): Promise<void> {
+  const siblings = await input.db.query<{ id: string }>(`
+    SELECT id::text AS id
+    FROM public.mi_candidate_finance_links
+    WHERE candidate_id = $1::uuid
+      AND election_id = $2::uuid
+      AND election_year = $3
+      AND link_status = 'active'
+      AND id <> $4::uuid
+    ORDER BY id
+  `, [input.link.candidateId, input.link.electionId, input.electionYear, input.selectedLinkId]);
+  for (const sibling of siblings.rows) {
+    const linkId = requireNonEmpty(sibling.id, "Michigan sibling finance link id");
+    if (linkId === input.selectedLinkId) continue;
+    // Outside-only inserts must not suppress the sibling's due receipt sync.
+    // Existing direct money, provenance and receipt freshness remain untouched.
+    await input.db.query(`
+      INSERT INTO public.mi_candidate_finance_summaries (
+        link_id, election_year, outside_support_total, outside_oppose_total, last_synced_at
+      )
+      VALUES ($1::uuid, $2, $3, $4, $5::timestamptz)
+      ON CONFLICT (link_id, election_year)
+      DO UPDATE SET
+        outside_support_total = EXCLUDED.outside_support_total,
+        outside_oppose_total = EXCLUDED.outside_oppose_total
+    `, [linkId, input.electionYear,
+      normalizeAmount(input.supportTotal, "outside support total"),
+      normalizeAmount(input.opposeTotal, "outside oppose total"), new Date(0).toISOString()]);
+    for (const group of input.groups) {
+      await upsertOutsideGroup({ db: input.db, linkId, electionYear: input.electionYear, group, syncedAt: input.syncedAt });
+    }
+    for (const breakdown of input.breakdowns) {
+      await upsertOutsideGroupBreakdown({ db: input.db, linkId, electionYear: input.electionYear, breakdown, syncedAt: input.syncedAt });
+    }
+    await deleteStaleOutsideGroupBreakdowns({ db: input.db, linkId, electionYear: input.electionYear, breakdowns: input.breakdowns });
+    await deleteStaleOutsideGroups({ db: input.db, linkId, electionYear: input.electionYear, groups: input.groups });
+  }
+}
+
 export async function replaceMichiganCandidateFinanceSnapshot(
   input: MichiganFinanceSnapshotInput
 ): Promise<MichiganFinanceSnapshotWriteResult> {
@@ -620,6 +754,14 @@ export async function replaceMichiganCandidateFinanceSnapshot(
       await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
     }
 
+    const pacDonors = input.pacDonors?.filter((donor) => donor.amount > 0);
+    for (const donor of pacDonors ?? []) {
+      await upsertPacDonor({ db, linkId, electionYear, donor, syncedAt });
+    }
+    if (pacDonors) {
+      await deleteStalePacDonors({ db, linkId, electionYear, donors: pacDonors });
+    }
+
     for (const group of input.outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
@@ -638,6 +780,16 @@ export async function replaceMichiganCandidateFinanceSnapshot(
       await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups });
     }
 
+    if (input.candidateElectionOutsideSnapshot === true &&
+        input.outsideGroups !== undefined && input.outsideGroupBreakdowns !== undefined &&
+        input.summary?.outsideSupportTotal != null && input.summary.outsideOpposeTotal != null) {
+      await propagateCandidateElectionOutsideSnapshot({
+        db, link: input.link, selectedLinkId: linkId, electionYear,
+        supportTotal: input.summary.outsideSupportTotal, opposeTotal: input.summary.outsideOpposeTotal,
+        groups: input.outsideGroups, breakdowns: input.outsideGroupBreakdowns, syncedAt,
+      });
+    }
+
     for (const classification of input.classifications ?? []) {
       await upsertFinanceLabelClassification({ db, classification });
     }
@@ -648,6 +800,7 @@ export async function replaceMichiganCandidateFinanceSnapshot(
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
       outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
+      ...(pacDonors ? { pacDonorsWritten: pacDonors.length } : {}),
     };
   });
 }

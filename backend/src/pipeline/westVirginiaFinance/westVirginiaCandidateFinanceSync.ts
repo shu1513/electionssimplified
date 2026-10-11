@@ -13,14 +13,14 @@
 //      a CSV that ever starts carrying superseded versions stops publication;
 //   5. no category / contributor-type / expenditure-type value outside the
 //      pinned vocabulary.
-// cash_on_hand and outside totals stay NULL (writer contract) — cover
-// extraction and the F-7b document path are later phases.
+// Unavailable outside acquisition preserves accepted spending; electronic IE
+// and paper source coverage are separate from direct receipts.
 
 import { resolve } from "node:path";
 
 import type { Pool, PoolClient } from "pg";
 
-import type { WestVirginiaTransactionRow } from "./westVirginiaCfrsClient.js";
+import type { WestVirginiaCommitteeRow, WestVirginiaTransactionRow } from "./westVirginiaCfrsClient.js";
 import {
   DEFAULT_WEST_VIRGINIA_CFRS_CACHE_DIR,
   readWestVirginiaApiContributionsArtifact,
@@ -46,7 +46,13 @@ import {
   normalizeWestVirginiaEntityId,
   replaceWestVirginiaCandidateFinanceSnapshot,
   type WestVirginiaFinanceLinkSource,
+  type WestVirginiaFinanceOutsideGroupInput,
 } from "./westVirginiaFinanceWriter.js";
+import { aggregateWestVirginiaElectronicOutsideSpending, type WestVirginiaElectronicOutsideSpendingResult } from "./westVirginiaElectronicOutsideSpendingAggregator.js";
+import { readWestVirginiaElectronicOutsideSpendingArtifact } from "./westVirginiaElectronicOutsideSpendingCache.js";
+import { validateWestVirginiaPreviouslyPublishedIe, type WestVirginiaStoredOutsideEvidence } from "./westVirginiaElectronicOutsideSpendingPersistenceGuard.js";
+import { readWestVirginiaCommitteeRegistryArtifact } from "./westVirginiaCfrsRegistryCache.js";
+import { reconcileWestVirginiaCommitteeDonors, type WestVirginiaCommitteeDonorReconciliation } from "./westVirginiaCommitteeDonorReconciliation.js";
 import { reconcileWestVirginiaCommittee } from "./westVirginiaPhaseZero.js";
 import {
   resolveWestVirginiaCandidateCycleWindow,
@@ -70,6 +76,9 @@ export type WestVirginiaFinanceArtifactLoader = {
   contributionRows: (year: number) => Promise<WestVirginiaContributionCsvRow[]>;
   expenditureRows: (year: number) => Promise<WestVirginiaExpenditureCsvRow[]>;
   apiContributionRows: (year: number) => Promise<WestVirginiaTransactionRow[]>;
+  /** Missing registry preserves committee donor rows while direct receipts remain usable. */
+  registryRows?: () => Promise<WestVirginiaCommitteeRow[]>;
+  electronicOutsideData?: () => Promise<Awaited<ReturnType<typeof readWestVirginiaElectronicOutsideSpendingArtifact>>>;
 };
 
 function requireClean<T>(label: string, result: { rows: T[]; errors: { line: number; reason: string }[] }): T[] {
@@ -99,6 +108,8 @@ export function createWestVirginiaFinanceArtifactLoader(cacheDir?: string): West
   const bulkText = (kind: "contributions" | "expenditures" | "reporting_schedules", year: number) =>
     readWestVirginiaBulkArtifact({ kind, year, cacheDir: resolvedCacheDir }).then((read) => read.csvText);
   return {
+    electronicOutsideData: () => once("electronic-ie", () => readWestVirginiaElectronicOutsideSpendingArtifact({ cacheDir: resolvedCacheDir })),
+    registryRows: () => once("registry", async () => (await readWestVirginiaCommitteeRegistryArtifact({ cacheDir: resolvedCacheDir })).rows),
     scheduleRows: (year) =>
       once(`reps:${year}`, async () =>
         requireClean(`reporting-schedules ${year}`, parseWestVirginiaReportingScheduleCsv(await bulkText("reporting_schedules", year)))
@@ -139,7 +150,16 @@ export type WestVirginiaCandidateFinanceSyncResult = {
   directContributionTotal: number | null;
   totalDisbursements: number | null;
   reconciliation: WestVirginiaYearReconciliation[];
-  aggregation: Omit<WestVirginiaDirectFinanceAggregationResult, "breakdowns">;
+  aggregation: Omit<WestVirginiaDirectFinanceAggregationResult, "breakdowns" | "pacDonors">;
+  committeeDonorReconciliation: WestVirginiaCommitteeDonorReconciliation[];
+  pacDonorCount: number | null;
+  committeeRegistryError?: string;
+  pacDonorsWritten?: number;
+  outsideDiagnostics: string[];
+  outsideSupportTotal: number | null;
+  outsideOpposeTotal: number | null;
+  outsideGroupsWritten: number;
+  outsideSourceSha256?: string;
   breakdownCounts: { occupation: number; industry: number; contribution_size: number };
   summaryWritten: boolean;
   directBreakdownsWritten: number;
@@ -194,6 +214,16 @@ export async function syncWestVirginiaCandidateFinance(input: {
   }
   const dryRun = input.dryRun === true;
   const loader = input.loadArtifacts ?? createWestVirginiaFinanceArtifactLoader(input.cacheDir);
+  let committeeRegistryRows: WestVirginiaCommitteeRow[] | undefined;
+  let committeeRegistryError: string | undefined;
+  if (loader.registryRows) {
+    try {
+      committeeRegistryRows = await loader.registryRows();
+    } catch (error) {
+      committeeRegistryError = error instanceof Error ? error.message : String(error);
+    }
+  }
+  const committeeDonorReconciliation: WestVirginiaCommitteeDonorReconciliation[] = [];
 
   // --- Window (fact 5): union of the cycle's periods across the schedule
   // files that can carry them. A missing schedule file fails closed rather
@@ -226,6 +256,11 @@ export async function syncWestVirginiaCandidateFinance(input: {
           `vs API ${check.apiRowCount} rows / ${check.apiTotalCents}c (only-in-CSV ${check.onlyInCsv}, only-in-API ${check.onlyInApi})`
       );
     }
+    if (committeeRegistryRows !== undefined) {
+      committeeDonorReconciliation.push(reconcileWestVirginiaCommitteeDonors({
+        entityId, csvRows: yearContributions, apiRows: yearApiRows, window,
+      }));
+    }
     reconciliation.push({
       year,
       csvRowCount: check.csvRowCount,
@@ -246,6 +281,7 @@ export async function syncWestVirginiaCandidateFinance(input: {
     contributionRows,
     expenditureRows,
     apiRows,
+    committeeRegistryRows,
     maxOccupationBreakdowns: input.maxOccupationBreakdowns,
   });
   const unrecognized = [
@@ -280,11 +316,56 @@ export async function syncWestVirginiaCandidateFinance(input: {
   const directContributionTotal = reportedActivity ? aggregation.directContributionCents / 100 : null;
   const totalDisbursements = reportedActivity ? aggregation.totalDisbursementsCents / 100 : null;
   const sourceUrl = input.link.sourceUrl ?? WEST_VIRGINIA_CFRS_SOURCE_URL;
-  const { breakdowns: aggregatedBreakdowns, ...aggregationSummary } = aggregation;
+  const { breakdowns: aggregatedBreakdowns, pacDonors, ...aggregationSummary } = aggregation;
   const breakdowns = reportedActivity ? aggregatedBreakdowns : [];
+
+  // Electronic IE has independent source gates. Failure preserves accepted
+  // outside data while reconciled direct receipts and donors can still update.
+  let outsideResult: WestVirginiaElectronicOutsideSpendingResult | undefined;
+  let outsideSourceSha256: string | undefined;
+  const outsideDiagnostics: string[] = [];
+  if (loader.electronicOutsideData) {
+    try {
+      const artifact = await loader.electronicOutsideData();
+      if (windowYears.some((year) => !artifact.metadata.years.includes(year))) {
+        throw new Error("West Virginia electronic IE cache does not cover every cycle year");
+      }
+      outsideResult = aggregateWestVirginiaElectronicOutsideSpending({
+        candidateName, entityId, electionYear: input.electionYear,
+        officeScope: input.officeScope, officeName: input.officeName, district: input.district,
+        window, registryRows: artifact.registryRows, transactionRows: artifact.rows,
+        currentFilingsByOrg: artifact.currentFilingsByOrg,
+      });
+      outsideDiagnostics.push(...outsideResult.diagnostics);
+      if (outsideResult.summary) {
+        const previous = await input.db.query<WestVirginiaStoredOutsideEvidence>(
+          `SELECT outside_group.committee_id, outside_group.support_oppose, outside_group.source_transactions
+           FROM public.wv_candidate_finance_outside_groups outside_group
+           JOIN public.wv_candidate_finance_links link ON link.id = outside_group.link_id
+           WHERE link.candidate_id = $1::uuid AND link.election_id = $2::uuid
+             AND link.link_status = 'active' AND outside_group.election_year = $3`,
+          [input.candidateId, input.electionId, input.electionYear]
+        );
+        validateWestVirginiaPreviouslyPublishedIe({ previousGroups: previous.rows, currentProvenance: outsideResult.provenance });
+        outsideSourceSha256 = artifact.metadata.sha256;
+      }
+    } catch (error) {
+      outsideResult = undefined;
+      outsideDiagnostics.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  const outside = outsideResult?.summary;
+  const outsideGroups: WestVirginiaFinanceOutsideGroupInput[] | undefined = outside?.groups.map((group) => ({
+    ...group,
+    sourceTransactions: outsideResult!.provenance
+      .filter((row) => row.spenderEntityId === group.committeeId && row.supportOppose === group.supportOppose)
+      .map((row) => ({ ...row })),
+  }));
 
   let summaryWritten = false;
   let directBreakdownsWritten = 0;
+  let pacDonorsWritten: number | undefined;
+  let outsideGroupsWritten = 0;
   if (!dryRun) {
     const writeResult = await replaceWestVirginiaCandidateFinanceSnapshot({
       db: input.db,
@@ -303,7 +384,10 @@ export async function syncWestVirginiaCandidateFinance(input: {
         lastVerifiedAt: now,
       },
       syncedAt: now,
-      summary: { totalReceipts, directContributionTotal, totalDisbursements, sourceUrl },
+      pacDonors,
+      outsideGroups,
+      summary: { totalReceipts, directContributionTotal, totalDisbursements, sourceUrl,
+        outsideSupportTotal: outside?.supportTotal, outsideOpposeTotal: outside?.opposeTotal },
       directBreakdowns: breakdowns.map((breakdown) => ({
         categoryType: breakdown.categoryType,
         categoryName: breakdown.categoryName,
@@ -314,6 +398,8 @@ export async function syncWestVirginiaCandidateFinance(input: {
     });
     summaryWritten = writeResult.summaryWritten;
     directBreakdownsWritten = writeResult.directBreakdownsWritten;
+    pacDonorsWritten = writeResult.pacDonorsWritten;
+    outsideGroupsWritten = writeResult.outsideGroupsWritten;
   }
 
   return {
@@ -328,6 +414,15 @@ export async function syncWestVirginiaCandidateFinance(input: {
     totalDisbursements,
     reconciliation,
     aggregation: aggregationSummary,
+    committeeDonorReconciliation,
+    outsideDiagnostics,
+    outsideSupportTotal: outside?.supportTotal ?? null,
+    outsideOpposeTotal: outside?.opposeTotal ?? null,
+    outsideGroupsWritten,
+    ...(outsideSourceSha256 === undefined ? {} : { outsideSourceSha256 }),
+    pacDonorCount: pacDonors?.length ?? null,
+    ...(committeeRegistryError === undefined ? {} : { committeeRegistryError }),
+    ...(pacDonorsWritten === undefined ? {} : { pacDonorsWritten }),
     breakdownCounts: {
       occupation: breakdowns.filter((breakdown) => breakdown.categoryType === "occupation").length,
       industry: breakdowns.filter((breakdown) => breakdown.categoryType === "industry").length,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { WestVirginiaTransactionRow } from "../../../src/pipeline/westVirginiaFinance/westVirginiaCfrsClient.js";
+import type { WestVirginiaCommitteeRow, WestVirginiaTransactionRow } from "../../../src/pipeline/westVirginiaFinance/westVirginiaCfrsClient.js";
 import type {
   WestVirginiaContributionCsvRow,
   WestVirginiaExpenditureCsvRow,
@@ -79,6 +79,20 @@ function api(overrides: Partial<WestVirginiaTransactionRow>): WestVirginiaTransa
     orgType: "State Candidate",
     ...overrides,
   };
+}
+
+function committee(overrides: Partial<WestVirginiaCommitteeRow> = {}): WestVirginiaCommitteeRow {
+  return {
+    orgID: 1446, entityId: "1020001446", orgName: "UMWA PAC", candidateName: null,
+    orgType: "State Political Action Committee", orgTypeCode: "102", orgSubType: "Regular PAC",
+    office: null, district: null, party: null, election: "2018 General Election",
+    registrationYear: "2018", orgStatus: "Terminated", ...overrides,
+  };
+}
+
+function aggregateDonors(rows: WestVirginiaContributionCsvRow[], registry?: WestVirginiaCommitteeRow[]) {
+  return aggregateWestVirginiaDirectFinance({ entityId: ENTITY, window: WINDOW,
+    contributionRows: rows, expenditureRows: [], apiRows: [], committeeRegistryRows: registry });
 }
 
 describe("aggregateWestVirginiaDirectFinance", () => {
@@ -210,5 +224,107 @@ describe("aggregateWestVirginiaDirectFinance", () => {
     // Totals and buckets are unaffected by the redaction.
     expect(redacted.directContributionCents).toBe(100_000);
     expect(redacted.breakdowns.filter((breakdown) => breakdown.categoryType === "contribution_size")).toHaveLength(1);
+  });
+});
+
+describe("West Virginia typed committee donors", () => {
+  it("preserves PAC replacements when the registry is unavailable and makes valid empty registries authoritative", () => {
+    const rows = [con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC" })];
+    expect(aggregateDonors(rows)).not.toHaveProperty("pacDonors");
+    expect(aggregateDonors(rows, []).pacDonors).toEqual([]);
+    expect(aggregateDonors([], [committee()]).pacDonors).toEqual([]);
+  });
+
+  it("nets Monetary/In-Kind and positive Returns, counting every separate equal gift", () => {
+    const pac = { contributorType: "Political Action Committee", contributorName: "  umwa   pac " };
+    const result = aggregateDonors([
+      con({ ...pac }), con({ ...pac, line: 3 }), // Equal receipts have no shared stable row ID.
+      con({ ...pac, transactionCategory: "In-Kind", amountCents: 2500 }),
+      con({ ...pac, transactionCategory: "Return", amountCents: 5000 }),
+    ], [committee()]);
+    expect(result.pacDonors).toEqual([{ committeeId: "1020001446", committeeName: "UMWA PAC", committeeType: "102",
+      totalAmount: 975, contributionCount: 3, sourceUrl: "https://cfrs.wvsos.gov/" }]);
+    expect(result.directContributionCents).toBe(97500);
+  });
+
+  it("retains typed party/caucus identities without restricting registration year or status", () => {
+    const result = aggregateDonors([
+      con({ contributorType: "Political Party Committee / Caucus Campaign Committee", contributorName: "West Virginia Republican Labor Caucus", amountCents: 100000 }),
+      con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC", amountCents: 25000 }),
+    ], [committee(), committee({ entityId: "1030002641", orgID: 2641, orgName: "West Virginia Republican Labor Caucus", orgTypeCode: "103", orgType: "State Political Party Committee", orgSubType: "Caucus Committee" })]);
+    expect(result.pacDonors).toMatchObject([
+      { committeeId: "1030002641", committeeType: "103", totalAmount: 1000, contributionCount: 1 },
+      { committeeId: "1020001446", committeeType: "102", totalAmount: 250, contributionCount: 1 },
+    ]);
+  });
+
+  it("counts repeated registry rows for one legal identity as one donor without deduplicating gifts", () => {
+    const gift = con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC" });
+    const result = aggregateDonors([gift, con({ ...gift, line: 3 })], [
+      committee(), committee(),
+      committee({ orgName: "  umwa   pac ", orgStatus: "Active", election: "2026 General Election", registrationYear: "2026" }),
+    ]);
+    expect(result.pacDonors).toEqual([{
+      committeeId: "1020001446", committeeName: "UMWA PAC", committeeType: "102",
+      totalAmount: 1000, contributionCount: 2, sourceUrl: "https://cfrs.wvsos.gov/",
+    }]);
+    expect(result.directContributionCents).toBe(100000);
+  });
+
+  it.each([
+    ["entity ID", { entityId: "1020009999" }],
+    ["committee class", { orgTypeCode: "104", orgType: "Independent Expenditure Committee" }],
+    ["organization ID", { orgID: 9999 }],
+  ] as const)("retains ambiguity when repeated names differ in %s", (_field, identity) => {
+    const gift = con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC" });
+    const result = aggregateDonors([gift], [committee(), committee(), committee(identity)]);
+    expect(result.pacDonors).toEqual([]);
+    expect(result.directContributionCents).toBe(50000);
+  });
+
+  it("checks all registry types for ambiguity before the legal-type allowlist", () => {
+    const rows = [con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC" })];
+    expect(aggregateDonors(rows, [committee(), committee({ entityId: "1040003984", orgTypeCode: "104", orgStatus: "Active", orgType: "Independent Expenditure Committee" })]).pacDonors).toEqual([]);
+    expect(aggregateDonors(rows, [committee(), committee({ entityId: "1020009999" })]).pacDonors).toEqual([]);
+  });
+
+  it("omits unmatched, wrong-class, generic, individual, self and candidate donors without name inference", () => {
+    const rows = [
+      con({ contributorType: "Political Action Committee", contributorName: "Unknown PAC" }),
+      con({ contributorType: "Political Party Committee / Caucus Campaign Committee", contributorName: "UMWA PAC" }),
+      ...["Business or Organization", "Individual", "Self", "Candidate"].map((contributorType) => con({ contributorType, contributorName: "UMWA PAC" })),
+    ];
+    expect(aggregateDonors(rows, [committee()]).pacDonors).toEqual([]);
+    expect(aggregateDonors([con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC" })], [committee({ orgTypeCode: "101" })]).pacDonors).toEqual([]);
+  });
+
+  it("excludes loans, other income, transfers, other recipients and dates outside the cycle", () => {
+    const pac = { contributorType: "Political Action Committee", contributorName: "UMWA PAC" };
+    const rows = [
+      ...["Loans", "Other Income", "Receipt of Transfer of Excess Funds"].map((transactionCategory) => con({ ...pac, transactionCategory })),
+      con({ ...pac, registrantId: "1010009999" }), con({ ...pac, transactionDate: "2025-06-30" }),
+      con({ ...pac, transactionDate: "2027-01-01" }),
+    ];
+    expect(aggregateDonors(rows, [committee()]).pacDonors).toEqual([]);
+  });
+
+  it("omits net-zero donors and zero gifts", () => {
+    const pac = { contributorType: "Political Action Committee", contributorName: "UMWA PAC" };
+    expect(aggregateDonors([con(pac), con({ ...pac, transactionCategory: "Return" }), con({ ...pac, amountCents: 0 })], [committee()]).pacDonors).toEqual([]);
+  });
+
+  it("rejects a net-negative donor even when unrelated gifts keep the overall raised total positive", () => {
+    const pac = { contributorType: "Political Action Committee", contributorName: "UMWA PAC" };
+    expect(() => aggregateDonors([con(pac), con({ ...pac, transactionCategory: "Return", amountCents: 60000 }), con({ amountCents: 100000 })], [committee()])).toThrow("Negative West Virginia committee donor total");
+  });
+
+  it.each([-1, 0, 1.5])("rejects invalid positive-Return cents %s", (amountCents) => {
+    expect(() => aggregateDonors([con({ contributorType: "Political Action Committee", contributorName: "UMWA PAC", transactionCategory: "Return", amountCents })], [committee()])).toThrow("Invalid West Virginia committee donor amount");
+  });
+
+  it("matches formatting only, with no aliases or fuzzy organization matching", () => {
+    const row = con({ contributorType: "Political Action Committee", contributorName: "U.M.W.A. PAC" });
+    expect(aggregateDonors([row], [committee()]).pacDonors?.[0]?.committeeId).toBe("1020001446");
+    expect(aggregateDonors([con({ ...row, contributorName: "United Mine Workers PAC" })], [committee()]).pacDonors).toEqual([]);
   });
 });
