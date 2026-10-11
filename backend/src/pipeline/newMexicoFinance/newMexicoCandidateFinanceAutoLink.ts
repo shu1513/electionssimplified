@@ -64,9 +64,12 @@ function contributionCandidateName(row: NewMexicoCfisContributionRow): string {
 export function buildNewMexicoCandidateNamePredicate(
   candidates: readonly NewMexicoFinanceAutoLinkCandidateElection[]
 ): (row: NewMexicoCfisContributionRow) => boolean {
+  // The pre-filter must admit every row the resolver could match, so it
+  // carries the same one-sided nickname keys ("Sam Kane" → SAMUEL KANE);
+  // keyed literally it would drop the rows before resolution.
   const candidateNameKeys = new Set<string>();
   for (const candidate of candidates) {
-    for (const key of normalizeNewMexicoCandidateNameKeys(candidate.candidateName)) {
+    for (const key of normalizeNewMexicoCandidateNameKeys(candidate.candidateName, { expandNicknames: true })) {
       candidateNameKeys.add(key);
     }
   }

@@ -37,9 +37,9 @@ const ROSTER_ROW = {
   linkedCommitteeName: null,
 };
 
-// Fake portal for roster-mode runs: the Gadson candidate search resolves, all
-// other committee searches (the spender phase) answer empty, and everything
-// else serves the Gadson fixtures.
+// Fake portal for roster-mode runs: the Gadson candidate search (the
+// acquisition searches by surname) resolves, all other committee searches (the
+// spender phase) answer empty, and everything else serves the Gadson fixtures.
 function rosterTransport(overrides: Record<string, () => string> = {}) {
   return {
     fetchText: async (url: string) => {
@@ -48,7 +48,7 @@ function rosterTransport(overrides: Record<string, () => string> = {}) {
           return body();
         }
       }
-      if (url === ncsbeCommitteeSearchUrl("Marcus Gadson")) {
+      if (url === ncsbeCommitteeSearchUrl("Gadson")) {
         return fixture("committee-search-gadson.html");
       }
       if (url.includes("/CommitteeGeneralResult/")) {

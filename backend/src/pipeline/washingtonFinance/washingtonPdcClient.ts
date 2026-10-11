@@ -169,8 +169,12 @@ function soqlString(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
+// Name words are joined with "%" so extra spaces in a PDC filer name still
+// match (live 2026: "DEBRA Jean  ENTENMAN" with two spaces missed the
+// candidate "Debra Jean Entenman"). The resolver checks the name strictly.
 function soqlLikeContains(value: string): string {
-  return soqlString(`%${value.toLowerCase().replace(/[%_]/g, "")}%`);
+  const words = value.toLowerCase().replace(/[%_]/g, "").trim().split(/\s+/).filter(Boolean);
+  return soqlString(`%${words.join("%")}%`);
 }
 
 function whereEqualText(field: string, value: string): string {

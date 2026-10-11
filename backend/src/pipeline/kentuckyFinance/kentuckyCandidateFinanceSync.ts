@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import type { Pool, PoolClient } from "pg";
 
 import { aggregateKentuckyDirectContributions } from "./kentuckyDirectContributionAggregator.js";
@@ -147,6 +148,59 @@ function mergeKrefClient(client: Partial<KentuckyKrefDataClient> | undefined): K
   return { ...DEFAULT_KREF_CLIENT, ...(client ?? {}) };
 }
 
+// KREF's candidate export matches first and last name as CONTAINS filters on
+// the filed name ("Shelley" / "Funke Frommeyer"). Searching with every word
+// before the surname as the first name ("Shelley Funke") or a suffix as the
+// surname ("Jim Gooch Jr." -> "Jr.") finds nothing, so search with one usable
+// first-name word (initials joined, "J.T." -> "JT"; a lone initial skipped,
+// "R. Shane" -> "Shane") and the last surname word.
+export function kentuckyKrefCandidateSearchName(value: string): { firstName?: string; lastName: string } {
+  const cleaned = requireNonEmpty(value, "candidate name")
+    .replace(/\([^()]*\)/g, " ")
+    .replace(/["\u201c][^"\u201c\u201d]*["\u201d]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const suffix = /^(JR|SR|II|III|IV)\.?$/i;
+  const commaParts = cleaned.split(",").map((part) => part.trim()).filter((part) => part && !suffix.test(part));
+  let lastWords: string[];
+  let firstWords: string[];
+  if (commaParts.length >= 2) {
+    lastWords = commaParts[0]!.split(" ");
+    firstWords = commaParts.slice(1).join(" ").split(" ");
+  } else {
+    const words = (commaParts[0] ?? cleaned).split(" ").filter((word) => !suffix.test(word));
+    lastWords = words.slice(-1);
+    firstWords = words.slice(0, -1);
+  }
+  lastWords = lastWords.filter((word) => !suffix.test(word));
+  const lastName = requireNonEmpty(lastWords.at(-1) ?? "", "candidate last name");
+  const firstName = firstWords
+    .map((word) => word.replace(/\./g, ""))
+    .find((word) => word.replace(/[^A-Za-z]/g, "").length >= 2);
+  return firstName ? { firstName, lastName } : { lastName };
+}
+
+// Same surname, and a first name that is the candidate's or a nickname/formal
+// variant of it. A missing first name on either side is not a contradiction.
+export function kentuckyFiledSearchNameIsCompatible(
+  candidate: { firstName?: string; lastName: string },
+  filed: { firstName?: string; lastName: string }
+): boolean {
+  if (filed.lastName.toUpperCase() !== candidate.lastName.toUpperCase()) {
+    return false;
+  }
+  const candidateFirst = candidate.firstName?.toUpperCase();
+  const filedFirst = filed.firstName?.toUpperCase();
+  if (!candidateFirst || !filedFirst) {
+    return true;
+  }
+  return (
+    candidateFirst === filedFirst ||
+    firstNameVariants(candidateFirst).includes(filedFirst) ||
+    firstNameVariants(filedFirst).includes(candidateFirst)
+  );
+}
+
 export function splitKentuckyCandidateName(value: string): { firstName: string; lastName: string } {
   const trimmed = requireNonEmpty(value, "candidate name").replace(/\s+/g, " ");
   const commaParts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
@@ -279,7 +333,17 @@ export async function syncKentuckyCandidateFinance(
   requireNonEmpty(input.trustedLink.committeeName, "trusted Kentucky committee name");
 
   const krefClient = mergeKrefClient(input.krefClient);
-  const nameParts = splitKentuckyCandidateName(candidateName);
+  // Search KREF with the filed first name when the trusted link carries it:
+  // the committee name is usually the candidate's filed KREF name ("Michael
+  // Nemes" for VoteApp "Mike Nemes"). It steers the search only when it reads
+  // as the same person, so neither "Beshear Campaign Committee" nor "Friends
+  // of Adam Moore" (same surname, "first name" Friends) replaces the
+  // candidate's own name.
+  const candidateSearchName = kentuckyKrefCandidateSearchName(candidateName);
+  const filedSearchName = kentuckyKrefCandidateSearchName(input.trustedLink.committeeName);
+  const nameParts = kentuckyFiledSearchNameIsCompatible(candidateSearchName, filedSearchName)
+    ? filedSearchName
+    : candidateSearchName;
   const candidateContributionExportInput = {
     candidateFirstName: nameParts.firstName,
     candidateLastName: nameParts.lastName,
@@ -313,15 +377,22 @@ export async function syncKentuckyCandidateFinance(
       : Promise.resolve([]),
   ]);
 
-  const directFinance = aggregateKentuckyDirectContributions({
-    candidateName,
-    electionDate,
-    officeName,
-    location: input.location ?? input.district ?? null,
-    contributionRecords: candidateContributionRecords,
-    sourceUrl: candidateContributionSourceUrl,
-    maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory ?? DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY,
-  });
+  // Same order as the link resolver: the literal name first, widened names
+  // only when the literal name matched no row. Widening unconditionally would
+  // add a same-race "Alexander Smith"'s rows to a literal "Alex Smith" link.
+  const aggregateDirect = (expandNames: boolean) =>
+    aggregateKentuckyDirectContributions({
+      candidateName,
+      expandNames,
+      electionDate,
+      officeName,
+      location: input.location ?? input.district ?? null,
+      contributionRecords: candidateContributionRecords,
+      sourceUrl: candidateContributionSourceUrl,
+      maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory ?? DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY,
+    });
+  const literalDirectFinance = aggregateDirect(false);
+  const directFinance = literalDirectFinance.matchedContributionRowCount > 0 ? literalDirectFinance : aggregateDirect(true);
   const outsideFinance = aggregateKentuckyOutsideSpending({
     candidateName,
     electionDate,

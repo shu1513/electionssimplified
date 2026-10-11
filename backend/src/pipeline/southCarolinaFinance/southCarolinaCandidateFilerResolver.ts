@@ -14,6 +14,7 @@ import {
   parsePersonNameCandidates,
   personNamesMatchWithMiddleEvidence,
 } from "../finance/personNameMiddleEvidence.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import {
   SOUTH_CAROLINA_ETHICS_PUBLIC_REPORTING_URL,
   type SouthCarolinaCandidateReportRow,
@@ -149,10 +150,68 @@ export function southCarolinaFilerNameFullyMatchesCandidate(
   candidateName: string,
   filerName: string
 ): boolean {
+  return (
+    filerNameMatchesCandidate(candidateName, filerName, false) ||
+    filerNameMatchesCandidate(candidateName, filerName, true)
+  );
+}
+
+// Filer search rows carry the formal first name ("Burkhold, Michael") while
+// VoteApp stores the campaign name ("Mike Burkhold"). The equivalence is
+// one-sided: the VoteApp first name expands to its nickname variants, the
+// filer name is read literally (personFirstNameNicknames.ts).
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
+}
+
+// The filer-search API cuts the display name at 18 characters and appends
+// "..." ("Cobb-Hunter, Gild...", "Spann-Wilder, Tif..."), so the given name
+// reaches us as a fragment and never matched literally. When the fragment
+// (3+ letters) is the start of the VoteApp given-name token at the same
+// position — or, in the nickname pass, of one of its variants — complete it
+// from that token; otherwise keep it as is. A cut inside a suffix segment
+// ("Smith, Peter S. ,...") drops the partial suffix. The surname is never
+// touched, so surname, cycle, and uniqueness gates still decide the match.
+const SOUTH_CAROLINA_TRUNCATED_NAME_SUFFIX = /\.\.\.\s*$/;
+
+function completeTruncatedFilerName(candidateName: string, filerName: string, expandNicknames: boolean): string {
+  if (!SOUTH_CAROLINA_TRUNCATED_NAME_SUFFIX.test(filerName)) {
+    return filerName;
+  }
+  const stripped = filerName.replace(SOUTH_CAROLINA_TRUNCATED_NAME_SUFFIX, "");
+  const commaIndex = stripped.indexOf(",");
+  if (commaIndex <= 0) {
+    return stripped;
+  }
+  const surname = stripped.slice(0, commaIndex);
+  const givenRaw = stripped.slice(commaIndex + 1);
+  if (givenRaw.includes(",")) {
+    return `${surname},${givenRaw.slice(0, givenRaw.indexOf(","))}`;
+  }
+  const givenTokens = givenRaw.trim().split(/\s+/).filter(Boolean);
+  // "Wallace, Michael ..." — the cut fell on a space; every token is whole.
+  if (/\s$/.test(givenRaw) || givenTokens.length === 0) {
+    return `${surname}, ${givenTokens.join(" ")}`;
+  }
+  const fragment = normalizePersonName(givenTokens[givenTokens.length - 1]!);
+  const appTokens = normalizePersonName(candidateName.replace(/\([^()]*\)/g, " ")).split(" ").filter(Boolean);
+  const appToken = appTokens.slice(0, -1)[givenTokens.length - 1];
+  if (fragment.length >= 3 && appToken) {
+    const options = expandNicknames ? [appToken, ...firstNameVariants(appToken)] : [appToken];
+    const completed = options.find((option) => option.startsWith(fragment));
+    if (completed) {
+      givenTokens[givenTokens.length - 1] = completed;
+    }
+  }
+  return `${surname}, ${givenTokens.join(" ")}`;
+}
+
+function filerNameMatchesCandidate(candidateName: string, filerName: string, expandNicknames: boolean): boolean {
   return personNamesMatchWithMiddleEvidence({
     candidateName,
-    rowNames: [filerName],
+    rowNames: [completeTruncatedFilerName(candidateName, filerName, expandNicknames)],
     normalizePersonName,
+    firstNamesEquivalent: expandNicknames ? nicknameFirstNamesEquivalent : undefined,
   });
 }
 
@@ -193,7 +252,8 @@ export function resolveSouthCarolinaCandidateFiler(input: {
   }
 
   const surnameKey = rosterSurnameKey(candidateName);
-  const fullMatches: SouthCarolinaCandidateFilerMatch[] = [];
+  const literalMatches: SouthCarolinaCandidateFilerMatch[] = [];
+  const nicknameMatches: SouthCarolinaCandidateFilerMatch[] = [];
   const surnameOnlyMatches: SouthCarolinaCandidateFilerMatch[] = [];
   const seenFilerIds = new Set<number>();
   let sawNameCandidate = false;
@@ -219,18 +279,19 @@ export function resolveSouthCarolinaCandidateFiler(input: {
       continue;
     }
     const match = toMatch({ filer: set.filer, cycleReports });
-    if (
-      personNamesMatchWithMiddleEvidence({
-        candidateName,
-        rowNames: [set.filer.candidate],
-        normalizePersonName,
-      })
-    ) {
-      fullMatches.push(match);
+    if (filerNameMatchesCandidate(candidateName, set.filer.candidate, false)) {
+      literalMatches.push(match);
+    } else if (filerNameMatchesCandidate(candidateName, set.filer.candidate, true)) {
+      nicknameMatches.push(match);
     } else {
       surnameOnlyMatches.push(match);
     }
   }
+
+  // Literal names first; nickname matches count only when nothing matched
+  // literally, so a candidate with both a "Mike" and a "Michael" filer keeps
+  // the literal one instead of turning ambiguous.
+  const fullMatches = literalMatches.length > 0 ? literalMatches : nicknameMatches;
 
   if (fullMatches.length === 1) {
     return { status: "matched", ...fullMatches[0]! };

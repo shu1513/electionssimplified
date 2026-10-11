@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { OklahomaGuardianContributionRow } from "./oklahomaGuardianContributionReader.js";
 import { isOklahomaFinanceEligibleOffice } from "./oklahomaFinanceEligibleOffices.js";
@@ -68,6 +69,8 @@ function normalizeTextKey(value: string): string {
 
 function normalizePersonName(value: string): string {
   return normalizeTextKey(value)
+    // Guardian files some candidates with a title ("DR. MAX EUGENE BURCHETT JR").
+    .replace(/^DR\s+/, "")
     // Bare "V" is a middle initial, not a suffix (GENERATIONAL_SUFFIX_RANK in
     // finance/personNameMiddleEvidence.ts): stripping it erased middle evidence.
     .replace(/\b(JR|SR|II|III|IV)\b/g, " ")
@@ -75,10 +78,33 @@ function normalizePersonName(value: string): string {
     .trim();
 }
 
-export function normalizeOklahomaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Josh Cantrell" → JOSHUA CANTRELL): the source files the formal name while VoteApp
+// stores the campaign name. Expand the VoteApp side only
+// (personFirstNameNicknames.ts explains why).
+export function normalizeOklahomaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const normalized = normalizePersonName(trimmed);
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  function withNicknameKeys(): Set<string> {
+    for (const key of nicknameKeys) {
+      keys.add(key);
+    }
+    return keys;
+  }
   if (normalized) {
     keys.add(normalized);
   }
@@ -95,24 +121,24 @@ export function normalizeOklahomaCandidateNameKeys(value: string): Set<string> {
       keys.add(flipped);
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
-        keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
       }
       if (flippedParts.length === 3 && flippedParts[0]?.length === 1) {
-        keys.add(`${flippedParts[1]} ${flippedParts[2]}`);
+        addFirstLast(flippedParts[1] ?? "", flippedParts[2] ?? "");
       }
     }
-    return keys;
+    return withNicknameKeys();
   }
 
   const parts = normalized.split(" ").filter(Boolean);
   if (parts.length >= 2) {
-    keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+    addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
   }
   if (parts.length === 3 && parts[0]?.length === 1) {
-    keys.add(`${parts[1]} ${parts[2]}`);
+    addFirstLast(parts[1] ?? "", parts[2] ?? "");
   }
 
-  return keys;
+  return withNicknameKeys();
 }
 
 function normalizeOfficeScope(value: string): "statewide" | "state_upper" | "state_lower" | null {
@@ -213,7 +239,13 @@ function isCandidateCommittee(row: OklahomaGuardianContributionRow): boolean {
 // which would hand "John A. Smith" the committee of "SMITH, JOHN B." whenever
 // the cycle and office agree. A contradicting middle name rejects the pair.
 export function oklahomaCandidateNameMiddleConflict(candidateName: string, rowName: string): boolean {
-  return hasMiddleNameConflict({ candidateName, rowNames: [rowName], normalizePersonName });
+  return hasMiddleNameConflict({
+    candidateName,
+    rowNames: [rowName],
+    normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
+  });
 }
 
 function rowMatchesCandidateName(input: {
@@ -248,14 +280,29 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal first name first, nicknames only when nothing matched literally: a
+// "Greg" candidate must not turn ambiguous because a different "Gregory" with
+// the same surname also filed, and a candidate registered under both the
+// nickname and the formal name keeps the literal committee (georgia pattern).
 export function resolveOklahomaCandidateCommittee(
   input: OklahomaCandidateCommitteeResolverInput
+): OklahomaCandidateCommitteeResolution {
+  const literal = resolveOklahomaCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveOklahomaCandidateCommitteeByName(input, true);
+}
+
+function resolveOklahomaCandidateCommitteeByName(
+  input: OklahomaCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): OklahomaCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOklahomaCandidateOfficeName(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeOklahomaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeOklahomaCandidateNameKeys(input.candidateName, { expandNicknames });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeOklahomaCandidateDistrict(input.district);
 

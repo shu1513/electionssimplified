@@ -52,7 +52,8 @@ function normalizeCandidateNameForStorage(value: string): string {
 }
 
 function candidateNameKeysIntersect(left: string, right: string): boolean {
-  const rightKeys = normalizeOklahomaCandidateNameKeys(right);
+  // `right` is the app candidate, so it alone gets nickname keys.
+  const rightKeys = normalizeOklahomaCandidateNameKeys(right, { expandNicknames: true });
   for (const leftKey of normalizeOklahomaCandidateNameKeys(left)) {
     if (rightKeys.has(leftKey)) {
       // `right` is the app candidate; `left` is the Guardian detail page name.
@@ -122,9 +123,12 @@ async function disambiguateOklahomaCandidateCommittee(input: {
 export function buildOklahomaCandidateNamePredicate(
   candidates: readonly OklahomaFinanceAutoLinkCandidateElection[]
 ): (row: OklahomaGuardianContributionRow) => boolean {
+  // The pre-filter must admit every row the resolver could match, so it
+  // carries the same one-sided nickname keys ("Josh Cantrell" → JOSHUA
+  // CANTRELL); keyed literally it would drop the rows before resolution.
   const candidateNameKeys = new Set<string>();
   for (const candidate of candidates) {
-    for (const key of normalizeOklahomaCandidateNameKeys(candidate.candidateName)) {
+    for (const key of normalizeOklahomaCandidateNameKeys(candidate.candidateName, { expandNicknames: true })) {
       candidateNameKeys.add(key);
     }
   }

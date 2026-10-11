@@ -83,6 +83,68 @@ describe("newMexicoCandidateCommitteeResolver", () => {
     });
   });
 
+  it("keeps the literal first-name match when a nickname variant also files", () => {
+    // Nicknames only widen the search after the literal name found nothing, so
+    // a different Samuel Kane does not make Sam Kane ambiguous.
+    expect(
+      resolveNewMexicoCandidateCommittee({
+        candidateName: "Sam Kane",
+        officeScope: "statewide",
+        officeName: "Attorney General",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({
+            OrgID: "1035447",
+            "Committee Name": "SAMUEL KANE FOR NM",
+            "Candidate Last Name": "KANE",
+            "Candidate First Name": "SAMUEL",
+          }),
+          contribution({
+            OrgID: "1035448",
+            "Committee Name": "SAM KANE FOR NM ATTORNEY GENERAL",
+            "Candidate Last Name": "KANE",
+            "Candidate First Name": "SAM",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "1035448" });
+  });
+
+  it("matches CFIS's formal first name through a VoteApp nickname", () => {
+    // Live: "SAM KANE FOR NM ATTORNEY GENERAL" rows carry Candidate First
+    // Name "SAMUEL"; Gregg Hull files as "Greggory".
+    expect(
+      resolveNewMexicoCandidateCommittee({
+        candidateName: "Sam Kane",
+        officeScope: "statewide",
+        officeName: "Attorney General",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({
+            OrgID: "1035447",
+            "Committee Name": "SAM KANE FOR NM ATTORNEY GENERAL",
+            "Candidate Last Name": "KANE",
+            "Candidate First Name": "SAMUEL",
+            "Candidate Middle Name": "ISAIAH",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "1035447" });
+    expect(
+      resolveNewMexicoCandidateCommittee({
+        candidateName: "Gregg Hull",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ OrgID: "564296", "Candidate Last Name": "Hull", "Candidate First Name": "Greggory" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "564296" });
+    expect([...normalizeNewMexicoCandidateNameKeys("Sam Kane")]).toEqual(["SAM KANE"]);
+    expect([...normalizeNewMexicoCandidateNameKeys("Sam Kane", { expandNicknames: true })]).toContain("SAMUEL KANE");
+  });
+
   it("accepts safe New Mexico canonical and source-like office names", () => {
     expect(
       resolveNewMexicoCandidateCommittee({

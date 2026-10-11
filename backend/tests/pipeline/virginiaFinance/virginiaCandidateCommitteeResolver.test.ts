@@ -412,6 +412,81 @@ describe("virginiaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("drops the cfreports title and falls back to a surname search (live: Mr Nathaniel Alexander Fritzen; the quoted Nate is not a middle name)", async () => {
+    const page = (rows: string) =>
+      new Response(`<table>${rows}</table>`, { status: 200, statusText: "OK" });
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(page(""))
+      .mockResolvedValueOnce(
+        page(`
+          <tr>
+            <td class="committeeName"><div> Nate For HD-20 </div></td>
+            <td class="candidateName"><div> Mr Nathaniel Alexander Fritzen </div></td>
+            <td class="committeeType"><div> Candidate Campaign Committee </div></td>
+            <td><a href="/Committee/Index/cc327202-6d9f-4708-90eb-fdbca069a1ac">View Reports</a></td>
+          </tr>`)
+      ) as unknown as typeof fetch;
+
+    await expect(
+      searchAndResolveVirginiaCandidateCommittee(
+        {
+          candidateName: 'Nathaniel "Nate" Fritzen',
+          officeScope: "state_lower",
+          officeName: "State Lower Chamber Legislator",
+          electionYear: 2026,
+        },
+        { fetchImpl, timeoutMs: 1000 }
+      )
+    ).resolves.toMatchObject({ status: "matched", committeeId: "cc327202-6d9f-4708-90eb-fdbca069a1ac" });
+
+    const urls = vi.mocked(fetchImpl).mock.calls.map((call) => new URL(String(call[0])).searchParams.get("CommitteeName"));
+    expect(urls).toEqual(['Nathaniel "Nate" Fritzen', "FRITZEN"]);
+  });
+
+  it("retries by surname when the full-name search only finds committees the resolver rejects", async () => {
+    // A full-name hit is not a match: a PAC that carries the candidate's name
+    // comes back non-empty, while the campaign committee only surfaces on the
+    // surname search.
+    const page = (rows: string) =>
+      new Response(`<table>${rows}</table>`, { status: 200, statusText: "OK" });
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        page(`
+          <tr>
+            <td class="committeeName"><div> Friends of Nathaniel Fritzen PAC </div></td>
+            <td class="candidateName"><div> </div></td>
+            <td class="committeeType"><div> Political Action Committee </div></td>
+            <td><a href="/Committee/Index/11111111-1111-4111-8111-111111111111">View Reports</a></td>
+          </tr>`)
+      )
+      .mockResolvedValueOnce(
+        page(`
+          <tr>
+            <td class="committeeName"><div> Nate For HD-20 </div></td>
+            <td class="candidateName"><div> Mr Nathaniel Alexander Fritzen </div></td>
+            <td class="committeeType"><div> Candidate Campaign Committee </div></td>
+            <td><a href="/Committee/Index/cc327202-6d9f-4708-90eb-fdbca069a1ac">View Reports</a></td>
+          </tr>`)
+      ) as unknown as typeof fetch;
+
+    await expect(
+      searchAndResolveVirginiaCandidateCommittee(
+        {
+          candidateName: "Nathaniel Fritzen",
+          officeScope: "state_lower",
+          officeName: "State Lower Chamber Legislator",
+          electionYear: 2026,
+        },
+        { fetchImpl, timeoutMs: 1000 }
+      )
+    ).resolves.toMatchObject({ status: "matched", committeeId: "cc327202-6d9f-4708-90eb-fdbca069a1ac" });
+
+    const urls = vi.mocked(fetchImpl).mock.calls.map((call) => new URL(String(call[0])).searchParams.get("CommitteeName"));
+    expect(urls).toEqual(["Nathaniel Fritzen", "FRITZEN"]);
+  });
+
   it("does not search the network for unsupported offices", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse([])) as unknown as typeof fetch;
 

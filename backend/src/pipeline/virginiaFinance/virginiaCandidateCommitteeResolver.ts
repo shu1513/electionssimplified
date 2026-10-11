@@ -78,7 +78,14 @@ function normalizeTextKey(value: string | null | undefined): string {
 }
 
 function normalizePersonName(value: string | null | undefined): string {
-  return normalizeTextKey(value)
+  // A quoted nickname ('Nathaniel "Nate" Fritzen') is not a middle name; read
+  // as one it contradicted the filed middle name ("Nathaniel Alexander
+  // Fritzen") and vetoed the match.
+  return normalizeTextKey((value ?? "").replace(/["\u201c\u201d][^"\u201c\u201d]*["\u201c\u201d]/g, " "))
+    // cfreports prefixes candidate names with a title ("Ms Sonia Ruth Vasquez
+    // Luna", "Mr Nathaniel Alexander Fritzen"); left in, it became the first
+    // name and no candidate key ever matched.
+    .replace(/^(MR|MRS|MS|MISS|DR)\s+/, "")
     // Bare "V" is a middle initial, not a suffix (GENERATIONAL_SUFFIX_RANK in
     // finance/personNameMiddleEvidence.ts): stripping it erased middle evidence.
     .replace(/\b(JR|SR|II|III|IV)\b/g, " ")
@@ -305,6 +312,42 @@ export function resolveVirginiaCandidateCommittee(
   };
 }
 
+// cfreports matches the search text as one substring, so "Nathaniel Fritzen"
+// finds nothing when the filing reads "Nathaniel Alexander Fritzen". Search
+// the full name first and the surname second. The resolver still requires a
+// first+last name match.
+export function virginiaCandidateCommitteeSearchQueries(candidateName: string): string[] {
+  const queries = [candidateName];
+  const surname = normalizePersonName(candidateName).split(" ").filter(Boolean).at(-1);
+  if (surname && surname !== normalizePersonName(candidateName)) {
+    queries.push(surname);
+  }
+  return queries;
+}
+
+// Runs the search queries in order and resolves each result set; the next
+// query runs only while the previous one resolved no committee. A full-name
+// hit that the resolver rejects (another committee type, another office's
+// filings) therefore still gets the surname retry, while a match or an
+// ambiguity on the full name is final.
+export async function resolveVirginiaCandidateCommitteeAcrossSearches(input: {
+  candidateName: string;
+  search: (query: string) => Promise<readonly VirginiaCommitteeSearchResult[]>;
+  resolve: (
+    committeeResults: readonly VirginiaCommitteeSearchResult[]
+  ) => Promise<VirginiaCandidateCommitteeResolution> | VirginiaCandidateCommitteeResolution;
+}): Promise<VirginiaCandidateCommitteeResolution> {
+  const queries = virginiaCandidateCommitteeSearchQueries(input.candidateName);
+  let resolution = await input.resolve(await input.search(queries[0] ?? input.candidateName));
+  for (const query of queries.slice(1)) {
+    if (resolution.status !== "unmatched" || resolution.reason !== "no_candidate_committee_match") {
+      break;
+    }
+    resolution = await input.resolve(await input.search(query));
+  }
+  return resolution;
+}
+
 export async function searchAndResolveVirginiaCandidateCommittee(
   input: VirginiaCandidateCommitteeSearchInput,
   options: VirginiaCampaignFinanceClientOptions = {}
@@ -313,18 +356,18 @@ export async function searchAndResolveVirginiaCandidateCommittee(
     return resolveVirginiaCandidateCommittee({ ...input, committeeResults: [], reportHeaders: [] });
   }
 
-  const committeeResults = await searchVirginiaCandidateCommittees(
-    {
-      committeeName: input.candidateName,
+  return resolveVirginiaCandidateCommitteeAcrossSearches({
+    candidateName: input.candidateName,
+    search: (query) => searchVirginiaCandidateCommittees({ committeeName: query }, options),
+    resolve: (committeeResults) => {
+      const reportHeaders = committeeResults.flatMap(
+        (result) => input.reportHeadersByCommitteeId?.get(result.committeeId) ?? []
+      );
+      return resolveVirginiaCandidateCommittee({
+        ...input,
+        committeeResults,
+        ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
+      });
     },
-    options
-  );
-  const reportHeaders = committeeResults.flatMap(
-    (result) => input.reportHeadersByCommitteeId?.get(result.committeeId) ?? []
-  );
-  return resolveVirginiaCandidateCommittee({
-    ...input,
-    committeeResults,
-    ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
   });
 }

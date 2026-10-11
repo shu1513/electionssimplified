@@ -71,6 +71,29 @@ describe("oregonOrestarTransactionExport", () => {
     });
   });
 
+  it("reads the .xlsx workbook ORESTAR serves since Oct 2026", () => {
+    const data = buildOregonOrestarExportWorkbook(
+      [
+        {
+          "Tran Id": "5699168",
+          "Tran Date": "06/22/2026",
+          Filer: "Friends of Andrea Valderrama",
+          "Contributor/Payee": "Union Pacific Railroad",
+          "Sub Type": "Cash Contribution",
+          Amount: 500,
+          "Filer Id": "18462",
+        },
+      ],
+      undefined,
+      "xlsx"
+    );
+
+    expect(isOregonOrestarExportWorkbook(data)).toBe(true);
+    expect(parseOregonOrestarTransactionExport({ data, expectedCommitteeId: "18462" })).toMatchObject([
+      { transactionId: "5699168", amount: 500, filerCommitteeId: "18462" },
+    ]);
+  });
+
   it("returns an empty list for a workbook with only a header row", () => {
     expect(parseOregonOrestarTransactionExport({ data: buildOregonOrestarExportWorkbook([]) })).toEqual([]);
   });

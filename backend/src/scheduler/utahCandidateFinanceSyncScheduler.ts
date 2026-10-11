@@ -225,6 +225,8 @@ export async function runUtahCandidateFinanceSyncJob(
       selectedCandidateCount: 0,
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
+      autoLinkAttemptedCount: 0,
+      autoLinkLinkedCount: 0,
       results: [],
     };
   }

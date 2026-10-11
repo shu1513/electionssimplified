@@ -9,6 +9,7 @@ describe("indianaFinanceEligibleOffices", () => {
   it("allows only the explicit Indiana finance office set", () => {
     expect(isIndianaFinanceEligibleOffice({ officeScope: "statewide", officeCanonicalName: "Governor" })).toBe(true);
     expect(isIndianaFinanceEligibleOffice({ officeScope: "statewide", officeCanonicalName: "Attorney General" })).toBe(true);
+    expect(isIndianaFinanceEligibleOffice({ officeScope: "statewide", officeCanonicalName: "Comptroller" })).toBe(true);
     expect(isIndianaFinanceEligibleOffice({ officeScope: "state_upper", officeCanonicalName: "State Senator" })).toBe(true);
     expect(
       isIndianaFinanceEligibleOffice({

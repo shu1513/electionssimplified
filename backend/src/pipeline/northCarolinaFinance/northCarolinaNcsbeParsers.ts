@@ -203,8 +203,31 @@ export type NcsbeCommitteeSearchRow = {
   orgGroupId: number;
 };
 
+// The search and document-list pages embed their rows one of two ways: the
+// original `var data = [...]`, or (portal redesign seen live 2026-10-10) a
+// Kendo grid config whose inline data source is `"data":{"Data":[...],
+// "Total":n}` with every row inline (no server paging). Same row schema in
+// both; the old marker is tried first so cached artifacts still parse. The
+// redesigned page drops the grid entirely when nothing matches and shows a
+// `divNoResults` block ("No committees found.") instead — that is an empty
+// result, not a broken page.
+const NCSBE_LEGACY_GRID_DATA_MARKER = "var data = ";
+const NCSBE_KENDO_GRID_DATA_MARKER = '"data":{"Data":';
+const NCSBE_NO_RESULTS_MARKER = 'id="divNoResults"';
+
+function extractNcsbeGridRowsJson(html: string, label: string): string {
+  if (html.includes(NCSBE_LEGACY_GRID_DATA_MARKER)) {
+    return extractNcsbeEmbeddedJson({ html, marker: NCSBE_LEGACY_GRID_DATA_MARKER, open: "[", label }).raw;
+  }
+  if (!html.includes(NCSBE_KENDO_GRID_DATA_MARKER) && html.includes(NCSBE_NO_RESULTS_MARKER)) {
+    return "[]";
+  }
+  const marker = NCSBE_KENDO_GRID_DATA_MARKER;
+  return extractNcsbeEmbeddedJson({ html, marker, open: "[", label }).raw;
+}
+
 export function parseNcsbeCommitteeSearchPage(html: string): NcsbeCommitteeSearchRow[] {
-  const { raw } = extractNcsbeEmbeddedJson({ html, marker: "var data = ", open: "[", label: "committee search" });
+  const raw = extractNcsbeGridRowsJson(html, "committee search");
   const parsed = parseJsonStrict(raw, "committee search");
   if (!Array.isArray(parsed)) {
     throw new Error("NCSBE committee search: embedded data is not an array");
@@ -283,7 +306,7 @@ export type NcsbeDocumentRow = {
 };
 
 export function parseNcsbeDocumentListPage(html: string): NcsbeDocumentRow[] {
-  const { raw } = extractNcsbeEmbeddedJson({ html, marker: "var data = ", open: "[", label: "document list" });
+  const raw = extractNcsbeGridRowsJson(html, "document list");
   const parsed = parseJsonStrict(raw, "document list");
   if (!Array.isArray(parsed)) {
     throw new Error("NCSBE document list: embedded data is not an array");
@@ -424,10 +447,60 @@ function isCoverSummaryShape(rows: unknown): rows is Array<Record<string, unknow
   );
 }
 
+// Validates one summary grid's rows against the pinned 34-section set.
+function parseNcsbeCoverSummaryRows(rows: Array<Record<string, unknown>>): NcsbeCoverSummarySection[] {
+  const sections = rows.map((row, index) => {
+    const sequence = requireInteger(row.Sequence, `cover summary row ${index} Sequence`);
+    const section = requireString(row.Section, `cover summary row ${index} Section`);
+    const pinned = NCSBE_COVER_SECTIONS.get(sequence);
+    if (pinned !== section) {
+      throw new Error(
+        `NCSBE cover summary row ${index} has unknown section ${JSON.stringify(section)} (sequence ${sequence})`
+      );
+    }
+    return {
+      sequence,
+      section,
+      periodCents: ncsbeAmountToCents(row.Period, `cover summary row ${index} Period`),
+      cycleCents: ncsbeAmountToCents(row.Cycle, `cover summary row ${index} Cycle`),
+    };
+  });
+  // The 34 sections are a fixed set (spike results item 2): a truncated or
+  // duplicated grid must fail here, not surface later as a silently missing
+  // Total Receipts.
+  const seenSequences = new Set(sections.map((row) => row.sequence));
+  if (seenSequences.size !== sections.length) {
+    throw new Error("NCSBE cover summary grid repeats a section sequence");
+  }
+  if (sections.length !== NCSBE_COVER_SECTIONS.size) {
+    const missing = [...NCSBE_COVER_SECTIONS.keys()].filter((sequence) => !seenSequences.has(sequence));
+    throw new Error(
+      `NCSBE cover summary grid has ${sections.length} of ${NCSBE_COVER_SECTIONS.size} sections ` +
+        `(missing sequences: ${missing.join(", ")})`
+    );
+  }
+  return sections;
+}
+
+// The cover page comes in two shapes. The original inlines the cover as
+// `var dataCover = {...}`, the grids as `SetupGrid([...])`, and the id as
+// `var rptID = <n>;`. The portal redesign (seen live 2026-10-10) renders the
+// cover as an HTML table inside `#panelCover`, the summary as a Kendo grid
+// (`#gridSummary`) with inline `"data":{"Data":[...]}`, and declares no
+// rptID. The legacy marker is tried first so cached artifacts still parse.
+const NCSBE_LEGACY_COVER_MARKER = "var dataCover = ";
+
 export function parseNcsbeReportDetailPage(html: string): NcsbeReportDetail {
+  if (html.includes(NCSBE_LEGACY_COVER_MARKER)) {
+    return parseLegacyNcsbeReportDetailPage(html);
+  }
+  return parseRedesignedNcsbeReportDetailPage(html);
+}
+
+function parseLegacyNcsbeReportDetailPage(html: string): NcsbeReportDetail {
   const coverExtract = extractNcsbeEmbeddedJson({
     html,
-    marker: "var dataCover = ",
+    marker: NCSBE_LEGACY_COVER_MARKER,
     open: "{",
     label: "report cover",
   });
@@ -455,37 +528,7 @@ export function parseNcsbeReportDetailPage(html: string): NcsbeReportDetail {
       const parsed = parseJsonStrict(gridExtract.raw, "cover grid");
       if (isCoverSummaryShape(parsed)) {
         try {
-          const sections = parsed.map((row, index) => {
-            const sequence = requireInteger(row.Sequence, `cover summary row ${index} Sequence`);
-            const section = requireString(row.Section, `cover summary row ${index} Section`);
-            const pinned = NCSBE_COVER_SECTIONS.get(sequence);
-            if (pinned !== section) {
-              throw new Error(
-                `NCSBE cover summary row ${index} has unknown section ${JSON.stringify(section)} (sequence ${sequence})`
-              );
-            }
-            return {
-              sequence,
-              section,
-              periodCents: ncsbeAmountToCents(row.Period, `cover summary row ${index} Period`),
-              cycleCents: ncsbeAmountToCents(row.Cycle, `cover summary row ${index} Cycle`),
-            };
-          });
-          // The 34 sections are a fixed set (spike results item 2): a
-          // truncated or duplicated grid must fail here, not surface later as
-          // a silently missing Total Receipts.
-          const seenSequences = new Set(sections.map((row) => row.sequence));
-          if (seenSequences.size !== sections.length) {
-            throw new Error("NCSBE cover summary grid repeats a section sequence");
-          }
-          if (sections.length !== NCSBE_COVER_SECTIONS.size) {
-            const missing = [...NCSBE_COVER_SECTIONS.keys()].filter((sequence) => !seenSequences.has(sequence));
-            throw new Error(
-              `NCSBE cover summary grid has ${sections.length} of ${NCSBE_COVER_SECTIONS.size} sections ` +
-                `(missing sequences: ${missing.join(", ")})`
-            );
-          }
-          summaryCandidates.push(sections);
+          summaryCandidates.push(parseNcsbeCoverSummaryRows(parsed));
         } catch (error) {
           throw new NcsbeCoverSummaryError((error as Error).message);
         }
@@ -525,6 +568,110 @@ export function parseNcsbeReportDetailPage(html: string): NcsbeReportDetail {
       filedDate: parseNcsbeDate(requireStringOrNull(coverRaw.FiledDate, "report cover FiledDate")),
     },
     summarySections: summaryCandidates[0]!,
+  };
+}
+
+// Cover table labels on the redesigned page, mapped to cover fields. A label
+// outside this set, or a missing one, fails the parse.
+const NCSBE_COVER_TABLE_LABELS = [
+  "Committee Name",
+  "Address",
+  "Committee Type",
+  "SBoE ID",
+  "Report Type",
+  "Period Covered",
+  "Filed Date",
+] as const;
+
+function ncsbeCellText(cellHtml: string): string | null {
+  return normalizeNcsbeText(cellHtml.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, " "));
+}
+
+function parseRedesignedNcsbeReportDetailPage(html: string): NcsbeReportDetail {
+  const panelStart = html.indexOf('id="panelCover"');
+  if (panelStart < 0) {
+    throw new Error("NCSBE report cover: neither the legacy dataCover nor the #panelCover table was found");
+  }
+  const tableEnd = html.indexOf("</table>", panelStart);
+  if (tableEnd < 0) {
+    throw new Error("NCSBE report cover: #panelCover has no closing table");
+  }
+  const cells = new Map<string, string | null>();
+  const rowPattern = /<tr>\s*<th[^>]*>([\s\S]*?)<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>\s*<\/tr>/g;
+  for (const match of html.slice(panelStart, tableEnd).matchAll(rowPattern)) {
+    const label = ncsbeCellText(match[1]!) ?? "";
+    if (!(NCSBE_COVER_TABLE_LABELS as readonly string[]).includes(label)) {
+      throw new Error(`NCSBE report cover has unknown row ${JSON.stringify(label)}`);
+    }
+    if (cells.has(label)) {
+      throw new Error(`NCSBE report cover repeats row ${JSON.stringify(label)}`);
+    }
+    cells.set(label, ncsbeCellText(match[2]!));
+  }
+  const missing = NCSBE_COVER_TABLE_LABELS.filter((label) => !cells.has(label));
+  if (missing.length > 0) {
+    throw new Error(`NCSBE report cover is missing rows: ${missing.join(", ")}`);
+  }
+
+  const orgName = cells.get("Committee Name");
+  if (!orgName) {
+    throw new Error("NCSBE report cover has an empty Committee Name");
+  }
+  // `MM/DD/YYYY - MM/DD/YYYY`; either side may be blank.
+  const period = cells.get("Period Covered") ?? "";
+  const periodMatch = /^(\S*)\s*-\s*(\S*)$/.exec(period);
+  if (period.length > 0 && !periodMatch) {
+    throw new Error(`NCSBE report cover Period Covered is malformed: ${JSON.stringify(period)}`);
+  }
+
+  // The summary grid's inline rows sit inside its own kendoGrid(...) config.
+  const gridMarker = 'jQuery("#gridSummary").kendoGrid(';
+  const gridStart = html.indexOf(gridMarker);
+  if (gridStart < 0 || html.indexOf(gridMarker, gridStart + 1) >= 0) {
+    throw new Error("NCSBE report cover: expected exactly one #gridSummary grid");
+  }
+  const nextGrid = html.indexOf(".kendoGrid(", gridStart + gridMarker.length);
+  const dataStart = html.indexOf(NCSBE_KENDO_GRID_DATA_MARKER, gridStart);
+  if (dataStart < 0 || (nextGrid >= 0 && dataStart > nextGrid)) {
+    throw new Error("NCSBE report cover: #gridSummary has no inline data");
+  }
+  const summaryRaw = extractNcsbeEmbeddedJson({
+    html,
+    marker: NCSBE_KENDO_GRID_DATA_MARKER,
+    open: "[",
+    label: "cover summary grid",
+    from: dataStart,
+  }).raw;
+  const summaryRows = parseJsonStrict(summaryRaw, "cover summary grid");
+  if (!isCoverSummaryShape(summaryRows)) {
+    throw new Error("NCSBE report cover: #gridSummary rows do not have the summary shape");
+  }
+
+  // No rptID declaration any more: the page's own id appears in its CSV
+  // export link and its grid read URLs, and every occurrence must agree.
+  const reportIds = new Set([...html.matchAll(/[?&]rid=(\d+)/gi)].map((match) => match[1]!));
+  if (reportIds.size !== 1) {
+    throw new Error(
+      `NCSBE report cover: expected one report id in its links, found ${reportIds.size}` +
+        (reportIds.size > 1 ? ` (${[...reportIds].join(", ")})` : "")
+    );
+  }
+
+  return {
+    cover: {
+      reportId: [...reportIds][0]!,
+      boeId: cells.get("SBoE ID") ?? null,
+      orgName,
+      entityTypeDesc: cells.get("Committee Type") ?? null,
+      fullReportName: cells.get("Report Type") ?? null,
+      // The redesigned cover does not show the report version; nothing
+      // downstream reads it.
+      reportVersion: null,
+      beginDate: parseNcsbeDate(periodMatch?.[1] ?? null),
+      endDate: parseNcsbeDate(periodMatch?.[2] ?? null),
+      filedDate: parseNcsbeDate(cells.get("Filed Date") ?? null),
+    },
+    summarySections: parseNcsbeCoverSummaryRows(summaryRows),
   };
 }
 
@@ -577,9 +724,23 @@ export type NcsbeTransactionPage<Row> = {
   rows: Row[];
 };
 
+// Two envelopes: the original GetReceipts/GetExpenditures shape
+// `{"Data":{"recordCountKey":n,"results":[...]}}`, and the redesigned
+// ReportDetail grid handlers' Kendo shape `{"Data":[...],"Total":n,
+// "Errors":null}` (seen live 2026-10-10). Rows are the same in both.
 function parseNcsbeTransactionEnvelope(body: string, label: string): { recordCount: number; results: unknown[] } {
   const parsed = parseJsonStrict(body, label);
   const envelope = requireRecord(parsed, label);
+  if (Array.isArray(envelope.Data)) {
+    if (envelope.Errors !== null && envelope.Errors !== undefined) {
+      throw new Error(`NCSBE ${label} returned errors: ${JSON.stringify(envelope.Errors)}`);
+    }
+    const total = requireInteger(envelope.Total, `${label} Total`);
+    if (total < 0) {
+      throw new Error(`NCSBE ${label} Total is negative`);
+    }
+    return { recordCount: total, results: envelope.Data };
+  }
   const data = requireRecord(envelope.Data, `${label} Data`);
   const recordCount = requireInteger(data.recordCountKey, `${label} recordCountKey`);
   if (recordCount < 0) {

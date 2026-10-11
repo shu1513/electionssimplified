@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import {
   fetchGeorgiaCandidateIndexRows,
   GEORGIA_ETHICS_RECORDS_SEARCH_URL,
@@ -334,18 +335,24 @@ function georgiaMiddleNameEvidence(a: string[], b: string[]): "strong" | "weak" 
 // "DYKE"-surname split reads VAN-vs-B as a middle conflict), and the longest
 // alignment is the real one. At that length, any conflict rejects; otherwise
 // a first+last agreement with middle information missing on a side matches.
+// expandNicknames: the app first name also matches its nickname variants
+// ("Chuck Efstration" vs "Efstration, Charles Paul"). One-sided — the row
+// name is read literally (personFirstNameNicknames.ts).
 export function georgiaCandidateNameMatchesRowNames(
   candidateName: string,
-  rowNames: readonly string[]
+  rowNames: readonly string[],
+  options: { expandNicknames?: boolean } = {}
 ): boolean {
   const appVariants = georgiaPersonNameVariants(candidateName);
+  const firstNamesEquivalent = (appFirst: string, rowFirst: string): boolean =>
+    appFirst === rowFirst || (options.expandNicknames === true && firstNameVariants(appFirst).includes(rowFirst));
   const evidenceBySurnameLength = new Map<number, { weak: boolean; conflict: boolean }>();
   let sawStrong = false;
   let sawExactConflict = false;
   for (const rowName of rowNames) {
     for (const rowVariant of georgiaPersonNameVariants(rowName)) {
       for (const appVariant of appVariants) {
-        if (appVariant.first !== rowVariant.first || appVariant.last !== rowVariant.last) {
+        if (!firstNamesEquivalent(appVariant.first, rowVariant.first) || appVariant.last !== rowVariant.last) {
           continue;
         }
         const evidence = georgiaMiddleNameEvidence(appVariant.middles, rowVariant.middles);
@@ -378,7 +385,11 @@ export function georgiaCandidateNameMatchesRowNames(
   return decisive.weak && !decisive.conflict;
 }
 
-function rowMatchesCandidateName(row: GeorgiaCandidateIndexRow, candidateName: string): boolean {
+function rowMatchesCandidateName(
+  row: GeorgiaCandidateIndexRow,
+  candidateName: string,
+  expandNicknames: boolean
+): boolean {
   // The structured name fields carry the FULL middle name where filerName
   // only shows an initial — include them so middle evidence is as rich as
   // the index provides. Rendered in comma form so the parser keeps the
@@ -391,7 +402,7 @@ function rowMatchesCandidateName(row: GeorgiaCandidateIndexRow, candidateName: s
   const names = [row.filerName, row.ballotFullName, structuredName].filter(
     (name): name is string => Boolean(name && name.trim())
   );
-  return georgiaCandidateNameMatchesRowNames(candidateName, names);
+  return georgiaCandidateNameMatchesRowNames(candidateName, names, { expandNicknames });
 }
 
 // A PeachFile registration belongs to the requested election cycle when
@@ -412,8 +423,22 @@ type RegistrationAccumulator = {
   personNameMatch: boolean;
 };
 
+// Literal names first; nickname equivalence only when nothing matched, so a
+// candidate with both a "Mike" and a "Michael" registration keeps the
+// literal one instead of turning ambiguous.
 export function resolveGeorgiaCandidateCommittee(
   input: GeorgiaCandidateCommitteeResolverInput
+): GeorgiaCandidateCommitteeResolution {
+  const literal = resolveGeorgiaCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveGeorgiaCandidateCommitteeByName(input, true);
+}
+
+function resolveGeorgiaCandidateCommitteeByName(
+  input: GeorgiaCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): GeorgiaCandidateCommitteeResolution {
   if (!Number.isInteger(input.electionYear) || input.electionYear < 2000 || input.electionYear > 2100) {
     throw new Error(`Invalid Georgia candidate committee election year: ${input.electionYear}`);
@@ -463,7 +488,7 @@ export function resolveGeorgiaCandidateCommittee(
     if (expectedDistrict !== null && normalizeGeorgiaDistrict(row.districtName) !== expectedDistrict) {
       continue;
     }
-    const personNameMatch = rowMatchesCandidateName(row, input.candidateName);
+    const personNameMatch = rowMatchesCandidateName(row, input.candidateName, expandNicknames);
     if (!personNameMatch && !rowMatchesCommitteeNameEvidence(row, input.candidateName)) {
       continue;
     }

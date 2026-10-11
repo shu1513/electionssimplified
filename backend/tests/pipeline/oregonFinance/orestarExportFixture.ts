@@ -43,9 +43,12 @@ export const OREGON_COMMITTEE_EXPORT_FIXTURE_HEADERS = [
   "Measure",
 ] as const;
 
+export type OregonExportFixtureBookType = "biff8" | "xlsx";
+
 function buildWorkbook(
   rows: readonly Record<string, string | number | null | undefined>[],
-  headers: readonly string[]
+  headers: readonly string[],
+  bookType: OregonExportFixtureBookType = "biff8"
 ): Uint8Array {
   const aoa: (string | number | null)[][] = [
     [...headers],
@@ -54,20 +57,22 @@ function buildWorkbook(
   const sheet = xlsxUtils.aoa_to_sheet(aoa);
   const workbook = xlsxUtils.book_new();
   xlsxUtils.book_append_sheet(workbook, sheet, "Sheet1");
-  return new Uint8Array(writeXlsWorkbook(workbook, { type: "buffer", bookType: "biff8" }));
+  return new Uint8Array(writeXlsWorkbook(workbook, { type: "buffer", bookType }));
 }
 
-/** Builds a real BIFF .xls workbook the way ORESTAR's XcelCNESearch serves one. */
+/** Builds a real BIFF .xls workbook (or .xlsx, which ORESTAR serves since Oct 2026). */
 export function buildOregonOrestarExportWorkbook(
   rows: readonly Partial<Record<(typeof OREGON_EXPORT_FIXTURE_HEADERS)[number], string | number>>[],
-  headers: readonly string[] = OREGON_EXPORT_FIXTURE_HEADERS
+  headers: readonly string[] = OREGON_EXPORT_FIXTURE_HEADERS,
+  bookType: OregonExportFixtureBookType = "biff8"
 ): Uint8Array {
-  return buildWorkbook(rows, headers);
+  return buildWorkbook(rows, headers, bookType);
 }
 
 export function buildOregonOrestarCommitteeExportWorkbook(
   rows: readonly Partial<Record<(typeof OREGON_COMMITTEE_EXPORT_FIXTURE_HEADERS)[number], string | number>>[],
-  headers: readonly string[] = OREGON_COMMITTEE_EXPORT_FIXTURE_HEADERS
+  headers: readonly string[] = OREGON_COMMITTEE_EXPORT_FIXTURE_HEADERS,
+  bookType: OregonExportFixtureBookType = "biff8"
 ): Uint8Array {
-  return buildWorkbook(rows, headers);
+  return buildWorkbook(rows, headers, bookType);
 }

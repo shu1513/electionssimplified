@@ -58,10 +58,16 @@ describe("washingtonPdcClient", () => {
 
     expect(url.origin + url.pathname).toBe("https://data.wa.gov/resource/3h9x-7bvm.json");
     expect(url.searchParams.get("$where")).toContain("election_year = '2024'");
-    expect(url.searchParams.get("$where")).toContain("lower(filer_name) like '%bob ferguson%'");
+    expect(url.searchParams.get("$where")).toContain("lower(filer_name) like '%bob%ferguson%'");
     expect(url.searchParams.get("$where")).toContain("upper(office) = upper('Governor')");
     expect(url.searchParams.get("$order")).toBe("contributions_amount DESC, filer_name ASC");
     expect(url.searchParams.get("$limit")).toBe("10");
+
+    // Joining words with % lets "DEBRA Jean  ENTENMAN" (two spaces) match.
+    const entenman = new URL(
+      buildWashingtonPdcCandidateSummarySearchUrl({ candidateName: "Debra Jean Entenman", electionYear: 2026 })
+    );
+    expect(entenman.searchParams.get("$where")).toContain("lower(filer_name) like '%debra%jean%entenman%'");
   });
 
   it("parses candidate summaries and skips malformed rows", async () => {

@@ -16,9 +16,15 @@ import type { OregonOrestarTransactionDetail } from "./oregonOrestarParser.js";
 // blocked or degraded portal answers with HTML instead, so this is the
 // cheapest fail-closed check before handing bytes to the workbook reader.
 const CFB_MAGIC = [0xd0, 0xcf, 0x11, 0xe0] as const;
+// ZIP magic (50 4B 03 04): ORESTAR switched its exports to .xlsx by Oct 2026
+// (still served as application/vnd.ms-excel). The workbook reader takes both.
+const ZIP_MAGIC = [0x50, 0x4b, 0x03, 0x04] as const;
 
 export function isOregonOrestarExportWorkbook(data: Uint8Array): boolean {
-  return CFB_MAGIC.every((byte, index) => data[index] === byte);
+  return (
+    CFB_MAGIC.every((byte, index) => data[index] === byte) ||
+    ZIP_MAGIC.every((byte, index) => data[index] === byte)
+  );
 }
 
 const REQUIRED_EXPORT_HEADERS = [

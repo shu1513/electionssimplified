@@ -45,6 +45,8 @@ const DEFAULT_USER_AGENT = "voteApp Oregon campaign finance sync";
 const GENERIC_SEARCH_URL = new URL(OREGON_ORESTAR_TRANSACTION_SEARCH_URL).toString();
 const OREGON_ORESTAR_CSRF_GUARD_SCRIPT_URL = `${OREGON_ORESTAR_BASE_URL}/orestar/JavaScriptServlet`;
 const OREGON_ORESTAR_COMMITTEE_SEARCH_URL = `${OREGON_ORESTAR_BASE_URL}/orestar/GotoSearchByElection.do`;
+// ORESTAR stops committee searches at this many rows (results page and export).
+const OREGON_ORESTAR_COMMITTEE_SEARCH_ROW_CAP = 999;
 
 function parseAllowedOrestarUrl(url: string): URL | null {
   let parsed: URL;
@@ -108,7 +110,9 @@ function parseOregonCommitteeSearchResults(html: string, sourceUrl: string): {
   exportUrl: string | null;
 } {
   const text = html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ");
-  const countMatch = /Results\s*:\s*([0-9,]+)\s+records?\s+found/i.exec(text);
+  // Live pages (Oct 2026) say "Results : 669 found for the above search
+  // criteria"; older pages said "N records found".
+  const countMatch = /Results\s*:\s*([0-9,]+)\s+(?:records?\s+)?found/i.exec(text);
   const links = html.match(/<a\b[^>]*>/gi) ?? [];
   const exportHref = links
     .map((tag) => htmlAttribute(tag, "href"))
@@ -608,6 +612,13 @@ export async function getOregonOrestarCommitteeContributionDetailsFromExport(inp
  * selector: one form GET, optional CSRF POST, one search POST, one export GET.
  */
 export async function getOregonOrestarCandidateCommitteeDirectory(input: {
+  /**
+   * Limits the search to committees active in this year. Without it the
+   * all-years search hits ORESTAR's row cap and silently drops most
+   * committees (live Oct 2026: 999 rows starting with 2006 committees, while
+   * yearActive=2026 alone returns 669).
+   */
+  yearActive?: number;
   options?: OregonOrestarClientOptions;
 } = {}): Promise<OregonOrestarCommitteeDirectoryRow[]> {
   const form = await getOregonOrestarCommitteeSearchForm(input.options);
@@ -616,7 +627,7 @@ export async function getOregonOrestarCandidateCommitteeDirectory(input: {
   }
 
   const formData = new URLSearchParams();
-  formData.set("yearActive", "");
+  formData.set("yearActive", input.yearActive === undefined ? "" : String(input.yearActive));
   formData.set("election", "");
   formData.set("filerType", "CANDALL");
   formData.set("committeeOffice", "");
@@ -652,6 +663,13 @@ export async function getOregonOrestarCandidateCommitteeDirectory(input: {
   if (results.resultCount === 0) {
     return [];
   }
+  if (results.resultCount >= OREGON_ORESTAR_COMMITTEE_SEARCH_ROW_CAP) {
+    // The page and the export both stop at the cap, so the row-count check
+    // below would pass on a truncated directory.
+    throw new Error(
+      `ORESTAR committee search hit its ${OREGON_ORESTAR_COMMITTEE_SEARCH_ROW_CAP}-row cap; refusing to use a truncated directory`
+    );
+  }
   if (!results.exportUrl) {
     throw new Error("ORESTAR committee search results did not include an export link");
   }
@@ -663,7 +681,16 @@ export async function getOregonOrestarCandidateCommitteeDirectory(input: {
       ...(form.cookieHeader ? { cookie: form.cookieHeader } : {}),
     },
   });
-  const rows = parseOregonOrestarCommitteeExport(bytes);
+  // The export can repeat a committee (live Oct 2026: 675 rows for 669
+  // committees, e.g. Sue Rieke Smith's committee five times) while the page
+  // counts committees, so keep one row per committee ID.
+  const rowsByCommitteeId = new Map<string, OregonOrestarCommitteeDirectoryRow>();
+  for (const row of parseOregonOrestarCommitteeExport(bytes)) {
+    if (!rowsByCommitteeId.has(row.filerCommitteeId)) {
+      rowsByCommitteeId.set(row.filerCommitteeId, row);
+    }
+  }
+  const rows = [...rowsByCommitteeId.values()];
   if (rows.length !== results.resultCount) {
     throw new Error(
       `ORESTAR committee export returned ${rows.length} of ${results.resultCount} rows; refusing to use a truncated directory`

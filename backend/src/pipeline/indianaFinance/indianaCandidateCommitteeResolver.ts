@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { IndianaCampaignFinanceContributionRow } from "./indianaCampaignFinanceReader.js";
 import { isIndianaFinanceEligibleOffice } from "./indianaFinanceEligibleOffices.js";
@@ -75,10 +76,33 @@ function normalizePersonName(value: string): string {
     .trim();
 }
 
-export function normalizeIndianaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Greg Ballard" → "GREGORY BALLARD"): the source files the formal name while VoteApp
+// stores the campaign name. Expand the VoteApp side only
+// (personFirstNameNicknames.ts explains why).
+export function normalizeIndianaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const normalized = normalizePersonName(trimmed);
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  function withNicknameKeys(): Set<string> {
+    for (const key of nicknameKeys) {
+      keys.add(key);
+    }
+    return keys;
+  }
   if (normalized) {
     keys.add(normalized);
   }
@@ -95,23 +119,23 @@ export function normalizeIndianaCandidateNameKeys(value: string): Set<string> {
       keys.add(flipped);
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
-        keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
       }
       if (flippedParts.length === 3 && flippedParts[0]?.length === 1) {
-        keys.add(`${flippedParts[1]} ${flippedParts[2]}`);
+        addFirstLast(flippedParts[1] ?? "", flippedParts[2] ?? "");
       }
     }
-    return keys;
+    return withNicknameKeys();
   }
 
   const parts = normalized.split(" ").filter(Boolean);
   if (parts.length >= 2) {
-    keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+    addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
   }
   if (parts.length === 3 && parts[0]?.length === 1) {
-    keys.add(`${parts[1]} ${parts[2]}`);
+    addFirstLast(parts[1] ?? "", parts[2] ?? "");
   }
-  return keys;
+  return withNicknameKeys();
 }
 
 function normalizeOfficeScope(value: string): "statewide" | "state_upper" | "state_lower" | null {
@@ -137,6 +161,9 @@ function canonicalOfficeNameForInput(officeName: string): string | null {
     case "STATE AUDITOR":
     case "AUDITOR":
       return "State Auditor";
+    case "COMPTROLLER":
+    case "STATE COMPTROLLER":
+      return "Comptroller";
     case "SUPERINTENDENT PUBLIC INSTRUCTION":
     case "STATE SUPERINTENDENT":
     case "STATE SUPERINTENDENT PUBLIC INSTRUCTION":
@@ -220,6 +247,8 @@ function rowMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: [input.row.CandidateName],
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 
@@ -237,14 +266,29 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal first name first, nicknames only when nothing matched literally: a
+// "Greg" candidate must not turn ambiguous because a different "Gregory" with
+// the same surname also filed, and a candidate registered under both the
+// nickname and the formal name keeps the literal committee (georgia pattern).
 export function resolveIndianaCandidateCommittee(
   input: IndianaCandidateCommitteeResolverInput
+): IndianaCandidateCommitteeResolution {
+  const literal = resolveIndianaCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveIndianaCandidateCommitteeByName(input, true);
+}
+
+function resolveIndianaCandidateCommitteeByName(
+  input: IndianaCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): IndianaCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeIndianaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeIndianaCandidateNameKeys(input.candidateName, { expandNicknames });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeDistrict(input.district);
 

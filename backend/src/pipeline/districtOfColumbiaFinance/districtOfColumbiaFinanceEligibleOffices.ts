@@ -110,7 +110,7 @@ const DISTRICT_OF_COLUMBIA_APP_OFFICE_TO_OCF = new Map<string, DistrictOfColumbi
   ])
 );
 
-function isCouncilChairSeatText(value: string | null | undefined): boolean {
+export function isCouncilChairSeatText(value: string | null | undefined): boolean {
   const normalized = normalizeDistrictOfColumbiaOcfOfficeLabel(value);
   return (
     normalized !== null &&

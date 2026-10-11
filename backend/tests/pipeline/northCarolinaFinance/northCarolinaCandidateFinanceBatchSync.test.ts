@@ -1066,7 +1066,14 @@ describe("createNcsbeCachedCommitteeSearchLoader", () => {
   it("serves parsed rows and provenance from the cached search artifact", async () => {
     const cacheDir = await makeCacheDir();
     const query = northCarolinaCommitteeSearchQueryForCandidateName("  Kimberly Gadson  ");
-    expect(query).toBe("Kimberly Gadson");
+    expect(query).toBe("Gadson");
+    // Live 2026-10-10: the portal's substring search missed most full
+    // display names, so the query is the surname alone.
+    expect(northCarolinaCommitteeSearchQueryForCandidateName("Danny Earl Britt, Jr.")).toBe("Britt");
+    expect(northCarolinaCommitteeSearchQueryForCandidateName("Veleria M. Levy")).toBe("Levy");
+    expect(northCarolinaCommitteeSearchQueryForCandidateName("Mary Price (Pricey) Harrison")).toBe("Harrison");
+    expect(northCarolinaCommitteeSearchQueryForCandidateName("Gadson, Marcus")).toBe("Gadson");
+    expect(northCarolinaCommitteeSearchQueryForCandidateName("Sally Kirby-Turner")).toBe("Kirby-Turner");
     await install(cacheDir, { type: "committee_search", query }, fixture("committee-search-gadson.html"));
 
     const loader = createNcsbeCachedCommitteeSearchLoader(cacheDir);

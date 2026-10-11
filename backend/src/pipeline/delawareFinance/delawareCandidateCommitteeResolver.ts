@@ -96,7 +96,46 @@ export type DelawareCandidateCommitteeSearchInput = {
 };
 
 function committeeNameMatches(committeeName: string, token: string): boolean {
-  return ` ${normalizeDelawareCandidateNameForStorage(committeeName)} `.includes(` ${token} `);
+  return (
+    ` ${normalizeDelawareCandidateNameForStorage(committeeName)} `.includes(` ${token} `) ||
+    gluedCommitteeNameMatches(committeeName, token)
+  );
+}
+
+/**
+ * Some committees glue the name together ("Friends of KamelaSmith",
+ * "HarryGold4Delaware", "LisaMcInnis4RepDist1", "Lindner4Delaware"). Split
+ * each word at digits, then accept the token at the start or end of a
+ * piece only where the raw text has a capital letter boundary, so "Smith"
+ * matches "KamelaSmith" but "Gold" does not match "Goldberg". A surname
+ * particle before the boundary ("McDonald", "DeLuca") is part of the surname,
+ * not a glued first name, so "Donald" does not match "McDonald".
+ */
+const SURNAME_PARTICLES = new Set([
+  "MC", "MAC", "O", "D", "DE", "DI", "DU", "DA", "DOS", "DEL", "DELLA", "LA", "LE", "LO",
+  "VAN", "VON", "VANDE", "VANDEN", "VANDER", "TER", "FITZ", "ST", "SAN", "SANTA",
+]);
+
+function gluedCommitteeNameMatches(committeeName: string, token: string): boolean {
+  for (const piece of committeeName.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Za-z]+/)) {
+    if (piece.length <= token.length) {
+      if (piece.toUpperCase() === token) return true;
+      continue;
+    }
+    const upper = piece.toUpperCase();
+    if (upper.startsWith(token) && /[a-z][A-Z]/.test(piece.slice(token.length - 1, token.length + 1))) {
+      return true;
+    }
+    const start = piece.length - token.length;
+    if (
+      upper.endsWith(token) &&
+      /[a-z][A-Z]/.test(piece.slice(start - 1, start + 1)) &&
+      !SURNAME_PARTICLES.has(upper.slice(0, start))
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

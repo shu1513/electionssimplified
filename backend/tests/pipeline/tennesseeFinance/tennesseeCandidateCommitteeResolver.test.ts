@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeTennesseeCandidateNameKeys,
   resolveTennesseeCandidateCommittee,
+  tennesseeCampLastNameSearchTokens,
 } from "../../../src/pipeline/tennesseeFinance/tennesseeCandidateCommitteeResolver.js";
 import type { TennesseeCampCandidateRecord } from "../../../src/pipeline/tennesseeFinance/tennesseeCampClient.js";
 
@@ -46,6 +47,62 @@ describe("tennesseeCandidateCommitteeResolver", () => {
       sourceUrl: "https://apps.tn.gov/tncamp/public/cpsearch.htm",
       reportListUrl: "https://apps.tn.gov/tncamp/public/replist.htm?id=6496&owner=LEE%2C+BILL",
       matchedRowCount: 1,
+    });
+  });
+
+  describe("formal, call, and middle names (live 2026 House cases)", () => {
+    function house(candidateName: string, district: string, rows: Array<[string, string]>) {
+      return resolveTennesseeCandidateCommittee({
+        candidateName,
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        electionYear: 2026,
+        district,
+        candidateRecords: rows.map(([id, name]) =>
+          record({ campCandidateId: id, ownerName: name, name, officeSought: "House of Representatives", district, electionYear: 2026 })
+        ),
+      });
+    }
+
+    it("matches a formal CAMP first name through the VoteApp nickname", () => {
+      expect(house("Mike Sparks", "49", [["1", "SPARKS, MICHAEL"]])).toMatchObject({ status: "matched", campCandidateId: "1" });
+      expect(house("Tom Stinnett", "20", [["2", "STINNETT, TOMMY L."]])).toMatchObject({ status: "matched", campCandidateId: "2" });
+    });
+
+    it("keeps the literal name when a nickname would also match", () => {
+      expect(house("Jim Smith", "10", [["1", "SMITH, JAMES"], ["2", "SMITH, JIM"]])).toMatchObject({
+        status: "matched",
+        campCandidateId: "2",
+      });
+    });
+
+    it("matches one-word call names in parentheses or quotes", () => {
+      expect(house("Gino Bulso", "61", [["1", "BULSO, JR., EUGENE N. (GINO)"]])).toMatchObject({ status: "matched" });
+      expect(house('Dewey "Rusty" Crowe', "3", [["1", "CROWE, RUSTY"]])).toMatchObject({ status: "matched" });
+    });
+
+    it("rejects a middle-name match whose first name contradicts the candidate's initial", () => {
+      // "R. Jason" is Ralph Jason, not Matthew Jason; a row that omits the
+      // first name altogether is still fine.
+      expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, MATTHEW JASON"]])).toMatchObject({ status: "unmatched" });
+      expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, JASON"]])).toMatchObject({ status: "matched" });
+    });
+
+    it("matches a candidate who goes by a middle name, only after other tiers miss", () => {
+      expect(house("Brian Stewart", "45", [["1", "STEWART, CHRISTOPHER BRIAN"]])).toMatchObject({ status: "matched" });
+      expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, RALPH JASON"]])).toMatchObject({ status: "matched" });
+      expect(house("Brian Stewart", "45", [["1", "STEWART, CHRISTOPHER BRIAN"], ["2", "STEWART, BRIAN"]])).toMatchObject({
+        status: "matched",
+        campCandidateId: "2",
+      });
+    });
+
+    it("searches CAMP by the filed surname form", () => {
+      expect(tennesseeCampLastNameSearchTokens("Julian Herbert Pierre-Griffin")).toEqual(["PIERRE-GRIFFIN", "HERBERT"]);
+      expect(tennesseeCampLastNameSearchTokens("Craig D'Apolito")).toEqual(["D'APOLITO"]);
+      expect(tennesseeCampLastNameSearchTokens("Esther Helton Haynes")).toEqual(["HAYNES", "HELTON"]);
+      expect(tennesseeCampLastNameSearchTokens("Harold M. Love, Jr.")).toEqual(["LOVE"]);
+      expect(tennesseeCampLastNameSearchTokens("R. Jason Goodman")).toEqual(["GOODMAN", "JASON"]);
     });
   });
 

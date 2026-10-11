@@ -5,7 +5,8 @@ import {
   type KentuckyKrefContributionRecord,
 } from "./kentuckyKrefClient.js";
 import { filterKentuckyContributionRecordsForCandidateCycle } from "./kentuckyDirectContributionAggregator.js";
-import { splitKentuckyCandidateName, type KentuckyKrefDataClient } from "./kentuckyCandidateFinanceSync.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+import { kentuckyKrefCandidateSearchName, type KentuckyKrefDataClient } from "./kentuckyCandidateFinanceSync.js";
 import type {
   KentuckyCandidateFinanceAutoLinkResolver,
   KentuckyCandidateFinanceLinkResolution,
@@ -59,19 +60,40 @@ export function createKentuckyKrefCandidateFinanceLinkResolver(
   return async (
     candidateElection: KentuckyFinanceAutoLinkCandidateElection
   ): Promise<KentuckyCandidateFinanceLinkResolution> => {
-    const nameParts = splitKentuckyCandidateName(candidateElection.candidateName);
-    const exportInput = {
-      candidateFirstName: nameParts.firstName,
+    // Literal names first. Only when they find nothing: the same rows with
+    // widened VoteApp-side names, then one search per formal variant of the
+    // first name ("Mike" -> MICHAEL) that the first search could not contain.
+    const nameParts = kentuckyKrefCandidateSearchName(candidateElection.candidateName);
+    const searchFirstNames: Array<string | undefined> = [nameParts.firstName];
+    for (const variant of firstNameVariants((nameParts.firstName ?? "").toUpperCase())) {
+      if (!variant.includes((nameParts.firstName ?? "").toUpperCase())) {
+        searchFirstNames.push(variant);
+      }
+    }
+    let exportInput: { candidateFirstName?: string; candidateLastName: string } = {
       candidateLastName: nameParts.lastName,
     };
-    const records = await downloadCandidateContributions(exportInput, options.krefClientOptions);
-    const matched = filterKentuckyContributionRecordsForCandidateCycle({
-      contributionRecords: records,
-      candidateName: candidateElection.candidateName,
-      electionDate: candidateElection.electionDate,
-      officeName: candidateElection.officeName,
-      location: candidateElection.location,
-    });
+    let matched: KentuckyKrefContributionRecord[] = [];
+    for (const [index, firstName] of searchFirstNames.entries()) {
+      exportInput = { ...(firstName ? { candidateFirstName: firstName } : {}), candidateLastName: nameParts.lastName };
+      const records = await downloadCandidateContributions(exportInput, options.krefClientOptions);
+      for (const expandNames of index === 0 ? [false, true] : [true]) {
+        matched = filterKentuckyContributionRecordsForCandidateCycle({
+          contributionRecords: records,
+          candidateName: candidateElection.candidateName,
+          electionDate: candidateElection.electionDate,
+          officeName: candidateElection.officeName,
+          location: candidateElection.location,
+          expandNames,
+        });
+        if (matched.length > 0) {
+          break;
+        }
+      }
+      if (matched.length > 0) {
+        break;
+      }
+    }
 
     if (matched.length === 0) {
       return {

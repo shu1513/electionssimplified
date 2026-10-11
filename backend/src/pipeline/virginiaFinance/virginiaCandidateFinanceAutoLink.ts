@@ -16,6 +16,7 @@ import {
 import {
   normalizeVirginiaCandidateNameKeys,
   resolveVirginiaCandidateCommittee,
+  resolveVirginiaCandidateCommitteeAcrossSearches,
   type VirginiaCandidateCommitteeResolution,
 } from "./virginiaCandidateCommitteeResolver.js";
 import { VIRGINIA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./virginiaFinanceEligibleOffices.js";
@@ -89,33 +90,48 @@ export async function searchAndResolveVirginiaCandidateCommitteeWithReportHeader
   },
   options?: VirginiaCampaignFinanceClientOptions
 ): Promise<VirginiaCandidateCommitteeResolution> {
-  const committeeResults = await searchVirginiaCandidateCommittees({ committeeName: input.candidateName }, options);
-  const reportHeaders: VirginiaReportHeader[] = [];
+  // The surname retry returns the full-name committees again; fetch each
+  // committee's report headers once.
+  const reportHeadersByCommitteeId = new Map<string, VirginiaReportHeader[]>();
 
-  for (const result of committeeResults) {
-    try {
-      reportHeaders.push(
-        ...(await fetchReportHeadersForCommittee({
-          committeeId: result.committeeId,
-          options,
-          maxReportHeadersPerCommittee: input.maxReportHeadersPerCommittee,
-        }))
-      );
-    } catch (error) {
-      console.warn("Virginia finance committee report metadata lookup failed; continuing without this committee's headers:", {
-        committeeId: result.committeeId,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  return resolveVirginiaCandidateCommittee({
+  return resolveVirginiaCandidateCommitteeAcrossSearches({
     candidateName: input.candidateName,
-    officeScope: input.officeScope,
-    officeName: input.officeName,
-    electionYear: input.electionYear,
-    committeeResults,
-    ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
+    search: (query) => searchVirginiaCandidateCommittees({ committeeName: query }, options),
+    resolve: async (committeeResults) => {
+      const reportHeaders: VirginiaReportHeader[] = [];
+      for (const result of committeeResults) {
+        let headers = reportHeadersByCommitteeId.get(result.committeeId);
+        if (!headers) {
+          try {
+            headers = await fetchReportHeadersForCommittee({
+              committeeId: result.committeeId,
+              options,
+              maxReportHeadersPerCommittee: input.maxReportHeadersPerCommittee,
+            });
+          } catch (error) {
+            console.warn(
+              "Virginia finance committee report metadata lookup failed; continuing without this committee's headers:",
+              {
+                committeeId: result.committeeId,
+                error: error instanceof Error ? error.message : String(error),
+              }
+            );
+            headers = [];
+          }
+          reportHeadersByCommitteeId.set(result.committeeId, headers);
+        }
+        reportHeaders.push(...headers);
+      }
+
+      return resolveVirginiaCandidateCommittee({
+        candidateName: input.candidateName,
+        officeScope: input.officeScope,
+        officeName: input.officeName,
+        electionYear: input.electionYear,
+        committeeResults,
+        ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
+      });
+    },
   });
 }
 

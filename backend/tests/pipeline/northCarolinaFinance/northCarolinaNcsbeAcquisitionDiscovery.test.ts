@@ -30,6 +30,12 @@ function fixture(name: string): string {
   );
 }
 
+// The legacy cover fixture predates the anti-forgery token the transaction
+// handlers now require; the acquisition reads it from the cover page.
+function withAntiForgeryToken(html: string): string {
+  return `${html}<input name="__RequestVerificationToken" type="hidden" value="test-token" />`;
+}
+
 // A minimal committee-search page in the portal's embedded-JSON shape.
 function searchPage(rows: object[]): string {
   return `<html><script>var data = ${JSON.stringify(rows)};</script></html>`;
@@ -80,12 +86,12 @@ function fakeTransport(state: { requests: string[] }, searchPages: Record<string
         return fixture("document-inventory-gadson.html");
       }
       if (url.includes("/ReportDetail/")) {
-        return fixture("report-cover-gadson-229931.html");
+        return withAntiForgeryToken(fixture("report-cover-gadson-229931.html"));
       }
-      if (url.includes("GetReceipts")) {
+      if (url.includes("handler=ReadReceipts")) {
         return fixture("receipts-gadson-229931-p0.json");
       }
-      if (url.includes("GetExpenditures")) {
+      if (url.includes("handler=ReadExpenditures")) {
         return fixture("ie-expenditures-carolina-federation-p0.json");
       }
       if (url.includes("/CFDocLkup/DocumentResult/")) {
@@ -161,13 +167,13 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
     // what the assertion below actually exercises.
     await storeNcsbeArtifact({
       cacheDir,
-      key: { type: "committee_search", query: "Marcus Gadson" },
-      url: ncsbeCommitteeSearchUrl("Marcus Gadson"),
+      key: { type: "committee_search", query: "Gadson" },
+      url: ncsbeCommitteeSearchUrl("Gadson"),
       body: searchPage([]),
       retrievedAt: NOW,
     });
     const state = { requests: [] as string[] };
-    const transport = fakeTransport(state, { "Marcus Gadson": fixture("committee-search-gadson.html") });
+    const transport = fakeTransport(state, { "Gadson": fixture("committee-search-gadson.html") });
     const result = await discoverNcsbeAcquisitionCommittees({
       transport,
       cacheDir,
@@ -184,8 +190,8 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
   it("uses the cached search for a linked candidate and derives the OGID from it", async () => {
     await storeNcsbeArtifact({
       cacheDir,
-      key: { type: "committee_search", query: "Marcus Gadson" },
-      url: ncsbeCommitteeSearchUrl("Marcus Gadson"),
+      key: { type: "committee_search", query: "Gadson" },
+      url: ncsbeCommitteeSearchUrl("Gadson"),
       body: fixture("committee-search-gadson.html"),
       retrievedAt: NOW,
     });
@@ -268,8 +274,8 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
     // so two roster rows linked to the same SBoEID drive it.
     const state = { requests: [] as string[] };
     const transport = fakeTransport(state, {
-      "Jane Doe": searchPage([GADSON_ROW]),
-      "John Roe": searchPage([{ ...GADSON_ROW, OrgGroupID: 99999 }]),
+      Doe: searchPage([GADSON_ROW]),
+      Roe: searchPage([{ ...GADSON_ROW, OrgGroupID: 99999 }]),
     });
     const result = await discoverNcsbeAcquisitionCommittees({
       transport,
@@ -304,8 +310,8 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
     // failure surfaced instead of swallowed.
     await storeNcsbeArtifact({
       cacheDir,
-      key: { type: "committee_search", query: "Marcus Gadson" },
-      url: ncsbeCommitteeSearchUrl("Marcus Gadson"),
+      key: { type: "committee_search", query: "Gadson" },
+      url: ncsbeCommitteeSearchUrl("Gadson"),
       body: fixture("committee-search-gadson.html"),
       retrievedAt: NOW,
     });
@@ -323,7 +329,7 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
     expect(result.searchesFromCache).toBe(1);
     expect(result.searchesFetched).toBe(0);
     expect(result.searchFailures).toEqual([
-      { query: "Marcus Gadson", message: expect.stringMatching(/portal unreachable/) },
+      { query: "Gadson", message: expect.stringMatching(/portal unreachable/) },
     ]);
     expect(result.resolverMatchedCount).toBe(1);
     expect(result.committees).toEqual([{ sboeId: "STA-JV516O-C-001", orgGroupId: 57190 }]);
@@ -342,7 +348,7 @@ describe("discoverNcsbeAcquisitionCommittees", () => {
       retrievedAt: NOW,
     });
     expect(result.searchFailures).toEqual([
-      { query: "Marcus Gadson", message: expect.stringMatching(/portal unreachable/) },
+      { query: "Gadson", message: expect.stringMatching(/portal unreachable/) },
     ]);
     expect(result.committees).toEqual([]);
     expect(result.resolverMatchedCount).toBe(0);
@@ -442,7 +448,7 @@ describe("acquireNcsbeRosterCycleArtifacts", () => {
     const transport: NcsbeTransport = {
       fetchText: async (url: string) => {
         state.requests.push(url);
-        if (url === ncsbeCommitteeSearchUrl("Marcus Gadson")) {
+        if (url === ncsbeCommitteeSearchUrl("Gadson")) {
           return fixture("committee-search-gadson.html");
         }
         if (url.includes("/CommitteeGeneralResult/")) {
@@ -452,12 +458,12 @@ describe("acquireNcsbeRosterCycleArtifacts", () => {
           return fixture("document-inventory-gadson.html");
         }
         if (url.includes("/ReportDetail/")) {
-          return fixture("report-cover-gadson-229931.html");
+          return withAntiForgeryToken(fixture("report-cover-gadson-229931.html"));
         }
-        if (url.includes("GetReceipts")) {
+        if (url.includes("handler=ReadReceipts")) {
           return fixture("receipts-gadson-229931-p0.json");
         }
-        if (url.includes("GetExpenditures")) {
+        if (url.includes("handler=ReadExpenditures")) {
           return fixture("ie-expenditures-carolina-federation-p0.json");
         }
         if (url.includes("/CFDocLkup/DocumentResult/")) {
@@ -490,7 +496,7 @@ describe("acquireNcsbeRosterCycleArtifacts", () => {
     // and must not report a discovery "failure" for a phase the caller asked
     // not to run (with nothing cached, discovery would otherwise throw).
     const state = { requests: [] as string[] };
-    const transport = fakeTransport(state, { "Marcus Gadson": fixture("committee-search-gadson.html") });
+    const transport = fakeTransport(state, { "Gadson": fixture("committee-search-gadson.html") });
     return acquireNcsbeRosterCycleArtifacts({
       transport,
       cacheDir,

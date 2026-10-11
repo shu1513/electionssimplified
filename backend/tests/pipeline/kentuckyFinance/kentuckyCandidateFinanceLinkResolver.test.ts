@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createKentuckyKrefCandidateFinanceLinkResolver } from "../../../src/pipeline/kentuckyFinance/kentuckyCandidateFinanceLinkResolver.js";
+import { kentuckyKrefCandidateSearchName } from "../../../src/pipeline/kentuckyFinance/kentuckyCandidateFinanceSync.js";
 import type { KentuckyKrefContributionRecord } from "../../../src/pipeline/kentuckyFinance/kentuckyKrefClient.js";
 
 function record(overrides: Partial<KentuckyKrefContributionRecord> = {}): KentuckyKrefContributionRecord {
@@ -62,6 +63,63 @@ describe("kentuckyCandidateFinanceLinkResolver", () => {
       { candidateFirstName: "Adam", candidateLastName: "Moore" },
       undefined
     );
+  });
+
+  it("searches KREF with one first-name word and the last surname word", () => {
+    // KREF filters first and last name with CONTAINS on the filed name.
+    expect(kentuckyKrefCandidateSearchName("Shelley Funke Frommeyer")).toEqual({ firstName: "Shelley", lastName: "Frommeyer" });
+    expect(kentuckyKrefCandidateSearchName("Jim Gooch Jr.")).toEqual({ firstName: "Jim", lastName: "Gooch" });
+    expect(kentuckyKrefCandidateSearchName("R. Shane Baker")).toEqual({ firstName: "Shane", lastName: "Baker" });
+    expect(kentuckyKrefCandidateSearchName("J.T. Payne")).toEqual({ firstName: "JT", lastName: "Payne" });
+    expect(kentuckyKrefCandidateSearchName('Robert "Robby" Mills')).toEqual({ firstName: "Robert", lastName: "Mills" });
+    expect(kentuckyKrefCandidateSearchName("Smith, John A.")).toEqual({ firstName: "John", lastName: "Smith" });
+  });
+
+  it("matches a formal KREF first name through a second search, literal rows first", async () => {
+    // Live: VoteApp "Mike Nemes" (Senate 38) files as "Michael Nemes".
+    const michael = record({
+      recipientName: "Michael Nemes",
+      candidateName: "Michael Nemes",
+      candidateFirstName: "Michael",
+      candidateLastName: "Nemes",
+      office: "STATE SENATOR (EVEN)",
+      location: "38TH DISTRICT",
+    });
+    const downloadCandidateContributions = vi.fn(async (input: { candidateFirstName?: string }) =>
+      input.candidateFirstName === "MICHAEL" ? [michael] : []
+    );
+    const resolver = createKentuckyKrefCandidateFinanceLinkResolver({ krefClient: { downloadCandidateContributions } });
+    const election = { ...candidateElection(), candidateName: "Mike Nemes", officeScope: "state_upper", officeName: "State Senator", location: "38" };
+
+    await expect(resolver(election)).resolves.toMatchObject({ status: "matched", committeeName: "Michael Nemes" });
+    expect(downloadCandidateContributions.mock.calls.map(([input]) => input)).toEqual([
+      { candidateFirstName: "Mike", candidateLastName: "Nemes" },
+      { candidateFirstName: "MICHAEL", candidateLastName: "Nemes" },
+    ]);
+
+    // A literal "Mike Nemes" filing in the same race wins without the second search.
+    const mike = record({ ...michael, recipientName: "Mike Nemes", candidateName: "Mike Nemes", candidateFirstName: "Mike" });
+    const literalDownload = vi.fn().mockResolvedValue([mike]);
+    const literalResolver = createKentuckyKrefCandidateFinanceLinkResolver({ krefClient: { downloadCandidateContributions: literalDownload } });
+    await expect(literalResolver(election)).resolves.toMatchObject({ status: "matched", committeeName: "Mike Nemes" });
+    expect(literalDownload).toHaveBeenCalledTimes(1);
+  });
+
+  it("matches leading initials and quoted call names", async () => {
+    for (const [candidateName, filed] of [
+      ["J.T. Payne", "JT Payne"],
+      ["R. Shane Baker", "Shane Baker"],
+      ["Robby Mills", 'Robert "Robby" Mills'],
+    ]) {
+      const row = record({ recipientName: filed, candidateName: filed });
+      const resolver = createKentuckyKrefCandidateFinanceLinkResolver({
+        krefClient: { downloadCandidateContributions: vi.fn().mockResolvedValue([row]) },
+      });
+      await expect(resolver({ ...candidateElection(), candidateName })).resolves.toMatchObject({
+        status: "matched",
+        committeeName: filed,
+      });
+    }
   });
 
   it("does not match when only prior-cycle rows exist", async () => {

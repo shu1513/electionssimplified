@@ -45,7 +45,10 @@ export function buildIndianaCandidateNamePredicate(
 ): (row: IndianaCampaignFinanceContributionRow) => boolean {
   const candidateNameKeys = new Set<string>();
   for (const candidate of candidates) {
-    for (const key of normalizeIndianaCandidateNameKeys(candidate.candidateName)) {
+    // The pre-filter must admit every row the resolver could match, so it
+    // carries the same one-sided nickname keys ("Greg Ballard" → GREGORY
+    // BALLARD); keyed literally it would drop the rows before resolution.
+    for (const key of normalizeIndianaCandidateNameKeys(candidate.candidateName, { expandNicknames: true })) {
       candidateNameKeys.add(key);
     }
   }

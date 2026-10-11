@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { KentuckyKrefContributionRecord } from "./kentuckyKrefClient.js";
 
@@ -9,6 +10,10 @@ export type KentuckyDirectContributionAggregationInput = {
   contributionRecords: readonly KentuckyKrefContributionRecord[];
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
+  // Widen the candidate name the way link resolution does (candidateNameKeys).
+  // The due sync sets it: a trusted link may have been verified through a
+  // nickname ("Mike Nemes" filed as "Michael Nemes").
+  expandNames?: boolean;
 };
 
 export type KentuckyDirectFinanceSummary = {
@@ -111,7 +116,12 @@ function normalizePersonName(value: string | null | undefined): string {
     .trim();
 }
 
-function candidateNameKeys(value: string): Set<string> {
+// expandNames widens the VoteApp side only, for link resolution after the
+// literal keys found nothing: KREF files the formal first name ("Michael
+// Nemes" for "Mike Nemes"), the name after a leading initial ("Shane Baker"
+// for "R. Shane Baker"), and joined initials ("JT Payne" for "J.T. Payne").
+// KREF names are read literally (personFirstNameNicknames.ts).
+function candidateNameKeys(value: string, options: { expandNames?: boolean } = {}): Set<string> {
   const trimmed = value.trim();
   const normalized = normalizePersonName(value);
   const keys = new Set<string>();
@@ -120,7 +130,25 @@ function candidateNameKeys(value: string): Set<string> {
   }
   const parts = normalized.split(" ").filter(Boolean);
   if (parts.length >= 2) {
-    keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+    const last = parts[parts.length - 1]!;
+    keys.add(`${parts[0]} ${last}`);
+    // A quoted call name is explicit evidence on either side:
+    // KREF 'Robert "Robby" Mills' is "Robby Mills".
+    for (const match of trimmed.matchAll(/["\u201c]([A-Za-z]{2,})["\u201d]/g)) {
+      keys.add(`${normalizePersonName(match[1])} ${last}`);
+    }
+    if (options.expandNames) {
+      for (const variant of firstNameVariants(parts[0]!)) {
+        keys.add(`${variant} ${last}`);
+      }
+      const initials = parts.slice(0, -1).findIndex((part) => part.length > 1);
+      const leadingInitials = initials === -1 ? parts.length - 1 : initials;
+      if (leadingInitials >= 2) {
+        keys.add(`${parts.slice(0, leadingInitials).join("")} ${last}`);
+      } else if (leadingInitials === 1 && parts.length >= 3) {
+        keys.add(`${parts[1]} ${last}`);
+      }
+    }
   }
 
   const commaParts = trimmed
@@ -136,16 +164,27 @@ function candidateNameKeys(value: string): Set<string> {
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
         keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        // The comma form carries the same first name; widen it the same way.
+        if (options.expandNames) {
+          for (const variant of firstNameVariants(flippedParts[0]!)) {
+            keys.add(`${variant} ${flippedParts[flippedParts.length - 1]}`);
+          }
+        }
       }
     }
   }
   return keys;
 }
 
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
+}
+
 function candidateNamesMatch(input: {
   candidateName: string;
   expectedKeys: ReadonlySet<string>;
   actualName: string | undefined;
+  expandNames?: boolean;
 }): boolean {
   let keyMatched = false;
   for (const key of candidateNameKeys(input.actualName ?? "")) {
@@ -164,6 +203,7 @@ function candidateNamesMatch(input: {
     candidateName: input.candidateName,
     rowNames: [input.actualName ?? ""],
     normalizePersonName,
+    firstNamesEquivalent: input.expandNames ? nicknameFirstNamesEquivalent : undefined,
   });
 }
 
@@ -227,6 +267,7 @@ function recordMatchesTarget(input: {
   record: KentuckyKrefContributionRecord;
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
+  expandNames?: boolean;
   electionDateKey: string;
   officeKeys: ReadonlySet<string>;
   locationKeys: ReadonlySet<string> | null;
@@ -236,6 +277,7 @@ function recordMatchesTarget(input: {
       candidateName: input.candidateName,
       expectedKeys: input.candidateNameKeys,
       actualName: input.record.candidateName,
+      expandNames: input.expandNames,
     })
   ) {
     return false;
@@ -274,8 +316,11 @@ export function filterKentuckyContributionRecordsForCandidateCycle(input: {
   electionDate: string;
   officeName: string;
   location?: string | null;
+  expandNames?: boolean;
 }): KentuckyKrefContributionRecord[] {
-  const keys = candidateNameKeys(requireNonEmpty(input.candidateName, "Kentucky candidate name"));
+  const keys = candidateNameKeys(requireNonEmpty(input.candidateName, "Kentucky candidate name"), {
+    expandNames: input.expandNames,
+  });
   const officeKeys = officeNameKeys(requireNonEmpty(input.officeName, "Kentucky office name"));
   const targetLocationKeys = input.location?.trim() ? locationKeys(input.location) : null;
   const targetElectionDateKey = parseDateKey(requireNonEmpty(input.electionDate, "Kentucky election date"));
@@ -288,6 +333,7 @@ export function filterKentuckyContributionRecordsForCandidateCycle(input: {
         candidateName: input.candidateName,
         expectedKeys: keys,
         actualName: record.candidateName,
+        expandNames: input.expandNames,
       })
     ) {
       return false;
@@ -410,7 +456,9 @@ function toDirectBreakdowns(input: {
 export function aggregateKentuckyDirectContributions(
   input: KentuckyDirectContributionAggregationInput
 ): KentuckyDirectContributionAggregationResult {
-  const keys = candidateNameKeys(requireNonEmpty(input.candidateName, "Kentucky candidate name"));
+  const keys = candidateNameKeys(requireNonEmpty(input.candidateName, "Kentucky candidate name"), {
+    expandNames: input.expandNames,
+  });
   const electionDateKey = parseDateKey(requireNonEmpty(input.electionDate, "Kentucky election date"));
   if (!electionDateKey) {
     throw new Error("Kentucky election date must use MM/DD/YYYY or YYYY-MM-DD format");
@@ -436,6 +484,7 @@ export function aggregateKentuckyDirectContributions(
         record,
         candidateName: input.candidateName,
         candidateNameKeys: keys,
+        expandNames: input.expandNames,
         electionDateKey,
         officeKeys,
         locationKeys: targetLocationKeys,

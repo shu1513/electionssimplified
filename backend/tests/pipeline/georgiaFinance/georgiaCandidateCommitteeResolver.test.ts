@@ -130,6 +130,47 @@ describe("georgiaCandidateNameMatchesRowNames (middle-name evidence)", () => {
 });
 
 describe("resolveGeorgiaCandidateCommittee", () => {
+  it("matches a formal registration name through a VoteApp nickname, literal first", () => {
+    // Live: VoteApp "Mike Cheokas", PeachFile "Cheokas, Michael" (committee
+    // name also formal, so the committee-title fallback cannot help).
+    const michael: GeorgiaCandidateIndexRow = {
+      ...CARR_ROW,
+      filerEntityId: 501,
+      guid: "00000000-0000-0000-0000-000000000501",
+      filerName: "Cheokas, Michael",
+      committeeName: "Cheokas, Michael",
+      candidateFirstName: "Michael",
+      candidateMiddleName: null,
+      candidateLastName: "Cheokas",
+      office: "State Representative",
+      districtName: "151",
+    };
+    const input = {
+      candidateName: "Mike Cheokas",
+      officeScope: "state_lower",
+      officeName: "State Lower Chamber Legislator",
+      electionYear: 2026,
+      district: "151",
+    };
+    expect(resolveGeorgiaCandidateCommittee({ ...input, candidateIndexRows: [michael] })).toMatchObject({
+      status: "matched",
+      filerEntityId: "501",
+      confidence: "exact",
+    });
+    const mike = {
+      ...michael,
+      filerEntityId: 502,
+      guid: "00000000-0000-0000-0000-000000000502",
+      filerName: "Cheokas, Mike",
+      candidateFirstName: "Mike",
+    };
+    expect(resolveGeorgiaCandidateCommittee({ ...input, candidateIndexRows: [michael, mike] })).toMatchObject({
+      status: "matched",
+      filerEntityId: "502",
+    });
+    expect(georgiaCandidateNameMatchesRowNames("Mike Cheokas", ["Cheokas, Michael"])).toBe(false);
+  });
+
   it("rejects a same-race row whose middle name contradicts the candidate", () => {
     // Same office, cycle, and district — only the middle evidence differs.
     // Without the middle gate this row would link as an "exact" match and

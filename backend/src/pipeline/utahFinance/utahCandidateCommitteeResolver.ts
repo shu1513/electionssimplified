@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import {
   buildUtahAdvancedSearchUrl,
@@ -168,9 +169,18 @@ function buildUtahCandidateSearchTerms(candidateName: string): string[] {
   return [...terms].filter(Boolean);
 }
 
-export function normalizeUtahCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Walt Brooks" → "WALTER BROOKS"): disclosure folders carry the
+// formal name while VoteApp stores the campaign name. Expand the VoteApp side
+// only (personFirstNameNicknames.ts explains why). Nickname keys go last so
+// the first key (used for storage) is unchanged.
+export function normalizeUtahCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
 
   function addName(raw: string): void {
     const normalized = normalizePersonName(raw);
@@ -180,7 +190,14 @@ export function normalizeUtahCandidateNameKeys(value: string): Set<string> {
 
     const parts = normalized.split(" ").filter(Boolean);
     if (!raw.includes(",") && parts.length >= 2) {
-      keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+      const first = parts[0] ?? "";
+      const last = parts[parts.length - 1] ?? "";
+      keys.add(`${first} ${last}`);
+      if (options.expandNicknames) {
+        for (const variant of firstNameVariants(first)) {
+          nicknameKeys.add(`${variant} ${last}`);
+        }
+      }
     }
 
     const commaParts = raw
@@ -208,6 +225,9 @@ export function normalizeUtahCandidateNameKeys(value: string): Set<string> {
     }
   }
 
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
 }
 
@@ -244,6 +264,8 @@ function entityNameMatchesCandidate(input: {
     candidateName: input.candidateName,
     rowNames: [input.entityName],
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 
@@ -333,6 +355,49 @@ export function resolveUtahCandidateCommittee(
     };
   }
 
+  // Literal names first; nickname keys only when no folder matched, so a
+  // literal match never turns ambiguous because of a nickname folder.
+  let rowsByFolder = collectMatchingFolders(input, electionYear, candidateNameKeys);
+  if (rowsByFolder.size === 0) {
+    rowsByFolder = collectMatchingFolders(
+      input,
+      electionYear,
+      normalizeUtahCandidateNameKeys(input.candidateName, { expandNicknames: true })
+    );
+  }
+
+  if (rowsByFolder.size === 0) {
+    return {
+      status: "unmatched",
+      reason: "no_candidate_committee_match",
+      candidateNameNormalized: candidateNameKey,
+    };
+  }
+
+  const matches = [...rowsByFolder.values()]
+    .map((accumulator) => toCommitteeMatch({ accumulator, sourceUrl: input.sourceUrl ?? null }))
+    .sort((left, right) => left.folderId.localeCompare(right.folderId));
+
+  if (matches.length === 1) {
+    return {
+      status: "matched",
+      ...matches[0],
+    };
+  }
+
+  return {
+    status: "ambiguous",
+    reason: "multiple_matching_committees",
+    candidateNameNormalized: candidateNameKey,
+    matches,
+  };
+}
+
+function collectMatchingFolders(
+  input: UtahCandidateCommitteeResolverInput,
+  electionYear: number,
+  candidateNameKeys: ReadonlySet<string>
+): Map<string, CandidateCommitteeAccumulator> {
   const rowsByFolder = new Map<string, CandidateCommitteeAccumulator>();
   for (const row of input.entityRows) {
     const folderId = row.folderId.trim();
@@ -372,32 +437,7 @@ export function resolveUtahCandidateCommittee(
     accumulator.rows.push(row);
     rowsByFolder.set(folderId, accumulator);
   }
-
-  if (rowsByFolder.size === 0) {
-    return {
-      status: "unmatched",
-      reason: "no_candidate_committee_match",
-      candidateNameNormalized: candidateNameKey,
-    };
-  }
-
-  const matches = [...rowsByFolder.values()]
-    .map((accumulator) => toCommitteeMatch({ accumulator, sourceUrl: input.sourceUrl ?? null }))
-    .sort((left, right) => left.folderId.localeCompare(right.folderId));
-
-  if (matches.length === 1) {
-    return {
-      status: "matched",
-      ...matches[0],
-    };
-  }
-
-  return {
-    status: "ambiguous",
-    reason: "multiple_matching_committees",
-    candidateNameNormalized: candidateNameKey,
-    matches,
-  };
+  return rowsByFolder;
 }
 
 export async function searchAndResolveUtahCandidateCommittee(

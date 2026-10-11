@@ -25,6 +25,7 @@ describe("washingtonFinanceEligibleOffices", () => {
       "statewide::Land Commissioner",
       "statewide::Commissioner of Insurance",
       "statewide::Superintendent of Public Instruction",
+      "statewide::State Level Judge",
       "state_upper::State Senator",
       "state_lower::State Lower Chamber Legislator",
       "place::Mayor",
@@ -107,6 +108,12 @@ describe("washingtonFinanceEligibleOffices", () => {
     });
     expect(mapWashingtonPdcOffice({ office: "SUPERINTENDENT OF PUBLIC INSTRUCTION" })).toMatchObject({
       officeCanonicalName: "Superintendent of Public Instruction",
+    });
+    // PDC 2026: Supreme Court races file as "STATE SUPREME COURT JUSTICE".
+    expect(mapWashingtonPdcOffice({ office: "STATE SUPREME COURT JUSTICE", position: "1" })).toMatchObject({
+      officeScope: "statewide",
+      officeCanonicalName: "State Level Judge",
+      officeKey: "statewide::State Level Judge",
     });
   });
 
@@ -307,7 +314,7 @@ describe("washingtonFinanceEligibleOffices", () => {
 
   it("rejects unsafe PDC labels and incomplete app search inputs", () => {
     expect(mapWashingtonPdcOffice({ office: "PUBLIC UTILITY COMMISSIONER" })).toBeNull();
-    expect(mapWashingtonPdcOffice({ office: "STATE SUPREME COURT JUSTICE" })).toBeNull();
+    expect(mapWashingtonPdcOffice({ office: "APPEALS COURT JUDGE" })).toBeNull();
     expect(mapWashingtonPdcOffice({ office: "COUNTY SHERIFF" })).toBeNull();
     expect(mapWashingtonPdcOffice({ office: "" })).toBeNull();
 

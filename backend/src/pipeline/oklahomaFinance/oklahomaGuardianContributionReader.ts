@@ -1,6 +1,5 @@
 import { createReadStream } from "node:fs";
 import { open, stat } from "node:fs/promises";
-import { StringDecoder } from "node:string_decoder";
 import { createInflateRaw } from "node:zlib";
 
 import { normalizeOklahomaGuardianContributionYear } from "./oklahomaGuardianContributionArtifactCache.js";
@@ -396,7 +395,10 @@ async function streamOklahomaGuardianContributionRows(input: {
     end: dataOffset + input.entry.compressedSize - 1,
   });
   const stream = input.entry.compressionMethodCode === 8 ? source.pipe(createInflateRaw()) : source;
-  const decoder = new StringDecoder("utf8");
+  // Guardian extracts are Windows-1252, not UTF-8 ("CHAUNT\xC9 GILMORE"):
+  // decoding them as UTF-8 turned accented names into U+FFFD, so the
+  // candidate "Chaunté Gilmore" never matched her own committee.
+  const decoder = new TextDecoder("windows-1252");
 
   return await new Promise((resolve, reject) => {
     const rows: OklahomaGuardianContributionRow[] = [];
@@ -570,7 +572,7 @@ async function streamOklahomaGuardianContributionRows(input: {
         return;
       }
       try {
-        processText(decoder.write(chunk));
+        processText(decoder.decode(chunk, { stream: true }));
       } catch (error) {
         rejectOnce(error instanceof Error ? error : new Error(String(error)));
         stream.destroy();
@@ -582,7 +584,7 @@ async function streamOklahomaGuardianContributionRows(input: {
         return;
       }
       try {
-        processText(decoder.end(), true);
+        processText(decoder.decode(), true);
         if (inQuotes) {
           // The parse ran off the end inside a quote: recover the open row in
           // tolerant mode, or fail the file if that mode is already on.
