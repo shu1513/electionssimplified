@@ -92,6 +92,26 @@ describe("michiganBallotLookupFinanceLoader PAC donors", () => {
     expect(result.get(KEY)?.direct_campaign.pac_money_by_interest?.[0]?.pac_count).toBe(1);
   });
 
+  it("hides trusted excluded interests while retaining unknown and typed party donors", async () => {
+    const db = mockDb([
+      donor({ committee_id: "manual-hidden", committee_name: "Source Alpha PAC", amount: "5000.00", industry_slug: "leadership_pacs", classification_source: "manual", confidence: "low" }),
+      donor({ committee_id: "ai-hidden", committee_name: "Source Beta PAC", amount: "2000.00", industry_slug: "candidate_committees", classification_source: "ai", confidence: "high" }),
+      donor({ committee_id: "rule-hidden", committee_name: "Source Gamma PAC", amount: "1000.00", industry_slug: "leadership_pacs", classification_source: "rule", confidence: "high" }),
+      donor({ committee_id: "low-hidden", committee_name: "Source Delta PAC", amount: "750.00", industry_slug: "candidate_committees", classification_source: "rule", confidence: "low" }),
+      donor({ committee_id: "unknown", committee_name: "Source Epsilon PAC", amount: "200.00" }),
+      donor({ committee_id: "party", committee_name: "Source Party Committee", committee_type: "State Political Party", amount: "300.00", industry_slug: "democratic_party_groups", classification_source: "manual", confidence: "high" }),
+    ]);
+    const result = await loadMichiganCandidateFinanceSummariesByCandidateElection(db, candidates, elections);
+    const summary = result.get(KEY)!;
+    expect(summary.direct_campaign.total_raised).toBe(900);
+    expect(summary.direct_campaign.pac_money_by_interest).toMatchObject([
+      { interest: "unclassified", interest_name: "Not yet sorted", amount: 950, pac_count: 2, pacs: [{ committee_id: "low-hidden" }, { committee_id: "unknown" }] },
+      { interest: "democratic_party_groups", amount: 300, pac_count: 1, pacs: [{ committee_id: "party" }] },
+    ]);
+    expect(summary.direct_campaign.pac_money_by_interest).toHaveLength(2);
+    expect(summary.direct_campaign.pac_money_by_interest?.map((interest) => interest.interest)).not.toEqual(expect.arrayContaining(["leadership_pacs", "candidate_committees"]));
+  });
+
   it("caps detail without losing the full interest amount or committee count", async () => {
     const rows = Array.from({ length: 7 }, (_, i) => donor({ committee_id: `pac-${i}`, amount: i + 1 }));
     const result = await loadMichiganCandidateFinanceSummariesByCandidateElection(mockDb(rows), candidates, elections);

@@ -26,7 +26,7 @@ import {
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
-import { pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
+import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
 import { isMichiganFinanceEligibleOffice } from "./michiganFinanceEligibleOffices.js";
 
 const GENERIC_MICHIGAN_MITN_SOURCE_URL =
@@ -97,6 +97,9 @@ function groupPacDonorsByInterest(
         ? classification.industrySlug
         : null;
     const interest = storedInterest ?? ruleInterest ?? UNCLASSIFIED_PAC_INTEREST;
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest)) {
+      continue;
+    }
     const key = candidateElectionKey(row.candidate_id, row.election_id);
     const interests = grouped.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
     const entry = interests.get(interest) ?? {
