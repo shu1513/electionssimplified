@@ -81,6 +81,13 @@ describe("tennesseeCandidateCommitteeResolver", () => {
       expect(house('Dewey "Rusty" Crowe', "3", [["1", "CROWE, RUSTY"]])).toMatchObject({ status: "matched" });
     });
 
+    it("rejects a middle-name match whose first name contradicts the candidate's initial", () => {
+      // "R. Jason" is Ralph Jason, not Matthew Jason; a row that omits the
+      // first name altogether is still fine.
+      expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, MATTHEW JASON"]])).toMatchObject({ status: "unmatched" });
+      expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, JASON"]])).toMatchObject({ status: "matched" });
+    });
+
     it("matches a candidate who goes by a middle name, only after other tiers miss", () => {
       expect(house("Brian Stewart", "45", [["1", "STEWART, CHRISTOPHER BRIAN"]])).toMatchObject({ status: "matched" });
       expect(house("R. Jason Goodman", "41", [["1", "GOODMAN, RALPH JASON"]])).toMatchObject({ status: "matched" });

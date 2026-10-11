@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import type { Pool, PoolClient } from "pg";
 
 import { aggregateKentuckyDirectContributions } from "./kentuckyDirectContributionAggregator.js";
@@ -179,6 +180,27 @@ export function kentuckyKrefCandidateSearchName(value: string): { firstName?: st
   return firstName ? { firstName, lastName } : { lastName };
 }
 
+// Same surname, and a first name that is the candidate's or a nickname/formal
+// variant of it. A missing first name on either side is not a contradiction.
+export function kentuckyFiledSearchNameIsCompatible(
+  candidate: { firstName?: string; lastName: string },
+  filed: { firstName?: string; lastName: string }
+): boolean {
+  if (filed.lastName.toUpperCase() !== candidate.lastName.toUpperCase()) {
+    return false;
+  }
+  const candidateFirst = candidate.firstName?.toUpperCase();
+  const filedFirst = filed.firstName?.toUpperCase();
+  if (!candidateFirst || !filedFirst) {
+    return true;
+  }
+  return (
+    candidateFirst === filedFirst ||
+    firstNameVariants(candidateFirst).includes(filedFirst) ||
+    firstNameVariants(filedFirst).includes(candidateFirst)
+  );
+}
+
 export function splitKentuckyCandidateName(value: string): { firstName: string; lastName: string } {
   const trimmed = requireNonEmpty(value, "candidate name").replace(/\s+/g, " ");
   const commaParts = trimmed.split(",").map((part) => part.trim()).filter(Boolean);
@@ -313,14 +335,15 @@ export async function syncKentuckyCandidateFinance(
   const krefClient = mergeKrefClient(input.krefClient);
   // Search KREF with the filed first name when the trusted link carries it:
   // the committee name is usually the candidate's filed KREF name ("Michael
-  // Nemes" for VoteApp "Mike Nemes"). A same-surname check keeps a real
-  // committee name ("Beshear Campaign Committee") from steering the search.
+  // Nemes" for VoteApp "Mike Nemes"). It steers the search only when it reads
+  // as the same person, so neither "Beshear Campaign Committee" nor "Friends
+  // of Adam Moore" (same surname, "first name" Friends) replaces the
+  // candidate's own name.
   const candidateSearchName = kentuckyKrefCandidateSearchName(candidateName);
   const filedSearchName = kentuckyKrefCandidateSearchName(input.trustedLink.committeeName);
-  const nameParts =
-    filedSearchName.lastName.toUpperCase() === candidateSearchName.lastName.toUpperCase()
-      ? filedSearchName
-      : candidateSearchName;
+  const nameParts = kentuckyFiledSearchNameIsCompatible(candidateSearchName, filedSearchName)
+    ? filedSearchName
+    : candidateSearchName;
   const candidateContributionExportInput = {
     candidateFirstName: nameParts.firstName,
     candidateLastName: nameParts.lastName,
@@ -354,16 +377,22 @@ export async function syncKentuckyCandidateFinance(
       : Promise.resolve([]),
   ]);
 
-  const directFinance = aggregateKentuckyDirectContributions({
-    candidateName,
-    expandNames: true,
-    electionDate,
-    officeName,
-    location: input.location ?? input.district ?? null,
-    contributionRecords: candidateContributionRecords,
-    sourceUrl: candidateContributionSourceUrl,
-    maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory ?? DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY,
-  });
+  // Same order as the link resolver: the literal name first, widened names
+  // only when the literal name matched no row. Widening unconditionally would
+  // add a same-race "Alexander Smith"'s rows to a literal "Alex Smith" link.
+  const aggregateDirect = (expandNames: boolean) =>
+    aggregateKentuckyDirectContributions({
+      candidateName,
+      expandNames,
+      electionDate,
+      officeName,
+      location: input.location ?? input.district ?? null,
+      contributionRecords: candidateContributionRecords,
+      sourceUrl: candidateContributionSourceUrl,
+      maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory ?? DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY,
+    });
+  const literalDirectFinance = aggregateDirect(false);
+  const directFinance = literalDirectFinance.matchedContributionRowCount > 0 ? literalDirectFinance : aggregateDirect(true);
   const outsideFinance = aggregateKentuckyOutsideSpending({
     candidateName,
     electionDate,

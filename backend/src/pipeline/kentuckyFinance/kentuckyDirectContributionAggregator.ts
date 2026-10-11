@@ -164,6 +164,12 @@ function candidateNameKeys(value: string, options: { expandNames?: boolean } = {
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
         keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        // The comma form carries the same first name; widen it the same way.
+        if (options.expandNames) {
+          for (const variant of firstNameVariants(flippedParts[0]!)) {
+            keys.add(`${variant} ${flippedParts[flippedParts.length - 1]}`);
+          }
+        }
       }
     }
   }

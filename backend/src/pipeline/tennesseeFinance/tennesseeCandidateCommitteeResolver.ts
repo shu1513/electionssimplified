@@ -263,6 +263,31 @@ function recordMatchesCandidateName(input: {
   if (!keyMatched) {
     return false;
   }
+  // The middle tier matched the candidate's middle name. When the candidate's
+  // first name is an initial ("R. Jason Goodman"), a row whose first name is a
+  // different given name has to start with that initial: "GOODMAN, RALPH
+  // JASON" does, "GOODMAN, MATTHEW JASON" is someone else. The shared middle
+  // gate cannot see this because "R" and "MATTHEW" never align as first names.
+  if (input.tier === "middle") {
+    const candidateVariants = parseVariants(input.candidateName);
+    const initials = candidateVariants.map((variant) => variant.first).filter((first) => first.length === 1);
+    const candidateSurnames = new Set(candidateVariants.map((variant) => variant.last));
+    const candidateGivenNames = new Set(candidateVariants.flatMap((variant) => [variant.first, ...variant.middles]));
+    const contradicted =
+      initials.length > 0 &&
+      names.some((name) =>
+        parseVariants(name).some(
+          (variant) =>
+            candidateSurnames.has(variant.last) &&
+            variant.first.length > 1 &&
+            !candidateGivenNames.has(variant.first) &&
+            !initials.some((initial) => variant.first.startsWith(initial))
+        )
+      );
+    if (contradicted) {
+      return false;
+    }
+  }
   // Key overlap collapses names to first+last, which would link
   // "John A. Smith" to "SMITH, JOHN B." as an "exact" match whenever office,
   // district, and year agree. A contradicting middle name rejects the row

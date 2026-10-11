@@ -124,6 +124,31 @@ function officeMatches(input: {
   );
 }
 
+const KNOWN_OFFICE_KEYS = new Set(["STATE REPRESENTATIVE", "STATE SENATOR", "SECRETARY OF STATE", "GOVERNOR"]);
+
+function districtNumber(value: string | null | undefined): string | null {
+  return /\b(\d+)(?:ST|ND|RD|TH)?\b/.exec(normalizeOregonCandidateNameForStorage(value ?? ""))?.[1] ?? null;
+}
+
+// A nickname row is weaker evidence than a literal one, so it must not
+// contradict the race. ORESTAR's office text is free-form ("17th District",
+// "State Representative District 32"), so only a recognized office on both
+// sides, or an explicit district number on both sides, can contradict;
+// missing or unrecognized text is not a contradiction.
+function rowContradictsRace(
+  row: OregonCandidateCommitteeSearchRow,
+  input: { officeName?: string; district?: string | null }
+): boolean {
+  const rowOffice = officeKey(row.candidateOffice);
+  const wantedOffice = officeKey(input.officeName);
+  if (KNOWN_OFFICE_KEYS.has(rowOffice) && KNOWN_OFFICE_KEYS.has(wantedOffice) && rowOffice !== wantedOffice) {
+    return true;
+  }
+  const rowDistrict = districtNumber(row.candidateOffice);
+  const wantedDistrict = districtNumber(input.district);
+  return rowDistrict !== null && wantedDistrict !== null && rowDistrict !== wantedDistrict;
+}
+
 function officeDistrictMatches(candidateOffice: string | null | undefined, district: string | null | undefined): boolean {
   const normalizedDistrict = normalizeOregonCandidateNameForStorage(district ?? "");
   if (!normalizedDistrict) {
@@ -161,7 +186,9 @@ export function resolveOregonCandidateCommitteeFromSearchRows(input: {
   }
 
   // Literal names first; nicknames only when nothing matched literally, so a
-  // literal match never turns ambiguous because of a nickname row.
+  // literal match never turns ambiguous because of a nickname row. A nickname
+  // row also has to agree with the race: a lone "Daniel Smith" running for
+  // Senate district 8 is not House district 17's "Dan Smith".
   const structuredMatchesFor = (expandNicknames: boolean) =>
     input.searchRows.filter((row) =>
       isStructuredCandidateNameMatch({
@@ -172,8 +199,14 @@ export function resolveOregonCandidateCommitteeFromSearchRows(input: {
       })
     );
   const literalStructuredMatches = structuredMatchesFor(false);
+  const nicknameStructuredMatches = structuredMatchesFor(true);
+  const otherRaceRows = new Set(
+    literalStructuredMatches.length > 0 ? [] : nicknameStructuredMatches.filter((row) => rowContradictsRace(row, input))
+  );
   const structuredNameMatches =
-    literalStructuredMatches.length > 0 ? literalStructuredMatches : structuredMatchesFor(true);
+    literalStructuredMatches.length > 0
+      ? literalStructuredMatches
+      : nicknameStructuredMatches.filter((row) => !otherRaceRows.has(row));
   let selectedStructuredMatches = structuredNameMatches;
   let usedContext = false;
   if (selectedStructuredMatches.length > 1 && input.electionYear !== undefined) {
@@ -207,6 +240,11 @@ export function resolveOregonCandidateCommitteeFromSearchRows(input: {
   const rowsToMatch = structuredNameMatches.length > 0
     ? selectedStructuredMatches
     : input.searchRows.filter((row) => {
+        // A row already placed in another race by its own candidate fields
+        // does not come back through its committee name.
+        if (otherRaceRows.has(row)) {
+          return false;
+        }
         const committeeName = row.filerCommitteeName?.trim();
         return Boolean(
           committeeName &&

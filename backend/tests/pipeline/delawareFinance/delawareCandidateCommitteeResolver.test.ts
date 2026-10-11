@@ -111,6 +111,7 @@ describe("searchAndResolveDelawareCandidateCommittee", () => {
       gridRow(600013, "01006735", "LisaMcInnis4RepDist1"),
       gridRow(600014, "01000408", "Friends To Elect Gerald Hocker"),
       gridRow(600015, "01000409", "Goldberg for Delaware"),
+      gridRow(600016, "01000410", "Friends of John McDonald"),
     ];
     const resolve = (candidateName: string) =>
       searchAndResolveDelawareCandidateCommittee(
@@ -120,7 +121,7 @@ describe("searchAndResolveDelawareCandidateCommittee", () => {
           fetchImpl: scriptedFetch([
             { match: (url) => url.includes("/Public/ViewCommittees"), response: () => html("<html>form</html>") },
             { match: (url) => url.includes("/Public/Search"), response: () => html("<html>results</html>") },
-            { match: (url) => url.includes("/Public/_ViewCommittees"), response: () => json({ data: rows, total: 5 }) },
+            { match: (url) => url.includes("/Public/_ViewCommittees"), response: () => json({ data: rows, total: 6 }) },
           ]).fetchImpl,
         }
       );
@@ -129,6 +130,8 @@ describe("searchAndResolveDelawareCandidateCommittee", () => {
     await expect(resolve("Lisa McInnis")).resolves.toMatchObject({ status: "matched", cfId: "01006735" });
     // "Berg" is not a capital-letter boundary inside "Goldberg".
     await expect(resolve("Sam Berg")).resolves.toMatchObject({ status: "unmatched" });
+    // "Mc" is a surname particle, not a glued first name: Donald is not McDonald.
+    await expect(resolve("John Donald")).resolves.toMatchObject({ status: "unmatched" });
   });
 
   it("fails closed on ambiguity and refines surname collisions with the first name", async () => {

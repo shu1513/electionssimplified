@@ -218,6 +218,43 @@ describe("kentuckyCandidateFinanceSync", () => {
     ).toHaveLength(2);
   });
 
+  it("lets the filed committee name steer the KREF search only when it names the same person", async () => {
+    // "Andrew Beshear" is a formal variant of Andy: search with it. "Friends
+    // of Andy Beshear" shares the surname but its first word is not a name:
+    // keep the candidate's own search name instead of searching for "Friends".
+    for (const [committeeName, expectedFirstName] of [
+      ["Andrew Beshear", "Andrew"],
+      ["Friends of Andy Beshear", "Andy"],
+    ] as const) {
+      const krefClient = createKrefClient();
+      await syncKentuckyCandidateFinance({
+        db: createMockDb(),
+        ...baseInput(),
+        trustedLink: { ...baseInput().trustedLink, committeeName },
+        krefClient,
+      });
+      expect(krefClient.downloadCandidateContributions).toHaveBeenCalledWith(
+        { candidateFirstName: expectedFirstName, candidateLastName: "Beshear" },
+        undefined
+      );
+    }
+  });
+
+  it("aggregates only the literal name's rows when they exist, widening to nicknames otherwise", async () => {
+    const andrew = contribution({ recipientName: "Andrew Beshear", candidateName: "Andrew Beshear", amount: 9000 });
+    const mixed = createKrefClient();
+    mixed.downloadCandidateContributions = vi.fn(async () => [contribution({ amount: 250 }), andrew]);
+    await expect(
+      syncKentuckyCandidateFinance({ db: createMockDb(), ...baseInput(), krefClient: mixed, dryRun: true })
+    ).resolves.toMatchObject({ totalReceipts: 250, matchedContributionRowCount: 1 });
+
+    const formalOnly = createKrefClient();
+    formalOnly.downloadCandidateContributions = vi.fn(async () => [andrew]);
+    await expect(
+      syncKentuckyCandidateFinance({ db: createMockDb(), ...baseInput(), krefClient: formalOnly, dryRun: true })
+    ).resolves.toMatchObject({ totalReceipts: 9000, matchedContributionRowCount: 1 });
+  });
+
   it("skips independent expenditures for legislative candidates (KREF IE rows carry no district)", async () => {
     const db = createMockDb();
     const krefClient = createKrefClient();

@@ -55,6 +55,43 @@ describe("oregonCandidateCommitteeResolver", () => {
     });
   });
 
+  it("does not take a nickname row whose office or district contradicts the race", () => {
+    const senateSmith = directoryRow({
+      filerCommitteeName: "Daniel Smith for Senate",
+      filerCommitteeId: "24101",
+      candidateFirstName: "Daniel",
+      candidateLastName: "Smith",
+      candidateOffice: "State Senator District 8",
+    });
+    const houseSmith = directoryRow({
+      ...senateSmith,
+      filerCommitteeName: "Daniel Smith for House",
+      filerCommitteeId: "24102",
+      candidateOffice: "State Representative District 17",
+    });
+    const race = {
+      candidateName: "Dan Smith",
+      electionYear: 2026,
+      officeName: "State Lower Chamber Legislator",
+      officeScope: "state_lower",
+      district: "17",
+    };
+    expect(resolveOregonCandidateCommitteeFromSearchRows({ ...race, searchRows: [senateSmith] })).toMatchObject({
+      status: "no_match",
+    });
+    expect(resolveOregonCandidateCommitteeFromSearchRows({ ...race, searchRows: [senateSmith, houseSmith] })).toMatchObject({
+      status: "matched",
+      committeeId: "24102",
+    });
+    // Free-form office text that names no office or district is not a contradiction.
+    expect(
+      resolveOregonCandidateCommitteeFromSearchRows({
+        ...race,
+        searchRows: [directoryRow({ ...senateSmith, candidateOffice: "Legislature" })],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "24101" });
+  });
+
   it("matches a formal ORESTAR first name through nicknames, literal names first", () => {
     // Live Oct 2026: VoteApp "Dan Farrington" files as Daniel Farrington.
     const farrington = directoryRow({
