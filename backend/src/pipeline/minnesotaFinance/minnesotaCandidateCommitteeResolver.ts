@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { MinnesotaCampaignFinanceCsvRow } from "./minnesotaCampaignFinanceArtifactReader.js";
 import {
@@ -155,9 +156,35 @@ export function parseMinnesotaPccRecipient(
     : null;
 }
 
-export function normalizeMinnesotaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Ron Latz" → RONALD LATZ): Campaign Finance Board recipients
+// carry the formal name while VoteApp stores the campaign name. Expand the
+// VoteApp side only (personFirstNameNicknames.ts explains why).
+export function normalizeMinnesotaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
+  // Keys first+last, plus second+last when the first token is a lone
+  // initial: "D Scott Dibble" (filed as "Dibble, D Scott") runs as Scott.
+  function addGivenAndSurname(parts: readonly string[]): string {
+    const surname = parts[parts.length - 1] ?? "";
+    addFirstLast(parts[0] ?? "", surname);
+    if (parts.length === 3 && parts[0]?.length === 1) {
+      addFirstLast(parts[1] ?? "", surname);
+    }
+    return surname;
+  }
 
   // Returns the surname token the first+last collapse used, so a parenthetical
   // nickname can be anchored to it below.
@@ -171,8 +198,7 @@ export function normalizeMinnesotaCandidateNameKeys(value: string): Set<string> 
 
     const parts = normalized.split(" ").filter(Boolean);
     if (!hasComma && parts.length >= 2) {
-      surname = parts[parts.length - 1] ?? "";
-      keys.add(`${parts[0]} ${surname}`);
+      surname = addGivenAndSurname(parts);
     }
 
     const commaParts = raw
@@ -187,8 +213,7 @@ export function normalizeMinnesotaCandidateNameKeys(value: string): Set<string> 
         keys.add(flipped);
         const flippedParts = flipped.split(" ").filter(Boolean);
         if (flippedParts.length >= 2) {
-          surname = flippedParts[flippedParts.length - 1] ?? "";
-          keys.add(`${flippedParts[0]} ${surname}`);
+          surname = addGivenAndSurname(flippedParts);
         }
       }
     }
@@ -207,6 +232,10 @@ export function normalizeMinnesotaCandidateNameKeys(value: string): Set<string> 
     }
   }
 
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
 }
 
@@ -292,7 +321,7 @@ export function resolveMinnesotaCandidateCommittee(
   input: MinnesotaCandidateCommitteeResolverInput
 ): MinnesotaCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
-  const candidateNameKeys = normalizeMinnesotaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeMinnesotaCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const candidateNameKey = candidateNameNormalized(input.candidateName);
   const officeMatch = mapMinnesotaFinanceOffice({
     officeScope: input.officeScope,
@@ -367,6 +396,8 @@ export function resolveMinnesotaCandidateCommittee(
         candidateName: input.candidateName,
         rowNames: [rowCandidateName],
         normalizePersonName,
+        firstNamesEquivalent: (candidateFirst, rowFirst) =>
+          candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
       })
     ) {
       continue;

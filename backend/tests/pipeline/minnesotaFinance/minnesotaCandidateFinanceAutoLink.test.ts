@@ -59,6 +59,23 @@ describe("minnesotaCandidateFinanceAutoLink", () => {
     ).toBe(false);
   });
 
+  it("prefilter admits formal-name rows for a nickname candidate (live: Ron Latz)", () => {
+    const predicate = buildMinnesotaCandidateNamePredicate([
+      {
+        candidateId: CANDIDATE_ID,
+        electionId: ELECTION_ID,
+        candidateName: "Ron Latz",
+        electionYear: 2026,
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "46",
+      },
+    ]);
+
+    expect(predicate({ Recipient: "Latz, Ronald S Senate Committee", "Recipient type": "PCC" })).toBe(true);
+    expect(predicate({ Recipient: "Latz, Rachel Senate Committee", "Recipient type": "PCC" })).toBe(false);
+  });
+
   it("lists eligible Minnesota candidate elections missing active finance links", async () => {
     const db = createMockDb([
       {

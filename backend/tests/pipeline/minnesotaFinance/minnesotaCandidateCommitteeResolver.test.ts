@@ -294,6 +294,66 @@ describe("Minnesota candidate committee resolver", () => {
     ).toMatchObject({ status: "matched", committeeId: "15719" });
   });
 
+  it("matches a formal recipient name through the VoteApp nickname (live: Ron Latz)", () => {
+    expect(
+      resolveMinnesotaCandidateCommittee({
+        candidateName: "Ron Latz",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "46",
+        electionYear: 2026,
+        candidateRows: [
+          {
+            "Recipient reg num": "16553",
+            Recipient: "Latz, Ronald S Senate Committee",
+            "Recipient type": "PCC",
+            Year: "2026",
+          },
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "16553" });
+  });
+
+  it("matches past a leading initial the candidate does not use (live: D Scott Dibble)", () => {
+    expect(
+      resolveMinnesotaCandidateCommittee({
+        candidateName: "Scott Dibble",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "61",
+        electionYear: 2026,
+        candidateRows: [
+          {
+            "Recipient reg num": "15667",
+            Recipient: "Dibble, D Scott Senate Committee",
+            "Recipient type": "PCC",
+            Year: "2026",
+          },
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "15667" });
+  });
+
+  it("does not expand nicknames on the source side", () => {
+    expect(
+      resolveMinnesotaCandidateCommittee({
+        candidateName: "Ron Latz",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "46",
+        electionYear: 2026,
+        candidateRows: [
+          {
+            "Recipient reg num": "16553",
+            Recipient: "Latz, Ronnie Senate Committee",
+            "Recipient type": "PCC",
+            Year: "2026",
+          },
+        ],
+      })
+    ).toMatchObject({ status: "unmatched" });
+  });
+
   it("still rejects a legislative PCC row whose stated district contradicts the candidate", () => {
     expect(
       resolveMinnesotaCandidateCommittee({
