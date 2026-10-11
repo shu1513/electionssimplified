@@ -168,6 +168,39 @@ describe("Florida bounded all-status registry source", () => {
     const result=await createFloridaCommitteeRegistrySource({...mock([current]),reviewedDates:reviewedDates as unknown as FloridaReviewedCommitteeDates[]}).lookupDonor(receipt);
     expect(result.status).toBe("unresolved");
   });
+  it("compares actual protected email semantics while retaining both rotating raw encodings", async () => {
+    const encode=(value:string,key:number)=>key.toString(16).padStart(2,"0")+
+      [...Buffer.from(value)].map(v=>(v^key).toString(16).padStart(2,"0")).join("");
+    const protectedRow=(key:number)=>'<tr><td><b>Email:</b></td><td><a href="/cdn-cgi/l/email-protection#'+
+      encode("contact@example.org   ",key)+'"><span class="__cf_email__" data-cfemail="'+
+      encode("contact@example.org",key+1)+'">[email&#160;protected]</span>   </a></td></tr>';
+    const m=mock([current],(raw,req,n)=>req.method==="GET"?envelope(detail(current)
+      .replace("</table>",protectedRow(req.phase==="opening"?10:20)+"</table>"),req,n):raw);
+    const result=await createFloridaCommitteeRegistrySource(m).lookupDonor(receipt);
+    expect(result.status).toBe("resolved");
+    expect(result.registrations?.[0]?.rawFields?.detail).toMatchObject({
+      fullFields:{Email:expect.stringContaining('data-cfemail="'+encode("contact@example.org",11)+'"')}});
+    expect(result.sourceHashes[2]).not.toBe(result.sourceHashes[3]);
+  });
+  it.each(["changed_email","bad_hex","bad_utf8","conflicting_link","missing_span"])(
+    "preserves malformed or changed protected email %s", async mode => {
+    const encode=(value:Uint8Array,key:number)=>key.toString(16).padStart(2,"0")+
+      [...value].map(v=>(v^key).toString(16).padStart(2,"0")).join("");
+    const m=mock([current],(raw,req,n)=>{
+      if(req.method!=="GET")return raw;
+      const closing=req.phase==="closing";
+      const email=closing&&mode==="changed_email"?"changed@example.org":"contact@example.org";
+      let span=encode(Buffer.from(email),10),link=encode(Buffer.from(email),20);
+      if(closing&&mode==="bad_hex")span="0a0";
+      if(closing&&mode==="bad_utf8")span=encode(new Uint8Array([255]),10);
+      if(closing&&mode==="conflicting_link")link=encode(Buffer.from("other@example.org"),20);
+      const visible=closing&&mode==="missing_span"?"[email protected]":
+        '<span class="__cf_email__" data-cfemail="'+span+'">[email&#160;protected]</span>';
+      const row='<tr><td><b>Email:</b></td><td><a href="/cdn-cgi/l/email-protection#'+link+'">'+visible+'</a></td></tr>';
+      return envelope(detail(current).replace("</table>",row+"</table>"),req,n);
+    });
+    expect((await createFloridaCommitteeRegistrySource(m).lookupDonor(receipt)).status).toBe("unresolved");
+  });
   it.each(["query","detail","transport","old_capture"])("preserves failed/changed closing %s", async mode => {
     const m=mock([current],(raw,req,n)=>{
       if(req.phase!=="closing")return raw;
@@ -221,15 +254,29 @@ describe("Florida bounded all-status registry source", () => {
     expect(decodeFloridaCommitteeDetail(envelope(detail(r),{url:url(r.id),method:"GET",financeFields:null}),
       {committeeId:r.id}).committeeName).toBe("FIC’S PAC");
   });
+  it("uses narrow literal all-status prefixes for a short Florida name and retains closed competing accounts", async () => {
+    const renamed={...current,name:"FLORIDA ACRE"};
+    const m=mock([renamed]);
+    const result=await createFloridaCommitteeRegistrySource(m).lookupDonor({...receipt,reportedName:"FLORIDA ACRE"});
+    expect(result.status).toBe("resolved");
+    expect(m.calls.filter(c=>c.method==="POST").map(c=>c.financeFields!.comName))
+      .toEqual(["FLORIDA ACR","FLORIDA ACRE","FLORIDA ACR","FLORIDA ACRE"]);
+    expect(m.calls.filter(c=>c.method==="POST").every(c=>c.financeFields!.searchtype==="1")).toBe(true);
+  });
   it("does not guess non-UTF8 encoding", () => {
     const raw=query(),bytesRaw=Buffer.from([255,255]);
     expect(()=>decodeFloridaCommitteeNameSearch({...raw,bytesRaw,sha256:createHash("sha256").update(bytesRaw).digest("hex")},
       {prefix:"Florida Home Builders"})).toThrow();
   });
   it("bounds literal prefixes without inventing a safe50-character server limit", () => {
-    expect(buildFloridaCommitteeDonorPrefixes(current.name)).toEqual(["Florida Home Builders",current.name]);
+    expect(buildFloridaCommitteeDonorPrefixes(current.name)).toEqual([current.name.slice(0,-1),current.name]);
     const p=buildFloridaCommitteeDonorPrefixes("Associated Industries of Florida Political Action Committee");
     expect(p.every(x=>x.length<30)).toBe(true); expect(p[1].startsWith(p[0])).toBe(true);
+    expect(buildFloridaCommitteeDonorPrefixes("FLORIDA ACRE")).toEqual(["FLORIDA ACR","FLORIDA ACRE"]);
+    expect(buildFloridaCommitteeDonorPrefixes("FLORIDA PROFESSIONAL EMPLOYER ORGANIZATION PAC"))
+      .toEqual(["FLORIDA PROFESSIONAL EMPLOYE","FLORIDA PROFESSIONAL EMPLOYER"]);
+    expect(buildFloridaCommitteeDonorPrefixes("Florida Name (Exact) Political Action Committee").every(x=>
+      "Florida Name (Exact) Political Action Committee".startsWith(x))).toBe(true);
     expect(()=>buildFloridaCommitteeDonorPrefixes("A")).toThrow();
   });
 });

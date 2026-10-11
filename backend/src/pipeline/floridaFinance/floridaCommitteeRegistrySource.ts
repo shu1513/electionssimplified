@@ -235,13 +235,54 @@ export function decodeFloridaCommitteeDetail(raw: FloridaProcessedRawEvidence, o
     addressLines, sourceUrl, fullFields };
 }
 
-/** Source-specific application bound; shorter word prefixes avoid observed long-name500s. */
+function decodedProtectedEmail(hex: string): string {
+  if (!/^[a-f0-9]+$/i.test(hex) || hex.length < 4 || hex.length % 2) fail("malformed protected email hex");
+  const key = Number.parseInt(hex.slice(0, 2), 16), bytes = new Uint8Array(hex.length / 2 - 1);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = Number.parseInt(hex.slice(i * 2 + 2, i * 2 + 4), 16) ^ key;
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); }
+  catch { return fail("malformed protected email UTF8"); }
+}
+/** Actual site script XOR email transport only; all raw markup remains retained. */
+function projectProtectedEmail(value: string): string {
+  const projected = value.replace(/<a\b[^>]*>[\s\S]*?<\/a\s*>/gi, block => {
+    const opening = /^<a\b[^>]*>/i.exec(block)!;
+    const a = attrs(opening[0]), prefix = "/cdn-cgi/l/email-protection#";
+    if (!a.href?.startsWith(prefix)) return block;
+    const spans = [...block.matchAll(/<span\b([^>]*)>([\s\S]*?)<\/span\s*>/gi)];
+    if (spans.length !== 1) fail("ambiguous protected email span");
+    const span = spans[0]!, fields = attrs("<span" + span[1] + ">");
+    if (fields.class !== "__cf_email__" || !fields["data-cfemail"] ||
+      Object.keys(fields).some(k => !["class", "data-cfemail"].includes(k)) ||
+      text(span[2]!) !== "[email protected]" ||
+      block.slice(opening[0].length, -block.match(/<\/a\s*>$/i)![0].length).replace(span[0], "").trim())
+      fail("unsupported protected email markup");
+    const email = decodedProtectedEmail(fields["data-cfemail"]), link = decodedProtectedEmail(a.href.slice(prefix.length));
+    if (!/^[^\s<>"']+@[^\s<>"']+$/u.test(email) || link.slice(0, email.length) !== email ||
+      !/^ *$/.test(link.slice(email.length))) fail("contradictory protected email");
+    return block.replace(a.href, "mailto:" + email).replace(/data-cfemail\s*=\s*"[^"]*"/i,
+      'data-decoded-email="' + email + '"');
+  });
+  if (/\/cdn-cgi\/l\/email-protection#|data-cfemail\s*=/i.test(projected)) fail("unparsed protected email markup");
+  return projected;
+}
+function detailSemantics(detail: FloridaCommitteeDetail): FloridaCommitteeDetail {
+  const fullFields: Record<string, string> = {};
+  for (const [key, value] of Object.entries(detail.fullFields)) {
+    if (key === "__sourceAccountTables") {
+      const tables: unknown = JSON.parse(value);
+      if (!Array.isArray(tables) || !tables.every(t => typeof t === "string")) fail("invalid retained account tables");
+      fullFields[key] = JSON.stringify(tables.map(projectProtectedEmail));
+    } else fullFields[key] = projectProtectedEmail(value);
+  }
+  return { ...detail, fullFields };
+}
+
+/** Two neighboring literal prefixes avoid observed long-name500s and broad first-word queries. */
 export function buildFloridaCommitteeDonorPrefixes(name: string): readonly [string, string] {
   const n = display(name);
   if (!n || n.length < 2) fail("name too short for two bounded queries");
-  let longer = n.slice(0, 29);
-  if (n.length > 29 && longer.includes(" ")) longer = longer.slice(0, longer.lastIndexOf(" "));
-  const shorter = longer.includes(" ") ? longer.slice(0, longer.lastIndexOf(" ")) : longer.slice(0, -1);
+  const longer = n.slice(0, 29).trimEnd();
+  const shorter = longer.slice(0, -1).trimEnd();
   if (!shorter || shorter === longer) fail("cannot compose two distinct prefixes");
   return [prefix(shorter), prefix(longer)];
 }
@@ -314,7 +355,7 @@ export function createFloridaCommitteeRegistrySource(options: {
           hashes.push(raw.sha256);
           if (Date.parse(raw.startedAt) < openingEnd) fail("closing detail predates opening generation");
           const d = decodeFloridaCommitteeDetail(raw, { committeeId: r.committeeId });
-          if (JSON.stringify(d) !== JSON.stringify(details.get(r.committeeId))) fail("changed complete account detail");
+          if (JSON.stringify(detailSemantics(d)) !== JSON.stringify(detailSemantics(details.get(r.committeeId)!))) fail("changed complete account detail");
         }
         for (const p of prefixes) closing.push(await search(p, true));
         if (opening.some((r, i) => multiset(r) !== multiset(closing[i]!))) fail("changed all-status query row multiset");
