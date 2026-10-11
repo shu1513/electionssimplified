@@ -45,6 +45,32 @@ function fixture(gifts = originalGifts(), miscLabel = "Miscellaneous Cash Contri
 function edit(e: OregonPacRawEvidence, fn: (s: string) => string) { e.bytes = new TextEncoder().encode(fn(new TextDecoder().decode(e.bytes))); e.request.byteCount = e.bytes.length; e.request.sha256 = hashOregonVerifiedBytes(e.bytes); }
 describe("Oregon pure PAC source (synthetic fresh closure protocol)", () => {
     it("closes all59 current occurrences including Individual amendment and11 typedcash, showing4 PACgroups/$17k/5giftIDs", () => { const r = verify(fixture()); expect(r.diagnostics[0]).toContain("23 unclassified"); expect(r.provenance).toMatchObject({ scope: "current_named_registered_pac_cash", unclassifiedMiscCashCount: 23, unclassifiedMiscCashAmountCents: 230000 }); expect(r.pacDonors).toHaveLength(4); expect(r.pacDonors?.reduce((s, d) => s + d.amount, 0)).toBe(17000); expect(r.provenance?.gifts).toHaveLength(5); expect(r.pacDonors?.find(d => d.committeeId === "23238")?.amount).toBe(10000); expect(r.pacDonors?.find(d => d.committeeId === "18385")?.contributionCount).toBe(2); });
+    it("accepts the source-published space locality in genuine-shaped opening and closing details", () => {
+        const input = fixture();
+        for (const side of [input.before, input.after])
+            for (const evidence of side.typedCashDetails)
+                edit(evidence, body => body.replace("Salem, OR 97301", "Salem OR 97301"));
+        expect(verify(input).pacDonors?.reduce((total, donor) => total + donor.amount, 0)).toBe(17000);
+    });
+    it.each([
+        ["city", "Salem OR 97301", "Eugene OR 97301"],
+        ["state", "Salem OR 97301", "Salem WA 97301"],
+        ["ZIP", "Salem OR 97301", "Salem OR 97302"],
+        ["Address2", "Suite 2<br>", ""],
+        ["street punctuation", "1 Example Street", "1 Example-Street"],
+        ["unknown separator", "Salem OR 97301", "Salem; OR 97301"],
+    ])("keeps all address components exact with space locality: %s", (_field, from, to) => {
+        const input = fixture();
+        for (const side of [input.before, input.after])
+            edit(side.typedCashDetails[0], body => body.replace("Salem, OR 97301", "Salem OR 97301").replace(from, to));
+        expect(verify(input).pacDonors).toBeUndefined();
+        expect(verify(input).diagnostics[0]).toContain("detail/full workbook mismatch");
+    });
+    it("still preserves when a source address presentation changes between opening and closing", () => {
+        const input = fixture();
+        edit(input.after.typedCashDetails[0], body => body.replace("Salem, OR 97301", "Salem OR 97301"));
+        expect(verify(input).diagnostics[0]).toContain("financial detail changed");
+    });
     it.each(["missing_detail", "missing_soo", "nonempty_OD", "wrong_seat", "changed_name", "changed_address", "changed_class", "unknown_class", "expired", "changed_raw", "capped", "partial", "duplicate", "scope", "hash", "interval"])("preserves whole component: %s", reason => {
         const x = fixture();
         switch (reason) {

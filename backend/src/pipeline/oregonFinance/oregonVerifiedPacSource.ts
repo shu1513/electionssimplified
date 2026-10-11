@@ -212,7 +212,7 @@ function donorMap(rows: readonly OregonPacRawEvidence[]): Map<string, OregonVeri
     }
     return m;
 }
-function address(w: OregonVerifiedTransactionRow): string {
+function address(w: OregonVerifiedTransactionRow): readonly string[] {
     const r = w.rawFields;
     const country = norm(String(r.Country ?? "")), foreign = String(r["Foreign Postal Code"] ?? "").trim();
     if (country !== "" && country !== "UNITED STATES" || foreign !== "")
@@ -221,14 +221,18 @@ function address(w: OregonVerifiedTransactionRow): string {
     if (!/^\d{1,5}$/.test(rawZip) || plus !== "" && !/^\d{4}$/.test(plus))
         fail("unsupported domestic ZIP projection");
     const zip = rawZip.padStart(5, "0");
-    const locality = `${String(r.City ?? "").trim()}, ${String(r.State ?? "").trim()} ${zip}${plus ? `-${plus}` : ""}`;
-    return norm([r["Addr Line1"], r["Addr Line2"], locality].map(v => String(v ?? "")).join(" "));
+    const city = String(r.City ?? "").trim(), state = String(r.State ?? "").trim();
+    const postal = `${zip}${plus ? `-${plus}` : ""}`;
+    // The official detail publishes space-separated locality; retain the existing comma presentation too.
+    // Only these separators vary. Every street/address2/city/state/postal component keeps its punctuation.
+    return [`${city}, ${state} ${postal}`, `${city} ${state} ${postal}`].map(locality =>
+        norm([r["Addr Line1"], r["Addr Line2"], locality].map(v => String(v ?? "")).join(" ")));
 }
 function bindDetail(w: OregonVerifiedTransactionRow, d: OregonVerifiedDetail): void {
     if (d.filerCommitteeId !== w.filerCommitteeId || d.transactionId !== w.transactionId || d.date !== w.date || d.amountCents !== w.amountCents ||
         d.transactionType !== "Contribution" || d.subType !== "Cash Contribution" || d.bookType !== "Political Committee" || !d.name ||
         norm(d.name) !== norm(String(w.rawFields["Contributor/Payee"] ?? "")) || norm(d.filerName) !== norm(String(w.rawFields.Filer ?? "")) ||
-        norm(d.addressLines.join(" ")) !== address(w) || d.expired || d.deleted || d.processStatus !== "Complete" || d.versionStatus !== w.status ||
+        !address(w).includes(norm(d.addressLines.join(" "))) || d.expired || d.deleted || d.processStatus !== "Complete" || d.versionStatus !== w.status ||
         d.mechanisms.length || d.refundAssociations.length)
         fail(`typed cash detail/full workbook mismatch ${w.transactionId}`);
 }
