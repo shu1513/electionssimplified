@@ -41,7 +41,13 @@ const FINANCE_SOURCE_HOME_URLS: Partial<Record<FinanceSummary["source"], string>
  */
 export const FINANCE_SMALL_AMOUNT_THRESHOLD = 5000;
 
-/** True for an empty list (nothing reported) or one whose amounts reach the threshold. */
+/**
+ * True for an empty list (nothing reported) or one whose amounts reach the
+ * threshold. The backend sends only the top few rows of each list, so this
+ * judges what the card would show, not the full disclosed total: a long
+ * tail of small rows below the cut does not bring the section back, because
+ * the rows it would show are exactly the small money the threshold hides.
+ */
 export function meetsSmallAmountThreshold(rows: readonly { amount: number }[]): boolean {
   return rows.length === 0 || rows.reduce((sum, row) => sum + row.amount, 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD;
 }
