@@ -57,6 +57,11 @@ export type StateFinanceLoaderCharacterizationSpec = {
    */
   outsideCoverageNote?: string;
   directCoverageNote?: string;
+  /**
+   * Set when the loader opts into the public_funds_received funding column.
+   * Every other state's payload must not gain the field at all.
+   */
+  publicFundsReceived?: boolean;
 };
 
 const CANDIDATE_A = "11111111-1111-4111-8111-111111111111";
@@ -101,6 +106,7 @@ function buildFixtureRows(directCategoryTypes: readonly ("occupation" | "contrib
         direct_contribution_total: null,
         total_disbursements: "111.5",
         cash_on_hand: 42,
+        public_funds_received: "3120785.29",
         outside_support_total: "900",
         outside_oppose_total: null,
         source_url: SUMMARY_A_SOURCE_URL,
@@ -281,6 +287,7 @@ function buildExpected(spec: StateFinanceLoaderCharacterizationSpec): Map<string
           total_spent: 111.5,
           cash_on_hand: 42,
           debts_owed: null,
+          ...(spec.publicFundsReceived ? { public_funds_received: 3120785.29 } : {}),
           top_occupations: occupationsA,
           top_employers: [],
           top_industries: [],
@@ -347,6 +354,7 @@ function buildExpected(spec: StateFinanceLoaderCharacterizationSpec): Map<string
           total_spent: null,
           cash_on_hand: null,
           debts_owed: null,
+          ...(spec.publicFundsReceived ? { public_funds_received: null } : {}),
           top_occupations: occupationsB,
           top_employers: [],
           top_industries: [],

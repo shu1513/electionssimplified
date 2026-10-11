@@ -18,6 +18,11 @@ import {
 } from "./districtOfColumbiaCandidateCommitteeResolver.js";
 import { DISTRICT_OF_COLUMBIA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./districtOfColumbiaFinanceEligibleOffices.js";
 import {
+  DISTRICT_OF_COLUMBIA_FAIR_ELECTIONS_SOURCE_URL,
+  downloadDistrictOfColumbiaFairElectionsData,
+  isDistrictOfColumbiaFairElectionsCommitteeKey,
+} from "./districtOfColumbiaFairElectionsClient.js";
+import {
   buildDistrictOfColumbiaOcfDataDownloadUrl,
   downloadIndependentExpenditureContributions,
   downloadIndependentExpenditureExpenditures,
@@ -50,7 +55,24 @@ export type DistrictOfColumbiaOcfDataForYear = {
   principalContributionRecords: readonly DistrictOfColumbiaOcfContributionRecord[];
   independentExpenditureRecords: readonly DistrictOfColumbiaOcfExpenditureRecord[];
   independentExpenditureContributionRecords: readonly DistrictOfColumbiaOcfContributionRecord[];
+  // Fair Elections (public financing) committees report outside the OCF
+  // export. Optional so preloaded data without them still works.
+  fairElectionsContributionRecords?: readonly DistrictOfColumbiaOcfContributionRecord[];
+  fairElectionsExpenditureRecords?: readonly DistrictOfColumbiaOcfExpenditureRecord[];
+  // Set when the Fair Elections download failed: only Fair Elections links
+  // fail, so OCF export candidates still sync.
+  fairElectionsLoadError?: string;
 };
+
+type DistrictOfColumbiaContributionDataForYear = Pick<
+  DistrictOfColumbiaOcfDataForYear,
+  | "year"
+  | "sourceUrl"
+  | "principalContributionRecords"
+  | "fairElectionsContributionRecords"
+  | "fairElectionsExpenditureRecords"
+  | "fairElectionsLoadError"
+>;
 
 export type DistrictOfColumbiaCandidateFinanceBatchSyncInput = {
   db: ConnectableQueryable;
@@ -149,27 +171,69 @@ function groupAutoLinkCandidatesByYear(
   return byYear;
 }
 
+async function loadFairElectionsDataForYear(input: {
+  year: number;
+  now: Date;
+  electionLookbackDays: number;
+  ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
+}): Promise<
+  Pick<
+    DistrictOfColumbiaOcfDataForYear,
+    "fairElectionsContributionRecords" | "fairElectionsExpenditureRecords" | "fairElectionsLoadError"
+  >
+> {
+  try {
+    const data = await downloadDistrictOfColumbiaFairElectionsData(
+      { electionYear: input.year, now: input.now, finishedSpecialGraceDays: input.electionLookbackDays },
+      input.ocfClientOptions
+    );
+    return {
+      fairElectionsContributionRecords: data.contributionRecords,
+      fairElectionsExpenditureRecords: data.expenditureRecords,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn("D.C. Fair Elections download failed; Fair Elections committees will not sync:", message);
+    return { fairElectionsContributionRecords: [], fairElectionsExpenditureRecords: [], fairElectionsLoadError: message };
+  }
+}
+
 async function loadPrincipalContributionDataForYear(input: {
   year: number;
+  now: Date;
+  electionLookbackDays: number;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
-}): Promise<Pick<DistrictOfColumbiaOcfDataForYear, "year" | "sourceUrl" | "principalContributionRecords">> {
-  return {
-    year: input.year,
-    sourceUrl: buildDistrictOfColumbiaOcfDataDownloadUrl(),
-    principalContributionRecords: await downloadPrincipalCampaignContributions(
+}): Promise<DistrictOfColumbiaContributionDataForYear> {
+  const [principalContributionRecords, fairElectionsData] = await Promise.all([
+    downloadPrincipalCampaignContributions(
       { fromDate: cycleStartDate(input.year), toDate: cycleEndDate(input.year) },
       input.ocfClientOptions
     ),
+    loadFairElectionsDataForYear(input),
+  ]);
+  return {
+    year: input.year,
+    sourceUrl: buildDistrictOfColumbiaOcfDataDownloadUrl(),
+    principalContributionRecords,
+    ...fairElectionsData,
   };
+}
+
+function allContributionRecords(data: DistrictOfColumbiaContributionDataForYear | undefined): DistrictOfColumbiaOcfContributionRecord[] {
+  return [...(data?.principalContributionRecords ?? []), ...(data?.fairElectionsContributionRecords ?? [])];
 }
 
 async function loadOcfDataForYear(input: {
   year: number;
+  now: Date;
+  electionLookbackDays: number;
+  // Contribution data the auto-link pass already downloaded this run.
+  principalData?: DistrictOfColumbiaContributionDataForYear;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
 }): Promise<DistrictOfColumbiaOcfDataForYear> {
   const [principalContributionData, independentExpenditureRecords, independentExpenditureContributionRecords] =
     await Promise.all([
-      loadPrincipalContributionDataForYear(input),
+      input.principalData ?? loadPrincipalContributionDataForYear(input),
       downloadIndependentExpenditureExpenditures(
         { fromDate: cycleStartDate(input.year), toDate: cycleEndDate(input.year) },
         input.ocfClientOptions
@@ -181,9 +245,7 @@ async function loadOcfDataForYear(input: {
     ]);
 
   return {
-    year: input.year,
-    sourceUrl: principalContributionData.sourceUrl,
-    principalContributionRecords: principalContributionData.principalContributionRecords,
+    ...principalContributionData,
     independentExpenditureRecords,
     independentExpenditureContributionRecords,
   };
@@ -191,24 +253,35 @@ async function loadOcfDataForYear(input: {
 
 async function getOrLoadOcfDataForYear(input: {
   year: number;
+  now: Date;
+  electionLookbackDays: number;
   dataByYear: Map<number, DistrictOfColumbiaOcfDataForYear>;
+  principalDataByYear: Map<number, DistrictOfColumbiaContributionDataForYear>;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
 }): Promise<DistrictOfColumbiaOcfDataForYear> {
   const existing = input.dataByYear.get(input.year);
   if (existing) {
     return existing;
   }
-  const loaded = await loadOcfDataForYear({ year: input.year, ocfClientOptions: input.ocfClientOptions });
+  const loaded = await loadOcfDataForYear({
+    year: input.year,
+    now: input.now,
+    electionLookbackDays: input.electionLookbackDays,
+    principalData: input.principalDataByYear.get(input.year),
+    ocfClientOptions: input.ocfClientOptions,
+  });
   input.dataByYear.set(input.year, loaded);
   return loaded;
 }
 
 async function getOrLoadPrincipalContributionDataForYear(input: {
   year: number;
+  now: Date;
+  electionLookbackDays: number;
   dataByYear: Map<number, DistrictOfColumbiaOcfDataForYear>;
-  principalDataByYear: Map<number, Pick<DistrictOfColumbiaOcfDataForYear, "year" | "sourceUrl" | "principalContributionRecords">>;
+  principalDataByYear: Map<number, DistrictOfColumbiaContributionDataForYear>;
   ocfClientOptions?: DistrictOfColumbiaOcfClientOptions;
-}): Promise<Pick<DistrictOfColumbiaOcfDataForYear, "year" | "sourceUrl" | "principalContributionRecords">> {
+}): Promise<DistrictOfColumbiaContributionDataForYear> {
   const fullData = input.dataByYear.get(input.year);
   if (fullData) {
     return fullData;
@@ -219,6 +292,8 @@ async function getOrLoadPrincipalContributionDataForYear(input: {
   }
   const loaded = await loadPrincipalContributionDataForYear({
     year: input.year,
+    now: input.now,
+    electionLookbackDays: input.electionLookbackDays,
     ocfClientOptions: input.ocfClientOptions,
   });
   input.principalDataByYear.set(input.year, loaded);
@@ -273,10 +348,7 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
   const ocfDataByYear = new Map<number, DistrictOfColumbiaOcfDataForYear>(
     input.ocfDataByYear ? [...input.ocfDataByYear.entries()] : []
   );
-  const principalDataByYear = new Map<
-    number,
-    Pick<DistrictOfColumbiaOcfDataForYear, "year" | "sourceUrl" | "principalContributionRecords">
-  >();
+  const principalDataByYear = new Map<number, DistrictOfColumbiaContributionDataForYear>();
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
 
@@ -297,19 +369,25 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
         for (const [year] of groupAutoLinkCandidatesByYear(missingLinkCandidates).entries()) {
           const data = await getOrLoadPrincipalContributionDataForYear({
             year,
+            now,
+            electionLookbackDays,
             dataByYear: ocfDataByYear,
             principalDataByYear,
             ocfClientOptions: input.ocfClientOptions,
           });
-          contributionRowsByYear.set(year, data.principalContributionRecords);
+          contributionRowsByYear.set(year, allContributionRecords(data));
           sourceUrlByYear.set(year, data.sourceUrl);
         }
-        resolveCandidateCommittee = async (candidateInput): Promise<DistrictOfColumbiaCandidateCommitteeResolution> =>
-          resolveDistrictOfColumbiaCandidateCommittee({
+        resolveCandidateCommittee = async (candidateInput): Promise<DistrictOfColumbiaCandidateCommitteeResolution> => {
+          const resolution = resolveDistrictOfColumbiaCandidateCommittee({
             ...candidateInput,
             contributionRecords: contributionRowsByYear.get(candidateInput.electionYear) ?? [],
             sourceUrl: sourceUrlByYear.get(candidateInput.electionYear) ?? buildDistrictOfColumbiaOcfDataDownloadUrl(),
           });
+          return resolution.status === "matched" && isDistrictOfColumbiaFairElectionsCommitteeKey(resolution.committeeKey)
+            ? { ...resolution, sourceUrl: DISTRICT_OF_COLUMBIA_FAIR_ELECTIONS_SOURCE_URL }
+            : resolution;
+        };
       }
 
       const autoLinkResults = await autoLinkMissingDistrictOfColumbiaCandidateFinanceLinks({
@@ -350,7 +428,10 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
       try {
         await getOrLoadOcfDataForYear({
           year,
+          now,
+          electionLookbackDays,
           dataByYear: ocfDataByYear,
+          principalDataByYear,
           ocfClientOptions: input.ocfClientOptions,
         });
       } catch (error) {
@@ -375,6 +456,17 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
     }
 
     const ocfData = ocfDataByYear.get(row.electionYear);
+    if (ocfData?.fairElectionsLoadError && isDistrictOfColumbiaFairElectionsCommitteeKey(row.committeeKey)) {
+      results.push({
+        candidateId: row.candidateId,
+        electionId: row.electionId,
+        electionYear: row.electionYear,
+        committeeKey: row.committeeKey,
+        ok: false,
+        error: ocfData.fairElectionsLoadError,
+      });
+      continue;
+    }
     try {
       const result = await syncFn({
         db: input.db,
@@ -386,7 +478,8 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
         officeName: row.officeName,
         district: row.district,
         sourceUrl: row.sourceUrl ?? ocfData?.sourceUrl,
-        contributionRecords: ocfData?.principalContributionRecords ?? [],
+        contributionRecords: allContributionRecords(ocfData),
+        committeeExpenditureRecords: ocfData?.fairElectionsExpenditureRecords ?? [],
         expenditureRecords: ocfData?.independentExpenditureRecords ?? [],
         outsideContributionRecords: ocfData?.independentExpenditureContributionRecords ?? [],
         trustedCommittee: {

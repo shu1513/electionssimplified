@@ -46,6 +46,9 @@ export async function loadDistrictOfColumbiaCandidateFinanceSummariesByCandidate
     // split DC from texas/houston/washington, which carry the identical
     // schema constraint and also run the default.
     committeeColumn: "committee_key",
+    // Fair Elections base and matching payments (migration 321). Null for
+    // committees outside the program, so the card hides the stat for them.
+    fundingColumns: ["public_funds_received"],
     tables: {
       links: "dc_candidate_finance_links",
       summaries: "dc_candidate_finance_summaries",

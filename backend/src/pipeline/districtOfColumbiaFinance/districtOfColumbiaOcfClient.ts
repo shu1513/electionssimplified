@@ -60,7 +60,15 @@ export type DistrictOfColumbiaOcfContributionRecord = {
   occupation?: string;
   amount: number;
   date?: string;
+  // Set only by the Fair Elections source, which labels each receipt by
+  // schedule. Unset (every OCF export row) means a donor contribution.
+  receiptKind?: DistrictOfColumbiaReceiptKind;
 };
+
+// "public_funds": Fair Elections base and matching payments (schedule A3).
+// "other": interest, expenditure offsets, and prohibited contributions the
+// committee must return. Neither counts as money raised from donors.
+export type DistrictOfColumbiaReceiptKind = "contribution" | "public_funds" | "other";
 
 export type DistrictOfColumbiaOcfExpenditureRecord = {
   committeeName?: string;

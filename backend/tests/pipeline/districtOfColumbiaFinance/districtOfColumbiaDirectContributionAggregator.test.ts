@@ -42,6 +42,7 @@ describe("districtOfColumbiaDirectContributionAggregator", () => {
       summary: {
         totalReceipts: 5350,
         directContributionTotal: 5350,
+        publicFundsReceived: null,
         sourceUrl,
       },
       directBreakdowns: [
