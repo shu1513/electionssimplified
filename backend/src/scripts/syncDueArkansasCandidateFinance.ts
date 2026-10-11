@@ -1,4 +1,5 @@
 import { pathToFileURL } from "node:url";
+import { isAbsolute } from "node:path";
 
 import { Pool } from "pg";
 
@@ -9,11 +10,16 @@ import {
   type ArkansasCandidateFinanceBatchSyncResult,
 } from "../pipeline/arkansasFinance/arkansasCandidateFinanceBatchSync.js";
 import { buildArkansasCfisDnsFallbackFetch } from "../pipeline/arkansasFinance/arkansasCfisDnsFallback.js";
+import { createArkansasVerifiedRawCache } from "../pipeline/arkansasFinance/arkansasVerifiedRawCache.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueArkansasCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  refresh: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  rawCacheDir?: string;
   dnsFallback: boolean;
   autoLinkMissingLinks: boolean;
   maxCandidates?: number;
@@ -22,8 +28,8 @@ export type SyncDueArkansasCandidateFinanceScriptOptions = {
   electionLookaheadDays?: number;
 };
 
-const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--dns-fallback", "--no-auto-link"]);
-const VALUE_FLAGS = new Set(["--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]);
+const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh", "--dns-fallback", "--no-auto-link"]);
+const VALUE_FLAGS = new Set(["--candidate-id", "--election-year", "--raw-cache-dir", "--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]);
 
 function readValueFlag(args: readonly string[], name: string): string | undefined {
   const values: string[] = [];
@@ -54,11 +60,25 @@ export function parseSyncDueArkansasCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueArkansasCandidateFinanceScriptOptions {
   assertKnownCliFlags(args, "Arkansas candidate finance due sync", BOOLEAN_FLAGS, VALUE_FLAGS);
+  const candidateId = readValueFlag(args, "--candidate-id");
+  if (candidateId !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidateId)) {
+    throw new Error(`Invalid --candidate-id value: ${candidateId}`);
+  }
+  const electionYear = parsePositiveInteger(args, "--election-year");
+  if (electionYear !== undefined && (electionYear < 2026 || electionYear > 2100)) {
+    throw new Error(`Invalid --election-year value: ${electionYear}`);
+  }
+  const rawCacheDir = readValueFlag(args, "--raw-cache-dir");
+  if (rawCacheDir !== undefined && !isAbsolute(rawCacheDir)) throw new Error("--raw-cache-dir must be absolute");
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    refresh: args.includes("--refresh"),
+    candidateId,
+    electionYear,
+    rawCacheDir,
     dnsFallback: args.includes("--dns-fallback"),
-    autoLinkMissingLinks: !args.includes("--no-auto-link"),
+    autoLinkMissingLinks: candidateId === undefined && electionYear === undefined && !args.includes("--no-auto-link"),
     maxCandidates: parsePositiveInteger(args, "--max-candidates"),
     staleAfterDays: parsePositiveInteger(args, "--stale-after-days"),
     electionLookbackDays: parsePositiveInteger(args, "--lookback-days"),
@@ -86,10 +106,15 @@ async function main(): Promise<void> {
 
   const pool = new Pool({ connectionString: getDatabaseUrl() });
   try {
+    const rawCache = options.rawCacheDir ? await createArkansasVerifiedRawCache(options.rawCacheDir) : undefined;
     const result: ArkansasCandidateFinanceBatchSyncResult = await syncDueArkansasCandidateFinance({
       db: pool,
       now: startedAt,
       dryRun: options.dryRun,
+      refresh: options.refresh,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
+      onRawResponse: rawCache?.capture,
       autoLinkMissingLinks: options.autoLinkMissingLinks,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,
@@ -104,6 +129,7 @@ async function main(): Promise<void> {
           ts: new Date().toISOString(),
           started_at: startedAt.toISOString(),
           dry_run: options.dryRun,
+          raw_cache_directory: rawCache?.directory ?? null,
           result,
         },
         null,

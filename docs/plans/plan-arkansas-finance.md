@@ -1,5 +1,35 @@
 # Arkansas Campaign Finance Plan
 
+## October 11, 2026 implementation update
+
+The August/September plan below records the direct-only implementation at that time. The current batch also acquires bounded, verified PAC and outside evidence; the earlier statements that outside tables must stay empty are superseded by this update.
+
+PAC donors require explicit `Political Action Committee` cash receipt type, complete current Original version-1 electronic reports, exact native/PDF receipt identity and cents, and proven zero returned cash. The full all-type registry enriches donor identity; unmatched explicitly typed donors keep their reported names. Generic business/organization rows never become PACs through a name heuristic. Amended, paper, incomplete, returned, or changed prior authority preserves stored PAC rows. PAC money remains a subset of existing Raised; report coverage can differ from registration totals.
+
+Outside allocation requires a complete reconciled current Original electronic payer report and exact purpose text naming support/opposition, candidate, office and district. Initial transaction authority is limited to explicit 2026 `PRMELEC` rows. Contradictory payer cover election fields remain in provenance under this reviewed application policy. The sole finite alias is `CHARLENE FITE` for filer8277/2026/House24, bound to the current identity cover declaring `Edna Charlene Fite`; that amended cover proves identity only. Unavailable payers and rejected amendments retain prior groups. Overall outside totals stay NULL because positive allocations do not establish complete coverage.
+
+Normal sync acquires fresh opening/closing full registry, current-report and native-ledger collections, exact stored PDFs and transaction details before writes. `--raw-cache-dir` retains untouched public response bytes and request metadata in a fresh generation. Existing `--dns-fallback` uses public DNS with the original TLS hostname. Candidate/year scope applies before limiting; `--refresh` bypasses staleness. The default 100-day election lookback includes the January20 candidate final report; withdrawn/lost election eligibility still limits selection. Legacy receipts acquisition failures conservatively preserve the whole candidate snapshot.
+
+Real local normal CLI syncs on October 11 wrote 20 PAC donor rows and two outside groups across three selected candidates; all 159 active links remain. Alan Clark's Raised stays $80,412, with 22 typed PAC cash receipts/$22,650 in 20 donor groups (18 registry entities, two reported labels), published through August 31. The production card shows the full $22,650/20-group interest sum before its five-name display cap; Justice PAC and Senate Leadership PAC each show $3,500. NRA support is $145.47 for Brandon Achor and $191.38 for Charlene Fite, two exact allocations each; overall outside totals remain NULL. Achor/Fite amended PAC sources preserve existing donor state. Whole NRA 2026 current Original reports reconcile 10 expenses/$1,338.81, including unallocated bank fees.
+
+Three successful source generations retain 1,254 untouched responses with independently checked hashes and genuine opening/closing acquisitions. The first Achor run's closing HTTP 500 is retained as a separate failed generation: no outside evidence was accepted, and a fully fresh normal retry produced its positive group. Independent replay verifies the current Fite identity cover, including its actual version 2/Amended/hasChild=true context; it does not authorize amended financial receipts. These are report-scoped local witnesses, not statewide completeness or unique economic gift counts. Backend typecheck and 12,561 tests pass (152 skipped), with unmocked external fetches blocked; the unrelated unconditional historical importer test runs separately with dry-run fixtures.
+
+Fresh post-deadline reruns are mandatory; October 11 counts are provisional. Use `--force --refresh --election-year=2026 --no-auto-link --raw-cache-dir=<absolute-directory>` and retain fetch time separately from report coverage. Official [candidate calendar](https://www.arkansasethics.com/wp-content/uploads/2025/07/2026-REPORTING-CALENDAR-State-or-District-1.pdf), [IE calendar](https://www.arkansasethics.com/wp-content/uploads/2025/08/IE-Reporting-Calendar-2026-Rev-09-2025.pdf) and [PAC calendar](https://www.arkansasethics.com/wp-content/uploads/2025/11/PAC-2026-LtrHd-Format.pdf):
+
+| Fresh rerun | Filing deadline and scope |
+| --- | --- |
+| October 16 | PAC/party Q3 due October 15, through September 30. |
+| October 21 | Candidate/IE monthly due October 20, through September 30. |
+| October 28; retry October 30/November 2 | Pre-general due October 27, through October 24. |
+| November 21 | Applicable unopposed monthly due November 20, through October 31. |
+| December 31 | IE final due December 30, through filing date. |
+| January 16, 2027 | PAC/party report due January 15, through December 31. |
+| January 21, 2027 | Candidate final due January 20; pass `--lookback-days=100` for the 2026 cohort. |
+
+Confirm fresh publication before each rerun and retry delayed postings. No scheduled automation or production rollout is created by this plan. Applied migration330 is additive and immutable; earlier applied migrations remain unchanged.
+
+## Historical direct-only plan
+
 Written 2026-08-26 after a live API probe (all endpoints below exercised with curl the same day; six bulk CSVs downloaded and analyzed; one cent-level reconciliation attempted) plus a codebase reuse audit, and after reviewing an external 2026-08-03 feasibility report whose portal-availability findings were wrong (its research environment hit the DNS defect below; the portal was up). Companion findings doc with the full endpoint map: `backend/docs/arkansas-campaign-finance.md`. Verdict: **GO — Phase 0 first.** Direct finance + donor occupations ship; candidate-specific outside spending does NOT (no structured stance/target anywhere in the source — proven, not suspected). No schema and no published numbers until the Phase 0 gates pass.
 
 Arkansas is the **same Civix CFIS build as the shipped New Hampshire module** (`backend/src/pipeline/newHampshireFinance/`, migration 249) — same `{data, succeeded, error}` wrapper, same `ExportData/GetExportPublicDownloadData` bulk export, same Angular SPA. This plan mirrors NH file-for-file and diverges only where the AR deployment differs (endpoint names, thinner transaction-search rows, occupation coverage, no IE stance). Since Acts 524/994 of 2025, county and municipal candidates also file here — the office lookup enumerates 42 offices from Governor down to School Board Member, Constable, and Justice of the Peace, so one module covers state and local candidates (Missouri-style), with the usual caveat that registration-level presence is not proof of complete local filings.

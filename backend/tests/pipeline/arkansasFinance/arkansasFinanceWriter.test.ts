@@ -97,6 +97,7 @@ describe("arkansasFinanceWriter", () => {
       directBreakdownsWritten: 2,
       outsideGroupsWritten: 0,
       outsideGroupBreakdownsWritten: 0,
+      pacDonorsWritten: 0,
     });
 
     const calls = client.query.mock.calls;
@@ -106,12 +107,12 @@ describe("arkansasFinanceWriter", () => {
 
     const summary = calls.find((call) => String(call[0]).includes("ar_candidate_finance_summaries"));
     const summarySql = String(summary?.[0]);
-    // Direct totals preserve stored values on NULL; outside totals always replace.
+    // Unknown direct and outside components preserve their stored values.
     expect(summarySql).toContain(
       "total_receipts = COALESCE(EXCLUDED.total_receipts, ar_candidate_finance_summaries.total_receipts)"
     );
-    expect(summarySql).toContain("outside_support_total = EXCLUDED.outside_support_total");
-    expect(summarySql).toContain("outside_oppose_total = EXCLUDED.outside_oppose_total");
+    expect(summarySql).toContain("outside_support_total = COALESCE(EXCLUDED.outside_support_total, ar_candidate_finance_summaries.outside_support_total)");
+    expect(summarySql).toContain("outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, ar_candidate_finance_summaries.outside_oppose_total)");
     expect(summary?.[1]?.slice(2, 9)).toEqual([
       7_870_507.53,
       7_870_507.53,
@@ -132,7 +133,10 @@ describe("arkansasFinanceWriter", () => {
     ).toBe(false);
     expect(
       calls.some((call) => String(call[0]).includes("DELETE FROM public.ar_candidate_finance_outside_groups"))
-    ).toBe(true);
+    ).toBe(false);
+    expect(
+      calls.some((call) => String(call[0]).includes("DELETE FROM public.ar_candidate_finance_outside_group_breakdowns"))
+    ).toBe(false);
 
     const supersede = calls.find(
       (call) =>

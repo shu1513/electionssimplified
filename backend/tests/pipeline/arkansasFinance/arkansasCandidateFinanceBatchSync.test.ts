@@ -46,13 +46,13 @@ describe("syncDueArkansasCandidateFinance", () => {
     });
 
     expect(autoLinkFn).toHaveBeenCalledWith(
-      expect.objectContaining({ now: NOW, maxCandidates: 2, electionLookbackDays: 38, electionLookaheadDays: 730 })
+      expect.objectContaining({ now: NOW, maxCandidates: 2, electionLookbackDays: 100, electionLookaheadDays: 730 })
     );
     expect(listDueRowsFn).toHaveBeenCalledWith(db, {
       now: NOW,
       staleAfterDays: 7,
       maxCandidates: 2,
-      electionLookbackDays: 38,
+      electionLookbackDays: 100,
       electionLookaheadDays: 730,
     });
     const sharedLoader = autoLinkFn.mock.calls[0]![0].loadRegistrations;
@@ -94,5 +94,65 @@ describe("syncDueArkansasCandidateFinance", () => {
     expect(autoLinkFn).toHaveBeenCalledTimes(1);
     expect(live.autoLinkResults).toEqual([]);
     expect(log).toHaveBeenCalledWith(expect.stringContaining("auto-link pass failed"));
+  });
+
+  it("refreshes scoped candidates before limiting and skips unrelated auto-link writes", async () => {
+    const target = dueRow({ candidateId: "44444444-4444-4444-8444-444444444444", filingEntityId: 7243,
+      lastSyncedAt: "2026-09-02T11:59:00Z" });
+    const db = { query: vi.fn(), connect: vi.fn() };
+    const autoLinkFn = vi.fn();
+    const listDueRowsFn = vi.fn(async () => ({ rows: [dueRow(), target, dueRow({ electionYear: 2028 })], totalDueRows: 3 }));
+    const syncCandidateFn = vi.fn(async () => ({ summaryWritten: true } as never));
+    const result = await syncDueArkansasCandidateFinance({ db: db as never, now: NOW, refresh: true,
+      candidateId: target.candidateId.toUpperCase(), electionYear: 2026, maxCandidates: 1,
+      autoLinkFn, listDueRowsFn, syncCandidateFn });
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(listDueRowsFn).toHaveBeenCalledWith(db, expect.objectContaining({
+      now: NOW, staleAfterDays: 0, maxCandidates: 10000,
+    }));
+    expect(syncCandidateFn).toHaveBeenCalledTimes(1);
+    expect(syncCandidateFn).toHaveBeenCalledWith(expect.objectContaining({ candidateId: target.candidateId, now: NOW }));
+    expect(result).toMatchObject({ totalDueRows: 1, attempted: 1, succeeded: 1, failed: 0 });
+  });
+
+  it("rejects truncated scoped lists before syncing or changing links", async () => {
+    const autoLinkFn = vi.fn();
+    const syncCandidateFn = vi.fn();
+    await expect(syncDueArkansasCandidateFinance({ db: { query: vi.fn(), connect: vi.fn() } as never,
+      electionYear: 2026, autoLinkFn, syncCandidateFn,
+      listDueRowsFn: vi.fn(async () => ({ rows: [dueRow()], totalDueRows: 10001 })),
+    })).rejects.toThrow("complete-row bound");
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(syncCandidateFn).not.toHaveBeenCalled();
+  });
+
+  it("prepares closed independent source components before writes and preserves unavailable evidence", async () => {
+    const events: string[] = [], rows = [dueRow(), dueRow({ candidateId: "44444444-4444-4444-8444-444444444444", filingEntityId: 7243 })];
+    const query = vi.fn(async () => ({ rows: [] }));
+    const loadIndependentSpending = vi.fn(async () => {
+      events.push("outside-closed");
+      return { scope: "current_original_ief_reports" as const, attemptedRegistrationGuids: [],
+        unverifiedRegistrationGuids: [], diagnostics: ["outside source unavailable"] };
+    });
+    const loadCandidate = vi.fn(async ({ link }: { link: { candidateId: string } }) => {
+      events.push(`pac-closed:${link.candidateId}`);
+      return { diagnostics: ["PAC source unavailable"] };
+    });
+    const loadCandidateIdentity = vi.fn(async () => ({ diagnostics: [] }));
+    const syncCandidateFn = vi.fn(async input => {
+      expect(events.slice(0, 3)).toEqual(["outside-closed", `pac-closed:${rows[0]!.candidateId}`, `pac-closed:${rows[1]!.candidateId}`]);
+      events.push("write");
+      expect(input.verifiedFinance).toEqual({ pacDonors: undefined, pacSourceProvenance: undefined,
+        outsideEvidence: [], diagnostics: ["PAC source unavailable", "outside source unavailable"] });
+      return { summaryWritten: true } as never;
+    });
+    const result = await syncDueArkansasCandidateFinance({ db: { query, connect: vi.fn() } as never, now: NOW,
+      autoLinkMissingLinks: false, maxCandidates: 2, listDueRowsFn: vi.fn(async () => ({ rows, totalDueRows: 2 })),
+      syncCandidateFn, verifiedFinanceLoader: { loadCandidate, loadIndependentSpending, loadCandidateIdentity } });
+    expect(loadIndependentSpending).toHaveBeenCalledTimes(1);
+    expect(loadCandidate).toHaveBeenCalledTimes(2);
+    expect(loadCandidateIdentity).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ attempted: 2, succeeded: 2, failed: 0 });
+    expect(query.mock.calls).toHaveLength(1);
   });
 });
