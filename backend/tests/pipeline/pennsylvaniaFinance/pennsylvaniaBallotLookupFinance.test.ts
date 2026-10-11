@@ -117,12 +117,10 @@ describe("pennsylvaniaBallotLookupFinance", () => {
         })
         .mockResolvedValueOnce({
           rows: [
-            // Sorted by hand through finance_pac_interests.
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7001", committee_name: "Greater PA Carpenters PAC", amount: "1500.00", source_url: null, manual_interest: "labor_unions" },
-            // Nothing sorts this one: shown under "Not yet sorted".
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: "1000.00", source_url: "https://pa.example/2026.zip", manual_interest: null },
-            // Sorted by hand as another candidate's committee: never listed.
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7002", committee_name: "Friends of Kim Ward", amount: "250.00", source_url: null, manual_interest: "candidate_committees" },
+            // One row per committee (the query merges the candidate's links), largest first.
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7001", committee_name: "Greater PA Carpenters PAC", amount: "1500.00", source_url: null },
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: "1000.00", source_url: "https://pa.example/2026.zip" },
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7003", committee_name: "Pennsylvania Association of Realtors PAC", amount: "500.00", source_url: null },
           ],
         }),
     };
@@ -142,12 +140,14 @@ describe("pennsylvaniaBallotLookupFinance", () => {
         total_raised: 12500,
         top_occupations: [{ category_name: "Attorney", amount: 5000, contributor_count: 4 }],
         contribution_size_buckets: [{ category_name: "$250.01-$1,000", amount: 6000, contributor_count: 5 }],
+        // The name rules sort none of these (they only know exact
+        // occupation words), so all stay under one "Not yet sorted" row.
         pac_money_by_interest: [
           {
-            interest: "labor_unions",
-            interest_name: "Labor unions",
-            amount: 1500,
-            pac_count: 1,
+            interest: "unclassified",
+            interest_name: "Not yet sorted",
+            amount: 3000,
+            pac_count: 3,
             pacs: [
               {
                 committee_id: "7001",
@@ -155,14 +155,14 @@ describe("pennsylvaniaBallotLookupFinance", () => {
                 amount: 1500,
                 source_url: "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/campaign-finance-data",
               },
+              { committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: 1000, source_url: "https://pa.example/2026.zip" },
+              {
+                committee_id: "7003",
+                committee_name: "Pennsylvania Association of Realtors PAC",
+                amount: 500,
+                source_url: "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/campaign-finance-data",
+              },
             ],
-          },
-          {
-            interest: "unclassified",
-            interest_name: "Not yet sorted",
-            amount: 1000,
-            pac_count: 1,
-            pacs: [{ committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: 1000, source_url: "https://pa.example/2026.zip" }],
           },
         ],
       },
@@ -192,6 +192,12 @@ describe("pennsylvaniaBallotLookupFinance", () => {
     });
     expect(String(db.query.mock.calls[0]?.[0])).toContain("FROM requested");
     expect(String(db.query.mock.calls[0]?.[0])).toContain("public.pa_candidate_finance_links");
+    // Committee donors are merged across the candidate's links, one row per committee.
+    const pacSql = String(db.query.mock.calls[5]?.[0]);
+    expect(pacSql).toContain("public.pa_candidate_finance_pac_donors");
+    expect(pacSql).toContain("GROUP BY selected.candidate_id, selected.election_id, donor.committee_id");
+    expect(pacSql).toContain("sum(donor.amount)");
+    expect(pacSql).not.toContain("finance_pac_interests");
   });
 
   it("stays quiet when PA finance is disabled", async () => {

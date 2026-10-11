@@ -73,10 +73,11 @@ type PacDonorAggregate = {
 const DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY = 50;
 // PA registry FILERTYPE: 1 = candidate, 2 = political committee, 3 = lobbyist.
 const PENNSYLVANIA_COMMITTEE_FILER_TYPE = "2";
-// A contributor with no occupation and one of these words in its name is a
-// committee even when the registry does not list it (out-of-state PACs,
-// national party groups, union political funds named differently).
-const COMMITTEE_NAME_PATTERN = /\b(PAC|POLITICAL|COMMITTEE|COPE|UNION|ASSOCIATION|LEAGUE|COUNCIL)\b/;
+// A contributor with no occupation, no employer, and one of these words in
+// its name is a committee even when the registry does not list it
+// (out-of-state PACs, national party groups, union political funds named
+// differently). Words that are also surnames (Cope, Fund) are left out.
+const COMMITTEE_NAME_PATTERN = /\b(PAC|POLITICAL|COMMITTEE|UNION|ASSOCIATION|LEAGUE|COUNCIL)\b/;
 
 function requireNonEmpty(value: string, fieldName: string): string {
   const trimmed = value.trim();
@@ -227,7 +228,7 @@ function pacDonorIdentity(input: {
     // Two registrations sharing a name cannot be told apart: key by name.
     return { committeeId: filerIds.size === 1 ? [...filerIds][0] ?? nameKey : nameKey, committeeName };
   }
-  if (!input.row.OCCUPATION.trim() && COMMITTEE_NAME_PATTERN.test(nameKey)) {
+  if (!input.row.OCCUPATION.trim() && !input.row.ENAME.trim() && COMMITTEE_NAME_PATTERN.test(nameKey)) {
     return { committeeId: nameKey, committeeName };
   }
   return null;

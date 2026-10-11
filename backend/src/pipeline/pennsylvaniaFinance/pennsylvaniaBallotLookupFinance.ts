@@ -14,7 +14,6 @@ import {
   PAC_INTERESTS_NOT_LISTED,
   UNCLASSIFIED_PAC_INTEREST,
   classifyPacInterest,
-  isPacInterestSlug,
   pacInterestDisplayName,
 } from "../finance/pacInterestClassifier.js";
 
@@ -100,8 +99,6 @@ type PennsylvaniaFinancePacDonorRow = {
   committee_name: string;
   amount: string | number;
   source_url: string | null;
-  // finance_pac_interests row keyed by the PA filer id, when someone sorted it.
-  manual_interest: string | null;
 };
 
 const GENERIC_PENNSYLVANIA_DOS_SOURCE_URL =
@@ -110,16 +107,14 @@ const GENERIC_PENNSYLVANIA_DOS_SOURCE_URL =
 const MAX_PAC_INTEREST_ROWS = 5;
 const MAX_PACS_PER_INTEREST = 5;
 
-// Where the committee's money is placed on the card: a manual
-// finance_pac_interests row first, then the shared rule classifier. Unsorted
-// committees are kept under "Not yet sorted" here, unlike the federal card,
-// because the name rules sort almost no Pennsylvania committees and hiding
-// them would hide most of the PAC money. Other candidates' committees are
-// hidden only once a manual row sorts them as candidate_committees.
+// Where the committee's money is placed on the card: the shared rule
+// classifier on the committee name (finance_pac_interests cannot help here:
+// it is keyed by FEC committee id). Unsorted committees are kept under "Not
+// yet sorted", unlike the federal card, because the name rules sort almost
+// no Pennsylvania committees and hiding them would hide most of the PAC
+// money. Researched labels (finance_committee_labels) still say who each
+// committee is.
 function pennsylvaniaPacInterest(row: PennsylvaniaFinancePacDonorRow): string {
-  if (row.manual_interest && isPacInterestSlug(row.manual_interest)) {
-    return row.manual_interest;
-  }
   return (
     classifyPacInterest({
       committeeName: row.committee_name,
@@ -131,7 +126,9 @@ function pennsylvaniaPacInterest(row: PennsylvaniaFinancePacDonorRow): string {
   );
 }
 
-// Rows arrive largest first per candidate, so each interest's pacs are its top ones.
+// Rows are one per committee per candidate-election (the query merges the
+// candidate's links) and arrive largest first, so each interest's pacs are
+// its top ones.
 function groupPennsylvaniaPacDonorsByInterest(
   rows: readonly PennsylvaniaFinancePacDonorRow[]
 ): Map<string, BallotLookupFinancePacInterest[]> {
@@ -682,10 +679,9 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
         selected.candidate_id::text AS candidate_id,
         selected.election_id::text AS election_id,
         donor.committee_id,
-        donor.committee_name,
-        donor.amount,
-        donor.source_url,
-        interests.interest_slug AS manual_interest
+        min(donor.committee_name) AS committee_name,
+        sum(donor.amount) AS amount,
+        min(donor.source_url) FILTER (WHERE donor.source_url IS NOT NULL) AS source_url
       FROM selected
       JOIN public.pa_candidate_finance_links AS link
         ON link.candidate_id = selected.candidate_id
@@ -694,9 +690,10 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
       JOIN public.pa_candidate_finance_pac_donors AS donor
         ON donor.link_id = link.id
        AND donor.election_year = link.election_year
-      LEFT JOIN public.finance_pac_interests AS interests
-        ON interests.committee_id = donor.committee_id
-      ORDER BY selected.candidate_id, selected.election_id, donor.amount DESC, donor.committee_name ASC
+      -- A candidate with two linked committees gets one row per donor
+      -- committee, not one per link.
+      GROUP BY selected.candidate_id, selected.election_id, donor.committee_id
+      ORDER BY selected.candidate_id, selected.election_id, sum(donor.amount) DESC, min(donor.committee_name) ASC
     `,
     [JSON.stringify(selectedRequests)]
   );

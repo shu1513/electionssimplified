@@ -500,6 +500,41 @@ describe("pennsylvaniaCandidateFinanceBatchSync", () => {
     }
   });
 
+  it("gives a candidate's expenditures to one link only and keeps every group past the display cap", async () => {
+    const secondLink = { ...dueRow(), link_id: "44444444-4444-4444-4444-444444444444", filer_id: "67890", filer_name: "JANE DOE LEADERSHIP PAC" };
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [secondLink, dueRow()] }).mockResolvedValueOnce({ rows: [] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    const fetchFn = vi.fn().mockResolvedValue({
+      rows: Array.from({ length: 51 }, (_, index) => ({
+        CandidateQuestion: "JANE DOE",
+        Organization: `Group ${index}`,
+        Amount: 100,
+        IsSupported: "YES",
+        IsOpposed: "NO",
+      })),
+      sourceUrl: IE_SOURCE_URL,
+      electionId: null,
+      electionOptions: [{ id: "116", label: "2026 General Election (11/03/2026)", selected: true }],
+    });
+
+    await syncDuePennsylvaniaCandidateFinance({
+      db,
+      now: new Date("2026-01-01T00:00:00.000Z"),
+      autoLinkMissingLinks: false,
+      paDataByYear,
+      rawDataCacheDir: await makeTempDir(),
+      fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+      syncPennsylvaniaCandidateFinanceFn: syncFn,
+    });
+
+    const groupsByLink = new Map(syncFn.mock.calls.map((call) => [call[0].trustedFiler.filerId, call[0].outsideGroups]));
+    // The lowest link id (LINK_ID, 3333...) holds every group; the other link gets none.
+    expect(groupsByLink.get("12345")).toHaveLength(51);
+    expect(groupsByLink.get("67890")).toEqual([]);
+  });
+
   it("passes an empty outside group list when the fetched year names no one, so stale groups are removed", async () => {
     const db = {
       query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),

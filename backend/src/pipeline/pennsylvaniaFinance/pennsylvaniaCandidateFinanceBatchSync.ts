@@ -462,13 +462,30 @@ async function fetchOutsideSpendingGroupsByLinkId(input: {
         }
         page = option.selected ? landing : await input.fetchFn({ electionId: option.id });
       }
+      // Expenditures name the candidate, not a committee, and the read side
+      // sums every link's totals, so a candidate with two linked committees
+      // gets the groups on one link (the lowest id) and none on the others.
+      const linkHoldingGroups = new Map<string, string>();
+      for (const row of [...rows].sort((left, right) => left.linkId.localeCompare(right.linkId))) {
+        const key = `${row.candidateId}\u0000${row.electionId}`;
+        if (!linkHoldingGroups.has(key)) {
+          linkHoldingGroups.set(key, row.linkId);
+        }
+      }
       for (const row of rows) {
+        if (linkHoldingGroups.get(`${row.candidateId}\u0000${row.electionId}`) !== row.linkId) {
+          groupsByLinkId.set(row.linkId, []);
+          continue;
+        }
         const aggregation = aggregatePennsylvaniaOutsideSpending({
           candidateName: row.candidateName,
           electionYear,
           expenditureRows: page.rows,
           sourceUrl: page.sourceUrl,
           electionId: page.electionId,
+          // Every group is stored and the sync totals from this list, so the
+          // aggregator's display cap must not drop any.
+          maxGroups: Number.MAX_SAFE_INTEGER,
         });
         groupsByLinkId.set(row.linkId, aggregation.summary?.groups ?? []);
       }

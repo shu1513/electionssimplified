@@ -173,8 +173,11 @@ describe("pennsylvaniaDirectContributionAggregator", () => {
         contribution({ CampaignFinanceID: "3", CONTRIBUTOR: "William R. Sasso", OCCUPATION: "", ENAME: "", CONTAMT1: "900.00" }),
         contribution({ CampaignFinanceID: "4", CONTRIBUTOR: "Local 5 PAC", OCCUPATION: "", ENAME: "", CONTAMT1: "100.00" }),
         contribution({ CampaignFinanceID: "5", CONTRIBUTOR: "Democratic Governors Association", OCCUPATION: "", ENAME: "", CONTAMT1: "2000.00" }),
-        // An occupation means a person, even with a committee-like word.
+        // An occupation or an employer means a person, even with a committee-like word.
         contribution({ CampaignFinanceID: "6", CONTRIBUTOR: "Pat Union", OCCUPATION: "Retired", ENAME: "", CONTAMT1: "50.00" }),
+        contribution({ CampaignFinanceID: "8", CONTRIBUTOR: "Jane Council", OCCUPATION: "", ENAME: "Law Firm", CONTAMT1: "75.00" }),
+        // "Cope" is a surname as often as a union fund abbreviation.
+        contribution({ CampaignFinanceID: "9", CONTRIBUTOR: "John Cope", OCCUPATION: "", ENAME: "", CONTAMT1: "100.00" }),
         // Outside the cycle: ignored like every other event.
         contribution({ CampaignFinanceID: "7", CONTRIBUTOR: "Democratic Governors Association", OCCUPATION: "", ENAME: "", CONTAMT1: "5000.00", CONTDATE1: "20240101" }),
       ],
@@ -187,7 +190,7 @@ describe("pennsylvaniaDirectContributionAggregator", () => {
       { committeeId: "LOCAL 5 PAC", committeeName: "Local 5 PAC", amount: 100, contributionCount: 1, sourceUrl: "https://pa.example/2026.zip" },
     ]);
     // Committee money stays inside the regular totals.
-    expect(result.summary.totalReceipts).toBe(4800);
+    expect(result.summary.totalReceipts).toBe(4975);
   });
 
   it("matches filer IDs case-insensitively and counts distinct contributors", () => {
