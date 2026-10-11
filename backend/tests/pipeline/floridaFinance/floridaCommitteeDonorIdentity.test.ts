@@ -328,3 +328,37 @@ describe("observed numeric-primary leading east predirectional", () => {
     expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedName: "Florida Home Builders EAST PAC" }).status).toBe("unresolved");
   });
 });
+
+describe("source-witnessed terminal ROAD secondary-unit serialization", () => {
+  it("binds both directions of the same full street/unit and preserves raw hashes", () => {
+    for (const [registered, reported] of [
+      ["100 Full Road L103", "100 FULL ROAD SUITE L103"],
+      ["100 Full Road SUITE L103", "100 FULL ROAD L103"],
+    ]) {
+      const rows = [old(), row({ address: registered })], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input(rows), reportedAddress: reported }).identity?.committeeId).toBe("60813");
+      expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+      expect(rows[1]!.address).toBe(registered);
+    }
+  });
+  it.each(["100 FULL ROAD SUITE L104", "101 FULL ROAD SUITE L103", "100 OTHER ROAD SUITE L103",
+    "100 FULL STREET SUITE L103", "100 FULL RD SUITE L103", "100 FULL ROAD UNIT L103",
+    "100 FULL ROAD SUITE 103", "100 FULL ROAD SUITE LL103", "100 FULL ROAD SUITE L103 BUILDING",
+    "100 FULL ROAD SUITE L0103", "100 FULL ROAD SUITE L-103", "100 FULL ROAD SUITE L103.",
+    "100 SUITE FULL ROAD L103"])("preserves changed or unsupported %s", reportedAddress => {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), row({ address: "100 Full Road L103" })]),
+        reportedAddress }).status).toBe("unresolved");
+    });
+  it("does not bind numeric-only units or another suffix by removing designators", () => {
+    for (const [registered, reported] of [["100 Full Road 103", "100 FULL ROAD SUITE 103"],
+      ["100 Full Street L103", "100 FULL STREET SUITE L103"]]) {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), row({ address: registered })]),
+        reportedAddress: reported }).status).toBe("unresolved");
+    }
+  });
+  it("retains full locality and legal name with the independently bound unit", () => {
+    const i = { ...input([old(), row({ address: "100 Full Road L103" })]), reportedAddress: "100 FULL ROAD SUITE L103" };
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedCityStateZip: "Wrong City, FL 32308" }).status).toBe("unresolved");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedName: "Florida Home Builders PAC L103" }).status).toBe("not_found");
+  });
+});

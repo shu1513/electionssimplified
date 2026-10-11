@@ -131,6 +131,11 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
 function street(value: string): string {
   return exactText(value).replace(/^([0-9]+) (?:EAST|E[.]) (?=\S)/u, "$1 E ")
     .replace(/, SUITE (?=[A-Z0-9-]+$)/u, " SUITE ")
+    // Observed official account response corroborates the secondary-unit meaning:
+    // https://dos.elections.myflorida.com/campaign-docs/PDFHandler.ashx?AcctType=02/25/22&TrackNum=100441166
+    // Current web/receipt ROAD+[unit] versus ROAD+SUITE+[same unit] is an identity
+    // inference; USPS does not authorize omission of required mail designators.
+    .replace(/ ROAD SUITE ([A-Z][0-9]{1,5})$/u, " ROAD $1")
     .replace(/(^| )DRIVE$/u, "$1DR")
     .replace(/ AVENUE NORTHWEST(?=$| SUITE [A-Z0-9-]+$)/u, " AVENUE NW");
 }
