@@ -86,13 +86,73 @@ describe("syncDueDelawareCandidateFinance", () => {
       log: () => {},
     });
 
-    // Same CF_ID on both rows: the failed fetch is attempted once, the first
-    // row fails on it, the second row still syncs against the cache.
+    // Both siblings retain their prior snapshots: a failed refresh is
+    // attempted once and neither sibling may sync against the old cache.
     expect(acquireArtifactsFn).toHaveBeenCalledTimes(1);
-    expect(result.failed).toBe(1);
-    expect(result.succeeded).toBe(1);
+    expect(result.failed).toBe(2);
+    expect(result.succeeded).toBe(0);
     expect(result.candidates[0]?.error).toContain("CFRS request failed");
+    expect(result.candidates[1]?.error).toContain("CFRS request failed");
+    expect(syncCandidateFn).not.toHaveBeenCalled();
+  });
+
+  it("preserves both failed-CF siblings while an unrelated CF still syncs", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const acquireArtifactsFn = vi.fn(async ({ cfId }: { cfId: string }) => {
+      if (cfId === "01009999") throw new Error("current source unavailable");
+      return {};
+    });
+    const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: false });
+    const result = await syncDueDelawareCandidateFinance({
+      db,
+      forceRawDataRefresh: true,
+      autoLinkMissingLinks: false,
+      listDueRowsFn: vi
+        .fn()
+        .mockResolvedValue({
+          rows: [
+            dueRow(),
+            dueRow({ candidateId: "unrelated", cfId: "01008888" }),
+            dueRow({ candidateId: "sibling", electionId: "e2" }),
+          ],
+          totalDueRows: 3,
+        }),
+      acquireArtifactsFn,
+      syncCandidateFn,
+      log: () => {},
+    });
+    expect(acquireArtifactsFn.mock.calls.map(([input]) => input.cfId)).toEqual(["01009999", "01008888"]);
     expect(syncCandidateFn).toHaveBeenCalledTimes(1);
+    expect(syncCandidateFn.mock.calls[0]?.[0]).toMatchObject({
+      candidateId: "unrelated",
+      committee: { cfId: "01008888" },
+    });
+    expect(result).toMatchObject({ attempted: 3, succeeded: 1, failed: 2 });
+    expect(result.candidates[0]?.error).toBe("current source unavailable");
+    expect(result.candidates[2]?.error).toBe("current source unavailable");
+  });
+
+  it("reuses one successful acquisition for same-CF siblings", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const acquireArtifactsFn = vi.fn().mockResolvedValue({});
+    const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: false });
+    const result = await syncDueDelawareCandidateFinance({
+      db,
+      forceRawDataRefresh: true,
+      autoLinkMissingLinks: false,
+      listDueRowsFn: vi
+        .fn()
+        .mockResolvedValue({
+          rows: [dueRow(), dueRow({ candidateId: "c2", electionId: "e2" })],
+          totalDueRows: 2,
+        }),
+      acquireArtifactsFn,
+      syncCandidateFn,
+      log: () => {},
+    });
+    expect(acquireArtifactsFn).toHaveBeenCalledTimes(1);
+    expect(syncCandidateFn).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ succeeded: 2, failed: 0 });
   });
 
   it("skips auto-link and acquisition on dry runs and continues when the auto-link pass fails", async () => {

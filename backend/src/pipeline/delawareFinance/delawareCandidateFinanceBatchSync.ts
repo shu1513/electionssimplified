@@ -139,16 +139,24 @@ export async function syncDueDelawareCandidateFinance(
   const acquireArtifacts = input.acquireArtifactsFn ?? acquireDelawareCfrsCommitteeArtifacts;
   const syncCandidate = input.syncCandidateFn ?? syncDelawareCandidateFinance;
   const candidates: DelawareCandidateFinanceBatchSyncResult["candidates"] = [];
-  // One live acquisition attempt per CF_ID per run — a failed fetch is not
-  // re-hammered when two due rows share a committee; the second row then
-  // syncs against whatever the cache holds and fails visibly on its own.
-  const acquisitionAttempted = new Set<string>();
+  // One settled acquisition per CF_ID per run. Every sibling reuses its
+  // success or failure; a failed refresh never authorizes stale-cache writes.
+  const acquisitions = new Map<string, { ok: true } | { ok: false; error: unknown }>();
   let succeeded = 0;
   for (const row of due.rows) {
     try {
-      if (!dryRun && liveCfrsAllowed && !acquisitionAttempted.has(row.cfId)) {
-        acquisitionAttempted.add(row.cfId);
-        await acquireArtifacts({ cfId: row.cfId, cacheDir: input.cacheDir, log });
+      if (!dryRun && liveCfrsAllowed) {
+        let acquired = acquisitions.get(row.cfId);
+        if (acquired === undefined) {
+          try {
+            await acquireArtifacts({ cfId: row.cfId, cacheDir: input.cacheDir, log });
+            acquired = { ok: true };
+          } catch (error) {
+            acquired = { ok: false, error };
+          }
+          acquisitions.set(row.cfId, acquired);
+        }
+        if (!acquired.ok) throw acquired.error;
       }
       const result = await syncCandidate({
         db: input.db,
