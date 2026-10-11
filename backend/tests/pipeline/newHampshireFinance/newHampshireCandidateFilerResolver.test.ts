@@ -77,6 +77,36 @@ describe("newHampshireCandidateFilerResolver", () => {
     });
   });
 
+  it("matches a formal registration name through a VoteApp nickname", () => {
+    // Live shape: VoteApp "Tom Ploszaj", CFS registration "Thomas Ploszaj".
+    const thomas = filingEntity({
+      filingEntityId: 301,
+      candidateName: "Thomas Rosenwald",
+      firstName: "Thomas",
+    });
+    expect(
+      resolveNewHampshireCandidateFiler({
+        ...senateInput,
+        candidateName: "Tom Rosenwald",
+        filingEntityRows: [thomas],
+      })
+    ).toMatchObject({ status: "matched", filingEntityId: 301 });
+  });
+
+  it("prefers a literal first-name registration over a nickname one", () => {
+    // Live: Jim Maggiore has both a "Jim" and a "James" registration; the
+    // literal one stays linked instead of turning ambiguous.
+    const jim = filingEntity({ filingEntityId: 401, candidateName: "Jim Rosenwald", firstName: "Jim" });
+    const james = filingEntity({ filingEntityId: 402, candidateName: "James Rosenwald", firstName: "James" });
+    expect(
+      resolveNewHampshireCandidateFiler({
+        ...senateInput,
+        candidateName: "Jim Rosenwald",
+        filingEntityRows: [jim, james],
+      })
+    ).toMatchObject({ status: "matched", filingEntityId: 401 });
+  });
+
   it("requires the exact official cycle, office, and district", () => {
     expect(
       resolveNewHampshireCandidateFiler({

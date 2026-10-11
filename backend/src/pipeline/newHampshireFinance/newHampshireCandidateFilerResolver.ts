@@ -2,6 +2,7 @@ import {
   hasMiddleNameConflict,
   personNamesMatchWithMiddleEvidence,
 } from "../finance/personNameMiddleEvidence.js";
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import type { NewHampshireFilingEntityRow } from "./newHampshireCfsClient.js";
 import { normalizeNewHampshireCandidateAlias } from "./newHampshireOutsideSpendingAggregator.js";
 
@@ -148,7 +149,20 @@ export function normalizeNewHampshireCandidateNameForStorage(value: string): str
   return normalizePersonName(trimmed);
 }
 
-function candidateNamesMatch(candidateName: string, officialNames: readonly string[]): boolean {
+// CFS registrations carry the formal first name ("Thomas Ploszaj") while
+// VoteApp stores the campaign name ("Tom Ploszaj"). The equivalence is
+// one-sided: the VoteApp first name expands to its nickname variants, the
+// registration name is read literally (personFirstNameNicknames.ts).
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
+}
+
+function candidateNamesMatch(
+  candidateName: string,
+  officialNames: readonly string[],
+  expandNicknames: boolean
+): boolean {
+  const firstNamesEquivalent = expandNicknames ? nicknameFirstNamesEquivalent : undefined;
   const candidateKeys = normalizeNewHampshireCandidateNameKeys(candidateName);
   for (const officialName of officialNames) {
     const rowKeys = normalizeNewHampshireCandidateNameKeys(officialName);
@@ -159,6 +173,7 @@ function candidateNamesMatch(candidateName: string, officialNames: readonly stri
           candidateName,
           rowNames: [officialName],
           normalizePersonName,
+          firstNamesEquivalent,
         })
       ) {
         return true;
@@ -169,6 +184,7 @@ function candidateNamesMatch(candidateName: string, officialNames: readonly stri
         candidateName,
         rowNames: [officialName],
         normalizePersonName,
+        firstNamesEquivalent,
       })
     ) {
       return true;
@@ -371,7 +387,7 @@ function retainUnambiguousCandidateAliases(input: {
       const blankTarget = explicitTarget ? null : districtBlankRaceTargetKey(row);
       if (!explicitTarget && !blankTarget) continue;
       const names = officialCandidateNames(row);
-      if (names.length === 0 || !candidateNamesMatch(alias, names)) continue;
+      if (names.length === 0 || !candidateNamesMatch(alias, names, false)) continue;
       if (explicitTarget) {
         const targets = explicitTargetsByFiler.get(row.filingEntityId) ?? new Set<string>();
         targets.add(explicitTarget);
@@ -447,8 +463,22 @@ function accumulateRow(input: {
   input.bucket.set(input.row.filingEntityId, accumulator);
 }
 
+// Literal names first; nickname equivalence only when nothing matches
+// literally. A candidate with both a "Jim" and a "James" registration keeps
+// the literal one instead of turning ambiguous (live: Jim Maggiore).
 export function resolveNewHampshireCandidateFiler(
   input: NewHampshireCandidateFilerResolverInput
+): NewHampshireCandidateFilerResolution {
+  const literal = resolveNewHampshireCandidateFilerByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_filer_match") {
+    return literal;
+  }
+  return resolveNewHampshireCandidateFilerByName(input, true);
+}
+
+function resolveNewHampshireCandidateFilerByName(
+  input: NewHampshireCandidateFilerResolverInput,
+  expandNicknames: boolean
 ): NewHampshireCandidateFilerResolution {
   const electionCycleId = normalizeElectionCycleId(input.electionCycleId);
   const candidateNameNormalized = normalizeNewHampshireCandidateNameForStorage(input.candidateName);
@@ -515,7 +545,7 @@ export function resolveNewHampshireCandidateFiler(
     }
 
     const names = officialCandidateNames(row);
-    if (names.length === 0 || !candidateNamesMatch(input.candidateName, names)) continue;
+    if (names.length === 0 || !candidateNamesMatch(input.candidateName, names, expandNicknames)) continue;
     accumulateRow({ bucket, row, candidateName: input.candidateName, officialNames: names, district: matchDistrict });
   }
 
