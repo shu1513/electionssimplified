@@ -12,6 +12,7 @@ import type {
   TexasTecCandidateRow,
   TexasTecExpenditureRow,
   TexasTecSpacRow,
+  TexasTecPurposeRow,
 } from "./texasTecCsvDatabaseReader.js";
 
 export type TexasSupportOppose = "support" | "oppose";
@@ -34,6 +35,7 @@ export type TexasOutsideSpendingSummary = {
 export type TexasOutsideSpendingAggregationInput = {
   candidateName: string;
   candidateCommitteeId: string;
+  candidateCommitteeIds?: readonly string[];
   officeScope: string;
   officeName: string;
   electionYear: number;
@@ -41,6 +43,7 @@ export type TexasOutsideSpendingAggregationInput = {
   candidateRows: readonly TexasTecCandidateRow[];
   expenditureRows: readonly TexasTecExpenditureRow[];
   spacRows: readonly TexasTecSpacRow[];
+  purposeRows?: readonly TexasTecPurposeRow[];
   sourceUrl?: string | null;
   maxGroups?: number;
 };
@@ -182,7 +185,10 @@ function rowOfficeMatches(input: {
     if (mapping.officeScope !== input.officeScope || mapping.officeCanonicalName !== input.officeCanonicalName) {
       return false;
     }
-  } else if (canonicalOfficeNameForInput(input.officeDescription) !== input.officeCanonicalName) {
+  } else if (
+    (input.officeCode.trim() && normalizeId(input.officeCode) !== "OTHER") ||
+    canonicalOfficeNameForInput(input.officeDescription) !== input.officeCanonicalName
+  ) {
     return false;
   }
 
@@ -210,29 +216,22 @@ function centsToDollars(cents: number): number {
   return cents / 100;
 }
 
-function parseTexasTecDateYear(raw: string): number | null {
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return null;
-  }
-  const compactMatch = /^(\d{4})(\d{2})(\d{2})$/.exec(trimmed);
-  if (compactMatch) {
-    return Number(compactMatch[1]);
-  }
-  const isoMatch = /^(\d{4})-\d{2}-\d{2}/.exec(trimmed);
-  if (isoMatch) {
-    return Number(isoMatch[1]);
-  }
-  const slashMatch = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\b/.exec(trimmed);
-  if (slashMatch) {
-    return Number(slashMatch[3]);
-  }
-  return null;
+function parseTexasTecDate(raw: string | undefined): string | null {
+  const value = raw?.trim() ?? "";
+  const parts = /^(\d{4})(\d{2})(\d{2})$/.exec(value) ?? /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value);
+  if (!parts && !slash) return null;
+  const year = Number(parts?.[1] ?? slash?.[3]);
+  const month = Number(parts?.[2] ?? slash?.[1]);
+  const day = Number(parts?.[3] ?? slash?.[2]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  return date.toISOString().slice(0, 10);
 }
 
-function isCycleYear(input: { rawDate: string; electionYear: number }): boolean {
-  const year = parseTexasTecDateYear(input.rawDate);
-  return year !== null && year >= input.electionYear - 1 && year <= input.electionYear;
+function isCycleDate(date: string, electionYear: number): boolean {
+  const year = Number(date.slice(0, 4));
+  return year >= electionYear - 1 && year <= electionYear;
 }
 
 export function supportOpposeFromTexasSpacPosition(value: string): TexasSupportOppose | null {
@@ -246,9 +245,21 @@ export function supportOpposeFromTexasSpacPosition(value: string): TexasSupportO
   return null;
 }
 
-function isInfoOnly(row: TexasTecExpenditureRow): boolean {
-  const normalized = normalizeTextKey(row.infoOnlyFlag);
-  return normalized === "Y" || normalized === "YES" || normalized === "TRUE" || normalized === "1";
+function isCurrent(row: { infoOnlyFlag?: string }): boolean {
+  // TEC explicitly marks current rows N and superseded reports Y.
+  return row.infoOnlyFlag?.trim().toUpperCase() === "N";
+}
+
+function isRegularPoliticalExpense(row: { formTypeCd?: string; schedFormTypeCd?: string; politicalExpendCd?: string }): boolean {
+  const form = row.formTypeCd?.trim().toUpperCase() ?? "";
+  const schedule = row.schedFormTypeCd?.trim().toUpperCase() ?? "";
+  return !form.startsWith("DAILY") && form !== "DIRE" && ["F1", "G"].includes(schedule) &&
+    row.politicalExpendCd?.trim().toUpperCase() !== "N";
+}
+
+function isContributionExpense(row: { expendCatCd?: string; expendDescr?: string }): boolean {
+  return row.expendCatCd?.trim().toUpperCase() === "DONATIONS" ||
+    /^(?:IN[ -]KIND\s+)?(?:CAMPAIGN\s+|POLITICAL\s+)?(?:CONTRIBUTION|DONATION)S?\b/i.test(row.expendDescr?.trim() ?? "");
 }
 
 function candidateRowFirstNameToken(row: TexasTecCandidateRow): string | null {
@@ -358,8 +369,76 @@ function spacRowMatchesTarget(input: {
   });
 }
 
-function expenditureKey(input: { filerIdent: string; expendInfoId: string }): string {
-  return `${normalizeId(input.filerIdent)}\u0000${normalizeId(input.expendInfoId)}`;
+function reportKey(row: { filerIdent: string; reportInfoIdent?: string }): string {
+  return `${normalizeId(row.filerIdent)}\u0000${normalizeId(row.reportInfoIdent ?? "")}`;
+}
+
+function expenditureKey(row: { filerIdent: string; reportInfoIdent?: string; expendInfoId: string }): string {
+  return `${reportKey(row)}\u0000${normalizeId(row.expendInfoId)}`;
+}
+
+function beneficiaryKey(row: TexasTecCandidateRow): string {
+  // Do not count two repeated links to the same person as two beneficiaries.
+  // Full source names stay literal: unrelated, unlinked people still count.
+  return JSON.stringify([
+    normalizeTextKey(candidateRowPersonName(row)), normalizeTextKey(row.candidateNameOrganization),
+    normalizeId(row.candidateSeekOfficeCd), normalizeTextKey(row.candidateSeekOfficeDescr),
+    normalizeDistrict(row.candidateSeekOfficeDistrict), normalizeTextKey(row.candidateSeekOfficePlace),
+    normalizeTextKey(row.candidateSeekOfficeCountyCd), normalizeTextKey(row.candidateSeekOfficeCountyDescr),
+  ]);
+}
+
+function namesIntersect(left: ReadonlySet<string>, right: ReadonlySet<string>): boolean {
+  return [...left].some((key) => right.has(key));
+}
+
+function purposeDirection(input: {
+  row: TexasTecCandidateRow;
+  purposeRows: readonly TexasTecPurposeRow[];
+  candidateName: string;
+  officeScope: TexasFinanceOfficeScope;
+  officeCanonicalName: string;
+  expectedDistrict: string;
+  electionYear: number;
+}): { present: boolean; direction: TexasSupportOppose | null } {
+  const names = candidateRowNameKeys(input.row);
+  let present = false;
+  let direction: TexasSupportOppose | null = null;
+  let blocked = false;
+  for (const purpose of input.purposeRows) {
+    if (!isCurrent(purpose) || reportKey(purpose) !== reportKey(input.row) ||
+      normalizeId(purpose.subjectCategoryCd) !== "CANDIDATE" ||
+      !namesIntersect(names, normalizeTexasCandidateNameKeys(purpose.commActivityName)) ||
+      texasCandidateNameMiddleConflicts({ candidateName: input.candidateName, rowNames: [purpose.commActivityName] }) ||
+      texasCandidateNameMiddleConflicts({ candidateName: candidateRowPersonName(input.row), rowNames: [purpose.commActivityName] }) ||
+      !rowOfficeMatches({ officeCode: purpose.activitySeekOfficeCd, officeDescription: purpose.activitySeekOfficeDescr,
+        district: purpose.activitySeekOfficeDistrict, ...input })) continue;
+    present = true;
+    if (normalizeId(purpose.filerTypeCd) !== normalizeId(input.row.filerTypeCd)) {
+      throw new Error(`Conflicting Texas PURPOSE/CAND filer types for ${reportKey(purpose)}`);
+    }
+    if (purpose.subjectElectionDt.trim()) {
+      const date = parseTexasTecDate(purpose.subjectElectionDt);
+      if (!date) throw new Error(`Invalid Texas PURPOSE election date for ${reportKey(purpose)}`);
+      if (Number(date.slice(0, 4)) !== input.electionYear) continue;
+    }
+    const position = normalizeId(purpose.subjectPositionCd);
+    const next = position === "SUPPORT" ? "support" : position === "OPPOSE" ? "oppose" : null;
+    // ASSIST/unknown declarations cannot be turned into support by a SPAC fallback.
+    if (!next) { blocked = true; continue; }
+    if (direction && direction !== next) throw new Error(`Conflicting Texas PURPOSE directions for ${reportKey(purpose)}`);
+    direction = next;
+  }
+  return { present, direction: blocked ? null : direction };
+}
+
+function expenditureEconomics(row: TexasTecExpenditureRow): string {
+  return JSON.stringify([
+    parseTexasTecDate(row.expendDt), parseAmountCents(row.expendAmount),
+    row.schedFormTypeCd.trim().toUpperCase(), row.expendCatCd.trim().toUpperCase(), row.expendDescr.trim(),
+    row.politicalExpendCd.trim().toUpperCase(), row.payeePersentTypeCd.trim().toUpperCase(),
+    row.payeeNameOrganization.trim(), row.payeeNameFirst.trim(), row.payeeNameLast.trim(),
+  ]);
 }
 
 function groupKey(input: { committeeId: string; supportOppose: TexasSupportOppose }): string {
@@ -428,13 +507,8 @@ export function aggregateTexasOutsideSpending(
   input: TexasOutsideSpendingAggregationInput
 ): TexasOutsideSpendingAggregationResult {
   const candidateCommitteeId = normalizeId(requireNonEmpty(input.candidateCommitteeId, "Texas candidate committee id"));
-  // VoteApp side expands nicknames; TEC purpose-row names stay literal.
-  // Two layers keep shared-nickname expansion from combining two people's
-  // money: a name match alone never contributes an amount (inclusion also
-  // requires the spender to hold a declared SPAC position on THIS candidate's
-  // own committee id, see buildSpacRelationships), and an includable row set
-  // spanning conflicting formal first names aborts the whole aggregation
-  // (see matchedRowsSpanConflictingFirstNames).
+  // VoteApp alone expands nicknames. CAND and PURPOSE source names must
+  // corroborate each other, and conflicting includable formal names abort.
   const candidateNameKeys = normalizeTexasCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const electionYear = normalizeElectionYear(input.electionYear);
   const maxGroups = normalizePositiveInteger(input.maxGroups, DEFAULT_MAX_GROUPS, "maxGroups");
@@ -464,54 +538,115 @@ export function aggregateTexasOutsideSpending(
     expectedDistrict,
     spacRows: input.spacRows,
   });
-  const expendituresByKey = new Map<string, TexasTecExpenditureRow>();
+  const selfCommitteeIds = new Set([candidateCommitteeId, ...(input.candidateCommitteeIds ?? []).map(normalizeId)]);
+  const expendituresByKey = new Map<string, TexasTecExpenditureRow[]>();
+  const currentReportsByExpense = new Map<string, Set<string>>();
   for (const row of input.expenditureRows) {
-    const key = expenditureKey({ filerIdent: row.filerIdent, expendInfoId: row.expendInfoId });
-    if (!expendituresByKey.has(key)) {
-      expendituresByKey.set(key, row);
-    }
+    if (!isCurrent(row)) continue;
+    const key = expenditureKey(row);
+    const sourceExpenseKey = `${normalizeId(row.filerIdent)}\u0000${normalizeId(row.expendInfoId)}`;
+    const reports = currentReportsByExpense.get(sourceExpenseKey) ?? new Set<string>();
+    reports.add(normalizeId(row.reportInfoIdent));
+    currentReportsByExpense.set(sourceExpenseKey, reports);
+    const existing = expendituresByKey.get(key) ?? [];
+    existing.push(row);
+    expendituresByKey.set(key, existing);
+  }
+  const beneficiariesByExpense = new Map<string, Set<string>>();
+  for (const row of input.candidateRows) {
+    if (!isCurrent(row)) continue;
+    const key = expenditureKey(row);
+    const identities = beneficiariesByExpense.get(key) ?? new Set<string>();
+    identities.add(beneficiaryKey(row));
+    beneficiariesByExpense.set(key, identities);
+  }
+  const purposesByReport = new Map<string, TexasTecPurposeRow[]>();
+  for (const row of input.purposeRows ?? []) {
+    if (!isCurrent(row)) continue;
+    const key = reportKey(row);
+    const rows = purposesByReport.get(key) ?? [];
+    rows.push(row);
+    purposesByReport.set(key, rows);
   }
 
   const matchedRows = input.candidateRows.filter((row) =>
-    candidateRowMatchesTarget({
-      row,
-      candidateName: input.candidateName,
-      candidateNameKeys,
-      officeScope,
-      officeCanonicalName,
-      expectedDistrict,
+    isCurrent(row) && candidateRowMatchesTarget({
+      row, candidateName: input.candidateName, candidateNameKeys, officeScope, officeCanonicalName, expectedDistrict,
     })
   );
   const matchedCandidateExpenditureRowCount = matchedRows.length;
   const includableRows: { row: TexasTecCandidateRow; relationship: SpacRelationship; amountCents: number }[] = [];
   let skippedCandidateExpenditureRowCount = 0;
-
+  const seenExpenses = new Set<string>();
   for (const row of matchedRows) {
     const committeeId = normalizeId(row.filerIdent);
-    const relationship = relationships.get(committeeId);
-    const expenditure = expendituresByKey.get(expenditureKey({ filerIdent: row.filerIdent, expendInfoId: row.expendInfoId }));
-    if (
-      !committeeId ||
-      relationship === undefined ||
-      relationship === null ||
-      !expenditure ||
-      isInfoOnly(expenditure)
-    ) {
+    const expenseKey = expenditureKey(row);
+    if (!committeeId || selfCommitteeIds.has(committeeId) || !isRegularPoliticalExpense(row) || isContributionExpense(row) ||
+      (beneficiariesByExpense.get(expenseKey)?.size ?? 0) !== 1) {
       skippedCandidateExpenditureRowCount += 1;
       continue;
     }
-
+    const candidateDate = parseTexasTecDate(row.expendDt);
+    if (!candidateDate) throw new Error(`Invalid Texas candidate expenditure date for ${expenseKey}`);
+    if (!isCycleDate(candidateDate, electionYear)) {
+      skippedCandidateExpenditureRowCount += 1;
+      continue;
+    }
+    const spac = relationships.get(committeeId);
+    const purpose = purposeDirection({ row, purposeRows: purposesByReport.get(reportKey(row)) ?? [],
+      candidateName: input.candidateName, officeScope, officeCanonicalName, expectedDistrict, electionYear });
+    const filerType = normalizeId(row.filerTypeCd);
+    const direction = purpose.present ? purpose.direction : ["SPAC", "JSPC", "SCPC"].includes(filerType) ? spac?.supportOppose : null;
+    if (!direction || !["GPAC", "MPAC", "SPAC", "JSPC", "SCPC"].includes(filerType)) {
+      skippedCandidateExpenditureRowCount += 1;
+      continue;
+    }
+    if (purpose.present && (spac === null || (spac && spac.supportOppose !== direction))) {
+      throw new Error(`Conflicting Texas PURPOSE/SPAC directions for ${reportKey(row)}`);
+    }
+    if (!row.reportInfoIdent?.trim() || !row.expendInfoId.trim()) {
+      throw new Error("Texas current expenditure report and expense identifiers are required");
+    }
+    const joined = expendituresByKey.get(expenseKey);
+    const expenditure = joined?.[0];
+    if (!expenditure) {
+      throw new Error(`Missing current Texas EXPN join for applicable CAND ${expenseKey}`);
+    }
+    if (joined!.some((other) => expenditureEconomics(other) !== expenditureEconomics(expenditure))) {
+      throw new Error(`Conflicting current Texas expenditure rows for ${expenseKey}`);
+    }
+    const date = parseTexasTecDate(expenditure.expendDt);
     const amountCents = parseAmountCents(expenditure.expendAmount);
-    if (
-      amountCents === null ||
-      amountCents <= 0 ||
-      !isCycleYear({ rawDate: expenditure.expendDt, electionYear })
-    ) {
+    if (!date) throw new Error(`Invalid Texas expenditure date for ${expenseKey}`);
+    if (amountCents === null) throw new Error(`Invalid Texas expenditure amount for ${expenseKey}`);
+    if (candidateDate !== date || parseAmountCents(row.expendAmount) !== amountCents) {
+      throw new Error(`Conflicting Texas CAND/EXPN economics for ${expenseKey}`);
+    }
+    if (normalizeId(expenditure.filerTypeCd) !== filerType) {
+      throw new Error(`Conflicting Texas CAND/EXPN filer types for ${expenseKey}`);
+    }
+    if (!isRegularPoliticalExpense(expenditure) || isContributionExpense(expenditure) || amountCents <= 0) {
       skippedCandidateExpenditureRowCount += 1;
       continue;
     }
-
-    includableRows.push({ row, relationship, amountCents });
+    if ((currentReportsByExpense.get(`${committeeId}\u0000${normalizeId(row.expendInfoId)}`)?.size ?? 0) > 1) {
+      throw new Error(`Conflicting current Texas reports for expense ${committeeId}/${row.expendInfoId}`);
+    }
+    const payee = [expenditure.payeeNameFirst, expenditure.payeeNameLast].filter(Boolean).join(" ");
+    const payeeNames = new Set([...normalizeTexasCandidateNameKeys(payee),
+      ...normalizeTexasCandidateNameKeys(expenditure.payeeNameOrganization)]);
+    if (namesIntersect(candidateNameKeys, payeeNames) &&
+      !texasCandidateNameMiddleConflicts({ candidateName: input.candidateName, rowNames: [payee, expenditure.payeeNameOrganization] })) {
+      skippedCandidateExpenditureRowCount += 1;
+      continue;
+    }
+    if (seenExpenses.has(expenseKey)) {
+      skippedCandidateExpenditureRowCount += 1;
+      continue;
+    }
+    seenExpenses.add(expenseKey);
+    includableRows.push({ row, relationship: { committeeId, committeeName: requireNonEmpty(spac?.committeeName ?? row.filerName, "Texas outside spender name"),
+      supportOppose: direction }, amountCents });
   }
 
   if (matchedRowsSpanConflictingFirstNames(includableRows.map((entry) => entry.row))) {

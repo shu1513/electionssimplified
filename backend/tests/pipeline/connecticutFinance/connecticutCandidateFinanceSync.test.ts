@@ -92,7 +92,7 @@ describe("connecticutCandidateFinanceSync", () => {
       },
     });
 
-    expect(db.query).toHaveBeenCalledTimes(9);
+    expect(db.query).toHaveBeenCalledTimes(10);
     expect(db.query.mock.calls[0]?.[0]).toBe("BEGIN");
     expect(db.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
 
@@ -328,4 +328,20 @@ describe("connecticutCandidateFinanceSync", () => {
 
     expect(db.query).not.toHaveBeenCalled();
   });
+});
+
+it("writes committee donors and source-backed campaign transfer types through the real sync path", async () => {
+  const db = createMockDb();
+  const result = await syncConnecticutCandidateFinance({
+    db, ...baseInput(),
+    committeeRegistry: [{ committeeId: "999", committeeName: "Exploratory Donor", committeeType: "Exploratory Committee" }],
+    receiptRows: [
+      receipt({ "Contributor Name": "Exploratory Donor", "Receipt Type": "Contributions from Other Committees", Amount: "125" }),
+      receipt({ "Contributor Name": "Unknown PAC", "Receipt Type": "Contributions from Other Committees", Amount: "50" }),
+    ],
+  });
+  expect(result).toMatchObject({ totalReceipts: 175, pacDonorsWritten: 2 });
+  const donorCalls = db.query.mock.calls.filter(([sql]) => String(sql).includes("INSERT INTO public.ct_candidate_finance_pac_donors"));
+  expect(donorCalls).toHaveLength(2);
+  expect(donorCalls[0]?.[1]?.slice(2, 7)).toEqual(["999", "Exploratory Donor", "Exploratory Committee", 125, 1]);
 });

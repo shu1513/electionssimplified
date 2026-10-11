@@ -81,6 +81,7 @@ describe("connecticutDirectContributionAggregator", () => {
           sourceUrl: "https://seec.ct.gov/portal/ecris/CurPreYears",
         },
       ],
+      pacDonors: [],
       matchedReceiptRowCount: 3,
       includedReceiptRowCount: 3,
       skippedReceiptRowCount: 0,
@@ -213,4 +214,67 @@ describe("connecticutDirectContributionAggregator", () => {
       })
     ).toThrow("Invalid Connecticut direct contribution aggregation maxBreakdownsPerCategory");
   });
+});
+
+describe("Connecticut declared committee donors", () => {
+  it("merges C1 donors by registry or normalized name without changing receipt totals", () => {
+    const result = aggregateConnecticutDirectContributions({
+      committeeId: "14376", electionYear: 2026,
+      committeeRegistry: [{ committeeId: "900", committeeName: "Workers & Teachers PAC", committeeType: "Political Committee" }],
+      receiptRows: [
+        receipt({ "Contributor Name": "workers and teachers PAC", "Receipt Type": "Contributions from Other Committees", Amount: "100.01" }),
+        receipt({ "Contributor Name": "Workers & Teachers PAC", "Receipt Type": "Contributions from Other Committees", Amount: "50.02" }),
+        receipt({ "Contributor Name": "Unknown Local Committee", "Receipt Type": "Contributions from Other Committees", Amount: "20" }),
+        receipt({ "Contributor Name": "Individual PAC Surname", Amount: "30" }),
+        receipt({ "Contributor Name": "Company PAC", "Receipt Type": "Loans", Amount: "10" }),
+        receipt({ "Contributor Name": "Bad PAC", "Receipt Type": "Contributions from Other Committees", Amount: "-10" }),
+        receipt({ "Contributor Name": "Old PAC", "Receipt Type": "Contributions from Other Committees", ElectionYear: "2024" }),
+        receipt({ "Contributor Name": "Other recipient", "Committee ID": "555", "Receipt Type": "Contributions from Other Committees" }),
+      ],
+    });
+    expect(result.summary.totalReceipts).toBe(210.03);
+    expect(result.directBreakdowns.filter((b) => b.categoryType === "contribution_size").reduce((sum, b) => sum + b.amount, 0)).toBeCloseTo(210.03);
+    expect(result.pacDonors).toEqual([
+      { committeeId: "900", committeeName: "Workers & Teachers PAC", committeeType: "Political Committee", amount: 150.03, contributionCount: 2, sourceUrl: null },
+      { committeeId: "UNKNOWN LOCAL COMMITTEE", committeeName: "Unknown Local Committee", committeeType: null, amount: 20, contributionCount: 1, sourceUrl: null },
+    ]);
+  });
+
+  it("retains source-backed campaign transfers and does not assert an ambiguous registry identity", () => {
+    const result = aggregateConnecticutDirectContributions({
+      committeeId: "14376", electionYear: 2026,
+      committeeRegistry: [
+        { committeeId: "101", committeeName: "Khan 2026", committeeType: "Exploratory Committee" },
+        { committeeId: "102", committeeName: "Shared Name", committeeType: "Candidate Committee" },
+        { committeeId: "103", committeeName: "Shared Name", committeeType: "Exploratory Committee" },
+      ],
+      receiptRows: [
+        receipt({ "Contributor Name": "Khan 2026", "Receipt Type": "Contributions from Other Committees", Amount: "20000" }),
+        receipt({ "Contributor Name": "Shared Name", "Receipt Type": "Contributions from Other Committees", Amount: "50" }),
+      ],
+    });
+    expect(result.pacDonors).toMatchObject([
+      { committeeId: "101", committeeType: "Exploratory Committee", amount: 20000 },
+      { committeeId: "SHARED NAME", committeeType: "Ambiguous Committee", amount: 50 },
+    ]);
+  });
+});
+
+it("recognizes a unique shortened Elect campaign name without overriding exact registrations", () => {
+  const result = aggregateConnecticutDirectContributions({
+    committeeId: "14376", electionYear: 2026,
+    committeeRegistry: [
+      { committeeId: "14172", committeeName: "Elect Cheryl 79", committeeType: "Candidate Committee" },
+      { committeeId: "22", committeeName: "Elect Shared Name", committeeType: "Candidate Committee" },
+      { committeeId: "23", committeeName: "Shared Name", committeeType: "Political Committee" },
+    ],
+    receiptRows: [
+      receipt({ "Contributor Name": "Cheryl 79", "Receipt Type": "Contributions from Other Committees", Amount: "1981.25" }),
+      receipt({ "Contributor Name": "Shared Name", "Receipt Type": "Contributions from Other Committees", Amount: "50" }),
+    ],
+  });
+  expect(result.pacDonors).toMatchObject([
+    { committeeId: "14172", committeeName: "Elect Cheryl 79", committeeType: "Candidate Committee", amount: 1981.25 },
+    { committeeId: "23", committeeType: "Political Committee", amount: 50 },
+  ]);
 });

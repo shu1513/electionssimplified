@@ -4289,6 +4289,68 @@ describe("createApiApp", () => {
       }
     });
 
+    it("serves Michigan PAC interests from the real ballot finance lookup without changing campaign or IE totals", async () => {
+      vi.stubEnv("AI_API_CALLS_ALLOWED", "false");
+      vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "false");
+      vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
+      const pacSourceUrl = "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboeContributionPublicSearch";
+      const identities = { candidate_id: candidateId, election_id: electionId };
+      const query = vi.fn(async (sql: string, _params?: unknown[]) => {
+        if (sql.includes("public.mi_candidate_finance_summaries")) return { rows: [{
+          ...identities, committee_id: null, election_year: 2026, total_receipts: "250000.00",
+          direct_contribution_total: "200000.00", candidate_loan_total: "45000.00",
+          total_disbursements: "90000.00", cash_on_hand: "110000.00", outside_support_total: "80000.00",
+          outside_oppose_total: "12500.00", source_url: pacSourceUrl, last_synced_at: "2026-10-11T00:00:00Z",
+        }] };
+        if (sql.includes("public.mi_candidate_finance_pac_donors")) return { rows: [
+          { ...identities, committee_id: "508347", committee_name: "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE",
+            committee_type: "Independent", amount: "12250.00", source_url: pacSourceUrl,
+            industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+          { ...identities, committee_id: "unknown-pac", committee_name: "Great Lakes Neighbors PAC",
+            committee_type: "Political", amount: "750.00", source_url: null,
+            industry_slug: null, classification_source: null, confidence: null },
+          { ...identities, committee_id: "candidate-committee", committee_name: "Other Candidate for Governor",
+            committee_type: "Candidate", amount: "9000.00", source_url: null,
+            industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+        ] };
+        return { rows: [] };
+      })
+        .mockResolvedValueOnce({ rows: [{ election_id: electionId, state: "MI", district_type: "statewide", geoid_compact: "26",
+          office_scope: "statewide", office_canonical_name: "Governor", race_type: "office" }] })
+        .mockResolvedValueOnce({ rows: [{ ...identities, fec_ids: [] }] });
+      const lookupCandidateElectionFinance = vi.fn((requestedElectionId: string, requestedCandidateId: string) =>
+        lookupCandidateElectionFinanceSummaryById({ query }, requestedElectionId, requestedCandidateId));
+      try {
+        const response = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), lookupCandidateElectionFinance }), {
+          method: "GET", path: financePath,
+        });
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toMatchObject({ finance_summary: {
+          source: "MICHIGAN_MITN", cycle: 2026, controlled_committee_id: null,
+          direct_campaign: {
+            total_raised: 200000, loans_received: 45000, total_spent: 90000, cash_on_hand: 110000,
+            direct_coverage_note: expect.stringContaining("unregistered or ambiguous"),
+            pac_money_by_interest: [
+              { interest: "labor_unions", interest_name: "Labor unions", amount: 12250, pac_count: 1,
+                pacs: [{ committee_id: "508347", amount: 12250, source_url: pacSourceUrl }] },
+              { interest: "unclassified", interest_name: "Not yet sorted", amount: 750, pac_count: 1,
+                pacs: [{ committee_id: "unknown-pac", amount: 750, source_url: expect.stringContaining("michigan.gov") }] },
+            ],
+          },
+          outside_spending: { support_total: 80000, oppose_total: 12500,
+            outside_coverage_note: expect.stringContaining("Unidentified or multi-candidate expenses are omitted.") },
+        } });
+        const pacQuery = query.mock.calls.find(([sql]) => sql.includes("public.mi_candidate_finance_pac_donors"));
+        expect(pacQuery?.[0]).toContain("sum(donor.amount) AS amount");
+        expect(pacQuery?.[0]).toContain("link.link_status = 'active'");
+        expect(pacQuery?.[0]).toContain("donor.election_year = link.election_year");
+        expect(pacQuery?.[1]).toEqual([JSON.stringify([identities])]);
+        expect(lookupCandidateElectionFinance).toHaveBeenCalledWith(electionId, candidateId);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
     it("serves an explicit null finance summary for a covered pairing without finance data", async () => {
       const resolveAddress = vi.fn();
       const lookupCandidateElectionFinance = vi.fn().mockResolvedValue({ finance_summary: null });

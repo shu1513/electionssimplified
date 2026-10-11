@@ -23,6 +23,9 @@ export type MichiganOutsideSpendingSummary = {
 
 export type MichiganOutsideSpendingAggregationInput = {
   candidateName: string;
+  /** Exact unique candidate-registry match verified by the batch. */
+  targetCommitteeName?: string;
+  targetCommitteeNames?: readonly string[];
   officeScope: string;
   officeName: string;
   electionYear: number;
@@ -57,7 +60,8 @@ function normalizePositiveInteger(value: number | undefined, fallback: number, f
 }
 
 function normalizeId(value: string): string {
-  return value.trim().toUpperCase();
+  const normalized = value.trim().toUpperCase();
+  return /^\d+$/.test(normalized) ? normalized.replace(/^0+(?=\d)/, "") : normalized;
 }
 
 function normalizeTextKey(value: string): string {
@@ -260,11 +264,22 @@ export function aggregateMichiganOutsideSpending(
   let skippedExpenditureRowCount = 0;
 
   for (const row of input.expenditureRows) {
-    if (!targetMatchesCandidate({ canOrBallot: row.can_or_ballot, candidateName: input.candidateName, candidateNameKeys })) {
+    const modernTarget = row.target_committee_name;
+    const targetMatches = modernTarget !== undefined
+      ? [...(input.targetCommitteeNames ?? []), ...(input.targetCommitteeName ? [input.targetCommitteeName] : [])]
+        .some((name) => normalizeTextKey(modernTarget) === normalizeTextKey(name))
+      : targetMatchesCandidate({ canOrBallot: row.can_or_ballot, candidateName: input.candidateName, candidateNameKeys });
+    if (!targetMatches) {
       continue;
     }
     matchedExpenditureRowCount += 1;
-    if (!rowMatchesOfficeContext({ row, officeSearchInput })) {
+    // Modern exports identify a unique candidate committee plus an explicit
+    // office. The trusted registry/link resolves the district; no district is
+    // inferred from a person-name or free-text purpose match.
+    const officeMatches = modernTarget !== undefined
+      ? row.target_office === officeSearchInput.mitnOffice
+      : rowMatchesOfficeContext({ row, officeSearchInput });
+    if (!officeMatches) {
       skippedExpenditureRowCount += 1;
       continue;
     }

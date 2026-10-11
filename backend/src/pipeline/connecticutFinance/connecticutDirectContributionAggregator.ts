@@ -4,8 +4,24 @@ export type ConnecticutDirectContributionAggregationInput = {
   committeeId: string;
   electionYear: number;
   receiptRows: readonly ConnecticutEcrisArtifactRow[];
+  committeeRegistry?: readonly ConnecticutFinanceCommitteeRegistryEntry[];
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
+};
+
+export type ConnecticutFinanceCommitteeRegistryEntry = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: string;
+};
+
+export type ConnecticutFinancePacDonor = {
+  committeeId: string;
+  committeeName: string;
+  committeeType: string | null;
+  amount: number;
+  contributionCount: number;
+  sourceUrl: string | null;
 };
 
 export type ConnecticutDirectFinanceSummary = {
@@ -24,6 +40,7 @@ export type ConnecticutFinanceDirectBreakdown = {
 export type ConnecticutDirectContributionAggregationResult = {
   summary: ConnecticutDirectFinanceSummary;
   directBreakdowns: ConnecticutFinanceDirectBreakdown[];
+  pacDonors: ConnecticutFinancePacDonor[];
   matchedReceiptRowCount: number;
   includedReceiptRowCount: number;
   skippedReceiptRowCount: number;
@@ -197,6 +214,26 @@ function toDirectBreakdowns(input: {
   return result;
 }
 
+function donorNameKey(name: string): string {
+  return normalizeTextKey(name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/&/g, " AND "));
+}
+
+function committeeRegistryByName(entries: readonly ConnecticutFinanceCommitteeRegistryEntry[], candidateAliases = false) {
+  const registry = new Map<string, Map<string, ConnecticutFinanceCommitteeRegistryEntry>>();
+  for (const entry of entries) {
+    let key = donorNameKey(entry.committeeName);
+    if (candidateAliases) {
+      if (!["CANDIDATE COMMITTEE", "EXPLORATORY COMMITTEE"].includes(normalizeTextKey(entry.committeeType)) || !key.startsWith("ELECT ")) continue;
+      key = key.slice("ELECT ".length);
+    }
+    if (!key || !entry.committeeId.trim()) continue;
+    const matches = registry.get(key) ?? new Map<string, ConnecticutFinanceCommitteeRegistryEntry>();
+    matches.set(normalizeId(entry.committeeId) + "\u0000" + entry.committeeType, entry);
+    registry.set(key, matches);
+  }
+  return registry;
+}
+
 export function aggregateConnecticutDirectContributions(
   input: ConnecticutDirectContributionAggregationInput
 ): ConnecticutDirectContributionAggregationResult {
@@ -208,6 +245,11 @@ export function aggregateConnecticutDirectContributions(
     "maxBreakdownsPerCategory"
   );
   const aggregates = new Map<string, Aggregate>();
+  const registry = committeeRegistryByName(input.committeeRegistry ?? []);
+  // A filing may shorten "Elect Cheryl 79" to "Cheryl 79". Only a unique
+  // registered campaign alias is usable, and an exact registration wins.
+  const campaignAliases = committeeRegistryByName(input.committeeRegistry ?? [], true);
+  const pacDonors = new Map<string, ConnecticutFinancePacDonor>();
   let matchedReceiptRowCount = 0;
   let includedReceiptRowCount = 0;
   let skippedReceiptRowCount = 0;
@@ -228,6 +270,28 @@ export function aggregateConnecticutDirectContributions(
     ) {
       skippedReceiptRowCount += 1;
       continue;
+    }
+
+    // C1 explicitly identifies committee-source receipts. Individual names,
+    // organizations in other sections, grants and loans are not PAC evidence.
+    const donorName = value(row, "Contributor Name");
+    if (normalizeTextKey(value(row, "Receipt Type")) === "CONTRIBUTIONS FROM OTHER COMMITTEES" && donorName) {
+      const nameKey = donorNameKey(donorName);
+      const matches = registry.get(nameKey) ?? campaignAliases.get(nameKey);
+      const entry = matches?.size === 1 ? [...matches.values()][0] : undefined;
+      const donorId = entry ? normalizeId(entry.committeeId) : nameKey;
+      if (donorId) {
+        const existing = pacDonors.get(donorId);
+        pacDonors.set(donorId, {
+          committeeId: donorId,
+          committeeName: existing?.committeeName ?? entry?.committeeName ?? donorName,
+          // Ambiguous registry names are withheld from the PAC card as well.
+          committeeType: entry?.committeeType ?? (matches && matches.size > 1 ? "Ambiguous Committee" : null),
+          amount: centsToDollars(Math.round((existing?.amount ?? 0) * 100) + amountCents),
+          contributionCount: (existing?.contributionCount ?? 0) + 1,
+          sourceUrl: input.sourceUrl ?? null,
+        });
+      }
     }
 
     includedReceiptRowCount += 1;
@@ -254,6 +318,7 @@ export function aggregateConnecticutDirectContributions(
       sourceUrl: input.sourceUrl ?? null,
       maxBreakdownsPerCategory,
     }),
+    pacDonors: [...pacDonors.values()].sort((a, b) => b.amount - a.amount || a.committeeName.localeCompare(b.committeeName)),
     matchedReceiptRowCount,
     includedReceiptRowCount,
     skippedReceiptRowCount,

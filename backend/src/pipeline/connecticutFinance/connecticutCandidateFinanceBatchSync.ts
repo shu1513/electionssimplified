@@ -1,4 +1,5 @@
 import { stat } from "node:fs/promises";
+import type { ConnecticutFinanceCommitteeRegistryEntry } from "./connecticutDirectContributionAggregator.js";
 import type { Pool, PoolClient } from "pg";
 
 import {
@@ -51,6 +52,7 @@ export type ConnecticutEcrisReceiptDataForYear = {
   filePath: string;
   sourceUrl: string;
   rowsByCommitteeId: Map<string, ConnecticutEcrisArtifactRow[]>;
+  committeeRegistry?: readonly ConnecticutFinanceCommitteeRegistryEntry[];
 };
 
 export type ConnecticutEcrisIndependentExpenditureDataForYear = {
@@ -228,10 +230,21 @@ async function loadReceiptDataForYear(input: {
   }
 
   const metadata = await readConnecticutEcrisArtifactCacheMetadata(paths.metadataPath);
+  const registry = new Map<string, ConnecticutFinanceCommitteeRegistryEntry>();
   const rows = await readConnecticutEcrisArtifactRows({
     filePath: paths.filePath,
     format: metadata?.artifact.format ?? "csv",
-    predicate: (row) => normalizedCommitteeIds.has(normalizeCommitteeId(row["Committee ID"] ?? "")),
+    predicate: (row) => {
+      // Collect registry evidence from the whole export before filtering to
+      // due recipients; an exploratory donor need not itself have a due link.
+      const committeeId = normalizeCommitteeId(row["Committee ID"] ?? "");
+      const committeeName = row["Committee"]?.trim() ?? "";
+      const committeeType = row["Committee Type"]?.trim() ?? "";
+      if (committeeId && committeeName && committeeType) {
+        registry.set(JSON.stringify([committeeId, committeeName, committeeType]), { committeeId, committeeName, committeeType });
+      }
+      return normalizedCommitteeIds.has(committeeId);
+    },
   });
 
   return {
@@ -247,6 +260,7 @@ async function loadReceiptDataForYear(input: {
         format: "csv",
       }),
     rowsByCommitteeId: groupReceiptRowsByCommittee(rows),
+    committeeRegistry: [...registry.values()],
   };
 }
 
@@ -629,6 +643,7 @@ export async function syncDueConnecticutCandidateFinance(
         sourceUrl: row.sourceUrl,
         receiptRows: receiptData?.rowsByCommitteeId.get(committeeKey) ?? [],
         receiptSourceUrl: receiptData?.sourceUrl,
+        committeeRegistry: receiptData?.committeeRegistry,
         independentExpenditureRows: independentExpenditureData?.rows,
         independentExpenditureSourceUrl: independentExpenditureData?.sourceUrl,
         dryRun,

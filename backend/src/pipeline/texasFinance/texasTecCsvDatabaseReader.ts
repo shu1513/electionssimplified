@@ -15,8 +15,8 @@ export const TEXAS_TEC_CANDIDATES_CSV_FILE_NAME = "cand.csv";
 export const TEXAS_TEC_SPACS_CSV_FILE_NAME = "spacs.csv";
 export const TEXAS_TEC_PURPOSE_CSV_FILE_NAME = "purpose.csv";
 
-export const TEXAS_TEC_CONTRIBUTION_CSV_FILE_PATTERN = /^contribs_\d{2}\.csv$/;
-export const TEXAS_TEC_EXPENDITURE_CSV_FILE_PATTERN = /^expend_\d{2}\.csv$/;
+export const TEXAS_TEC_CONTRIBUTION_CSV_FILE_PATTERN = /^contribs_\d+\.csv$/;
+export const TEXAS_TEC_EXPENDITURE_CSV_FILE_PATTERN = /^expend_\d+\.csv$/;
 
 export const TEXAS_TEC_FILER_COLUMNS = [
   "recordType",
@@ -60,6 +60,8 @@ export const TEXAS_TEC_CONTRIBUTION_COLUMNS = [
   "contributorEmployer",
   "contributorOccupation",
   "contributorJobTitle",
+  "contributorOosPacFlag",
+  "contributorPacFein",
 ] as const;
 
 export const TEXAS_TEC_CANDIDATE_COLUMNS = [
@@ -190,7 +192,10 @@ type InternalZipEntry = TexasTecCsvDatabaseZipEntry & {
 export type TexasTecCsvRow = Record<string, string>;
 export type TexasTecCsvRowPredicate = (row: TexasTecCsvRow) => boolean;
 export type TexasTecFilerRow = Record<(typeof TEXAS_TEC_FILER_COLUMNS)[number], string>;
-export type TexasTecContributionRow = Record<(typeof TEXAS_TEC_CONTRIBUTION_COLUMNS)[number], string>;
+export type TexasTecContributionRow = Record<Exclude<(typeof TEXAS_TEC_CONTRIBUTION_COLUMNS)[number], "contributorOosPacFlag" | "contributorPacFein">, string> & {
+  contributorOosPacFlag?: string;
+  contributorPacFein?: string;
+};
 export type TexasTecCandidateRow = Record<(typeof TEXAS_TEC_CANDIDATE_COLUMNS)[number], string>;
 export type TexasTecExpenditureRow = Record<(typeof TEXAS_TEC_EXPENDITURE_COLUMNS)[number], string>;
 export type TexasTecSpacRow = Record<(typeof TEXAS_TEC_SPAC_COLUMNS)[number], string>;
@@ -205,7 +210,7 @@ export function texasTecExpenditureCsvFileName(partition: number): string {
 }
 
 export function normalizeTexasTecCsvPartition(partition: number): string {
-  if (!Number.isInteger(partition) || partition < 0 || partition > 99) {
+  if (!Number.isSafeInteger(partition) || partition < 0) {
     throw new Error(`Invalid Texas TEC CSV partition: ${partition}`);
   }
   return String(partition).padStart(2, "0");
@@ -648,14 +653,14 @@ export async function listTexasTecContributionCsvFileNames(zipPath: string): Pro
   return (await listTexasTecCsvDatabaseZipEntries(zipPath))
     .filter((entry) => !entry.isDirectory && TEXAS_TEC_CONTRIBUTION_CSV_FILE_PATTERN.test(entry.fileName))
     .map((entry) => entry.fileName)
-    .sort();
+    .sort((left, right) => Number(left.match(/_(\d+)\.csv$/)![1]) - Number(right.match(/_(\d+)\.csv$/)![1]) || left.localeCompare(right));
 }
 
 export async function listTexasTecExpenditureCsvFileNames(zipPath: string): Promise<string[]> {
   return (await listTexasTecCsvDatabaseZipEntries(zipPath))
     .filter((entry) => !entry.isDirectory && TEXAS_TEC_EXPENDITURE_CSV_FILE_PATTERN.test(entry.fileName))
     .map((entry) => entry.fileName)
-    .sort();
+    .sort((left, right) => Number(left.match(/_(\d+)\.csv$/)![1]) - Number(right.match(/_(\d+)\.csv$/)![1]) || left.localeCompare(right));
 }
 
 async function readTexasTecTypedRows<TColumns extends readonly string[]>(input: {

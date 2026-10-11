@@ -10,10 +10,18 @@ import {
   parseFinanceAmount,
   type BallotLookupFinanceBreakdown,
   type BallotLookupFinanceOutsideGroup,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
+
+import {
+  PAC_INTERESTS_NOT_LISTED,
+  UNCLASSIFIED_PAC_INTEREST,
+  classifyPacInterest,
+  pacInterestDisplayName,
+} from "../finance/pacInterestClassifier.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -62,6 +70,71 @@ type ConnecticutFinanceDirectBreakdownRow = {
   contributor_count: string | number | null;
   source_url: string | null;
 };
+
+type ConnecticutFinancePacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  committee_type: string | null;
+  amount: string | number;
+  source_url: string | null;
+};
+const MAX_PAC_INTEREST_ROWS = 5;
+const MAX_PACS_PER_INTEREST = 5;
+
+function groupConnecticutPacDonorsByInterest(
+  rows: readonly ConnecticutFinancePacDonorRow[]
+): Map<string, BallotLookupFinancePacInterest[]> {
+  const byCandidateElection = new Map<string, Map<string, BallotLookupFinancePacInterest>>();
+  for (const row of rows) {
+    const type = row.committee_type?.trim().toLowerCase();
+    if (["candidate committee", "exploratory committee", "ambiguous committee"].includes(type ?? "")) continue;
+    const name = row.committee_name.toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
+    const registeredPac = ["political committee", "political action committee", "party committee"].includes(type ?? "");
+    // C1 can contain a business reported in the committee section. Its
+    // corporate suffix alone cannot make it a PAC (e.g. Shore Winds, LLC).
+    if (!registeredPac && !/\b(PAC|POLITICAL)\b/.test(name) &&
+        /\b(LLC|L L C|INC|INCORPORATED|CORPORATION|CORP|LTD|LIMITED)$/.test(name)) continue;
+    const interest = classifyPacInterest({
+      committeeName: row.committee_name, committeeType: null, designation: null,
+      organizationType: null, connectedOrganization: null,
+    }).interestSlug ?? UNCLASSIFIED_PAC_INTEREST;
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest)) {
+      continue;
+    }
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const interests = byCandidateElection.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
+    const entry = interests.get(interest) ?? {
+      interest,
+      interest_name: pacInterestDisplayName(interest),
+      amount: 0,
+      pac_count: 0,
+      pacs: [],
+    };
+    const amount = parseFinanceAmount(row.amount) ?? 0;
+    entry.amount = Math.round((entry.amount + amount) * 100) / 100;
+    entry.pac_count += 1;
+    if (entry.pacs.length < MAX_PACS_PER_INTEREST) {
+      entry.pacs.push({
+        committee_id: row.committee_id,
+        committee_name: row.committee_name,
+        amount,
+        source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_CONNECTICUT_ECRIS_SOURCE_URL),
+      });
+    }
+    interests.set(interest, entry);
+    byCandidateElection.set(key, interests);
+  }
+  return new Map(
+    [...byCandidateElection.entries()].map(([key, interests]) => [
+      key,
+      [...interests.values()]
+        .sort((left, right) => right.amount - left.amount || left.interest.localeCompare(right.interest))
+        .slice(0, MAX_PAC_INTEREST_ROWS),
+    ])
+  );
+}
 
 export async function loadConnecticutCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
@@ -225,6 +298,32 @@ export async function loadConnecticutCandidateFinanceSummariesByCandidateElectio
     [JSON.stringify(selectedRequests)]
   );
 
+  const pacDonorResult = await db.query<ConnecticutFinancePacDonorRow>(
+    `
+      WITH selected AS (
+        SELECT candidate_id::uuid AS candidate_id, election_id::uuid AS election_id
+        FROM jsonb_to_recordset($1::jsonb) AS x(candidate_id text, election_id text)
+      )
+      SELECT selected.candidate_id::text AS candidate_id, selected.election_id::text AS election_id,
+        donor.committee_id, min(donor.committee_name) AS committee_name,
+        CASE WHEN bool_or(lower(donor.committee_type) IN
+          ('candidate committee', 'exploratory committee', 'ambiguous committee'))
+          THEN 'Candidate Committee' ELSE min(donor.committee_type) END AS committee_type,
+        sum(donor.amount) AS amount,
+        min(donor.source_url) FILTER (WHERE donor.source_url IS NOT NULL) AS source_url
+      FROM selected
+      JOIN public.ct_candidate_finance_links AS link
+        ON link.candidate_id = selected.candidate_id AND link.election_id = selected.election_id
+       AND link.link_status = 'active'
+      JOIN public.ct_candidate_finance_pac_donors AS donor
+        ON donor.link_id = link.id AND donor.election_year = link.election_year
+      GROUP BY selected.candidate_id, selected.election_id, donor.committee_id
+      ORDER BY candidate_id, election_id, amount DESC, committee_name ASC
+    `,
+    [JSON.stringify(selectedRequests)]
+  );
+  const pacInterests = groupConnecticutPacDonorsByInterest(pacDonorResult.rows);
+
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const summaryByCandidateElection = new Map(
@@ -275,6 +374,7 @@ export async function loadConnecticutCandidateFinanceSummariesByCandidateElectio
             top_occupations: topDirectDonorOccupations,
             top_employers: [],
             top_industries: directIndustriesByCandidateElection.get(key) ?? [],
+            ...(pacInterests.get(key)?.length ? { pac_money_by_interest: pacInterests.get(key) } : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),

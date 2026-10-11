@@ -8,20 +8,22 @@ import {
   syncDueMichiganCandidateFinance,
   type MichiganCandidateFinanceBatchSyncResult,
 } from "../pipeline/michiganFinance/michiganCandidateFinanceBatchSync.js";
-import { readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueMichiganCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  rawDataCacheDir?: string;
+  refreshSupplementalData?: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
-const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--stale-after-days"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh-supplemental-data"]);
+const KNOWN_VALUE_FLAGS = new Set(["--raw-cache-dir", "--lookahead-days", "--lookback-days", "--max-candidates", "--stale-after-days"]);
 
 export function parseSyncDueMichiganCandidateFinanceScriptArgs(
   args: readonly string[]
@@ -30,6 +32,8 @@ export function parseSyncDueMichiganCandidateFinanceScriptArgs(
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    ...(readStrictFlagValue(args, "--raw-cache-dir") ? { rawDataCacheDir: readStrictFlagValue(args, "--raw-cache-dir")! } : {}),
+    ...(args.includes("--refresh-supplemental-data") ? { refreshSupplementalData: true } : {}),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
@@ -76,6 +80,8 @@ async function main(): Promise<void> {
       db: pool,
       now: startedAt,
       dryRun: options.dryRun,
+      rawDataCacheDir: options.rawDataCacheDir,
+      refreshSupplementalData: options.refreshSupplementalData,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,
