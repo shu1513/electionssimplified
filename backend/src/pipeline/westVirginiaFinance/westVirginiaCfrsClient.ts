@@ -192,12 +192,13 @@ function requiredInteger(value: unknown, label: string): number {
   return parsed;
 }
 
-// --- POST + envelope --------------------------------------------------------
+// --- HTTP + envelope --------------------------------------------------------
 
-async function postJsonEnvelope(input: {
+async function requestJsonEnvelope(input: {
   baseUrl: string;
   endpoint: string;
   body: Record<string, unknown>;
+  method?: "POST" | "GET";
   options?: WestVirginiaCfrsClientOptions;
 }): Promise<Record<string, unknown>> {
   if (!/^[A-Za-z][A-Za-z0-9/]+$/.test(input.endpoint)) {
@@ -213,7 +214,7 @@ async function postJsonEnvelope(input: {
     response = await fetchWithTlsFallback(
       url,
       {
-        method: "POST",
+        method: input.method ?? "POST",
         headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json",
@@ -221,7 +222,7 @@ async function postJsonEnvelope(input: {
           Referer: "https://cfrs.wvsos.gov/",
           "User-Agent": userAgent,
         },
-        body: JSON.stringify(input.body),
+        body: input.method === "GET" ? undefined : JSON.stringify(input.body),
         signal: AbortSignal.timeout(timeoutMs),
       },
       input.options
@@ -376,7 +377,7 @@ export async function getWestVirginiaDataDownloadCatalog(
   const body: Record<string, unknown> = { pageNumber: 1, pageSize: CATALOG_PAGE_SIZE };
   if (input.dataType) body.dataType = input.dataType;
   if (input.year !== undefined) body.year = String(requirePositiveInteger(input.year, "catalog year"));
-  const envelope = await postJsonEnvelope({
+  const envelope = await requestJsonEnvelope({
     baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
     endpoint: "AccessReport/getDataDownloadDataList",
     body,
@@ -396,7 +397,7 @@ export async function getWestVirginiaDataDownloadFileUrl(
   catalogId: number,
   options?: WestVirginiaCfrsClientOptions
 ): Promise<string> {
-  const envelope = await postJsonEnvelope({
+  const envelope = await requestJsonEnvelope({
     baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
     endpoint: `AccessReport/getDataDownloadfile/${requirePositiveInteger(catalogId, "catalog id")}`,
     body: {},
@@ -444,7 +445,7 @@ export async function getAllWestVirginiaOrgDocuments(
   return getAllPages({
     pageSize,
     getPage: async (pageNumber) => {
-      const envelope = await postJsonEnvelope({
+      const envelope = await requestJsonEnvelope({
         baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
         endpoint: "Committee/getAllPublicOrgDocumentDataList",
         body: { orgID, pageNumber, pageSize },
@@ -464,7 +465,7 @@ export async function getWestVirginiaDocumentDownloadUrl(
   if (!path || path.includes("://")) {
     throw new WestVirginiaCfrsClientError("invalid_request", `Invalid West Virginia CFRS s3FilePath: ${path}`);
   }
-  const envelope = await postJsonEnvelope({
+  const envelope = await requestJsonEnvelope({
     baseUrl: WEST_VIRGINIA_CFRS_COMMON_SERVICE_BASE_URL,
     endpoint: "AmazonCloudFront/getDownloadLinkWithoutCookies",
     body: { s3FilePath: path },
@@ -622,7 +623,7 @@ export async function getAllWestVirginiaCommittees(
   return getAllPages({
     pageSize,
     getPage: async (pageNumber) => {
-      const envelope = await postJsonEnvelope({
+      const envelope = await requestJsonEnvelope({
         baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
         endpoint: "Committee/getPublicCandidatesCommitteeDataList",
         body: { pageNumber, pageSize },
@@ -631,6 +632,141 @@ export async function getAllWestVirginiaCommittees(
       return parsePageEnvelope(envelope, parseCommitteeRow);
     },
   });
+}
+
+// --- current filings and amendment history ---------------------------------
+// The public profile lists only current versions. Its history endpoint lists
+// prior versions, excluding the current row (verified report 32245: v2/v1).
+
+export type WestVirginiaFilingHistoryRow = {
+  reportID: number;
+  reportVersionID: number;
+  registrantID: string;
+  committeeName: string;
+  reportFileName: string;
+  reportFormType: string;
+  startDate: string;
+  endDate: string;
+  dueDate: string;
+  filedDate: string;
+  reportStatus: "Original" | "Amended";
+  documentBarCode: string;
+};
+
+export type WestVirginiaCurrentFilingRow = WestVirginiaFilingHistoryRow & { orgID: number };
+
+function filingDate(value: unknown, label: string): string {
+  const date = requiredString(value, label);
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?)?$/.exec(date);
+  if (!match) throw new WestVirginiaCfrsClientError("bad_response", `Invalid West Virginia CFRS ${label}`);
+  const day = date.slice(0, 10);
+  const timestamp = Date.parse(`${day}T00:00:00Z`);
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 10) !== day) {
+    throw new WestVirginiaCfrsClientError("bad_response", `Invalid West Virginia CFRS ${label}`);
+  }
+  return date;
+}
+
+function positiveResponseInteger(value: unknown, label: string): number {
+  const number = requiredInteger(value, label);
+  if (number <= 0) throw new WestVirginiaCfrsClientError("bad_response", `Invalid West Virginia CFRS ${label}`);
+  return number;
+}
+
+function parseFilingHistoryRow(value: unknown): WestVirginiaFilingHistoryRow {
+  const row = objectValue(value, "filing row");
+  const startDate = filingDate(row.startDate, "filing startDate");
+  const endDate = filingDate(row.endDate, "filing endDate");
+  if (startDate.slice(0, 10) > endDate.slice(0, 10)) {
+    throw new WestVirginiaCfrsClientError("bad_response", "West Virginia CFRS filing period is reversed");
+  }
+  const reportStatus = requiredString(row.reportStatus, "filing reportStatus");
+  if (reportStatus !== "Original" && reportStatus !== "Amended") {
+    throw new WestVirginiaCfrsClientError("bad_response", `Unsupported West Virginia CFRS filing status: ${reportStatus}`);
+  }
+  const registrantID = requiredString(row.registrantID, "filing registrantID");
+  if (!/^\d{10}$/.test(registrantID)) {
+    throw new WestVirginiaCfrsClientError("bad_response", "Invalid West Virginia CFRS filing registrantID");
+  }
+  const documentBarCode = requiredString(row.documentBarCode, "filing documentBarCode");
+  if (!/^[A-Za-z0-9]+$/.test(documentBarCode)) {
+    throw new WestVirginiaCfrsClientError("bad_response", "Invalid West Virginia CFRS filing documentBarCode");
+  }
+  return {
+    reportID: positiveResponseInteger(row.reportID, "filing reportID"),
+    reportVersionID: positiveResponseInteger(row.reportVersionID, "filing reportVersionID"),
+    registrantID,
+    committeeName: requiredString(row.committeeName, "filing committeeName"),
+    reportFileName: requiredString(row.reportFileName, "filing reportFileName"),
+    reportFormType: requiredString(row.reportFormType, "filing reportFormType"),
+    startDate, endDate,
+    dueDate: filingDate(row.dueDate, "filing dueDate"),
+    filedDate: filingDate(row.filedDate, "filing filedDate"),
+    reportStatus, documentBarCode,
+  };
+}
+
+export async function getAllWestVirginiaCurrentFilings(
+  input: { orgID: number; pageSize?: number },
+  options?: WestVirginiaCfrsClientOptions
+): Promise<WestVirginiaCurrentFilingRow[]> {
+  const orgID = requirePositiveInteger(input.orgID, "orgID");
+  const pageSize = requirePageSize(input.pageSize);
+  const rows = await getAllPages({
+    pageSize,
+    getPage: async (pageNumber) => {
+      const envelope = await requestJsonEnvelope({
+        baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
+        endpoint: "AccessReport/getAllFiledReportDataList",
+        body: { orgID, pageNumber, pageSize, sortColumn: "filedDate", sortDirection: "desc" },
+        options,
+      });
+      const data = objectValue(envelope.responseData, "current filings responseData");
+      if (!Array.isArray(data.data)) {
+        throw new WestVirginiaCfrsClientError("bad_response", "West Virginia CFRS current filings data must be an explicit array");
+      }
+      return parsePageEnvelope(envelope, (value) => {
+        const row = objectValue(value, "current filing row");
+        const rowOrgID = positiveResponseInteger(row.orgID, "filing orgID");
+        if (rowOrgID !== orgID) {
+          throw new WestVirginiaCfrsClientError("bad_response", "West Virginia CFRS current filing belongs to another orgID");
+        }
+        return { ...parseFilingHistoryRow(row), orgID: rowOrgID };
+      });
+    },
+  });
+  const seen = new Set<number>();
+  for (const row of rows) {
+    if (seen.has(row.reportID)) {
+      throw new WestVirginiaCfrsClientError("bad_response", `Duplicate West Virginia CFRS current reportID: ${row.reportID}`);
+    }
+    seen.add(row.reportID);
+  }
+  return rows;
+}
+
+export async function getWestVirginiaFilingAmendmentHistory(
+  reportID: number,
+  options?: WestVirginiaCfrsClientOptions
+): Promise<WestVirginiaFilingHistoryRow[]> {
+  requirePositiveInteger(reportID, "reportID");
+  const envelope = await requestJsonEnvelope({
+    baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
+    endpoint: `AccessReport/getOrgFiledReportAmendHistory/${reportID}`,
+    method: "GET", body: {}, options,
+  });
+  if (!Array.isArray(envelope.responseData)) {
+    throw new WestVirginiaCfrsClientError("bad_response", "West Virginia CFRS filing history must be an explicit array");
+  }
+  const rows = envelope.responseData.map(parseFilingHistoryRow);
+  const seen = new Set<number>();
+  for (const row of rows) {
+    if (row.reportID !== reportID || seen.has(row.reportVersionID)) {
+      throw new WestVirginiaCfrsClientError("bad_response", "West Virginia CFRS filing history has mismatched or duplicate versions");
+    }
+    seen.add(row.reportVersionID);
+  }
+  return rows;
 }
 
 // --- transaction search -----------------------------------------------------
@@ -660,6 +796,8 @@ export type WestVirginiaTransactionRow = {
   candidateNameAssocation: string | null;
   ballotMeasureDescription: string | null;
   orgType: string | null;
+  /** Target election year, independent of transaction year or spender registration. */
+  electionYear?: number | null;
 };
 
 function parseTransactionRow(value: unknown): WestVirginiaTransactionRow {
@@ -689,6 +827,11 @@ function parseTransactionRow(value: unknown): WestVirginiaTransactionRow {
     candidateNameAssocation: nullableString(row.candidateNameAssocation),
     ballotMeasureDescription: nullableString(row.ballotMeasureDescription),
     orgType: nullableString(row.orgType),
+    // Older/raw direct artifacts may omit this field. Invalid outside evidence
+    // becomes unavailable; only the IE classifier requires a valid target year.
+    electionYear:
+      typeof row.electionYear === "number" && Number.isInteger(row.electionYear) &&
+      row.electionYear >= 2000 && row.electionYear <= 2100 ? row.electionYear : null,
   };
 }
 
@@ -726,12 +869,21 @@ export async function getAllWestVirginiaTransactions(
   return getAllPages({
     pageSize,
     getPage: async (pageNumber) => {
-      const envelope = await postJsonEnvelope({
+      const envelope = await requestJsonEnvelope({
         baseUrl: WEST_VIRGINIA_CFRS_PUBLIC_SERVICE_BASE_URL,
         endpoint: "CommitteeTransactions/getAllPublicTransactionDataList",
         body: { ...baseBody, pageNumber, pageSize },
         options,
       });
+      if (input.transactionCategory === "IE") {
+        const responseData = objectValue(envelope.responseData, "responseData");
+        if (!Array.isArray(responseData.data)) {
+          throw new WestVirginiaCfrsClientError(
+            "bad_response",
+            "West Virginia CFRS IE transaction search requires explicit array data, including empty results"
+          );
+        }
+      }
       return parsePageEnvelope(envelope, parseTransactionRow);
     },
   });
