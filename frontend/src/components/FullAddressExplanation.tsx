@@ -10,7 +10,7 @@ import { useState } from "react";
 export function FullAddressExplanation({
   onOpen,
   // The anonymous search puts the trigger inside its field label's
-  // parenthesis ("(why full address)"); other surfaces keep the question.
+  // parenthesis ("(why address)"); other surfaces keep the question.
   triggerLabel = "Why full address?",
 }: { onOpen?: () => void; triggerLabel?: string } = {}) {
   const [open, setOpen] = useState(false);

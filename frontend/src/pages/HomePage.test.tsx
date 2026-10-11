@@ -198,22 +198,22 @@ describe("HomePage pre-search notice", () => {
 
   it("names ZIP in the field label and keeps the explainer link inside it", () => {
     renderHome();
-    // The label itself offers the escape hatch (ZIP) and the "why full
+    // The label itself offers the escape hatch (ZIP) and the "why
     // address" explainer; the old note under the field is gone. The
     // explainer and the agreement line under Search carry the privacy
     // points at the point of collection.
     expect(screen.getByLabelText(ADDRESS_LABEL)).toBeInTheDocument();
     expect(screen.queryByText(/The address is only used to find voting districts/)).not.toBeInTheDocument();
     expect(screen.queryByText(/You can also search by ZIP or city/)).not.toBeInTheDocument();
-    const trigger = screen.getByRole("button", { name: "why full address" });
-    expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyfulladdress):");
+    const trigger = screen.getByRole("button", { name: "why address" });
+    expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyaddress):");
   });
 
   it("explains why a full address is needed without treating the explanation as consent", async () => {
     const user = userEvent.setup();
     renderHome();
 
-    const trigger = screen.getByRole("button", { name: "why full address" });
+    const trigger = screen.getByRole("button", { name: "why address" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     await user.click(trigger);

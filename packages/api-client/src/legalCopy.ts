@@ -58,7 +58,7 @@ export const RENEWAL_CHECKBOX_LABEL =
   "Information Disclaimer.";
 
 /**
- * Sits beside the signed-in address form and inside the "why full address"
+ * Sits beside the signed-in address form and inside the "why address"
  * explainer that the anonymous search field links from its label. Collection
  * begins as the autocomplete forwards what is typed, long before anyone
  * presses Search, and notice has to arrive at or before collection.
