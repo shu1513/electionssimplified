@@ -13,7 +13,7 @@ import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance
 import { HOUSTON_FINANCE_OFFICE_NAMES } from "../houstonFinance/houstonFinanceOfficeTargets.js";
 
 import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
-import { pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
+import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
 
 const GENERIC_TEXAS_TEC_SOURCE_URL = "https://www.ethics.state.tx.us/search/cf/";
 
@@ -68,6 +68,9 @@ function groupPacDonorsByInterest(
         ? classification.industrySlug
         : null;
     const interest = storedInterest ?? ruleInterest ?? UNCLASSIFIED_PAC_INTEREST;
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest)) {
+      continue;
+    }
     const key = candidateElectionKey(row.candidate_id, row.election_id);
     const interests = grouped.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
     const entry = interests.get(interest) ?? {

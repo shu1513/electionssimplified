@@ -87,6 +87,33 @@ describe("texasBallotLookupFinanceLoader", () => {
     expect(pacQuery).toContain("public.normalize_finance_label(grouped.committee_name)");
   });
 
+  it("hides only trusted candidate and leadership interests while retaining unknowns and party groups", async () => {
+    vi.stubEnv("TEXAS_CAMPAIGN_FINANCE_ENABLED", "true");
+    const db = dbWithDonors([
+      donor({ committee_id: "00011111", committee_name: "Source Alpha PAC", amount: "5000.00",
+        industry_slug: "leadership_pacs", classification_source: "manual", confidence: "low" }),
+      donor({ committee_id: "00022222", committee_name: "Source Beta PAC", amount: "2000.00",
+        industry_slug: "candidate_committees", classification_source: "ai", confidence: "high" }),
+      donor({ committee_id: "00033333", committee_name: "Source Gamma PAC", amount: "1000.00",
+        industry_slug: "leadership_pacs", classification_source: "rule", confidence: "high" }),
+      donor({ committee_id: "00044444", committee_name: "Source Delta PAC", amount: "750.00",
+        industry_slug: "candidate_committees", classification_source: "rule", confidence: "low" }),
+      donor({ committee_id: "00055555", committee_name: "Source Epsilon PAC", amount: "200.00" }),
+      donor({ committee_id: "00066666", committee_name: "Source Party Committee", committee_type: "PTYCORP",
+        amount: "300.00", industry_slug: "democratic_party_groups", classification_source: "manual", confidence: "high" }),
+    ]);
+    const result = await loadTexasCandidateFinanceSummariesByCandidateElection(db, candidates, elections);
+    const summary = [...result.values()][0]!;
+    expect(summary.direct_campaign.total_raised).toBe(25000);
+    const interests = summary.direct_campaign.pac_money_by_interest!;
+    expect(interests).toHaveLength(2);
+    expect(interests[0]).toMatchObject({ interest: "unclassified", interest_name: "Not yet sorted", amount: 950, pac_count: 2 });
+    expect(interests[0]!.pacs.map((pac) => pac.committee_id)).toEqual(["00044444", "00055555"]);
+    expect(interests[1]).toMatchObject({ interest: "democratic_party_groups", amount: 300, pac_count: 1 });
+    expect(interests[1]!.pacs[0]!.committee_id).toBe("00066666");
+    expect(interests.some((entry) => ["leadership_pacs", "candidate_committees"].includes(entry.interest))).toBe(false);
+  });
+
   it("computes full interest totals and committee counts before capping displayed donors", async () => {
     vi.stubEnv("TEXAS_CAMPAIGN_FINANCE_ENABLED", "true");
     const db = dbWithDonors(Array.from({ length: 7 }, (_, index) => donor({
