@@ -159,14 +159,17 @@ function lookupHistories(rows: readonly OregonOutsideRawEvidence[]) {
   }
   return result;
 }
-function address(w: OregonVerifiedTransactionRow): string {
+function address(w: OregonVerifiedTransactionRow): readonly string[] {
   const r = w.rawFields, format = (v: unknown): string => String(v ?? "").normalize("NFKC").toUpperCase().replace(/\s+/g, " ").trim();
   const country = format(r.Country);
   if (country !== "" && country !== "UNITED STATES" || format(r["Foreign Postal Code"]) !== "") fail("unsupported foreign address projection");
   const zip = String(r.Zip ?? "").trim(), plus = String(r["Zip Plus Four"] ?? "").trim();
   if (!/^\d{1,5}$/.test(zip) || plus && !/^\d{4}$/.test(plus)) fail("unsupported source ZIP projection");
-  return format([r["Addr Line1"], r["Addr Line2"], String(r.City ?? "") + ", " + String(r.State ?? "") + " " +
-    zip.padStart(5, "0") + (plus ? "-" + plus : "")].map(v => String(v ?? "")).join(" "));
+  // Both exact locality presentations are published. Keep every component's
+  // punctuation and words; only the source's City/State separator differs.
+  const locality = String(r.State ?? "") + " " + zip.padStart(5, "0") + (plus ? "-" + plus : "");
+  return [", ", " "].map(separator => format([r["Addr Line1"], r["Addr Line2"],
+    String(r.City ?? "") + separator + locality].map(v => String(v ?? "")).join(" ")));
 }
 function addressText(lines: readonly string[]): string {
   return lines.join(" ").normalize("NFKC").toUpperCase().replace(/\s+/g, " ").trim();
@@ -218,7 +221,7 @@ function ledger(s: OregonOutsideSourceSnapshot, input: OregonVerifiedOutsideInpu
         d.amountCents !== w.amountCents || d.date !== w.date || norm(d.filerName) !== norm(payer.committeeName) ||
         norm(String(w.rawFields.Filer ?? "")) !== norm(payer.committeeName) ||
         d.bookType !== w.bookType || norm(d.name ?? "") !== norm(String(w.rawFields["Contributor/Payee"] ?? "")) ||
-        addressText(d.addressLines) !== address(w)) fail("unsupported/current detail-workbook identity " + w.transactionId);
+        !address(w).includes(addressText(d.addressLines))) fail("unsupported/current detail-workbook identity " + w.transactionId);
     if (n.date !== w.date || n.status !== w.status || n.amountCents !== w.amountCents || n.subType !== w.subType ||
         n.expired || n.deleted || norm(n.filerName) !== norm(payer.committeeName) ||
         norm(n.projectedName) !== norm(String(w.rawFields["Contributor/Payee"] ?? "")) ||

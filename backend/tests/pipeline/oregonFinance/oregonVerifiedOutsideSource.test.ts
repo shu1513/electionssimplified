@@ -135,6 +135,31 @@ describe("Oregon scoped Original cash IE evidence",()=>{
  it("rejects source address mutation without economic deduplication",()=>{
    const i=input();i.after.financialDetails=[replacement(i.after.financialDetails[0],detail(rows[0]).replace("10 Test St","11 Test St")),i.after.financialDetails[1]];omitted(i,/identity/);
  });
+ it("accepts the observed complete space-locality address while retaining a second street line and ZIP+4",()=>{
+   const rs=rows.map(r=>({...r,values:{"Addr Line2":"Suite 5","Zip Plus Four":"1234"}})),i=input(rs);
+   for(const s of[i.before,i.after])s.financialDetails=rs.map((r,index)=>replacement(s.financialDetails[index],
+     detail(r).replace("10 Test St<br>Salem, OR 97301","10 Test St<br>Suite 5<br>Salem OR 97301-1234")));
+   expect(verify(i).evidence?.opposeCents).toBe(250000);
+ });
+ it.each(["street-punctuation","address2","city","state","zip","zip4","separator"])("preserves changed source address component %s in space locality",bad=>{
+   const rs=rows.map(r=>({...r,values:{"Addr Line1":"10 Test St.","Addr Line2":"Suite 5","Zip Plus Four":"1234"}})),i=input(rs);
+   let published="10 Test St.<br>Suite 5<br>Salem OR 97301-1234";
+   if(bad==="street-punctuation")published=published.replace("St.","St");
+   if(bad==="address2")published=published.replace("Suite 5<br>","");
+   if(bad==="city")published=published.replace("Salem","Keizer");
+   if(bad==="state")published=published.replace(" OR "," WA ");
+   if(bad==="zip")published=published.replace("97301","97302");
+   if(bad==="zip4")published=published.replace("-1234","-1235");
+   if(bad==="separator")published=published.replace("Salem OR","Salem; OR");
+   for(const s of[i.before,i.after])s.financialDetails=rs.map((r,index)=>replacement(s.financialDetails[index],
+     detail(r).replace("10 Test St<br>Salem, OR 97301",published)));
+   omitted(i,/detail-workbook identity/);
+ });
+ it("preserves a closing address-format change even when both published layouts independently match",()=>{
+   const i=input();
+   i.after.financialDetails=i.after.financialDetails.map((e,index)=>replacement(e,detail(rows[index]).replace("Salem, OR","Salem OR")));
+   omitted(i,/changed/);
+ });
  it("retains separate equal-dollar source IDs",()=>{
    const rs=[{...rows[0],amount:100,mechanisms:"Independent Expenditure in Support- Paul Evans - $100.00"},
      {...rows[0],id:"5868898",amount:100,mechanisms:"Independent Expenditure in Support- Paul Evans - $100.00"}];
