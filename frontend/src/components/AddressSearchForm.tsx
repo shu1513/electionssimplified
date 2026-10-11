@@ -286,7 +286,7 @@ export function AddressSearchForm({
                 rejected as a demand for where you sleep, "Voting address"
                 read as the place you go to vote. */}
             {/* The label names ZIP as an alternative and carries the
-                "why address" explainer in a parenthesis, so the visitor
+                "why address?" explainer in a parenthesis, so the visitor
                 who won't type where they live learns the escape hatch before
                 giving up. The explainer button sits beside the <label>, not
                 inside it: a button inside a label would join the field's
@@ -296,7 +296,7 @@ export function AddressSearchForm({
               <span className="whitespace-nowrap font-normal">
                 (
                 <FullAddressExplanation
-                  triggerLabel="why address"
+                  triggerLabel="why address?"
                   onOpen={() => track("why_address_open", { after_input: address.trim().length > 0 })}
                 />
                 ):

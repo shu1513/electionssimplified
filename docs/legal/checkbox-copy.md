@@ -140,7 +140,7 @@ Freedom Financial Network):
   gone with the dialog.)
 - Notice at collection: the autocomplete forwards typed fragments after
   three characters, so collection begins before Search is ever pressed. The
-  anonymous search field carries the "why address" explainer in its own
+  anonymous search field carries the "why address?" explainer in its own
   label (which repeats the short privacy note and links the Privacy Policy),
   and the agreement line under Search links the Privacy Policy by name. The
   short note itself sits beside the signed-in address form. (Until
@@ -263,7 +263,7 @@ account, which stores district ids only.
 > The address is only used to find voting districts. We do NOT save it to
 > your account.
 
-In the anonymous search field's label, **(why address)** opens an
+In the anonymous search field's label, **(why address?)** opens an
 informational dialog on web and mobile. Two sentences: voting districts do
 not necessarily follow ZIP codes, and two homes in the same city or ZIP often
 vote in different races. The dialog then repeats the

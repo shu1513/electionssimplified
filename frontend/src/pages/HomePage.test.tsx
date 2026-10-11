@@ -205,15 +205,15 @@ describe("HomePage pre-search notice", () => {
     expect(screen.getByLabelText(ADDRESS_LABEL)).toBeInTheDocument();
     expect(screen.queryByText(/The address is only used to find voting districts/)).not.toBeInTheDocument();
     expect(screen.queryByText(/You can also search by ZIP or city/)).not.toBeInTheDocument();
-    const trigger = screen.getByRole("button", { name: "why address" });
-    expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyaddress):");
+    const trigger = screen.getByRole("button", { name: "why address?" });
+    expect(trigger.parentElement?.textContent?.replace(/\s+/g, "")).toBe("(whyaddress?):");
   });
 
   it("explains why a full address is needed without treating the explanation as consent", async () => {
     const user = userEvent.setup();
     renderHome();
 
-    const trigger = screen.getByRole("button", { name: "why address" });
+    const trigger = screen.getByRole("button", { name: "why address?" });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     await user.click(trigger);

@@ -195,7 +195,7 @@ export default function HomeScreen() {
         <View className="mt-6 gap-4">
           <View>
             {/* Instructional label for first-time visitors, naming ZIP as the
-                escape hatch and carrying the "why address" explainer in
+                escape hatch and carrying the "why address?" explainer in
                 its parenthesis — same shape as the web home. Signed-in
                 surfaces keep "Your address". */}
             <Text className="text-sm font-medium text-ink">
@@ -205,7 +205,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 onPress={() => setAddressExplanationVisible(true)}
               >
-                why address
+                why address?
               </Text>
               ):
             </Text>
