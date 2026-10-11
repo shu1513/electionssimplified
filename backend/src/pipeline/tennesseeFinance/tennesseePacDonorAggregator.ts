@@ -32,7 +32,8 @@ export type TennesseePacSourceProvenance = {
   currentManifestFingerprint: string;
   nativeAllFingerprint: string;
   nativePacFingerprint: string;
-  reports: readonly { reportId: string; rawSha256: string; semanticFingerprint: string; sourceUrl: string }[];
+  reports: readonly { reportId: string; periodIdentity: string; periodStart: string; periodEnd: string;
+    rawSha256: string; semanticFingerprint: string; sourceUrl: string }[];
   receipts: readonly { reportId: string; occurrence: number; donorId: string; date: string; amountCents: number }[];
 };
 
@@ -105,17 +106,27 @@ export function validateTennesseePacSourceProvenance(input: {
     || ![p.registryFingerprint, p.currentManifestFingerprint, p.nativeAllFingerprint, p.nativePacFingerprint].every(hash)
     || !Array.isArray(p.reports) || p.reports.length === 0 || !Array.isArray(p.receipts)) fail();
   const reports = new Map<string, string>();
+  const periods = new Map<string, { start: string; end: string }>();
+  const periodIdentities = new Set<string>();
   for (const report of p.reports) {
     if (!isTennesseeCampId(report.reportId) || reports.has(report.reportId) || !hash(report.rawSha256)
-      || !hash(report.semanticFingerprint) || tennesseeReportIdFromSourceUrl(report.sourceUrl) !== report.reportId) fail();
+      || !hash(report.semanticFingerprint) || tennesseeReportIdFromSourceUrl(report.sourceUrl) !== report.reportId
+      || typeof report.periodIdentity !== "string" || !report.periodIdentity.trim()
+      || periodIdentities.has(report.periodIdentity)
+      || !validDate(report.periodStart) || !validDate(report.periodEnd) || report.periodStart > report.periodEnd) fail();
+    periodIdentities.add(report.periodIdentity);
     reports.set(report.reportId, report.sourceUrl);
+    periods.set(report.reportId, { start: report.periodStart, end: report.periodEnd });
   }
+  const orderedPeriods = [...periods.values()].sort((a, b) => a.start.localeCompare(b.start));
+  if (orderedPeriods.some((period, index) => index > 0 && orderedPeriods[index - 1]!.end >= period.start)) fail();
   const occurrences = new Set<string>();
   const sums = new Map<string, { cents: number; count: number }>();
   for (const receipt of p.receipts) {
     const key = `${receipt.reportId}:${receipt.occurrence}`;
     if (!reports.has(receipt.reportId) || !Number.isSafeInteger(receipt.occurrence) || receipt.occurrence < 0
       || occurrences.has(key) || !validDate(receipt.date) || receipt.date < p.windowStart || receipt.date > p.windowEnd
+      || receipt.date < periods.get(receipt.reportId)!.start || receipt.date > periods.get(receipt.reportId)!.end
       || !Number.isSafeInteger(receipt.amountCents) || receipt.amountCents <= 0) fail();
     occurrences.add(key);
     const sum = sums.get(receipt.donorId) ?? { cents: 0, count: 0 };

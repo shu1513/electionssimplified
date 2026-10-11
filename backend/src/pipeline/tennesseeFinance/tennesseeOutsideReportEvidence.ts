@@ -12,6 +12,8 @@ export type TennesseeOutsideCandidateContext = {
 export type TennesseeOutsideEvidenceOccurrence = {
   occurrenceId: string;
   targetCampId: string;
+  reportedTargetName: string;
+  resolutionMethod: "contextual_exact_name";
   supportOppose: "support" | "oppose";
   date: string;
   amountCents: number;
@@ -134,13 +136,15 @@ function normalizeReport(report: TennesseeVerifiedOutsideReportEvidence, context
     if (ids.has(row.occurrenceId)) throw new Error(`Duplicate occurrence ${row.occurrenceId} in report ${report.reportId}`);
     ids.add(row.occurrenceId);
     requireId(row.targetCampId, "targetCampId");
+    requireText(row.reportedTargetName, "reportedTargetName");
+    if (row.resolutionMethod !== "contextual_exact_name") throw new Error("Unsupported target resolution method");
     if (row.targetCampId !== context.campCandidateId) throw new Error(`Wrong candidate target in report ${report.reportId}`);
     if (row.supportOppose !== "support" && row.supportOppose !== "oppose") throw new Error("Unknown outside direction");
     requireDate(row.date, "occurrence date");
     if (row.date < report.periodStart || row.date > report.periodEnd || row.date < `${context.electionYear - 1}-01-01` || row.date > `${context.electionYear}-12-31`) throw new Error("Occurrence outside verified period/candidate cycle");
     if (row.amountCents <= 0) throw new Error("Occurrence amount must be positive");
     dollars(row.amountCents);
-    return { occurrenceId: row.occurrenceId, targetCampId: row.targetCampId, supportOppose: row.supportOppose, date: row.date, amountCents: row.amountCents };
+    return { occurrenceId: row.occurrenceId, targetCampId: row.targetCampId, reportedTargetName: row.reportedTargetName, resolutionMethod: row.resolutionMethod, supportOppose: row.supportOppose, date: row.date, amountCents: row.amountCents };
   }).sort((a, b) => a.occurrenceId.localeCompare(b.occurrenceId));
   const supersededReportIds = [...(report.supersededReportIds ?? [])].sort();
   const superseded = new Set<string>();

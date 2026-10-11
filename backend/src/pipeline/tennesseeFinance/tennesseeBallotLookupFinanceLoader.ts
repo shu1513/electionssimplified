@@ -580,9 +580,10 @@ export async function loadTennesseeCandidateFinanceSummariesByCandidateElection(
             top_industries: [],
             contribution_size_buckets: contributionSizeBucketsByCandidateElection.get(key) ?? [],
             ...(pacMoney?.length ? { pac_money_by_interest: pacMoney } : {}),
-            direct_coverage_note: "PAC cash receipts are a subset of Raised. PAC counts represent source-reported donor groups; name aliases may split a legal PAC and identical reported names may combine legal PACs.",
+            direct_coverage_note: "PAC cash receipts are part of candidate contributions. Raised and PAC totals may have different verified coverage. PAC counts represent source-reported donor groups; name aliases may split a legal PAC and identical reported names may combine legal PACs.",
           },
           outside_spending: {
+            outside_coverage_note: "Includes verified ordinary reports and retained prior evidence. Candidate allocation uses exact reported target names with unique campaign, office, district and election context. Interim or paper filings and later reports may be unavailable; missing directions remain unknown.",
             support_total: parseFinanceAmount(row.outside_support_total),
             oppose_total: parseFinanceAmount(row.outside_oppose_total),
             top_supporting_groups: supportingGroupsByCandidateElection.get(key) ?? [],

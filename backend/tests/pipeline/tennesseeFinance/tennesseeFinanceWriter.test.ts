@@ -52,7 +52,7 @@ describe("Tennessee report-scoped outside persistence", () => {
     periodStart: "2026-07-01", periodEnd: "2026-07-27", reportId: "128190",
     sourceUrl: "https://apps.tn.gov/tncamp/search/pub/report_full.htm?reportId=128190",
     manifestFingerprint: "b".repeat(64), fullLedgerFingerprint: "c".repeat(64), rawHashes: { ledger: "d".repeat(64) },
-    occurrences: [{ occurrenceId: "row-1", targetCampId: "1234", supportOppose: "support", date: "2026-07-27", amountCents: 591062 }],
+    occurrences: [{ occurrenceId: "row-1", targetCampId: "1234", reportedTargetName: "JANE DOE", resolutionMethod: "contextual_exact_name", supportOppose: "support", date: "2026-07-27", amountCents: 591062 }],
     ...overrides,
   });
   const authority = () => mergeTennesseeOutsideReportEvidence({ candidateContext, verifiedReports: [report()] }).update!;
@@ -349,7 +349,8 @@ describe("Tennessee independently optional PAC snapshots", () => {
     version: 1, candidateId: CANDIDATE_ID, electionId: ELECTION_ID, campCandidateId: "1234", electionYear: 2026,
     windowStart: "2025-01-01", windowEnd: "2026-12-31", registryFingerprint: "a".repeat(64),
     currentManifestFingerprint: "b".repeat(64), nativeAllFingerprint: "c".repeat(64), nativePacFingerprint: "d".repeat(64),
-    reports: [{ reportId: "123786", sourceUrl, rawSha256: "e".repeat(64), semanticFingerprint: "f".repeat(64) }],
+    reports: [{ reportId: "123786", periodIdentity: "Early Year End Supplemental 2025", periodStart: "2025-07-01",
+      periodEnd: "2026-01-15", sourceUrl, rawSha256: "e".repeat(64), semanticFingerprint: "f".repeat(64) }],
     receipts: empty ? [] : [{ reportId: "123786", occurrence: 0, donorId: donor.committeeId,
       date: "2025-08-19", amountCents: 100000 }],
   });
@@ -385,6 +386,8 @@ describe("Tennessee independently optional PAC snapshots", () => {
     { candidateId: ELECTION_ID }, { campCandidateId: "99" }, { electionYear: 2024 },
     { receipts: [] }, { nativePacFingerprint: "partial" }, { reports: [] },
     { windowStart: "2026-01-01" }, { windowEnd: "2026-10-11" },
+    { reports: [{ reportId: "123786", sourceUrl, rawSha256: "e".repeat(64), semanticFingerprint: "f".repeat(64),
+      periodIdentity: "Early Year End Supplemental 2025", periodStart: "2025-09-01", periodEnd: "2026-01-15" }] },
   ])("rejects mismatched or incomplete provenance before BEGIN: %j", async overrides => {
     const db = createMockDb();
     await expect(replaceTennesseeCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [donor],

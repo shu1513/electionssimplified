@@ -35,6 +35,7 @@ describe("Tennessee typed PAC card", () => {
     const { db, summary } = await read([donor()]);
     expect(summary.direct_campaign.total_raised).toBe(5000);
     expect(summary.outside_spending.support_total).toBeNull();
+    expect(summary.outside_spending.outside_coverage_note).toContain("Interim or paper filings");
     expect(summary.direct_campaign.pac_money_by_interest).toEqual([{ interest: "unclassified",
       interest_name: "Not yet sorted", amount: 1000, pac_count: 1,
       pacs: [{ committee_id: "reported:EXAMPLE PAC", committee_name: "Example PAC", amount: 1000, source_url: sourceUrl }] }]);

@@ -13,7 +13,7 @@ function report(overrides: Partial<TennesseeVerifiedOutsideReportEvidence> = {})
     periodStart: "2026-07-01", periodEnd: "2026-07-27", reportId: id,
     sourceUrl: `https://apps.tn.gov/tncamp/search/pub/report_full.htm?reportId=${id}`,
     manifestFingerprint: hash(), fullLedgerFingerprint: hash("b"), rawHashes: { ledgerBefore: hash(), ledgerAfter: hash(), cover: hash("b") },
-    occurrences: [{ occurrenceId: "row-1", targetCampId: "794", supportOppose: "support", date: "2026-07-10", amountCents: 591062 }], ...overrides };
+    occurrences: [{ occurrenceId: "row-1", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", supportOppose: "support", date: "2026-07-10", amountCents: 591062 }], ...overrides };
 }
 function merge(verifiedReports: TennesseeVerifiedOutsideReportEvidence[], prior?: unknown) {
   return mergeTennesseeOutsideReportEvidence({ candidateContext: context, verifiedReports, prior });
@@ -30,7 +30,7 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
       provenance: { version: 1, candidateContext: context }, outsideGroups: [{ committeeKey: "136", committeeName: "Synthetic verified payer", supportOppose: "support", amount: 5910.62, expenditureCount: 1, sourceUrl: report().sourceUrl }] } });
   });
   it("retains unavailable reports while adding independent evidence", () => {
-    const next = report({ payerCampId: "137", payerName: "Other payer", reportId: "128191", occurrences: [{ occurrenceId: "other", targetCampId: "794", date: "2026-07-11", amountCents: 10000, supportOppose: "oppose" }] });
+    const next = report({ payerCampId: "137", payerName: "Other payer", reportId: "128191", occurrences: [{ occurrenceId: "other", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", date: "2026-07-11", amountCents: 10000, supportOppose: "oppose" }] });
     const result = merge([next], provenance());
     expect(result.update?.provenance.reports).toHaveLength(2);
     expect(result.update).toMatchObject({ supportTotal: 5910.62, opposeTotal: 100 });
@@ -52,7 +52,7 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
     expect(result.update?.supportTotal).toBe(5910.62);
   });
   it("synthetic zero replacement removes only that report and yields NULL", () => {
-    const other = report({ payerCampId: "137", payerName: "Other payer", reportId: "128191", occurrences: [{ occurrenceId: "other", targetCampId: "794", date: "2026-07-11", amountCents: 10000, supportOppose: "oppose" }] });
+    const other = report({ payerCampId: "137", payerName: "Other payer", reportId: "128191", occurrences: [{ occurrenceId: "other", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", date: "2026-07-11", amountCents: 10000, supportOppose: "oppose" }] });
     const result = merge([report({ occurrences: [], fullLedgerFingerprint: hash("c") })], provenance([report(), other]));
     expect(result.update).toMatchObject({ supportTotal: null, opposeTotal: 100 });
     expect(result.update?.outsideGroups).toHaveLength(1);
@@ -66,7 +66,7 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
   });
   it("uses actual report period authority rather than inferred source-report year", () => {
     const result = merge([report({ periodIdentity: "Actual cross-year report", periodStart: "2024-12-15", periodEnd: "2025-01-15",
-      occurrences: [{ occurrenceId: "january", targetCampId: "794", date: "2025-01-06", amountCents: 10001, supportOppose: "support" }] })]);
+      occurrences: [{ occurrenceId: "january", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", date: "2025-01-06", amountCents: 10001, supportOppose: "support" }] })]);
     expect(result.update?.supportTotal).toBe(100.01);
   });
   it("counts separate nonoverlapping reports for one payer without duplicate groups", () => {
@@ -86,7 +86,7 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
     preserved(merge([report({ occurrences: [row, row] })]), "Duplicate occurrence");
   });
   it("sums all groups before any downstream cap", () => {
-    const reports = Array.from({ length: 60 }, (_, i) => report({ payerCampId: String(i + 1), payerName: `Payer ${i}`, reportId: String(10000 + i), occurrences: [{ occurrenceId: "row", targetCampId: "794", date: "2026-07-11", amountCents: 101, supportOppose: "support" }] }));
+    const reports = Array.from({ length: 60 }, (_, i) => report({ payerCampId: String(i + 1), payerName: `Payer ${i}`, reportId: String(10000 + i), occurrences: [{ occurrenceId: "row", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", date: "2026-07-11", amountCents: 101, supportOppose: "support" }] }));
     expect(merge(reports).update?.outsideGroups).toHaveLength(60);
     expect(merge(reports).update?.supportTotal).toBe(60.6);
   });
@@ -143,7 +143,8 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
     preserved(merge([report({ [field]: value } as Partial<TennesseeVerifiedOutsideReportEvidence>)]), String(message));
   });
   it.each([
-    [{ targetCampId: "795" }, "Wrong candidate"], [{ supportOppose: "unknown" }, "Unknown outside direction"],
+    [{ targetCampId: "795" }, "Wrong candidate"], [{ reportedTargetName: " " }, "reportedTargetName"],
+    [{ resolutionMethod: "source_candidate_id" }, "Unsupported target resolution method"], [{ supportOppose: "unknown" }, "Unknown outside direction"],
     [{ date: "2026-07-28" }, "outside verified period"], [{ date: "2026-02-30" }, "calendar"],
     [{ amountCents: 0 }, "positive"], [{ amountCents: -1 }, "positive"], [{ amountCents: 100.5 }, "Unsafe"],
     [{ amountCents: Number.MAX_SAFE_INTEGER }, "round-trip"],
@@ -153,6 +154,13 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
   it("preserves aggregate overflow despite safe individual dollar amounts", () => {
     const row = { ...report().occurrences[0]!, amountCents: 5_000_000_000_000_000 };
     preserved(merge([report({ occurrences: [row, { ...row, occurrenceId: "row-2" }] })]), "Unsafe cents");
+  });
+  it("persists the exact reported target and explicitly labels the contextual inference", () => {
+    const row = { ...report().occurrences[0]!, reportedTargetName: "Synthetic Candidate III" };
+    const result = merge([report({ occurrences: [row] })]);
+    expect(result.update?.provenance.reports[0]?.occurrences[0]).toMatchObject({ reportedTargetName: "Synthetic Candidate III", resolutionMethod: "contextual_exact_name", targetCampId: "794" });
+    const stored = provenance([report({ occurrences: [{ ...row, resolutionMethod: undefined } as unknown as TennesseeOutsideEvidenceOccurrence] })]);
+    expect(summarizeTennesseeOutsideReportProvenance(stored).result).toBeUndefined();
   });
   it("does not mutate supplied or stored evidence", () => {
     const old = provenance(), next = report({ reportId: "128202" });
@@ -166,7 +174,7 @@ describe("mergeTennesseeOutsideReportEvidence (synthetic provenance policy)", ()
 describe("summarizeTennesseeOutsideReportProvenance (synthetic stored authority)", () => {
   it("rebuilds all uncapped groups and retains historical per-report proof generations", () => {
     const reports = Array.from({ length: 60 }, (_, i) => report({ payerCampId: String(i + 1), payerName: `Payer ${i}`, reportId: String(10000 + i),
-      candidateContextFingerprint: hash(i % 2 ? "b" : "c"), occurrences: [{ occurrenceId: "row", targetCampId: "794", date: "2026-07-11", amountCents: 101, supportOppose: "support" }] }));
+      candidateContextFingerprint: hash(i % 2 ? "b" : "c"), occurrences: [{ occurrenceId: "row", targetCampId: "794", reportedTargetName: "Synthetic candidate", resolutionMethod: "contextual_exact_name", date: "2026-07-11", amountCents: 101, supportOppose: "support" }] }));
     const result = summarizeTennesseeOutsideReportProvenance(provenance(reports));
     expect(result.diagnostics).toEqual([]);
     expect(result.result?.outsideGroups).toHaveLength(60);
