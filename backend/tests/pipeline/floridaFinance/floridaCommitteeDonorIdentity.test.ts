@@ -305,3 +305,26 @@ describe("observed terminal suite delimiter", () => {
       .toBe("unresolved");
   });
 });
+
+describe("observed numeric-primary leading east predirectional", () => {
+  const current = () => row({ address: "100 E. Full Street SUITE 200" });
+  it.each(["100 EAST FULL STREET SUITE 200", "100 E FULL STREET, SUITE 200"])(
+    "binds only the same full source address %s and retains raw fingerprints", reportedAddress => {
+      const rows = [old(), current()], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input(rows), reportedAddress }).identity?.committeeId).toBe("60813");
+      expect(rows[1]!.address).toBe("100 E. Full Street SUITE 200");
+      expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+    });
+  it.each(["101 EAST FULL STREET SUITE 200", "100 EAST OTHER STREET SUITE 200",
+    "100 EAST FULL STREET SUITE 201", "100 EAST FULL STREET", "100 WEST FULL STREET SUITE 200",
+    "100 FULL EAST STREET SUITE 200", "100 EAST. FULL STREET SUITE 200",
+    "100 EAST FULL, STREET SUITE 200", "100-EAST FULL STREET SUITE 200",
+    "100A EAST FULL STREET SUITE 200"])("preserves altered/unsupported predirectional %s", reportedAddress => {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), current()]), reportedAddress }).status).toBe("unresolved");
+    });
+  it("retains exact source locality and full reported legal name", () => {
+    const i = { ...input([old(), current()]), reportedAddress: "100 EAST FULL STREET SUITE 200" };
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedCityStateZip: "Tallahassee, FL 32309" }).status).toBe("unresolved");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedName: "Florida Home Builders EAST PAC" }).status).toBe("unresolved");
+  });
+});
