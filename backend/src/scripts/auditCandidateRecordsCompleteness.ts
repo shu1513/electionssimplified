@@ -5,6 +5,7 @@ import { loadProjectEnv } from "../config/env.js";
 
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 import {
+  isUnsearchedFinding,
   listMissingSweepRouteQuestionIds,
   type SweepRoute,
 } from "./candidateRecordSweepEvidence.js";
@@ -249,6 +250,45 @@ export function listSharedFindingTexts(
     }));
 }
 
+export type UnsearchedFindingGap = {
+  candidateId: string;
+  displayName: string;
+  contextType: "election" | "presidential_cycle";
+  contextId: string;
+  confirmedAt: string;
+  /** question_id (or null for untagged entries) of every entry whose finding says the question was not searched. */
+  unsearchedQuestionIds: (string | null)[];
+  sampleFinding: string;
+};
+
+/**
+ * Confirmations carrying at least one entry whose finding admits the question
+ * was never searched ("Not searched this pass; open coverage gap"). The
+ * writer now refuses such entries (isUnsearchedFinding); this retro-flags the
+ * 2026-08-22 cohort that was stamped complete with them. Most-gaps first.
+ */
+export function listUnsearchedFindingGaps(
+  rows: readonly SweepConfirmationDetectorRow[]
+): UnsearchedFindingGap[] {
+  const gaps: UnsearchedFindingGap[] = [];
+  for (const row of rows) {
+    const unsearched = extractAuditEvidenceEntries(row.evidence).filter((entry) => isUnsearchedFinding(entry.finding));
+    if (unsearched.length === 0) {
+      continue;
+    }
+    gaps.push({
+      candidateId: row.candidate_id,
+      displayName: row.display_name,
+      contextType: row.context_type,
+      contextId: row.context_id,
+      confirmedAt: row.confirmed_at,
+      unsearchedQuestionIds: unsearched.map((entry) => entry.questionId),
+      sampleFinding: unsearched[0]!.finding.length > 120 ? `${unsearched[0]!.finding.slice(0, 117)}...` : unsearched[0]!.finding,
+    });
+  }
+  return gaps.sort((left, right) => right.unsearchedQuestionIds.length - left.unsearchedQuestionIds.length);
+}
+
 export type RouteCoverageGap = {
   candidateId: string;
   displayName: string;
@@ -448,7 +488,9 @@ ${targetSql}
     );
     const sharedFindingTexts = listSharedFindingTexts(confirmationsResult.rows);
     const routeCoverageGaps = listRouteCoverageGaps(confirmationsResult.rows);
+    const unsearchedFindingGaps = listUnsearchedFindingGaps(confirmationsResult.rows);
     const ROUTE_COVERAGE_GAP_LIST_LIMIT = 100;
+    const UNSEARCHED_FINDING_GAP_LIST_LIMIT = 100;
     const SHARED_FINDING_LIST_LIMIT = 50;
 
     // Source-domain detector feed (PR 3 of the source-trust plan): every
@@ -566,7 +608,7 @@ ${targetSql}
           sweepConfirmationDetectors: {
             confirmationCount: confirmationsResult.rows.length,
             explanation:
-              `Red-flag detectors over persisted sweep-confirmation ledgers. sharedFindingTexts: finding text (>= ${SHARED_FINDING_MIN_LENGTH} chars) repeated verbatim across >= ${SHARED_FINDING_MIN_CANDIDATES} distinct candidates — the copy-paste template signature; short negative findings like "nothing found" legitimately repeat and are exempt. routeCoverageGaps: confirmations whose question_id tags cover no complete route question list consistent with the confirmation's own contest context (judicial election contexts require the judicial route; other found election contexts and presidential contexts exclude it) and candidates.has_held_public_office — untagged pre-#350 ledgers (including the 2026-07-15 cohort) flag here by design. Flagged candidates need a proper per-question re-sweep (or the PR-3 confirmation-reset repair).`,
+              `Red-flag detectors over persisted sweep-confirmation ledgers. sharedFindingTexts: finding text (>= ${SHARED_FINDING_MIN_LENGTH} chars) repeated verbatim across >= ${SHARED_FINDING_MIN_CANDIDATES} distinct candidates — the copy-paste template signature; short negative findings like "nothing found" legitimately repeat and are exempt. routeCoverageGaps: confirmations whose question_id tags cover no complete route question list consistent with the confirmation's own contest context (judicial election contexts require the judicial route; other found election contexts and presidential contexts exclude it) and candidates.has_held_public_office — untagged pre-#350 ledgers (including the 2026-07-15 cohort) flag here by design. unsearchedFindingGaps: confirmations with an entry whose finding admits the question was never searched ("Not searched this pass; open coverage gap") — the 2026-08-22 cohort signature; the writer now refuses such entries, so these need the named questions actually researched. Flagged candidates need a proper per-question re-sweep (or the PR-3 confirmation-reset repair).`,
             sharedFindingTextCount: sharedFindingTexts.length,
             sharedFindingTexts: sharedFindingTexts.slice(0, SHARED_FINDING_LIST_LIMIT).map((group) => ({
               candidateCount: group.candidateCount,
@@ -583,6 +625,11 @@ ${targetSql}
             routeCoverageGaps: routeCoverageGaps.slice(0, ROUTE_COVERAGE_GAP_LIST_LIMIT),
             ...(routeCoverageGaps.length > ROUTE_COVERAGE_GAP_LIST_LIMIT
               ? { routeCoverageGapsTruncatedTo: ROUTE_COVERAGE_GAP_LIST_LIMIT }
+              : {}),
+            unsearchedFindingGapCount: unsearchedFindingGaps.length,
+            unsearchedFindingGaps: unsearchedFindingGaps.slice(0, UNSEARCHED_FINDING_GAP_LIST_LIMIT),
+            ...(unsearchedFindingGaps.length > UNSEARCHED_FINDING_GAP_LIST_LIMIT
+              ? { unsearchedFindingGapsTruncatedTo: UNSEARCHED_FINDING_GAP_LIST_LIMIT }
               : {}),
           },
           sourceDomainDetectors: {

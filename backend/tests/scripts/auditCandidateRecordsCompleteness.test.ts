@@ -6,6 +6,7 @@ import {
   isConfirmedNull,
   listRouteCoverageGaps,
   listSharedFindingTexts,
+  listUnsearchedFindingGaps,
   SHARED_FINDING_MIN_CANDIDATES,
   SHARED_FINDING_MIN_LENGTH,
   type SweepConfirmationDetectorRow,
@@ -181,6 +182,40 @@ describe("listSharedFindingTexts", () => {
     );
     expect(SHARED_FINDING_MIN_CANDIDATES).toBe(3);
     expect(listSharedFindingTexts(underThreshold)).toEqual([]);
+  });
+});
+
+describe("listUnsearchedFindingGaps", () => {
+  it("flags confirmations whose entries admit a question was not searched, most gaps first", () => {
+    const rows = [
+      detectorRow({
+        candidate_id: "a",
+        evidence: {
+          entries: [
+            { question: "Votes?", finding: "Clerk XML import covers 2019-2021.", question_id: "rollcalls" },
+            { question: "Proceedings?", finding: "Not searched this pass; open coverage gap.", question_id: "proceedings" },
+          ],
+        },
+      }),
+      detectorRow({
+        candidate_id: "b",
+        evidence: {
+          entries: [
+            { question: "Leadership?", finding: "Not searched this pass; open coverage gap.", question_id: "leadership" },
+            { question: "Endorsements?", finding: "not yet searched", question_id: "endorsements" },
+            { question: "Career?", finding: "nothing found", question_id: "career" },
+          ],
+        },
+      }),
+      detectorRow({
+        candidate_id: "c",
+        evidence: { entries: [{ question: "Court?", finding: "Nothing found in accessible sources; MyCase not searched by name.", question_id: "court_legal" }] },
+      }),
+    ];
+    const gaps = listUnsearchedFindingGaps(rows);
+    expect(gaps.map((gap) => gap.candidateId)).toEqual(["b", "a"]);
+    expect(gaps[0]).toMatchObject({ unsearchedQuestionIds: ["leadership", "endorsements"] });
+    expect(gaps[1]?.sampleFinding).toBe("Not searched this pass; open coverage gap.");
   });
 });
 

@@ -67,6 +67,22 @@ describe("sweepEvidenceRequired", () => {
   });
 });
 
+describe("mergeSweepEvidenceEntries unsearched placeholders", () => {
+  it("drops a prior not-searched placeholder once a new entry answers the same question id", () => {
+    const prior: SweepEvidenceEntry[] = [
+      { question: "Any court, ethics, or disciplinary proceedings?", finding: "Not searched this pass; open coverage gap.", questionId: "proceedings" },
+      { question: "What committees has she led?", finding: "Not searched this pass; open coverage gap.", questionId: "leadership" },
+      { question: "What did she do with executive power?", finding: "Created the boarding school initiative (written).", questionId: "executive" },
+    ];
+    const next: SweepEvidenceEntry[] = [
+      { question: "Court, ethics or disciplinary proceedings (2019-2026)?", finding: "Watchdog complaints only; no official finding; nothing written.", questionId: "proceedings" },
+    ];
+    const merged = mergeSweepEvidenceEntries(prior, next);
+    expect(merged.map((entry) => entry.questionId)).toEqual(["leadership", "executive", "proceedings"]);
+    expect(merged.find((entry) => entry.questionId === "proceedings")?.finding).toContain("Watchdog complaints");
+  });
+});
+
 describe("parseSweepEvidencePayload", () => {
   const validEntries = [
     { question: "What major roll-call votes did they cast?", finding: "nothing found" },
@@ -96,6 +112,44 @@ describe("parseSweepEvidencePayload", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toContain(`at least ${SWEEP_EVIDENCE_MIN_ENTRIES}`);
+    }
+  });
+
+  it("rejects an entry whose finding says the question was not searched", () => {
+    for (const finding of [
+      "Not searched this pass; open coverage gap.",
+      "not yet searched",
+      "Deferred to a later pass.",
+      "Skipped this pass under budget pressure",
+      "Not searched this pass. The per-session sponsor report exists back through earlier sessions; out of budget for this unit.",
+    ]) {
+      const result = parseSweepEvidencePayload({
+        entries: [...validEntries.slice(0, 2), { question: "Any court or ethics records?", finding }],
+      });
+      expect(result.ok, finding).toBe(false);
+      if (!result.ok) {
+        expect(result.reason).toContain("entries[2].finding says the question was not searched");
+      }
+    }
+  });
+
+  it("keeps accepting real negative and not-applicable findings", () => {
+    for (const finding of [
+      "nothing found",
+      "Nothing found in accessible sources; MyCase not searched by name (common name).",
+      "not applicable: never held an executive role",
+      "No roll-call votes found; this candidate has not served in a legislature.",
+      "Not searched in minutes: the town Drive folder starts in 2020; terms are from Citizens Count only.",
+      "Walked the 117th-119th sponsor reports; Congresses before the 117th not searched in this pass.",
+      "Not searched roll-call by roll-call; House Journal is the source. Gap disclosed.",
+      "Reported as vice chair of the Commerce Committee; no official committee page confirmed it, open coverage gap.",
+      "The 2024 ethics hearing was deferred to a later session; reviewed the official minutes.",
+      "The board skipped this pass of the budget and adopted it at the next meeting; she voted yes.",
+    ]) {
+      const result = parseSweepEvidencePayload({
+        entries: [...validEntries.slice(0, 2), { question: "Any court or ethics records?", finding }],
+      });
+      expect(result.ok, finding).toBe(true);
     }
   });
 
