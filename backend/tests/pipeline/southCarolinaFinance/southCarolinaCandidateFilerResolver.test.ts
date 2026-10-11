@@ -184,6 +184,67 @@ describe("resolveSouthCarolinaCandidateFiler", () => {
     }
   });
 
+  it("matches a formal filer name through a VoteApp nickname, literal first", () => {
+    // Live: VoteApp "Joe Bustos", filer search "Bustos, Joseph M.".
+    const joseph = {
+      filer: filerRow({ candidate: "Bustos, Joseph M.", candidateFilerId: 80001 }),
+      reports: [reportRow({ candidateFilerId: 80001 })],
+    };
+    expect(
+      resolveSouthCarolinaCandidateFiler({ candidateName: "Joe Bustos", electionDate: election, filerReportSets: [joseph] })
+    ).toMatchObject({ status: "matched", candidateFilerId: 80001 });
+    const joe = {
+      filer: filerRow({ candidate: "Bustos, Joe", candidateFilerId: 80002 }),
+      reports: [reportRow({ candidateFilerId: 80002 })],
+    };
+    expect(
+      resolveSouthCarolinaCandidateFiler({
+        candidateName: "Joe Bustos",
+        electionDate: election,
+        filerReportSets: [joseph, joe],
+      })
+    ).toMatchObject({ status: "matched", candidateFilerId: 80002 });
+  });
+
+  it("completes the filer search's 18-character truncated given name", () => {
+    // Live: the API returns "Cobb-Hunter, Gild..." and "Burkhold, Michael...".
+    const gilda = {
+      filer: filerRow({ candidate: "Cobb-Hunter, Gild...", candidateFilerId: 45419 }),
+      reports: [reportRow({ candidateFilerId: 45419 })],
+    };
+    expect(
+      resolveSouthCarolinaCandidateFiler({
+        candidateName: "Gilda Cobb-Hunter",
+        electionDate: election,
+        filerReportSets: [gilda],
+      })
+    ).toMatchObject({ status: "matched", candidateFilerId: 45419 });
+    const michael = {
+      filer: filerRow({ candidate: "Burkhold, Michael...", candidateFilerId: 80003 }),
+      reports: [reportRow({ candidateFilerId: 80003 })],
+    };
+    expect(
+      resolveSouthCarolinaCandidateFiler({
+        candidateName: "Mike Burkhold",
+        electionDate: election,
+        filerReportSets: [michael],
+      })
+    ).toMatchObject({ status: "matched", candidateFilerId: 80003 });
+    // A fragment that does not start the VoteApp name stays a mismatch.
+    expect(
+      resolveSouthCarolinaCandidateFiler({
+        candidateName: "Heath Sessions",
+        electionDate: election,
+        filerReportSets: [
+          {
+            filer: filerRow({ candidate: "Sessions, Christo...", candidateFilerId: 80004 }),
+            reports: [reportRow({ candidateFilerId: 80004 })],
+          },
+        ],
+      }).status
+    ).toBe("manual_confirm_required");
+  });
+
   it("routes a middle-initial conflict to manual confirmation instead of auto-linking", () => {
     const resolution = resolveSouthCarolinaCandidateFiler({
       candidateName: "John A. Smith",
