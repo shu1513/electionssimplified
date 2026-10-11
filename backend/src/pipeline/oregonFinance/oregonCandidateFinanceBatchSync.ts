@@ -163,10 +163,8 @@ async function defaultLoadTransactionDetails(
   // KNOWN LIMITATION: this search filters on the candidate committee as the
   // FILER, so it only sees the committee's own transactions. Independent
   // expenditures are filed by outside committees (the candidate appears only
-  // as the association target), so Oregon outside support/oppose stays 0
-  // until a separate target-candidate IE search is built. That has always
-  // been true of this batch path — the old source-URL scrape returned zero
-  // rows of any kind.
+  // as the association target). Without a separate verified IE component,
+  // outside totals remain unavailable and stored outside groups are preserved.
   const committeeId = row.committeeId?.trim();
   if (committeeId && /^\d+$/.test(committeeId)) {
     return getOregonOrestarCommitteeContributionDetailsFromExport({
