@@ -42,6 +42,27 @@ import { NON_STANCE_RESEARCH_AREA_SLUGS } from "../pipeline/candidates/candidate
 
 export const SWEEP_EVIDENCE_MIN_ENTRIES = 3;
 
+/**
+ * Findings that admit the question was never asked. Such an entry gives the
+ * route-coverage gate its question_id while saying the search was deferred —
+ * the 2026-08-22 wave stamped 31 candidates complete with 4-5 of 7 questions
+ * reading "Not searched this pass; open coverage gap", and Deb Haaland's whole
+ * Interior tenure sat unwritten for seven weeks behind one of them. An
+ * unsearched question is an unfinished unit, never a finding: run the
+ * search ("nothing found" is a finding) or leave the stage un-run.
+ * "not applicable: <why>" stays valid — that IS an answer — and so is a
+ * partial-era disclosure inside an answered question ("Congresses before
+ * the 117th not searched in this pass" after the 117th-119th were walked):
+ * only a finding that OPENS with the deferral is refused; "open coverage
+ * gap" inside an otherwise answered finding is a disclosure, not a skip.
+ */
+export const UNSEARCHED_FINDING_PATTERN =
+  /^\s*not\s+(?:yet\s+)?(?:searched|researched)\s+(?:in\s+)?this\s+pass\b|^\s*not\s+(?:yet\s+)?(?:searched|researched|asked|checked)\s*[.;:,!]?\s*$|^\s*open coverage gap\b|\bskipped\s+(?:in\s+)?this\s+pass\b|\bdeferred\s+to\s+a\s+(?:later|future)\s+(?:pass|session|unit)\b/i;
+
+export function isUnsearchedFinding(finding: string): boolean {
+  return UNSEARCHED_FINDING_PATTERN.test(finding);
+}
+
 export const SWEEP_COMPLETENESS_GAP_IDS: ReadonlySet<string> = new Set([
   "candidate_records.no_records_found",
   "candidate_records.only_general_labels",
@@ -184,6 +205,12 @@ export function parseSweepEvidencePayload(payload: unknown): SweepEvidenceParseR
       return {
         ok: false,
         reason: `evidence entries[${index}].finding must be a non-empty string (use "nothing found" for empty answers)`,
+      };
+    }
+    if (isUnsearchedFinding(entry.finding)) {
+      return {
+        ok: false,
+        reason: `evidence entries[${index}].finding says the question was not searched (${JSON.stringify(entry.finding.trim().slice(0, 80))}). An unsearched question is an unfinished unit, not a finding: run that search and record what it found ("nothing found" and "not applicable: <why>" are findings), or leave the records stage un-run instead of stamping the candidate complete.`,
       };
     }
     let questionId: string | null = null;
@@ -617,7 +644,15 @@ export function mergeSweepEvidenceEntries(
   prior: readonly SweepEvidenceEntry[],
   next: readonly SweepEvidenceEntry[]
 ): SweepEvidenceEntry[] {
-  const merged = [...prior];
+  // A prior "not searched" placeholder for a question id that the new ledger
+  // now answers is superseded, even when the question is worded differently:
+  // keeping it would leave the stored ledger flagging the candidate forever.
+  const answeredQuestionIds = new Set(
+    next.filter((entry) => entry.questionId !== null && !isUnsearchedFinding(entry.finding)).map((entry) => entry.questionId)
+  );
+  const merged = prior.filter(
+    (entry) => !(entry.questionId !== null && answeredQuestionIds.has(entry.questionId) && isUnsearchedFinding(entry.finding))
+  );
   const indexByQuestion = new Map(merged.map((entry, index) => [normalizeSweepQuestion(entry.question), index]));
   for (const entry of next) {
     const key = normalizeSweepQuestion(entry.question);
