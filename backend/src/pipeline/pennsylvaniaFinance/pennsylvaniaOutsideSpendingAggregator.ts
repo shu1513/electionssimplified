@@ -177,7 +177,9 @@ export function aggregatePennsylvaniaOutsideSpending(
 ): PennsylvaniaOutsideSpendingAggregationResult {
   normalizePennsylvaniaCampaignFinanceExportYear(input.electionYear);
   const maxGroups = normalizePositiveInteger(input.maxGroups, DEFAULT_MAX_GROUPS, "maxGroups");
-  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName);
+  // Filers write the target as they please ("JOSH SHAPIRO FOR GOVERNOR",
+  // "JOSHUA SHAPIRO"), so VoteApp-side nickname keys are matched too.
+  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName, { expandNicknames: true });
   if (candidateNameKeys.size === 0) {
     return {
       summary: null,

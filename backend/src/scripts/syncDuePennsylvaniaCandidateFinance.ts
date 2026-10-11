@@ -14,6 +14,7 @@ import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 export type SyncDuePennsylvaniaCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  skipOutsideSpending: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -22,7 +23,9 @@ export type SyncDuePennsylvaniaCandidateFinanceScriptOptions = {
   rawExtractedDir?: string;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
+// --skip-outside-spending leaves the stored outside groups untouched instead
+// of fetching the state's independent expenditure page.
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--skip-outside-spending"]);
 const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--raw-cache-dir", "--raw-extracted-dir", "--stale-after-days"]);
 
 export function parseSyncDuePennsylvaniaCandidateFinanceScriptArgs(
@@ -32,6 +35,7 @@ export function parseSyncDuePennsylvaniaCandidateFinanceScriptArgs(
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    skipOutsideSpending: args.includes("--skip-outside-spending"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
@@ -86,6 +90,7 @@ async function main(): Promise<void> {
       electionLookaheadDays: options.electionLookaheadDays,
       rawDataCacheDir: options.rawCacheDir,
       rawDataExtractedDir: options.rawExtractedDir,
+      fetchOutsideSpending: !options.skipOutsideSpending,
     });
 
     console.log(JSON.stringify(toSyncDuePennsylvaniaCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));

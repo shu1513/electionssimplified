@@ -1,12 +1,29 @@
 import { normalizePennsylvaniaCampaignFinanceExportYear } from "./pennsylvaniaCampaignFinanceArtifactCache.js";
-import type { PennsylvaniaCampaignFinanceContributionRow } from "./pennsylvaniaCampaignFinanceReader.js";
+import type {
+  PennsylvaniaCampaignFinanceContributionRow,
+  PennsylvaniaCampaignFinanceFilerRow,
+} from "./pennsylvaniaCampaignFinanceReader.js";
 
 export type PennsylvaniaDirectContributionAggregationInput = {
   filerId: string;
   electionYear: number;
   contributionRows: readonly PennsylvaniaCampaignFinanceContributionRow[];
+  // The filer registry (both cycle years); contributors named exactly like a
+  // registered committee are reported as committee donors.
+  filerRows?: readonly PennsylvaniaCampaignFinanceFilerRow[];
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
+};
+
+// A political committee that gave to the candidate's committee.
+export type PennsylvaniaFinancePacDonor = {
+  // Registry filer id when the name matched exactly one registered
+  // committee, otherwise the normalized contributor name.
+  committeeId: string;
+  committeeName: string;
+  amount: number;
+  contributionCount: number;
+  sourceUrl: string | null;
 };
 
 export type PennsylvaniaDirectFinanceSummary = {
@@ -26,6 +43,9 @@ export type PennsylvaniaFinanceDirectBreakdown = {
 export type PennsylvaniaDirectContributionAggregationResult = {
   summary: PennsylvaniaDirectFinanceSummary;
   directBreakdowns: PennsylvaniaFinanceDirectBreakdown[];
+  // Largest first. Their money is already inside the totals and breakdowns
+  // above; this is a second view of the same contribution events.
+  pacDonors: PennsylvaniaFinancePacDonor[];
   matchedContributionRowCount: number;
   includedContributionEventCount: number;
   skippedContributionEventCount: number;
@@ -43,7 +63,20 @@ type Aggregate = {
   contributorKeys: Set<string>;
 };
 
+type PacDonorAggregate = {
+  committeeId: string;
+  committeeName: string;
+  amountCents: number;
+  contributionCount: number;
+};
+
 const DEFAULT_MAX_BREAKDOWNS_PER_CATEGORY = 50;
+// PA registry FILERTYPE: 1 = candidate, 2 = political committee, 3 = lobbyist.
+const PENNSYLVANIA_COMMITTEE_FILER_TYPE = "2";
+// A contributor with no occupation and one of these words in its name is a
+// committee even when the registry does not list it (out-of-state PACs,
+// national party groups, union political funds named differently).
+const COMMITTEE_NAME_PATTERN = /\b(PAC|POLITICAL|COMMITTEE|COPE|UNION|ASSOCIATION|LEAGUE|COUNCIL)\b/;
 
 function requireNonEmpty(value: string, fieldName: string): string {
   const trimmed = value.trim();
@@ -160,6 +193,58 @@ function contributorIdentityKey(row: PennsylvaniaCampaignFinanceContributionRow)
   return normalizeTextKey(row.CampaignFinanceID) || "unknown";
 }
 
+// Registered committees by normalized name -> their filer ids.
+function indexRegisteredCommittees(filerRows: readonly PennsylvaniaCampaignFinanceFilerRow[]): Map<string, Set<string>> {
+  const byNameKey = new Map<string, Set<string>>();
+  for (const row of filerRows) {
+    if (row.FILERTYPE.trim() !== PENNSYLVANIA_COMMITTEE_FILER_TYPE) {
+      continue;
+    }
+    const nameKey = normalizeTextKey(row.FILERNAME);
+    const filerId = normalizeId(row.FILERID);
+    if (!nameKey || !filerId) {
+      continue;
+    }
+    const filerIds = byNameKey.get(nameKey) ?? new Set<string>();
+    filerIds.add(filerId);
+    byNameKey.set(nameKey, filerIds);
+  }
+  return byNameKey;
+}
+
+// null when the contributor is not a committee.
+function pacDonorIdentity(input: {
+  row: PennsylvaniaCampaignFinanceContributionRow;
+  registeredCommittees: Map<string, Set<string>>;
+}): { committeeId: string; committeeName: string } | null {
+  const committeeName = input.row.CONTRIBUTOR.trim().replace(/\s+/g, " ");
+  const nameKey = normalizeTextKey(committeeName);
+  if (!nameKey) {
+    return null;
+  }
+  const filerIds = input.registeredCommittees.get(nameKey);
+  if (filerIds) {
+    // Two registrations sharing a name cannot be told apart: key by name.
+    return { committeeId: filerIds.size === 1 ? [...filerIds][0] ?? nameKey : nameKey, committeeName };
+  }
+  if (!input.row.OCCUPATION.trim() && COMMITTEE_NAME_PATTERN.test(nameKey)) {
+    return { committeeId: nameKey, committeeName };
+  }
+  return null;
+}
+
+function toPacDonors(input: { aggregates: Iterable<PacDonorAggregate>; sourceUrl: string | null }): PennsylvaniaFinancePacDonor[] {
+  return [...input.aggregates]
+    .sort((left, right) => right.amountCents - left.amountCents || left.committeeName.localeCompare(right.committeeName))
+    .map((aggregate) => ({
+      committeeId: aggregate.committeeId,
+      committeeName: aggregate.committeeName,
+      amount: centsToDollars(aggregate.amountCents),
+      contributionCount: aggregate.contributionCount,
+      sourceUrl: input.sourceUrl,
+    }));
+}
+
 function contributionSizeBucket(amount: number): string {
   if (amount < 100) {
     return "$1-$99";
@@ -249,6 +334,8 @@ export function aggregatePennsylvaniaDirectContributions(
   );
   const sourceUrl = input.sourceUrl ?? null;
   const aggregates = new Map<string, Aggregate>();
+  const registeredCommittees = indexRegisteredCommittees(input.filerRows ?? []);
+  const pacDonors = new Map<string, PacDonorAggregate>();
   let matchedContributionRowCount = 0;
   let includedContributionEventCount = 0;
   let skippedContributionEventCount = 0;
@@ -261,6 +348,7 @@ export function aggregatePennsylvaniaDirectContributions(
     }
     matchedContributionRowCount += 1;
     const contributorKey = contributorIdentityKey(row);
+    const pacDonor = pacDonorIdentity({ row, registeredCommittees });
 
     for (const event of contributionEventsFromRow(row)) {
       const amountCents = parseAmountCents(event.rawAmount);
@@ -288,6 +376,15 @@ export function aggregatePennsylvaniaDirectContributions(
         amountCents,
         contributorKey,
       });
+      if (pacDonor) {
+        const existing = pacDonors.get(pacDonor.committeeId);
+        if (existing) {
+          existing.amountCents += amountCents;
+          existing.contributionCount += 1;
+        } else {
+          pacDonors.set(pacDonor.committeeId, { ...pacDonor, amountCents, contributionCount: 1 });
+        }
+      }
     }
   }
 
@@ -302,6 +399,7 @@ export function aggregatePennsylvaniaDirectContributions(
       sourceUrl,
       maxBreakdownsPerCategory,
     }),
+    pacDonors: toPacDonors({ aggregates: pacDonors.values(), sourceUrl }),
     matchedContributionRowCount,
     includedContributionEventCount,
     skippedContributionEventCount,

@@ -251,6 +251,36 @@ async function collectUpcomingCommittees(
       }
       committees.set(committeeKey, entry);
     }
+    // Committees named under "PAC money by interest" carry the same
+    // researched label under their name, so they queue the same way.
+    for (const interest of summary.direct_campaign.pac_money_by_interest ?? []) {
+      for (const pac of interest.pacs) {
+        const committeeKey = committeeLabelKey(summary.source, pac.committee_id, summary.cycle);
+        const entry = committees.get(committeeKey) ?? {
+          source: summary.source,
+          committee_id: pac.committee_id,
+          cycle: summary.cycle,
+          committee_name: pac.committee_name,
+          directions: [],
+          total_amount: 0,
+          elections: [],
+        };
+        if (!entry.directions.includes("pac")) {
+          entry.directions.push("pac");
+        }
+        entry.total_amount += pac.amount;
+        if (election && !entry.elections.some((seen) => seen.election_id === election.election_id)) {
+          entry.elections.push({
+            election_id: election.election_id,
+            official_ballot_title: election.official_ballot_title,
+            district_name: election.district_name,
+            election_date: election.election_date,
+            state: election.state,
+          });
+        }
+        committees.set(committeeKey, entry);
+      }
+    }
   }
   return committees;
 }

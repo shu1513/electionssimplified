@@ -6,9 +6,17 @@ import type {
   BallotLookupFinanceOutsideGroup,
   BallotLookupFinanceOutsideIndustrySupportEvidence,
   BallotLookupFinanceOutsideIndustrySupportSummary,
+  BallotLookupFinancePacInterest,
   BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 import { buildOutsideIndustrySupportExplanation } from "../address/ballotLookupFinanceShared.js";
+import {
+  PAC_INTERESTS_NOT_LISTED,
+  UNCLASSIFIED_PAC_INTEREST,
+  classifyPacInterest,
+  isPacInterestSlug,
+  pacInterestDisplayName,
+} from "../finance/pacInterestClassifier.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -85,8 +93,86 @@ type PennsylvaniaFinanceOutsideDonorEvidenceRow = {
   source_url: string | null;
 };
 
+type PennsylvaniaFinancePacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  amount: string | number;
+  source_url: string | null;
+  // finance_pac_interests row keyed by the PA filer id, when someone sorted it.
+  manual_interest: string | null;
+};
+
 const GENERIC_PENNSYLVANIA_DOS_SOURCE_URL =
   "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/campaign-finance-data";
+// Same display caps as the federal card.
+const MAX_PAC_INTEREST_ROWS = 5;
+const MAX_PACS_PER_INTEREST = 5;
+
+// Where the committee's money is placed on the card: a manual
+// finance_pac_interests row first, then the shared rule classifier. Unsorted
+// committees are kept under "Not yet sorted" here, unlike the federal card,
+// because the name rules sort almost no Pennsylvania committees and hiding
+// them would hide most of the PAC money. Other candidates' committees are
+// hidden only once a manual row sorts them as candidate_committees.
+function pennsylvaniaPacInterest(row: PennsylvaniaFinancePacDonorRow): string {
+  if (row.manual_interest && isPacInterestSlug(row.manual_interest)) {
+    return row.manual_interest;
+  }
+  return (
+    classifyPacInterest({
+      committeeName: row.committee_name,
+      committeeType: null,
+      designation: null,
+      organizationType: null,
+      connectedOrganization: null,
+    }).interestSlug ?? UNCLASSIFIED_PAC_INTEREST
+  );
+}
+
+// Rows arrive largest first per candidate, so each interest's pacs are its top ones.
+function groupPennsylvaniaPacDonorsByInterest(
+  rows: readonly PennsylvaniaFinancePacDonorRow[]
+): Map<string, BallotLookupFinancePacInterest[]> {
+  const byCandidateElection = new Map<string, Map<string, BallotLookupFinancePacInterest>>();
+  for (const row of rows) {
+    const interest = pennsylvaniaPacInterest(row);
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest)) {
+      continue;
+    }
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const interests = byCandidateElection.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
+    const entry = interests.get(interest) ?? {
+      interest,
+      interest_name: pacInterestDisplayName(interest),
+      amount: 0,
+      pac_count: 0,
+      pacs: [],
+    };
+    const amount = parseFinanceAmount(row.amount) ?? 0;
+    entry.amount = Math.round((entry.amount + amount) * 100) / 100;
+    entry.pac_count += 1;
+    if (entry.pacs.length < MAX_PACS_PER_INTEREST) {
+      entry.pacs.push({
+        committee_id: row.committee_id,
+        committee_name: row.committee_name,
+        amount,
+        source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_PENNSYLVANIA_DOS_SOURCE_URL),
+      });
+    }
+    interests.set(interest, entry);
+    byCandidateElection.set(key, interests);
+  }
+  return new Map(
+    [...byCandidateElection.entries()].map(([key, interests]) => [
+      key,
+      [...interests.values()]
+        .sort((left, right) => right.amount - left.amount || left.interest.localeCompare(right.interest))
+        .slice(0, MAX_PAC_INTEREST_ROWS),
+    ])
+  );
+}
 
 function parseFinanceAmount(value: string | number | null | undefined): number | null {
   if (value === null || value === undefined) {
@@ -581,10 +667,46 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
     );
   }
 
+  const pacDonorResult = await input.db.query<PennsylvaniaFinancePacDonorRow>(
+    `
+      WITH selected AS (
+        SELECT
+          candidate_id::uuid AS candidate_id,
+          election_id::uuid AS election_id
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+          candidate_id text,
+          election_id text
+        )
+      )
+      SELECT
+        selected.candidate_id::text AS candidate_id,
+        selected.election_id::text AS election_id,
+        donor.committee_id,
+        donor.committee_name,
+        donor.amount,
+        donor.source_url,
+        interests.interest_slug AS manual_interest
+      FROM selected
+      JOIN public.pa_candidate_finance_links AS link
+        ON link.candidate_id = selected.candidate_id
+       AND link.election_id = selected.election_id
+       AND link.link_status = 'active'
+      JOIN public.pa_candidate_finance_pac_donors AS donor
+        ON donor.link_id = link.id
+       AND donor.election_year = link.election_year
+      LEFT JOIN public.finance_pac_interests AS interests
+        ON interests.committee_id = donor.committee_id
+      ORDER BY selected.candidate_id, selected.election_id, donor.amount DESC, donor.committee_name ASC
+    `,
+    [JSON.stringify(selectedRequests)]
+  );
+  const pacInterestsByCandidateElection = groupPennsylvaniaPacDonorsByInterest(pacDonorResult.rows);
+
   return new Map(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
+      const pacMoneyByInterest = pacInterestsByCandidateElection.get(key);
       const contributionSizeBuckets = contributionSizeBucketsByCandidateElection.get(key) ?? [];
       const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
         (industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
@@ -614,6 +736,9 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
             top_employers: [],
             top_industries: [],
             contribution_size_buckets: contributionSizeBuckets,
+            // Present only when committee donors were stored for the link:
+            // an absent list means "not loaded", never "none reported".
+            ...(pacMoneyByInterest && pacMoneyByInterest.length > 0 ? { pac_money_by_interest: pacMoneyByInterest } : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),

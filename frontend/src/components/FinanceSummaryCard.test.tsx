@@ -667,9 +667,14 @@ describe("FinanceSummaryCard", () => {
       interest("gun_control", "Gun control groups", 9_900, 1),
       interest("healthcare", "Healthcare", 8_000, 2),
     ];
+    // A researched label reads under the PAC's name with its source host.
+    summary.direct_campaign.pac_money_by_interest[0]!.pacs[0]!.label = "The political fund of the carpenters' union.";
+    summary.direct_campaign.pac_money_by_interest[0]!.pacs[0]!.label_source_urls = ["https://www.example.org/about"];
     render(<FinanceSummaryCard summary={summary} />);
 
     const list = screen.getByText("PAC money by interest").parentElement as HTMLElement;
+    expect(within(list).getByText(/The political fund of the carpenters' union\./)).toBeInTheDocument();
+    expect(within(list).getByRole("link", { name: "example.org" })).toHaveAttribute("href", "https://www.example.org/about");
     expect(within(list).getByText("$62,000")).toBeInTheDocument();
     expect(within(list).getByText(/· 9 PACs/)).toBeInTheDocument();
     expect(within(list).getAllByText(/· 1 PAC$/)).toHaveLength(2);

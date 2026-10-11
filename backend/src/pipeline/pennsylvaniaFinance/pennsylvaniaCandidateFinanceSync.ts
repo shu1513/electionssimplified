@@ -86,6 +86,7 @@ export type PennsylvaniaCandidateFinanceSyncResult = {
   linkWritten: boolean;
   summaryWritten: boolean;
   directBreakdownsWritten: number;
+  pacDonorsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
   totalReceipts: number | null;
@@ -196,6 +197,7 @@ function aggregateDirect(input: {
   filerId: string;
   electionYear: number;
   contributionRows: readonly PennsylvaniaCampaignFinanceContributionRow[];
+  filerRows: readonly PennsylvaniaCampaignFinanceFilerRow[];
   contributionSourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
 }): PennsylvaniaDirectContributionAggregationResult {
@@ -203,6 +205,7 @@ function aggregateDirect(input: {
     filerId: input.filerId,
     electionYear: input.electionYear,
     contributionRows: input.contributionRows,
+    filerRows: input.filerRows,
     sourceUrl: input.contributionSourceUrl ?? null,
     maxBreakdownsPerCategory: input.maxBreakdownsPerCategory,
   });
@@ -483,6 +486,7 @@ export async function syncPennsylvaniaCandidateFinance(
       linkWritten: false,
       summaryWritten: false,
       directBreakdownsWritten: 0,
+      pacDonorsWritten: 0,
       outsideGroupsWritten: 0,
       outsideGroupBreakdownsWritten: 0,
       totalReceipts: null,
@@ -502,6 +506,7 @@ export async function syncPennsylvaniaCandidateFinance(
     filerId: resolution.filerId,
     electionYear,
     contributionRows: input.contributionRows,
+    filerRows: input.filerRows,
     contributionSourceUrl: input.contributionSourceUrl ?? resolution.sourceUrl,
     maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory,
   });
@@ -553,6 +558,7 @@ export async function syncPennsylvaniaCandidateFinance(
       syncedAt,
       summary,
       directBreakdowns: directFinance.directBreakdowns,
+      pacDonors: directFinance.pacDonors,
       outsideGroups,
       outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
       classifications: outsideIndustryFinance.classifications,
@@ -568,6 +574,7 @@ export async function syncPennsylvaniaCandidateFinance(
     linkWritten: !input.dryRun,
     summaryWritten: !input.dryRun,
     directBreakdownsWritten: input.dryRun ? 0 : directFinance.directBreakdowns.length,
+    pacDonorsWritten: input.dryRun ? 0 : directFinance.pacDonors.filter((donor) => donor.amount > 0).length,
     outsideGroupsWritten: input.dryRun ? 0 : (outsideGroups?.length ?? 0),
     outsideGroupBreakdownsWritten: input.dryRun ? 0 : (outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0),
     totalReceipts: directFinance.summary.totalReceipts,

@@ -18,10 +18,12 @@ describe("syncDuePennsylvaniaCandidateFinance script", () => {
         "--lookahead-days=365",
         "--raw-cache-dir=/tmp/pa-cf",
         "--raw-extracted-dir=/tmp/pa-cf/2022",
+        "--skip-outside-spending",
       ])
     ).toEqual({
       dryRun: true,
       force: true,
+      skipOutsideSpending: true,
       maxCandidates: 12,
       staleAfterDays: 3,
       electionLookbackDays: 10,
@@ -35,6 +37,7 @@ describe("syncDuePennsylvaniaCandidateFinance script", () => {
     expect(parseSyncDuePennsylvaniaCandidateFinanceScriptArgs([])).toMatchObject({
       dryRun: false,
       force: false,
+      skipOutsideSpending: false,
     });
   });
 

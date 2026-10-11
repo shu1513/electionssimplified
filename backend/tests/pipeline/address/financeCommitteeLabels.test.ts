@@ -153,4 +153,43 @@ describe("applyFinanceCommitteeLabels", () => {
     });
     expect(target.direct_campaign.conduit_donations?.[1]).not.toHaveProperty("label");
   });
+
+  it("labels the committees named under PAC money by interest", async () => {
+    const target = summary({ source: "PENNSYLVANIA_DOS" });
+    target.outside_spending.top_supporting_groups = [];
+    target.direct_campaign.pac_money_by_interest = [
+      {
+        interest: "unclassified",
+        interest_name: "Not yet sorted",
+        amount: 2500000,
+        pac_count: 2,
+        pacs: [
+          { committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: 1500000, source_url: null },
+          { committee_id: "9500250", committee_name: "Greater PA Carpenters PAC", amount: 1000000, source_url: null },
+        ],
+      },
+    ];
+    const query = vi.fn().mockResolvedValue({
+      rows: [
+        {
+          source: "PENNSYLVANIA_DOS",
+          committee_id: "9500250",
+          cycle: 2026,
+          label: "The political fund of the carpenters' union in Pennsylvania.",
+          source_urls: ["https://example.org/carpenters"],
+        },
+      ],
+    });
+    await applyFinanceCommitteeLabels({ query }, [target]);
+    expect(query.mock.calls[0]?.[1]).toEqual([
+      ["PENNSYLVANIA_DOS", "PENNSYLVANIA_DOS"],
+      ["DEMOCRATIC GOVERNORS ASSOCIATION", "9500250"],
+      [2026, 2026],
+    ]);
+    expect(target.direct_campaign.pac_money_by_interest?.[0]?.pacs[1]).toMatchObject({
+      label: "The political fund of the carpenters' union in Pennsylvania.",
+      label_source_urls: ["https://example.org/carpenters"],
+    });
+    expect(target.direct_campaign.pac_money_by_interest?.[0]?.pacs[0]).not.toHaveProperty("label");
+  });
 });

@@ -153,6 +153,23 @@ describe("pennsylvaniaCandidateFinanceSync", () => {
     expect(sql.some((statement) => statement.includes("DELETE FROM public.pa_candidate_finance_outside_groups"))).toBe(false);
   });
 
+  it("writes committee donors found in the candidate's contribution rows", async () => {
+    const db = createMockDb();
+    const result = await syncPennsylvaniaCandidateFinance({
+      db,
+      ...baseInput(),
+      filerRows: [filerRow(), filerRow({ FILERID: "7001", FILERTYPE: "2", FILERNAME: "GREATER PA CARPENTERS PAC", OFFICE: "" })],
+      contributionRows: [
+        contribution({ CampaignFinanceID: "1", CONTAMT1: "100.00", OCCUPATION: "Attorney" }),
+        contribution({ CampaignFinanceID: "2", CONTRIBUTOR: "Greater PA Carpenters PAC", OCCUPATION: "", ENAME: "", CONTAMT1: "1500.00" }),
+      ],
+    });
+
+    expect(result).toMatchObject({ pacDonorsWritten: 1, totalReceipts: 1600 });
+    const pacInsert = db.client.query.mock.calls.find((call) => String(call[0]).includes("INSERT INTO public.pa_candidate_finance_pac_donors"));
+    expect(pacInsert?.[1]).toEqual([LINK_ID, 2026, "7001", "Greater PA Carpenters PAC", 1500, 1, SOURCE_URL, expect.any(String)]);
+  });
+
   it("uses explicit outside groups to aggregate donor and industry support", async () => {
     const db = createMockDb();
 

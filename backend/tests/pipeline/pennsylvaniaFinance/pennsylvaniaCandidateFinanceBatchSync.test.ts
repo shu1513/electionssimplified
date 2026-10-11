@@ -289,6 +289,7 @@ describe("pennsylvaniaCandidateFinanceBatchSync", () => {
       ]),
       financeIndustryClassifier,
       aiClassificationMinAmount: 50000,
+      fetchOutsideSpending: false,
       syncPennsylvaniaCandidateFinanceFn: syncFn,
     });
 
@@ -300,6 +301,8 @@ describe("pennsylvaniaCandidateFinanceBatchSync", () => {
       selectedCandidateCount: 1,
       syncedCandidateCount: 1,
       failedCandidateCount: 0,
+      outsideSpendingFetchedYears: [],
+      outsideSpendingFetchErrors: {},
     });
     expect(syncFn).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -333,5 +336,226 @@ describe("pennsylvaniaCandidateFinanceBatchSync", () => {
     });
     expect(syncFn.mock.calls[0]?.[0].contributionRows).toHaveLength(2);
     expect(syncFn.mock.calls[0]?.[0].filerRows).toHaveLength(2);
+  });
+
+  const IE_SOURCE_URL = "https://www.campaignfinanceonline.pa.gov/Pages/IndependentExpenditure.aspx";
+  const storedOutsideGroupRow = {
+    link_id: LINK_ID,
+    group_id: "PAC123",
+    group_name: "PENNSYLVANIANS FOR ACTION",
+    support_oppose: "support",
+    amount: "100000.00",
+    source_url: SOURCE_URL,
+  };
+  const paDataByYear = new Map([
+    [
+      2025,
+      {
+        year: 2025,
+        extractedDir: "/tmp/pa-2025",
+        sourceUrl: SOURCE_URL.replace("2026.zip", "2025.zip"),
+        filerRows: [] as never,
+        contributionRows: [] as never,
+      },
+    ],
+    [2026, { year: 2026, extractedDir: "/tmp/pa-2026", sourceUrl: SOURCE_URL, filerRows: [] as never, contributionRows: [] as never }],
+  ]);
+  const syncResult = {
+    candidateId: CANDIDATE_ID,
+    electionId: ELECTION_ID,
+    electionYear: 2026,
+    dryRun: false,
+    resolution: { status: "matched" },
+    linkWritten: true,
+  };
+
+  it("fetches the election year's independent expenditures and replaces the stored outside groups", async () => {
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    // The landing page defaults to a different election, so the year's
+    // bucket must be requested by its option id.
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce({
+        rows: [],
+        sourceUrl: IE_SOURCE_URL,
+        electionId: null,
+        electionOptions: [
+          { id: "120", label: "2027 Municipal Election (11/02/2027)", selected: true },
+          { id: "116", label: "2026 General Election (11/03/2026)", selected: false },
+        ],
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          { CandidateQuestion: "JANE DOE FOR GOVERNOR", Organization: "Keystone Voices", Amount: 1500, IsSupported: "NO", IsOpposed: "YES" },
+          { CandidateQuestion: "JOHN ROE", Organization: "Keystone Voices", Amount: 9999, IsSupported: "YES", IsOpposed: "NO" },
+        ],
+        sourceUrl: IE_SOURCE_URL,
+        electionId: "116",
+        electionOptions: [],
+      });
+
+    const result = await syncDuePennsylvaniaCandidateFinance({
+      db,
+      now: new Date("2026-01-01T00:00:00.000Z"),
+      autoLinkMissingLinks: false,
+      paDataByYear,
+      rawDataCacheDir: await makeTempDir(),
+      fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+      syncPennsylvaniaCandidateFinanceFn: syncFn,
+    });
+
+    expect(result).toMatchObject({ syncedCandidateCount: 1, outsideSpendingFetchedYears: [2026], outsideSpendingFetchErrors: {} });
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    expect(fetchFn.mock.calls[1]?.[0]).toEqual({ electionId: "116" });
+    expect(syncFn.mock.calls[0]?.[0].outsideGroups).toEqual([
+      {
+        groupId: "KEYSTONE VOICES",
+        groupName: "Keystone Voices",
+        supportOppose: "oppose",
+        amount: 1500,
+        sourceUrl: IE_SOURCE_URL,
+        electionId: "116",
+      },
+    ]);
+  });
+
+  it("reads a saved copy of the election year's page from the raw-data cache instead of fetching", async () => {
+    const cacheDir = await makeTempDir();
+    await mkdir(join(cacheDir, "independent-expenditures"), { recursive: true });
+    await writeFile(
+      join(cacheDir, "independent-expenditures", "2026.html"),
+      `<select name="ctl00$ContentPlaceHolder1$ddlElection">
+         <option selected="selected" value="116">2026 General Election (11/03/2026)</option>
+         <option value="111">2025 Municipal Election (11/04/2025)</option>
+       </select>
+       <input id='dataJson' type='hidden' value='[{"CandidateQuestion":"JANE DOE FOR GOVERNOR","Organization":"CITIZEN&#39;S ALLIANCE PAC","Amount":250,"IsSupported":"YES","IsOpposed":"NO"}]' />`,
+      "utf8"
+    );
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    const fetchFn = vi.fn();
+
+    const result = await syncDuePennsylvaniaCandidateFinance({
+      db,
+      now: new Date("2026-01-01T00:00:00.000Z"),
+      autoLinkMissingLinks: false,
+      paDataByYear,
+      rawDataCacheDir: cacheDir,
+      fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+      syncPennsylvaniaCandidateFinanceFn: syncFn,
+    });
+
+    expect(result).toMatchObject({ outsideSpendingFetchedYears: [2026], outsideSpendingFetchErrors: {} });
+    expect(fetchFn).not.toHaveBeenCalled();
+    expect(syncFn.mock.calls[0]?.[0].outsideGroups).toEqual([
+      {
+        groupId: "CITIZEN S ALLIANCE PAC",
+        groupName: "CITIZEN'S ALLIANCE PAC",
+        supportOppose: "support",
+        amount: 250,
+        sourceUrl: IE_SOURCE_URL,
+        electionId: "116",
+      },
+    ]);
+  });
+
+  it("refuses a saved page whose selected election is another year and keeps the stored groups", async () => {
+    const cacheDir = await makeTempDir();
+    await mkdir(join(cacheDir, "independent-expenditures"), { recursive: true });
+    await writeFile(
+      join(cacheDir, "independent-expenditures", "2026.html"),
+      `<select name="ctl00$ContentPlaceHolder1$ddlElection"><option selected="selected" value="111">2025 Municipal Election (11/04/2025)</option></select>
+       <input id='dataJson' type='hidden' value='[]' />`,
+      "utf8"
+    );
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    const fetchFn = vi.fn();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      const result = await syncDuePennsylvaniaCandidateFinance({
+        db,
+        now: new Date("2026-01-01T00:00:00.000Z"),
+        autoLinkMissingLinks: false,
+        paDataByYear,
+        rawDataCacheDir: cacheDir,
+        fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+        syncPennsylvaniaCandidateFinanceFn: syncFn,
+      });
+
+      expect(result.outsideSpendingFetchedYears).toEqual([]);
+      expect(result.outsideSpendingFetchErrors["2026"]).toContain("2025 Municipal Election");
+      expect(fetchFn).not.toHaveBeenCalled();
+      expect(syncFn.mock.calls[0]?.[0].outsideGroups).toHaveLength(1);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("passes an empty outside group list when the fetched year names no one, so stale groups are removed", async () => {
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    const fetchFn = vi.fn().mockResolvedValue({
+      rows: [{ CandidateQuestion: "JOHN ROE", Organization: "Keystone Voices", Amount: 10, IsSupported: "YES", IsOpposed: "NO" }],
+      sourceUrl: IE_SOURCE_URL,
+      electionId: null,
+      electionOptions: [{ id: "116", label: "2026 General Election (11/03/2026)", selected: true }],
+    });
+
+    await syncDuePennsylvaniaCandidateFinance({
+      db,
+      now: new Date("2026-01-01T00:00:00.000Z"),
+      autoLinkMissingLinks: false,
+      paDataByYear,
+      rawDataCacheDir: await makeTempDir(),
+      fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+      syncPennsylvaniaCandidateFinanceFn: syncFn,
+    });
+
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+    expect(syncFn.mock.calls[0]?.[0].outsideGroups).toEqual([]);
+  });
+
+  it("keeps the stored outside groups when the state page cannot be fetched", async () => {
+    const db = {
+      query: vi.fn().mockResolvedValueOnce({ rows: [dueRow()] }).mockResolvedValueOnce({ rows: [storedOutsideGroupRow] }),
+    };
+    const syncFn = vi.fn().mockResolvedValue(syncResult);
+    const fetchFn = vi.fn().mockRejectedValue(new Error("Pennsylvania independent expenditure request failed: 503"));
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      const result = await syncDuePennsylvaniaCandidateFinance({
+        db,
+        now: new Date("2026-01-01T00:00:00.000Z"),
+        autoLinkMissingLinks: false,
+        paDataByYear,
+      rawDataCacheDir: await makeTempDir(),
+        fetchPennsylvaniaIndependentExpendituresFn: fetchFn,
+        syncPennsylvaniaCandidateFinanceFn: syncFn,
+      });
+
+      expect(result).toMatchObject({
+        syncedCandidateCount: 1,
+        outsideSpendingFetchedYears: [],
+        outsideSpendingFetchErrors: { "2026": "Pennsylvania independent expenditure request failed: 503" },
+      });
+      expect(syncFn.mock.calls[0]?.[0].outsideGroups).toEqual([
+        { groupId: "PAC123", groupName: "PENNSYLVANIANS FOR ACTION", supportOppose: "support", amount: 100000, sourceUrl: SOURCE_URL },
+      ]);
+      expect(warn).toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
   });
 });

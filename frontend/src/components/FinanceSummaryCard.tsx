@@ -133,17 +133,32 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
                 </summary>
                 <ul className="mb-2 ml-3 mt-1 space-y-0.5 border-l border-line pl-3">
                   {row.pacs.map((pac) => (
-                    <li key={pac.committee_id} className="flex justify-between gap-3 text-xs">
-                      <span className="text-ink-mid">
-                        {pac.source_url ? (
-                          <a href={pac.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                            {pac.committee_name}
-                          </a>
-                        ) : (
-                          pac.committee_name
-                        )}
-                      </span>
-                      <span className="shrink-0 text-ink-soft">{formatMoney(pac.amount)}</span>
+                    <li key={pac.committee_id} className="text-xs">
+                      <div className="flex justify-between gap-3">
+                        <span className="text-ink-mid">
+                          {pac.source_url ? (
+                            <a href={pac.source_url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                              {pac.committee_name}
+                            </a>
+                          ) : (
+                            pac.committee_name
+                          )}
+                        </span>
+                        <span className="shrink-0 text-ink-soft">{formatMoney(pac.amount)}</span>
+                      </div>
+                      {pac.label ? (
+                        <p className="mt-0.5 text-xs text-ink-mid">
+                          {pac.label}
+                          {(pac.label_source_urls ?? []).map((url) => (
+                            <span key={url} className="text-ink-soft">
+                              {" · "}
+                              <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
+                                {formatSourceHost(url)}
+                              </a>
+                            </span>
+                          ))}
+                        </p>
+                      ) : null}
                     </li>
                   ))}
                   {row.pac_count > row.pacs.length ? (

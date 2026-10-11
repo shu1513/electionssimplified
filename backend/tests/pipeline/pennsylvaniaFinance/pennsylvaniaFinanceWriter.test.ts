@@ -128,6 +128,7 @@ describe("pennsylvaniaFinanceWriter", () => {
       linkId: LINK_ID,
       summaryWritten: true,
       directBreakdownsWritten: 1,
+      pacDonorsWritten: 0,
       outsideGroupsWritten: 1,
       outsideGroupBreakdownsWritten: 1,
     });
@@ -140,6 +141,31 @@ describe("pennsylvaniaFinanceWriter", () => {
     expect(sql.some((statement) => statement.includes("DELETE FROM public.pa_candidate_finance_direct_breakdowns"))).toBe(true);
     expect(sql.some((statement) => statement.includes("INSERT INTO public.pa_candidate_finance_outside_groups"))).toBe(true);
     expect(sql.some((statement) => statement.includes("INSERT INTO public.pa_candidate_finance_outside_group_breakdowns"))).toBe(true);
+  });
+
+  it("replaces committee donors for the cycle and skips zero-amount rows", async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [{ id: LINK_ID }], rowCount: 1 }),
+      release: vi.fn(),
+    };
+    const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+
+    const result = await replacePennsylvaniaCandidateFinanceSnapshot({
+      db,
+      link: baseLink(),
+      syncedAt: new Date("2026-02-03T04:05:06.000Z"),
+      pacDonors: [
+        { committeeId: "7001", committeeName: "Greater PA Carpenters PAC", amount: 1500, contributionCount: 2, sourceUrl: SOURCE_URL },
+        { committeeId: "7002", committeeName: "Friends of Kim Ward", amount: 0, contributionCount: 0, sourceUrl: SOURCE_URL },
+      ],
+    });
+
+    expect(result.pacDonorsWritten).toBe(1);
+    const calls = client.query.mock.calls.map((call) => [String(call[0]), call[1]] as const);
+    const insert = calls.find(([sql]) => sql.includes("INSERT INTO public.pa_candidate_finance_pac_donors"));
+    expect(insert?.[1]).toEqual([LINK_ID, 2026, "7001", "Greater PA Carpenters PAC", 1500, 2, SOURCE_URL, "2026-02-03T04:05:06.000Z"]);
+    const stale = calls.find(([sql]) => sql.includes("DELETE FROM public.pa_candidate_finance_pac_donors"));
+    expect(stale?.[1]).toEqual([LINK_ID, 2026, ["7001"]]);
   });
 
   it("preserves prior outside totals when a partial refresh does not have expenditure data", async () => {
