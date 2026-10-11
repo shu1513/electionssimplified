@@ -3,6 +3,7 @@ export * from "./districtOfColumbiaCandidateFinanceAutoLink.js";
 export * from "./districtOfColumbiaCandidateFinanceBatchSync.js";
 export * from "./districtOfColumbiaCandidateFinanceSync.js";
 export * from "./districtOfColumbiaDirectContributionAggregator.js";
+export * from "./districtOfColumbiaFairElectionsClient.js";
 export * from "./districtOfColumbiaFinanceEligibleOffices.js";
 export * from "./districtOfColumbiaFinanceWriter.js";
 export * from "./districtOfColumbiaOcfClient.js";

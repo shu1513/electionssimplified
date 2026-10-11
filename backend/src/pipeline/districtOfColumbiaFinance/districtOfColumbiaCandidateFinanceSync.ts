@@ -22,6 +22,7 @@ import {
   type DistrictOfColumbiaFinanceOutsideGroupBreakdown,
 } from "./districtOfColumbiaOutsideGroupContributionAggregator.js";
 import { aggregateDistrictOfColumbiaOutsideSpending } from "./districtOfColumbiaOutsideSpendingAggregator.js";
+import { isDistrictOfColumbiaFairElectionsCommitteeKey } from "./districtOfColumbiaFairElectionsClient.js";
 import type {
   DistrictOfColumbiaOcfContributionRecord,
   DistrictOfColumbiaOcfExpenditureRecord,
@@ -56,6 +57,9 @@ export type DistrictOfColumbiaCandidateFinanceSyncInput = {
   contributionRecords?: readonly DistrictOfColumbiaOcfContributionRecord[];
   expenditureRecords?: readonly DistrictOfColumbiaOcfExpenditureRecord[];
   outsideContributionRecords?: readonly DistrictOfColumbiaOcfContributionRecord[];
+  // The candidate committee's own spending. Only the Fair Elections source
+  // publishes it in bulk; OCF export committees keep total_disbursements null.
+  committeeExpenditureRecords?: readonly DistrictOfColumbiaOcfExpenditureRecord[];
   now?: Date;
   dryRun?: boolean;
   directMaxBreakdownsPerCategory?: number;
@@ -86,6 +90,7 @@ export type DistrictOfColumbiaCandidateFinanceSyncResult = {
   totalReceipts: number | null;
   directContributionTotal: number | null;
   totalDisbursements: number | null;
+  publicFundsReceived: number | null;
   outsideSupportTotal: number | null;
   outsideOpposeTotal: number | null;
   matchedContributionRowCount: number;
@@ -163,6 +168,27 @@ function toMatchedTrustedCommittee(
     sourceUrl: input.sourceUrl ?? null,
     matchedContributionRowCount: 0,
   };
+}
+
+function normalizeCommitteeKeyForMatch(value: string | undefined): string {
+  return (value ?? "").trim().replace(/\s+/g, " ").toUpperCase();
+}
+
+function sumCommitteeDisbursements(input: {
+  committeeKey: string;
+  expenditureRecords: readonly DistrictOfColumbiaOcfExpenditureRecord[] | undefined;
+}): number | null {
+  if (!input.expenditureRecords || !isDistrictOfColumbiaFairElectionsCommitteeKey(input.committeeKey)) {
+    return null;
+  }
+  const committeeKey = normalizeCommitteeKeyForMatch(input.committeeKey);
+  let cents = 0;
+  for (const record of input.expenditureRecords) {
+    if (normalizeCommitteeKeyForMatch(record.committeeKey ?? record.committeeName) === committeeKey && record.amount > 0) {
+      cents += Math.round(record.amount * 100);
+    }
+  }
+  return cents / 100;
 }
 
 function toFinanceLink(input: {
@@ -396,6 +422,7 @@ function emptyResult(input: {
     totalReceipts: null,
     directContributionTotal: null,
     totalDisbursements: null,
+    publicFundsReceived: null,
     outsideSupportTotal: null,
     outsideOpposeTotal: null,
     matchedContributionRowCount: 0,
@@ -494,6 +521,11 @@ export async function syncDistrictOfColumbiaCandidateFinance(
       ? {
           totalReceipts: directFinance?.summary.totalReceipts ?? null,
           directContributionTotal: directFinance?.summary.directContributionTotal ?? null,
+          totalDisbursements: sumCommitteeDisbursements({
+            committeeKey: resolution.committeeKey,
+            expenditureRecords: input.committeeExpenditureRecords,
+          }),
+          publicFundsReceived: directFinance?.summary.publicFundsReceived ?? null,
           outsideSupportTotal: input.expenditureRecords ? outsideFinance?.summary?.supportTotal ?? 0 : null,
           outsideOpposeTotal: input.expenditureRecords ? outsideFinance?.summary?.opposeTotal ?? 0 : null,
           sourceUrl: directFinance?.summary.sourceUrl ?? outsideFinance?.summary?.sourceUrl ?? input.sourceUrl ?? null,
@@ -539,6 +571,7 @@ export async function syncDistrictOfColumbiaCandidateFinance(
     totalReceipts: summary?.totalReceipts ?? null,
     directContributionTotal: summary?.directContributionTotal ?? null,
     totalDisbursements: summary?.totalDisbursements ?? null,
+    publicFundsReceived: summary?.publicFundsReceived ?? null,
     outsideSupportTotal: summary?.outsideSupportTotal ?? null,
     outsideOpposeTotal: summary?.outsideOpposeTotal ?? null,
     matchedContributionRowCount: directFinance?.matchedContributionRowCount ?? 0,

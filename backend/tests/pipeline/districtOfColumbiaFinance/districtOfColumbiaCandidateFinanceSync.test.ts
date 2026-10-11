@@ -385,4 +385,55 @@ describe("districtOfColumbiaCandidateFinanceSync", () => {
       ])
     );
   });
+
+  it("writes Fair Elections public funds and spending for a program committee", async () => {
+    const db = createMockDb();
+    const committeeKey = "DC FAIR ELECTIONS 159";
+    const fairElections = (overrides: Partial<DistrictOfColumbiaOcfContributionRecord>) =>
+      directContribution({
+        committeeName: "Brian for DC 2026",
+        committeeKey,
+        candidateName: "Brian L. Schwalb",
+        office: "Attorney General",
+        electionYear: 2026,
+        receiptKind: "contribution",
+        ...overrides,
+      });
+
+    const result = await syncDistrictOfColumbiaCandidateFinance({
+      db,
+      ...baseInput(),
+      candidateName: "Brian Schwalb",
+      officeScope: "statewide",
+      officeName: "Attorney General",
+      contributionRecords: [
+        fairElections({ amount: 200, occupation: "CEO" }),
+        fairElections({ amount: 3000, receiptKind: "public_funds", contributorName: undefined, occupation: undefined }),
+        fairElections({ amount: 50, receiptKind: "other", contributorName: undefined, occupation: undefined }),
+      ],
+      committeeExpenditureRecords: [
+        { committeeName: "Brian for DC 2026", committeeKey, amount: 1200.5 },
+        { committeeName: "Brian for DC 2026", committeeKey, amount: 99.5 },
+        { committeeName: "Other", committeeKey: "DC FAIR ELECTIONS 174", amount: 5000 },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      resolution: { status: "matched", committeeKey },
+      totalReceipts: 3250,
+      directContributionTotal: 200,
+      publicFundsReceived: 3000,
+      totalDisbursements: 1300,
+    });
+    const summaryCall = db.client.query.mock.calls.find((call) =>
+      String(call[0]).includes("INSERT INTO public.dc_candidate_finance_summaries")
+    );
+    expect(summaryCall?.[1]?.slice(2, 5)).toEqual([3250, 200, 1300]);
+    // Public funds land in the same transaction as the summary.
+    const publicFundsCall = db.client.query.mock.calls.find((call) =>
+      String(call[0]).includes("SET public_funds_received")
+    );
+    expect(publicFundsCall?.[1]).toEqual([LINK_ID, 2026, 3000]);
+    expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
 });

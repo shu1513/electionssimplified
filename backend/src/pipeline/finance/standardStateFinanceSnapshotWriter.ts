@@ -87,6 +87,9 @@ export type StandardStateFinanceSnapshotInput<
   outsideGroups?: readonly StandardStateFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly StandardStateFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  // Writes a state-only summary column inside the same transaction, right
+  // after the shared summary upsert (D.C. public_funds_received).
+  afterSummaryWrite?: (input: { db: Queryable; linkId: string; electionYear: number }) => Promise<void>;
 };
 
 export type StandardStateFinanceSnapshotWriteResult = {
@@ -880,6 +883,7 @@ export function createStandardStateFinanceSnapshotWriter<
       await deactivateSupersededLinks({ db, link: input.link, activeLinkId: linkId });
       if (input.summary) {
         await upsertSummary({ db, linkId, electionYear, summary: input.summary, syncedAt });
+        await input.afterSummaryWrite?.({ db, linkId, electionYear });
       }
 
       for (const breakdown of input.directBreakdowns ?? []) {

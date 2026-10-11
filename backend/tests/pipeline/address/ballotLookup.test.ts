@@ -7871,6 +7871,7 @@ describe("lookupElectionDetailById", () => {
             direct_contribution_total: "250000.00",
             total_disbursements: "90000.00",
             cash_on_hand: "160000.00",
+            public_funds_received: "75000.00",
             outside_support_total: "40000.00",
             outside_oppose_total: "5000.00",
             source_url: "https://efiling.ocf.dc.gov/DataDownload",
@@ -7977,6 +7978,7 @@ describe("lookupElectionDetailById", () => {
         total_spent: 90000,
         cash_on_hand: 160000,
         debts_owed: null,
+        public_funds_received: 75000,
         top_occupations: [
           {
             category_name: "Attorney",

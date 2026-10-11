@@ -36,5 +36,7 @@ describe("districtOfColumbiaBallotLookupFinanceLoader", () => {
     // DC has no ballot-lookup office filter, so any DC election is eligible
     // (same shape as washington's spec).
     eligibleOffice: { office_scope: "statewide", office_canonical_name: "Mayor" },
+    // Fair Elections public funds (migration 321).
+    publicFundsReceived: true,
   });
 });

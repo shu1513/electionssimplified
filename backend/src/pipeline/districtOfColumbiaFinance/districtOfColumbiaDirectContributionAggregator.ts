@@ -11,6 +11,9 @@ export type DistrictOfColumbiaDirectContributionAggregationInput = {
 export type DistrictOfColumbiaDirectFinanceSummary = {
   totalReceipts: number;
   directContributionTotal: number;
+  // Fair Elections base and matching payments. Null when no matched row
+  // carries a receipt kind (OCF export committees are not in the program).
+  publicFundsReceived: number | null;
   sourceUrl: string | null;
 };
 
@@ -137,7 +140,8 @@ export function isDistrictOfColumbiaDirectDonorSupportReceipt(input: {
   record: DistrictOfColumbiaOcfContributionRecord;
   electionYear: number;
 }): boolean {
-  return isDistrictOfColumbiaTotalReceipt(input);
+  const receiptKind = input.record.receiptKind ?? "contribution";
+  return receiptKind === "contribution" && isDistrictOfColumbiaTotalReceipt(input);
 }
 
 function contributorIdentityKey(record: DistrictOfColumbiaOcfContributionRecord): string {
@@ -252,12 +256,17 @@ export function aggregateDistrictOfColumbiaDirectContributions(
   let skippedContributionRowCount = 0;
   let totalReceiptsCents = 0;
   let directContributionTotalCents = 0;
+  let publicFundsCents = 0;
+  let hasReceiptKinds = false;
 
   for (const record of input.contributionRecords) {
     if (recordCommitteeKey(record) !== committeeKey) {
       continue;
     }
     matchedContributionRowCount += 1;
+    if (record.receiptKind !== undefined) {
+      hasReceiptKinds = true;
+    }
 
     const amountCents = amountToCents(record.amount);
     if (amountCents === null || amountCents <= 0 || !isCycleRecord({ record, electionYear })) {
@@ -266,6 +275,9 @@ export function aggregateDistrictOfColumbiaDirectContributions(
     }
 
     totalReceiptsCents += amountCents;
+    if (record.receiptKind === "public_funds") {
+      publicFundsCents += amountCents;
+    }
     if (!isDistrictOfColumbiaDirectDonorSupportReceipt({ record, electionYear })) {
       skippedContributionRowCount += 1;
       continue;
@@ -292,6 +304,7 @@ export function aggregateDistrictOfColumbiaDirectContributions(
     summary: {
       totalReceipts: centsToDollars(totalReceiptsCents),
       directContributionTotal: centsToDollars(directContributionTotalCents),
+      publicFundsReceived: hasReceiptKinds ? centsToDollars(publicFundsCents) : null,
       sourceUrl,
     },
     directBreakdowns: toDirectBreakdowns({

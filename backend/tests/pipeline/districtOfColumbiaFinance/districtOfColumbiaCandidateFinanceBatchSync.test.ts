@@ -407,6 +407,75 @@ describe("districtOfColumbiaCandidateFinanceBatchSync", () => {
     warn.mockRestore();
   });
 
+  it("adds Fair Elections rows to the sync and fails only Fair Elections links when that source is down", async () => {
+    const db = {
+      query: vi.fn(async () => ({
+        rows: [
+          dueRow({ total_due_rows: "2" }),
+          dueRow({
+            candidate_id: "33333333-3333-4333-8333-333333333333",
+            election_id: "44444444-4444-4444-8444-444444444444",
+            candidate_name: "Brian Schwalb",
+            office_scope: "statewide",
+            office_name: "Attorney General",
+            committee_key: "DC FAIR ELECTIONS 159",
+            committee_name: "Brian for DC 2026",
+            source_url: "https://fairelections.ocf.dc.gov/public/Contributions",
+            total_due_rows: "2",
+          }),
+        ],
+        rowCount: 2,
+      })),
+      connect: vi.fn(),
+    };
+    const fairElectionsRecord = contribution({
+      committeeName: "Brian for DC 2026",
+      committeeKey: "DC FAIR ELECTIONS 159",
+      candidateName: "Brian L. Schwalb",
+      receiptKind: "public_funds",
+      amount: 3000,
+    });
+    const fairElectionsExpenditure = { committeeKey: "DC FAIR ELECTIONS 159", committeeName: "Brian for DC 2026", amount: 10 };
+    const syncFn = vi.fn().mockResolvedValue(successfulSync());
+
+    const healthy = await syncDueDistrictOfColumbiaCandidateFinance({
+      db,
+      now: NOW,
+      maxCandidates: 2,
+      autoLinkMissingLinks: false,
+      syncDistrictOfColumbiaCandidateFinanceFn: syncFn as never,
+      ocfDataByYear: new Map([
+        [
+          2026,
+          ocfDataForYear({
+            fairElectionsContributionRecords: [fairElectionsRecord],
+            fairElectionsExpenditureRecords: [fairElectionsExpenditure],
+          }),
+        ],
+      ]),
+    });
+    expect(healthy.syncedCandidateCount).toBe(2);
+    expect(syncFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contributionRecords: [contribution(), fairElectionsRecord],
+        committeeExpenditureRecords: [fairElectionsExpenditure],
+      })
+    );
+
+    syncFn.mockClear();
+    const down = await syncDueDistrictOfColumbiaCandidateFinance({
+      db,
+      now: NOW,
+      maxCandidates: 2,
+      autoLinkMissingLinks: false,
+      syncDistrictOfColumbiaCandidateFinanceFn: syncFn as never,
+      ocfDataByYear: new Map([[2026, ocfDataForYear({ fairElectionsLoadError: "Fair Elections 503" })]]),
+    });
+    expect(down).toMatchObject({ syncedCandidateCount: 1, failedCandidateCount: 1 });
+    expect(down.results[1]).toMatchObject({ committeeKey: "DC FAIR ELECTIONS 159", ok: false, error: "Fair Elections 503" });
+    expect(syncFn).toHaveBeenCalledTimes(1);
+  });
+
   it("validates batch options", async () => {
     const db = { query: vi.fn(), connect: vi.fn() };
 

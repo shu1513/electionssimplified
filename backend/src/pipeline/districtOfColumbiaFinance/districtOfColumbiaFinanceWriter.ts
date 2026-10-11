@@ -33,7 +33,11 @@ export type DistrictOfColumbiaFinanceLinkInput = Omit<StandardStateFinanceLinkIn
   linkSource?: DistrictOfColumbiaFinanceLinkSource;
 };
 
-export type DistrictOfColumbiaFinanceSummaryInput = StandardStateFinanceSummaryInput;
+export type DistrictOfColumbiaFinanceSummaryInput = StandardStateFinanceSummaryInput & {
+  // Fair Elections public funds (migration 321). Not one of the shared
+  // writer's columns, so it is written in the same transaction below.
+  publicFundsReceived?: number | null;
+};
 
 export type DistrictOfColumbiaFinanceDirectBreakdownInput = {
   categoryType: DistrictOfColumbiaFinanceDirectCategoryType;
@@ -109,6 +113,16 @@ function requireNonEmpty(value: string, fieldName: string): string {
 function normalizeElectionYear(value: number): number {
   if (!Number.isInteger(value) || value < 2000 || value > 2100) {
     throw new Error(`Invalid D.C. finance election year: ${value}`);
+  }
+  return value;
+}
+
+function normalizePublicFundsReceived(value: number | null | undefined): number | null {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error("D.C. public funds received must be a nonnegative number");
   }
   return value;
 }
@@ -197,8 +211,17 @@ export async function replaceDistrictOfColumbiaCandidateFinanceSnapshot(
     throw new Error("Invalid D.C. finance sync timestamp");
   }
   validateDistrictOfColumbiaFinanceSnapshotInput(input);
+  const publicFundsReceived = normalizePublicFundsReceived(input.summary?.publicFundsReceived);
   return writer.replaceSnapshot({
     ...input,
+    afterSummaryWrite: async ({ db, linkId, electionYear }) => {
+      await db.query(
+        `UPDATE public.dc_candidate_finance_summaries
+            SET public_funds_received = $3
+          WHERE link_id = $1::uuid AND election_year = $2`,
+        [linkId, electionYear, publicFundsReceived]
+      );
+    },
     syncedAt,
     db: requireDistrictOfColumbiaPool(input.db),
     link: toFactoryLink(input.link),
