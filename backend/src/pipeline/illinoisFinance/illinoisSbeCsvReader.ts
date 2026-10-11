@@ -15,6 +15,8 @@ export type IllinoisSbeReportSourceFields = {
   documentName?: string | null;
   reportingPeriodStart?: string | null;
   reportingPeriodEnd?: string | null;
+  /** Populated only after the complete all-version metadata join verifies an exact current report. */
+  sourceDocumentId?: string | null;
 };
 
 export type IllinoisSbeContributionRecord = IllinoisSbeReportSourceFields & {

@@ -40,6 +40,163 @@ function createMockDb() {
 }
 
 describe("illinoisFinanceWriter", () => {
+  const donor = () => ({ committeeId: "1028", committeeName: "Community BANCPAC",
+    committeeType: "Political Action" as const, totalAmount: 2000, contributionCount: 2,
+    sourceUrl: SOURCE_URL });
+  const report = () => ({ committeeId: "615", filedDocId: "1023410", periodStart: "2026-07-01",
+    periodEnd: "2026-09-30", receivedAt: "2026-10-07 15:46:19.163000000", fingerprint: "a".repeat(64) });
+  function verifiedDb(previous: unknown[]) {
+    const db = createMockDb();
+    db.client.query.mockImplementation(async (sql: string) => sql.includes("SELECT groups.source_reports")
+      ? { rows: previous.map((source_reports) => ({ source_reports })), rowCount: previous.length }
+      : { rows: [{ id: LINK_ID }], rowCount: 1 });
+    return db;
+  }
+  function verifiedOutside() {
+    return { link: { ...baseLink(), electionYear: 2026, committeeKey: "SBE:34092" },
+      summary: { totalReceipts: 20000, outsideSupportTotal: 66.5, outsideOpposeTotal: 0 },
+      outsideGroups: [{ committeeKey: "SBE:615", committeeName: "Kane County Republican Central Cmte",
+        supportOppose: "support" as const, amount: 66.5, sourceReports: [report()] }],
+      outsideReportEvidence: [report()] };
+  }
+
+  it("stores verified report provenance once across receiving links without touching sibling direct/PAC data", async () => {
+    const db = verifiedDb([]);
+    const result = await replaceIllinoisCandidateFinanceSnapshot({ db, ...verifiedOutside() });
+    expect(result.outsidePreserved).toBe(false);
+    expect(result.outsideGroupsWritten).toBe(1);
+    const calls = db.client.query.mock.calls;
+    expect(JSON.parse(calls.find((call) => String(call[0]).includes("INSERT INTO public.il_candidate_finance_outside_groups"))?.[1][8]))
+      .toEqual([report()]);
+    const cleanup = calls.filter((call) => String(call[0]).includes("id <> $3::uuid"));
+    expect(cleanup).toHaveLength(2);
+    expect(cleanup[0]?.[1]).toEqual([CANDIDATE_ID, ELECTION_ID, LINK_ID, 2026]);
+    expect(String(cleanup[1]?.[0])).toContain("outside_support_total = NULL, outside_oppose_total = NULL");
+    expect(cleanup.every((call) => !String(call[0]).includes("pac_donors") && !String(call[0]).includes("direct_breakdowns"))).toBe(true);
+  });
+
+  it.each([
+    null, [], [{ ...report(), fingerprint: "b".repeat(64) }], [{ ...report(), filedDocId: "99999" }], [{ invalid: true }],
+  ])("preserves missing, disappearing or changed same-version provenance while updating direct/PAC: %j", async (old) => {
+    const db = verifiedDb([old]);
+    const result = await replaceIllinoisCandidateFinanceSnapshot({ db, ...verifiedOutside(), pacDonors: [donor()] });
+    expect(result).toMatchObject({ outsidePreserved: true, outsideGroupsWritten: 0, pacDonorsWritten: 1, summaryWritten: true });
+    const calls = db.client.query.mock.calls;
+    expect(calls.some((call) => /(?:INSERT INTO|DELETE FROM) public\.il_candidate_finance_outside/.test(String(call[0])))).toBe(false);
+    const summary = calls.find((call) => String(call[0]).includes("INSERT INTO public.il_candidate_finance_summaries"));
+    expect(summary?.[1][2]).toBe(20000);
+    expect(summary?.[1].slice(7, 9)).toEqual([null, null]);
+    expect(calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("accepts unchanged provenance and a verified newer amendment that explicitly supersedes it", async () => {
+    const unchanged = verifiedDb([[report()]]);
+    expect((await replaceIllinoisCandidateFinanceSnapshot({ db: unchanged, ...verifiedOutside() })).outsidePreserved).toBe(false);
+    const amended = { ...report(), filedDocId: "1023500", fingerprint: "b".repeat(64), supersededDocumentIds: ["1023410"] };
+    const db = verifiedDb([[report()]]);
+    const input = verifiedOutside();
+    const result = await replaceIllinoisCandidateFinanceSnapshot({ db, ...input, outsideReportEvidence: [amended],
+      outsideGroups: [{ ...input.outsideGroups[0]!, sourceReports: [amended] }] });
+    expect(result.outsidePreserved).toBe(false);
+    expect(result.outsideGroupsWritten).toBe(1);
+  });
+
+  it("rejects unproven empty or mismatched verified groups before a transaction", async () => {
+    const db = verifiedDb([]);
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...verifiedOutside(), outsideGroups: [] })).rejects.toThrow("empty IE");
+    const input = verifiedOutside();
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...input,
+      outsideGroups: [{ ...input.outsideGroups[0]!, sourceReports: [] }] })).rejects.toThrow("report evidence");
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...input,
+      outsideGroups: [{ ...input.outsideGroups[0]!, committeeKey: "SBE:999" }] })).rejects.toThrow("report evidence");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, { outsideSupportTotal: null, outsideOpposeTotal: 0 },
+    { outsideSupportTotal: 66.51, outsideOpposeTotal: 0 },
+    { outsideSupportTotal: 66.5, outsideOpposeTotal: 1 }])("rejects inconsistent verified headlines before writing: %j", async (summary) => {
+    const db = verifiedDb([]);
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...verifiedOutside(), summary }))
+      .rejects.toThrow("headline");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it.each([0, 0.001, Number.MAX_SAFE_INTEGER])("rejects unsafe or zero verified groups: %s", async (amount) => {
+    const db = verifiedDb([]), input = verifiedOutside();
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...input,
+      outsideGroups: [{ ...input.outsideGroups[0]!, amount }] })).rejects.toThrow("positive safe cents");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("rejects duplicate normalized verified group keys", async () => {
+    const db = verifiedDb([]), input = verifiedOutside();
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, ...input,
+      outsideGroups: [...input.outsideGroups, { ...input.outsideGroups[0]!, committeeKey: " sbe:615 " }] }))
+      .rejects.toThrow("unique keys");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("writes and replaces typed PAC donors inside the same snapshot transaction", async () => {
+    const db = createMockDb();
+    const result = await replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink(),
+      summary: { totalReceipts: 20000 }, pacDonors: [donor()] });
+    expect(result.pacDonorsWritten).toBe(1);
+    const calls = db.client.query.mock.calls;
+    const insert = calls.find((call) => String(call[0]).includes("INSERT INTO public.il_candidate_finance_pac_donors"));
+    expect(insert?.[1].slice(0, 8)).toEqual([LINK_ID, 2022, "1028", "Community BANCPAC", "Political Action", 2000, 2, SOURCE_URL]);
+    expect(calls.find((call) => String(call[0]).includes("DELETE FROM public.il_candidate_finance_pac_donors"))?.[1])
+      .toEqual([LINK_ID, 2022, ["1028"]]);
+    expect(calls[0]?.[0]).toBe("BEGIN");
+    expect(calls.at(-1)?.[0]).toBe("COMMIT");
+    expect(db.query).not.toHaveBeenCalled();
+    // PAC subset never changes the fundraising amount.
+    expect(calls.find((call) => String(call[0]).includes("INSERT INTO public.il_candidate_finance_summaries"))?.[1][2]).toBe(20000);
+  });
+
+  it("preserves omitted donors and clears only an explicitly validated empty donor scope", async () => {
+    const db = createMockDb();
+    await replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink() });
+    expect(db.client.query.mock.calls.some((call) => String(call[0]).includes("pac_donors"))).toBe(false);
+    db.client.query.mockClear();
+    const result = await replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [] });
+    expect(result.pacDonorsWritten).toBe(0);
+    expect(db.client.query.mock.calls.filter((call) => String(call[0]).includes("pac_donors")))
+      .toEqual([[expect.stringContaining("DELETE FROM public.il_candidate_finance_pac_donors"), [LINK_ID, 2022, []]]]);
+  });
+
+  it.each([
+    { committeeId: "0" }, { committeeId: "1028 OR true" }, { committeeId: "99999999999999999" },
+    { committeeName: " " }, { committeeType: "Candidate" }, { totalAmount: 0 }, { totalAmount: -1 },
+    { totalAmount: Number.NaN }, { totalAmount: 1.001 }, { contributionCount: 0 }, { contributionCount: 1.5 },
+  ])("rejects invalid donor evidence before opening a transaction: %j", async (change) => {
+    const db = createMockDb();
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink(),
+      pacDonors: [{ ...donor(), ...change } as ReturnType<typeof donor>] })).rejects.toThrow();
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("rejects duplicate donor IDs and recipient self transfers", async () => {
+    const db = createMockDb();
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink(), pacDonors: [donor(), donor()] }))
+      .rejects.toThrow("duplicate IDs");
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, link: { ...baseLink(), committeeKey: "SBE:1028" }, pacDonors: [donor()] }))
+      .rejects.toThrow("receiving committee");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("rolls back direct totals when a PAC donor write fails", async () => {
+    const db = createMockDb();
+    db.client.query.mockImplementation(async (sql: string) => {
+      if (sql.includes("INSERT INTO public.il_candidate_finance_pac_donors")) throw new Error("donor write failed");
+      return { rows: [{ id: LINK_ID }], rowCount: 1 };
+    });
+    await expect(replaceIllinoisCandidateFinanceSnapshot({ db, link: baseLink(),
+      summary: { totalReceipts: 20000 }, pacDonors: [donor()] })).rejects.toThrow("donor write failed");
+    expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
+    expect(db.client.query.mock.calls.some((call) => call[0] === "COMMIT")).toBe(false);
+    expect(db.client.release).toHaveBeenCalledOnce();
+  });
+
   it("upserts Illinois finance links with normalized nullable fields", async () => {
     const db = {
       query: vi.fn().mockResolvedValue({ rows: [{ id: LINK_ID }], rowCount: 1 }),
@@ -135,7 +292,7 @@ describe("illinoisFinanceWriter", () => {
 
     const sql = db.client.query.mock.calls.map((call) => String(call[0]));
     expect(sql.some((statement) => statement.includes("INSERT INTO public.il_candidate_finance_summaries"))).toBe(true);
-    expect(sql.some((statement) => statement.includes("total_receipts = EXCLUDED.total_receipts"))).toBe(true);
+    expect(sql.some((statement) => statement.includes("total_receipts = COALESCE(EXCLUDED.total_receipts"))).toBe(true);
     expect(
       sql.some(
         (statement) =>
