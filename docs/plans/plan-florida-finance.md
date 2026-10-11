@@ -146,3 +146,48 @@ June 17, 2025 $1,000 self occurrences are **INK**, correcting older research pro
 retain their multiplicity and exclude them from cash. The separate $1,500 cash /
 −$500 PAC refund pattern remains a financial witness, not an accepted whole-source
 normal-sync result.
+
+## Current implementation checkpoint
+
+The saved-first public source client stores untouched response bytes, SHA-256,
+HTTP status, exact public request fields, and genuine capture times in separate
+UUID generations. Every closing acquisition is fresh; the refresh flag bypasses
+saved openings. A shared research registry journal was overwritten; its old
+registry bodies are research fixtures only. A new intact registry generation
+reestablished the dated Home Builders identity, with no reconstructed timestamps.
+
+The all-status candidate catalog reconciles all 1,145 primary accounts between
+native HTML and the 26-column export. Eleven Governor running mates remain
+separate contexts. Source accounts are resolved automatically and independently
+bound to actual local General races, eligible offices and compact district IDs.
+Botana resolves to account 88807/House 80; Tant to 88773/House 9.
+
+Botana's genuine 78-request processed-source generation passes after correcting
+the visible-heading district parser. It contains 18 current reports, 108 native
+occurrences and 107 cycle occurrences. One independently verified waiver has no
+selectable native export; it is not inferred from a sequence gap. Current amended
+reports are accepted only under the complete stable report/count/cover/multiset
+contract. Recipient whitespace projection does not change untouched source rows
+or donor identities.
+
+Normal due sync now calls the registered committee source and omits an uncertain
+PAC component while continuing independent direct finance. Atomic PAC writer and
+the existing card reader are integrated. Migration 332 was applied only locally;
+its immutable SHA-256 is
+`6ca77148e755a7f0ec66d92b82177f1936974c8cb0ca8449e17fec851ca5d0cc`.
+Applied Oregon migration 331 is untouched. The reader retains exact registered committees
+and parties under “Not yet sorted” and computes all totals/counts before caps.
+
+The first full Botana donor scan preserved at the Duke Energy historical
+same-name collision. Its published closed account needs independently reviewed
+effective dates; current money is not accepted from the known-donor subset. The
+external reviewed-date manifest carries account/date/source-PDF bindings only
+after source review. No Florida money write or PR has been proved yet. Ordinary
+fresh local sync, stored candidate numbers and reader proof remain required.
+
+All 515 Florida tests pass, including atomic rollback, actual local race binding,
+full source occurrence/count gates, failed-component preservation and complete
+reader totals before caps. Backend typecheck and migration filename/status checks
+pass. New temporal evidence distinguishes an exact effective day from source
+proof that an account was active or closed by a reviewed date; filing dates are
+not silently substituted for effective dates.
