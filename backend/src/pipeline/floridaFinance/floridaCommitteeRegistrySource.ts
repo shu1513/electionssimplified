@@ -104,10 +104,12 @@ function tables(html: string): string[] {
 function tableRows(table: string): string[][] {
   if ((table.match(/<table\b/gi) ?? []).length !== 1) fail("nested result table");
   const rows = [...table.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/gi)];
-  if (rows.length !== (table.match(/<tr\b/gi) ?? []).length) fail("incomplete result row");
+  if (rows.length !== (table.match(/<tr\b/gi) ?? []).length ||
+    rows.length !== (table.match(/<\/tr\s*>/gi) ?? []).length) fail("incomplete result row");
   return rows.map(m => {
     const cells = [...m[1]!.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td\s*>/gi)].map(x => x[1]!);
-    if (cells.length !== (m[1]!.match(/<td\b/gi) ?? []).length) fail("incomplete result cell");
+    if (cells.length !== (m[1]!.match(/<td\b/gi) ?? []).length ||
+      cells.length !== (m[1]!.match(/<\/td\s*>/gi) ?? []).length) fail("incomplete result cell");
     return cells;
   });
 }
@@ -135,7 +137,9 @@ export function decodeFloridaCommitteeNameSearch(raw: FloridaProcessedRawEvidenc
     [...html.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)].some(a => /^(?:next|previous|prev|last|first)(?: page)?$/i.test(text(a[1]!)))) fail("unproven capped/paged search");
   const candidate = tables(html).filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t))
     .filter(t => {
-      const r = tableRows(t); return r[0]?.map(text).join("|") === "Committee|Type|Status";
+      const first = /<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/i.exec(t);
+      const cells = first ? [...first[1]!.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td\s*>/gi)] : [];
+      return cells.map(c => text(c[1]!)).join("|") === "Committee|Type|Status";
     });
   if (candidate.length !== 1) fail("missing/ambiguous result table");
   const rows = tableRows(candidate[0]!).slice(1);
@@ -168,7 +172,13 @@ export function decodeFloridaCommitteeDetail(raw: FloridaProcessedRawEvidence, o
   if (accounts.length !== 1 || accounts[0]!.value !== committeeId) fail("wrong source account field");
   const names = [...html.matchAll(/<font\b[^>]*size\s*=\s*["']?\+1["']?[^>]*>([\s\S]*?)<\/font>/gi)].map(m => text(m[1]!));
   if (names.length !== 1 || !names[0]) fail("missing/ambiguous legal name heading");
-  const rows = tables(html).filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t)).flatMap(tableRows);
+  // Observed legacy account template closes an unopened wrapper after the complete table.
+  // This exact scaffold projection changes no account row/cell or retained source field.
+  const accountHtml = (html.match(/<table\b/gi) ?? []).length === 1 &&
+    (html.match(/<\/table\s*>/gi) ?? []).length === 2
+    ? html.replace(/(<\/table\s*>)\s*<\/td\s*>\s*<\/tr\s*>\s*<\/table\s*>/i, "$1")
+    : html;
+  const rows = tables(accountHtml).filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t)).flatMap(tableRows);
   const fullFields: Record<string, string> = {};
   let addressLines: string[] | undefined;
   for (const c of rows) {

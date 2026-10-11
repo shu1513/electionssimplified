@@ -54,6 +54,15 @@ describe("Florida bounded all-status registry source", () => {
     expect(decodeFloridaCommitteeNameSearch(query(),{prefix:"Florida Home Builders"}).map(r =>
       [r.committeeId,r.committeeType,r.status])).toEqual([["1997","CCE","Closed"],["60813","PAC","Active"]]);
   });
+  it("selects the exact financial table before unrelated source form optional-row markup", () => {
+    const p="Florida Home Builders";
+    const source=list(p,[historical,current]).replace("<body>","<body>"+
+      '<table><tr><td colspan=4>Search</td></tr><tr><td><table>'+
+      '<tr><td>Name search form</td><tr><td>Starting With</td></tr></table></td></tr></table>');
+    const raw=envelope(source,{url:search,method:"POST",financeFields:{
+      searchtype:"1",comName:p,LkupTypeName:"L",NameSearchBtn:"Search by Name"}});
+    expect(decodeFloridaCommitteeNameSearch(raw,{prefix:p})).toHaveLength(2);
+  });
   it.each(["PAC","CCE","PTY","PAP","ECO","ECI","IXO"])("retains exact source legal class %s", type => {
     const r={...current,type}; const d=decodeFloridaCommitteeDetail(envelope(detail(r),
       {url:url(r.id),method:"GET",financeFields:null}),{committeeId:r.id});
@@ -138,6 +147,16 @@ describe("Florida bounded all-status registry source", () => {
       detail(current).replace("Political Committee","Unknown Type"),detail(current).replace("Address:","Missing:"),
       detail(current).replace("</table>","")]) {
       expect(()=>decodeFloridaCommitteeDetail(envelope(body,{url:url("60813"),method:"GET",financeFields:null}),{committeeId:"60813"})).toThrow();
+    }
+  });
+  it("accepts only the observed account orphan-wrapper tail after complete financial rows", () => {
+    const source=detail(historical).replace("</table>","</table>\n</td>\n</tr>\n</table>");
+    const request={url:url("1997"),method:"GET" as const,financeFields:null};
+    expect(decodeFloridaCommitteeDetail(envelope(source,request),{committeeId:"1997"}))
+      .toMatchObject({committeeId:"1997",committeeType:"CCE",status:"Closed"});
+    for(const broken of [source.replace("</td>\n</tr>\n</table>","</div></table>"),
+      source.replace("</td></tr>","</tr>"),source.replace("</table>\n</td>","</td>")]){
+      expect(()=>decodeFloridaCommitteeDetail(envelope(broken,request),{committeeId:"1997"})).toThrow();
     }
   });
   it("keeps source punctuation and standard numeric C1 entity semantics", () => {
