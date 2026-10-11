@@ -265,7 +265,7 @@ account, which stores district ids only.
 
 In the anonymous search field's label, **(why full address)** opens an
 informational dialog on web and mobile. Two sentences: voting districts do
-not necessarily follow ZIP codes, and two homes in the same city or ZIP may
+not necessarily follow ZIP codes, and two homes in the same city or ZIP often
 vote in different races. The dialog then repeats the
 short privacy note (plus the open-source link), links to the Privacy Policy,
 and closes with **Got it**. It has no checkbox or agreement button because it explains the field
