@@ -9,13 +9,13 @@ import {
 import {
   fetchVirginiaCampaignFinanceReport,
   fetchVirginiaCommitteeReportList,
-  searchVirginiaCandidateCommittees,
   type VirginiaCampaignFinanceClientOptions,
   type VirginiaReportHeader,
 } from "./virginiaCampaignFinanceClient.js";
 import {
   normalizeVirginiaCandidateNameKeys,
   resolveVirginiaCandidateCommittee,
+  searchVirginiaCandidateCommitteesByName,
   type VirginiaCandidateCommitteeResolution,
 } from "./virginiaCandidateCommitteeResolver.js";
 import { VIRGINIA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./virginiaFinanceEligibleOffices.js";
@@ -89,7 +89,7 @@ export async function searchAndResolveVirginiaCandidateCommitteeWithReportHeader
   },
   options?: VirginiaCampaignFinanceClientOptions
 ): Promise<VirginiaCandidateCommitteeResolution> {
-  const committeeResults = await searchVirginiaCandidateCommittees({ committeeName: input.candidateName }, options);
+  const committeeResults = await searchVirginiaCandidateCommitteesByName(input.candidateName, options);
   const reportHeaders: VirginiaReportHeader[] = [];
 
   for (const result of committeeResults) {
