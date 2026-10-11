@@ -2,10 +2,10 @@
 // Thin wrapper over the standard state-finance writer. Identity: the public
 // CF_ID (8 digits) is canonical — Phase 0 proved zero conflicts across the
 // full registry. The portal's MemberID is an acquisition key only and never
-// reaches these tables. Outside groups/breakdowns are never written (plan
-// hard fact 7: no expenditure -> candidate + position edge exists), so the
-// snapshot input deliberately omits them; the stub tables satisfy the shared
-// contract and stay empty.
+// reaches these tables. This direct-only path has no verified outside
+// component. Delaware financial reports can publish explicit candidate
+// allocations; until that source proof is integrated, omitted outside data
+// preserves any previously stored totals, groups and breakdowns.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -61,12 +61,9 @@ const writer = createStandardStateFinanceSnapshotWriter({
     direct_contribution_total: "replace",
     total_disbursements: "replace",
     cash_on_hand: "replace",
-    // Outside totals are ALWAYS null for Delaware (hard fact 7 — no
-    // expenditure -> candidate edge exists, so unavailable, never $0).
-    // "replace" makes every snapshot force the columns back to NULL, so a
-    // stray historical value can never survive a sync.
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
+    // A direct refresh provides no authority to replace outside amounts.
+    outside_support_total: "preserveWhenNull",
+    outside_oppose_total: "preserveWhenNull",
     source_url: "replace",
   },
   normalizeCommitteeId: normalizeDelawareCfId,
@@ -91,16 +88,23 @@ export async function upsertDelawareFinanceLink(input: {
 export async function replaceDelawareCandidateFinanceSnapshot(
   input: DelawareFinanceSnapshotInput
 ): Promise<DelawareFinanceSnapshotWriteResult> {
-  // Enforce the hard-fact-7 contract at the single write chokepoint: outside
-  // totals are forced to NULL, and the empty outside arrays make the shared
-  // writer delete any stray outside rows during the snapshot transaction.
+  // Select only supported direct fields, including at the runtime boundary:
+  // neither caller-supplied outside scalars nor extra outside arrays authorize
+  // an outside write. Unknown outside components stay omitted.
   return writer.replaceSnapshot({
-    ...input,
+    db: input.db,
+    link: input.link,
+    syncedAt: input.syncedAt,
+    directBreakdowns: input.directBreakdowns,
     summary:
       input.summary === undefined
         ? undefined
-        : { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null },
-    outsideGroups: [],
-    outsideGroupBreakdowns: [],
+        : {
+            totalReceipts: input.summary.totalReceipts,
+            directContributionTotal: input.summary.directContributionTotal,
+            totalDisbursements: input.summary.totalDisbursements,
+            cashOnHand: input.summary.cashOnHand,
+            sourceUrl: input.summary.sourceUrl,
+          },
   });
 }

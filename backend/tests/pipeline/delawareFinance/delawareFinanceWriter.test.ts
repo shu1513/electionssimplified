@@ -132,12 +132,13 @@ describe("delawareFinanceWriter", () => {
       String(call[0]).includes("INSERT INTO public.de_candidate_finance_summaries")
     );
     const summarySql = String(summaryCall?.[0]);
-    // Outside totals are ALWAYS null for Delaware: the replace policy plus
-    // the wrapper-forced nulls push the columns back to NULL on every sync,
-    // so a stray historical value can never survive.
-    expect(summarySql).toContain("outside_support_total = EXCLUDED.outside_support_total");
-    expect(summarySql).toContain("outside_oppose_total = EXCLUDED.outside_oppose_total");
-    expect(summarySql).not.toContain("COALESCE(EXCLUDED.outside_support_total");
+    // NULL insert values preserve existing outside headlines on conflict.
+    expect(summarySql).toContain(
+      "outside_support_total = COALESCE(EXCLUDED.outside_support_total, de_candidate_finance_summaries.outside_support_total)"
+    );
+    expect(summarySql).toContain(
+      "outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, de_candidate_finance_summaries.outside_oppose_total)"
+    );
     expect(summaryCall?.[1]?.[6]).toBeNull();
     expect(summaryCall?.[1]?.[7]).toBeNull();
     const supersede = calls.find(
@@ -145,10 +146,111 @@ describe("delawareFinanceWriter", () => {
     );
     expect(String(supersede?.[0])).toContain("link_source = 'cfrs_portal'");
     expect(supersede?.[1]).toEqual([CANDIDATE_ID, ELECTION_ID, LINK_ID]);
-    // No outside rows are ever inserted, and any stray stored rows are
-    // deleted inside the snapshot transaction (empty keep lists).
+    // Direct-only refreshes leave stored outside groups and breakdowns intact.
     expect(calls.some((call) => String(call[0]).includes("INSERT INTO public.de_candidate_finance_outside_groups"))).toBe(false);
-    expect(calls.some((call) => String(call[0]).includes("DELETE FROM public.de_candidate_finance_outside_groups"))).toBe(true);
+    expect(calls.some((call) => String(call[0]).includes("DELETE FROM public.de_candidate_finance_outside_groups"))).toBe(false);
+    expect(calls.some((call) => String(call[0]).includes("de_candidate_finance_outside_group_breakdowns"))).toBe(false);
+  });
+
+  it.each([
+    { outsideSupportTotal: 25_000, outsideOpposeTotal: 5_000 },
+    { outsideSupportTotal: 0, outsideOpposeTotal: 0 },
+    { outsideSupportTotal: null, outsideOpposeTotal: null },
+  ])(
+    "does not accept unverified caller outside totals or arrays: %j",
+    async (outsideTotals) => {
+      const client = { query: vi.fn(automaticQueryResult), release: vi.fn() };
+      const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+      // Wider caller objects can carry extra properties despite this adapter's
+      // narrow TypeScript contract. They must not reach the standard writer.
+      const input = {
+        db,
+        link: baseLink(),
+        summary: { totalReceipts: 100, cashOnHand: 50, ...outsideTotals },
+        outsideGroups: [
+          {
+            committeeId: "04006103",
+            committeeName: "Unverified payer",
+            supportOppose: "support",
+            amount: 100,
+          },
+        ],
+        outsideGroupBreakdowns: [],
+      };
+      const result = await replaceDelawareCandidateFinanceSnapshot(input);
+      expect(result.summaryWritten).toBe(true);
+      expect(result.outsideGroupsWritten).toBe(0);
+      const summary = client.query.mock.calls.find((call) =>
+        String(call[0]).includes(
+          "INSERT INTO public.de_candidate_finance_summaries",
+        ),
+      );
+      expect(summary?.[1]?.slice(6, 8)).toEqual([null, null]);
+      expect(
+        client.query.mock.calls.some(
+          (call) =>
+            String(call[0]).includes("de_candidate_finance_outside_") &&
+            /^\s*(?:INSERT|UPDATE|DELETE)\b/.test(String(call[0])),
+        ),
+      ).toBe(false);
+      expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+    },
+  );
+
+  it("preserves outside rows when a link refresh has no summary", async () => {
+    const client = { query: vi.fn(automaticQueryResult), release: vi.fn() };
+    const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+    const result = await replaceDelawareCandidateFinanceSnapshot({
+      db,
+      link: baseLink(),
+    });
+    expect(result.summaryWritten).toBe(false);
+    expect(result.outsideGroupsWritten).toBe(0);
+    expect(
+      client.query.mock.calls.some((call) =>
+        String(call[0]).includes("de_candidate_finance_summaries"),
+      ),
+    ).toBe(false);
+    expect(
+      client.query.mock.calls.some((call) =>
+        String(call[0]).includes("de_candidate_finance_outside_"),
+      ),
+    ).toBe(false);
+    expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("rolls back a failed direct write without touching outside components", async () => {
+    const client = {
+      query: vi.fn((sql: unknown) => {
+        if (
+          String(sql).includes(
+            "INSERT INTO public.de_candidate_finance_summaries",
+          )
+        ) {
+          return Promise.reject(new Error("direct summary write failed"));
+        }
+        return automaticQueryResult(sql);
+      }),
+      release: vi.fn(),
+    };
+    const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+    await expect(
+      replaceDelawareCandidateFinanceSnapshot({
+        db,
+        link: baseLink(),
+        summary: { totalReceipts: 100 },
+      }),
+    ).rejects.toThrow("direct summary write failed");
+    expect(client.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
+    expect(client.query.mock.calls.some((call) => call[0] === "COMMIT")).toBe(
+      false,
+    );
+    expect(
+      client.query.mock.calls.some((call) =>
+        String(call[0]).includes("de_candidate_finance_outside_"),
+      ),
+    ).toBe(false);
+    expect(client.release).toHaveBeenCalledTimes(1);
   });
 
   it("rejects out-of-scope years and malformed CF_IDs before DB writes", async () => {
