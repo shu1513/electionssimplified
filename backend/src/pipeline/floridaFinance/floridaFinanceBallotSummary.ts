@@ -9,6 +9,7 @@ import type {
   BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 import { buildOutsideIndustrySupportExplanation } from "../address/ballotLookupFinanceShared.js";
+import { loadFloridaCommitteeDonorCards } from "./floridaCommitteeDonorBallotSummary.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -506,6 +507,7 @@ export async function loadFloridaCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
+  const committeeDonorCards = await loadFloridaCommitteeDonorCards(db, selectedRequests);
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const contributionSizeBucketsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const summaryByCandidateElection = new Map(
@@ -614,6 +616,10 @@ export async function loadFloridaCandidateFinanceSummariesByCandidateElection(
             top_employers: [],
             top_industries: [],
             contribution_size_buckets: contributionSizeBuckets,
+            ...(committeeDonorCards.has(key) ? {
+              pac_money_by_interest: committeeDonorCards.get(key)!.groups,
+              direct_coverage_note: committeeDonorCards.get(key)!.coverageNote,
+            } : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),
