@@ -282,7 +282,7 @@ export async function upsertTennesseeFinanceLink(input: {
         report_list_url,
         last_verified_at
       )
-      SELECT $1::uuid, $2::uuid, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::timestamptz
+      SELECT $1::uuid, $2::uuid, $3::integer, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::timestamptz
       FROM camp_write_lock
       ON CONFLICT (candidate_id, election_id, camp_candidate_id)
       DO UPDATE SET
