@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,6 +19,14 @@ import { fetchMichiganMitnCurrentExpenditureRows } from "./michiganMitnFilingPol
 export const DEFAULT_MICHIGAN_MITN_RAW_CACHE_DIR = fileURLToPath(
   new URL("../../../scratch/michigan-campaign-finance/mitn/", import.meta.url)
 );
+
+/**
+ * Saved IE exports and registry pages are reused only this long. Reruns on the
+ * same day stay offline; the daily scheduled sync refetches, so new filings and
+ * amendments reach outside spending without the --refresh-supplemental-data
+ * flag. Keep this well under the daily scheduler interval.
+ */
+export const MICHIGAN_MITN_SAVED_SOURCE_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 /** Verified official 2026-10-11 contract, including the source's "Opposing" typo. */
 export const MICHIGAN_MITN_IE_EXPORT_HEADER = [
@@ -162,8 +170,10 @@ export function michiganMitnIndependentExpenditureExportRowsToLegacy(
 }
 
 async function savedRaw(filePath: string): Promise<Buffer | null> {
-  try { return await readFile(filePath); }
-  catch (error) {
+  try {
+    if (Date.now() - (await stat(filePath)).mtimeMs > MICHIGAN_MITN_SAVED_SOURCE_MAX_AGE_MS) return null;
+    return await readFile(filePath);
+  } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }

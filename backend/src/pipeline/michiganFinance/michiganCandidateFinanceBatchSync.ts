@@ -63,6 +63,7 @@ export type MichiganCandidateFinanceBatchSyncInput = {
   autoLinkMissingLinks?: boolean;
   mitnPublicSearchFetchFn?: MichiganMitnFetchFn;
   rawDataCacheDir?: string;
+  /** Refetch saved IE exports and registry pages even inside their reuse window. */
   refreshSupplementalData?: boolean;
   fetchOutsideSpending?: boolean;
   fetchCommitteeRegistry?: boolean;

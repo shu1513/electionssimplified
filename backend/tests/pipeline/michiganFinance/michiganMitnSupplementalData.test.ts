@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, stat, utimes, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -188,6 +188,18 @@ describe("Michigan supplemental IE exports", () => {
     await expect(fetchMichiganMitnIndependentExpenditureRows({ statementYears: [2026], rawCacheDir: dir, refresh: true, fetchFn })).rejects.toThrow("multiple amendments");
     expect(await readFile(path.join(dir, "independent-expenditures-2026.xlsx"))).toEqual(old);
   });
+  it("refetches a saved bundle older than the reuse window", async () => {
+    const dir = await cache();
+    const full = path.join(dir, "independent-expenditures-2026.xlsx");
+    await writeFile(full, attachment());
+    await writeFile(path.join(dir, "independent-expenditures-2026-amended.xlsx"), attachment());
+    await utimes(full, new Date("2000-01-01"), new Date("2000-01-01"));
+    const fetchFn = vi.fn().mockResolvedValueOnce(response(attachment(expense()))).mockResolvedValueOnce(response(attachment()));
+    expect(await fetchMichiganMitnIndependentExpenditureRows({ statementYears: [2026], rawCacheDir: dir, fetchFn })).toHaveLength(1);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    expect(fetchMichiganMitnCurrentExpenditureRows).toHaveBeenCalledWith(expect.objectContaining({ refresh: true }));
+    expect((await stat(full)).mtimeMs).toBeGreaterThan(Date.now() - 60_000);
+  });
   it("refreshes the entire bundle when one saved export is missing", async () => {
     const dir = await cache();
     await writeFile(path.join(dir, "independent-expenditures-2026.xlsx"), attachment());
@@ -266,6 +278,15 @@ describe("Michigan supplemental typed registry", () => {
     fetchFn.mockResolvedValue(response("<div>narrow the search criteria</div>"));
     await expect(fetchMichiganMitnRegistryForNames({ names: ["Cap"], rawCacheDir: dir, fetchFn })).rejects.toThrow("row cap");
     expect(await readdir(dir)).toEqual([]);
+  });
+  it("refetches saved registry HTML older than the reuse window", async () => {
+    const dir = await cache(); const fetchFn = vi.fn().mockResolvedValue(response(REGISTRY));
+    await fetchMichiganMitnRegistryForNames({ names: ["UAW"], rawCacheDir: dir, fetchFn });
+    const file = path.join(dir, `registry-${createHash("sha256").update("UAW").digest("hex")}.html`);
+    await utimes(file, new Date("2000-01-01"), new Date("2000-01-01"));
+    expect(await fetchMichiganMitnRegistryForNames({ names: ["UAW"], rawCacheDir: dir, fetchFn })).toHaveLength(1);
+    expect(fetchFn).toHaveBeenCalledTimes(2);
+    expect((await stat(file)).mtimeMs).toBeGreaterThan(Date.now() - 60_000);
   });
   it("preserves saved registry HTML after invalid refresh", async () => {
     const dir = await cache(); const fetchFn = vi.fn().mockResolvedValue(response(REGISTRY));
