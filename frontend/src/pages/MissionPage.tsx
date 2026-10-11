@@ -100,12 +100,11 @@ function TeamGrid() {
 // answer follows once opened).
 const FAQ_ITEMS: { question: string; answer: ReactNode }[] = [
   {
-    question: `Who is behind ${APP_NAME}, and how is it funded?`,
+    question: `How is ${APP_NAME} funded?`,
     answer: (
       <p>
-        A few friends (see Our team above). We have no company sponsors. We offer an option for
-        contributions on the website, but so far our “funding” consists of our own Visa and
-        MasterCard.
+        We have no company sponsors. We offer an option for contributions on the website, but so far
+        our “funding” consists of our own Visa and MasterCard.
       </p>
     ),
   },
