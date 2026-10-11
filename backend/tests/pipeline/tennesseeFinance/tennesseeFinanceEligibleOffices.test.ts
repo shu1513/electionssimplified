@@ -5,6 +5,7 @@ import {
   isTennesseeFinanceEligibleOffice,
   normalizeTennesseeCampDistrict,
   tennesseeCampOfficeLabelForAppOffice,
+  tennesseeCampOfficeLabelsForLinkOffice,
   toTennesseeCampOfficeSearchInput,
 } from "../../../src/pipeline/tennesseeFinance/tennesseeFinanceEligibleOffices.js";
 
@@ -39,6 +40,13 @@ describe("tennesseeFinanceEligibleOffices", () => {
     expect(tennesseeCampOfficeLabelForAppOffice({ officeScope: "state_upper", officeCanonicalName: "State Senator" })).toBe(
       "Senate"
     );
+  });
+
+  it("maps stored link office names to CAMP office labels", () => {
+    expect(tennesseeCampOfficeLabelsForLinkOffice("State Lower Chamber Legislator")).toEqual(["HOUSE", "HOUSE OF REPRESENTATIVES"]);
+    expect(tennesseeCampOfficeLabelsForLinkOffice(" state  representative ")).toEqual(["HOUSE", "HOUSE OF REPRESENTATIVES"]);
+    expect(tennesseeCampOfficeLabelsForLinkOffice("State Senator")).toEqual(["SENATE"]);
+    expect(tennesseeCampOfficeLabelsForLinkOffice("Attorney General")).toEqual([]);
   });
 
   it("normalizes Tennessee CAMP districts conservatively", () => {

@@ -12,6 +12,7 @@ import { verifyTennesseeOutsideReport, resolveTennesseeVerifiedCandidateContext 
 import { summarizeTennesseeOutsideReportProvenance, type TennesseeStoredOutsideReportEvidence,
   type TennesseeVerifiedOutsideReportEvidence } from "./tennesseeOutsideReportEvidence.js";
 import { tennesseeCandidateSearchToken } from "./tennesseeVerifiedLocalName.js";
+import { tennesseeCampOfficeLabelsForLinkOffice } from "./tennesseeFinanceEligibleOffices.js";
 import type { TennesseeFinanceLinkInput, TennesseeVerifiedFinanceSnapshot } from "./tennesseeFinanceWriter.js";
 
 export type TennesseeVerifiedFinanceLoadRequest = {
@@ -83,10 +84,7 @@ function candidateSource(context: TennesseeNativeResult<TennesseeVerifiedNativeC
   const matches = context.rows.filter(row => person(row.name) === person(link.ownerName));
   const identities = new Set(matches.map(row => JSON.stringify([row.campId,row.officeSought,row.district,row.electionYear,row.closed])));
   const row = matches[0];
-  const office = text(link.officeName).toUpperCase();
-  const expected = office === "STATE SENATOR" ? ["SENATE"] :
-    ["STATE REPRESENTATIVE","STATE LOWER CHAMBER LEGISLATOR"].includes(office) ? ["HOUSE","HOUSE OF REPRESENTATIVES"] :
-    office === "GOVERNOR" ? ["GOVERNOR"] : [];
+  const expected = tennesseeCampOfficeLabelsForLinkOffice(link.officeName);
   const district = (s: string | null | undefined) => /^\d+$/.test(text(s ?? "")) ? String(Number(s)) : text(s ?? "");
   if (!context.complete || context.declaredCount !== context.rows.length || identities.size !== 1 ||
       !row || row.campId !== link.campCandidateId || row.electionYear !== link.electionYear || row.closed !== null ||

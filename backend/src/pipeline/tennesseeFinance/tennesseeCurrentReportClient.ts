@@ -358,9 +358,13 @@ export function parseTennesseeCurrentReport(input: {
   if (reportLabel !== manifestLabel || (publishedReportYear !== null && publishedReportYear !== row.reportYear)) {
     return bad("Tennessee report label differs from manifest");
   }
+  // Candidate headings print "First Last" for a "LAST, FIRST" manifest owner;
+  // PAC headings print the registered name literally, commas included.
   const ownerParts = row.ownerName.split(",").map(part => part.trim());
-  const displayOwner = ownerParts.length === 2 ? ownerParts[1] + " " + ownerParts[0] : row.ownerName;
-  if (plain(h[4]) !== plain(displayOwner)) return bad("Tennessee report receiver differs from manifest");
+  const swappedOwner = ownerParts.length === 2 ? ownerParts[1] + " " + ownerParts[0] : row.ownerName;
+  if (plain(h[4]) !== plain(row.ownerName) && plain(h[4]) !== plain(swappedOwner)) {
+    return bad("Tennessee report receiver differs from manifest");
+  }
   for (const m of html.matchAll(/href=["']([^"']*reportId=[^"']*)["']/gi)) {
     const linked = new URL(decodeEntities(m[1]), source);
     if (linked.origin !== ORIGIN || linked.searchParams.get("reportId") !== row.reportId) {

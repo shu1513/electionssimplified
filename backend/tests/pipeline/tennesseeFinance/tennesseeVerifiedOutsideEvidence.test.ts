@@ -46,6 +46,22 @@ describe("Tennessee current ordinary outside verification", () => {
     expect(resolveTennesseeVerifiedCandidateContext({ link: input.link,nativeContext: input.candidateContextBefore,
       reportedTargetName: "Jane Doe" })?.campCandidateId).toBe("794");
   });
+  it.each([
+    ["State Lower Chamber Legislator", "House of Representatives"],
+    ["State Lower Chamber Legislator", "House"],
+    ["State Representative", "House of Representatives"],
+    ["Governor", "Governor"],
+  ])("accepts the stored link office %s against the CAMP label %s", (officeName, officeSought) => {
+    const input = fixture();
+    const district = officeName === "Governor" ? "" : "51";
+    input.link.officeName = officeName; input.link.district = district || null;
+    for (const context of [input.candidateContextBefore, input.candidateContextAfter]) {
+      context.rows[0]!.officeSought = officeSought; context.rows[0]!.district = district;
+    }
+    expect(verifyTennesseeOutsideReport(input).evidence?.occurrences).toHaveLength(1);
+    input.candidateContextBefore.rows[0]!.officeSought = officeName === "Governor" ? "Senate" : "Governor";
+    expect(verifyTennesseeOutsideReport(input).evidence).toBeUndefined();
+  });
   it("compares all report targets before allocating only this candidate, retaining equal occurrences", () => {
     const input = fixture();
     const native = input.nativeBefore[2]!, closing = input.nativeAfter[2]!;

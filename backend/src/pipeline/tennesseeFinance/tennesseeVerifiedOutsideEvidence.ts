@@ -5,6 +5,7 @@ import type { TennesseeNativeResult, TennesseeVerifiedNativeCandidateRow,
   TennesseeVerifiedNativeIndependentExpenditureRow, TennesseeVerifiedNativePacRegistryRow } from "./tennesseeVerifiedNativeClient.js";
 import type { TennesseeOutsideCandidateContext, TennesseeVerifiedOutsideReportEvidence } from "./tennesseeOutsideReportEvidence.js";
 import { normalizeTennesseeFullPersonName,resolveTennesseeLocalNameAuthority } from "./tennesseeVerifiedLocalName.js";
+import { tennesseeCampOfficeLabelsForLinkOffice } from "./tennesseeFinanceEligibleOffices.js";
 
 const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const text = (value: string) => value.replace(/\s+/g, " ").trim();
@@ -36,9 +37,8 @@ export function resolveTennesseeVerifiedCandidateContext(input: {
   const identities = new Set(exact.map(row => JSON.stringify([row.campId,row.officeSought,row.district,row.electionYear,row.closed])));
   if (identities.size !== 1 || !exact.length) return undefined;
   const row = exact[0]!;
-  const office = text(link.officeName).toUpperCase();
-  const expected = office === "STATE SENATOR" ? "SENATE" : office === "STATE REPRESENTATIVE" ? "HOUSE" : undefined;
-  if (!expected || text(row.officeSought).toUpperCase() !== expected || row.campId !== link.campCandidateId
+  const expected = tennesseeCampOfficeLabelsForLinkOffice(link.officeName);
+  if (!expected.includes(text(row.officeSought).toUpperCase()) || row.campId !== link.campCandidateId
     || row.electionYear !== link.electionYear || district(row.district) !== district(link.district)
     || row.closed !== null || link.linkStatus === "inactive" || link.linkStatus === "ambiguous"
     || comparableName(row.name) !== comparableName(link.ownerName)) return undefined;

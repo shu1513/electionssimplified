@@ -108,6 +108,17 @@ describe("Tennessee current report source client", () => {
       independentTargetName: "CROWE, RUSTY", supportOppose: "S", amountCents: 591062 });
   });
 
+  it("retains a comma-containing PAC owner literally instead of reading it as Last, First", () => {
+    const owner = "TEST, INC. PAC";
+    const pacRow = { ...row, campId: "136", ownerName: owner, electionYear: null,
+      reportYear: 2026, reportName: "Pre-Primary 2026", amended: false, submittedDate: "2026-07-29" };
+    const cash = [["REPORTED PAC<br>10 MAIN ST", "P", "07/01/2026", "$2,000.00"]];
+    const result = parse(report({ pac: true, cash, heading: "Pre-Primary for " + owner + " submitted on 07/29/2026" }), pacRow);
+    expect(result.reportedOwnerName).toBe(owner);
+    expect(() => parse(report({ pac: true, cash, heading: "Pre-Primary for OTHER, INC. PAC submitted on 07/29/2026" }), pacRow))
+      .toThrow(/receiver/);
+  });
+
   it("supports an explicit current amended zero ledger without inventing candidate-wide zero", () => {
     const result = parse(report({ cash: [], cashTotal: "$0.00" }));
     expect(result.cashLedger).toEqual([]);

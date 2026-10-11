@@ -58,6 +58,26 @@ export function normalizeTennesseeCampDistrict(value: string | null | undefined)
   return String(Number.parseInt(numeric, 10));
 }
 
+/**
+ * CAMP "Office Sought" labels (upper-cased) that may match the office name
+ * stored on a finance link. Links carry the app's canonical office name, so
+ * House rows read "State Lower Chamber Legislator"; the legacy
+ * "State Representative" spelling is kept for manual links.
+ */
+export function tennesseeCampOfficeLabelsForLinkOffice(officeName: string): readonly string[] {
+  const office = officeName.replace(/\s+/g, " ").trim().toUpperCase();
+  if (office === "GOVERNOR") {
+    return ["GOVERNOR"];
+  }
+  if (office === "STATE SENATOR") {
+    return ["SENATE"];
+  }
+  if (office === "STATE REPRESENTATIVE" || office === "STATE LOWER CHAMBER LEGISLATOR") {
+    return ["HOUSE", "HOUSE OF REPRESENTATIVES"];
+  }
+  return [];
+}
+
 export function tennesseeCampOfficeLabelForAppOffice(input: {
   officeScope: string | null | undefined;
   officeCanonicalName: string | null | undefined;

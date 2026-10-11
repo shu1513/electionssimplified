@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { resolveTennesseeOrdinaryReportPeriodEnd } from "./tennesseeOrdinaryReportPeriodResolver.js";
 import { normalizeTennesseeFullPersonName, resolveTennesseeLocalNameAuthority, tennesseeCandidateSearchToken } from "./tennesseeVerifiedLocalName.js";
 import type { TennesseeFinanceLinkInput } from "./tennesseeFinanceWriter.js";
+import { tennesseeCampOfficeLabelsForLinkOffice } from "./tennesseeFinanceEligibleOffices.js";
 import { parseTennesseeCurrentReport, type TennesseeCurrentReport, type TennesseeCurrentReportManifest } from "./tennesseeCurrentReportClient.js";
 import type { TennesseeNativeResult, TennesseeVerifiedNativeCandidateRow, TennesseeVerifiedNativeContributionRow, TennesseeVerifiedNativePacRegistryRow } from "./tennesseeVerifiedNativeClient.js";
 import type { TennesseeFinanceDirectBreakdown } from "./tennesseeDirectContributionAggregator.js";
@@ -90,7 +91,7 @@ function candidateContext(input: TennesseeDirectEvidenceVerificationInput): bool
   const matches = a.rows.filter(r => person(r.name) === person(link.ownerName));
   if (!matches.length || new Set(matches.map(r => JSON.stringify([r.campId, r.officeSought, r.district, r.electionYear, r.closed]))).size !== 1) return false;
   const row = matches[0]; const office = name(link.officeName);
-  const expected = office === "STATE SENATOR" ? ["SENATE"] : ["STATE REPRESENTATIVE", "STATE LOWER CHAMBER LEGISLATOR"].includes(office) ? ["HOUSE", "HOUSE OF REPRESENTATIVES"] : office === "GOVERNOR" ? ["GOVERNOR"] : [];
+  const expected = tennesseeCampOfficeLabelsForLinkOffice(link.officeName);
   const district = (v: string | null | undefined) => /^\d+$/.test(text(v ?? "")) ? String(Number(v)) : text(v ?? "");
   return a.rows.every(r => r.electionYear === link.electionYear) && row.campId === link.campCandidateId && row.closed === null
     && resolveTennesseeLocalNameAuthority(link, row.name) !== undefined
