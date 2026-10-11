@@ -40,6 +40,7 @@ describe("syncDueIllinoisCandidateFinance script", () => {
       expenditureSourceUrl: "https://example.test/expenditures.csv",
       normalizedArtifactPath: "exports/illinois-normalized.json",
       receiptsTsvPath: "exports/Receipts.txt",
+      verifiedQuarterlyConfigPath: undefined,
     });
   });
 
@@ -60,6 +61,18 @@ describe("syncDueIllinoisCandidateFinance script", () => {
     expect(() => parseSyncDueIllinoisCandidateFinanceScriptArgs(["--timeout-ms=0"])).toThrow(
       "Invalid --timeout-ms value"
     );
+  });
+
+  it("accepts verified Quarterly source config and rejects mixed source modes", () => {
+    expect(parseSyncDueIllinoisCandidateFinanceScriptArgs(["--verified-quarterly-config", "exports/verified.json"]))
+      .toMatchObject({ verifiedQuarterlyConfigPath: "exports/verified.json" });
+    for (const legacy of ["--normalized-artifact=old.json", "--contributions-csv=old.csv", "--expenditures-csv=old.csv",
+      "--contributions-url=https://example.test/cash", "--expenditures-url=https://example.test/ie", "--receipts-tsv=old.txt"]) {
+      expect(() => parseSyncDueIllinoisCandidateFinanceScriptArgs(["--verified-quarterly-config=verified.json", legacy]))
+        .toThrow("cannot be combined");
+    }
+    expect(() => parseSyncDueIllinoisCandidateFinanceScriptArgs(["--verified-quarterly-config"]))
+      .toThrow("Missing --verified-quarterly-config value");
   });
 
   it("rejects missing and duplicate option values", () => {

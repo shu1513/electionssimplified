@@ -27,6 +27,7 @@ export type IllinoisDirectContributionAggregationInput = {
   electionYear: number;
   contributionRecords: readonly IllinoisSbeContributionRecord[];
   committeeKey?: string | null;
+  committeeId?: string | null;
   sourceUrl?: string | null;
   maxBreakdownsPerCategory?: number;
 };
@@ -342,6 +343,10 @@ export function aggregateIllinoisDirectContributions(
 
   for (const record of input.contributionRecords) {
     matchedContributionRowCount += 1;
+    if (input.committeeId && record.committeeId !== input.committeeId) {
+      skippedContributionRowCount += 1;
+      continue;
+    }
     if (targetCommitteeKey && recordCommitteeKey(record) !== targetCommitteeKey) {
       skippedContributionRowCount += 1;
       continue;
@@ -436,7 +441,8 @@ export function aggregateIllinoisOutsideSpending(
     }
     matchedExpenditureRowCount += 1;
     const committeeName = record.expendingCommitteeName?.trim().replace(/\s+/g, " ") ?? "";
-    const committeeKey = normalizeIllinoisCommitteeKey(committeeName);
+    const committeeKey = record.sourceDocumentId && record.committeeId
+      ? `SBE:${record.committeeId}` : normalizeIllinoisCommitteeKey(committeeName);
     const amountCents = amountToCents(record.amount);
     if (
       !committeeName ||

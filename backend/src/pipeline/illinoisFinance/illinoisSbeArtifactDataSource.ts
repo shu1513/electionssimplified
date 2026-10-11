@@ -347,7 +347,10 @@ export function loadIllinoisFinanceDataForDueRowFromArtifacts(input: {
       })
     );
     data.directContributionSourceUrl = sourceUrl;
-  } else if (input.artifacts.contributionCsvsLoaded) {
+  } else if (input.artifacts.contributionCsvsLoaded &&
+      !input.artifacts.contributionRecords.some((record) => record.documentName !== undefined)) {
+    // Modern discovery exports include rapid/amended filings. Only the verified
+    // Quarterly path may turn those rows (including a filtered empty) into a snapshot.
     data.directContributionRecords = input.artifacts.contributionRecords.filter((record) =>
       directContributionMatchesDueRow({ record, row: input.row })
     );
@@ -361,7 +364,8 @@ export function loadIllinoisFinanceDataForDueRowFromArtifacts(input: {
     );
   }
 
-  if (input.artifacts.expenditureRecords !== undefined) {
+  if (input.artifacts.expenditureRecords !== undefined &&
+      !input.artifacts.expenditureRecords.some((record) => record.documentName !== undefined)) {
     const outsideExpenditureRecords = input.artifacts.expenditureRecords.filter((record) =>
       outsideExpenditureMatchesDueRow({ record, row: input.row })
     );

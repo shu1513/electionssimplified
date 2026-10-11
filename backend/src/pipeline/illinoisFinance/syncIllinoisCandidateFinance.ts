@@ -30,6 +30,9 @@ import {
   type IllinoisFinanceOutsideGroupBreakdownInput,
   type IllinoisFinanceOutsideGroupInput,
   type IllinoisFinanceSummaryInput,
+  type IllinoisFinancePacDonorInput,
+  type IllinoisFinanceOutsideReportEvidence,
+  type IllinoisFinanceSnapshotWriteResult,
 } from "./illinoisFinanceWriter.js";
 import {
   ILLINOIS_SBE_CONTRIBUTION_CANDIDATE_SEARCH_URL,
@@ -46,6 +49,9 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 const DEFAULT_AI_CLASSIFICATION_MIN_AMOUNT = 25_000;
 
 export type IllinoisCandidateFinanceSyncInput = {
+  verifiedQuarterly?: boolean;
+  pacDonors?: readonly IllinoisFinancePacDonorInput[];
+  outsideReportEvidence?: readonly IllinoisFinanceOutsideReportEvidence[];
   db: Queryable;
   candidateId: string;
   electionId: string;
@@ -83,6 +89,8 @@ export type IllinoisCandidateFinanceSyncInput = {
 };
 
 export type IllinoisCandidateFinanceSyncResult = {
+  pacDonorsWritten?: number;
+  outsidePreserved?: boolean;
   candidateId: string;
   electionId: string;
   electionYear: number;
@@ -439,27 +447,39 @@ export async function syncIllinoisCandidateFinance(
     input.outsideGroupContributionSourceUrl ?? ILLINOIS_SBE_CONTRIBUTION_COMMITTEE_SEARCH_URL;
   const sbeCommitteeId = input.sbeCommitteeId?.trim() || extractIllinoisSbeCommitteeId(input.committeeKey);
 
-  const directContributionDataAvailable = input.directContributionRecords !== undefined;
+  const modernDirectNeedsProof = input.directContributionRecords?.some((row) => row.documentName !== undefined) === true;
+  const directContributionDataAvailable = input.directContributionRecords !== undefined &&
+    (!modernDirectNeedsProof || input.verifiedQuarterly === true);
   const directFinance = aggregateIllinoisDirectContributions({
     electionYear,
-    contributionRecords: input.directContributionRecords ?? [],
-    // SBE transaction exports identify the recipient by committee name even
-    // when our stable link key is SBE:<committee-id>.
-    committeeKey: input.committeeName,
+    contributionRecords: directContributionDataAvailable ? input.directContributionRecords ?? [] : [],
+    // Verified modern rows carry the exact receiving ID; stored labels may be older aliases.
+    committeeKey: input.verifiedQuarterly ? null : input.committeeName,
+    committeeId: input.verifiedQuarterly ? sbeCommitteeId : null,
     sourceUrl: directSourceUrl,
     maxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory,
   });
-  const outsideDataAvailable = input.outsideExpenditureRecords !== undefined;
+  const outsideDataAvailable = input.outsideExpenditureRecords !== undefined &&
+    (!input.outsideExpenditureRecords.some((row) => row.documentName !== undefined) ||
+      input.outsideReportEvidence !== undefined);
   const outsideGroupContributionDataAvailable = input.outsideGroupContributionRecords !== undefined;
-  const outsideFinance = input.outsideExpenditureRecords
+  const outsideFinance = outsideDataAvailable && input.outsideExpenditureRecords
     ? aggregateIllinoisOutsideSpending({
         electionYear,
         expenditureRecords: input.outsideExpenditureRecords,
         sourceUrl: outsideSourceUrl,
-        maxGroups: input.outsideMaxGroups,
+        maxGroups: input.outsideReportEvidence ? Math.max(1, input.outsideExpenditureRecords.length) : input.outsideMaxGroups,
       })
     : emptyOutsideResult();
   const outsideGroups = outsideDataAvailable ? toOutsideGroups(outsideFinance) ?? [] : undefined;
+  if (input.outsideReportEvidence && outsideGroups) {
+    for (const group of outsideGroups) {
+      const ids = new Set(input.outsideExpenditureRecords?.filter((row) =>
+        `SBE:${row.committeeId}` === group.committeeKey && row.supportOppose === group.supportOppose)
+        .map((row) => row.sourceDocumentId));
+      group.sourceReports = input.outsideReportEvidence.filter((report) => ids.has(report.filedDocId));
+    }
+  }
   const outsideGroupBreakdowns = toOutsideGroupBreakdowns({
     outsideGroups: outsideFinance.summary?.groups,
     contributionRecords: input.outsideGroupContributionRecords,
@@ -499,7 +519,8 @@ export async function syncIllinoisCandidateFinance(
           reports: input.d2ReportSummaries,
         })
       : null;
-  const requiresD2Totals = input.officeScope === "place" || input.d2ReportSummaries !== undefined;
+  const requiresD2Totals = input.verifiedQuarterly || modernDirectNeedsProof ||
+    input.directContributionRecords === undefined || input.officeScope === "place" || input.d2ReportSummaries !== undefined;
   const summary = toSummary({
     totalReceipts: d2Finance?.totalReceipts ?? (requiresD2Totals ? null : directFinance.summary.totalReceipts),
     directContributionTotal: requiresD2Totals ? null : directFinance.summary.directContributionTotal,
@@ -510,10 +531,13 @@ export async function syncIllinoisCandidateFinance(
     outsideDataAvailable,
     fallbackSourceUrl: d2Finance?.sourceUrl ?? input.sourceUrl ?? directSourceUrl ?? outsideSourceUrl ?? outsideGroupSourceUrl,
   });
-  const summaryAvailable = input.officeScope !== "place" || input.d2ReportSummaries !== undefined;
+  const summaryAvailable = input.verifiedQuarterly
+    ? input.d2ReportSummaries !== undefined || outsideDataAvailable
+    : input.officeScope !== "place" || input.d2ReportSummaries !== undefined;
 
+  let written: IllinoisFinanceSnapshotWriteResult | undefined;
   if (!input.dryRun) {
-    await replaceIllinoisCandidateFinanceSnapshot({
+    written = await replaceIllinoisCandidateFinanceSnapshot({
       db: input.db,
       link,
       syncedAt,
@@ -525,6 +549,8 @@ export async function syncIllinoisCandidateFinance(
         ? directFinance.directBreakdowns.map(toDirectBreakdown)
         : undefined,
       outsideGroups,
+      pacDonors: input.pacDonors,
+      outsideReportEvidence: input.outsideReportEvidence,
       outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
       classifications: outsideIndustryFinance.classifications,
     });
@@ -539,8 +565,10 @@ export async function syncIllinoisCandidateFinance(
     summaryWritten: !input.dryRun && summaryAvailable,
     directBreakdownsWritten:
       input.dryRun || !directContributionDataAvailable ? 0 : directFinance.directBreakdowns.length,
-    outsideGroupsWritten: input.dryRun ? 0 : outsideGroups?.length ?? 0,
-    outsideGroupBreakdownsWritten: input.dryRun ? 0 : outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0,
+    pacDonorsWritten: written?.pacDonorsWritten ?? 0,
+    outsidePreserved: written?.outsidePreserved,
+    outsideGroupsWritten: written?.outsideGroupsWritten ?? 0,
+    outsideGroupBreakdownsWritten: written?.outsideGroupBreakdownsWritten ?? 0,
     totalReceipts: summary.totalReceipts ?? null,
     directContributionTotal: summary.directContributionTotal ?? null,
     totalDisbursements: summary.totalDisbursements ?? null,
@@ -548,8 +576,8 @@ export async function syncIllinoisCandidateFinance(
     debtsOwed: summary.debtsOwed ?? null,
     outsideExpenditureDataAvailable: outsideDataAvailable,
     outsideGroupContributionDataAvailable,
-    outsideSupportTotal: outsideDataAvailable ? outsideFinance.summary?.supportTotal ?? 0 : null,
-    outsideOpposeTotal: outsideDataAvailable ? outsideFinance.summary?.opposeTotal ?? 0 : null,
+    outsideSupportTotal: outsideDataAvailable && !written?.outsidePreserved ? outsideFinance.summary?.supportTotal ?? 0 : null,
+    outsideOpposeTotal: outsideDataAvailable && !written?.outsidePreserved ? outsideFinance.summary?.opposeTotal ?? 0 : null,
     matchedContributionRowCount: directFinance.matchedContributionRowCount,
     includedContributionRowCount: directFinance.includedContributionRowCount,
     skippedContributionRowCount: directFinance.skippedContributionRowCount,

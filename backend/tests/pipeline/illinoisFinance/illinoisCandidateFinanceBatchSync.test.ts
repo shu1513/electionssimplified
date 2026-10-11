@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  type IllinoisCandidateFinanceData,
   listDueIllinoisCandidateFinanceSyncRows,
   loadIllinoisFinanceDataForDueRow,
   syncDueIllinoisCandidateFinance,
@@ -9,7 +10,7 @@ import {
   createIllinoisSbeArtifactCandidateCommitteeResolver,
   loadIllinoisFinanceDataForDueRowFromArtifacts,
 } from "../../../src/pipeline/illinoisFinance/illinoisSbeArtifactDataSource.js";
-import type { IllinoisCandidateFinanceSyncResult } from "../../../src/pipeline/illinoisFinance/syncIllinoisCandidateFinance.js";
+import type { IllinoisCandidateFinanceSyncInput, IllinoisCandidateFinanceSyncResult } from "../../../src/pipeline/illinoisFinance/syncIllinoisCandidateFinance.js";
 import type { IllinoisSbeContributionRecord } from "../../../src/pipeline/illinoisFinance/illinoisSbeClient.js";
 
 const NOW = new Date("2026-06-01T00:00:00.000Z");
@@ -424,5 +425,146 @@ describe("illinoisCandidateFinanceBatchSync", () => {
         directContributionSourceUrl: SOURCE_URL,
       })
     );
+  });
+});
+
+
+function verifiedBatchData(totalAmount = 1000): IllinoisCandidateFinanceData {
+  return {
+    verifiedQuarterly: true,
+    pacDonors: [{ committeeId: "1028", committeeName: "Community BANCPAC", committeeType: "Political Action",
+      totalAmount, contributionCount: 1, sourceUrl: SOURCE_URL }],
+    outsideReportEvidence: [{ committeeId: "615", filedDocId: "1023410", periodStart: "2026-07-01", periodEnd: "2026-09-30",
+      receivedAt: "2026-10-07 15:46:19.163000000", fingerprint: "a".repeat(64) }],
+    outsideExpenditureRecords: [{ payeeName: "Printer", payeeAddress: null, amount: 66.5,
+      expendedDate: "9/9/2026", reportReceivedDate: "10/7/2026", expenditureType: "Independent Expenditure",
+      expendingCommitteeName: "Kane County Republican Central Cmte", purpose: "Printing", candidateName: "Bailey for Illinois",
+      officeDistrict: "Illinois Governor", supportOppose: "support", sourceUrl: SOURCE_URL, committeeId: "615",
+      documentName: "Quarterly", sourceDocumentId: "1023410", reportingPeriodStart: "7/1/2026", reportingPeriodEnd: "9/30/2026" }],
+    directContributionRecords: [contribution({ committeeId: "34092", documentName: "Quarterly", sourceDocumentId: "1023500" })],
+    d2ReportSummaries: [{ reportId: "1023500", committeeId: "34092", periodStart: "2026-07-01", periodEnd: "2026-09-30",
+      filedAt: "2026-10-07T12:00:00Z", totalReceipts: 5000, totalDisbursements: 2000, cashOnHand: 3000,
+      debtsOwed: 0, sourceUrl: SOURCE_URL }],
+  };
+}
+
+function linkedBatchDb(rows: ReturnType<typeof dueRow>[]) {
+  return { query: vi.fn(async () => ({ rows, rowCount: rows.length })), connect: vi.fn() };
+}
+
+describe("verified Quarterly batch component forwarding", () => {
+  it("writes candidate-wide outside once while forwarding each receiving link's cash and PAC component", async () => {
+    const db = linkedBatchDb([
+      dueRow({ committee_key: "SBE:34092", total_due_rows: "3" }),
+      dueRow({ committee_key: "SBE:34093", total_due_rows: "3" }),
+      dueRow({ candidate_id: "44444444-4444-4444-8444-444444444444", committee_key: "SBE:34094", total_due_rows: "3" }),
+    ]);
+    const data = [verifiedBatchData(1000), verifiedBatchData(2000), verifiedBatchData(3000)];
+    let next = 0;
+    const load = vi.fn(async () => data[next++]!);
+    const sync = vi.fn(async (input: IllinoisCandidateFinanceSyncInput) => successfulSync({
+      outsideGroupsWritten: input.outsideExpenditureRecords ? 1 : 0, outsidePreserved: false, pacDonorsWritten: 1,
+    }));
+    const result = await syncDueIllinoisCandidateFinance({ db: db as never, now: NOW, autoLinkMissingLinks: false,
+      loadIllinoisFinanceDataFn: load, syncIllinoisCandidateFinanceFn: sync });
+    expect(result).toMatchObject({ selectedCandidateCount: 3, syncedCandidateCount: 3, failedCandidateCount: 0 });
+    const inputs = sync.mock.calls.map(([input]) => input);
+    expect(inputs[0]).toMatchObject({ sbeCommitteeId: "34092", verifiedQuarterly: true,
+      outsideReportEvidence: data[0]!.outsideReportEvidence, outsideExpenditureRecords: data[0]!.outsideExpenditureRecords });
+    expect(inputs[1]!.outsideReportEvidence).toBeUndefined();
+    expect(inputs[1]!.outsideExpenditureRecords).toBeUndefined();
+    expect(inputs[2]!.outsideReportEvidence).toEqual(data[2]!.outsideReportEvidence);
+    expect(inputs.map((input) => input.pacDonors?.[0]?.totalAmount)).toEqual([1000, 2000, 3000]);
+    expect(inputs.map((input) => input.directContributionRecords)).toEqual(data.map((item) => item.directContributionRecords));
+    expect(inputs.map((input) => input.d2ReportSummaries)).toEqual(data.map((item) => item.d2ReportSummaries));
+    expect(result.results.filter((row) => row.result?.outsideGroupsWritten === 1)).toHaveLength(2);
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it.each(["preserved", "failed"] as const)("lets another receiving link retry outside after the first attempt was %s", async (firstOutcome) => {
+    const db = linkedBatchDb([dueRow({ committee_key: "SBE:34092", total_due_rows: "2" }),
+      dueRow({ committee_key: "SBE:34093", total_due_rows: "2" })]);
+    const data = verifiedBatchData();
+    let next = 0;
+    const sync = vi.fn(async (_input: IllinoisCandidateFinanceSyncInput) => {
+      if (next++ === 0) {
+        if (firstOutcome === "failed") throw new Error("rollback: source report missing");
+        return successfulSync({ outsideGroupsWritten: 0, outsidePreserved: true });
+      }
+      return successfulSync({ outsideGroupsWritten: 1, outsidePreserved: false });
+    });
+    const result = await syncDueIllinoisCandidateFinance({ db: db as never, now: NOW, autoLinkMissingLinks: false,
+      loadIllinoisFinanceDataFn: async () => data, syncIllinoisCandidateFinanceFn: sync });
+    expect(sync).toHaveBeenCalledTimes(2);
+    expect(sync.mock.calls[1]![0].outsideReportEvidence).toEqual(data.outsideReportEvidence);
+    expect(sync.mock.calls[1]![0].outsideExpenditureRecords).toEqual(data.outsideExpenditureRecords);
+    expect(result.failedCandidateCount).toBe(firstOutcome === "failed" ? 1 : 0);
+    expect(result.results[1]).toMatchObject({ ok: true, result: { outsideGroupsWritten: 1, outsidePreserved: false } });
+  });
+
+  it("does not invoke a writer when all verified components are unknown, but still processes a later PAC-only component", async () => {
+    const db = linkedBatchDb([dueRow({ committee_key: "SBE:34092", total_due_rows: "2" }),
+      dueRow({ committee_key: "SBE:34093", total_due_rows: "2" })]);
+    const donors = verifiedBatchData().pacDonors;
+    let next = 0;
+    const sync = vi.fn(async (_input: IllinoisCandidateFinanceSyncInput) => successfulSync({
+      totalReceipts: null, outsideSupportTotal: null, outsideOpposeTotal: null, pacDonorsWritten: 1,
+    }));
+    const result = await syncDueIllinoisCandidateFinance({ db: db as never, now: NOW, autoLinkMissingLinks: false,
+      loadIllinoisFinanceDataFn: async () => next++ === 0 ? { verifiedQuarterly: true } : { verifiedQuarterly: true, pacDonors: donors },
+      syncIllinoisCandidateFinanceFn: sync });
+    expect(result).toMatchObject({ syncedCandidateCount: 1, failedCandidateCount: 1 });
+    expect(result.results[0]?.error).toContain("No accepted current Quarterly component");
+    expect(sync).toHaveBeenCalledOnce();
+    expect(sync.mock.calls[0]![0]).toMatchObject({ committeeKey: "SBE:34093", pacDonors: donors });
+    expect(sync.mock.calls[0]![0].outsideExpenditureRecords).toBeUndefined();
+    expect(sync.mock.calls[0]![0].d2ReportSummaries).toBeUndefined();
+  });
+
+  it("forwards unverified modern artifact metadata intact so sync can preserve rather than interpret it as legacy", async () => {
+    const db = linkedBatchDb([dueRow()]);
+    const modern = contribution({ documentName: "Quarterly", committeeId: "34092", sourceDocumentId: undefined });
+    const sync = vi.fn(async (_input: IllinoisCandidateFinanceSyncInput) => successfulSync({ directBreakdownsWritten: 0,
+      totalReceipts: null, directContributionTotal: null }));
+    await syncDueIllinoisCandidateFinance({ db: db as never, now: NOW, autoLinkMissingLinks: false,
+      loadIllinoisFinanceDataFn: async () => ({ directContributionRecords: [modern] }), syncIllinoisCandidateFinanceFn: sync });
+    expect(sync.mock.calls[0]![0].directContributionRecords).toEqual([modern]);
+    expect(sync.mock.calls[0]![0].verifiedQuarterly).toBeUndefined();
+    expect(sync.mock.calls[0]![0].outsideReportEvidence).toBeUndefined();
+    expect(sync.mock.calls[0]![0].pacDonors).toBeUndefined();
+  });
+});
+
+
+describe("modern CSV artifact preservation through the real batch and sync", () => {
+  it("preserves stored finance when every unverified modern row is removed by the artifact target filter", async () => {
+    const linkId = "33333333-3333-4333-8333-333333333333";
+    const clientQuery = vi.fn(async (sql: string, _params?: readonly unknown[]) => ({
+      rows: sql.includes("INSERT INTO public.il_candidate_finance_links") ? [{ id: linkId }] : [], rowCount: 1,
+    }));
+    const client = { query: clientQuery, release: vi.fn() };
+    const db = {
+      query: vi.fn(async (sql: string) => ({
+        rows: sql.includes("FROM public.il_candidate_finance_links AS link") ? [dueRow({ committee_key: "SBE:34092" })] : [], rowCount: 1,
+      })), connect: vi.fn(async () => client),
+    };
+    const artifacts = {
+      contributionCsvsLoaded: true, contributionSourceUrl: SOURCE_URL,
+      contributionRecords: [contribution({ committeeId: "777", documentName: "Quarterly",
+        recipientCommitteeName: "Another receiving committee", amount: 9000 })],
+      expenditureRecords: verifiedBatchData().outsideExpenditureRecords!,
+      expenditureSourceUrl: SOURCE_URL,
+    };
+    // IE labels Bailey's committee, whereas this due row is Jane Doe. Modern
+    // source fields exist before filtering even though the candidate subset is [].
+    const result = await syncDueIllinoisCandidateFinance({ db: db as never, now: NOW, autoLinkMissingLinks: false,
+      loadIllinoisFinanceDataFn: async (row) => loadIllinoisFinanceDataForDueRowFromArtifacts({ row, artifacts }) });
+    expect(result.results[0]).toMatchObject({ ok: true, result: { totalReceipts: null,
+      directContributionTotal: null, outsideSupportTotal: null, outsideOpposeTotal: null,
+      directBreakdownsWritten: 0, outsideGroupsWritten: 0 } });
+    expect(clientQuery.mock.calls.some(([sql]) => /DELETE FROM public\.il_candidate_finance_(?:direct_breakdowns|outside_)/.test(sql))).toBe(false);
+    const summary = clientQuery.mock.calls.find(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_summaries"));
+    expect(summary?.[1]?.slice(2, 9)).toEqual([null, null, null, null, null, null, null]);
+    expect(clientQuery.mock.calls.at(-1)?.[0]).toBe("COMMIT");
   });
 });

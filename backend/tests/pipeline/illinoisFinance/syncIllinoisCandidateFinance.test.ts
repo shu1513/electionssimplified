@@ -483,3 +483,170 @@ describe("syncIllinoisCandidateFinance without an itemized contribution source",
     expect(deletedBreakdowns).toBe(true);
   });
 });
+
+
+// These mocks exercise the real transactional writer without opening a database.
+function quarterlyDb(previous: { source_reports: unknown }[] = []) {
+  const txQuery = vi.fn(async (sql: string, _params?: readonly unknown[]) => {
+    if (sql.includes("SELECT groups.source_reports")) return { rows: previous, rowCount: previous.length };
+    if (sql.includes("INSERT INTO public.il_candidate_finance_links")) return { rows: [{ id: LINK_ID }], rowCount: 1 };
+    return { rows: [], rowCount: 1 };
+  });
+  const client = { query: txQuery, release: vi.fn() };
+  return { query: vi.fn(async () => ({ rows: [], rowCount: 0 })), connect: vi.fn(async () => client), client };
+}
+
+function quarterlyOutsideProof(overrides = {}) {
+  return {
+    committeeId: "615", filedDocId: "1023410", periodStart: "2026-07-01", periodEnd: "2026-09-30",
+    receivedAt: "2026-10-07 15:46:19.163000000", fingerprint: "a".repeat(64), ...overrides,
+  };
+}
+
+function quarterlyInput() {
+  return { ...baseInput(), candidateName: "Darren Bailey", electionYear: 2026,
+    committeeKey: "SBE:34092", committeeName: "Bailey for Illinois", sbeCommitteeId: "34092",
+    verifiedQuarterly: true, now: new Date("2026-10-11T12:00:00Z") };
+}
+
+function quarterlyExpense(overrides: Partial<IllinoisSbeExpenditureRecord> = {}) {
+  // Source-proven positive: 615/current Quarterly 1023410, separately allocated $66.50.
+  return expenditure({ committeeId: "615", sourceDocumentId: "1023410", documentName: "Quarterly",
+    reportingPeriodStart: "7/1/2026", reportingPeriodEnd: "9/30/2026", reportReceivedDate: "10/7/2026",
+    candidateName: "Bailey for Illinois", officeDistrict: "Illinois Governor", expendedDate: "9/9/2026",
+    expendingCommitteeName: "Kane County Republican Central Cmte", amount: 66.50, ...overrides });
+}
+
+function quarterlyD2() {
+  return { reportId: "1023500", committeeId: "34092", periodStart: "2026-07-01", periodEnd: "2026-09-30",
+    filedAt: "2026-10-07T12:00:00Z", totalReceipts: 5000, totalDisbursements: 2000, cashOnHand: 3000,
+    debtsOwed: 0, sourceUrl: SOURCE_URL };
+}
+
+function quarterlyPac() {
+  return { committeeId: "1028", committeeName: "Community BANCPAC", committeeType: "Political Action" as const,
+    totalAmount: 1000, contributionCount: 1, sourceUrl: SOURCE_URL };
+}
+
+function outsideMutations(db: ReturnType<typeof quarterlyDb>) {
+  return db.client.query.mock.calls.filter(([sql]) =>
+    /(?:INSERT INTO|DELETE FROM) public\.il_candidate_finance_outside_|UPDATE public\.il_candidate_finance_summaries SET outside_/.test(sql));
+}
+
+function summaryParams(db: ReturnType<typeof quarterlyDb>) {
+  return db.client.query.mock.calls.find(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_summaries"))?.[1];
+}
+
+describe("verified Quarterly sync source boundaries", () => {
+  it("persists exact SBE spender identity and per-group report provenance through the actual writer", async () => {
+    const db = quarterlyDb();
+    const proof = quarterlyOutsideProof();
+    const other = quarterlyOutsideProof({ committeeId: "777", filedDocId: "1023411", fingerprint: "b".repeat(64) });
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      outsideExpenditureRecords: [quarterlyExpense(), quarterlyExpense({ committeeId: "777", sourceDocumentId: "1023411" })],
+      outsideReportEvidence: [proof, other], d2ReportSummaries: [quarterlyD2()], pacDonors: [quarterlyPac()] });
+    expect(result).toMatchObject({ outsideGroupsWritten: 2, outsidePreserved: false,
+      outsideSupportTotal: 133, outsideOpposeTotal: 0, pacDonorsWritten: 1, totalReceipts: 5000,
+      directContributionTotal: null });
+    const groups = db.client.query.mock.calls.filter(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_outside_groups"));
+    expect(groups.map(([, params]) => params?.[2]).sort()).toEqual(["SBE:615", "SBE:777"]);
+    for (const [, params] of groups) {
+      expect(JSON.parse(String(params?.[8]))).toEqual([params?.[2] === "SBE:615" ? proof : other]);
+    }
+    const previousIndex = db.client.query.mock.calls.findIndex(([sql]) => sql.includes("SELECT groups.source_reports"));
+    const firstMutation = db.client.query.mock.calls.findIndex(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_outside_groups"));
+    expect(previousIndex).toBeGreaterThan(0);
+    expect(previousIndex).toBeLessThan(firstMutation);
+    expect(summaryParams(db)?.slice(2, 9)).toEqual([5000, null, 2000, 3000, 0, 133, 0]);
+    expect(db.client.query.mock.calls.filter(([sql]) => sql.includes("UPDATE public.il_candidate_finance_summaries SET outside_")).length).toBe(1);
+    expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+    expect(db.client.release).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["legacy groups without provenance", null],
+    ["a previously accepted report absent from the new source", [quarterlyOutsideProof({ committeeId: "888", filedDocId: "1023000" })]],
+    ["changed transactions under the same report ID", [quarterlyOutsideProof({ fingerprint: "c".repeat(64) })]],
+  ])("preserves %s while allowing independent Raised and PAC writes", async (_label, source_reports) => {
+    const db = quarterlyDb([{ source_reports }]);
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      outsideExpenditureRecords: [quarterlyExpense()], outsideReportEvidence: [quarterlyOutsideProof()],
+      d2ReportSummaries: [quarterlyD2()], pacDonors: [quarterlyPac()] });
+    expect(result).toMatchObject({ outsidePreserved: true, outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0,
+      outsideSupportTotal: null, outsideOpposeTotal: null, totalReceipts: 5000, pacDonorsWritten: 1 });
+    expect(outsideMutations(db)).toEqual([]);
+    expect(summaryParams(db)?.slice(2, 9)).toEqual([5000, null, 2000, 3000, 0, null, null]);
+    expect(db.client.query.mock.calls.some(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_pac_donors"))).toBe(true);
+    expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("accepts a source-proven archived document replacement rather than adding its old amount", async () => {
+    const old = quarterlyOutsideProof({ filedDocId: "1023000", fingerprint: "c".repeat(64) });
+    const db = quarterlyDb([{ source_reports: [old] }]);
+    const current = quarterlyOutsideProof({ supersededDocumentIds: ["1023000"] });
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      outsideExpenditureRecords: [quarterlyExpense()], outsideReportEvidence: [current] });
+    expect(result).toMatchObject({ outsidePreserved: false, outsideGroupsWritten: 1, outsideSupportTotal: 66.5,
+      totalReceipts: null, directContributionTotal: null });
+    const group = db.client.query.mock.calls.find(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_outside_groups"));
+    expect(group?.[1]?.[5]).toBe(66.5);
+    expect(JSON.parse(String(group?.[1]?.[8]))).toEqual([current]);
+  });
+
+  it("keeps unverified modern CSV receipts and expenditures out of Raised and replacement deletes", async () => {
+    const db = quarterlyDb();
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(), verifiedQuarterly: false,
+      directContributionRecords: [contribution({ committeeId: "34092", documentName: "Quarterly", amount: 9000, receivedDate: "9/9/2026" })],
+      outsideExpenditureRecords: [quarterlyExpense({ sourceDocumentId: undefined })] });
+    expect(result).toMatchObject({ totalReceipts: null, directContributionTotal: null, directBreakdownsWritten: 0,
+      includedContributionRowCount: 0, outsideGroupsWritten: 0, outsideExpenditureDataAvailable: false,
+      outsideSupportTotal: null, outsideOpposeTotal: null });
+    expect(summaryParams(db)?.slice(2, 9)).toEqual([null, null, null, null, null, null, null]);
+    expect(outsideMutations(db)).toEqual([]);
+    expect(db.client.query.mock.calls.some(([sql]) => sql.includes("DELETE FROM public.il_candidate_finance_direct_breakdowns"))).toBe(false);
+  });
+
+  it("uses exact receiving IDs for verified cash despite a changed committee label and excludes another recipient", async () => {
+    const db = quarterlyDb();
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      committeeName: "Stored old committee alias", d2ReportSummaries: [quarterlyD2()],
+      directContributionRecords: [
+        contribution({ committeeId: "34092", documentName: "Quarterly", recipientCommitteeName: "Bailey for Illinois", amount: 250, receivedDate: "9/9/2026" }),
+        contribution({ committeeId: "999", documentName: "Quarterly", recipientCommitteeName: "Stored old committee alias", amount: 9000, receivedDate: "9/9/2026" }),
+      ] });
+    expect(result).toMatchObject({ totalReceipts: 5000, directContributionTotal: null,
+      includedContributionRowCount: 1, directBreakdownsWritten: 2, outsideSupportTotal: null });
+    const rows = db.client.query.mock.calls.filter(([sql]) => sql.includes("INSERT INTO public.il_candidate_finance_direct_breakdowns"));
+    expect(rows.map(([, params]) => params?.[4])).toEqual([250, 250]);
+    expect(outsideMutations(db)).toEqual([]);
+  });
+
+  it("updates independent D2 totals while unknown cash, PAC and outside components remain untouched", async () => {
+    const db = quarterlyDb();
+    const result = await syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(), d2ReportSummaries: [quarterlyD2()] });
+    expect(result).toMatchObject({ totalReceipts: 5000, directContributionTotal: null, pacDonorsWritten: 0,
+      directBreakdownsWritten: 0, outsideGroupsWritten: 0, outsideExpenditureDataAvailable: false,
+      outsideSupportTotal: null, outsideOpposeTotal: null });
+    expect(summaryParams(db)?.slice(2, 9)).toEqual([5000, null, 2000, 3000, 0, null, null]);
+    expect(outsideMutations(db)).toEqual([]);
+    expect(db.client.query.mock.calls.some(([sql]) => /(?:INSERT INTO|DELETE FROM) public\.il_candidate_finance_(?:direct_breakdowns|pac_donors)/.test(sql))).toBe(false);
+    expect(db.client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("does not infer a verified zero from an empty outside array", async () => {
+    const db = quarterlyDb();
+    await expect(syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      outsideExpenditureRecords: [], outsideReportEvidence: [quarterlyOutsideProof()] }))
+      .rejects.toThrow("empty IE snapshot requires independent current empty proof");
+    expect(db.connect).not.toHaveBeenCalled();
+    expect(db.client.query).not.toHaveBeenCalled();
+  });
+
+  it("rejects positive rows whose document ID cannot attach the supplied current proof", async () => {
+    const db = quarterlyDb();
+    await expect(syncIllinoisCandidateFinance({ db: db as never, ...quarterlyInput(),
+      outsideExpenditureRecords: [quarterlyExpense({ sourceDocumentId: "1023999" })],
+      outsideReportEvidence: [quarterlyOutsideProof()] })).rejects.toThrow("matching current report evidence");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+});

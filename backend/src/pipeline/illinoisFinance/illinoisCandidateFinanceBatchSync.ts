@@ -30,6 +30,7 @@ import {
   type IllinoisSbeExpenditureRecord,
 } from "./illinoisSbeClient.js";
 import type { IllinoisSbeD2ReportSummary } from "./illinoisSbeNormalizedArtifact.js";
+import type { IllinoisFinancePacDonorInput, IllinoisFinanceOutsideReportEvidence } from "./illinoisFinanceWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
@@ -53,6 +54,10 @@ export type IllinoisCandidateFinanceDueRow = {
 };
 
 export type IllinoisCandidateFinanceData = {
+  verifiedQuarterly?: boolean;
+  sourceDiagnostics?: readonly string[];
+  pacDonors?: readonly IllinoisFinancePacDonorInput[];
+  outsideReportEvidence?: readonly IllinoisFinanceOutsideReportEvidence[];
   // Undefined when no itemized contribution source was loaded, which keeps
   // stored breakdowns instead of replacing them with nothing.
   directContributionRecords?: readonly IllinoisSbeContributionRecord[];
@@ -85,6 +90,7 @@ export type IllinoisCandidateFinanceBatchSyncInput = {
 };
 
 export type IllinoisCandidateFinanceBatchSyncItemResult = {
+  sourceDiagnostics?: readonly string[];
   candidateId: string;
   electionId: string;
   electionYear: number;
@@ -371,9 +377,17 @@ export async function syncDueIllinoisCandidateFinance(
   });
 
   const results: IllinoisCandidateFinanceBatchSyncItemResult[] = [];
+  const outsideOwners = new Set<string>();
   for (const row of due.rows) {
     try {
       const data = await loadDataFn(row, input.sbeClientOptions);
+      if (data.verifiedQuarterly && data.d2ReportSummaries === undefined &&
+          data.pacDonors === undefined && data.outsideExpenditureRecords === undefined) {
+        throw new Error(["No accepted current Quarterly component; stored finance preserved",
+          ...(data.sourceDiagnostics ?? [])].join("; "));
+      }
+      const outsideOwnerKey = `${row.candidateId}:${row.electionId}:${row.electionYear}`;
+      const ownsOutside = !data.outsideReportEvidence || !outsideOwners.has(outsideOwnerKey);
       const result = await syncFn({
         db: input.db,
         candidateId: row.candidateId,
@@ -391,7 +405,10 @@ export async function syncDueIllinoisCandidateFinance(
         committeeKey: row.committeeKey,
         committeeName: row.committeeName,
         directContributionRecords: data.directContributionRecords,
-        outsideExpenditureRecords: data.outsideExpenditureRecords,
+        verifiedQuarterly: data.verifiedQuarterly,
+        pacDonors: data.pacDonors,
+        outsideReportEvidence: ownsOutside ? data.outsideReportEvidence : undefined,
+        outsideExpenditureRecords: ownsOutside ? data.outsideExpenditureRecords : undefined,
         outsideGroupContributionRecords: data.outsideGroupContributionRecords,
         d2ReportSummaries: data.d2ReportSummaries,
         sourceUrl: row.sourceUrl ?? data.directContributionSourceUrl,
@@ -403,12 +420,14 @@ export async function syncDueIllinoisCandidateFinance(
         dryRun,
         now,
       });
+      if (data.outsideReportEvidence && ownsOutside && !result.outsidePreserved) outsideOwners.add(outsideOwnerKey);
       results.push({
         candidateId: row.candidateId,
         electionId: row.electionId,
         electionYear: row.electionYear,
         committeeKey: row.committeeKey,
         ok: true,
+        sourceDiagnostics: data.sourceDiagnostics,
         result,
       });
     } catch (error) {
