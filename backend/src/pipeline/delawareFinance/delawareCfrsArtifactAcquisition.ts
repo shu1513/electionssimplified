@@ -305,7 +305,7 @@ export async function acquireDelawareCfrsCommitteeArtifacts(
   // Receipts: warmup GET -> full-field search POST (transient-zero retry) ->
   // full CSV export of the stored search.
   const receiptsSearchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, { ...DELAWARE_CFRS_THEME_QUERY });
-  const receiptsWarmupUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch);
+  const receiptsWarmupUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry);
   await session.get(receiptsWarmupUrl);
   const receiptsTotal = await searchWithTransientZeroRetry(
     () =>

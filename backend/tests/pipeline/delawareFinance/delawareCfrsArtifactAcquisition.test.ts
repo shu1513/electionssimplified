@@ -93,11 +93,16 @@ function happyScript(): Scripted[] {
     { match: (url, body) => url.includes("/Public/ViewCommittees") && body === undefined, response: () => html("<html>form</html>") },
     { match: (url) => url.includes("/Public/Search"), response: () => html("<html>results</html>") },
     { match: (url) => url.includes("/Public/_ViewCommittees"), response: () => json(registryJson()) },
-    { match: (url, body) => url.includes("/Public/ViewReceipts") && body === undefined, response: () => html("<html>form</html>") },
-    { match: (url, body) => url.includes("/Public/ViewReceipts") && body !== undefined, response: () => searchResultsHtml(2) },
+    { match: (url, body) => new URL(url).pathname === "/Public/ViewReceiptsMain" && body === undefined, response: () => html("<html>form</html>") },
+    { match: (url, body) => new URL(url).pathname === "/Public/ViewReceipts" && body !== undefined, response: () => searchResultsHtml(2) },
     { match: (url) => url.includes("/Public/ExportCSVNew"), response: () => csv(RECEIPTS_CSV) },
     { match: (url, body) => url.includes("/Public/ViewExpenses") && body === undefined, response: () => html("<html>form</html>") },
-    { match: (url) => url.includes("/Public/OtherSearch"), response: () => searchResultsHtml(1) },
+    {
+      match: (url, body) => url.includes("/Public/OtherSearch") &&
+        ["CommitteeType", "FilingYear", "FilingPeriodName", "ddlPayeeType", "ddlState", "ddlExpenCategory", "ddlExpensePurpose"]
+          .every((field) => new URLSearchParams(body).has(field)),
+      response: () => searchResultsHtml(1),
+    },
     { match: (url) => url.includes("/Public/ExportExpensestoCsv"), response: () => csv(EXPENSES_CSV) },
     { match: (url, body) => url.includes("/Public/ViewFiledReports") && body === undefined, response: () => html("<html>form</html>") },
     { match: (url, body) => url.includes("/Public/ViewFiledReports") && body !== undefined, response: () => html("<html>results</html>") },
@@ -144,6 +149,16 @@ describe("acquireDelawareCfrsCommitteeArtifacts", () => {
     // The receipts search POST carried the registry identity.
     const receiptsSearch = requests.find((request) => (request.body ?? "").includes("txtReceivingRegistrant="));
     expect(receiptsSearch?.body).toContain(`MemberId=${MEMBER_ID}`);
+    // A legacy ViewReceipts GET leaves the native ledger uninitialized.
+    const receiptsRequests = requests.filter((request) => new URL(request.url).pathname.startsWith("/Public/ViewReceipts"));
+    expect(new URL(receiptsRequests[0]!.url).pathname).toBe("/Public/ViewReceiptsMain");
+    expect(receiptsRequests[0]!.body).toBeUndefined();
+    expect(new URL(receiptsRequests[1]!.url).pathname).toBe("/Public/ViewReceipts");
+    const expenseSearch = requests.find((request) => new URL(request.url).pathname === "/Public/OtherSearch");
+    const expenseFields = new URLSearchParams(expenseSearch?.body);
+    for (const field of ["CommitteeType", "FilingYear", "FilingPeriodName", "ddlPayeeType", "ddlState", "ddlExpenCategory", "ddlExpensePurpose"]) {
+      expect(expenseFields.get(field)).toBe("");
+    }
     // PDF download carried the acquisition MemberID + FilingCalendarID.
     expect(requests.at(-1)?.url).toContain(`CommitteeID=${MEMBER_ID}`);
     expect(requests.at(-1)?.url).toContain("FilingCalendarID=900");

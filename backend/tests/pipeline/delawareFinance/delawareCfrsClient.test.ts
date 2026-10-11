@@ -48,6 +48,9 @@ const noSleep = () => Promise.resolve();
 
 describe("delawareCfrsClient", () => {
   it("builds portal URLs with query parameters", () => {
+    expect(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry)).toBe(
+      "https://cfrs.elections.delaware.gov/Public/ViewReceiptsMain"
+    );
     expect(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, { theme: "vista" })).toBe(
       "https://cfrs.elections.delaware.gov/Public/ViewReceipts?theme=vista"
     );
@@ -78,9 +81,13 @@ describe("delawareCfrsClient", () => {
   });
 
   it("pins the expenses, committee, and filed-reports field sets", () => {
-    const expenses = buildDelawareExpensesSearchFields({ MemberId: "558171" });
+    const expenses = buildDelawareExpensesSearchFields({ MemberId: "558171", CommitteeType: "04", FilingYear: "2026" });
     expect(expenses.Submit).toBe("Search");
-    expect(Object.keys(expenses)).toHaveLength(22);
+    expect(Object.keys(expenses)).toHaveLength(29);
+    expect(expenses).toMatchObject({
+      CommitteeType: "04", FilingYear: "2026", FilingPeriodName: "",
+      ddlPayeeType: "", ddlState: "", ddlExpenCategory: "", ddlExpensePurpose: "",
+    });
     // The portal's own misspelling is part of the contract.
     expect(expenses).toHaveProperty("expensePruposeData", "");
 

@@ -28,7 +28,9 @@ export const DELAWARE_CFRS_BASE_URL = "https://cfrs.elections.delaware.gov";
 
 /** Public pages and endpoints exercised by the probe (verified live 2026-08-26). */
 export const DELAWARE_CFRS_PAGES = {
-  /** Receipts search form (GET warms the session; POST runs the search). */
+  /** Current receipts entry page; GET initializes the native ledger session. */
+  receiptsEntry: "/Public/ViewReceiptsMain",
+  /** Receipts search POST target (distinct from the Main entry page). */
   receiptsSearch: "/Public/ViewReceipts",
   /** Receipts CSV export of the session's stored receipts search. */
   receiptsExportCsv: "/Public/ExportCSVNew",
@@ -223,6 +225,15 @@ export function buildDelawareExpensesSearchFields(
     MemberId: "",
     txtCommitteeID: "",
     committeeNameData: "",
+    // Actual select names observed 2026-10-11. The older *Data names below
+    // are container aliases and cannot substitute for these controls.
+    CommitteeType: "",
+    FilingYear: "",
+    FilingPeriodName: "",
+    ddlPayeeType: "",
+    ddlState: "",
+    ddlExpenCategory: "",
+    ddlExpensePurpose: "",
     CommitteeTypeData: "",
     payeeTypeData: "",
     txtPayeeFirstName: "",
@@ -251,6 +262,13 @@ export type DelawareExpensesSearchField =
   | "MemberId"
   | "txtCommitteeID"
   | "committeeNameData"
+  | "CommitteeType"
+  | "FilingYear"
+  | "FilingPeriodName"
+  | "ddlPayeeType"
+  | "ddlState"
+  | "ddlExpenCategory"
+  | "ddlExpensePurpose"
   | "CommitteeTypeData"
   | "payeeTypeData"
   | "txtPayeeFirstName"
