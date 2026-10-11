@@ -1,6 +1,7 @@
 import {
   parseIllinoisSbeContributionRecordsCsv,
   parseIllinoisSbeExpenditureRecordsCsv,
+  hasIllinoisSbeExportCapWarning,
 } from "./illinoisSbeCsvReader.js";
 import type {
   IllinoisSbeContributionRecord,
@@ -30,6 +31,7 @@ export type {
   IllinoisSbeExpenditureRecord,
   IllinoisSbePartitionAmountWindow,
   IllinoisSbePartitionDateWindow,
+  IllinoisSbeReportSourceFields,
   IllinoisSbeSupportOppose,
 } from "./illinoisSbeCsvReader.js";
 
@@ -267,7 +269,12 @@ export function decodeIllinoisSbeText(buffer: ArrayBuffer): string {
   if (sample.length > 20 && nullOddCount > sample.length / 4) {
     return new TextDecoder("utf-16le").decode(bytes);
   }
-  return new TextDecoder("utf-8").decode(bytes);
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    // The official bulk registry contains Windows-1252 names, not UTF-8.
+    return new TextDecoder("windows-1252").decode(bytes);
+  }
 }
 
 function htmlDecode(value: string): string {
@@ -304,6 +311,10 @@ function readInputFields(html: string): HtmlFormFields {
       continue;
     }
     const type = attributes.type?.toLowerCase() ?? "text";
+    // A browser submits only the clicked button; Search is added explicitly below.
+    if (["submit", "reset", "button", "image", "file"].includes(type) || "disabled" in attributes) {
+      continue;
+    }
     if ((type === "radio" || type === "checkbox") && !("checked" in attributes)) {
       continue;
     }
@@ -365,7 +376,7 @@ class IllinoisSbeSession {
   async getText(url: string, context: string): Promise<{ text: string; url: string }> {
     const headers = new Headers({
       accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "user-agent": "voteApp Illinois campaign finance probe/1.0",
+      "user-agent": "Mozilla/5.0 (compatible; voteApp Illinois campaign finance/1.0)",
     });
     if (this.cookieHeader) {
       headers.set("cookie", this.cookieHeader);
@@ -405,7 +416,7 @@ class IllinoisSbeSession {
       "content-type": "application/x-www-form-urlencoded",
       origin: ILLINOIS_SBE_BASE_URL,
       referer: url,
-      "user-agent": "voteApp Illinois campaign finance probe/1.0",
+      "user-agent": "Mozilla/5.0 (compatible; voteApp Illinois campaign finance/1.0)",
     });
     if (this.cookieHeader) {
       headers.set("cookie", this.cookieHeader);
@@ -479,6 +490,9 @@ async function submitAndDownloadCsv(input: {
     fields: input.fields,
     submit: input.submit,
   });
+  if (hasIllinoisSbeExportCapWarning(result.text)) {
+    throw new IllinoisSbeClientError("bad_response", "Illinois SBE search export is capped");
+  }
   const downloadPage = await openDownloadList({
     session: input.session,
     resultUrl: result.url,
@@ -515,6 +529,7 @@ export async function fetchIllinoisSbeCandidateContributionsCsv(
       value: "Search",
     },
   });
+  parseIllinoisSbeContributionRecordsCsv(result.csv);
   return result.csv;
 }
 
@@ -541,6 +556,7 @@ export async function fetchIllinoisSbeCommitteeContributionsCsv(
       value: "Search",
     },
   });
+  parseIllinoisSbeContributionRecordsCsv(result.csv);
   return result.csv;
 }
 
@@ -569,6 +585,7 @@ export async function fetchIllinoisSbeIndependentExpendituresCsv(
       value: "Search",
     },
   });
+  parseIllinoisSbeExpenditureRecordsCsv(result.csv);
   return result.csv;
 }
 
