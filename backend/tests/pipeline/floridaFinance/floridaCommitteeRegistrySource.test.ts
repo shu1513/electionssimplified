@@ -182,6 +182,21 @@ describe("Florida bounded all-status registry source", () => {
       fullFields:{Email:expect.stringContaining('data-cfemail="'+encode("contact@example.org",11)+'"')}});
     expect(result.sourceHashes[2]).not.toBe(result.sourceHashes[3]);
   });
+  it("retains an observed protected numeric contact label without treating it as email or account evidence", async () => {
+    const encode=(value:string,key:number)=>key.toString(16).padStart(2,"0")+
+      [...Buffer.from(value)].map(v=>(v^key).toString(16).padStart(2,"0")).join("");
+    const m=mock([current],(raw,req,n)=>req.method==="GET"?envelope(detail(current).replace("</table>",
+      '<tr><td><b>Email:</b></td><td><a href="/cdn-cgi/l/email-protection#'+
+      encode("61154   ",req.phase==="opening"?10:20)+'">61154   </a></td></tr></table>'),req,n):raw);
+    const result=await createFloridaCommitteeRegistrySource(m).lookupDonor(receipt);
+    expect(result.identity?.committeeId).toBe("60813");
+    expect(result.registrations?.[0]?.rawFields?.detail).toMatchObject({fullFields:{
+      Email:expect.stringContaining(">61154   </a>")}});
+    const changed=mock([current],(raw,req,n)=>req.method==="GET"?envelope(detail(current).replace("</table>",
+      '<tr><td><b>Email:</b></td><td><a href="/cdn-cgi/l/email-protection#'+
+      encode(req.phase==="opening"?"61154":"61155",10)+'">61154</a></td></tr></table>'),req,n):raw);
+    expect((await createFloridaCommitteeRegistrySource(changed).lookupDonor(receipt)).status).toBe("unresolved");
+  });
   it.each(["changed_email","bad_hex","bad_utf8","conflicting_link","missing_span"])(
     "preserves malformed or changed protected email %s", async mode => {
     const encode=(value:Uint8Array,key:number)=>key.toString(16).padStart(2,"0")+

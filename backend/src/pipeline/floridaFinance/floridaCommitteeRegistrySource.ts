@@ -249,6 +249,14 @@ function projectProtectedEmail(value: string): string {
     const a = attrs(opening[0]), prefix = "/cdn-cgi/l/email-protection#";
     if (!a.href?.startsWith(prefix)) return block;
     const spans = [...block.matchAll(/<span\b([^>]*)>([\s\S]*?)<\/span\s*>/gi)];
+    // Observed account contact field also protects an unchanged numeric link label.
+    // It is retained as source contact text, never promoted to a legal account identity.
+    if (!spans.length) {
+      const decoded = decodedProtectedEmail(a.href.slice(prefix.length));
+      const label = text(block.slice(opening[0].length, -block.match(/<\/a\s*>$/i)![0].length));
+      if (!/^[0-9]+ *$/.test(decoded) || label !== decoded.trimEnd()) fail("unsupported protected contact link");
+      return block.replace(a.href, "mailto:" + decoded.trimEnd());
+    }
     if (spans.length !== 1) fail("ambiguous protected email span");
     const span = spans[0]!, fields = attrs("<span" + span[1] + ">");
     if (fields.class !== "__cf_email__" || !fields["data-cfemail"] ||
