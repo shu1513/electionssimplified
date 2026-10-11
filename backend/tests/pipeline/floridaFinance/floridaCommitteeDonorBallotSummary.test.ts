@@ -32,4 +32,16 @@ describe("Florida named committee card", () => {
     expect(result.get("candidate\u0000general")!.groups[0]!.amount).toBe(1000);
     expect(result.get("candidate\u0000other")!.groups[0]!.amount).toBe(500);
   });
+  it("uses trusted stored committee classification", () => {
+    expect(groupFloridaCommitteeDonorCards([{ ...row, industry_slug: "insurance", classification_source: "manual" }])
+      .get("candidate\u0000general")!.groups[0]!.interest).toBe("insurance");
+  });
+  it("stored low confidence cannot hide an unsorted donor", () => {
+    expect(groupFloridaCommitteeDonorCards([{ ...row, industry_slug: "leadership_pacs", classification_source: "ai", confidence: "low" }])
+      .get("candidate\u0000general")!.groups[0]!.interest).toBe("unclassified");
+  });
+  it("honors trusted hidden-interest classification", () => {
+    expect(groupFloridaCommitteeDonorCards([{ ...row, industry_slug: "leadership_pacs", classification_source: "manual" }])
+      .get("candidate\u0000general")!.groups).toEqual([]);
+  });
 });

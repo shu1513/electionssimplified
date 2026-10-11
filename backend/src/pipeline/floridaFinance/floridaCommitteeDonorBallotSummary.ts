@@ -1,11 +1,12 @@
 import type { Pool, PoolClient } from "pg";
 import type { BallotLookupFinancePacInterest } from "../address/ballotLookupFinanceShared.js";
-import { classifyPacInterest, PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
+import { classifyPacInterest, isPacInterestSlug, PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
 
 type Row = {
   candidate_id: string; election_id: string; committee_id: string | null;
   committee_name: string | null; committee_type: string | null;
   amount: string | number | null; source_url: string | null; verified_at: string;
+  industry_slug?: string | null; classification_source?: string | null; confidence?: string | null;
 };
 export type FloridaCommitteeDonorCard = { groups: BallotLookupFinancePacInterest[]; coverageNote: string };
 
@@ -20,7 +21,10 @@ export function groupFloridaCommitteeDonorCards(rows: readonly Row[]): Map<strin
     if (!row.committee_id || !row.committee_name || !["PAC", "CCE", "PTY", "PAP"].includes(row.committee_type ?? "")) continue;
     const amount = Number(row.amount);
     if (!Number.isFinite(amount) || amount <= 0) continue;
-    const interest = classifyPacInterest({ committeeName: row.committee_name, committeeType: null,
+    const storedInterest = row.industry_slug && isPacInterestSlug(row.industry_slug)
+      && (row.classification_source === "manual" || (row.confidence === "high"
+        && ["rule", "ai"].includes(row.classification_source ?? ""))) ? row.industry_slug : null;
+    const interest = storedInterest ?? classifyPacInterest({ committeeName: row.committee_name, committeeType: null,
       designation: null, organizationType: null, connectedOrganization: null }).interestSlug ?? UNCLASSIFIED_PAC_INTEREST;
     if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest)) continue;
     const group = card.groups.get(interest) ?? { interest, interest_name: pacInterestDisplayName(interest), amount: 0, pac_count: 0, pacs: [] };
@@ -55,14 +59,18 @@ export async function loadFloridaCommitteeDonorCards(
       JOIN public.fl_candidate_finance_pac_sources source
         ON source.link_id=link.id AND source.election_year=link.election_year
       ORDER BY link.candidate_id, link.election_id, source.source_account, source.last_synced_at DESC, link.id
-    ) SELECT owners.candidate_id::text, owners.election_id::text,
+    ), grouped AS (SELECT owners.candidate_id::text, owners.election_id::text,
       donor.committee_id, min(donor.committee_name) AS committee_name,
       min(donor.committee_type) AS committee_type, sum(donor.amount) AS amount,
       min(donor.source_url) AS source_url, min(owners.last_synced_at)::text AS verified_at
     FROM owners LEFT JOIN public.fl_candidate_finance_pac_donors donor
       ON donor.link_id=owners.link_id AND donor.election_year=owners.election_year
     GROUP BY owners.candidate_id, owners.election_id, donor.committee_id
-    ORDER BY owners.candidate_id, owners.election_id, amount DESC NULLS LAST, donor.committee_id
+    ) SELECT grouped.*, classification.industry_slug, classification.classification_source, classification.confidence
+      FROM grouped LEFT JOIN public.finance_label_classifications classification
+        ON classification.label_type='committee'
+        AND classification.normalized_label=public.normalize_finance_label(grouped.committee_name)
+      ORDER BY grouped.candidate_id, grouped.election_id, grouped.amount DESC NULLS LAST, grouped.committee_id
   `, [JSON.stringify(requests)]);
   return groupFloridaCommitteeDonorCards(result.rows);
 }
