@@ -223,12 +223,12 @@ function recordMatchesOffice(input: {
     return true;
   }
 
-  const committeeName = normalizeTextKey(input.record.committeeName ?? "");
-  if (input.expectedSeat === "AT-LARGE") {
-    if (/\bAT\s+LARGE\b/.test(committeeName)) {
-      return true;
-    }
-  } else if (committeeName.includes(input.expectedSeat)) {
+  // The committee name often carries the seat ("Doe for Ward 7", "Doe At
+  // Large"). The seat normalizer reads every spelling the seat column would
+  // ("Ward 07", "AtLarge", "citywide"), so read the name with it rather than
+  // a second regex that drifts from it.
+  const nameSeat = normalizeDistrictOfColumbiaOcfSeat(normalizeTextKey(input.record.committeeName ?? ""));
+  if (nameSeat === input.expectedSeat) {
     return true;
   }
 
@@ -238,8 +238,7 @@ function recordMatchesOffice(input: {
   // and says nothing about any seat cannot contradict the ward, so accept it;
   // the name and cycle checks still apply. A row that names some other seat
   // stays out.
-  const namesAnySeat = rowSeat !== null || /\bWARD\s*\d\b|\bAT\s+LARGE\b/.test(committeeName);
-  return !namesAnySeat && Boolean(input.record.candidateName?.trim());
+  return rowSeat === null && nameSeat === null && Boolean(input.record.candidateName?.trim());
 }
 
 function toCommitteeMatch(input: {

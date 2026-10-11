@@ -307,10 +307,18 @@ describe("districtOfColumbiaCandidateCommitteeResolver", () => {
       status: "matched",
       committeeKey: "COMMITTEE TO RE - ELECT ZACHARY PARKER 2026",
     });
-    // A committee that names another ward stays out.
+    // A committee that names another ward stays out, in any spelling the
+    // seat normalizer reads.
+    for (const committeeName of ["Parker for Ward 7", "Parker for Ward 07", "Parker for AtLarge", "Parker Citywide"]) {
+      expect(resolve([{ ...seatless, committeeName, committeeKey: committeeName.toUpperCase() }])).toMatchObject({
+        status: "unmatched",
+        reason: "no_candidate_committee_match",
+      });
+    }
+    // A committee that names this ward in a zero-padded spelling still links.
     expect(
-      resolve([{ ...seatless, committeeName: "Parker for Ward 7", committeeKey: "PARKER FOR WARD 7" }])
-    ).toMatchObject({ status: "unmatched", reason: "no_candidate_committee_match" });
+      resolve([{ ...seatless, committeeName: "Parker for Ward 05", committeeKey: "PARKER FOR WARD 05" }])
+    ).toMatchObject({ status: "matched", committeeKey: "PARKER FOR WARD 05" });
     // A row with no candidate name cannot use the seatless path.
     expect(
       resolve([{ ...seatless, candidateName: undefined }])
