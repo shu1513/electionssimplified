@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { isUuid } from "../../utils/uuid.js";
 
 import {
   autoLinkMissingOregonCandidateFinanceLinks,
@@ -45,6 +46,9 @@ export type OregonCandidateFinanceBatchSyncInput = {
   db: ConnectableQueryable;
   now?: Date;
   dryRun?: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -102,7 +106,8 @@ type OregonCandidateFinanceDueQueryRow = {
 
 const DEFAULT_MAX_CANDIDATES = 25;
 const DEFAULT_STALE_AFTER_DAYS = 7;
-const DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS = 1;
+// Rolling reports and later amendments remain due after election day.
+const DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS = 100;
 const DEFAULT_ELECTION_LOOKAHEAD_DAYS = 730;
 // A batch crawls hundreds of sequential ORESTAR pages; without a pause the
 // portal starts answering 403 partway through (seen live 2026-07-21).
@@ -188,8 +193,18 @@ export async function listDueOregonCandidateFinanceSyncRows(
     maxCandidates: number;
     electionLookbackDays: number;
     electionLookaheadDays: number;
+    refresh?: boolean;
+    candidateId?: string;
+    electionYear?: number;
   }
 ): Promise<{ rows: OregonCandidateFinanceDueRow[]; totalDueRows: number }> {
+  const candidateId = input.candidateId?.trim().toLowerCase() ?? null;
+  if (candidateId !== null && !isUuid(candidateId)) {
+    throw new Error("Oregon finance candidateId must be a UUID");
+  }
+  if (input.electionYear !== undefined && (!Number.isInteger(input.electionYear) || input.electionYear < 2000 || input.electionYear > 2100)) {
+    throw new Error("Oregon finance electionYear must be between 2000 and 2100");
+  }
   const result = await db.query<OregonCandidateFinanceDueQueryRow>(
     `
       WITH due AS (
@@ -234,8 +249,11 @@ export async function listDueOregonCandidateFinanceSyncRows(
           AND candidate_election.status NOT IN ('withdrawn', 'lost')
           AND (office.scope || '::' || office.canonical_name) = ANY($6::text[])
           AND nullif(trim(link.source_url), '') IS NOT NULL
+          AND ($8::uuid IS NULL OR link.candidate_id = $8::uuid)
+          AND ($9::int IS NULL OR link.election_year = $9::int)
           AND (
-            summary.last_synced_at IS NULL
+            $7::boolean
+            OR summary.last_synced_at IS NULL
             OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
           )
         ORDER BY summary.last_synced_at ASC NULLS FIRST,
@@ -266,6 +284,9 @@ export async function listDueOregonCandidateFinanceSyncRows(
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...OREGON_FINANCE_ELIGIBLE_OFFICE_KEYS],
+      input.refresh === true,
+      candidateId,
+      input.electionYear ?? null,
     ]
   );
 
@@ -280,6 +301,12 @@ export async function syncDueOregonCandidateFinance(
 ): Promise<OregonCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
+  if (input.candidateId !== undefined && !isUuid(input.candidateId.trim())) {
+    throw new Error("Oregon finance candidateId must be a UUID");
+  }
+  if (input.electionYear !== undefined && (!Number.isInteger(input.electionYear) || input.electionYear < 2000 || input.electionYear > 2100)) {
+    throw new Error("Oregon finance electionYear must be between 2000 and 2100");
+  }
 
   const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
   const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
@@ -307,7 +334,7 @@ export async function syncDueOregonCandidateFinance(
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
 
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (!dryRun && input.autoLinkMissingLinks !== false && input.candidateId === undefined && input.electionYear === undefined) {
     try {
       const missingLinkCandidates = await listOregonCandidateElectionsMissingFinanceLinks(input.db, {
         now,
@@ -374,6 +401,9 @@ export async function syncDueOregonCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    refresh: input.refresh,
+    candidateId: input.candidateId,
+    electionYear: input.electionYear,
   });
 
   const results: OregonCandidateFinanceBatchSyncItemResult[] = [];
