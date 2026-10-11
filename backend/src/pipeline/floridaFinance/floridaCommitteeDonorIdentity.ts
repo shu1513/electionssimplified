@@ -116,7 +116,7 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
     accountUrl(r.sourceUrl, r.committeeId) && dateEvidence(r.registration, "registration") &&
     dateEvidence(r.disbandment, "disbandment") &&
     (r.certificationRevocation == null ||
-      (r.committeeType === "CCE" && exactText(r.status) === "CLOSED" &&
+      (r.committeeType === "CCE" && ["CLOSED", "REVOKED"].includes(exactText(r.status)) &&
         isFloridaCommitteeCertificationRevocationEvidence(r.certificationRevocation))) &&
     !(r.registration && r.disbandment &&
       r.registration.effectiveDate &&
@@ -152,7 +152,7 @@ function outsideKnownLifetime(r: FloridaCommitteeDonorRegistration, date: string
     (r.disbandment?.closedBy && date > r.disbandment.closedBy) ||
     // This excludes a revoked certification only after the reviewed transition date.
     // It neither supplies voluntary disbandment nor accepts historical Closed receipts.
-    (r.certificationRevocation && r.committeeType === "CCE" && exactText(r.status) === "CLOSED" &&
+    (r.certificationRevocation && r.committeeType === "CCE" && ["CLOSED", "REVOKED"].includes(exactText(r.status)) &&
       date > r.certificationRevocation.revokedOn));
 }
 function registrationSupportsDate(r: FloridaCommitteeDonorRegistration, date: string): boolean {

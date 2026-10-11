@@ -250,7 +250,7 @@ describe("distinct source-fixed CCE certification revocation", () => {
     expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), committeeType }, current()])).status)
       .toBe("unresolved");
   });
-  it.each(["Active", "Unknown", ""])("never applies revocation to CCE status %s", status => {
+  it.each(["Active", "Unknown", "", "Revoke", "Revoked.", "Closed."])("never applies revocation to CCE status %s", status => {
     expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), status }, current()])).status)
       .toBe("unresolved");
   });
@@ -360,5 +360,21 @@ describe("source-witnessed terminal ROAD secondary-unit serialization", () => {
     const i = { ...input([old(), row({ address: "100 Full Road L103" })]), reportedAddress: "100 FULL ROAD SUITE L103" };
     expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedCityStateZip: "Wrong City, FL 32308" }).status).toBe("unresolved");
     expect(resolveFloridaCommitteeDonorIdentity({ ...i, reportedName: "Florida Home Builders PAC L103" }).status).toBe("not_found");
+  });
+});
+
+describe("source-reported Revoked CCE certification", () => {
+  it("excludes only the reviewed revoked certification after the bound, not an account closure", () => {
+    const historical = { ...old(), status: "Revoked", registration: null, disbandment: null,
+      certificationRevocation: FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY };
+    const rows = [historical, row()], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+    expect(resolveFloridaCommitteeDonorIdentity(input(rows)).identity?.committeeId).toBe("60813");
+    expect(historical.disbandment).toBeNull();
+    expect(historical.status).toBe("Revoked");
+    expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input(rows), transactionDate: "2013-09-30" }).status)
+      .toBe("unresolved");
+    expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical, certificationRevocation: undefined }, row()])).status)
+      .toBe("unresolved");
   });
 });
