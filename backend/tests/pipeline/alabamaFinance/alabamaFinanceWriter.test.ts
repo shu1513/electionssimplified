@@ -105,3 +105,108 @@ describe("Alabama outside unknown preservation", () => {
     assertNoOutsideMutations(client.query.mock.calls);
   });
 });
+
+function pacDonor(overrides: Partial<import("../../../src/pipeline/alabamaFinance/alabamaFinanceWriter.js").AlabamaFinancePacDonorInput> = {}) {
+  return {
+    committeeId: "24906", committeeName: "Electric Cooperatives of Alabama PAC",
+    committeeType: "Political Action Committee" as const, amount: 1500,
+    contributionCount: 1, sourceUrl: "https://fcpa.alabamavotes.gov/", ...overrides,
+  };
+}
+
+describe("Alabama optional PAC snapshots", () => {
+  it("writes public donor identities and removes stale donors inside the direct snapshot transaction", async () => {
+    const { db, client } = writingDb();
+    const result = await replaceAlabamaCandidateFinanceSnapshot({
+      db, link, syncedAt,
+      summary: { totalReceipts: 38000, directContributionTotal: 38000,
+        totalDisbursements: 0, cashOnHand: 38000, sourceUrl: null },
+      pacDonors: [pacDonor({ committeeId: " 24906 ", committeeName: " Electric Cooperatives of Alabama PAC " }),
+        pacDonor({ committeeId: "24907", committeeName: "Other PAC", amount: 0.29,
+          contributionCount: 2, sourceUrl: " " })],
+    });
+    const inserts = client.query.mock.calls.filter(([sql]) =>
+      String(sql).includes("INSERT INTO public.al_candidate_finance_pac_donors"));
+    expect(inserts).toHaveLength(2);
+    expect(inserts[0]?.[1]).toEqual([LINK_ID, 2026, "24906",
+      "Electric Cooperatives of Alabama PAC", "Political Action Committee", 1500, 1,
+      "https://fcpa.alabamavotes.gov/", syncedAt.toISOString()]);
+    expect(inserts[1]?.[1]?.slice(5, 8)).toEqual([0.29, 2, null]);
+    const cleanup = client.query.mock.calls.find(([sql]) =>
+      String(sql).includes("DELETE FROM public.al_candidate_finance_pac_donors"));
+    expect(cleanup?.[1]).toEqual([LINK_ID, 2026, ["24906", "24907"]]);
+    expect(result.pacDonorsWritten).toBe(2);
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements[0]).toBe("BEGIN");
+    expect(statements.at(-1)).toBe("COMMIT");
+    expect(statements.findIndex(sql => sql.includes("al_candidate_finance_summaries"))).toBeLessThan(
+      statements.findIndex(sql => sql.includes("INSERT INTO public.al_candidate_finance_pac_donors")));
+    assertNoOutsideMutations(client.query.mock.calls);
+  });
+
+  it("preserves omitted PAC snapshots and clears only an explicit empty snapshot", async () => {
+    const omitted = writingDb();
+    const omittedResult = await replaceAlabamaCandidateFinanceSnapshot({
+      db: omitted.db, link, syncedAt,
+    });
+    expect(omittedResult).not.toHaveProperty("pacDonorsWritten");
+    expect(omitted.client.query.mock.calls.some(([sql]) =>
+      String(sql).includes("al_candidate_finance_pac_donors"))).toBe(false);
+    const empty = writingDb();
+    const emptyResult = await replaceAlabamaCandidateFinanceSnapshot({
+      db: empty.db, link, syncedAt, pacDonors: [],
+    });
+    const cleanup = empty.client.query.mock.calls.find(([sql]) =>
+      String(sql).includes("DELETE FROM public.al_candidate_finance_pac_donors"));
+    expect(cleanup?.[1]).toEqual([LINK_ID, 2026, []]);
+    expect(emptyResult.pacDonorsWritten).toBe(0);
+    assertNoOutsideMutations(empty.client.query.mock.calls);
+  });
+
+  it.each([
+    { amount: 0 }, { amount: -1 }, { amount: NaN }, { amount: Infinity },
+    { amount: 0.001 }, { amount: 0.1 + 0.2 }, { amount: Number.MAX_SAFE_INTEGER },
+    { contributionCount: 0 }, { contributionCount: 1.5 },
+    { contributionCount: 2_147_483_648 }, { contributionCount: Number.MAX_SAFE_INTEGER },
+    { committeeId: "0" }, { committeeId: "00123" }, { committeeId: "33A" },
+    { committeeId: "9007199254740992" }, { committeeName: " " },
+    { committeeType: "Principal Campaign Committee" as never },
+  ])("rejects an invalid donor snapshot before any transaction: %j", async overrides => {
+    const { db, client } = writingDb();
+    await expect(replaceAlabamaCandidateFinanceSnapshot({
+      db, link, pacDonors: [pacDonor(overrides)],
+    })).rejects.toThrow(/Alabama PAC donor/);
+    expect(db.connect).not.toHaveBeenCalled();
+    expect(client.query).not.toHaveBeenCalled();
+  });
+
+  it("rejects duplicate trimmed public donor identities before writes", async () => {
+    const { db } = writingDb();
+    await expect(replaceAlabamaCandidateFinanceSnapshot({
+      db, link, pacDonors: [pacDonor(), pacDonor({ committeeId: " 24906 " })],
+    })).rejects.toThrow("duplicate public committee ids");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("rolls back the direct summary if PAC stale deletion fails", async () => {
+    const { db, client } = writingDb();
+    client.query.mockImplementation(async (sql: unknown) => {
+      if (String(sql).includes("DELETE FROM public.al_candidate_finance_pac_donors")) {
+        throw new Error("PAC delete failed");
+      }
+      return String(sql).includes("INSERT INTO public.al_candidate_finance_links")
+        ? { rows: [{ id: LINK_ID }], rowCount: 1 } : { rows: [], rowCount: 0 };
+    });
+    await expect(replaceAlabamaCandidateFinanceSnapshot({
+      db, link, syncedAt, pacDonors: [pacDonor()],
+      summary: { totalReceipts: 100, directContributionTotal: 100,
+        totalDisbursements: 0, cashOnHand: 100, sourceUrl: null },
+    })).rejects.toThrow("PAC delete failed");
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some(sql => sql.includes("INSERT INTO public.al_candidate_finance_summaries"))).toBe(true);
+    expect(statements.some(sql => sql.includes("INSERT INTO public.al_candidate_finance_pac_donors"))).toBe(true);
+    expect(statements.at(-1)).toBe("ROLLBACK");
+    expect(statements).not.toContain("COMMIT");
+    expect(client.release).toHaveBeenCalledOnce();
+  });
+});
