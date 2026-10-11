@@ -231,6 +231,7 @@ export async function getAlabamaRaceRows(
 export type AlabamaCommitteeSearchRow = {
   id: number;
   committeeId: string;
+  committeeName?: string | null;
   candidateFirstName?: string | null;
   candidateMiddleName?: string | null;
   candidateLastName?: string | null;
@@ -243,6 +244,98 @@ export type AlabamaCommitteeSearchRow = {
   committeeState?: string | null;
   registeredDate?: string | null;
 };
+
+/** Type comes from the registry query: the public rows omit committeeType. */
+export type AlabamaCommitteeRegistryRow = AlabamaCommitteeSearchRow & {
+  committeeType: "1" | "2";
+};
+
+/**
+ * Complete all-status PCC and PAC registry. Unlike the legacy filings pager,
+ * identity acquisition cannot accept an advertised one-row shortfall.
+ * Identical duplicates occur in the official PAC registry; conflicting public
+ * or internal identities invalidate the whole registry.
+ */
+export async function getAlabamaCommitteeRegistry(
+  options: AlabamaFcpaClientOptions = {}
+): Promise<AlabamaCommitteeRegistryRow[]> {
+  const rows: AlabamaCommitteeRegistryRow[] = [];
+  const byInternalId = new Map<number, string>();
+  const byPublicId = new Map<string, number>();
+  const optionalTextFields = [
+    "committeeName", "candidateFirstName", "candidateMiddleName", "candidateLastName",
+    "city", "committeeStatus", "office", "party", "jurisdiction", "place",
+    "committeeState", "registeredDate",
+  ];
+  for (const committeeType of ["1", "2"] as const) {
+    let expected: number | undefined;
+    let acquired = 0;
+    const pageFingerprints = new Set<string>();
+    for (let pageNumber = 1; pageNumber <= MAX_PAGES; pageNumber += 1) {
+      const page = await requestListPage<Record<string, unknown>>(
+        "com.acf.common.page.committeesearchresults",
+        {
+          sortDirection: "ASC",
+          sortBy: "id",
+          criteria: JSON.stringify([{
+            field_key: "committeeType", comparison_type: "equalTo",
+            comparison_value_1: committeeType,
+          }]),
+          pageNumber: String(pageNumber), pageSize: "1000",
+        },
+        options
+      );
+      if (!Number.isSafeInteger(page.totalRecords) || page.totalRecords < 0) {
+        throw new AlabamaFcpaClientError("bad_response", "Alabama registry has an invalid totalRecords");
+      }
+      expected ??= page.totalRecords;
+      if (page.totalRecords !== expected) {
+        throw new AlabamaFcpaClientError("bad_response", "Alabama registry totalRecords changed mid-pagination");
+      }
+      if (page.list.length > 1000 || acquired + page.list.length > expected) {
+        throw new AlabamaFcpaClientError("bad_response", "Alabama registry exceeded its advertised row count");
+      }
+      const normalizedPage: string[] = [];
+      for (const raw of page.list) {
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)
+          || typeof raw.id !== "number" || !Number.isSafeInteger(raw.id) || raw.id <= 0
+          || typeof raw.committeeId !== "string" || !/^[1-9]\d*$/.test(raw.committeeId)
+          || !Number.isSafeInteger(Number(raw.committeeId))
+          || optionalTextFields.some((key) => raw[key] !== undefined && raw[key] !== null && typeof raw[key] !== "string")
+          || (raw.committeeType !== undefined && raw.committeeType !== committeeType)) {
+          throw new AlabamaFcpaClientError("bad_response", "Alabama registry returned an invalid committee identity");
+        }
+        const fingerprint = JSON.stringify(Object.fromEntries(
+          Object.keys(raw).sort().map((key) => [key, raw[key]])
+        ));
+        normalizedPage.push(fingerprint);
+        const identity = JSON.stringify([committeeType, fingerprint]);
+        const prior = byInternalId.get(raw.id);
+        const priorPublic = byPublicId.get(raw.committeeId);
+        if ((prior !== undefined && prior !== identity)
+          || (priorPublic !== undefined && priorPublic !== raw.id)) {
+          throw new AlabamaFcpaClientError("bad_response", "Alabama registry returned conflicting committee identities");
+        }
+        if (prior === undefined) {
+          byInternalId.set(raw.id, identity);
+          byPublicId.set(raw.committeeId, raw.id);
+          rows.push({ ...(raw as AlabamaCommitteeSearchRow), committeeType });
+        }
+      }
+      const pageFingerprint = JSON.stringify(normalizedPage);
+      if (page.list.length > 0 && pageFingerprints.has(pageFingerprint)) {
+        throw new AlabamaFcpaClientError("bad_response", "Alabama registry repeated a page");
+      }
+      pageFingerprints.add(pageFingerprint);
+      acquired += page.list.length;
+      if (acquired === expected) break;
+      if (page.list.length === 0 || pageNumber === MAX_PAGES) {
+        throw new AlabamaFcpaClientError("bad_response", `Alabama registry returned ${acquired} of ${expected} rows`);
+      }
+    }
+  }
+  return rows;
+}
 
 export type AlabamaCommitteeSearchCriteria = {
   candidateLastName?: string;
