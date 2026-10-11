@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   fingerprintFloridaCommitteeDonorRegistrations,
+  FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY,
   resolveFloridaCommitteeDonorIdentity,
   type FloridaCommitteeDonorRegistration,
 } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
@@ -216,5 +217,64 @@ describe("Florida source-qualified committee donor identity", () => {
     { registrations: [row({ registration: { ...evidence("2013-08-13"), sourceUrl: "https://example.com/proof" } })] },
   ])("preserves invalid dates/source identity %#", change => {
     expect(resolveFloridaCommitteeDonorIdentity({ ...input(), ...change }).status).toBe("unresolved");
+  });
+});
+
+describe("distinct source-fixed CCE certification revocation", () => {
+  const authority = FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+  const historical = () => oldWithAuthority();
+  function oldWithAuthority(): FloridaCommitteeDonorRegistration {
+    return { ...old(), registration: null, disbandment: null, certificationRevocation: authority };
+  }
+  const current = () => row({ registration: { activeBy: "2010-01-01",
+    sourceUrl: evidence("").sourceUrl, sha256: evidence("").sha256 } });
+  it("excludes only the Closed CCE certification after the bound without inventing closure dates", () => {
+    const h = historical(), rows = [h, current()], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+    const resolved = resolveFloridaCommitteeDonorIdentity(input(rows));
+    expect(resolved.identity).toMatchObject({ committeeId: "60813", resolution: "dated_exact_address" });
+    expect(h.registration).toBeNull(); expect(h.disbandment).toBeNull();
+    expect(h.certificationRevocation).not.toHaveProperty("closedBy");
+    expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+    expect(Object.isFrozen(authority)).toBe(true);
+    expect(Reflect.set(authority, "revokedOn", "2013-08-01")).toBe(false);
+  });
+  it.each(["2013-09-29", "2013-09-30"])("does not resolve the transition/historical collision on %s", transactionDate => {
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([historical(), current()]), transactionDate }).status)
+      .toBe("unresolved");
+  });
+  it("uses the strictly-after boundary, not inclusive closure-date semantics", () => {
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([historical(), current()]), transactionDate: "2013-10-01" })
+      .identity?.committeeId).toBe("60813");
+  });
+  it.each(["PAC", "PTY", "PAP", "ECO", "ECI", "IXO", "FUTURE"])("never applies revocation to %s", committeeType => {
+    expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), committeeType }, current()])).status)
+      .toBe("unresolved");
+  });
+  it.each(["Active", "Unknown", ""])("never applies revocation to CCE status %s", status => {
+    expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), status }, current()])).status)
+      .toBe("unresolved");
+  });
+  it.each([
+    { revokedOn: "2013-09-29" }, { section: "2(4)" }, { sha256: "a".repeat(64) },
+    { sourceUrl: authority.sourceUrl + "?version=old" },
+    { sourceUrl: "https://www.flsenate.gov/Session/Bill/2013/569/BillText/e2/PDF" },
+    { sourceUrl: "https://example.com/law.pdf" }, { closedBy: "2013-09-30" },
+  ])("preserves changed or mixed law authority %#", change => {
+    const h = { ...historical(), certificationRevocation: { ...authority, ...change } };
+    expect(resolveFloridaCommitteeDonorIdentity(input([h as FloridaCommitteeDonorRegistration, current()])).status)
+      .toBe("unresolved");
+  });
+  it("still requires competing PAC registration, full address, locality and uniqueness", () => {
+    for (const r of [row({ registration: null }), current()]) {
+      const i = input([historical(), r]);
+      if (r.registration) i.reportedAddress = "Changed Street";
+      expect(resolveFloridaCommitteeDonorIdentity(i).status).toBe("unresolved");
+    }
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([historical(), current()]), reportedCityStateZip: "Wrong Town, FL 32308" }).status)
+      .toBe("unresolved");
+    const third = row({ committeeId: "77777", sourceUrl: url("77777"), registration: current().registration });
+    expect(resolveFloridaCommitteeDonorIdentity(input([historical(), current(), third])).status).toBe("unresolved");
+    expect(resolveFloridaCommitteeDonorIdentity(input([{ ...historical(), certificationRevocation: undefined }, current()])).status)
+      .toBe("unresolved");
   });
 });

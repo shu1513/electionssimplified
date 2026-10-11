@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import type { FloridaProcessedRawEvidence } from "./floridaProcessedFinanceSource.js";
 import {
   fingerprintFloridaCommitteeDonorRegistrations,
+  FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY,
+  isFloridaCommitteeCertificationRevocationEvidence,
+  type FloridaCommitteeCertificationRevocationEvidence,
   resolveFloridaCommitteeDonorIdentity,
   type FloridaCommitteeDateEvidence,
   type FloridaCommitteeDonorIdentityResult,
@@ -24,6 +27,8 @@ export type FloridaCommitteeRegistryRequest = {
 /** Human-reviewed account/date binding; this adapter does not infer PDF identity or dates. */
 export type FloridaReviewedCommitteeDates = {
   committeeId: string;
+  certificationRevocation?: Pick<FloridaCommitteeCertificationRevocationEvidence, "revokedOn" | "section"> &
+    { document: FloridaProcessedRawEvidence };
   registration?: (
     | { effectiveDate: string; activeBy?: never }
     | { activeBy: string; effectiveDate?: never }
@@ -78,7 +83,9 @@ function checkedRaw(raw: FloridaProcessedRawEvidence, expected: FloridaCommittee
     !/^[a-f0-9]{64}$/.test(raw.sha256)) fail("invalid raw response/hash/status");
   let u: URL;
   try { u = new URL(raw.url); } catch { return fail("invalid official URL"); }
-  if (u.origin !== ORIGIN || u.username || u.password || u.hash || raw.url !== expected.url) fail("wrong official request URL");
+  const allowedOrigin = pdf && expected.url === FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY.sourceUrl
+    ? new URL(FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY.sourceUrl).origin : ORIGIN;
+  if (u.origin !== allowedOrigin || u.port || u.username || u.password || u.hash || raw.url !== expected.url) fail("wrong official request URL");
   const start = Date.parse(raw.startedAt), end = Date.parse(raw.completedAt);
   if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) fail("invalid capture interval");
   const a = raw.financeFields, b = expected.financeFields;
@@ -121,7 +128,7 @@ function tableRows(table: string): string[][] {
 }
 function detailUrl(s: string, expectedId?: string): string {
   const u = new URL(s, SEARCH);
-  if (u.origin !== ORIGIN || u.username || u.password || u.hash || u.pathname !== "/committees/ComDetail.asp" ||
+  if (u.origin !== ORIGIN || u.port || u.username || u.password || u.hash || u.pathname !== "/committees/ComDetail.asp" ||
     [...u.searchParams.keys()].length !== 1) fail("wrong public account href");
   const account = id(u.searchParams.get("account") ?? "");
   const canonical = ORIGIN + "/committees/ComDetail.asp?account=" + account;
@@ -285,6 +292,11 @@ function detailSemantics(detail: FloridaCommitteeDetail): FloridaCommitteeDetail
   return { ...detail, fullFields };
 }
 
+/** Full published detail fingerprint; only observed Cloudflare transport encoding is decoded. */
+export function fingerprintFloridaCommitteeDetailSemantics(detail: FloridaCommitteeDetail): string {
+  return sha(JSON.stringify(detailSemantics(detail)));
+}
+
 /** Two neighboring literal prefixes avoid observed long-name500s and broad first-word queries. */
 export function buildFloridaCommitteeDonorPrefixes(name: string): readonly [string, string] {
   const n = display(name);
@@ -325,6 +337,22 @@ function reviewedDate(account: string, kind: "registration" | "disbandment", rec
   if (field === "activeBy") return { ...source, activeBy: bound };
   return { ...source, closedBy: bound };
 }
+function reviewedCertificationRevocation(
+  account: string, records: readonly FloridaReviewedCommitteeDates[]
+): FloridaCommitteeCertificationRevocationEvidence | null {
+  const matches = records.filter(r => r.committeeId === account && r.certificationRevocation);
+  if (matches.length > 1) fail("conflicting reviewed certification revocation");
+  const entry = matches[0]?.certificationRevocation;
+  if (!entry) return null;
+  if (Object.keys(entry).length !== 3 || !Object.hasOwn(entry, "document"))
+    fail("invalid distinct certification revocation fields");
+  const evidence = { revokedOn: entry.revokedOn, section: entry.section,
+    sourceUrl: entry.document.url, sha256: entry.document.sha256 };
+  if (!isFloridaCommitteeCertificationRevocationEvidence(evidence))
+    fail("unreviewed certification revocation authority");
+  checkedRaw(entry.document, { url: evidence.sourceUrl, method: "GET", financeFields: null }, true);
+  return evidence;
+}
 export function createFloridaCommitteeRegistrySource(options: {
   request: (request: FloridaCommitteeRegistryRequest) => Promise<FloridaProcessedRawEvidence>;
   reviewedDates?: readonly FloridaReviewedCommitteeDates[];
@@ -363,7 +391,7 @@ export function createFloridaCommitteeRegistrySource(options: {
           hashes.push(raw.sha256);
           if (Date.parse(raw.startedAt) < openingEnd) fail("closing detail predates opening generation");
           const d = decodeFloridaCommitteeDetail(raw, { committeeId: r.committeeId });
-          if (JSON.stringify(detailSemantics(d)) !== JSON.stringify(detailSemantics(details.get(r.committeeId)!))) fail("changed complete account detail");
+          if (fingerprintFloridaCommitteeDetailSemantics(d) !== fingerprintFloridaCommitteeDetailSemantics(details.get(r.committeeId)!)) fail("changed complete account detail");
         }
         for (const p of prefixes) closing.push(await search(p, true));
         if (opening.some((r, i) => multiset(r) !== multiset(closing[i]!))) fail("changed all-status query row multiset");
@@ -373,6 +401,8 @@ export function createFloridaCommitteeRegistrySource(options: {
           return { ...r, address: d?.address ?? "", cityStateZip: d?.cityStateZip ?? "",
             registration: reviewedDate(r.committeeId, "registration", reviewedDates),
             disbandment: reviewedDate(r.committeeId, "disbandment", reviewedDates),
+            ...(reviewedDates.some(record => record.committeeId === r.committeeId && record.certificationRevocation)
+              ? { certificationRevocation: reviewedCertificationRevocation(r.committeeId, reviewedDates) } : {}),
             rawFields: { queryCells: r.rawFields, detail: d ?? null } };
         });
         const fp = fingerprintFloridaCommitteeDonorRegistrations(registrations);

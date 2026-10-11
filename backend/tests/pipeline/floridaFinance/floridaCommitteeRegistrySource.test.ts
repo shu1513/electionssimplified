@@ -1,8 +1,9 @@
+import { FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { FloridaProcessedRawEvidence } from "../../../src/pipeline/floridaFinance/floridaProcessedFinanceSource.js";
 import { buildFloridaCommitteeDonorPrefixes, createFloridaCommitteeRegistrySource,
-  decodeFloridaCommitteeDetail, decodeFloridaCommitteeNameSearch,
+  decodeFloridaCommitteeDetail, decodeFloridaCommitteeNameSearch, fingerprintFloridaCommitteeDetailSemantics,
   type FloridaCommitteeRegistryRequest, type FloridaReviewedCommitteeDates,
 } from "../../../src/pipeline/floridaFinance/floridaCommitteeRegistrySource.js";
 const origin = "https://dos.elections.myflorida.com";
@@ -293,5 +294,31 @@ describe("Florida bounded all-status registry source", () => {
     expect(buildFloridaCommitteeDonorPrefixes("Florida Name (Exact) Political Action Committee").every(x=>
       "Florida Name (Exact) Political Action Committee".startsWith(x))).toBe(true);
     expect(()=>buildFloridaCommitteeDonorPrefixes("A")).toThrow();
+  });
+});
+
+describe("distinct certification authority at raw registry boundary", () => {
+  it("does not trust forged enrolled-PDF metadata while preserving financial query captures", async () => {
+    const a = FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+    const source = mock([historical,current]);
+    const body = Buffer.from("%PDF-1.4\nnot the reviewed enrolled law");
+    const document: FloridaProcessedRawEvidence = { bytesRaw: body, sha256: a.sha256, url: a.sourceUrl,
+      method: "GET", financeFields: null, status: 200, contentType: "application/pdf",
+      startedAt: "2026-10-11T19:00:00.000Z", completedAt: "2026-10-11T19:00:01.000Z" };
+    const result = await createFloridaCommitteeRegistrySource({ request: source.request, reviewedDates: [{
+      committeeId: "1997", certificationRevocation: { revokedOn: a.revokedOn, section: a.section, document },
+    }] }).lookupDonor(receipt);
+    expect(result.status).toBe("unresolved");
+    expect(result.diagnostics.join(" ")).toContain("raw response/hash/status");
+    expect(source.calls).toHaveLength(8);
+  });
+  it("exports full source detail semantics without dropping address or legal identity fields", () => {
+    const raw = envelope(detail(current), { url: url(current.id), method: "GET", financeFields: null });
+    const d = decodeFloridaCommitteeDetail(raw,{committeeId:current.id});
+    const fp = fingerprintFloridaCommitteeDetailSemantics(d);
+    expect(fp).toMatch(/^[a-f0-9]{64}$/);
+    expect(fingerprintFloridaCommitteeDetailSemantics({ ...d, address: "Changed Street" })).not.toBe(fp);
+    expect(fingerprintFloridaCommitteeDetailSemantics({ ...d, committeeType: "CCE" })).not.toBe(fp);
+    expect(d.fullFields.Chairperson).toContain("Published Address");
   });
 });

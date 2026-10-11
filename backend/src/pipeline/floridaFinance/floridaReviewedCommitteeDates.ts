@@ -3,6 +3,8 @@ import { open } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import type { FloridaReviewedCommitteeDates } from "./floridaCommitteeRegistrySource.js";
 import type { FloridaProcessedRawEvidence } from "./floridaProcessedFinanceSource.js";
+import { FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY,
+  isFloridaCommitteeCertificationRevocationEvidence } from "./floridaCommitteeDonorIdentity.js";
 
 const MAX_MANIFEST_BYTES = 1024 * 1024;
 const MAX_METADATA_BYTES = 64 * 1024;
@@ -65,9 +67,13 @@ function validatePdfUrl(value: unknown): string {
       !/^[1-9]\d*$/.test(url.searchParams.get("TrackNum") ?? "")) fail("invalid official PDF URL");
   return value;
 }
-async function loadPdf(metadataPath: string): Promise<FloridaProcessedRawEvidence> {
+async function loadPdf(metadataPath: string, certificationRevocation = false): Promise<FloridaProcessedRawEvidence> {
   const meta = object(await json(metadataPath, MAX_METADATA_BYTES), "PDF metadata");
-  const url = validatePdfUrl(meta.url);
+  const url = certificationRevocation
+    ? FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY.sourceUrl : validatePdfUrl(meta.url);
+  if (certificationRevocation && (meta.url !== url ||
+    meta.sha256 !== FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY.sha256))
+    fail("unreviewed certification revocation document");
   if (meta.status !== 200 || meta.method !== "GET" || meta.financeFields !== null ||
       typeof meta.contentType !== "string" || !/^application\/pdf(?:\s*;|$)/i.test(meta.contentType) ||
       !Number.isSafeInteger(meta.bytes) || (meta.bytes as number) < 5 || (meta.bytes as number) > MAX_PDF_BYTES ||
@@ -99,7 +105,7 @@ export async function loadFloridaReviewedCommitteeDates(manifestPath: string): P
   const result: FloridaReviewedCommitteeDates[] = [];
   for (const rawRecord of manifest.records) {
     const record = object(rawRecord, "record");
-    keys(record, ["committeeId", "registration", "disbandment"], "record");
+    keys(record, ["committeeId", "registration", "disbandment", "certificationRevocation"], "record");
     if (typeof record.committeeId !== "string" || !/^[1-9]\d*$/.test(record.committeeId) ||
         !Number.isSafeInteger(Number(record.committeeId))) fail("invalid committee account");
     if (seen.has(record.committeeId)) fail("duplicate committee account");
@@ -126,7 +132,18 @@ export async function loadFloridaReviewedCommitteeDates(manifestPath: string): P
           : { closedBy: reviewedDate, document };
       }
     }
-    if (!output.registration && !output.disbandment) fail("record has no reviewed date");
+    if ("certificationRevocation" in record) {
+      const entry = object(record.certificationRevocation, "certification revocation");
+      keys(entry, ["revokedOn", "section", "metadataPath"], "certification revocation");
+      const authority = FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+      if (!isFloridaCommitteeCertificationRevocationEvidence({ revokedOn: entry.revokedOn,
+        section: entry.section, sourceUrl: authority.sourceUrl, sha256: authority.sha256 }))
+        fail("unreviewed certification revocation authority");
+      const document = await loadPdf(path(entry.metadataPath, dirname(absolutePath)), true);
+      output.certificationRevocation = { revokedOn: authority.revokedOn, section: authority.section, document };
+    }
+    if (!output.registration && !output.disbandment && !output.certificationRevocation)
+      fail("record has no reviewed date or distinct authority");
     const exactRegistration = output.registration && "effectiveDate" in output.registration
       ? output.registration.effectiveDate : undefined;
     const closureBy = output.disbandment && ("effectiveDate" in output.disbandment

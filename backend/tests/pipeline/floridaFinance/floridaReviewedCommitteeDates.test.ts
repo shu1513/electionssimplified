@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
 import { loadFloridaReviewedCommitteeDates } from "../../../src/pipeline/floridaFinance/floridaReviewedCommitteeDates.js";
 
 let directory: string;
@@ -151,5 +152,36 @@ describe("human-reviewed committee date artifacts", () => {
     await loadFloridaReviewedCommitteeDates(path);
     expect(await readFile(path)).toEqual(original);
     expect(await readFile(join(directory, "pdf.raw"))).toEqual(pdf);
+  });
+});
+
+
+describe("reviewed distinct certification-revocation artifacts", () => {
+  const authority = FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+  const revocation = { revokedOn: authority.revokedOn, section: authority.section, metadataPath: "pdf.json" };
+  it("does not accept arbitrary PDF bodies even with the reviewed law URL", async () => {
+    await metadata({ url: authority.sourceUrl });
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "5478", certificationRevocation: revocation,
+    }] }))).rejects.toThrow("unreviewed certification revocation document");
+  });
+  it("hashes untouched bytes rather than trusting caller-supplied authority SHA", async () => {
+    await metadata({ url: authority.sourceUrl, sha256: authority.sha256 });
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "5478", certificationRevocation: revocation,
+    }] }))).rejects.toThrow("hash/magic mismatch");
+  });
+  it.each([
+    { revokedOn: "2013-10-01" }, { section: "2(4)" }, { closedBy: "2013-09-30" },
+    { effectiveDate: "2013-09-30" }, { guessed: true },
+  ])("rejects unreviewed or disguised law entries %#", change => {
+    return expect(manifest({ version: 1, records: [{ committeeId: "5478",
+      certificationRevocation: { ...revocation, ...change } }] }).then(loadFloridaReviewedCommitteeDates))
+      .rejects.toThrow();
+  });
+  it("rejects missing metadata without translating law into an account closure", async () => {
+    await expect(loadFloridaReviewedCommitteeDates(await manifest({ version: 1, records: [{
+      committeeId: "5478", certificationRevocation: { revokedOn: authority.revokedOn, section: authority.section },
+    }] }))).rejects.toThrow();
   });
 });

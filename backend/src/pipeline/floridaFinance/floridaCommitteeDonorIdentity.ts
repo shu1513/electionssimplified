@@ -9,6 +9,24 @@ export type FloridaCommitteeDateEvidence = FloridaCommitteeDateBound & {
   sourceUrl: string;
   sha256: string;
 };
+/** Reviewed chapter2013-37 certification revocation; not an account closure date. */
+export const FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY = Object.freeze({
+  revokedOn: "2013-09-30",
+  section: "2(2)",
+  sourceUrl: "https://www.flsenate.gov/Session/Bill/2013/569/BillText/er/PDF",
+  sha256: "928181e735a04e369be096aa269526557082391cbbd208bdc1a0a0b49d8eb050",
+} as const);
+export type FloridaCommitteeCertificationRevocationEvidence =
+  typeof FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+export function isFloridaCommitteeCertificationRevocationEvidence(
+  value: unknown
+): value is FloridaCommitteeCertificationRevocationEvidence {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const authority = FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY;
+  return Object.keys(record).length === Object.keys(authority).length &&
+    Object.entries(authority).every(([key, expected]) => record[key] === expected);
+}
 export type FloridaCommitteeDonorRegistration = {
   committeeId: string;
   committeeName: string;
@@ -19,6 +37,7 @@ export type FloridaCommitteeDonorRegistration = {
   sourceUrl: string;
   registration: FloridaCommitteeDateEvidence | null;
   disbandment: FloridaCommitteeDateEvidence | null;
+  certificationRevocation?: FloridaCommitteeCertificationRevocationEvidence | null;
   rawFields?: Readonly<Record<string, unknown>>;
 };
 export type FloridaCommitteeDonorQueryProof = {
@@ -96,6 +115,9 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
     Boolean(exactText(r.committeeName)) && Boolean(exactText(r.committeeType)) &&
     accountUrl(r.sourceUrl, r.committeeId) && dateEvidence(r.registration, "registration") &&
     dateEvidence(r.disbandment, "disbandment") &&
+    (r.certificationRevocation == null ||
+      (r.committeeType === "CCE" && exactText(r.status) === "CLOSED" &&
+        isFloridaCommitteeCertificationRevocationEvidence(r.certificationRevocation))) &&
     !(r.registration && r.disbandment &&
       r.registration.effectiveDate &&
       (r.disbandment.effectiveDate || r.disbandment.closedBy) &&
@@ -118,7 +140,11 @@ function sameAddress(
 function outsideKnownLifetime(r: FloridaCommitteeDonorRegistration, date: string): boolean {
   return Boolean((r.registration?.effectiveDate && date < r.registration.effectiveDate) ||
     (r.disbandment?.effectiveDate && date >= r.disbandment.effectiveDate) ||
-    (r.disbandment?.closedBy && date > r.disbandment.closedBy));
+    (r.disbandment?.closedBy && date > r.disbandment.closedBy) ||
+    // This excludes a revoked certification only after the reviewed transition date.
+    // It neither supplies voluntary disbandment nor accepts historical Closed receipts.
+    (r.certificationRevocation && r.committeeType === "CCE" && exactText(r.status) === "CLOSED" &&
+      date > r.certificationRevocation.revokedOn));
 }
 function registrationSupportsDate(r: FloridaCommitteeDonorRegistration, date: string): boolean {
   const bound = r.registration?.effectiveDate ?? r.registration?.activeBy;
