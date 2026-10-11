@@ -19,6 +19,7 @@ import {
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { ALABAMA_DIRECT_COVERAGE_NOTE } from "./alabamaDirectFinanceAggregator.js";
+
 import { isAlabamaFinanceEligibleOffice } from "./alabamaFinanceEligibleOffices.js";
 
 import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
@@ -27,6 +28,8 @@ import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTE
 type Queryable = Pick<Pool | PoolClient, "query">;
 
 const ALABAMA_FCPA_SOURCE_URL = "https://fcpa.alabamavotes.gov/";
+const ALABAMA_PAC_COVERAGE_NOTE =
+  "PAC counts represent source-reported donor groups. Name aliases may split a legal PAC; identical reported names may combine legal PACs. PAC amounts are a subset of Raised.";
 const ALABAMA_OUTSIDE_COVERAGE_NOTE =
   "This integration lacks verified candidate-specific outside spending dollar coverage. Unknown totals are unavailable rather than zero; previously stored outside components are preserved.";
 
@@ -125,7 +128,7 @@ export async function loadAlabamaCandidateFinanceSummariesByCandidateElection(
     sourceUrl: ALABAMA_FCPA_SOURCE_URL,
     enabled: isAlabamaCampaignFinanceEnabled,
     isEligibleElection: (row) => isAlabamaFinanceEligibleOffice(officeInputFromElectionRow(row)),
-    directCoverageNote: ALABAMA_DIRECT_COVERAGE_NOTE,
+    directCoverageNote: ALABAMA_DIRECT_COVERAGE_NOTE + " " + ALABAMA_PAC_COVERAGE_NOTE,
     outsideCoverageNote: ALABAMA_OUTSIDE_COVERAGE_NOTE,
     tables: {
       links: "al_candidate_finance_links",

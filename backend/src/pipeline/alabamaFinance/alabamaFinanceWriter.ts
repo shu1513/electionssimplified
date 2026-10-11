@@ -57,7 +57,7 @@ export type AlabamaFinanceDirectBreakdownInput =
   StandardStateFinanceDirectBreakdownInput<"contribution_size">;
 
 export type AlabamaFinancePacDonorInput = {
-  /** Public FCPA committee number, not the portal internal committee id. */
+  /** Public FCPA number, or reported:<normalized name> identifying a reported donor group, not a legal committee. */
   committeeId: string;
   committeeName: string;
   committeeType: "Political Action Committee";
@@ -170,16 +170,57 @@ export async function updateAlabamaFinanceLinkFcpaCommitteeNumber(input: {
   );
 }
 
+/** Reported groups cite the receiving typed-PAC ledger, not a guessed donor legal page. */
+function isReportedPacSourceUrl(sourceUrl: string | null): boolean {
+  if (!sourceUrl) return false;
+  try {
+    const url = new URL(sourceUrl);
+    if (url.origin !== "https://fcpa.alabamavotes.gov" || url.pathname !== "/page.request.do"
+      || url.username || url.password || url.hash) return false;
+    const expected = {
+      page: "com.acf.common.page.contributionsearchresults", sortDirection: "DESC",
+      sortBy: "transactionId", pageNumber: "1", pageSize: "1000",
+    };
+    const keys = [...url.searchParams.keys()];
+    if (keys.length !== 6 || new Set(keys).size !== keys.length
+      || Object.entries(expected).some(([key, value]) => url.searchParams.get(key) !== value)
+      || !url.searchParams.has("criteria")) return false;
+    const criteria: unknown = JSON.parse(url.searchParams.get("criteria")!);
+    if (!Array.isArray(criteria) || criteria.length !== 2) return false;
+    const fields = new Map<string, string>();
+    for (const item of criteria) {
+      if (!item || typeof item !== "object" || Object.keys(item).sort().join(",") !==
+        "comparison_type,comparison_value_1,field_key" || item.comparison_type !== "equalTo"
+        || typeof item.field_key !== "string" || typeof item.comparison_value_1 !== "string"
+        || fields.has(item.field_key)) return false;
+      fields.set(item.field_key, item.comparison_value_1);
+    }
+    const receiver = fields.get("committeeId") ?? "";
+    return fields.get("contributorType") === "4" && /^[1-9]\d*$/.test(receiver)
+      && Number.isSafeInteger(Number(receiver));
+  } catch {
+    return false;
+  }
+}
+
 export async function replaceAlabamaCandidateFinanceSnapshot(
   input: AlabamaFinanceSnapshotInput
 ): Promise<AlabamaFinanceSnapshotWriteResult> {
   const donors = input.pacDonors?.map((donor) => {
     const committeeId = donor.committeeId.trim();
-    if (!/^[1-9]\d*$/.test(committeeId) || !Number.isSafeInteger(Number(committeeId))) {
-      throw new Error("Invalid Alabama PAC donor public committee id");
-    }
     const committeeName = donor.committeeName.trim();
     if (!committeeName) throw new Error("Alabama PAC donor committee name is required");
+    const reportedName = committeeName.normalize("NFKC").toUpperCase()
+      .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+    const publicId = /^[1-9]\d*$/.test(committeeId) && Number.isSafeInteger(Number(committeeId));
+    const reportedId = reportedName.length > 0 && committeeId === "reported:" + reportedName;
+    if (!publicId && !reportedId) {
+      throw new Error("Invalid Alabama PAC donor public or reported-name identity");
+    }
+    const sourceUrl = donor.sourceUrl?.trim() || null;
+    if (reportedId && !isReportedPacSourceUrl(sourceUrl)) {
+      throw new Error("Alabama PAC donor reported identity requires official receiving PAC-search provenance");
+    }
     if (donor.committeeType !== "Political Action Committee") {
       throw new Error("Alabama PAC donor must have an explicit Political Action Committee source type");
     }
@@ -195,10 +236,10 @@ export async function replaceAlabamaCandidateFinanceSnapshot(
         donor.contributionCount <= 0 || donor.contributionCount > 2_147_483_647) {
       throw new Error("Alabama PAC donor contribution count must be a positive database integer");
     }
-    return { ...donor, committeeId, committeeName, sourceUrl: donor.sourceUrl?.trim() || null };
+    return { ...donor, committeeId, committeeName, sourceUrl };
   });
   if (donors && new Set(donors.map((donor) => donor.committeeId)).size !== donors.length) {
-    throw new Error("Alabama PAC donor snapshot contains duplicate public committee ids");
+    throw new Error("Alabama PAC donor snapshot contains duplicate donor identities");
   }
   const result = await writer.replaceSnapshot({
     db: input.db,

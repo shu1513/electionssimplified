@@ -1,5 +1,7 @@
 -- Accepted typed PAC cash contributions; a subset of direct Raised.
--- Donor committee_id is the public FCPA number, not the receiving internal id.
+-- Donor committee_id is a public FCPA number or reported:<canonical name> group.
+-- Reported groups are source labels, not legal committee identities; the writer
+-- enforces exact NFKC/Unicode name consistency independently of database locale.
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.al_candidate_finance_pac_donors (
@@ -24,7 +26,12 @@ CREATE TABLE IF NOT EXISTS public.al_candidate_finance_pac_donors (
   CONSTRAINT al_finance_pac_donors_year_check
     CHECK (election_year BETWEEN 2024 AND 2100),
   CONSTRAINT al_finance_pac_donors_id_check
-    CHECK (committee_id ~ '^[1-9][0-9]{0,15}$'),
+    CHECK (
+      CASE WHEN committee_id ~ '^[1-9][0-9]{0,15}$'
+        THEN committee_id::numeric <= 9007199254740991
+        ELSE committee_id ~ '^reported:[[:alnum:]]+( [[:alnum:]]+)*$'
+      END
+    ),
   CONSTRAINT al_finance_pac_donors_name_check
     CHECK (btrim(committee_name) <> ''),
   CONSTRAINT al_finance_pac_donors_type_check
@@ -34,7 +41,10 @@ CREATE TABLE IF NOT EXISTS public.al_candidate_finance_pac_donors (
   CONSTRAINT al_finance_pac_donors_count_check
     CHECK (contribution_count > 0),
   CONSTRAINT al_finance_pac_donors_source_url_check
-    CHECK (source_url IS NULL OR btrim(source_url) <> '')
+    CHECK (
+      (source_url IS NULL OR btrim(source_url) <> '')
+      AND (committee_id NOT LIKE 'reported:%' OR source_url IS NOT NULL)
+    )
 );
 
 CREATE INDEX IF NOT EXISTS al_finance_pac_donors_lookup_idx

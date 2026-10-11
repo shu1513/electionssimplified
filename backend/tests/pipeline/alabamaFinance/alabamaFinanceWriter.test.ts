@@ -106,6 +106,18 @@ describe("Alabama outside unknown preservation", () => {
   });
 });
 
+function reportedPacSourceUrl(): string {
+  return "https://fcpa.alabamavotes.gov/page.request.do?" + new URLSearchParams({
+    page: "com.acf.common.page.contributionsearchresults", sortDirection: "DESC", sortBy: "transactionId",
+    criteria: JSON.stringify([
+      { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: "25079" },
+      { field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "4" },
+    ]), pageNumber: "1", pageSize: "1000",
+  });
+}
+function reportedSourceWith(key: string, value: string): string {
+  const url = new URL(reportedPacSourceUrl()); url.searchParams.set(key, value); return url.toString();
+}
 function pacDonor(overrides: Partial<import("../../../src/pipeline/alabamaFinance/alabamaFinanceWriter.js").AlabamaFinancePacDonorInput> = {}) {
   return {
     committeeId: "24906", committeeName: "Electric Cooperatives of Alabama PAC",
@@ -144,6 +156,65 @@ describe("Alabama optional PAC snapshots", () => {
     assertNoOutsideMutations(client.query.mock.calls);
   });
 
+  it("stores exact reported PAC label groups without guessing a legal committee ID", async () => {
+    const { db, client } = writingDb();
+    const result = await replaceAlabamaCandidateFinanceSnapshot({
+      db, link, syncedAt, pacDonors: [
+        pacDonor({ committeeId: "reported:UNITED WORKERS PAC", committeeName: "United—Workers PAC", sourceUrl: reportedPacSourceUrl() }),
+        pacDonor({ committeeId: "24906" }),
+      ],
+    });
+    // Name punctuation is normalized for identity; the reported display label is retained.
+    const insert = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.al_candidate_finance_pac_donors"));
+    expect(insert?.[1]?.slice(2, 5)).toEqual(["reported:UNITED WORKERS PAC", "United—Workers PAC", "Political Action Committee"]);
+    expect(result.pacDonorsWritten).toBe(2);
+  });
+
+  it("rejects duplicate reported groups and mismatched canonical reported names before writes", async () => {
+    const { db } = writingDb();
+    const reported = pacDonor({ committeeId: "reported:UNITED WORKERS PAC", committeeName: "United Workers PAC", sourceUrl: reportedPacSourceUrl() });
+    await expect(replaceAlabamaCandidateFinanceSnapshot({
+      db, link, pacDonors: [reported, { ...reported, committeeName: "United-Workers PAC" }],
+    })).rejects.toThrow("duplicate donor identities");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    undefined, null, "", "https://fcpa.alabamavotes.gov/", "https://example.com/page.request.do",
+    reportedPacSourceUrl().replace("https:", "http:"),
+    reportedPacSourceUrl().replace("fcpa.alabamavotes.gov", "fcpa.alabamavotes.gov.example.com"),
+    reportedPacSourceUrl().replace("https://", "https://user:secret@"),
+    reportedPacSourceUrl() + "#unverified",
+    reportedSourceWith("page", "page.acfPublicCommitteeDetails"),
+    reportedSourceWith("sortDirection", "ASC"),
+    reportedSourceWith("pageSize", "1"),
+    reportedSourceWith("criteria", "[]"),
+    reportedSourceWith("criteria", JSON.stringify([
+      { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: "00123" },
+      { field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "4" },
+    ])),
+    reportedSourceWith("criteria", JSON.stringify([
+      { field_key: "committeeId", comparison_type: "equalTo", comparison_value_1: "25079" },
+      { field_key: "contributorType", comparison_type: "equalTo", comparison_value_1: "3" },
+    ])),
+    reportedPacSourceUrl() + "&pageSize=1000",
+  ])("rejects reported donor groups without exact official typed receiving-source provenance: %s", async sourceUrl => {
+    const { db } = writingDb();
+    await expect(replaceAlabamaCandidateFinanceSnapshot({
+      db, link, pacDonors: [pacDonor({
+        committeeId: "reported:UNITED WORKERS PAC", committeeName: "United Workers PAC", sourceUrl,
+      })],
+    })).rejects.toThrow("official receiving PAC-search provenance");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("retains optional source provenance for a public registry donor ID", async () => {
+    const { db, client } = writingDb();
+    await replaceAlabamaCandidateFinanceSnapshot({ db, link, pacDonors: [pacDonor({ sourceUrl: null })] });
+    const insert = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.al_candidate_finance_pac_donors"));
+    expect(insert?.[1]?.[7]).toBeNull();
+  });
+
   it("preserves omitted PAC snapshots and clears only an explicit empty snapshot", async () => {
     const omitted = writingDb();
     const omittedResult = await replaceAlabamaCandidateFinanceSnapshot({
@@ -170,6 +241,10 @@ describe("Alabama optional PAC snapshots", () => {
     { contributionCount: 2_147_483_648 }, { contributionCount: Number.MAX_SAFE_INTEGER },
     { committeeId: "0" }, { committeeId: "00123" }, { committeeId: "33A" },
     { committeeId: "9007199254740992" }, { committeeName: " " },
+    { committeeId: "reported:" }, { committeeId: "reported:OTHER PAC" },
+    { committeeId: "reported:electric cooperatives of alabama pac" },
+    { committeeId: "reported:ELECTRIC  COOPERATIVES OF ALABAMA PAC" },
+    { committeeId: "reported:!!!", committeeName: "!!!" },
     { committeeType: "Principal Campaign Committee" as never },
   ])("rejects an invalid donor snapshot before any transaction: %j", async overrides => {
     const { db, client } = writingDb();
@@ -184,7 +259,7 @@ describe("Alabama optional PAC snapshots", () => {
     const { db } = writingDb();
     await expect(replaceAlabamaCandidateFinanceSnapshot({
       db, link, pacDonors: [pacDonor(), pacDonor({ committeeId: " 24906 " })],
-    })).rejects.toThrow("duplicate public committee ids");
+    })).rejects.toThrow("duplicate donor identities");
     expect(db.connect).not.toHaveBeenCalled();
   });
 

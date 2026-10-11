@@ -123,6 +123,16 @@ describe("Alabama typed PAC interest reader", () => {
     expect(db.query).not.toHaveBeenCalled();
   });
 
+  it("reads reported donor groups without altering Raised and explains identity limits", async () => {
+    vi.stubEnv("ALABAMA_CAMPAIGN_FINANCE_ENABLED", "true");
+    const db = dbWithDonors([donor({ committee_id: "reported:REPORTED SOURCE PAC", committee_name: "Reported Source PAC" })]);
+    const summary = [...(await loadAlabamaCandidateFinanceSummariesByCandidateElection(db, candidates, elections)).values()][0]!;
+    expect(summary.direct_campaign.total_raised).toBe(38000);
+    expect(summary.direct_campaign.pac_money_by_interest?.[0]?.pac_count).toBe(1);
+    expect(summary.direct_campaign.direct_coverage_note).toContain("source-reported donor groups");
+    expect(summary.direct_campaign.direct_coverage_note).toContain("identical reported names");
+  });
+
   it("keeps migration identifiers bounded and enforces donor type/link-year/positive constraints", () => {
     const sql = readFileSync(new URL("../../../../db/migrations/328_add_alabama_finance_pac_donors.sql",import.meta.url),"utf8");
     for (const [,name] of sql.matchAll(/(?:CONSTRAINT|CREATE TRIGGER|CREATE INDEX IF NOT EXISTS)\s+([a-z_]+)/g)) {
@@ -133,6 +143,9 @@ describe("Alabama typed PAC interest reader", () => {
     expect(sql).toContain("committee_type = 'Political Action Committee'");
     expect(sql).toContain("CHECK (amount > 0)");
     expect(sql).toContain("CHECK (contribution_count > 0)");
+    expect(sql).toContain("committee_id::numeric <= 9007199254740991");
+    expect(sql).toContain("^reported:[[:alnum:]]+( [[:alnum:]]+)*$");
+    expect(sql).toContain("committee_id NOT LIKE 'reported:%' OR source_url IS NOT NULL");
     const columns = migrationTableColumns("al_candidate_finance_pac_donors");
     for (const column of ["link_id","election_year","committee_id","committee_name","committee_type",
       "amount","contribution_count","source_url","last_synced_at"]) expect(columns.has(column)).toBe(true);
