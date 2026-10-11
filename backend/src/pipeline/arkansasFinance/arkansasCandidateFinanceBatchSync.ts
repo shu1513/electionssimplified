@@ -27,6 +27,7 @@ type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
 const DEFAULT_MAX_CANDIDATES = 10;
 const DEFAULT_STALE_AFTER_DAYS = 7;
+const SCOPED_DUE_ROW_LIMIT = 10_000;
 // A candidate's final report is due 30 days after the general election
 // (A.C.A. § 7-6-207), so the lookback keeps a just-finished election in scope
 // until that report has been picked up.
@@ -38,6 +39,10 @@ export type ArkansasCandidateFinanceBatchSyncInput = {
   now?: Date;
   maxCandidates?: number;
   staleAfterDays?: number;
+  /** Bypass staleness while retaining election and office eligibility. */
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   dryRun?: boolean;
@@ -70,7 +75,14 @@ export async function syncDueArkansasCandidateFinance(
   const now = input.now ?? new Date();
   const log = input.log ?? ((message: string) => console.log(message));
   const maxCandidates = input.maxCandidates ?? DEFAULT_MAX_CANDIDATES;
-  const staleAfterDays = input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
+  if (!Number.isSafeInteger(maxCandidates) || maxCandidates < 1) throw new Error("Invalid Arkansas maxCandidates");
+  if (input.candidateId !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.candidateId)) {
+    throw new Error("Invalid Arkansas candidateId");
+  }
+  if (input.electionYear !== undefined && (!Number.isSafeInteger(input.electionYear)
+    || input.electionYear < 2026 || input.electionYear > 2100)) throw new Error("Invalid Arkansas electionYear");
+  const scoped = input.candidateId !== undefined || input.electionYear !== undefined;
+  const staleAfterDays = input.refresh ? 0 : input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
   const electionLookbackDays =
     input.electionLookbackDays ?? ARKANSAS_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
@@ -80,7 +92,7 @@ export async function syncDueArkansasCandidateFinance(
   const loadRegistrations = createArkansasRegistrationSweepLoader({ clientOptions: input.clientOptions });
 
   let autoLinkResults: ArkansasFinanceAutoLinkResult[] = [];
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (!dryRun && !scoped && input.autoLinkMissingLinks !== false) {
     const autoLink = input.autoLinkFn ?? autoLinkMissingArkansasCandidateFinanceLinks;
     try {
       autoLinkResults = await autoLink({
@@ -103,15 +115,22 @@ export async function syncDueArkansasCandidateFinance(
   const due = await listDueRows(input.db, {
     now,
     staleAfterDays,
-    maxCandidates,
+    maxCandidates: scoped ? SCOPED_DUE_ROW_LIMIT : maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
   });
+  if (scoped && due.totalDueRows > due.rows.length) {
+    throw new Error("Arkansas scoped due list exceeded its complete-row bound");
+  }
+  const scopedRows = scoped ? due.rows.filter(row =>
+    (input.candidateId === undefined || row.candidateId.toLowerCase() === input.candidateId.toLowerCase())
+    && (input.electionYear === undefined || row.electionYear === input.electionYear)) : due.rows;
+  const rows = scopedRows.slice(0, maxCandidates);
 
   const syncCandidate = input.syncCandidateFn ?? syncArkansasCandidateFinance;
   const candidates: ArkansasCandidateFinanceBatchSyncResult["candidates"] = [];
   let succeeded = 0;
-  for (const row of due.rows) {
+  for (const row of rows) {
     try {
       const result = await syncCandidate({
         db: input.db,
@@ -145,10 +164,10 @@ export async function syncDueArkansasCandidateFinance(
   return {
     dryRun,
     autoLinkResults,
-    totalDueRows: due.totalDueRows,
-    attempted: due.rows.length,
+    totalDueRows: scoped ? scopedRows.length : due.totalDueRows,
+    attempted: rows.length,
     succeeded,
-    failed: due.rows.length - succeeded,
+    failed: rows.length - succeeded,
     candidates,
   };
 }

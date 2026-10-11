@@ -7,6 +7,9 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
     expect(parseSyncDueArkansasCandidateFinanceScriptArgs([])).toEqual({
       dryRun: false,
       force: false,
+      refresh: false,
+      candidateId: undefined,
+      electionYear: undefined,
       dnsFallback: false,
       autoLinkMissingLinks: true,
       maxCandidates: undefined,
@@ -29,6 +32,9 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
     ).toEqual({
       dryRun: true,
       force: true,
+      refresh: false,
+      candidateId: undefined,
+      electionYear: undefined,
       dnsFallback: true,
       autoLinkMissingLinks: false,
       maxCandidates: 3,
@@ -36,6 +42,18 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
       electionLookbackDays: 40,
       electionLookaheadDays: 800,
     });
+  });
+
+  it("keeps force separate from fresh source selection and parses safe candidate/year scope", () => {
+    const candidateId = "11111111-1111-4111-8111-111111111111";
+    expect(parseSyncDueArkansasCandidateFinanceScriptArgs([
+      "--force", "--refresh", `--candidate-id=${candidateId}`, "--election-year=2026",
+    ])).toMatchObject({ force: true, refresh: true, candidateId, electionYear: 2026, autoLinkMissingLinks: false });
+    expect(parseSyncDueArkansasCandidateFinanceScriptArgs(["--force"])).toMatchObject({ force: true, refresh: false });
+    for (const args of [["--candidate-id=wrong"], ["--election-year=2025"], ["--election-year=2101"],
+      ["--candidate-id=11111111-1111-4111-8111-111111111111", "--candidate-id=11111111-1111-4111-8111-111111111111"]]) {
+      expect(() => parseSyncDueArkansasCandidateFinanceScriptArgs(args)).toThrow();
+    }
   });
 
   it("rejects unknown flags and bad numbers", () => {

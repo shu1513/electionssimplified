@@ -14,6 +14,9 @@ import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 export type SyncDueArkansasCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  refresh: boolean;
+  candidateId?: string;
+  electionYear?: number;
   dnsFallback: boolean;
   autoLinkMissingLinks: boolean;
   maxCandidates?: number;
@@ -22,8 +25,8 @@ export type SyncDueArkansasCandidateFinanceScriptOptions = {
   electionLookaheadDays?: number;
 };
 
-const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--dns-fallback", "--no-auto-link"]);
-const VALUE_FLAGS = new Set(["--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]);
+const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh", "--dns-fallback", "--no-auto-link"]);
+const VALUE_FLAGS = new Set(["--candidate-id", "--election-year", "--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]);
 
 function readValueFlag(args: readonly string[], name: string): string | undefined {
   const values: string[] = [];
@@ -54,11 +57,22 @@ export function parseSyncDueArkansasCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueArkansasCandidateFinanceScriptOptions {
   assertKnownCliFlags(args, "Arkansas candidate finance due sync", BOOLEAN_FLAGS, VALUE_FLAGS);
+  const candidateId = readValueFlag(args, "--candidate-id");
+  if (candidateId !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(candidateId)) {
+    throw new Error(`Invalid --candidate-id value: ${candidateId}`);
+  }
+  const electionYear = parsePositiveInteger(args, "--election-year");
+  if (electionYear !== undefined && (electionYear < 2026 || electionYear > 2100)) {
+    throw new Error(`Invalid --election-year value: ${electionYear}`);
+  }
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    refresh: args.includes("--refresh"),
+    candidateId,
+    electionYear,
     dnsFallback: args.includes("--dns-fallback"),
-    autoLinkMissingLinks: !args.includes("--no-auto-link"),
+    autoLinkMissingLinks: candidateId === undefined && electionYear === undefined && !args.includes("--no-auto-link"),
     maxCandidates: parsePositiveInteger(args, "--max-candidates"),
     staleAfterDays: parsePositiveInteger(args, "--stale-after-days"),
     electionLookbackDays: parsePositiveInteger(args, "--lookback-days"),
@@ -90,6 +104,9 @@ async function main(): Promise<void> {
       db: pool,
       now: startedAt,
       dryRun: options.dryRun,
+      refresh: options.refresh,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
       autoLinkMissingLinks: options.autoLinkMissingLinks,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,

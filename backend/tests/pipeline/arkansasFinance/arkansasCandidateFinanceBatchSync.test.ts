@@ -95,4 +95,34 @@ describe("syncDueArkansasCandidateFinance", () => {
     expect(live.autoLinkResults).toEqual([]);
     expect(log).toHaveBeenCalledWith(expect.stringContaining("auto-link pass failed"));
   });
+
+  it("refreshes scoped candidates before limiting and skips unrelated auto-link writes", async () => {
+    const target = dueRow({ candidateId: "44444444-4444-4444-8444-444444444444", filingEntityId: 7243,
+      lastSyncedAt: "2026-09-02T11:59:00Z" });
+    const db = { query: vi.fn(), connect: vi.fn() };
+    const autoLinkFn = vi.fn();
+    const listDueRowsFn = vi.fn(async () => ({ rows: [dueRow(), target, dueRow({ electionYear: 2028 })], totalDueRows: 3 }));
+    const syncCandidateFn = vi.fn(async () => ({ summaryWritten: true } as never));
+    const result = await syncDueArkansasCandidateFinance({ db: db as never, now: NOW, refresh: true,
+      candidateId: target.candidateId.toUpperCase(), electionYear: 2026, maxCandidates: 1,
+      autoLinkFn, listDueRowsFn, syncCandidateFn });
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(listDueRowsFn).toHaveBeenCalledWith(db, expect.objectContaining({
+      now: NOW, staleAfterDays: 0, maxCandidates: 10000,
+    }));
+    expect(syncCandidateFn).toHaveBeenCalledTimes(1);
+    expect(syncCandidateFn).toHaveBeenCalledWith(expect.objectContaining({ candidateId: target.candidateId, now: NOW }));
+    expect(result).toMatchObject({ totalDueRows: 1, attempted: 1, succeeded: 1, failed: 0 });
+  });
+
+  it("rejects truncated scoped lists before syncing or changing links", async () => {
+    const autoLinkFn = vi.fn();
+    const syncCandidateFn = vi.fn();
+    await expect(syncDueArkansasCandidateFinance({ db: { query: vi.fn(), connect: vi.fn() } as never,
+      electionYear: 2026, autoLinkFn, syncCandidateFn,
+      listDueRowsFn: vi.fn(async () => ({ rows: [dueRow()], totalDueRows: 10001 })),
+    })).rejects.toThrow("complete-row bound");
+    expect(autoLinkFn).not.toHaveBeenCalled();
+    expect(syncCandidateFn).not.toHaveBeenCalled();
+  });
 });
