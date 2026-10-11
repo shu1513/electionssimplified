@@ -272,3 +272,30 @@ allocation. A verified one-payer target component can be empty, but never
 authorizes a candidate-wide total or zero. Retain duplicate occurrences and
 complete source provenance. Atomic persistence must repeat this verification
 and local ownership under a lock; database provenance stores metadata only.
+
+### Normal outside hook checkpoint
+
+Automatic current expense acquisition and raw-packet re-verification are
+implemented. Exact full-name Purpose discovery runs after ordinary direct/PAC
+sync, with saved openings, fresh closing authority and independent failed-payer
+preservation. Previously accepted payers refresh even if discovery no longer
+contains a lead. A candidate-election is processed once across receiving links.
+The new scoped writer and migration 333 use separate payer rows; candidate-wide
+outside totals and the legacy groups remain unchanged. The reader displays
+explicit checked groups with a partial-coverage note and refuses to combine
+them with unreconciled legacy outside totals/groups.
+
+The retained General source audit checked 1,017 query occurrences, including
+23 IEC query occurrences across four uncapped exact scopes. Overlapping queries
+are not summed. None supplies an eligible explicit local General state-office
+target. Special-election purposes can appear under a General generic selector,
+confirming that the actual current EFS election must bind the final allocation.
+The separate PRO- query fills its 500-row cap, so this audit proves neither
+statewide absence nor candidate-wide zero. No real eligible outside positive
+has been accepted. Post-deadline fresh reruns remain mandatory.
+
+The external date manifest now contains 20 integrity-verified records. Two
+Closed CCE accounts have distinct enacted-law certification revocation
+authority; it is not recorded as a closure date. Whole PAC identity remains
+gated on complete source-backed identity replay before the next genuinely
+fresh ordinary local sync. No partial known-donor subset is accepted.

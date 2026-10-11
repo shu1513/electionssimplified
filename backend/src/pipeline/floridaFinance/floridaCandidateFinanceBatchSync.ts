@@ -33,6 +33,8 @@ import {
 import { FLORIDA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./floridaFinanceEligibleOffices.js";
 import { createFloridaCandidateCommitteeFinanceSource, type FloridaCandidateCommitteeFinanceSource } from "./floridaCandidateCommitteeFinanceSource.js";
 import type { FloridaReviewedCommitteeDates } from "./floridaCommitteeRegistrySource.js";
+import { createFloridaCandidateOutsideFinanceSource, type FloridaCandidateOutsideFinanceSource } from "./floridaCandidateOutsideFinanceSource.js";
+import { writeFloridaOutsideAllocations, type FloridaOutsideAllocationWriteResult } from "./floridaOutsideAllocationWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -107,6 +109,10 @@ export type FloridaCandidateFinanceDueSyncInput = Omit<
   includeRegisteredCommitteeDonors?: boolean;
   reviewedCommitteeDates?: readonly FloridaReviewedCommitteeDates[];
   committeeFinanceSource?: FloridaCandidateCommitteeFinanceSource;
+  includeIndependentExpenditures?: boolean;
+  outsideDb?: Pick<Pool, "connect">;
+  outsideFinanceSource?: FloridaCandidateOutsideFinanceSource;
+  writeOutsideAllocationsFn?: typeof writeFloridaOutsideAllocations;
 };
 
 export type FloridaCandidateFinanceBatchSyncItemResult = {
@@ -117,6 +123,7 @@ export type FloridaCandidateFinanceBatchSyncItemResult = {
   ok: boolean;
   result?: FloridaCandidateFinanceSyncResult;
   error?: string;
+  outsideComponents?: readonly FloridaOutsideAllocationWriteResult[];
 };
 
 export type FloridaCandidateFinanceBatchSyncResult = {
@@ -957,6 +964,46 @@ export async function syncDueFloridaCandidateFinance(
     aiClassificationMinAmount: input.aiClassificationMinAmount,
     syncFloridaCandidateFinanceFn: input.syncFloridaCandidateFinanceFn,
   });
+
+  // Ordinary direct/PAC sync succeeds independently. Partial outside discovery
+  // never enters the legacy whole-group replacement. Real CLI/scheduler Pools
+  // supply dedicated connections for the scoped writer; query-only callers
+  // preserve this component unless they explicitly supply a connection provider.
+  const connectionProvider = input.outsideDb ??
+    ("connect" in input.db && typeof input.db.connect === "function" ? input.db as Pick<Pool, "connect"> : undefined);
+  if (!dryRun && input.includeIndependentExpenditures !== false && connectionProvider) {
+    const outsideSource = input.outsideFinanceSource ?? createFloridaCandidateOutsideFinanceSource({
+      db: input.db, cacheDir: defaultArtifactCacheDir, refresh: input.refreshExportArtifacts === true,
+      minIntervalMs: exportMinIntervalMs,
+    });
+    const writeOutside = input.writeOutsideAllocationsFn ?? writeFloridaOutsideAllocations;
+    const visited = new Set<string>();
+    for (const item of result.results) {
+      const key = `${item.candidateId}\u0000${item.electionId}`;
+      if (!item.ok || visited.has(key)) continue;
+      visited.add(key);
+      try {
+        const outside = await outsideSource.load({ candidateId: item.candidateId,
+          electionId: item.electionId, committeeId: item.committeeId });
+        if (outside.status === "preserve") {
+          console.warn("Florida independent expenditure component preserved:", { candidateId: item.candidateId,
+            electionId: item.electionId, diagnostics: outside.diagnostics });
+          continue;
+        }
+        const writes: FloridaOutsideAllocationWriteResult[] = [];
+        for (const component of outside.components) writes.push(await writeOutside({ db: connectionProvider,
+          localContext: outside.localContext, ...component }));
+        if (writes.length) item.outsideComponents = writes;
+        if (outside.diagnostics.length || writes.some(write => write.status === "preserve"))
+          console.warn("Florida independent expenditure coverage remains partial:", { candidateId: item.candidateId,
+            electionId: item.electionId, diagnostics: [...outside.diagnostics,
+              ...writes.filter(write => write.status === "preserve").flatMap(write => write.diagnostics)] });
+      } catch (error) {
+        console.warn("Florida independent expenditure component preserved:", { candidateId: item.candidateId,
+          electionId: item.electionId, error: error instanceof Error ? error.message : "Outside source failed" });
+      }
+    }
+  }
 
   return {
     ...result,
