@@ -102,9 +102,11 @@ function validRegistration(r: FloridaCommitteeDonorRegistration): boolean {
       r.registration.effectiveDate > (r.disbandment.effectiveDate ?? r.disbandment.closedBy!));
 }
 
-/** USPS Pub28 C1 DRIVE/DR only. No street/unit/punctuation/locality fields are removed. */
+/** USPS Pub28 C1 DRIVE/DR and §233.22 observed AVENUE NORTHWEST/NW
+ * postdirectional only. No street/unit/punctuation/locality fields are removed. */
 function street(value: string): string {
-  return exactText(value).replace(/(^| )DRIVE$/u, "$1DR");
+  return exactText(value).replace(/(^| )DRIVE$/u, "$1DR")
+    .replace(/ AVENUE NORTHWEST(?=$| SUITE [A-Z0-9-]+$)/u, " AVENUE NW");
 }
 function sameAddress(
   r: FloridaCommitteeDonorRegistration, address: string, cityStateZip: string

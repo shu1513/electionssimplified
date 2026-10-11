@@ -81,6 +81,43 @@ describe("Florida source-qualified committee donor identity", () => {
     const invalid = row(change as unknown as Partial<FloridaCommitteeDonorRegistration>);
     expect(resolveFloridaCommitteeDonorIdentity(input([invalid])).status).toBe("unresolved");
   });
+  it("binds the observed full postdirectional street while preserving suite and source fingerprints", () => {
+    const current = row({ address: "1301 Pennsylvania Avenue NW Suite 200",
+      cityStateZip: "Washington, DC 20004" });
+    const rows = [old(), current], fp = fingerprintFloridaCommitteeDonorRegistrations(rows);
+    const result = resolveFloridaCommitteeDonorIdentity({ ...input(rows),
+      reportedAddress: "1301 PENNSYLVANIA AVENUE NORTHWEST SUITE 200",
+      reportedCityStateZip: "WASHINGTON, DC 20004" });
+    expect(result.identity?.committeeId).toBe("60813");
+    expect(fingerprintFloridaCommitteeDonorRegistrations(rows)).toBe(fp);
+    expect(current.address).toBe("1301 Pennsylvania Avenue NW Suite 200");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(), row({address:"1301 Pennsylvania Avenue NW"})]),
+      reportedAddress:"1301 PENNSYLVANIA AVENUE NORTHWEST" }).status).toBe("resolved");
+  });
+  it.each([
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Suite 201" },
+    { reportedAddress: "1302 Pennsylvania Avenue NORTHWEST Suite 200" },
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Suite 200." },
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST, Suite 200" },
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHWEST Apt 200" },
+    { reportedAddress: "1301 Pennsylvania Avenue NORTHEAST Suite 200" },
+    { reportedCityStateZip: "Washington DC 20004" },
+    { reportedCityStateZip: "Washington, DC 20005" },
+  ])("preserves changed full street/unit/locality or unsupported directional syntax %#", change => {
+    const current = row({address:"1301 Pennsylvania Avenue NW Suite 200",cityStateZip:"Washington, DC 20004"});
+    expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(),current]),
+      reportedAddress:"1301 Pennsylvania Avenue NORTHWEST Suite 200",
+      reportedCityStateZip:"Washington, DC 20004", ...change }).status).toBe("unresolved");
+  });
+  it("does not normalize directional words inside street names or different suffixes", () => {
+    for (const [registered, reported] of [
+      ["1301 NW Avenue Suite 200", "1301 NORTHWEST Avenue Suite 200"],
+      ["1301 Pennsylvania Street NW Suite 200", "1301 Pennsylvania Street NORTHWEST Suite 200"],
+    ]) {
+      expect(resolveFloridaCommitteeDonorIdentity({ ...input([old(),row({address:registered})]),
+        reportedAddress:reported }).status).toBe("unresolved");
+    }
+  });
   it("retains unknown before effective dissolution, even though the old account is Closed now", () => {
     const r = input([old(), row()]);
     r.transactionDate = "2013-08-20";
