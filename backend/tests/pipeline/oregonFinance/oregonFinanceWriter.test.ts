@@ -43,6 +43,23 @@ function baseLink() {
 }
 
 describe("oregonFinanceWriter", () => {
+  it("preserves accepted outside totals and groups on a contribution-only refresh", async () => {
+    const db = createTransactionalMockDb();
+    await replaceOregonCandidateFinanceSnapshot({
+      db, link: baseLink(), summary: { directContributionTotal: 1000 }, syncedAt: NOW,
+    });
+    const summaryCall = db.query.mock.calls.find((call) =>
+      String(call[0]).includes("INSERT INTO public.or_candidate_finance_summaries")
+    );
+    expect(String(summaryCall?.[0])).toContain(
+      "outside_support_total = COALESCE(EXCLUDED.outside_support_total, or_candidate_finance_summaries.outside_support_total)"
+    );
+    expect(String(summaryCall?.[0])).toContain(
+      "outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, or_candidate_finance_summaries.outside_oppose_total)"
+    );
+    expect(summaryCall?.[1]?.slice(6, 8)).toEqual([null, null]);
+    expect(db.query.mock.calls.some((call) => String(call[0]).includes("or_candidate_finance_outside_"))).toBe(false);
+  });
   it("upserts Oregon finance links and returns the link id", async () => {
     const db = createMockDb();
 

@@ -42,6 +42,8 @@ export type OregonCandidateFinanceSyncInput = {
   now?: Date;
   dryRun?: boolean;
   transactionDetails: readonly OregonOrestarTransactionDetail[];
+  /** Separate outside-source coverage; a candidate's receipts prove no outside total. */
+  outsideTransactionDetails?: readonly OregonOrestarTransactionDetail[];
   directMaxBreakdownsPerCategory?: number;
   outsideMaxGroups?: number;
   outsideMaxBreakdownsPerCategory?: number;
@@ -146,8 +148,8 @@ function toFinanceLink(input: {
 
 function toSummary(input: {
   directContributionTotal: number;
-  outsideSupportTotal: number;
-  outsideOpposeTotal: number;
+  outsideSupportTotal: number | null;
+  outsideOpposeTotal: number | null;
   sourceUrl?: string | null;
 }): OregonFinanceSummaryInput {
   return {
@@ -255,14 +257,14 @@ export async function syncOregonCandidateFinance(
   const outsideFinance = aggregateOregonOutsideSpending({
     candidateCommitteeId: committeeId,
     electionYear,
-    transactionDetails: input.transactionDetails,
+    transactionDetails: input.outsideTransactionDetails ?? [],
     sourceUrl,
     maxGroups: outsideMaxGroups,
   });
   const outsideGroupFinance = aggregateOregonOutsideGroupContributions({
     electionYear,
     outsideGroups: outsideFinance.outsideGroups,
-    transactionDetails: input.transactionDetails.filter(isOregonContributionTransaction),
+    transactionDetails: (input.outsideTransactionDetails ?? []).filter(isOregonContributionTransaction),
     sourceUrl,
     maxBreakdownsPerCategory: outsideMaxBreakdownsPerCategory,
     minIndustryAmount,
@@ -270,15 +272,17 @@ export async function syncOregonCandidateFinance(
 
   const summary = toSummary({
     directContributionTotal: directFinance.summary.directContributionTotal,
-    outsideSupportTotal: outsideFinance.summary.outsideSupportTotal,
-    outsideOpposeTotal: outsideFinance.summary.outsideOpposeTotal,
+    outsideSupportTotal: input.outsideTransactionDetails === undefined ? null : outsideFinance.summary.outsideSupportTotal,
+    outsideOpposeTotal: input.outsideTransactionDetails === undefined ? null : outsideFinance.summary.outsideOpposeTotal,
     sourceUrl,
   });
   const directBreakdowns = toDirectBreakdowns(directFinance.directBreakdowns);
-  const outsideGroups = toOutsideGroups(outsideFinance.outsideGroups);
-  const outsideGroupBreakdowns = toOutsideGroupBreakdowns(outsideGroupFinance.outsideGroupBreakdowns);
+  const outsideGroups = input.outsideTransactionDetails === undefined ? undefined : toOutsideGroups(outsideFinance.outsideGroups);
+  const outsideGroupBreakdowns = input.outsideTransactionDetails === undefined
+    ? undefined
+    : toOutsideGroupBreakdowns(outsideGroupFinance.outsideGroupBreakdowns);
   const classifications = collectOutsideClassifications({
-    breakdowns: outsideGroupBreakdowns,
+    breakdowns: outsideGroupBreakdowns ?? [],
     minIndustryAmount,
   });
   const link = toFinanceLink({
@@ -315,8 +319,8 @@ export async function syncOregonCandidateFinance(
     linkWritten: !dryRun,
     summaryWritten: !dryRun,
     directBreakdownsWritten: dryRun ? 0 : directBreakdowns.length,
-    outsideGroupsWritten: dryRun ? 0 : outsideGroups.length,
-    outsideGroupBreakdownsWritten: dryRun ? 0 : outsideGroupBreakdowns.length,
+    outsideGroupsWritten: dryRun ? 0 : outsideGroups?.length ?? 0,
+    outsideGroupBreakdownsWritten: dryRun ? 0 : outsideGroupBreakdowns?.length ?? 0,
     directContributionTotal: summary.directContributionTotal ?? null,
     outsideSupportTotal: summary.outsideSupportTotal ?? null,
     outsideOpposeTotal: summary.outsideOpposeTotal ?? null,

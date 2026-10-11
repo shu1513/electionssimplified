@@ -75,15 +75,15 @@ export type OregonFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWrite
 const writer = createStandardStateFinanceSnapshotWriter({
   label: "Oregon",
   minElectionYear: 2000,
-  // Oregon replaces every summary column, including the outside totals — a
-  // refresh without expenditure data legitimately nulls them.
+  // Contributions do not establish outside-spending coverage. An omitted
+  // outside component preserves its last accepted totals.
   summaryUpdatePolicy: {
     total_receipts: "replace",
     direct_contribution_total: "replace",
     total_disbursements: "replace",
     cash_on_hand: "replace",
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
+    outside_support_total: "preserveWhenNull",
+    outside_oppose_total: "preserveWhenNull",
     source_url: "replace",
   },
   // Presence-only, matching the bespoke writer. The or_ breakdown table does
