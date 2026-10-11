@@ -182,6 +182,9 @@ export function decodeFloridaCommitteeExpenseCover(html: string, account: string
   }
   if (!periods.length || !totals || new Set(periods.filter(p => !p.waiver).map(p => p.nativeSequence)).size !==
     periods.filter(p => !p.waiver).length) fail("incomplete/duplicate cover sequences");
+  const chronological = [...periods].sort((a, b) => a.periodStart.localeCompare(b.periodStart));
+  if (chronological.some((period, index) => index > 0 && period.periodStart <= chronological[index - 1]!.periodEnd))
+    fail("overlapping expense periods require a separate daily/cumulative reconciliation contract");
   for (let column = 2; column < 8; column++) {
     if (sum(periods.map(p => cents(p.sourceCells[column]!))) !== cents(totals[column]!)) fail("cover totals mismatch");
   }

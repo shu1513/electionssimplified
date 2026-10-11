@@ -195,6 +195,14 @@ describe("Florida current processed expense proof", () => {
     expect(result.proof).toBeUndefined();
     expect(result.diagnostics).not.toEqual([]);
   });
+  it("preserves overlapping daily/cumulative coverage before counting expenses", () => {
+    const before = packet(), after = packet(true);
+    for (const value of [before, after])
+      change(value.activity, () => cover(true).replace("07/01/2026 - 07/31/2026", "07/01/2026 - 08/02/2026"));
+    const result = verify(before, after);
+    expect(result.proof).toBeUndefined();
+    expect(result.diagnostics.join()).toContain("overlapping expense periods");
+  });
   it("rejects a fabricated/stale closing interval", () => {
     const after = packet(true);
     after.ownership.startedAt = "2026-10-11T21:39:00Z";
