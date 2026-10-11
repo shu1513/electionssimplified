@@ -227,3 +227,23 @@ so neither may receive it. Partial spender discovery cannot use the legacy
 global outside-group replacement or infer zeros. Complete current expense proof
 and a scoped persistence path remain open work. Post-deadline fresh reruns above
 remain required even after present source coverage is accepted.
+
+### Next outside source foundations
+
+Before adding a normal outside hook, implement two bounded source-only steps.
+First, an exact-query saved-artifact-first discovery adapter validates the
+official eight-column full-Purpose expense export, election selector and row
+limit. Refresh bypasses saved openings. Missing/failed/capped/malformed data
+remains unknown; discovery does not authorize money or zero writes.
+
+Second, a pure current committee expense verifier separately binds the numeric
+legal owner, native committee activity cover, current EFS report and complete
+native/generic expense occurrences under genuine before/after capture metadata.
+The observed committee cover has eight cells with Expend/Other/Transfers, unlike
+the candidate contribution cover. New Southern Majority's five P7 and two G1
+rows reconcile to $82,500 + $116, including full Purpose in the generic export;
+their seven school-board targets remain outside this local state-office scope.
+Report counts, full financial multiset and expense-cover totals must reconcile
+before target filtering. Native selectors and EFS report sequences are
+independently bound rather than equated. Scoped persistence and an eligible
+local positive remain separate subsequent gates.
