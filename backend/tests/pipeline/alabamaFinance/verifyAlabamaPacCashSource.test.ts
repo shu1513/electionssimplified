@@ -15,6 +15,22 @@ describe("verifyAlabamaPacCashSource", () => {
   it("accepts exact current native/bulk identities and cover sum before donor aggregation", () => {
     expect(verifyAlabamaPacCashSource(fixture()).pacDonors?.[0]).toMatchObject({ committeeId: "24906", amount: 1500, contributionCount: 1 });
   });
+
+  it("allows observed historical null non-itemized donors outside the term while retaining their raw fingerprints", () => {
+    const historical = { ...native, TRANSACTIONID: 826354, TRANSACTIONDATE: "06/22/2018", CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" };
+    const input = sourceRows([native, historical], [cash], 150_000);
+    expect(verifyAlabamaPacCashSource(input).pacDonors?.[0]?.amount).toBe(1500);
+    preserve({ ...input, nativeAllAfter: [native, { ...historical, CONTRIBUTOR: "" }] });
+    preserve(sourceRows([native, { ...historical, TRANSACTIONDATE: "06/32/2018" }], [cash], 150_000));
+  });
+
+  it("preserves current null non-itemized donors until an explicit anonymous identity contract is verified", () => {
+    const anonymous = { ...native, TRANSACTIONID: 2, CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)", AMOUNT: 100 };
+    const bulk = { ...cash, contributionId: "2", lastName: "", contributionType: "Cash (Non-Itemized)", contributorType: "Anonymous", amountCents: 10_000 };
+    const result = verifyAlabamaPacCashSource(sourceRows([native, anonymous], [cash, bulk], 160_000));
+    expect(result.pacDonors).toBeUndefined();
+    expect(result.diagnostics).toContain("Unresolved Alabama current non-itemized donor identity");
+  });
   it("does not equate latest bulk FiledDate with original native filing date or Amended flag", () => {
     expect(verifyAlabamaPacCashSource(fixture({ cashRows: [{ ...cash, filedDate: "07/07/2026", amended: "Y" }] })).pacDonors?.[0]?.amount).toBe(1500);
   });

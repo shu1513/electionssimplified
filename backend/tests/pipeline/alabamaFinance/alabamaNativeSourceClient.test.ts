@@ -36,6 +36,26 @@ describe("Alabama authoritative native source client", () => {
     expect(await getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never })).toEqual([historical]);
   });
 
+  it("retains literal null for historical non-itemized cash in the full ledger", async () => {
+    const historical = { ...row, CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)", TRANSACTIONDATE: "06/22/2018" };
+    const fetchImpl = vi.fn(async () => response(1, [historical]));
+    expect(await getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never })).toEqual([historical]);
+  });
+
+  it("rejects a nameless receipt in the source-typed PAC filter", async () => {
+    const fetchImpl = vi.fn(async () => response(1, [{ ...row, CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" }]));
+    await expect(getAlabamaNativeContributionRows({ ...input, pacOnly: true }, { fetchImpl: fetchImpl as never })).rejects.toThrow("invalid or repeated identities");
+  });
+
+  it.each([
+    { CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Unknown" },
+    { CONTRIBUTOR: null, CONTRIBUTIONTYPE: "In-Kind (Non-Itemized)" },
+    { CONTRIBUTOR: undefined, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" },
+  ])("does not extend the observed null schema to other missing donor fields: %j", async (change) => {
+    const fetchImpl = vi.fn(async () => response(1, [{ ...row, ...change }]));
+    await expect(getAlabamaNativeContributionRows(input, { fetchImpl: fetchImpl as never })).rejects.toThrow("invalid or repeated identities");
+  });
+
   it.each([
     { ...row, TRANSACTIONID: 0 }, { ...row, TRANSACTIONID: "1871301" },
     { ...row, COMMITTEEID: 25079 }, { ...row, AMOUNT: null },

@@ -516,7 +516,8 @@ export type AlabamaNativeContributionRow = {
   /** Internal receiving id; the request uses its public FCPA number. */
   COMMITTEEID: number;
   FILINGDATE: string;
-  CONTRIBUTOR: string;
+  /** Historical non-itemized cash can omit a donor; preserve the literal null. */
+  CONTRIBUTOR: string | null;
   CITYSTATE?: string | null;
   ZIP?: string | null;
   CONTRIBUTIONTYPE: string;
@@ -550,8 +551,10 @@ export async function getAlabamaNativeContributionRows(
     if (!row || !Number.isSafeInteger(row.TRANSACTIONID) || row.TRANSACTIONID <= 0
       || ids.has(row.TRANSACTIONID) || row.COMMITTEEID !== input.internalCommitteeId
       || typeof row.AMOUNT !== "number" || !Number.isFinite(row.AMOUNT)
-      || [row.FILINGDATE, row.CONTRIBUTOR, row.CONTRIBUTIONTYPE, row.TRANSACTIONDATE, row.RECIPIENTNAME]
+      || [row.FILINGDATE, row.CONTRIBUTIONTYPE, row.TRANSACTIONDATE, row.RECIPIENTNAME]
         .some((v) => typeof v !== "string")
+      || (typeof row.CONTRIBUTOR !== "string"
+        && !(row.CONTRIBUTOR === null && row.CONTRIBUTIONTYPE === "Cash (Non-Itemized)" && !input.pacOnly))
       || [row.CITYSTATE, row.ZIP, row.DESCRIPTION].some((v) => v != null && typeof v !== "string")) {
       throw new AlabamaFcpaClientError("bad_response", "Alabama receipt list has invalid or repeated identities");
     }
