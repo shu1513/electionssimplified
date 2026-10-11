@@ -99,6 +99,7 @@ describe("Maryland CFS artifact reader", () => {
         line('"Feldman, Brian Citizens For"', 'O"Meara', "$250.00", '"1 Churchview Road, Suite 301"'),
         line('"Beidle, Pam Friends of"', 'McDonald"s', "$250", '"Belt"s Transportation, Inc."'),
         line("Plain Committee", '"Quoted ""escaped"" Name"', "$5.00", '"Trailing" '),
+        line(' "Spaced, Committee"', "Last", "$1.00", " plain"),
       ].join("\r\n")
     );
     expect(
@@ -107,6 +108,7 @@ describe("Maryland CFS artifact reader", () => {
       ["Feldman, Brian Citizens For", 'O"Meara', "$250.00", "1 Churchview Road, Suite 301"],
       ["Beidle, Pam Friends of", 'McDonald"s', "$250", 'Belt"s Transportation, Inc.'],
       ["Plain Committee", 'Quoted "escaped" Name', "$5.00", "Trailing"],
+      ["Spaced, Committee", "Last", "$1.00", "plain"],
     ]);
   });
 

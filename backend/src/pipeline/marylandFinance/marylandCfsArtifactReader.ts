@@ -259,7 +259,7 @@ function rowObjectFromCells<TColumns extends readonly string[]>(
 
 // CFS does not escape quotes: a quote appears inside unquoted fields
 // (O"Meara, McDonald"s) and inside quoted ones. A quote opens a quoted field
-// only at the start of a field, and ends one only when nothing but spaces
+// only at the start of a field (spaces before it allowed), and ends one only when nothing but spaces
 // separates it from a comma, a line end, or the end of the text; any other
 // quote is content. Reading every quote as a delimiter put the parser out of
 // phase and failed the whole yearly load.
@@ -296,7 +296,8 @@ function parseCsvRows(csv: string): string[][] {
       continue;
     }
 
-    if (char === '"' && field.length === 0) {
+    if (char === '"' && /^[ \t]*$/.test(field)) {
+      field = "";
       inQuotes = true;
       continue;
     }
@@ -462,7 +463,8 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
           continue;
         }
 
-        if (char === '"' && field.length === 0) {
+        if (char === '"' && /^[ \t]*$/.test(field)) {
+          field = "";
           inQuotes = true;
           continue;
         }

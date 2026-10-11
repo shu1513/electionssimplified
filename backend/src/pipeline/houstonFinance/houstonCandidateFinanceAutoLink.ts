@@ -40,10 +40,12 @@ export async function listHoustonCandidateElectionsMissingFinanceLinks(input: {
       AND candidate_election.status NOT IN ('withdrawn', 'lost')
       AND NOT EXISTS (SELECT 1 FROM public.hou_candidate_finance_links link
         WHERE link.candidate_id = candidate.id AND link.election_id = election.id AND link.link_status = 'active')
-    -- Upcoming races first, then random: unmatched candidates never get a
-    -- link, so a stable order under a row cap retried the same prefix every
-    -- run and starved the tail (Katie Hobbs was never attempted).
-    ORDER BY (election.election_date < CURRENT_DATE) ASC, random() LIMIT $2
+    -- Random order, biased toward upcoming races: unmatched candidates never
+    -- get a link, so a stable order under a row cap retried the same prefix
+    -- every run and starved the tail (Katie Hobbs was never attempted). The
+    -- bias is a weight, not a tier, so past races within the window still
+    -- rotate in under the cap.
+    ORDER BY random() + CASE WHEN election.election_date < CURRENT_DATE THEN 0.5 ELSE 0 END LIMIT $2
   `, [input.now.toISOString(), input.maxCandidates, input.lookbackDays, input.lookaheadDays, HOUSTON_CITY_GEOID, HOUSTON_FINANCE_OFFICE_NAMES]);
   return result.rows.flatMap((row) => {
     const officeTarget = resolveHoustonElectionOfficeTarget({

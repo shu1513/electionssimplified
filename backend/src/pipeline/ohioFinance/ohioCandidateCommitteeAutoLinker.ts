@@ -144,10 +144,7 @@ export async function listOhioCandidateElectionsMissingFinanceLinks(
           $6::date IS NULL
           OR (election.election_date, election.id, candidate.id) > ($6::date, $7::uuid, $8::uuid)
         )
-      -- Upcoming races first, then random: unmatched candidates never get a
-      -- link, so a stable order under a row cap retried the same prefix every
-      -- run and starved the tail (Katie Hobbs was never attempted).
-      ORDER BY (election.election_date < CURRENT_DATE) ASC, random()
+      ORDER BY election.election_date ASC, election.id ASC, candidate.id ASC
       LIMIT $2::int
     `,
     [
