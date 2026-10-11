@@ -8,6 +8,7 @@ import type {
   FinanceUnallocatedOutsideEdge,
 } from "@voteapp/api-client";
 import {
+  FINANCE_SMALL_AMOUNT_THRESHOLD,
   financeSourceLabel,
   firstFinanceSourceUrl,
   formatElectionDate,
@@ -19,7 +20,9 @@ import {
   hasFinanceContent,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
+  meetsSmallAmountThreshold,
   shouldShowDirectCoverageNote,
+  showsDirectDonorDetail,
   sortContributionSizeBuckets,
   spendingExceedsCycleFunds,
 } from "@voteapp/api-client";
@@ -108,10 +111,11 @@ function BreakdownList({
  * PAC check is capped by law, so the named list is long and flat; the total
  * per interest is what tells candidates apart. Each row opens to the PACs
  * behind it, linked to their FEC pages. `rows` is undefined when the list was
- * not loaded (render nothing) and empty when no PAC gave.
+ * not loaded (render nothing) and empty when no PAC gave. A list under the
+ * small-amount threshold renders nothing either.
  */
 function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
-  if (rows === undefined) {
+  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
   return (
@@ -180,10 +184,11 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
  * count against the group's own giving limit. Each row carries a researched
  * one-line description, because a committee name alone rarely tells a reader
  * whose interests the group works for. `rows` is undefined when the list was
- * not loaded (render nothing) and empty when none were reported.
+ * not loaded (render nothing) and empty when none were reported. A list
+ * under the small-amount threshold renders nothing either.
  */
 function ConduitDonations({ rows }: { rows: FinanceConduitDonation[] | undefined }) {
-  if (rows === undefined) {
+  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
   return (
@@ -266,11 +271,11 @@ function OutsideSection({
   groups: FinanceOutsideGroup[];
   industries: (FinanceBreakdown | FinanceOutsideIndustrySupport)[];
 }) {
-  // An empty direction renders nothing rather than a bare header — a race
-  // often has disclosed support with no disclosed opposition. A disclosed
-  // $0 total counts as empty (the shared helper's rule): "$0 opposing this
-  // candidate" is noise, not information.
-  if (!hasOutsideDirectionContent(total, groups, industries)) {
+  // A direction under the small-amount threshold renders nothing rather than
+  // a bare header — a race often has disclosed support with no disclosed
+  // opposition, and "$445 opposing this candidate" is noise, not information
+  // (the shared helper's rule).
+  if (!hasOutsideDirectionContent(total, groups)) {
     return null;
   }
   const shownTotal = total !== null && total > 0 ? total : null;
@@ -406,8 +411,9 @@ function UnallocatedOutsideEdges({ edges }: { edges: FinanceUnallocatedOutsideEd
  * distinct from independent expenditures — it may even be coordinated with
  * the campaign — so it gets its own section instead of joining the outside
  * totals. One direction line per side, same green/red tint as the outside
- * boxes so direction reads consistently. A $0 side renders nothing (the LA
- * sync writes 0 for every linked candidate).
+ * boxes so direction reads consistently. A side under the small-amount
+ * threshold renders nothing (the LA sync writes 0 for every linked
+ * candidate).
  */
 function MemberCommunicationsSection({
   supportTotal,
@@ -429,7 +435,7 @@ function MemberCommunicationsSection({
       boxClass: "border-red-200 bg-red-50",
       textClass: "text-red-900",
     },
-  ].filter((row) => (row.amount ?? 0) > 0);
+  ].filter((row) => (row.amount ?? 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD);
   if (rows.length === 0) {
     return null;
   }
@@ -516,25 +522,31 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
       {shouldShowDirectCoverageNote(summary) ? (
         <p className="mt-1 text-xs text-ink-soft">{direct.direct_coverage_note}</p>
       ) : null}
-      <BreakdownList
-        heading="Top disclosed occupations of direct donors"
-        rows={direct.top_occupations}
-        visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
-      />
-      <BreakdownList
-        heading="Industries represented among direct contributions"
-        rows={directIndustries}
-        visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
-      />
-      {(direct.contribution_size_buckets ?? []).length > 0 ? (
-        // Collapsed by default: size buckets are secondary detail next to
-        // the money row and occupations.
-        <details className="mt-3">
-          <summary className="cursor-pointer select-none text-xs font-semibold uppercase tracking-wide text-ink-soft underline hover:text-ink">
-            Direct contributions by size
-          </summary>
-          <BreakdownRows rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])} />
-        </details>
+      {/* Donor detail is secondary to the money row; a campaign under the
+          small-amount threshold keeps its Raised figure and nothing else. */}
+      {showsDirectDonorDetail(summary) ? (
+        <>
+          <BreakdownList
+            heading="Top disclosed occupations of direct donors"
+            rows={direct.top_occupations}
+            visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
+          />
+          <BreakdownList
+            heading="Industries represented among direct contributions"
+            rows={directIndustries}
+            visibleCount={VISIBLE_DIRECT_BREAKDOWNS}
+          />
+          {(direct.contribution_size_buckets ?? []).length > 0 ? (
+            // Collapsed by default: size buckets are secondary detail next to
+            // the money row and occupations.
+            <details className="mt-3">
+              <summary className="cursor-pointer select-none text-xs font-semibold uppercase tracking-wide text-ink-soft underline hover:text-ink">
+                Direct contributions by size
+              </summary>
+              <BreakdownRows rows={sortContributionSizeBuckets(direct.contribution_size_buckets ?? [])} />
+            </details>
+          ) : null}
+        </>
       ) : null}
 
       <PacMoneyByInterest rows={direct.pac_money_by_interest} />

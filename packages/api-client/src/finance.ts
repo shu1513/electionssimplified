@@ -31,6 +31,38 @@ const FINANCE_SOURCE_HOME_URLS: Partial<Record<FinanceSummary["source"], string>
 // render" stays one definition across platforms.
 
 /**
+ * Amounts under this are not worth a reader's attention and are not shown as
+ * their own section or sentence: "Outside groups spent $445 to support this
+ * candidate" invites a conclusion the money cannot carry, and the donor
+ * breakdown of a $3,000 campaign says nothing. The rows stay stored and
+ * summed; only the cards hide them, so a late filing simply brings the
+ * section back. "Raised" itself is never hidden: a small number is the
+ * information.
+ */
+export const FINANCE_SMALL_AMOUNT_THRESHOLD = 5000;
+
+/**
+ * True for an empty list (nothing reported) or one whose amounts reach the
+ * threshold. The backend sends only the top few rows of each list, so this
+ * judges what the card would show, not the full disclosed total: a long
+ * tail of small rows below the cut does not bring the section back, because
+ * the rows it would show are exactly the small money the threshold hides.
+ */
+export function meetsSmallAmountThreshold(rows: readonly { amount: number }[]): boolean {
+  return rows.length === 0 || rows.reduce((sum, row) => sum + row.amount, 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD;
+}
+
+/**
+ * Whether the card shows the direct-donor detail (occupations, industries,
+ * size buckets) under the money row. A campaign under the threshold keeps
+ * its "Raised" figure and nothing else; an unreported total hides nothing.
+ */
+export function showsDirectDonorDetail(summary: FinanceSummary): boolean {
+  const raised = summary.direct_campaign.total_raised;
+  return raised === null || raised >= FINANCE_SMALL_AMOUNT_THRESHOLD;
+}
+
+/**
  * Whether a summary has anything worth rendering. null money values mean
  * "not reported" and hide; an explicit 0 is a real disclosed amount and
  * counts as content. Employers are not rendered. Direct industries render
@@ -132,32 +164,26 @@ export function shouldShowDirectCoverageNote(summary: FinanceSummary): boolean {
 
 /**
  * Whether one outside-spending direction (support or opposition) has
- * anything worth a box. A disclosed $0 total with no groups and no
- * industries hides: several syncs write totals for every linked candidate,
- * so "$0 opposing this candidate" reads as noise, not information.
+ * anything worth a box: its money, taken as the larger of the disclosed
+ * total and the listed groups' amounts (a sync can write a $0 total beside
+ * real group rows), reaches the small-amount threshold. Industry rows are
+ * donations into the groups, not spending on the race, so they never open a
+ * box on their own.
  */
 export function hasOutsideDirectionContent(
   total: number | null | undefined,
-  groups: readonly unknown[],
-  industries: readonly unknown[]
+  groups: readonly { amount: number }[]
 ): boolean {
-  return (total ?? 0) > 0 || groups.length > 0 || industries.length > 0;
+  const groupsTotal = groups.reduce((sum, group) => sum + group.amount, 0);
+  return Math.max(total ?? 0, groupsTotal) >= FINANCE_SMALL_AMOUNT_THRESHOLD;
 }
 
 export function hasOutsideFinanceContent(summary: FinanceSummary): boolean {
   const outside = summary.outside_spending;
   return (
     (outside.unallocated_candidate_edges?.length ?? 0) > 0 ||
-    hasOutsideDirectionContent(
-      outside.support_total,
-      outside.top_supporting_groups,
-      outside.top_supporting_industries
-    ) ||
-    hasOutsideDirectionContent(
-      outside.oppose_total,
-      outside.top_opposing_groups,
-      outside.top_opposing_industries
-    )
+    hasOutsideDirectionContent(outside.support_total, outside.top_supporting_groups) ||
+    hasOutsideDirectionContent(outside.oppose_total, outside.top_opposing_groups)
   );
 }
 
@@ -176,5 +202,8 @@ export function formatPacCount(count: number): string {
  */
 export function hasMemberCommunications(summary: FinanceSummary): boolean {
   const outside = summary.outside_spending;
-  return (outside.membership_support_total ?? 0) > 0 || (outside.membership_oppose_total ?? 0) > 0;
+  return (
+    (outside.membership_support_total ?? 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD ||
+    (outside.membership_oppose_total ?? 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD
+  );
 }

@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  FINANCE_SMALL_AMOUNT_THRESHOLD,
   firstFinanceSourceUrl,
   hasFinanceContent,
   hasMemberCommunications,
   hasOutsideFinanceContent,
+  meetsSmallAmountThreshold,
   shouldShowDirectCoverageNote,
+  showsDirectDonorDetail,
   spendingExceedsCycleFunds,
 } from "./finance";
 import type { FinanceSummary } from "./types";
@@ -170,24 +173,37 @@ describe("outside spending direction gating", () => {
     expect(hasFinanceContent(summary)).toBe(false);
   });
 
-  it("a positive total, a group, or an industry each count", () => {
+  it("a direction counts from the small-amount threshold, by its total or its groups' amounts", () => {
+    const underThreshold = emptySummary();
+    underThreshold.outside_spending.oppose_total = 4999.99;
+    expect(hasOutsideFinanceContent(underThreshold)).toBe(false);
+
     const withTotal = emptySummary();
-    withTotal.outside_spending.oppose_total = 1;
+    withTotal.outside_spending.oppose_total = FINANCE_SMALL_AMOUNT_THRESHOLD;
     expect(hasOutsideFinanceContent(withTotal)).toBe(true);
 
+    // A sync can write a $0 total beside real group rows: the groups decide.
     const withGroup = emptySummary();
     withGroup.outside_spending.support_total = 0;
     withGroup.outside_spending.top_supporting_groups = [
-      { committee_id: "C1", committee_name: "Growth PAC", support_oppose: "support", amount: 5, source_url: null },
+      { committee_id: "C1", committee_name: "Growth PAC", support_oppose: "support", amount: 20000, source_url: null },
     ];
     expect(hasOutsideFinanceContent(withGroup)).toBe(true);
 
+    const withSmallGroup = emptySummary();
+    withSmallGroup.outside_spending.support_total = null;
+    withSmallGroup.outside_spending.top_supporting_groups = [
+      { committee_id: "C1", committee_name: "Growth PAC", support_oppose: "support", amount: 444.96, source_url: null },
+    ];
+    expect(hasOutsideFinanceContent(withSmallGroup)).toBe(false);
+
+    // Industry rows are donations into groups, not spending on the race.
     const withIndustry = emptySummary();
     withIndustry.outside_spending.oppose_total = 0;
     withIndustry.outside_spending.top_opposing_industries = [
-      { category_name: "technology", amount: 5, contributor_count: null, source_url: null },
+      { category_name: "technology", amount: 50000, contributor_count: null, source_url: null },
     ];
-    expect(hasOutsideFinanceContent(withIndustry)).toBe(true);
+    expect(hasOutsideFinanceContent(withIndustry)).toBe(false);
   });
 
   it("treats unallocated candidate evidence as content and exposes its source", () => {
@@ -232,10 +248,29 @@ describe("member communications (LA)", () => {
     expect(hasFinanceContent(summary)).toBe(false);
   });
 
-  it("an oppose-only disclosure also counts", () => {
+  it("an oppose-only disclosure also counts, but only from the small-amount threshold", () => {
     const summary = emptySummary();
-    summary.outside_spending.membership_oppose_total = 1200;
+    summary.outside_spending.membership_oppose_total = 12000;
     expect(hasMemberCommunications(summary)).toBe(true);
+    summary.outside_spending.membership_oppose_total = 1200;
+    expect(hasMemberCommunications(summary)).toBe(false);
+  });
+});
+
+describe("small-amount threshold", () => {
+  it("keeps direct donor detail unless raised is reported under the threshold", () => {
+    const summary = emptySummary();
+    expect(showsDirectDonorDetail(summary)).toBe(true);
+    summary.direct_campaign.total_raised = 3200;
+    expect(showsDirectDonorDetail(summary)).toBe(false);
+    summary.direct_campaign.total_raised = FINANCE_SMALL_AMOUNT_THRESHOLD;
+    expect(showsDirectDonorDetail(summary)).toBe(true);
+  });
+
+  it("treats an empty list as reported-none and sums a non-empty one", () => {
+    expect(meetsSmallAmountThreshold([])).toBe(true);
+    expect(meetsSmallAmountThreshold([{ amount: 3000 }, { amount: 1999.99 }])).toBe(false);
+    expect(meetsSmallAmountThreshold([{ amount: 3000 }, { amount: 2000 }])).toBe(true);
   });
 });
 

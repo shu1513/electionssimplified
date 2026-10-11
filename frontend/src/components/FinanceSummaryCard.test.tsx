@@ -15,10 +15,10 @@ describe("hasFinanceContent", () => {
     expect(hasFinanceContent(summary)).toBe(true);
   });
 
-  it("is true when only a breakdown list is populated", () => {
+  it("is true when only a direct breakdown list is populated", () => {
     const summary = emptyFinanceSummary();
-    summary.outside_spending.top_supporting_industries = [
-      { category_name: "technology", amount: 100, contributor_count: null, source_url: null },
+    summary.direct_campaign.top_occupations = [
+      { category_name: "Retired", amount: 100, contributor_count: null, source_url: null },
     ];
     expect(hasFinanceContent(summary)).toBe(true);
   });
@@ -130,11 +130,11 @@ describe("FinanceSummaryCard", () => {
       { category_name: "Retired", amount: 20000, contributor_count: 42, source_url: null },
     ];
     // The Phase 2b hard gate: Montana outside data ships with this footnote.
-    summary.outside_spending.support_total = 1234.56;
+    summary.outside_spending.support_total = 12345.6;
     summary.outside_spending.outside_coverage_note =
       "Counts only independent expenditures whose disclosed target could be verified; many Montana filings name no verifiable candidate and are excluded. Montana support totals can include spending that benefits a candidate by opposing an opponent; opposition is shown only where the filer declared it.";
     summary.outside_spending.top_supporting_groups = [
-      { committee_id: "100", committee_name: "Good PAC", support_oppose: "support", amount: 1234.56, source_url: null },
+      { committee_id: "100", committee_name: "Good PAC", support_oppose: "support", amount: 12345.6, source_url: null },
     ];
 
     render(<FinanceSummaryCard summary={summary} />);
@@ -696,5 +696,79 @@ describe("FinanceSummaryCard", () => {
     expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
     rerender(<FinanceSummaryCard summary={financeSummary()} />);
     expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+  });
+
+  describe("small amounts", () => {
+    it("hides an outside-spending direction under $5,000 and keeps the other", () => {
+      const summary = financeSummary();
+      summary.outside_spending.support_total = 444.96;
+      summary.outside_spending.top_supporting_groups = [
+        { committee_id: "ibew-98", committee_name: "IBEW Local 98 COPE", support_oppose: "support", amount: 444.96, source_url: null },
+      ];
+      summary.backing_summary = undefined;
+      summary.outside_spending.top_supporting_industries = [];
+      render(<FinanceSummaryCard summary={summary} />);
+
+      expect(screen.queryByText(/Outside groups spent .* to support/)).not.toBeInTheDocument();
+      expect(screen.queryByText("IBEW Local 98 COPE")).not.toBeInTheDocument();
+      expect(screen.getByText("Outside groups spent $20,000 to oppose this candidate.")).toBeInTheDocument();
+    });
+
+    it("drops the whole outside section when both directions are under $5,000", () => {
+      const summary = financeSummary();
+      summary.outside_spending.support_total = 444.96;
+      summary.outside_spending.top_supporting_groups = [];
+      summary.outside_spending.top_supporting_industries = [];
+      summary.backing_summary = undefined;
+      summary.outside_spending.oppose_total = 1200;
+      summary.outside_spending.top_opposing_groups = [];
+      summary.outside_spending.top_opposing_industries = [];
+      render(<FinanceSummaryCard summary={summary} />);
+
+      expect(screen.queryByText("Spending by outside groups")).not.toBeInTheDocument();
+      expect(screen.getByText("Raised")).toBeInTheDocument();
+    });
+
+    it("keeps Raised but hides the donor detail for a campaign under $5,000", () => {
+      const summary = financeSummary();
+      summary.direct_campaign.total_raised = 3200;
+      render(<FinanceSummaryCard summary={summary} />);
+
+      expect(screen.getByText("Raised")).toBeInTheDocument();
+      expect(screen.getByText("$3,200")).toBeInTheDocument();
+      expect(screen.queryByText("Top disclosed occupations of direct donors")).not.toBeInTheDocument();
+      expect(screen.queryByText("Direct contributions by size")).not.toBeInTheDocument();
+      // Outside spending is a different pot of money and stays.
+      expect(screen.getByText("Outside groups spent $50,000 to support this candidate.")).toBeInTheDocument();
+    });
+
+    it("hides PAC money and conduit lists under $5,000 but still says when none was reported", () => {
+      const summary = financeSummary();
+      summary.direct_campaign.pac_money_by_interest = [
+        { interest: "labor_unions", interest_name: "Labor unions", amount: 3000, pac_count: 2, pacs: [] },
+      ];
+      summary.direct_campaign.conduit_donations = [
+        { committee_id: "C1", committee_name: "Small Conduit", amount: 900, contribution_count: 3, source_url: null },
+      ];
+      const { rerender } = render(<FinanceSummaryCard summary={summary} />);
+      expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+      expect(screen.queryByText("Donations sent through groups")).not.toBeInTheDocument();
+
+      summary.direct_campaign.pac_money_by_interest = [];
+      summary.direct_campaign.conduit_donations = [];
+      rerender(<FinanceSummaryCard summary={summary} />);
+      expect(screen.getByText("No PAC donations reported.")).toBeInTheDocument();
+      expect(screen.getByText("No donations sent through groups reported.")).toBeInTheDocument();
+    });
+
+    it("hides member communications under $5,000", () => {
+      const summary = financeSummary();
+      summary.outside_spending.membership_support_total = 1000;
+      summary.outside_spending.membership_oppose_total = 12000;
+      render(<FinanceSummaryCard summary={summary} />);
+
+      expect(screen.queryByText(/These organizations spent \$1,000 to support/)).not.toBeInTheDocument();
+      expect(screen.getByText(/These organizations spent \$12,000 to oppose/)).toBeInTheDocument();
+    });
   });
 });
