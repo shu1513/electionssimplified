@@ -7,6 +7,7 @@ import {
 } from "../finance/standardStateFinanceMissingLinksQuery.js";
 
 import {
+  maineCandidateFirstLastKeys,
   normalizeMaineCandidateNameForStorage,
   normalizeMaineCandidateNameKeys,
   resolveMaineCandidateCommittee,
@@ -40,19 +41,34 @@ function contributionCandidateName(row: MaineCfisContributionRow): string {
   return row["Candidate Name"].trim();
 }
 
+// The pre-filter must admit every row the resolver could match. The resolver
+// matches full-name keys and, through its middle-evidence fallback, any
+// first+last alignment, including a nickname first name ("David G. Haggan" vs
+// "Haggan, David"; "Mike" vs "MICHAEL"). Keyed on full names only, those rows
+// were dropped before resolution. Nicknames expand on the VoteApp side only.
 export function buildMaineCandidateNamePredicate(
   candidates: readonly MaineFinanceAutoLinkCandidateElection[]
 ): (row: MaineCfisContributionRow) => boolean {
   const candidateNameKeys = new Set<string>();
+  const candidateFirstLastKeys = new Set<string>();
   for (const candidate of candidates) {
     for (const key of normalizeMaineCandidateNameKeys(candidate.candidateName)) {
       candidateNameKeys.add(key);
     }
+    for (const key of maineCandidateFirstLastKeys(candidate.candidateName, { expandNicknames: true })) {
+      candidateFirstLastKeys.add(key);
+    }
   }
 
   return (row) => {
-    for (const rowKey of normalizeMaineCandidateNameKeys(contributionCandidateName(row))) {
+    const rowName = contributionCandidateName(row);
+    for (const rowKey of normalizeMaineCandidateNameKeys(rowName)) {
       if (candidateNameKeys.has(rowKey)) {
+        return true;
+      }
+    }
+    for (const rowKey of maineCandidateFirstLastKeys(rowName)) {
+      if (candidateFirstLastKeys.has(rowKey)) {
         return true;
       }
     }

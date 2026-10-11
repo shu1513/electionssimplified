@@ -223,6 +223,68 @@ describe("maineCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches a formal first name through nicknames, VoteApp side only", () => {
+    // VoteApp stores the campaign name "Mike Tipping" (Senate District 8);
+    // a source row filed as the formal name must still link.
+    const resolve = (candidateName: string, rowNames: string[]) =>
+      resolveMaineCandidateCommittee({
+        candidateName,
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "8",
+        electionYear: 2026,
+        contributionRows: rowNames.map((rowName, index) =>
+          contribution({
+            OrgID: String(2001 + index),
+            "Candidate Name": rowName,
+            "Receipt Date": "05/01/2026",
+            Office: "Senator",
+            District: "8",
+          })
+        ),
+      });
+
+    expect(resolve("Mike Tipping", ["Michael Tipping"])).toMatchObject({ status: "matched", committeeId: "2001" });
+    expect(resolve("Mike Tipping", ["Tipping, Michael D"])).toMatchObject({ status: "matched", committeeId: "2001" });
+    // A different first name with the same surname never matches.
+    expect(resolve("Mike Tipping", ["Mark Tipping"])).toMatchObject({
+      status: "unmatched",
+      reason: "no_candidate_committee_match",
+    });
+    // A literal match wins over a nickname match on another committee.
+    expect(resolve("Mike Tipping", ["Michael Tipping", "Mike Tipping"])).toMatchObject({
+      status: "matched",
+      committeeId: "2002",
+    });
+    // A contradicting middle initial still refuses through the nickname path.
+    expect(resolve("Mike A. Tipping", ["Tipping, Michael D"])).toMatchObject({
+      status: "unmatched",
+      reason: "no_candidate_committee_match",
+    });
+  });
+
+  it("matches a ballot name with a middle initial to a row without one", () => {
+    // VoteApp stores "David G. Haggan" (Senate District 10).
+    expect(
+      resolveMaineCandidateCommittee({
+        candidateName: "David G. Haggan",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "10",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({
+            OrgID: "3001",
+            "Candidate Name": "David Haggan",
+            "Receipt Date": "04/02/2026",
+            Office: "Senator",
+            District: "10",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "3001" });
+  });
+
   it("treats a bare trailing V as a middle initial, not a generational suffix", () => {
     // Bare "V" is a middle initial, not a suffix (shared GENERATIONAL_SUFFIX_RANK
     // policy in finance/personNameMiddleEvidence.ts), so it must survive

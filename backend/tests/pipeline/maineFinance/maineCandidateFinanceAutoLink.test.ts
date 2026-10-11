@@ -62,6 +62,32 @@ describe("maineCandidateFinanceAutoLink", () => {
     expect(predicate(contribution({ "Candidate Name": "Other Candidate" }))).toBe(false);
   });
 
+  it("admits rows that differ only by a middle initial or a formal first name", () => {
+    const candidate = (candidateName: string, district: string) => ({
+      candidateId: `candidate-${candidateName}`,
+      electionId: "election-1",
+      candidateName,
+      electionYear: 2026,
+      officeScope: "state_upper",
+      officeName: "State Senator",
+      district,
+    });
+    // VoteApp stores the ballot name with a middle initial (David G. Haggan)
+    // or the campaign name (Mike Tipping); the full-name keys alone dropped
+    // every source row for both before the resolver ran.
+    const predicate = buildMaineCandidateNamePredicate([
+      candidate("David G. Haggan", "10"),
+      candidate("Mike Tipping", "8"),
+    ]);
+
+    expect(predicate(contribution({ "Candidate Name": "David Haggan" }))).toBe(true);
+    expect(predicate(contribution({ "Candidate Name": "Haggan, David G" }))).toBe(true);
+    expect(predicate(contribution({ "Candidate Name": "Michael Tipping" }))).toBe(true);
+    expect(predicate(contribution({ "Candidate Name": "Tipping, Michael" }))).toBe(true);
+    expect(predicate(contribution({ "Candidate Name": "Daniel Haggan" }))).toBe(false);
+    expect(predicate(contribution({ "Candidate Name": "Mike Tippett" }))).toBe(false);
+  });
+
   it("queries missing Maine candidate elections", async () => {
     const db = {
       query: vi.fn().mockResolvedValue({
