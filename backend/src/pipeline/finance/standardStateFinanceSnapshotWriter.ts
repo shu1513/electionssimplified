@@ -87,6 +87,9 @@ export type StandardStateFinanceSnapshotInput<
   outsideGroups?: readonly StandardStateFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly StandardStateFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  // State ownership checks and transaction locks must precede link insertion.
+  // Failure aborts the snapshot before any link or finance row is changed.
+  beforeSnapshotWrite?: (input: { db: Queryable }) => Promise<void>;
   // Writes a state-only summary column inside the same transaction, right
   // after the shared summary upsert (D.C. public_funds_received).
   afterSummaryWrite?: (input: { db: Queryable; linkId: string; electionYear: number }) => Promise<void>;
@@ -884,6 +887,7 @@ export function createStandardStateFinanceSnapshotWriter<
     const electionYear = normalizeElectionYear(input.link.electionYear);
 
     return await withTransaction(input.db, async (db) => {
+      await input.beforeSnapshotWrite?.({ db });
       const { linkId } = await upsertLink({ db, link: input.link });
       await deactivateSupersededLinks({ db, link: input.link, activeLinkId: linkId });
       if (input.summary) {
