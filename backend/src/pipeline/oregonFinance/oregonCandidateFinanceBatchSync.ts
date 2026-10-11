@@ -20,6 +20,7 @@ import {
   type OregonOrestarClientOptions,
 } from "./oregonOrestarClient.js";
 import type { OregonOrestarTransactionDetail } from "./oregonOrestarParser.js";
+import { loadOregonVerifiedFinanceForCandidate, type OregonVerifiedFinanceBatchLoadResult } from "./oregonVerifiedFinanceBatchLoader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
@@ -62,6 +63,8 @@ export type OregonCandidateFinanceBatchSyncInput = {
   loadCandidateSearchRows?: OregonCandidateSearchRowsLoader;
   resolveCandidateCommittee?: OregonCandidateCommitteeResolver;
   loadTransactionDetails?: OregonTransactionDetailsLoader;
+  rawCacheDir?: string;
+  loadVerifiedFinance?: (row: OregonCandidateFinanceDueRow) => Promise<OregonVerifiedFinanceBatchLoadResult>;
   syncOregonCandidateFinanceFn?: typeof syncOregonCandidateFinance;
 };
 
@@ -408,6 +411,14 @@ export async function syncDueOregonCandidateFinance(
   for (const row of due.rows) {
     try {
       const transactionDetails = await loadTransactionDetails(row);
+      let verified: OregonVerifiedFinanceBatchLoadResult;
+      try {
+        verified = await (input.loadVerifiedFinance ? input.loadVerifiedFinance(row) : loadOregonVerifiedFinanceForCandidate({
+          db: input.db, row, refresh: input.refresh, rawCacheDir: input.rawCacheDir, clientOptions: orestarClientOptions,
+        }));
+      } catch (error) {
+        verified = { diagnostics: [`Oregon verified source acquisition failed: ${error instanceof Error ? error.message : String(error)}`] };
+      }
       const result = await syncFn({
         db: input.db,
         candidateId: row.candidateId,
@@ -420,6 +431,9 @@ export async function syncDueOregonCandidateFinance(
         committeeName: row.committeeName,
         sourceUrl: row.sourceUrl,
         transactionDetails,
+        verifiedFinance: verified.components,
+        verifiedFinanceDiagnostics: verified.diagnostics,
+        verifiedSourceGenerationDir: verified.generationDir,
         directMaxBreakdownsPerCategory: input.directMaxBreakdownsPerCategory,
         outsideMaxGroups: input.outsideMaxGroups,
         outsideMaxBreakdownsPerCategory: input.outsideMaxBreakdownsPerCategory,

@@ -1,4 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import { loadOregonVerifiedFinanceForCandidate } from "../../../src/pipeline/oregonFinance/oregonVerifiedFinanceBatchLoader.js";
+
+vi.mock("../../../src/pipeline/oregonFinance/oregonVerifiedFinanceBatchLoader.js", () => ({
+  loadOregonVerifiedFinanceForCandidate: vi.fn(async () => ({ diagnostics: [] })),
+}));
 
 import {
   buildOregonOrestarCommitteeExportWorkbook,
@@ -43,6 +48,38 @@ function htmlResponse(html: string, overrides: Partial<{ ok: boolean; status: nu
 }
 
 describe("oregonCandidateFinanceBatchSync", () => {
+  it("calls verified acquisition in the normal batch and forwards its independent components", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [dueRow()], rowCount: 1 })), connect: vi.fn() };
+    const components = { candidateContext: {
+      candidateId: CANDIDATE_ID, electionId: ELECTION_ID, committeeId: "4792", candidateName: "Tina Kotek",
+      electionYear: 2026, electionType: "General" as const, officeName: "Governor", district: null,
+    } };
+    vi.mocked(loadOregonVerifiedFinanceForCandidate).mockResolvedValueOnce({
+      components, diagnostics: ["Outside payer omitted"], generationDir: "/tmp/test-public-generation",
+    });
+    const sync = vi.fn(async (_input: unknown) => ({ candidateId: CANDIDATE_ID }));
+    await syncDueOregonCandidateFinance({ db, now: NOW, maxCandidates: 1, refresh: true,
+      rawCacheDir: "/tmp/test-public-cache", autoLinkMissingLinks: false,
+      loadTransactionDetails: async () => [], syncOregonCandidateFinanceFn: sync as never });
+    expect(loadOregonVerifiedFinanceForCandidate).toHaveBeenCalledWith(expect.objectContaining({
+      db, refresh: true, rawCacheDir: "/tmp/test-public-cache", row: expect.objectContaining({ committeeId: "4792" }),
+    }));
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ verifiedFinance: components,
+      verifiedFinanceDiagnostics: ["Outside payer omitted"], verifiedSourceGenerationDir: "/tmp/test-public-generation" }));
+  });
+
+  it("preserves verified components on acquisition failure while syncing available receipts", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [dueRow()], rowCount: 1 })), connect: vi.fn() };
+    vi.mocked(loadOregonVerifiedFinanceForCandidate).mockRejectedValueOnce(new Error("Portal blocked"));
+    const sync = vi.fn(async (_input: unknown) => ({ candidateId: CANDIDATE_ID }));
+    const result = await syncDueOregonCandidateFinance({ db, now: NOW, maxCandidates: 1, autoLinkMissingLinks: false,
+      loadTransactionDetails: async () => [], syncOregonCandidateFinanceFn: sync as never });
+    expect(result.syncedCandidateCount).toBe(1);
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ verifiedFinance: undefined,
+      verifiedFinanceDiagnostics: ["Oregon verified source acquisition failed: Portal blocked"] }));
+    expect(sync.mock.calls[0]![0]).not.toHaveProperty("outsideTransactionDetails");
+  });
+
   it("lists active Oregon finance links that are due for sync", async () => {
     const db = {
       query: vi.fn(async () => ({
