@@ -54,6 +54,38 @@ function poolWithClient() {
 }
 
 describe("createStandardStateFinanceSnapshotWriter config options", () => {
+  it.each([false, true])("runs state snapshot rows inside the existing transaction with summary=%s", async (withSummary) => {
+    const { db, client } = poolWithClient();
+    const hook = vi.fn(async ({ db: tx }: Pick<Parameters<ReturnType<typeof makeWriter>["replaceSnapshot"]>[0], "db">) => {
+      expect(client.query.mock.calls.map((call) => String(call[0]))).not.toContain("COMMIT");
+      await tx.query("STATE SNAPSHOT ROWS");
+    });
+    const result = await makeWriter().replaceSnapshot({
+      db, link: linkInput(), syncedAt: NOW,
+      ...(withSummary ? { summary: { totalReceipts: 100 } } : {}),
+      afterSnapshotWrite: hook,
+    });
+    expect(hook).toHaveBeenCalledTimes(1);
+    expect(hook).toHaveBeenCalledWith({ db: client, linkId: "link-1", electionYear: 2026, syncedAt: NOW });
+    expect(result.summaryWritten).toBe(withSummary);
+    expect(client.query.mock.calls.at(-2)![0]).toBe("STATE SNAPSHOT ROWS");
+    expect(client.query.mock.calls.at(-1)![0]).toBe("COMMIT");
+    expect(db.connect).toHaveBeenCalledTimes(1);
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([false, true])("rolls back the entire transaction when a state snapshot hook fails with summary=%s", async (withSummary) => {
+    const { db, client } = poolWithClient();
+    await expect(makeWriter().replaceSnapshot({
+      db, link: linkInput(), syncedAt: NOW,
+      ...(withSummary ? { summary: { totalReceipts: 100 } } : {}),
+      afterSnapshotWrite: async () => { throw new Error("State snapshot unavailable"); },
+    })).rejects.toThrow("State snapshot unavailable");
+    expect(client.query.mock.calls.at(-1)![0]).toBe("ROLLBACK");
+    expect(client.query.mock.calls.map((call) => String(call[0]))).not.toContain("COMMIT");
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
   it("enforces the configured election-year floor", async () => {
     const writer = makeWriter({ minElectionYear: 2008 });
     const db = { query: vi.fn() };
