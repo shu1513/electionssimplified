@@ -143,6 +143,8 @@ describe("parseSweepEvidencePayload", () => {
       "Walked the 117th-119th sponsor reports; Congresses before the 117th not searched in this pass.",
       "Not searched roll-call by roll-call; House Journal is the source. Gap disclosed.",
       "Reported as vice chair of the Commerce Committee; no official committee page confirmed it, open coverage gap.",
+      "The 2024 ethics hearing was deferred to a later session; reviewed the official minutes.",
+      "The board skipped this pass of the budget and adopted it at the next meeting; she voted yes.",
     ]) {
       const result = parseSweepEvidencePayload({
         entries: [...validEntries.slice(0, 2), { question: "Any court or ethics records?", finding }],

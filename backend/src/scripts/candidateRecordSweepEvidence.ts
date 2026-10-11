@@ -54,10 +54,12 @@ export const SWEEP_EVIDENCE_MIN_ENTRIES = 3;
  * partial-era disclosure inside an answered question ("Congresses before
  * the 117th not searched in this pass" after the 117th-119th were walked):
  * only a finding that OPENS with the deferral is refused; "open coverage
- * gap" inside an otherwise answered finding is a disclosure, not a skip.
+ * gap" inside an otherwise answered finding is a disclosure, not a skip,
+ * and "the hearing was deferred to a later session" is the subject's
+ * deferral, not the researcher's. Every alternative is start-anchored.
  */
 export const UNSEARCHED_FINDING_PATTERN =
-  /^\s*not\s+(?:yet\s+)?(?:searched|researched)\s+(?:in\s+)?this\s+pass\b|^\s*not\s+(?:yet\s+)?(?:searched|researched|asked|checked)\s*[.;:,!]?\s*$|^\s*open coverage gap\b|\bskipped\s+(?:in\s+)?this\s+pass\b|\bdeferred\s+to\s+a\s+(?:later|future)\s+(?:pass|session|unit)\b/i;
+  /^\s*not\s+(?:yet\s+)?(?:searched|researched)\s+(?:in\s+)?this\s+pass\b|^\s*not\s+(?:yet\s+)?(?:searched|researched|asked|checked)\s*[.;:,!]?\s*$|^\s*open coverage gap\b|^\s*skipped\s+(?:in\s+)?this\s+pass\b|^\s*deferred\s+to\s+a\s+(?:later|future)\s+(?:pass|session|unit)\b/i;
 
 export function isUnsearchedFinding(finding: string): boolean {
   return UNSEARCHED_FINDING_PATTERN.test(finding);
