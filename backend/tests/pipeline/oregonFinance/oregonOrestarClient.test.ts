@@ -646,6 +646,77 @@ describe("oregonOrestarClient", () => {
     expect(params.get("OWASP_CSRFTOKEN")).toBe("committee-csrf-token");
   });
 
+  it("searches one active year, reads the live count wording, and drops repeated export rows", async () => {
+    // Live Oct 2026: "Results : 669 found for the above search criteria" for
+    // yearActive=2026, and an export of 675 rows that repeats some committees.
+    const sueRow = {
+      "Committee Id": 24397,
+      "Committee Name": "Committee to Elect Sue Rieke Smith",
+      "Committee Type": "CC",
+      "Candidate First Name": "Sue",
+      "Candidate Last Name": "Rieke Smith",
+      "Active Election": "2026 General Election",
+    } as const;
+    const workbook = buildOregonOrestarCommitteeExportWorkbook(
+      [
+        sueRow,
+        sueRow,
+        {
+          "Committee Id": 4792,
+          "Committee Name": "Friends of Tina Kotek",
+          "Committee Type": "CC",
+          "Candidate First Name": "Tina",
+          "Candidate Last Name": "Kotek",
+          "Active Election": "2026 General Election",
+        },
+      ],
+      undefined,
+      "xlsx"
+    );
+    const searchBodies: string[] = [];
+    const fetchFn = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.includes("CommitteeSearchSecondPage.do")) {
+        searchBodies.push(String(init?.body));
+        return htmlResponse(`
+          <a href="XcelSooSearch" target="_blank">Export To Excel Format</a>
+          <tr><td><strong>Results : </strong></td><td>2 found for the above search criteria</td></tr>
+        `);
+      }
+      if (url.includes("XcelSooSearch")) {
+        return {
+          ...htmlResponse(""),
+          arrayBuffer: async () => workbook.buffer.slice(workbook.byteOffset, workbook.byteOffset + workbook.byteLength),
+        };
+      }
+      return htmlResponse(`
+        <form name="CommitteeSearchDynaFormSecond" action="/orestar/CommitteeSearchSecondPage.do">
+          <input type="hidden" name="OWASP_CSRFTOKEN" value="token">
+        </form>
+      `);
+    });
+
+    const rows = await getOregonOrestarCandidateCommitteeDirectory({ yearActive: 2026, options: { fetchFn } });
+    expect(rows.map((row) => row.filerCommitteeId)).toEqual(["24397", "4792"]);
+    expect(new URLSearchParams(searchBodies[0]).get("yearActive")).toBe("2026");
+  });
+
+  it("refuses a committee search that hit ORESTAR's 999-row cap", async () => {
+    const fetchFn = vi.fn(async (url: string) => {
+      if (url.includes("CommitteeSearchSecondPage.do")) {
+        return htmlResponse('<a href="XcelSooSearch">Export</a><td>Results : </td><td>999 found for the above search criteria</td>');
+      }
+      return htmlResponse(`
+        <form name="CommitteeSearchDynaFormSecond" action="/orestar/CommitteeSearchSecondPage.do">
+          <input type="hidden" name="OWASP_CSRFTOKEN" value="token">
+        </form>
+      `);
+    });
+
+    await expect(getOregonOrestarCandidateCommitteeDirectory({ options: { fetchFn } })).rejects.toThrow(
+      "hit its 999-row cap"
+    );
+  });
+
   it("rejects a committee export whose row count differs from the results page", async () => {
     const workbook = buildOregonOrestarCommitteeExportWorkbook([
       {

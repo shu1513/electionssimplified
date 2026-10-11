@@ -404,7 +404,9 @@ describe("oregonCandidateFinanceBatchSync", () => {
       if (url.includes("CommitteeSearchSecondPage.do")) {
         expect(init?.method).toBe("POST");
         expect(String(init?.body)).toContain("filerType=CANDALL");
-        expect(String(init?.body)).toContain("yearActive=&election=");
+        // Searched by the candidate's election year: the all-years search
+        // stops at ORESTAR's 999-row cap.
+        expect(String(init?.body)).toContain("yearActive=2026&election=");
         expect(String(init?.body)).toContain("OWASP_CSRFTOKEN=csrf-token-from-script");
         expect(init?.headers).toMatchObject({ cookie: "JSESSIONID_ORESTAR=abc123" });
         return htmlResponse(`

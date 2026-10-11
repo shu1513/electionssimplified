@@ -38,6 +38,29 @@ describe("oregonOrestarCommitteeExport", () => {
     ]);
   });
 
+  it("parses the .xlsx workbook ORESTAR serves since Oct 2026", () => {
+    const workbook = buildOregonOrestarCommitteeExportWorkbook(
+      [
+        {
+          "Committee Id": 24397,
+          "Committee Name": "Committee to Elect Sue Rieke Smith",
+          "Committee Type": "CC",
+          "Candidate Office": "26th District",
+          "Candidate First Name": "Sue",
+          "Candidate Last Name": "Rieke Smith",
+          "Active Election": "2026 General Election",
+        },
+      ],
+      OREGON_COMMITTEE_EXPORT_FIXTURE_HEADERS,
+      "xlsx"
+    );
+
+    expect(isOregonOrestarCommitteeExportWorkbook(workbook)).toBe(true);
+    expect(parseOregonOrestarCommitteeExport(workbook)).toMatchObject([
+      { filerCommitteeId: "24397", candidateFirstName: "Sue", candidateLastName: "Rieke Smith" },
+    ]);
+  });
+
   it("fails closed on HTML, missing columns, and unusable committee rows", () => {
     const html = new TextEncoder().encode("<html>Please Contact Us</html>");
     expect(() => parseOregonOrestarCommitteeExport(html)).toThrow("is not an .xls workbook");

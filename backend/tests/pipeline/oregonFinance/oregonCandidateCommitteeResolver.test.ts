@@ -55,6 +55,48 @@ describe("oregonCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches a formal ORESTAR first name through nicknames, literal names first", () => {
+    // Live Oct 2026: VoteApp "Dan Farrington" files as Daniel Farrington.
+    const farrington = directoryRow({
+      filerCommitteeName: "Farrington for Oregon",
+      filerCommitteeId: "24001",
+      candidateFirstName: "Daniel",
+      candidateLastName: "Farrington",
+      candidateOffice: "17th District",
+    });
+    expect(
+      resolveOregonCandidateCommitteeFromSearchRows({ candidateName: "Dan Farrington", searchRows: [farrington] })
+    ).toMatchObject({ status: "matched", committeeId: "24001" });
+
+    // A literal "Dan" row wins over a "Daniel" row instead of turning ambiguous.
+    const literal = directoryRow({
+      filerCommitteeName: "Dan Farrington PAC",
+      filerCommitteeId: "24002",
+      candidateFirstName: "Dan",
+      candidateLastName: "Farrington",
+    });
+    expect(
+      resolveOregonCandidateCommitteeFromSearchRows({
+        candidateName: "Dan Farrington",
+        searchRows: [farrington, literal],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "24002" });
+
+    // Unrelated first names still do not match.
+    expect(
+      resolveOregonCandidateCommitteeFromSearchRows({
+        candidateName: "Michael Summers",
+        searchRows: [
+          directoryRow({
+            filerCommitteeName: "Summers for Oregon",
+            candidateFirstName: "Matthew",
+            candidateLastName: "Summers",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "no_match" });
+  });
+
   it("returns no_match when committee names do not contain the candidate name", () => {
     expect(
       resolveOregonCandidateCommitteeFromSearchRows({

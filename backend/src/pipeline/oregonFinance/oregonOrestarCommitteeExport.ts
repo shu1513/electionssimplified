@@ -1,6 +1,7 @@
 import { read as readXlsWorkbook, utils as xlsxUtils } from "xlsx";
 
 import { OREGON_ORESTAR_BASE_URL } from "./oregonOrestarParser.js";
+import { isOregonOrestarExportWorkbook } from "./oregonOrestarTransactionExport.js";
 
 export type OregonOrestarCommitteeDirectoryRow = {
   filerCommitteeId: string;
@@ -13,10 +14,9 @@ export type OregonOrestarCommitteeDirectoryRow = {
   activeElection: string | null;
 };
 
-const CFB_MAGIC = [0xd0, 0xcf, 0x11, 0xe0] as const;
-
+// Same .xls / .xlsx check as the transaction export.
 export function isOregonOrestarCommitteeExportWorkbook(data: Uint8Array): boolean {
-  return CFB_MAGIC.every((byte, index) => data[index] === byte);
+  return isOregonOrestarExportWorkbook(data);
 }
 
 const REQUIRED_EXPORT_HEADERS = [

@@ -1,3 +1,5 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+
 export type OregonCandidateCommitteeSearchRow = {
   filerCommitteeId: string | null;
   filerCommitteeName: string | null;
@@ -66,10 +68,14 @@ function candidateTokens(candidateName: string): string[] {
     .filter((token) => token.length > 1);
 }
 
+// expandNicknames also accepts a nickname variant of the VoteApp first name
+// ("Dan Farrington" → ORESTAR "Daniel"). VoteApp side only; see
+// personFirstNameNicknames.ts.
 function isStructuredCandidateNameMatch(input: {
   candidateName: string;
   candidateFirstName: string | null | undefined;
   candidateLastName: string | null | undefined;
+  expandNicknames?: boolean;
 }): boolean {
   const candidate = candidateTokens(input.candidateName);
   const first = candidateTokens(input.candidateFirstName ?? "");
@@ -77,7 +83,11 @@ function isStructuredCandidateNameMatch(input: {
   if (candidate.length < 2 || first.length === 0 || last.length === 0) {
     return false;
   }
-  return candidate[0] === first[0] && candidate.slice(-last.length).join(" ") === last.join(" ");
+  const candidateFirst = candidate[0]!;
+  const firstMatches =
+    candidateFirst === first[0] ||
+    (input.expandNicknames === true && firstNameVariants(candidateFirst).includes(first[0]!));
+  return firstMatches && candidate.slice(-last.length).join(" ") === last.join(" ");
 }
 
 function activeElectionMatchesYear(value: string | null | undefined, electionYear: number): boolean {
@@ -150,13 +160,20 @@ export function resolveOregonCandidateCommitteeFromSearchRows(input: {
     throw new Error("Oregon candidate name is required");
   }
 
-  const structuredNameMatches = input.searchRows.filter((row) =>
-    isStructuredCandidateNameMatch({
-      candidateName: input.candidateName,
-      candidateFirstName: row.candidateFirstName,
-      candidateLastName: row.candidateLastName,
-    })
-  );
+  // Literal names first; nicknames only when nothing matched literally, so a
+  // literal match never turns ambiguous because of a nickname row.
+  const structuredMatchesFor = (expandNicknames: boolean) =>
+    input.searchRows.filter((row) =>
+      isStructuredCandidateNameMatch({
+        candidateName: input.candidateName,
+        candidateFirstName: row.candidateFirstName,
+        candidateLastName: row.candidateLastName,
+        expandNicknames,
+      })
+    );
+  const literalStructuredMatches = structuredMatchesFor(false);
+  const structuredNameMatches =
+    literalStructuredMatches.length > 0 ? literalStructuredMatches : structuredMatchesFor(true);
   let selectedStructuredMatches = structuredNameMatches;
   let usedContext = false;
   if (selectedStructuredMatches.length > 1 && input.electionYear !== undefined) {

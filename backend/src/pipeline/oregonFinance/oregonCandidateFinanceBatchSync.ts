@@ -173,10 +173,10 @@ async function defaultLoadTransactionDetails(
 }
 
 async function defaultLoadCandidateSearchRows(
-  _candidateElection: Parameters<OregonCandidateSearchRowsLoader>[0],
+  candidateElection: Parameters<OregonCandidateSearchRowsLoader>[0],
   options?: OregonOrestarClientOptions
 ) {
-  return getOregonOrestarCandidateCommitteeDirectory({ options });
+  return getOregonOrestarCandidateCommitteeDirectory({ yearActive: candidateElection.electionYear, options });
 }
 
 export async function listDueOregonCandidateFinanceSyncRows(
@@ -315,14 +315,19 @@ export async function syncDueOregonCandidateFinance(
         electionLookaheadDays,
       });
       autoLinkAttemptedCount = missingLinkCandidates.length;
-      const candidateDirectoryRows = missingLinkCandidates[0]
-        ? await loadCandidateSearchRows(missingLinkCandidates[0])
-        : [];
+      // The directory is searched by active year, so load it once per
+      // election year among the candidates.
+      const directoryRowsByYear = new Map<number, Awaited<ReturnType<OregonCandidateSearchRowsLoader>>>();
+      for (const candidateElection of missingLinkCandidates) {
+        if (!directoryRowsByYear.has(candidateElection.electionYear)) {
+          directoryRowsByYear.set(candidateElection.electionYear, await loadCandidateSearchRows(candidateElection));
+        }
+      }
       const autoLinkResults = await autoLinkMissingOregonCandidateFinanceLinks({
         db: input.db,
         now,
         candidateElections: missingLinkCandidates,
-        loadCandidateSearchRows: () => candidateDirectoryRows,
+        loadCandidateSearchRows: (candidateElection) => directoryRowsByYear.get(candidateElection.electionYear) ?? [],
         resolveCandidateCommittee: input.resolveCandidateCommittee,
       });
       autoLinkLinkedCount = autoLinkResults.filter((result) => result.status === "linked").length;
