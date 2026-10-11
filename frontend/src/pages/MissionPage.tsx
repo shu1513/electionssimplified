@@ -62,8 +62,7 @@ function TeamGrid() {
       <p>
         We are a few friends who came together from all walks of life and with very different
         political views. We all thought that the voting system itself could be much more
-        transparent, regardless of someone’s political view. We came together to do what we can, in
-        addition to our normal day jobs.
+        transparent, regardless of someone’s political view.
       </p>
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
         {TEAM.map((m) => (
