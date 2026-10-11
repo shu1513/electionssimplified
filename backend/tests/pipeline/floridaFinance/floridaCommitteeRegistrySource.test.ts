@@ -91,6 +91,23 @@ describe("Florida bounded all-status registry source", () => {
       expect(()=>decodeFloridaCommitteeNameSearch({...raw,...change},{prefix:"Florida Home Builders"})).toThrow();
     }
   });
+  it("accepts only the exact observed no-record marker without conflicting finance results", () => {
+    const p="Example Donor";
+    const marker='<p><b><font size="2" face="Arial,Helvetica,Univers,Zurich BT"><br> ** No records found for criteria</font></b></p>';
+    const source='<html><body>Search for Committee by Name<input name=ComName value="'+p+'">'+
+      '<table><tr><td><table><tr><td>Name form</td><tr><td>Starting With</td></tr></table>'+marker+
+      '</table></table></body></html>';
+    const request={url:search,method:"POST" as const,financeFields:{
+      searchtype:"1",comName:p,LkupTypeName:"L",NameSearchBtn:"Search by Name"}};
+    expect(decodeFloridaCommitteeNameSearch(envelope(source,request),{prefix:p})).toEqual([]);
+    for(const broken of [source.replace(marker,marker+marker),
+      source.replace(marker,marker+'<a href="ComDetail.asp?account=60813">Contradiction</a>'),
+      source.replace(marker,marker+'<table><tr><td>Committee</td><td>Type</td><td>Status</td></tr></table>'),
+      source.replace("No records found for criteria","No records found"),
+      source.replace("</body>","")]){
+      expect(()=>decodeFloridaCommitteeNameSearch(envelope(broken,request),{prefix:p})).toThrow();
+    }
+  });
   it("reports valid scoped absence distinctly from lookup failure", async () => {
     const m=mock([]); const result=await createFloridaCommitteeRegistrySource(m).lookupDonor(receipt);
     expect(result.status).toBe("not_found"); expect(result.identity).toBeUndefined(); expect(m.calls).toHaveLength(4);
@@ -158,6 +175,20 @@ describe("Florida bounded all-status registry source", () => {
       source.replace("</td></tr>","</tr>"),source.replace("</table>\n</td>","</td>")]){
       expect(()=>decodeFloridaCommitteeDetail(envelope(broken,request),{committeeId:"1997"})).toThrow();
     }
+  });
+  it("isolates the observed optional Purpose continuation while retaining its full raw context", () => {
+    const continuation='<tr><td><b>Purpose:</b></td><td>&nbsp;</td></tr>'+
+      '<tr><td>&nbsp;</td><td><b>Utilities</b><br />Electric'+
+      '<tr><td><b>Affiliations:</b></td><td>&nbsp;</td></tr>';
+    const source=detail(historical).replace("</table>",continuation+"</table>");
+    const request={url:url("1997"),method:"GET" as const,financeFields:null};
+    const d=decodeFloridaCommitteeDetail(envelope(source,request),{committeeId:"1997"});
+    expect(d.committeeType).toBe("CCE");
+    expect(d.fullFields.__sourceAccountTables).toContain("<b>Utilities</b><br />Electric");
+    expect(()=>decodeFloridaCommitteeDetail(envelope(source.replace("Purpose:","Address:"),request),
+      {committeeId:"1997"})).toThrow();
+    expect(()=>decodeFloridaCommitteeDetail(envelope(source.replace("Affiliations:","Status:"),request),
+      {committeeId:"1997"})).toThrow();
   });
   it("keeps source punctuation and standard numeric C1 entity semantics", () => {
     const r={...current,name:"FIC&#146;S PAC"};

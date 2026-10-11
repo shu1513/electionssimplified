@@ -135,6 +135,15 @@ export function decodeFloridaCommitteeNameSearch(raw: FloridaProcessedRawEvidenc
   if (echoes.length !== 1 || echoes[0]!.value !== p) fail("wrong source search echo");
   if (/\b(?:results truncated|maximum results|first \d+ results|page \d+ of \d+)\b/i.test(text(html)) ||
     [...html.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)].some(a => /^(?:next|previous|prev|last|first)(?: page)?$/i.test(text(a[1]!)))) fail("unproven capped/paged search");
+  const noRecords = [...html.matchAll(/<font\b[^>]*>([\s\S]*?)<\/font\s*>/gi)]
+    .filter(m => text(m[1]!) === "** No records found for criteria");
+  if (noRecords.length) {
+    const financialHeaderCell = [...html.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td\s*>/gi)]
+      .some(m => ["Committee", "Type", "Status"].includes(text(m[1]!)));
+    if (noRecords.length !== 1 || /ComDetail\.asp/i.test(html) || financialHeaderCell)
+      fail("contradictory no-record result");
+    return []; // Exact source statement of this bounded query's absence, never financial zero.
+  }
   const candidate = tables(html).filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t))
     .filter(t => {
       const first = /<tr\b[^>]*>([\s\S]*?)<\/tr\s*>/i.exec(t);
@@ -164,6 +173,27 @@ const descriptions: Readonly<Record<string, string>> = {
   "Electioneering Communications Organization": "ECO",
   "Electioneering Communications Individual": "ECI", "Independent Expenditures Organization": "IXO",
 };
+function projectPurposeContinuation(html: string): string {
+  const starts = [...html.matchAll(/<tr\b/gi)].map(m => m.index!);
+  const label = (part: string) => {
+    const first = /<td\b[^>]*>([\s\S]*?)<\/td\s*>/i.exec(part);
+    return first ? text(first[1]!) : "";
+  };
+  for (let i = 1; i + 1 < starts.length; i++) {
+    const previous = html.slice(starts[i - 1], starts[i]);
+    const part = html.slice(starts[i], starts[i + 1]);
+    const next = html.slice(starts[i + 1], starts[i + 2] ?? html.length);
+    // Observed Purpose continuation uses implicit HTML td/tr closure before Affiliations.
+    if (label(previous) === "Purpose:" && label(next) === "Affiliations:" &&
+      label(part) === "" && !/<\/tr\s*>/i.test(part) &&
+      (part.match(/<td\b/gi) ?? []).length === 2 &&
+      (part.match(/<\/td\s*>/gi) ?? []).length === 1 &&
+      !/<table\b|<\/table\b/i.test(part)) {
+      return html.slice(0, starts[i + 1]) + "</td></tr>" + html.slice(starts[i + 1]);
+    }
+  }
+  return html;
+}
 export function decodeFloridaCommitteeDetail(raw: FloridaProcessedRawEvidence, options: { committeeId: string }): FloridaCommitteeDetail {
   const committeeId = id(options.committeeId), sourceUrl = detailUrl(ORIGIN + "/committees/ComDetail.asp?account=" + committeeId, committeeId);
   const html = checkedRaw(raw, { url: sourceUrl, method: "GET", financeFields: null });
@@ -178,8 +208,10 @@ export function decodeFloridaCommitteeDetail(raw: FloridaProcessedRawEvidence, o
     (html.match(/<\/table\s*>/gi) ?? []).length === 2
     ? html.replace(/(<\/table\s*>)\s*<\/td\s*>\s*<\/tr\s*>\s*<\/table\s*>/i, "$1")
     : html;
-  const rows = tables(accountHtml).filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t)).flatMap(tableRows);
-  const fullFields: Record<string, string> = {};
+  const accountTables = tables(accountHtml);
+  const rows = tables(projectPurposeContinuation(accountHtml))
+    .filter(t => !/<table\b[^>]*>[\s\S]*<table\b/i.test(t)).flatMap(tableRows);
+  const fullFields: Record<string, string> = {__sourceAccountTables: JSON.stringify(accountTables)};
   let addressLines: string[] | undefined;
   for (const c of rows) {
     if (c.length !== 2) continue;
