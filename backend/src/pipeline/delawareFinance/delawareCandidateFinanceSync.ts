@@ -43,7 +43,7 @@ type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
 export type DelawareCandidateFinanceSyncResult = {
   dryRun: boolean;
-  window: Pick<DelawareElectionPeriodWindow, "windowStart" | "windowEnd" | "basis">;
+  window: Pick<DelawareElectionPeriodWindow, "windowStart" | "windowEnd" | "publishedThrough" | "basis">;
   windowPeriodKeys: string[];
   totalReceipts: number;
   directContributionTotal: number;
@@ -76,7 +76,7 @@ export async function syncDelawareCandidateFinance(input: {
   electionId: string;
   candidateName: string;
   electionYear: number;
-  /** ISO general-election date — the window end (fact 5). */
+  /** ISO general-election date; the finance cycle continues through December31. */
   electionDate: string;
   officeScope: string;
   officeName: string;
@@ -304,7 +304,7 @@ export async function syncDelawareCandidateFinance(input: {
 
   return {
     dryRun: input.dryRun === true,
-    window: { windowStart: window.windowStart, windowEnd: window.windowEnd, basis: window.basis },
+    window: { windowStart: window.windowStart, windowEnd: window.windowEnd, publishedThrough: window.publishedThrough, basis: window.basis },
     windowPeriodKeys: [...windowPeriodKeys].sort(),
     totalReceipts,
     directContributionTotal,

@@ -77,6 +77,9 @@ describe("delawareFilingPeriodKey", () => {
     expect(delawareCoverDateToIso("10/29/2024")).toBe("2024-10-29");
     expect(() => delawareCoverDateToIso("2024-10-29")).toThrow(DelawareReportInventoryError);
     expect(() => delawareCoverDateToIso(null)).toThrow(DelawareReportInventoryError);
+    expect(() => delawareCoverDateToIso("02/29/2025")).toThrow(/invalid Delaware cover date/);
+    expect(() => delawareCoverDateToIso("13/01/2026")).toThrow(/invalid Delaware cover date/);
+    expect(delawareCoverDateToIso("02/29/2024")).toBe("2024-02-29");
   });
 });
 
@@ -112,6 +115,27 @@ describe("buildDelawareCanonicalReportInventory", () => {
 });
 
 describe("resolveDelawareElectionPeriodWindow", () => {
+  it("includes the year-end annual filing and distinguishes its published coverage", () => {
+    const reports = meyerShapedReports();
+    reports.push(report({ period: "2024 Annual", calendarId: 8, version: 1, from: "10/29/2024", to: "12/31/2024", beginning: 1_800_00, receipts: 200_00, expenditures: 20_00 }));
+    reports.push(report({ period: "2025 Annual", calendarId: 9, version: 1, from: "01/01/2025", to: "12/31/2025", beginning: 1_980_00, receipts: 50_00, expenditures: 0 }));
+    const canonical = buildDelawareCanonicalReportInventory(reports);
+    const window = resolveDelawareElectionPeriodWindow({ electionDate: "2024-11-05", canonicalReports: canonical });
+    expect(window.windowEnd).toBe("2024-12-31");
+    expect(window.publishedThrough).toBe("2024-12-31");
+    expect(window.reports.map((entry) => entry.periodKey)).toEqual(["2023 Annual", "2024 30 Day General", "2024 8 Day General", "2024 Annual"]);
+    const beforeAnnual = resolveDelawareElectionPeriodWindow({ electionDate: "2024-11-05", canonicalReports: canonical.slice(0, -2) });
+    expect(beforeAnnual.windowEnd).toBe("2024-12-31");
+    expect(beforeAnnual.publishedThrough).toBe("2024-10-28");
+  });
+
+  it("rejects impossible election dates and a report crossing the year-end boundary", () => {
+    const canonical = buildDelawareCanonicalReportInventory(meyerShapedReports());
+    expect(() => resolveDelawareElectionPeriodWindow({ electionDate: "2024-02-30", canonicalReports: canonical })).toThrow(/invalid election date/);
+    canonical.at(-1)!.periodTo = "2025-01-01";
+    expect(() => resolveDelawareElectionPeriodWindow({ electionDate: "2024-11-05", canonicalReports: canonical })).toThrow(/straddles the window end/);
+  });
+
   it("starts the window Jan 1 after the committee's prior election reports (office-spanning case)", () => {
     const canonical = buildDelawareCanonicalReportInventory(meyerShapedReports());
     const window = resolveDelawareElectionPeriodWindow({ electionDate: "2024-11-05", canonicalReports: canonical });

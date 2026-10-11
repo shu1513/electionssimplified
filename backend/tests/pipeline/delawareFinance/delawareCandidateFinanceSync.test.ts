@@ -133,7 +133,7 @@ describe("syncDelawareCandidateFinance", () => {
     const db = { query: vi.fn(), connect: vi.fn() };
     const result = await syncDelawareCandidateFinance({ ...baseInput(db), dryRun: true });
 
-    expect(result.window).toEqual({ windowStart: "2026-01-01", windowEnd: "2026-11-03", basis: "committee_first_report" });
+    expect(result.window).toEqual({ windowStart: "2026-01-01", windowEnd: "2026-12-31", publishedThrough: "2026-10-05", basis: "committee_first_report" });
     expect(result.windowPeriodKeys).toEqual(["2026 30 Day General"]);
     expect(result.totalReceipts).toBe(700);
     expect(result.directContributionTotal).toBe(700);

@@ -51,13 +51,23 @@ export function delawareFilingPeriodKey(name: string): string {
   return `${year} ${kind}${election}`;
 }
 
-/** MM/DD/YYYY (as printed on report covers) -> YYYY-MM-DD; throws otherwise. */
+function isValidIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+/** MM/DD/YYYY (as printed on report covers) -> real ISO date; throws otherwise. */
 export function delawareCoverDateToIso(value: string | null): string {
   const match = value === null ? null : /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
   if (match === null) {
     throw new DelawareReportInventoryError(`unparseable Delaware cover date: "${value}"`);
   }
-  return `${match[3]}-${match[1]}-${match[2]}`;
+  const iso = `${match[3]}-${match[1]}-${match[2]}`;
+  if (!isValidIsoDate(iso)) {
+    throw new DelawareReportInventoryError(`invalid Delaware cover date: "${value}"`);
+  }
+  return iso;
 }
 
 export type DelawareCanonicalReport = {
@@ -172,11 +182,13 @@ export function buildDelawareCanonicalReportInventory(
 export type DelawareElectionPeriodWindow = {
   /** ISO date the window opens (inclusive). */
   windowStart: string;
-  /** ISO election date the window closes (inclusive). */
+  /** December31 following the general election (§8002(11)a). */
   windowEnd: string;
+  /** Latest actually published report end; not the statutory window end. */
+  publishedThrough: string;
   /** Canonical reports fully inside the window, in period order. */
   reports: DelawareCanonicalReport[];
-  /** Which statutory case produced windowStart. */
+  /** Legacy report-history rule used for windowStart; not office-history proof. */
   basis: "post_prior_election" | "committee_first_report";
 };
 
@@ -194,9 +206,10 @@ export type DelawareElectionPeriodWindow = {
  *   challenger case: the period opens with the first contribution, which is
  *   where the first report starts).
  *
- * The primary and general are separate statutory periods; the published
- * window spans both so a general-election page shows the candidacy's money
- * to date. Fails closed when any canonical report STRADDLES the window
+ * The primary/general split in §8002(11)a4 concerns contribution limits.
+ * The finance window spans both and ends December31 after the general
+ * election, including the final annual report filed the next January.
+ * Fails closed when any canonical report STRADDLES the window
  * start (a report that mixes prior-period and current-period money cannot
  * be split — plan: ambiguous window -> no publication).
  *
@@ -214,13 +227,14 @@ export function resolveDelawareElectionPeriodWindow(input: {
   electionDate: string;
   canonicalReports: readonly DelawareCanonicalReport[];
 }): DelawareElectionPeriodWindow {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.electionDate)) {
+  if (!isValidIsoDate(input.electionDate)) {
     throw new DelawareReportInventoryError(`invalid election date: "${input.electionDate}"`);
   }
   if (input.canonicalReports.length === 0) {
     throw new DelawareReportInventoryError("cannot resolve a window from an empty inventory");
   }
   const electionYear = Number.parseInt(input.electionDate.slice(0, 4), 10);
+  const windowEnd = `${electionYear}-12-31`;
   const janFirstOfElectionYear = `${electionYear}-01-01`;
   const priorElectionReports = input.canonicalReports.filter(
     (report) => report.periodKey.includes("Day") && report.periodTo < janFirstOfElectionYear
@@ -248,15 +262,20 @@ export function resolveDelawareElectionPeriodWindow(input: {
           `(${report.periodFrom}..${report.periodTo}) — ambiguous window, not publishable`
       );
     }
-    if (report.periodTo > input.electionDate) {
+    if (report.periodTo > windowEnd) {
+      if (report.periodFrom <= windowEnd) {
+        throw new DelawareReportInventoryError(
+          `report [${report.filingPeriodName}] straddles the window end ${windowEnd} — ambiguous window, not publishable`
+        );
+      }
       continue;
     }
     reports.push(report);
   }
   if (reports.length === 0) {
     throw new DelawareReportInventoryError(
-      `no canonical report lies inside the window ${windowStart}..${input.electionDate}`
+      `no canonical report lies inside the window ${windowStart}..${windowEnd}`
     );
   }
-  return { windowStart, windowEnd: input.electionDate, reports, basis };
+  return { windowStart, windowEnd, publishedThrough: reports.at(-1)!.periodTo, reports, basis };
 }
