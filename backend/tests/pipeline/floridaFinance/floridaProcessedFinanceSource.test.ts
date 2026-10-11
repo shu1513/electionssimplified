@@ -407,6 +407,41 @@ describe("Florida current processed source", () => {
     ];
     absent(i, "unknown current");
   });
+  it("binds source-shaped title/h2 and nbsp district to the exact visible seat", () => {
+    const i = input();
+    const shape = (s: string) =>
+      s
+        .replace(
+          "<html>",
+          "<html><head><title>Candidate Tracking system - Florida Division of Elections</title></head>",
+        )
+        .replace(
+          "Candidate Tracking System",
+          '<h2 class="center">Candidate Tracking System</h2>',
+        )
+        .replace("District 80", "District &nbsp;80");
+    i.before.ownership = change(i.before.ownership, shape);
+    i.after.ownership = change(i.after.ownership, shape);
+    expect(verifyFloridaProcessedFinanceSource(i).proof).toBeDefined();
+    const wrong = input();
+    wrong.before.ownership = change(wrong.before.ownership, (s) =>
+      shape(s).replace("&nbsp;80", "&nbsp;81"),
+    );
+    absent(wrong, "district mismatch");
+  });
+  it("rejects missing, repeated, or extended district identities", () => {
+    for (const label of [
+      "No seat published",
+      "District 80 District 81",
+      "District 800",
+    ]) {
+      const i = input();
+      i.before.ownership = change(i.before.ownership, (s) =>
+        s.replace("District 80", label),
+      );
+      absent(i, "district mismatch");
+    }
+  });
   it("requires exact account, official seat, and generic recipient", () => {
     const i = input();
     i.context = { ...context, district: "81" };

@@ -524,13 +524,20 @@ function verifyPacket(
     ownerFields.CanCom !== "Cand"
   )
     fail("official ownership context mismatch");
-  const heading = text(
-    ownership.split(/Candidate Tracking System/i)[1]?.split(/Address/i)[0] ??
-      "",
+  // The native page repeats this phrase in its document title before the
+  // actual h2. Bind the district to the visible tracking heading, not title/CSS.
+  const trackingHeading =
+    /<h2\b[^>]*>\s*Candidate Tracking System\s*<\/h2>/i.exec(ownership);
+  const headingBody = trackingHeading
+    ? ownership.slice(trackingHeading.index + trackingHeading[0].length)
+    : (ownership.split(/Candidate Tracking System/i)[1] ?? "");
+  const heading = text(headingBody.split(/Address/i)[0]);
+  const districts = [...heading.matchAll(/\bDistrict ([1-9]\d*)\b/g)].map(
+    (m) => m[1],
   );
   if (
     context.district !== null
-      ? !new RegExp(`\\bDistrict ${context.district}\\b`).test(heading)
+      ? districts.length !== 1 || districts[0] !== context.district
       : /\bDistrict\b/.test(heading)
   )
     fail("official ownership district mismatch");
