@@ -295,7 +295,34 @@ statewide absence nor candidate-wide zero. No real eligible outside positive
 has been accepted. Post-deadline fresh reruns remain mandatory.
 
 The external date manifest now contains 20 integrity-verified records. Two
-Closed CCE accounts have distinct enacted-law certification revocation
-authority; it is not recorded as a closure date. Whole PAC identity remains
-gated on complete source-backed identity replay before the next genuinely
-fresh ordinary local sync. No partial known-donor subset is accepted.
+CCE accounts with Closed or Revoked status have distinct enacted-law
+certification revocation authority; it is not recorded as a closure date. The
+complete 91-tuple source identity replay is resolved. The next genuinely fresh
+ordinary local sync remains required. No partial known-donor subset is accepted.
+
+### Fresh post-deadline source runs
+
+October 17, 24 and 31 reruns require both `--refresh-export-artifacts` and
+`--stale-after-days 0`. Refresh bypasses saved opening source captures; it does
+not bypass the normal seven-day due filter, including for `--candidate-id`.
+January 12, 2027 Q4 reruns additionally require `--lookback-days 90`; the default
+one-day election lookback would omit November 3 races. Existing eligibility
+excludes lost and withdrawn candidates, so these are current eligible-race runs,
+not historical coverage. Daily/cumulative overlapping expense periods remain
+preserved until independently reconciled.
+
+Payer identity now encloses verified financial acquisition: complete all-type,
+all-status opening queries and exact-name details finish before the earliest
+financial capture, and every closing detail/query is freshly captured after the
+latest financial capture. The atomic writer repeats this interval check on raw
+source replay. Original cached opening times remain unchanged; incompatible
+capture intervals preserve the component. No financially valid component escapes
+if final payer identity changes or becomes ambiguous.
+
+
+Within the nested outside flow, financial opening and closing packets are always
+fresh. Otherwise, an opening financial owner GET could reuse the payer opening
+GET and predate completion of the payer authority. Discovery and registry
+openings retain saved-first behavior and original capture times; registry
+closings remain fresh. This bounded financial freshness is necessary for the
+normal default hook and does not relax source completeness or zero authority.

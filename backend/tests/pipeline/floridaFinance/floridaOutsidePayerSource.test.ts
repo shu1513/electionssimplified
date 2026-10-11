@@ -21,19 +21,25 @@ const current: Row = { id: "90001", name: "Example Committee (Florida)", type: "
 const descriptions: Record<string, string> = { PAC: "Political Committee", CCE: "Committee of Continuous Existence", IXO: "Independent Expenditures Organization" };
 function mock(rows: Row[], change?: (raw: FloridaProcessedRawEvidence, req: FloridaCommitteeRegistryRequest) => void) {
   const calls: { req: FloridaCommitteeRegistryRequest; savedFirst: boolean | undefined }[] = [];
-  return { calls, request: async (req: FloridaCommitteeRegistryRequest, options?: { savedFirst?: boolean }) => {
-    calls.push({ req: structuredClone(req), savedFirst: options?.savedFirst });
-    const body = req.method === "POST"
-      ? `<html><body>Search for Committee by Name<input name=ComName value="${req.financeFields!.comName}"><table><tr><td>Committee</td><td>Type</td><td>Status</td></tr>${rows.map(row => `<tr><td><a href="ComDetail.asp?account=${row.id}">${row.name}</a></td><td>${row.type}</td><td>${row.status}</td></tr>`).join("")}</table></body></html>`
-      : (() => { const row = rows.find(row => row.id === new URL(req.url).searchParams.get("account"))!;
-        return `<html><body>Committee Tracking System<table><tr><td colspan=2><font size=+1><b>${row.name}</b></font></td></tr><tr><td>Type:</td><td>${descriptions[row.type]}</td></tr><tr><td>Status:</td><td>${row.status}</td></tr><tr><td>Address:</td><td>Actual payer address<br>Actual payer city</td></tr><tr><td>Chairperson:</td><td>Full Published Name</td></tr></table><input name=account value="${row.id}"></body></html>`; })();
-    const bytesRaw = Buffer.from(body), seconds = calls.length;
-    const raw: FloridaProcessedRawEvidence = { bytesRaw, sha256: createHash("sha256").update(bytesRaw).digest("hex"),
-      url: req.url, method: req.method, financeFields: req.financeFields, status: 200, contentType: "text/html",
-      startedAt: new Date(Date.UTC(2026, 9, 11, 20, 0, seconds)).toISOString(), completedAt: new Date(Date.UTC(2026, 9, 11, 20, 0, seconds, 500)).toISOString() };
-    change?.(raw, req);
-    return raw;
-  } };
+  return {
+    calls, request: async (req: FloridaCommitteeRegistryRequest, options?: { savedFirst?: boolean }) => {
+      calls.push({ req: structuredClone(req), savedFirst: options?.savedFirst });
+      const body = req.method === "POST"
+        ? `<html><body>Search for Committee by Name<input name=ComName value="${req.financeFields!.comName}"><table><tr><td>Committee</td><td>Type</td><td>Status</td></tr>${rows.map(row => `<tr><td><a href="ComDetail.asp?account=${row.id}">${row.name}</a></td><td>${row.type}</td><td>${row.status}</td></tr>`).join("")}</table></body></html>`
+        : (() => {
+          const row = rows.find(row => row.id === new URL(req.url).searchParams.get("account"))!;
+          return `<html><body>Committee Tracking System<table><tr><td colspan=2><font size=+1><b>${row.name}</b></font></td></tr><tr><td>Type:</td><td>${descriptions[row.type]}</td></tr><tr><td>Status:</td><td>${row.status}</td></tr><tr><td>Address:</td><td>Actual payer address<br>Actual payer city</td></tr><tr><td>Chairperson:</td><td>Full Published Name</td></tr></table><input name=account value="${row.id}"></body></html>`;
+        })();
+      const bytesRaw = Buffer.from(body), seconds = calls.length;
+      const raw: FloridaProcessedRawEvidence = {
+        bytesRaw, sha256: createHash("sha256").update(bytesRaw).digest("hex"),
+        url: req.url, method: req.method, financeFields: req.financeFields, status: 200, contentType: "text/html",
+        startedAt: new Date(Date.UTC(2026, 9, 11, 20, 0, seconds)).toISOString(), completedAt: new Date(Date.UTC(2026, 9, 11, 20, 0, seconds, 500)).toISOString()
+      };
+      change?.(raw, req);
+      return raw;
+    }
+  };
 }
 const label = `${current.name} (${current.type})`;
 
@@ -115,5 +121,94 @@ describe("Florida exact annotated outside payer source", () => {
       }
     });
     expect(await createFloridaOutsidePayerSource(source).load({ payerLabel: label })).toMatchObject({ status: "preserve" });
+  });
+});
+
+describe("Florida payer registry encloses financial evidence", () => {
+  const financialInterval = {
+    startedAt: "2026-10-11T20:01:00Z",
+    completedAt: "2026-10-11T20:02:00Z",
+  };
+  function nested(rows: Row[] = [structuredClone(current)]) {
+    return mock(rows, (raw, req) => {
+      if (req.phase === "closing") {
+        raw.startedAt = "2026-10-11T20:03:00Z";
+        raw.completedAt = "2026-10-11T20:03:01Z";
+      }
+    });
+  }
+  it("runs full financial acquisition after opening authority and before fresh registry closures", async () => {
+    const transport = nested();
+    let callbackCount = 0;
+    const result = await createFloridaOutsidePayerSource(transport).load({
+      payerLabel: label,
+      betweenOpeningAndClosing: async opening => {
+        callbackCount++;
+        expect(opening.owner.committeeId).toBe(current.id);
+        expect(transport.calls.every(call => call.req.phase === "opening")).toBe(true);
+        opening.owner.committeeName = "Caller mutation";
+        return financialInterval;
+      },
+    });
+    expect(callbackCount).toBe(1);
+    expect(result.status).toBe("resolved");
+    expect(transport.calls.filter(call => call.req.phase === "closing")
+      .every(call => call.savedFirst === false)).toBe(true);
+    if (result.status !== "resolved") return;
+    expect(result.owner.committeeName).toBe(current.name);
+    expect(result.sourceMetadata.map(meta => meta.phase)).toEqual([
+      "opening", "opening", "opening", "closing", "closing", "closing",
+    ]);
+    expect(await verifyFloridaOutsidePayerIdentity({ ...result, financialInterval })).toEqual(result);
+    expect(result.rawSource[0]!.startedAt).toBe("2026-10-11T20:00:01.000Z");
+  });
+  it("rejects the old identity-first then financial layout on raw writer replay", async () => {
+    const result = await createFloridaOutsidePayerSource(mock([current])).load({ payerLabel: label });
+    expect(result.status).toBe("resolved");
+    if (result.status !== "resolved") return;
+    const verified = await verifyFloridaOutsidePayerIdentity({ ...result, financialInterval });
+    expect(verified.status).toBe("preserve");
+    if (verified.status === "preserve") expect(verified.diagnostics.join()).toContain("closing predates opening");
+  });
+  it("preserves a new same-name registration during the financial interval", async () => {
+    const rows = [structuredClone(current)], transport = nested(rows);
+    const result = await createFloridaOutsidePayerSource(transport).load({
+      payerLabel: label,
+      betweenOpeningAndClosing: async () => {
+        rows.push({ ...current, id: "90002", status: "Closed" });
+        return financialInterval;
+      }
+    });
+    expect(result).toMatchObject({ status: "preserve", diagnostics: ["changed all-status payer query"] });
+    expect(result).not.toHaveProperty("owner");
+  });
+  it("preserves changed full owner semantics after financially valid acquisition", async () => {
+    const rows = [structuredClone(current)], transport = nested(rows);
+    const result = await createFloridaOutsidePayerSource(transport).load({
+      payerLabel: label,
+      betweenOpeningAndClosing: async () => {
+        rows[0]!.status = "Closed";
+        return financialInterval;
+      }
+    });
+    expect(result).toMatchObject({ status: "preserve", diagnostics: ["changed full payer detail"] });
+  });
+  it.each([
+    { startedAt: "2026-10-11T19:59:00Z", completedAt: "2026-10-11T20:02:00Z" },
+    { startedAt: "2026-10-11T20:02:01Z", completedAt: "2026-10-11T20:02:00Z" },
+    { startedAt: "invalid", completedAt: "2026-10-11T20:02:00Z" },
+  ])("preserves cached or malformed financial times instead of retiming %#", async interval => {
+    const result = await createFloridaOutsidePayerSource(nested()).load({
+      payerLabel: label,
+      betweenOpeningAndClosing: async () => interval
+    });
+    expect(result).toMatchObject({ status: "preserve", diagnostics: ["financial capture interval is outside payer opening authority"] });
+  });
+  it("does not acquire financial evidence from an ambiguous opening annotation", async () => {
+    let called = false;
+    const result = await createFloridaOutsidePayerSource(nested([current, { ...current, id: "90002" }]))
+      .load({ payerLabel: label, betweenOpeningAndClosing: async () => { called = true; return financialInterval; } });
+    expect(result.status).toBe("preserve");
+    expect(called).toBe(false);
   });
 });
