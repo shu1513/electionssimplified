@@ -67,6 +67,38 @@ describe("missouriCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches a formal MEC first name through the VoteApp nickname, literal names first", () => {
+    // Live: VoteApp "Ray Bruno" (House 120) is "Raymond E Bruno" on MEC.
+    const formal = legislativeRecord({
+      candidateName: "Raymond Bruno",
+      committeeInfo: { ...legislativeRecord().committeeInfo, candidateName: "Raymond E Bruno" },
+    });
+    const input = {
+      candidateName: "Ray Bruno",
+      electionDate: "2026-11-03",
+      officeScope: "state_lower",
+      officeName: "State Lower Chamber Legislator",
+      ballotTitle: "State Representative",
+      districtName: "State House District 1 (2024); Missouri",
+      legislativeDistrict: "1",
+    };
+    expect(resolveMissouriCandidateCommittee({ ...input, records: [formal] })).toMatchObject({
+      status: "matched",
+      mecid: "C221944",
+    });
+
+    // A literal committee in the same race wins over the nickname one.
+    const literal = legislativeRecord({
+      mecid: "C260009",
+      candidateName: "Ray Bruno",
+      committeeInfo: { ...legislativeRecord().committeeInfo, mecid: "C260009", candidateName: "Ray Bruno" },
+    });
+    expect(resolveMissouriCandidateCommittee({ ...input, records: [formal, literal] })).toMatchObject({
+      status: "matched",
+      mecid: "C260009",
+    });
+  });
+
   it("rejects a historical committee with no exact target-election history row", () => {
     const record = legislativeRecord({
       committeeInfo: {

@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { personNamesMatchWithMiddleEvidence } from "../finance/personNameMiddleEvidence.js";
 import {
   normalizeMissouriMecJurisdiction,
@@ -156,7 +157,15 @@ function selectExactOption(
   return matches.length === 1 ? matches[0]! : null;
 }
 
-function namesMatch(candidateName: string, sourceName: string): boolean {
+// MEC Committee Info carries the formal first name ("Raymond E Bruno") while
+// VoteApp stores the campaign name ("Ray Bruno"). The equivalence is
+// one-sided: the VoteApp first name expands to its nickname variants, the
+// MEC name is read literally (personFirstNameNicknames.ts).
+function nicknameFirstNamesEquivalent(candidateFirst: string, rowFirst: string): boolean {
+  return candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst);
+}
+
+function namesMatch(candidateName: string, sourceName: string, expandNicknames = false): boolean {
   // MEC publishes public-name aliases in quotes (Michael 'Mike' A Seabaugh).
   // The shared name matcher understands parenthetical aliases and preserves
   // their outer middle/surname evidence, so translate only balanced quoted
@@ -171,6 +180,7 @@ function namesMatch(candidateName: string, sourceName: string): boolean {
     candidateName: normalizeQuotedAlias(candidateName),
     rowNames: [normalizeQuotedAlias(sourceName)],
     normalizePersonName,
+    firstNamesEquivalent: expandNicknames ? nicknameFirstNamesEquivalent : undefined,
   });
 }
 
@@ -220,8 +230,22 @@ function toCommitteeMatch(accumulator: CandidateCommitteeAccumulator): MissouriC
   };
 }
 
+// Literal names first; nickname equivalence only when nothing matches
+// literally, so a race with both a "Jim" and a "James" committee keeps the
+// literal one instead of turning ambiguous.
 export function resolveMissouriCandidateCommittee(
   input: MissouriCandidateCommitteeResolverInput
+): MissouriCandidateCommitteeResolution {
+  const literal = resolveMissouriCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveMissouriCandidateCommitteeByName(input, true);
+}
+
+function resolveMissouriCandidateCommitteeByName(
+  input: MissouriCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): MissouriCandidateCommitteeResolution {
   const electionDate = normalizeIsoElectionDate(input.electionDate);
   const candidateNameNormalized = normalizeMissouriCandidateNameForStorage(input.candidateName);
@@ -310,7 +334,7 @@ export function resolveMissouriCandidateCommittee(
     if (record.committeeInfo.mecid !== record.mecid) {
       continue;
     }
-    if (!namesMatch(input.candidateName, record.committeeInfo.candidateName)) {
+    if (!namesMatch(input.candidateName, record.committeeInfo.candidateName, expandNicknames)) {
       continue;
     }
     // Candidate-by-election exports often omit the public alias and middle
