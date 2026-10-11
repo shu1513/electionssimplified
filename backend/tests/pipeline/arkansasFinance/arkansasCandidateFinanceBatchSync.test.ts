@@ -46,13 +46,13 @@ describe("syncDueArkansasCandidateFinance", () => {
     });
 
     expect(autoLinkFn).toHaveBeenCalledWith(
-      expect.objectContaining({ now: NOW, maxCandidates: 2, electionLookbackDays: 38, electionLookaheadDays: 730 })
+      expect.objectContaining({ now: NOW, maxCandidates: 2, electionLookbackDays: 100, electionLookaheadDays: 730 })
     );
     expect(listDueRowsFn).toHaveBeenCalledWith(db, {
       now: NOW,
       staleAfterDays: 7,
       maxCandidates: 2,
-      electionLookbackDays: 38,
+      electionLookbackDays: 100,
       electionLookaheadDays: 730,
     });
     const sharedLoader = autoLinkFn.mock.calls[0]![0].loadRegistrations;

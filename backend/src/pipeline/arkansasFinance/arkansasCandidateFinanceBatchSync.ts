@@ -28,10 +28,9 @@ type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 const DEFAULT_MAX_CANDIDATES = 10;
 const DEFAULT_STALE_AFTER_DAYS = 7;
 const SCOPED_DUE_ROW_LIMIT = 10_000;
-// A candidate's final report is due 30 days after the general election
-// (A.C.A. § 7-6-207), so the lookback keeps a just-finished election in scope
-// until that report has been picked up.
-const ARKANSAS_POST_ELECTION_REPORT_DUE_DAYS = 30;
+// The ordinary candidate final report is due January 20 after November's
+// election. Keep the election eligible through that report and fresh retries.
+const DEFAULT_ELECTION_LOOKBACK_DAYS = 100;
 const DEFAULT_ELECTION_LOOKAHEAD_DAYS = 730;
 
 export type ArkansasCandidateFinanceBatchSyncInput = {
@@ -84,7 +83,7 @@ export async function syncDueArkansasCandidateFinance(
   const scoped = input.candidateId !== undefined || input.electionYear !== undefined;
   const staleAfterDays = input.refresh ? 0 : input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
   const electionLookbackDays =
-    input.electionLookbackDays ?? ARKANSAS_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
+    input.electionLookbackDays ?? DEFAULT_ELECTION_LOOKBACK_DAYS;
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
 
