@@ -15,6 +15,11 @@ import {
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
 import { UTAH_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./utahFinanceEligibleOffices.js";
 import {
+  autoLinkMissingUtahCandidateFinanceLinks,
+  listUtahCandidateElectionsMissingFinanceLinks,
+  type UtahCandidateCommitteeSearchResolver,
+} from "./utahCandidateFinanceAutoLink.js";
+import {
   syncUtahCandidateFinance,
   type UtahCandidateFinanceSyncResult,
 } from "./utahCandidateFinanceSync.js";
@@ -55,6 +60,8 @@ export type UtahCandidateFinanceBatchSyncInput = {
   supportingCommitteeIndustryMinAmount?: number;
   loadGeneratedReportRowsFn?: UtahGeneratedReportRowsLoader;
   syncUtahCandidateFinanceFn?: typeof syncUtahCandidateFinance;
+  autoLinkMissingLinks?: boolean;
+  resolveCandidateCommittee?: UtahCandidateCommitteeSearchResolver;
 };
 
 export type UtahCandidateFinanceBatchSyncItemResult = {
@@ -77,6 +84,8 @@ export type UtahCandidateFinanceBatchSyncResult = {
   selectedCandidateCount: number;
   syncedCandidateCount: number;
   failedCandidateCount: number;
+  autoLinkAttemptedCount: number;
+  autoLinkLinkedCount: number;
   results: UtahCandidateFinanceBatchSyncItemResult[];
 };
 
@@ -181,6 +190,39 @@ export async function syncDueUtahCandidateFinance(
   const syncFn = input.syncUtahCandidateFinanceFn ?? syncUtahCandidateFinance;
   const loadGeneratedReportRows = input.loadGeneratedReportRowsFn ?? buildDefaultRowsLoader(input);
   const pacRowsByYear = new Map<number, Promise<UtahDisclosuresCachedRows>>();
+  let autoLinkAttemptedCount = 0;
+  let autoLinkLinkedCount = 0;
+
+  // Create missing links first; the due list below only syncs linked rows.
+  if (!dryRun && input.autoLinkMissingLinks !== false) {
+    try {
+      const missingLinkCandidates = await listUtahCandidateElectionsMissingFinanceLinks(input.db, {
+        now,
+        maxCandidates,
+        electionLookbackDays,
+        electionLookaheadDays,
+      });
+      autoLinkAttemptedCount = missingLinkCandidates.length;
+      const autoLinkResults = await autoLinkMissingUtahCandidateFinanceLinks({
+        db: input.db,
+        now,
+        candidateElections: missingLinkCandidates,
+        resolveCandidateCommittee: input.resolveCandidateCommittee,
+        disclosuresClientOptions: input.disclosuresClientOptions,
+      });
+      autoLinkLinkedCount = autoLinkResults.filter((result) => result.status === "linked").length;
+      for (const result of autoLinkResults) {
+        if (result.status !== "linked") {
+          console.warn("Utah finance auto-link did not link candidate election:", result);
+        }
+      }
+    } catch (error) {
+      console.warn(
+        "Utah finance auto-link skipped; continuing with already-linked candidate sync:",
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
 
   const due = await listDueUtahCandidateFinanceSyncRows(input.db, {
     now,
@@ -281,6 +323,8 @@ export async function syncDueUtahCandidateFinance(
     selectedCandidateCount: due.rows.length,
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
+    autoLinkAttemptedCount,
+    autoLinkLinkedCount,
     results,
   };
 }

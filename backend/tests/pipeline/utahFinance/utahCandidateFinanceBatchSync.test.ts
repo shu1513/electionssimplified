@@ -194,6 +194,7 @@ describe("utahCandidateFinanceBatchSync", () => {
       electionLookbackDays: 30,
       loadGeneratedReportRowsFn,
       syncUtahCandidateFinanceFn,
+      autoLinkMissingLinks: false,
       classifySupportingCommitteeIndustriesWithAi: false,
       supportingCommitteeIndustryMinAmount: 5_000,
     });
@@ -256,6 +257,7 @@ describe("utahCandidateFinanceBatchSync", () => {
       now: NOW,
       loadGeneratedReportRowsFn,
       syncUtahCandidateFinanceFn,
+      autoLinkMissingLinks: false,
     });
 
     expect(result).toMatchObject({
@@ -269,5 +271,74 @@ describe("utahCandidateFinanceBatchSync", () => {
         supportingCommitteeSourceUrl: undefined,
       })
     );
+  });
+
+  it("links unlinked candidates before syncing, since nothing else creates Utah links", async () => {
+    // Live Oct 2026: all 190 Nov-2026 Utah candidates were unlinked because
+    // the due sync only refreshed existing links.
+    const queries: string[] = [];
+    const db = {
+      query: vi.fn(async (sql: string) => {
+        queries.push(sql);
+        if (sql.includes("NOT EXISTS")) {
+          return {
+            rows: [
+              {
+                candidate_id: CANDIDATE_ID,
+                election_id: ELECTION_ID,
+                candidate_name: "Nelson T. Abbott",
+                election_year: 2026,
+                office_scope: "state_lower",
+                office_name: "State Lower Chamber Legislator",
+                district: "57",
+              },
+            ],
+          };
+        }
+        if (sql.includes("INSERT INTO public.ut_candidate_finance_links")) {
+          return { rows: [{ id: "33333333-3333-4333-8333-333333333333", link_source: "disclosures_advanced_search", election_year: 2026 }] };
+        }
+        return { rows: [] };
+      }),
+    };
+    const resolveCandidateCommittee = vi.fn(async () => ({
+      status: "matched" as const,
+      folderId: "1415393",
+      committeeName: "Abbott, Nelson (2022 House-57)",
+      reportYears: [2026],
+      confidence: "exact" as const,
+      source: "disclosures_advanced_search" as const,
+      sourceUrl: "https://disclosures.utah.gov/Search/AdvancedSearch",
+      matchedEntityRowCount: 1,
+    }));
+
+    const result = await syncDueUtahCandidateFinance({
+      db,
+      now: NOW,
+      resolveCandidateCommittee,
+      syncUtahCandidateFinanceFn: vi.fn(),
+    });
+
+    expect(resolveCandidateCommittee).toHaveBeenCalledWith(
+      {
+        candidateName: "Nelson T. Abbott",
+        electionYear: 2026,
+        officeName: "State Lower Chamber Legislator",
+        district: "57",
+      },
+      undefined
+    );
+    expect(result).toMatchObject({ autoLinkAttemptedCount: 1, autoLinkLinkedCount: 1, selectedCandidateCount: 0 });
+    expect(queries.some((sql) => sql.includes("INSERT INTO public.ut_candidate_finance_links"))).toBe(true);
+  });
+
+  it("does not auto-link on a dry run", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [] })) };
+    const resolveCandidateCommittee = vi.fn();
+
+    const result = await syncDueUtahCandidateFinance({ db, now: NOW, dryRun: true, resolveCandidateCommittee });
+
+    expect(resolveCandidateCommittee).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ autoLinkAttemptedCount: 0, autoLinkLinkedCount: 0 });
   });
 });

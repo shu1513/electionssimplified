@@ -27,6 +27,29 @@ describe("utahCandidateCommitteeResolver", () => {
     expect(normalizeUtahCandidateNameKeys("Jane Doe (Janet Doe)").has("JANET DOE")).toBe(true);
   });
 
+  it("matches a formal folder name through nicknames, literal names first", () => {
+    // Live Oct 2026: VoteApp "Walt Brooks" (House 75) files as "Brooks, Walter".
+    const walter = entityRow({ folderId: "11111", entityName: "Brooks, Walter (2024 House-75)", reportYears: [2026, 2024] });
+    expect(
+      resolveUtahCandidateCommittee({
+        candidateName: "Walt Brooks",
+        electionYear: 2026,
+        officeName: "State Lower Chamber Legislator",
+        district: "75",
+        entityRows: [walter],
+      })
+    ).toMatchObject({ status: "matched", folderId: "11111" });
+
+    // A literal "Walt" folder wins over the "Walter" folder instead of turning ambiguous.
+    const walt = entityRow({ folderId: "22222", entityName: "Brooks, Walt (2026 House-75)", reportYears: [2026] });
+    expect(
+      resolveUtahCandidateCommittee({ candidateName: "Walt Brooks", electionYear: 2026, entityRows: [walter, walt] })
+    ).toMatchObject({ status: "matched", folderId: "22222" });
+
+    // The first storage key stays the literal name.
+    expect([...normalizeUtahCandidateNameKeys("Walt Brooks", { expandNicknames: true })][0]).toBe("WALT BROOKS");
+  });
+
   it("rejects a same-year folder whose middle name contradicts the candidate", () => {
     // Same report year and no office conflict — only the middle evidence
     // differs. Without the middle gate this folder linked as an "exact" match
