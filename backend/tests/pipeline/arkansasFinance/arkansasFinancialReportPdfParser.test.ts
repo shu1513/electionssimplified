@@ -19,6 +19,28 @@ describe("Arkansas positioned PDF form contract (synthetic, no donor PII)",()=>{
  it("takes current cover amount and preserves full wrapped monetary cells",()=>{const p=parseArkansasFinancialReportPdf(base());expect(p.currentCashCents).toBe(10000);expect(p.cashRows[0]?.cumulativeCents).toBe(10000);expect(p.cashRows[0]?.nameAddress).toBe("Example PAC PO Box 1, Little Rock, AR 72201");expect(p.ownerName).toBe("Jane Doe");expect(p.returnedCashCents).toBe(0);});
  it("supports source current-total baseline offset without using cumulative amounts",()=>{const x=base();const c=x.pages[0]!.cells.find(c=>c.text==="$100.00")!;c.y-=5.6;expect(parseArkansasFinancialReportPdf(x).currentCashCents).toBe(10000);});
  it("joins only a same-section next-page continuation before its first new date",()=>{const x=base();const first=cashPage(4,[{y:64.49,name:"Example PAC"}]);const second=cashPage(5,[{y:703.49,name:"Second PAC",address:"PO Box 2, Little Rock, AR 72201"}]);(second.cells as ArkansasPdfCell[]).push(cell("PO Box 1, Little Rock, AR 72201",84.8,716.24),cell("Legal footer starts outside name column",31,710,7.5),cell("16. TOTAL ITEMIZED MONETARY CONTRIBUTIONS OVER $200",37,500),cell("$200.00",456,500),cell("17. TOTAL NONITEMIZED MONETARY CONTRIBUTIONS",37,480),cell("$0.00",477,480),cell("18. TOTAL MONETARY CONTRIBUTIONS THIS REPORT",37,460),cell("$200.00",456,460));x.pages=[...x.pages.slice(0,3),first,second,...x.pages.slice(4).map(p=>({...p,pageNumber:p.pageNumber+1}))];const p=parseArkansasFinancialReportPdf(x);expect(p.cashRows).toHaveLength(2);expect(p.cashRows[0]?.nameAddress).toBe("Example PAC PO Box 1, Little Rock, AR 72201");expect(p.cashRows[1]?.nameAddress).toContain("Second PAC");expect(p.cashRows[0]?.nameAddress).not.toContain("footer");});
+ it("joins the final donor address and employment on a totals-only continuation page",()=>{
+  const x=base(),first=cashPage(4,[{y:64.49,name:"Example PAC"}]),last=cashPage(5,[]);
+  (last.cells as ArkansasPdfCell[]).push(
+   cell("PO Box 1, Little Rock, AR 72201",84.8,716.24),cell("Retired",319,716.24),
+   ...x.pages[3]!.cells.filter(c=>c.y<=500),
+  );
+  x.pages=[...x.pages.slice(0,3),first,last,...x.pages.slice(4).map(p=>({...p,pageNumber:p.pageNumber+1}))];
+  const parsed=parseArkansasFinancialReportPdf(x);
+  expect(parsed.cashRows).toHaveLength(1);
+  expect(parsed.cashRows[0]).toMatchObject({nameAddress:"Example PAC PO Box 1, Little Rock, AR 72201",employment:"Retired",amountCents:10000});
+  expect(parsed.sectionTotals["18"]).toBe(10000);
+  x.pages=x.pages.filter(p=>p!==first);
+  expect(()=>parseArkansasFinancialReportPdf(x)).toThrow("orphan");
+ });
+ it("keeps an explicit empty legacy cash schedule empty",()=>{
+  const x=base(),cash=cashPage(4,[]);
+  (cash as any).cells=cash.cells.filter(c=>c.text!=="Description");
+  (cash.cells as ArkansasPdfCell[]).push(cell("NO DATA ENTERED",250,716),...x.pages[3]!.cells.filter(c=>c.y<=500).map(c=>({...c,text:c.text==="$100.00"?"$0.00":c.text})));
+  x.pages[3]=cash;
+  x.pages[0]!.cells.find(c=>c.text==="$100.00")!.text="$0.00";
+  expect(parseArkansasFinancialReportPdf(x).cashRows).toEqual([]);
+ });
  it("separates observed legacy employer cells at x246.4 from donor identity",()=>{
   const x=base(),p=x.pages[3]!;(p as any).cells=p.cells.filter(c=>c.text!=="Description");
   const amount=p.cells.find(c=>c.text==="$100.00"&&c.x<500)!;amount.x=439.13;

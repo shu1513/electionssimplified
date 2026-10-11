@@ -144,14 +144,15 @@ function scheduleRows(page: ArkansasPdfPage, ls: Line[], section: number, mode: 
   const rows: ArkansasPdfOccurrence[] = [];
   // CFIS can split a wrapped cell at the page break without repeating the date.
   // Only same-section continuation cells below the repeated column header and
-  // above the first new dated row belong to the preceding occurrence.
-  if(starts.length&&mode!=="expense"){
+  // above the first new dated row or totals belong to the preceding occurrence.
+  const continuationEnd=starts[0]?.y??end?.y;
+  if(continuationEnd!==undefined&&mode!=="expense"){
     const legacy=mode==="cash"&&kind==="candidate"&&!page.cells.some(c=>c.text==="Description"&&c.y>700);
     const headerCells=page.cells.filter(c=>c.x>=250&&c.y<h.y&&c.y>h.y-85&&/^(?:Contributor|Cumulative Total|Cumulative|Total|Total from|this|from this|Employer\/Occupation|And Place of|Business|Contributions|for filing|period)$/.test(c.text));
-    if(!headerCells.length)fail("missing repeated cumulative column header");
-    const headerBottom=Math.min(...headerCells.map(c=>c.y));
-    const continuation=page.cells.filter(c=>c.y<headerBottom-1.5&&c.y>starts[0]!.y+1.5&&c.height>=8.5&&c.x>=80&&c.x<(legacy?240:mode==="nonmoney"?250:225)).sort((a,b)=>b.y-a.y||a.x-b.x);
-    const employment=page.cells.filter(c=>c.y<headerBottom-1.5&&c.y>starts[0]!.y+1.5&&c.height>=8.5&&mode==="cash"&&c.x>=(legacy?240:315)&&c.x<(legacy?345:408)).sort((a,b)=>b.y-a.y||a.x-b.x);
+    if(starts.length&&!headerCells.length)fail("missing repeated cumulative column header");
+    const headerBottom=headerCells.length?Math.min(...headerCells.map(c=>c.y)):-Infinity;
+    const continuation=page.cells.filter(c=>c.y<headerBottom-1.5&&c.y>continuationEnd+1.5&&c.height>=8.5&&!/NO DATA ENTERED/i.test(c.text)&&c.x>=80&&c.x<(legacy?240:mode==="nonmoney"?250:225)).sort((a,b)=>b.y-a.y||a.x-b.x);
+    const employment=page.cells.filter(c=>c.y<headerBottom-1.5&&c.y>continuationEnd+1.5&&c.height>=8.5&&!/NO DATA ENTERED/i.test(c.text)&&mode==="cash"&&c.x>=(legacy?240:315)&&c.x<(legacy?345:408)).sort((a,b)=>b.y-a.y||a.x-b.x);
     if(continuation.length||employment.length){
       const previous=previousRows.at(-1);
       if(!previous||previous.section!==section||previous.pageNumber!==page.pageNumber-1)fail("orphan schedule continuation");

@@ -66,6 +66,34 @@ describe("Arkansas original financial source closure (synthetic provenance polic
 
 describe("Arkansas IE whole report before target filtering",()=>{
  it("retains explicit raw cover contradiction with full monetary closure",()=>{const x=fixture(true),r=verifyArkansasCurrentOriginalIeSource(x);expect(r.proof?.expenditureCents).toBe(10000);expect(r.proof?.expenseRows[0]?.purpose).toContain("SUPPORT");expect(r.proof?.coverElectionConflicts[0]?.electionDateRaw).toBe("11/05/2024");});
+ it.each([[false,false,false],[true,false,false],[false,true,false],[true,true,false],[false,false,true],[true,false,true],[false,true,true],[true,true,true]])("pairs equal expenses by purpose (reverse native %s, PDF %s, bank fees %s)",(reverseNative,reversePdf,bankFees)=>{
+  const x=fixture(true),newGuid="44444444-4444-4444-4444-444444444444",purpose=bankFees?"Bank Fee":"PRINTING IN SUPPORT OF JOHN ROE AR SD 7";
+  if(bankFees){
+   bothNative(x,"transactionCategory","Other(list)(Bank Fee)");
+   x.details[0]!.row.comments=null;Object.assign(x.details[0]!.row.rawFields,{comments:null,otherCategory:"Bank Fee"});
+   x.pdfs[0]!.parsed.expenseRows=[{...x.pdfs[0]!.parsed.expenseRows[0]!,description:""}];
+  }
+  for(const c of[x.nativeBefore,x.nativeAfter]){
+   const row=structuredClone(c.rows[0]!);row.guid=newGuid;row.rawFields.guid=newGuid;c.rows.push(row);c.totalItems=2;
+   if(reverseNative)c.rows.reverse();
+  }
+  const detail=structuredClone(x.details[0]!);
+  Object.assign(detail.row,{guid:newGuid,transactionId:124,comments:purpose});
+  Object.assign(detail.row.rawFields,{guid:newGuid,transactionID:124,comments:purpose});
+  detail.request.requestBody={transactionGuid:newGuid};x.details=[...x.details,detail];
+  const pdf=x.pdfs[0]!.parsed;
+  pdf.expenseRows=[...pdf.expenseRows,{...structuredClone(pdf.expenseRows[0]!),ordinal:1,description:purpose}];
+  if(reversePdf)pdf.expenseRows=[...pdf.expenseRows].reverse();
+  pdf.currentExpenseCents=20000;pdf.sectionTotals={"20":20000,"21":0,"22":20000};rehash(x);
+  const result=verifyArkansasCurrentOriginalIeSource(x);
+  expect(result.proof?.expenditureCents).toBe(20000);
+  expect(result.proof?.expenseRows).toHaveLength(2);
+  expect(result.proof?.expenseRows.find(r=>r.guid===ROW)?.purpose).toBe(bankFees?"":"PRINTING IN SUPPORT OF JANE DOE AR SD 7");
+  expect(result.proof?.expenseRows.find(r=>r.guid===newGuid)?.purpose).toBe(purpose);
+  // Equal totals cannot hide a missing purpose occurrence.
+  pdf.expenseRows=pdf.expenseRows.map(row=>({...row,description:purpose}));
+  expect(verifyArkansasCurrentOriginalIeSource(x).proof).toBeUndefined();
+ });
  it("retains a blank unallocated purpose only for explicit native/detail Bank Fee concordance",()=>{
   for(const comment of [null,"Bank Fee"]){
    const x=fixture(true);x.pdfs[0]!.parsed.expenseRows=[{...x.pdfs[0]!.parsed.expenseRows[0]!,description:""}];

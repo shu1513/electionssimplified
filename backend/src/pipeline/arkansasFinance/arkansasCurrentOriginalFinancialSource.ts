@@ -219,14 +219,15 @@ function assigned(row:ArkansasVerifiedTransactionRow,reports:Map<string,Arkansas
   if(found.length!==1)reject(`unresolved current report assignment ${row.guid}`);return found[0]!;
 }
 function rowKey(date:string,amount:number,nameAddress:string):string { return JSON.stringify([date,amount,normalized(nameAddress)]); }
-function matchRows(native:ArkansasVerifiedTransactionRow[],pdfRows:readonly ArkansasPdfOccurrence[],label:string):Map<string,ArkansasPdfOccurrence> {
+function matchRows(native:ArkansasVerifiedTransactionRow[],pdfRows:readonly ArkansasPdfOccurrence[],label:string,accept:(row:ArkansasVerifiedTransactionRow,pdf:ArkansasPdfOccurrence)=>boolean=()=>true):Map<string,ArkansasPdfOccurrence> {
   const pdf=new Map<string,ArkansasPdfOccurrence[]>();
   for(const row of pdfRows){const key=rowKey(row.date,row.amountCents,row.nameAddress);const q=pdf.get(key)??[];q.push(row);pdf.set(key,q);}
   const matched=new Map<string,ArkansasPdfOccurrence>();
   for(const row of native){
     if(!row.sourceName?.trim()||!row.sourceAddress?.trim())reject(`missing named ${label} identity ${row.guid}`);
     const key=rowKey(arkansasFinancialDate(row.transactionDate),cents(row.transactionAmount),`${row.sourceName} ${row.sourceAddress}`);
-    const occurrence=pdf.get(key)?.shift();if(!occurrence)reject(`native/PDF identity mismatch ${row.guid} ${row.sourceName}`);matched.set(row.guid,occurrence);
+    const candidates=pdf.get(key)??[],index=candidates.findIndex(p=>accept(row,p));
+    const occurrence=index<0?undefined:candidates.splice(index,1)[0];if(!occurrence)reject(`native/PDF identity mismatch ${row.guid} ${row.sourceName}`);matched.set(row.guid,occurrence);
   }
   if([...pdf.values()].some(q=>q.length))reject(`unmatched PDF ${label} occurrence`);return matched;
 }
@@ -277,19 +278,22 @@ export function verifyArkansasCurrentOriginalIeSource(input:ArkansasCurrentOrigi
     const byReport=new Map<string,ArkansasVerifiedTransactionRow[]>();
     for(const row of b.native.values()){if(row.transactionSubTypeDescription!=="Itemized Monetary")reject("unsupported expenditure subtype");const r=assigned(row,b.reports);const q=byReport.get(r.filerReportGuid)??[];q.push(row);byReport.set(r.filerReportGuid,q);}
     for(const r of b.reports.values()){
-      const p=b.parsed.get(r.filerReportGuid)!,rows=byReport.get(r.filerReportGuid)??[],matched=matchRows(rows,p.expenseRows,"expense");
+      const p=b.parsed.get(r.filerReportGuid)!,rows=byReport.get(r.filerReportGuid)??[];
+      for(const row of rows)checkDetail(row,b.details.get(row.guid),"TEXP",input.identity);
+      // Match explicit purposes before using the blank bank-fee fallback.
+      const pdfExpenses=[...p.expenseRows].sort((a,b)=>Number(!a.description)-Number(!b.description));
+      const matched=matchRows(rows,pdfExpenses,"expense",(row,pdf)=>{
+        const d=b.details.get(row.guid)!,comments=normalized(d.row.comments??"");
+        if(pdf.description)return normalized(pdf.description)===comments;
+        const explicitFee=normalized(String(d.row.rawFields.otherCategory??""))==="BANK FEE"&&normalized(row.transactionCategory??"")==="OTHER LIST BANK FEE";
+        return explicitFee&&(comments===""||comments==="BANK FEE");
+      });
       const sum=rows.reduce((s,row)=>add(s,cents(row.transactionAmount)),0);if(sum!==p.currentExpenseCents)reject(`whole IE cover mismatch ${r.filerReportGuid}`);
       if(p.sectionTotals["21"]!==undefined&&p.sectionTotals["21"]!==0||p.sectionTotals["20"]!==undefined&&p.sectionTotals["20"]!==sum||p.sectionTotals["22"]!==undefined&&p.sectionTotals["22"]!==sum)reject("IE schedule totals differ");
       if(p.noActivity==="checked_vector"&&(rows.length||p.currentCashCents||p.currentLoanCents||p.currentExpenseCents))reject("IE noactivity conflicts with source activity");
       for(const row of rows){
-        const d=b.details.get(row.guid);checkDetail(row,d,"TEXP",input.identity);
+        const d=b.details.get(row.guid);
         const purpose=matched.get(row.guid)!.description;
-        if(purpose&&normalized(purpose)!==normalized(d!.row.comments??""))reject(`IE purpose differs ${row.guid}`);
-        if(!purpose){
-          const comments=normalized(d!.row.comments??"");
-          const explicitFee=normalized(String(d!.row.rawFields.otherCategory??""))==="BANK FEE"&&normalized(row.transactionCategory??"")==="OTHER LIST BANK FEE";
-          if(!explicitFee||(comments!==""&&comments!=="BANK FEE"))reject(`unproved blank IE purpose ${row.guid}`);
-        }
         if(/\b(?:SUPPORT|OPPOSE|OPPOSITION)\b/.test(normalized(purpose))){if(d!.row.electionYear!==input.identity.electionYear||d!.row.electionTypeCode!=="PRMELEC")reject(`unsupported allocated IE year/type ${row.guid}`);}
         expenseRows.push({...occurrence(row,r.filerReportGuid,d),purpose,nativeCategory:row.transactionCategory,detailOtherCategory:typeof d!.row.rawFields.otherCategory==="string"?d!.row.rawFields.otherCategory:null,transactionId:d!.row.transactionId,transactionVersionId:d!.row.transactionVersionId,transactionTypeCode:"TEXP",transactionSubTypeCode:"ITMY",sourceElectionYear:d!.row.electionYear,electionTypeCode:d!.row.electionTypeCode});
       }
