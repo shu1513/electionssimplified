@@ -107,14 +107,41 @@ const GENERIC_PENNSYLVANIA_DOS_SOURCE_URL =
 const MAX_PAC_INTEREST_ROWS = 5;
 const MAX_PACS_PER_INTEREST = 5;
 
-// Where the committee's money is placed on the card: the shared rule
-// classifier on the committee name (finance_pac_interests cannot help here:
-// it is keyed by FEC committee id). Unsorted committees are kept under "Not
-// yet sorted", unlike the federal card, because the name rules sort almost
-// no Pennsylvania committees and hiding them would hide most of the PAC
-// money. Researched labels (finance_committee_labels) still say who each
-// committee is.
+// Pennsylvania candidate committees are named "Friends of <name>",
+// "Committee to Elect <name>", "Citizens for <name>" or "<name> for <office>"
+// (a 2026 sample of 234 such donor names held no PAC). A name that also says
+// PAC / Committee on / Political stays a PAC ("Friends of Teamsters 397 PAC
+// Fund"). Exported for tests.
+const CANDIDATE_COMMITTEE_PREFIX_PATTERN = /^(FRIENDS OF|COMMITTEE TO ELECT|CITIZENS FOR|PEOPLE FOR)\b/;
+const CANDIDATE_COMMITTEE_OFFICE_PATTERN =
+  /\bFOR (STATE |LT |LIEUTENANT )?(REP|REPRESENTATIVE|SENATE|SENATOR|GOVERNOR|CONGRESS|JUDGE|MAYOR|COUNCIL|COMMISSIONER|TREASURER|AUDITOR|ATTORNEY GENERAL|PA|PENNSYLVANIA|DA|DISTRICT ATTORNEY|SHERIFF|CONTROLLER|SUPERVISOR|SCHOOL BOARD)\b/;
+const PAC_WORD_PATTERN = /\b(PAC|COMMITTEE ON|POLITICAL)\b/;
+
+export function isPennsylvaniaCandidateCommitteeName(committeeName: string): boolean {
+  const key = committeeName
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim();
+  if (!key || PAC_WORD_PATTERN.test(key)) {
+    return false;
+  }
+  return CANDIDATE_COMMITTEE_PREFIX_PATTERN.test(key) || CANDIDATE_COMMITTEE_OFFICE_PATTERN.test(key);
+}
+
+// Where the committee's money is placed on the card: other candidates'
+// committees are recognised by name (and, like the federal card, not
+// listed); everything else goes through the shared rule classifier on the
+// committee name (finance_pac_interests cannot help here: it is keyed by FEC
+// committee id). Unsorted committees are kept under "Not yet sorted", unlike
+// the federal card, because the name rules sort almost no Pennsylvania
+// committees and hiding them would hide most of the PAC money. Researched
+// labels (finance_committee_labels) still say who each committee is.
 function pennsylvaniaPacInterest(row: PennsylvaniaFinancePacDonorRow): string {
+  if (isPennsylvaniaCandidateCommitteeName(row.committee_name)) {
+    return "candidate_committees";
+  }
   return (
     classifyPacInterest({
       committeeName: row.committee_name,

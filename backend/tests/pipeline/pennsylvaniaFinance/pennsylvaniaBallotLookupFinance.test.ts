@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { loadPennsylvaniaCandidateFinanceSummariesByCandidateElection } from "../../../src/pipeline/pennsylvaniaFinance/pennsylvaniaBallotLookupFinance.js";
+import {
+  isPennsylvaniaCandidateCommitteeName,
+  loadPennsylvaniaCandidateFinanceSummariesByCandidateElection,
+} from "../../../src/pipeline/pennsylvaniaFinance/pennsylvaniaBallotLookupFinance.js";
 
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
 const ELECTION_ID = "22222222-2222-4222-8222-222222222222";
@@ -121,6 +124,9 @@ describe("pennsylvaniaBallotLookupFinance", () => {
             { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7001", committee_name: "Greater PA Carpenters PAC", amount: "1500.00", source_url: null },
             { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: "1000.00", source_url: "https://pa.example/2026.zip" },
             { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7003", committee_name: "Pennsylvania Association of Realtors PAC", amount: "500.00", source_url: null },
+            // Other candidates' committees, recognised by name: never listed.
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7002", committee_name: "Friends of Kim Ward", amount: "250.00", source_url: null },
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7004", committee_name: "Santarsiero for State Senate", amount: "200.00", source_url: null },
           ],
         }),
     };
@@ -198,6 +204,15 @@ describe("pennsylvaniaBallotLookupFinance", () => {
     expect(pacSql).toContain("GROUP BY selected.candidate_id, selected.election_id, donor.committee_id");
     expect(pacSql).toContain("sum(donor.amount)");
     expect(pacSql).not.toContain("finance_pac_interests");
+  });
+
+  it("recognises other candidates' committees by name but keeps PACs named like them", () => {
+    for (const name of ["Friends of Kim Ward", "COMMITTEE TO ELECT JIM BREWSTER", "Citizens for Hughes", "Santarsiero for State Senate", "WHEELER FOR PA", "Joe Khan for DA", "Rapp for Rep. Committee", "Gainey for Mayor"]) {
+      expect(isPennsylvaniaCandidateCommitteeName(name), name).toBe(true);
+    }
+    for (const name of ["Friends of Teamsters 397 PAC Fund", "Citizens for Prosperity in America Today PAC", "Operators for Skill PAC", "Alliance for a Better Pennsylvania", "Greater PA Carpenters PAC", "Democratic Governors Association"]) {
+      expect(isPennsylvaniaCandidateCommitteeName(name), name).toBe(false);
+    }
   });
 
   it("stays quiet when PA finance is disabled", async () => {
