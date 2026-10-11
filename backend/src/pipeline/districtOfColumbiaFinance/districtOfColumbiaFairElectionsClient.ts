@@ -229,8 +229,10 @@ async function fetchAllPages<T>(
       throw new DistrictOfColumbiaOcfClientError("bad_response", `D.C. Fair Elections ${path} returned no gridData`);
     }
     rows.push(...page.gridData);
-    const totalCount = typeof page.totalCount === "number" ? page.totalCount : rows.length;
-    if (page.gridData.length < pageSize || rows.length >= totalCount) {
+    // A short page always ends paging. The count check only applies when the API
+    // reports one; without it, a full page must be followed by another request.
+    const totalCount = typeof page.totalCount === "number" ? page.totalCount : null;
+    if (page.gridData.length < pageSize || (totalCount !== null && rows.length >= totalCount)) {
       return rows;
     }
   }

@@ -274,6 +274,44 @@ describe("districtOfColumbiaFairElectionsClient", () => {
     ]);
   });
 
+  it("keeps paging on full pages when the response omits totalCount", async () => {
+    const page = CONTRIBUTIONS_PAGE.gridData;
+    const fetchImpl = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      const href = String(url);
+      if (href.endsWith("/Public/GetElectionsByYear/2026")) {
+        return jsonResponse(ELECTIONS);
+      }
+      const body = JSON.parse(String(init?.body)) as { electionId: number; pageNum: number; recordsPerPage: number };
+      if (href.endsWith("/Public/SearchContributions")) {
+        // No totalCount: the general election serves all 9 rows as a full page of 5, then a short page of 4.
+        const rows = body.electionId === 9 ? page : [];
+        return jsonResponse({
+          gridData: rows.slice((body.pageNum - 1) * body.recordsPerPage, body.pageNum * body.recordsPerPage),
+        });
+      }
+      if (href.endsWith("/Public/SearchExpenditures")) {
+        return jsonResponse({ gridData: [] });
+      }
+      return new Response("not found", { status: 404, statusText: "Not Found" });
+    });
+
+    const data = await downloadDistrictOfColumbiaFairElectionsData(
+      { electionYear: 2026, now: new Date("2026-10-10T00:00:00Z") },
+      { fetchImpl: fetchImpl as typeof fetch, pageSize: 5 }
+    );
+
+    expect(data.contributionRecords).toHaveLength(page.length);
+    const searchedPages = fetchImpl.mock.calls
+      .filter(([url]) => String(url).endsWith("/Public/SearchContributions"))
+      .map(([, init]) => JSON.parse(String(init?.body)) as { electionId: number; pageNum: number })
+      .map((body) => [body.electionId, body.pageNum]);
+    expect(searchedPages).toEqual([
+      [9, 1],
+      [9, 2],
+      [8, 1],
+    ]);
+  });
+
   it("raises a client error on HTTP failures", async () => {
     const fetchImpl = vi.fn(async () => new Response("down", { status: 503, statusText: "Service Unavailable" }));
     await expect(
