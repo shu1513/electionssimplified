@@ -25,6 +25,7 @@ import {
 } from "./tennesseeOutsideSpendingAggregator.js";
 import type { TennesseeCampContributionRecord, TennesseeCampExpenditureRecord } from "./tennesseeCampClient.js";
 import {
+  recordTennesseeCandidateFinanceSyncAttempt,
   replaceTennesseeCandidateFinanceSnapshot,
   type TennesseeFinanceLinkInput,
   type TennesseeFinanceLinkSource,
@@ -411,6 +412,7 @@ export async function syncTennesseeCandidateFinance(
     }
     const write = !dryRun && hasAccepted ? await replaceTennesseeCandidateFinanceSnapshot({
       ...snapshot,db:input.db,link,syncedAt,classifications: [...classifications.values()] }) : undefined;
+    if (!dryRun && !hasAccepted) await recordTennesseeCandidateFinanceSyncAttempt({ db: input.db,link,syncedAt });
     return { candidateId: link.candidateId,electionId: link.electionId,electionYear,dryRun,
       linkWritten: Boolean(write),summaryWritten: write?.summaryWritten ?? false,
       directBreakdownsWritten: write?.directBreakdownsWritten ?? 0,outsideGroupsWritten: write?.outsideGroupsWritten ?? 0,

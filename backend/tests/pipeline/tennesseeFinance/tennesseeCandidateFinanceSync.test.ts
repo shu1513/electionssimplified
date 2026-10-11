@@ -82,12 +82,28 @@ describe("Tennessee verified finance sync path", () => {
     expect(db.query.mock.calls.some(call => String(call[0]).includes("total_receipts,"))).toBe(false);
     expect(db.query.mock.calls.some(call => String(call[0]).includes("pac_source_provenance"))).toBe(true);
   });
-  it("does not write or mark unavailable source components synced", async () => {
-    const db = createMockDb();
-    const synced = await syncTennesseeCandidateFinance({ db,...identity,verifiedFinance: { diagnostics: ["Current report unavailable"] } });
-    expect(synced).toMatchObject({ linkWritten: false,summaryWritten: false,totalReceipts: null,
+  it("records only the attempt time for a diagnostics-only result, preserving every stored component", async () => {
+    const db = createMockDb(), now = new Date("2026-10-11T16:00:00Z");
+    const synced = await syncTennesseeCandidateFinance({ db,...identity,now,verifiedFinance: { diagnostics: ["Current report unavailable"] } });
+    expect(synced).toMatchObject({ linkWritten: false,summaryWritten: false,totalReceipts: null,pacDonorsWritten: 0,
       sourceVerificationDiagnostics: ["Current report unavailable"] });
-    expect(db.connect).not.toHaveBeenCalled();expect(db.query).not.toHaveBeenCalled();
+    expect(db.connect).not.toHaveBeenCalled();
+    const sql = db.query.mock.calls.map(call => String(call[0]));
+    expect(sql.some(s => s.includes("INSERT INTO public.tn_candidate_finance_links") || s.includes("total_receipts")
+      || s.includes("pac_source_provenance") || s.includes("DELETE"))).toBe(false);
+    const touch = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.tn_candidate_finance_summaries"));
+    expect(String(touch?.[0])).toContain("DO UPDATE SET last_synced_at = EXCLUDED.last_synced_at");
+    expect(touch?.[1]).toEqual(["33333333-3333-4333-8333-333333333333",2026,now.toISOString()]);
+    expect(db.query).toHaveBeenCalledTimes(2);
+  });
+  it("does not record an attempt time without an active link or on a dry run", async () => {
+    const missing = createMockDb();
+    missing.query.mockResolvedValueOnce({ rows: [],rowCount: 0 });
+    await syncTennesseeCandidateFinance({ db: missing,...identity,verifiedFinance: { diagnostics: ["Current report unavailable"] } });
+    expect(missing.query).toHaveBeenCalledTimes(1);
+    const dry = createMockDb();
+    await syncTennesseeCandidateFinance({ db: dry,...identity,dryRun: true,verifiedFinance: { diagnostics: ["Current report unavailable"] } });
+    expect(dry.query).not.toHaveBeenCalled();
   });
   it("retains trusted sync identity and verification time when prepared source DTO includes its own link", async () => {
     const db=createMockDb(),now=new Date("2026-10-11T16:00:00Z");

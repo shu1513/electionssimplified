@@ -12,14 +12,14 @@ function donor(overrides: Record<string, unknown> = {}) {
     committee_name: "Example PAC", committee_type: "Political Action Committee", amount: "1000.00",
     source_url: sourceUrl, industry_slug: null, classification_source: null, confidence: null, ...overrides };
 }
-function database(donors: unknown[]) {
+function database(donors: unknown[], summary: Record<string, unknown> = {}) {
   return { query: vi.fn(async (sql: string) => {
     if (sql.includes("tn_candidate_finance_pac_donors")) return { rows: donors };
     if (sql.includes("tn_candidate_finance_summaries")) return { rows: [{
       candidate_id: candidateId, election_id: electionId, committee_id: "794", election_year: 2026,
       total_receipts: "5000.00", direct_contribution_total: "5000.00",
       outside_support_total: null, outside_oppose_total: null, source_url: sourceUrl,
-      last_synced_at: "2026-10-11T12:00:00.000Z",
+      last_synced_at: "2026-10-11T12:00:00.000Z", ...summary,
     }] };
     return { rows: [] };
   }) };
@@ -31,6 +31,15 @@ async function read(rows: unknown[]) {
   return { db, summary };
 }
 describe("Tennessee typed PAC card", () => {
+  it("omits a card whose summary row only records a sync attempt", async () => {
+    vi.stubEnv("TENNESSEE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const empty = database([], { total_receipts: null, direct_contribution_total: null, source_url: null });
+    expect((await loadTennesseeCandidateFinanceSummariesByCandidateElection(empty, candidates, elections)).size).toBe(0);
+    const pacOnly = database([donor()], { total_receipts: null, direct_contribution_total: null, source_url: null });
+    const summary = [...(await loadTennesseeCandidateFinanceSummariesByCandidateElection(pacOnly, candidates, elections)).values()][0]!;
+    expect(summary.direct_campaign.total_raised).toBeNull();
+    expect(summary.direct_campaign.pac_money_by_interest?.[0]).toMatchObject({ amount: 1000, pac_count: 1 });
+  });
   it("reads typed donors across active links without adding them to Raised", async () => {
     const { db, summary } = await read([donor()]);
     expect(summary.direct_campaign.total_raised).toBe(5000);

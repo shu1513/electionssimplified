@@ -547,10 +547,17 @@ export async function loadTennesseeCandidateFinanceSummariesByCandidateElection(
   const pacInterests = groupTennesseePacDonors(pacDonorResult.rows);
 
   return new Map(
-    summaryResult.rows.map((row) => {
+    summaryResult.rows.flatMap((row): [string, BallotLookupFinanceSummary][] => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
       const pacMoney = pacInterests.get(key);
+      // A summary row that only records a sync attempt carries no totals or money; omit the card.
+      if (row.total_receipts === null && row.direct_contribution_total === null
+        && row.outside_support_total === null && row.outside_oppose_total === null
+        && !pacMoney?.length && !supportingGroupsByCandidateElection.get(key)?.length
+        && !opposingGroupsByCandidateElection.get(key)?.length) {
+        return [];
+      }
       const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
         (industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
           const evidenceKey = `${key}\u0000${industry.category_name}`;
@@ -562,7 +569,7 @@ export async function loadTennesseeCandidateFinanceSummariesByCandidateElection(
           };
         }
       );
-      return [
+      return [[
         key,
         {
           source: "TENNESSEE_CAMP",
@@ -596,7 +603,7 @@ export async function loadTennesseeCandidateFinanceSummariesByCandidateElection(
             top_outside_supporting_industries: topOutsideSupportingIndustries,
           },
         } satisfies BallotLookupFinanceSummary,
-      ];
+      ]];
     })
   );
 }

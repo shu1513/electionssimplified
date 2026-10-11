@@ -187,6 +187,9 @@ export function verifyTennesseeDirectEvidence(input: TennesseeDirectEvidenceVeri
           || ["fromCandidate", "fromIndividual", "fromOrganization"].some(k => scope === "all" ? native.query[k] !== "true" : Object.hasOwn(native.query, k))) return preserve("native cash/PAC query changed/filtered/incomplete");
         for (const row of native.rows) {
           if (row.type !== "Monetary") continue;
+          // The surname search token also returns other same-surname candidates' receipts.
+          // Skip them unless they cite one of this owner's selected reports, which still fails below.
+          if (name(row.recipientName) !== name(link.ownerName) && !reports.has(row.reportId)) continue;
           const relevant = reports.has(row.reportId) || row.date >= start && row.date <= end;
           if (!relevant) continue;
           const report = reports.get(row.reportId);

@@ -323,6 +323,52 @@ export async function upsertTennesseeFinanceLink(input: {
   return { linkId };
 }
 
+/**
+ * A diagnostics-only sync accepted nothing and preserved every stored
+ * component. Advance the summary's sync time anyway so the due query rotates
+ * this link behind the others instead of re-selecting it every run. A row
+ * created here carries no totals, and the ballot reader omits such a card.
+ */
+export async function recordTennesseeCandidateFinanceSyncAttempt(input: {
+  db: Queryable;
+  link: Pick<TennesseeFinanceLinkInput, "candidateId" | "electionId" | "electionYear" | "campCandidateId">;
+  syncedAt: Date;
+}): Promise<{ recorded: boolean }> {
+  if (Number.isNaN(input.syncedAt.getTime())) {
+    throw new Error("Invalid Tennessee finance sync timestamp");
+  }
+  const electionYear = normalizeElectionYear(input.link.electionYear);
+  const link = await input.db.query<{ id: string }>(
+    `
+      SELECT id
+      FROM public.tn_candidate_finance_links
+      WHERE candidate_id = $1::uuid
+        AND election_id = $2::uuid
+        AND camp_candidate_id = $3
+        AND link_status = 'active'
+    `,
+    [
+      requireNonEmpty(input.link.candidateId, "candidate id"),
+      requireNonEmpty(input.link.electionId, "election id"),
+      requireNonEmpty(input.link.campCandidateId, "Tennessee CAMP candidate id"),
+    ]
+  );
+  const linkId = link.rows[0]?.id;
+  if (!linkId) {
+    return { recorded: false };
+  }
+  await input.db.query(
+    `
+      INSERT INTO public.tn_candidate_finance_summaries (link_id, election_year, last_synced_at)
+      VALUES ($1::uuid, $2, $3::timestamptz)
+      ON CONFLICT (link_id, election_year)
+      DO UPDATE SET last_synced_at = EXCLUDED.last_synced_at
+    `,
+    [linkId, electionYear, input.syncedAt.toISOString()]
+  );
+  return { recorded: true };
+}
+
 async function upsertSummary(input: {
   db: Queryable;
   linkId: string;
@@ -727,7 +773,7 @@ export async function replaceTennesseeCandidateFinanceSnapshot(
         (link_id,election_year,pac_source_provenance,last_synced_at)
         VALUES ($1::uuid,$2,$3::jsonb,$4::timestamptz)
         ON CONFLICT (link_id,election_year) DO UPDATE SET
-          pac_source_provenance=EXCLUDED.pac_source_provenance`,
+          pac_source_provenance=EXCLUDED.pac_source_provenance,last_synced_at=EXCLUDED.last_synced_at`,
       [linkId, electionYear, JSON.stringify(input.pacSourceProvenance), syncedAt.toISOString()]);
       for (const donor of input.pacDonors) {
         await db.query(`INSERT INTO public.tn_candidate_finance_pac_donors
