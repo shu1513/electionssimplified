@@ -9,9 +9,11 @@ active finance links for 338 candidates. Oregon PR #1569 remains separate.
 
 Florida publishes independent expenditures through EFS. The public expenditure
 export contains genuine IEC expenses, including $1,691,804.30 of 2025–26
-Americans for Prosperity Action expenses. Its payer/payee/purpose fields do not
-identify a beneficiary, support/opposition, or candidate-specific allocation.
-The native account export adds reporting periods, not those missing fields.
+Americans for Prosperity Action expenses. Those expenses' generic purposes do
+not identify a beneficiary, support/opposition, or candidate-specific allocation.
+Other payers' **full TSV Purpose** can explicitly name a single candidate,
+stance, and office/seat; the screen view truncates that field to 40 characters.
+The native account export adds reporting periods, not structured target fields.
 Section 106.071 requires candidate particulars for applicable independent
 expenditure reports; investigate the actual current public report/detail path
 before treating its generic expenditure export as candidate money. The
@@ -59,7 +61,11 @@ occupation alone does not establish a registered PAC identity.
 5. Add typed PAC donor storage, atomic writer integration, and the existing
    “PAC money by interest” reader, including “Not yet sorted.” Verify complete
    groups/counts before display caps. Preserve a prior accepted component when
-   its new source cannot establish current money. Use a new migration number;
+   its new source cannot establish current money. The typed donor scope includes
+   PAC/CCE political committees and PTY/PAP parties, retaining those distinct
+   legal types; ECO/ECI/IXO remain separate. Unmatched positive names stay
+   unclassified; unknown refunds or ambiguous identities preserve the component.
+   Use a new migration number;
    applied Oregon migration 331 must not be renumbered or reused.
 6. Wire candidate outside expenses only when a primary source provides the
    spender, full candidate identity/office/district/year, direction, amount,
@@ -120,3 +126,23 @@ reported combined locations. Its 15,286 source bytes and original SHA-256
 match the acquisition journal. This is a saved-source parser check, not a fresh
 financial acceptance or a normal sync money proof. No new PAC/outside rows have
 been written and no Florida PR has been opened.
+
+The standalone net committee aggregator passes 21 focused tests and backend
+typecheck. It nets CHE/CAS/MO and identified signed REF occurrences, retaining
+positive occurrence counts, true committee/party types, and unclassified cash.
+Unknown refunds, negative net, ambiguous identity, unsafe cents, or malformed
+source values preserve the component. It is not yet called by the normal sync.
+
+Fresh source followup found RSLC–Florida's explicit $525 “PRO-JON MAPLES, HD-87”
+expense, but its EFS report is for the March special election, not either local
+General/Primary link. New Southern Majority's seven explicit county school-board
+support expenses total $82,616; none of those targets is in the linked cohort.
+These are source mechanism/regression witnesses, not new local outside money.
+No current eligible outside positive has been accepted.
+
+Tant's fresh whole-source bracket currently preserves PAC: Q4/2025 is Amending /
+Updated–Needs Review, with EFS count 59 versus 57 published rows. The two identical
+June 17, 2025 $1,000 self occurrences are **INK**, correcting older research prose;
+retain their multiplicity and exclude them from cash. The separate $1,500 cash /
+−$500 PAC refund pattern remains a financial witness, not an accepted whole-source
+normal-sync result.
