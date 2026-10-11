@@ -4,6 +4,7 @@ import {
   decodeFloridaNativeExpenditureTsv,
   FLORIDA_NATIVE_EXPENDITURE_HEADERS,
   matchFloridaExplicitIndependentExpenditure,
+  parseFloridaExplicitIePurpose,
   parseFloridaExplicitIndependentExpenditureTarget,
   type FloridaNativeExpenditure,
   type FloridaVerifiedExplicitIeTarget,
@@ -64,6 +65,15 @@ function syntheticInput() {
 }
 
 describe("Florida native expenditure TSV foundation", () => {
+  it("extracts a purpose discovery lead without inventing report or financial metadata", () => {
+    expect(parseFloridaExplicitIePurpose(maplesCells[7])).toMatchObject({ status: "parsed",
+      target: { candidateName: "JON MAPLES", district: "87", officeScope: "state_lower" } });
+    expect(parseFloridaExplicitIePurpose("TEXT MESSAGES; PRO-JON MAPLES AND JOHN EXAMPLE, HD-87"))
+      .toMatchObject({ status: "unmatched" });
+    const negative = [...maplesCells]; negative[3] = "-525.00";
+    expect(parseFloridaExplicitIndependentExpenditureTarget(row(negative)))
+      .toMatchObject({ reason: "not_positive_ie_occurrence" });
+  });
   it("retains full financial fields and repeated identical filed occurrences", () => {
     const decoded = decodeFloridaNativeExpenditureTsv(native([falikCells, falikCells]));
     expect(decoded).toHaveLength(2);

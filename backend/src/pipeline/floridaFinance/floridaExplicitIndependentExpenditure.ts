@@ -170,7 +170,13 @@ export function parseFloridaExplicitIndependentExpenditureTarget(
   if (!Number.isSafeInteger(row.amountCents) || row.amountCents <= 0) {
     return reject("not_positive_ie_occurrence");
   }
-  const purpose = display(row.purpose);
+  return parseFloridaExplicitIePurpose(row.purpose);
+}
+
+/** Purpose-only discovery lead. Supplies no report identity, allocation or money authority. */
+export function parseFloridaExplicitIePurpose(rawPurpose: string): FloridaExplicitIeTargetResult {
+  const reject = (reason: string): FloridaExplicitIeTargetResult => ({ status: "unmatched", reason });
+  const purpose = display(rawPurpose);
   const house = /^TEXT MESSAGES; PRO-(.+), HD-([1-9]\d{0,2})$/i.exec(purpose);
   if (house && fullPerson(house[1]) && Number(house[2]) <= 120) {
     return {
