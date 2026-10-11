@@ -31,6 +31,8 @@ import {
   type FloridaFinanceAutoLinkCandidateElection,
 } from "./floridaCandidateFinanceAutoLink.js";
 import { FLORIDA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./floridaFinanceEligibleOffices.js";
+import { createFloridaCandidateCommitteeFinanceSource, type FloridaCandidateCommitteeFinanceSource } from "./floridaCandidateCommitteeFinanceSource.js";
+import type { FloridaReviewedCommitteeDates } from "./floridaCommitteeRegistrySource.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -101,6 +103,10 @@ export type FloridaCandidateFinanceDueSyncInput = Omit<
   exportRowLimit?: number;
   exportForce?: boolean;
   refreshExportArtifacts?: boolean;
+  candidateId?: string;
+  includeRegisteredCommitteeDonors?: boolean;
+  reviewedCommitteeDates?: readonly FloridaReviewedCommitteeDates[];
+  committeeFinanceSource?: FloridaCandidateCommitteeFinanceSource;
 };
 
 export type FloridaCandidateFinanceBatchSyncItemResult = {
@@ -210,6 +216,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
     maxCandidates: number;
     electionLookbackDays: number;
     electionLookaheadDays: number;
+    candidateId?: string;
   }
 ): Promise<{ rows: FloridaCandidateFinanceDueRow[]; totalDueRows: number }> {
   const result = await db.query<FloridaCandidateFinanceDueQueryRow>(
@@ -248,6 +255,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
           ON summary.link_id = link.id
          AND summary.election_year = link.election_year
         WHERE link.link_status = 'active'
+          AND ${input.candidateId ? "link.candidate_id = $7::uuid" : "TRUE"}
           AND candidate.deleted_at IS NULL
           AND district.state = 'FL'
           AND election.race_type = 'office'
@@ -287,6 +295,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...FLORIDA_FINANCE_ELIGIBLE_OFFICE_KEYS],
+      ...(input.candidateId ? [input.candidateId] : []),
     ]
   );
 
@@ -798,7 +807,7 @@ export async function syncDueFloridaCandidateFinance(
     "exportRowLimit"
   );
 
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (!dryRun && !input.candidateId && input.autoLinkMissingLinks !== false) {
     try {
       const autoLinkExportData = await buildAutoLinkExportData({
         db: input.db,
@@ -847,6 +856,7 @@ export async function syncDueFloridaCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    candidateId: input.candidateId,
   });
   const contributionDataByCommitteeId = new Map(
     input.contributionDataByCommitteeId
@@ -858,6 +868,7 @@ export async function syncDueFloridaCandidateFinance(
   );
   const missingDataResults: FloridaCandidateFinanceBatchSyncItemResult[] = [];
   const syncInputs: FloridaCandidateFinanceBatchSyncItemInput[] = [];
+  let committeeSource = input.committeeFinanceSource;
   for (const row of due.rows) {
     let contributionData = contributionDataByCommitteeId.get(normalizeCommitteeId(row.committeeId));
     if (!hasDirectContributionData(contributionData) && !dryRun && input.fetchMissingContributionData !== false) {
@@ -921,7 +932,19 @@ export async function syncDueFloridaCandidateFinance(
         continue;
       }
     }
-    syncInputs.push(buildDueSyncInput({ row, contributionData }));
+    const syncInput = buildDueSyncInput({ row, contributionData });
+    if (!dryRun && input.includeRegisteredCommitteeDonors !== false) {
+      committeeSource ??= createFloridaCandidateCommitteeFinanceSource({ db: input.db,
+        cacheDir: defaultArtifactCacheDir, refresh: input.refreshExportArtifacts === true,
+        minIntervalMs: exportMinIntervalMs, reviewedDates: input.reviewedCommitteeDates });
+      const committeeFinance = await committeeSource.load({ candidateId: row.candidateId,
+        electionId: row.electionId, committeeId: row.committeeId });
+      if (committeeFinance.status === "accepted") syncInput.pacFinance = committeeFinance.pacFinance;
+      else console.warn("Florida committee donor component preserved:", {
+        candidateId: row.candidateId, electionId: row.electionId, diagnostics: committeeFinance.diagnostics,
+      });
+    }
+    syncInputs.push(syncInput);
   }
   const result = await syncFloridaCandidateFinanceBatch({
     db: input.db,

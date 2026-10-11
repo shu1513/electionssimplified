@@ -12,6 +12,7 @@ import {
   type FinanceIndustryClassifier,
 } from "../finance/financeIndustryClassificationService.js";
 import type { FloridaContributionRow } from "./floridaCampaignFinanceRows.js";
+import type { FloridaCommitteeDonorFinanceInput } from "./floridaCommitteeDonorWriter.js";
 import {
   aggregateFloridaDirectContributions,
   type FloridaDirectContributionAggregationResult,
@@ -85,6 +86,7 @@ export type FloridaCandidateFinanceSyncInput = {
   district?: string | null;
   trustedCommittee: FloridaCandidateFinanceTrustedCommittee;
   contributionRows: readonly FloridaContributionRow[];
+  pacFinance?: FloridaCommitteeDonorFinanceInput;
   trustedOutsideGroups?: readonly FloridaCandidateFinanceTrustedOutsideGroup[];
   outsideGroupSupportEvidence?: readonly FloridaOutsideGroupSupportEvidenceInput[];
   // Outside-group finance is opt-in until Florida support/IE discovery is reliable enough for scheduled syncs.
@@ -132,6 +134,8 @@ export type FloridaCandidateFinanceSyncResult = {
   matchedOutsideContributionRowCount: number;
   includedOutsideContributionRowCount: number;
   skippedOutsideContributionRowCount: number;
+  pacDonorsWritten?: number;
+  netCommitteeAmount?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -651,6 +655,7 @@ export async function syncFloridaCandidateFinance(
       outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
       outsideGroupSupportLinks,
       classifications: outsideIndustryFinance.classifications,
+      pacFinance: input.pacFinance,
     });
   }
 
@@ -660,6 +665,10 @@ export async function syncFloridaCandidateFinance(
     electionYear,
     dryRun: input.dryRun === true,
     resolution,
+    ...(input.pacFinance ? {
+      pacDonorsWritten: input.dryRun ? 0 : input.pacFinance.finance.donors.length,
+      netCommitteeAmount: input.pacFinance.finance.netCommitteeAmount,
+    } : {}),
     linkWritten: !input.dryRun,
     summaryWritten: !input.dryRun,
     directBreakdownsWritten: input.dryRun ? 0 : directBreakdowns.length,
