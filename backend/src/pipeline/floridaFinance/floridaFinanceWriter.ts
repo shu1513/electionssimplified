@@ -1,4 +1,10 @@
 import type { Pool, PoolClient } from "pg";
+import {
+  prepareFloridaCommitteeDonorFinance,
+  assertFloridaCommitteeDonorLocalOwnership,
+  writeFloridaCommitteeDonorFinance,
+  type FloridaCommitteeDonorFinanceInput,
+} from "./floridaCommitteeDonorWriter.js";
 
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
@@ -112,6 +118,7 @@ export type FloridaFinanceSnapshotInput = {
   outsideGroupBreakdowns?: readonly FloridaFinanceOutsideGroupBreakdownInput[];
   outsideGroupSupportLinks?: readonly FloridaOutsideGroupSupportLinkInput[];
   classifications?: readonly FinanceLabelClassification[];
+  pacFinance?: FloridaCommitteeDonorFinanceInput;
 };
 
 export type FloridaFinanceSnapshotWriteResult = {
@@ -121,6 +128,7 @@ export type FloridaFinanceSnapshotWriteResult = {
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
   outsideGroupSupportLinksWritten: number;
+  pacDonorsWritten?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -756,6 +764,8 @@ async function deleteStaleOutsideGroupSupportLinks(input: {
 export async function replaceFloridaCandidateFinanceSnapshot(
   input: FloridaFinanceSnapshotInput
 ): Promise<FloridaFinanceSnapshotWriteResult> {
+  const { db: originalDb, ...data } = input;
+  input = { db: originalDb, ...structuredClone(data) };
   const syncedAt = input.syncedAt ?? new Date();
   if (Number.isNaN(syncedAt.getTime())) {
     throw new Error("Invalid Florida finance sync timestamp");
@@ -763,7 +773,10 @@ export async function replaceFloridaCandidateFinanceSnapshot(
   validateFloridaFinanceLinkInput(input.link);
   const electionYear = normalizeElectionYear(input.link.electionYear);
 
+  const preparedPac = input.pacFinance === undefined ? undefined
+    : await prepareFloridaCommitteeDonorFinance({ pacFinance: input.pacFinance, link: input.link });
   return await withFloridaFinanceTransaction(input.db, async (db) => {
+    if (preparedPac) await assertFloridaCommitteeDonorLocalOwnership({ db, prepared: preparedPac, link: input.link });
     const { linkId } = await upsertFloridaFinanceLink({ db, link: input.link });
     if (input.summary) {
       const summary =
@@ -776,6 +789,10 @@ export async function replaceFloridaCandidateFinanceSnapshot(
             };
       await upsertSummary({ db, linkId, electionYear, summary, syncedAt });
     }
+
+    const pacDonorsWritten = preparedPac ? await writeFloridaCommitteeDonorFinance({
+      db, linkId, electionYear, syncedAt, prepared: preparedPac,
+    }) : undefined;
 
     for (const breakdown of input.directBreakdowns ?? []) {
       await upsertDirectBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
@@ -820,6 +837,7 @@ export async function replaceFloridaCandidateFinanceSnapshot(
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
       outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
       outsideGroupSupportLinksWritten: input.outsideGroupSupportLinks?.length ?? 0,
+      ...(pacDonorsWritten === undefined ? {} : { pacDonorsWritten }),
     };
   });
 }
