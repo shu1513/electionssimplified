@@ -48,6 +48,9 @@ const noSleep = () => Promise.resolve();
 
 describe("delawareCfrsClient", () => {
   it("builds portal URLs with query parameters", () => {
+    expect(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsThirdPartyExportCsv)).toBe(
+      "https://cfrs.elections.delaware.gov/Public/ExportCSVNew_TP"
+    );
     expect(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry)).toBe(
       "https://cfrs.elections.delaware.gov/Public/ViewReceiptsMain"
     );
