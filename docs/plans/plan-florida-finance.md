@@ -326,3 +326,38 @@ GET and predate completion of the payer authority. Discovery and registry
 openings retain saved-first behavior and original capture times; registry
 closings remain fresh. This bounded financial freshness is necessary for the
 normal default hook and does not relax source completeness or zero authority.
+
+### Fresh ordinary local sync proof
+
+The October 11 ordinary due CLI completed against the local `voteapp` database
+with the Florida flag enabled inline, AI calls disabled, refresh enabled,
+staleness set to zero and the 20-record reviewed date manifest. Its new financial
+generation captured 578 genuine HTTP 200 responses from 22:38:25 through
+22:48:10 UTC; outside discovery captured one additional HTTP 200 response.
+Independent replay verified every original body, hash and journal metadata.
+
+Adam Botana's House 80 General link changed from zero PAC rows/components to
+24 registered PAC donor rows and one accepted current processed component.
+Net PAC cash is $25,500 across 28 gift occurrences, with no refunds. The full
+proof retains 18 current reports, 78 financial captures and 106 registry lookups;
+$68,200 across 78 positive cash occurrences remains unclassified. The ordinary
+ballot reader displays $25,500 and 24 PACs under “Not yet sorted,” with its
+five-name display cap applied after the full total/count. Raised remains
+$113,700. No outside component was written; supporting/opposing totals remain
+unknown. Empty discovery supplies no financial zero. These are source-reviewed
+CLI results, not a claim that every Florida candidate or outside payer is covered.
+
+PAC replacement now locks prior accepted provenance and preserves older,
+malformed or missing-period refreshes while independent direct data can commit.
+Outside replacement checks the same prior-period boundary, nested registry
+authority, genuine closing source age, actual local ownership and legacy data.
+Migration 333 was applied only locally and is now immutable, SHA-256
+`96021a3a5a9d7bc25cf31e021a046b1db45bdfa74bb3ec3644de117a25a854f9`.
+Migration 332 remains unchanged. No source date is replaced with a job timestamp.
+
+Settled backend checks pass: 14,235 tests passed, 152 skipped, plus typecheck
+and 11 auth-proxy checks. Complete frontend tests pass on installed Node 23:
+1,223 tests across 99 files. Migration file checks pass. Prior frontend/mobile
+typecheck/lint and 98 Worker tests pass, with existing lint warnings. The filing
+deadline reruns above remain required; eligible outside positives, additional
+Purpose grammars, daily reconciliation and broader source coverage remain open.
