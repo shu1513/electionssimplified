@@ -27,6 +27,12 @@ function fixture(name: string): string {
   );
 }
 
+// The legacy cover fixture predates the anti-forgery token the transaction
+// handlers now require; the acquisition reads it from the cover page.
+function withAntiForgeryToken(html: string): string {
+  return `${html}<input name="__RequestVerificationToken" type="hidden" value="test-token" />`;
+}
+
 function documentRow(overrides: Partial<NcsbeDocumentRow>): NcsbeDocumentRow {
   return {
     committeeName: "TEST COMMITTEE",
@@ -116,12 +122,12 @@ function fakeGadsonTransport(state: { requests: string[] }, overrides: Record<st
         return fixture("document-inventory-gadson.html");
       }
       if (url.includes("/ReportDetail/")) {
-        return fixture("report-cover-gadson-229931.html");
+        return withAntiForgeryToken(fixture("report-cover-gadson-229931.html"));
       }
-      if (url.includes("GetReceipts")) {
+      if (url.includes("handler=ReadReceipts")) {
         return fixture("receipts-gadson-229931-p0.json");
       }
-      if (url.includes("GetExpenditures")) {
+      if (url.includes("handler=ReadExpenditures")) {
         return fixture("ie-expenditures-carolina-federation-p0.json");
       }
       if (url.includes("/CFDocLkup/DocumentResult/")) {
@@ -281,7 +287,7 @@ describe("acquireNcsbeCommitteeArtifacts", () => {
     const failing = { requests: [] as string[] };
     const first = await acquireNcsbeCommitteeArtifacts({
       transport: fakeGadsonTransport(failing, {
-        "https://cf.ncsbe.gov/CFOrgLkup/GetReceipts?ReportID=227042&page=0&pageSize=300":
+        "https://cf.ncsbe.gov/CFOrgLkup/ReportDetail?rid=227042&handler=ReadReceipts":
           "<html>An error occurred</html>",
       }),
       cacheDir,

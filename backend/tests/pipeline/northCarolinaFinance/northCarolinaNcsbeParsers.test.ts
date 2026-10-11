@@ -294,6 +294,66 @@ describe("parseNcsbeReportDetailPage", () => {
     );
     expect(() => parseNcsbeReportDetailPage(html)).toThrow(/repeats a section sequence/);
   });
+
+  // Portal redesign seen live 2026-10-10: the cover is an HTML table, the
+  // summary is a Kendo grid with inline rows, and no rptID is declared.
+  // Fixture is a live page (RID 231387) with names, ids, addresses, and the
+  // token replaced.
+  it("parses the redesigned page's cover table and Kendo summary grid", () => {
+    const detail = parseNcsbeReportDetailPage(fixture("report-cover-redesign-900001.html"));
+    expect(detail.cover).toMatchObject({
+      reportId: "900001",
+      boeId: "STA-EXAMP1-C-001",
+      orgName: "CITIZENS FOR EXAMPLE CANDIDATE",
+      entityTypeDesc: "Candidate Committee",
+      fullReportName: "2026 Second Quarter",
+      reportVersion: null,
+    });
+    expect(detail.cover.beginDate.iso).toBe("2026-02-15");
+    expect(detail.cover.endDate.iso).toBe("2026-06-30");
+    expect(detail.cover.filedDate.iso).toBe("2026-07-06");
+    expect(detail.summarySections).toHaveLength(34);
+    const bySection = new Map(detail.summarySections.map((row) => [row.section, row]));
+    expect(bySection.get("Total Receipts")?.periodCents).toBe(3569963);
+    expect(bySection.get("Total Receipts")?.cycleCents).toBe(9152756);
+    expect(bySection.get("Total Expenditures")?.periodCents).toBe(2167804);
+    expect(bySection.get("Cash on Hand at End of Reporting Period")?.periodCents).toBe(12393211);
+  });
+
+  it("reads a blank SBoE ID on the redesigned cover as null", () => {
+    const html = fixture("report-cover-redesign-900001.html").replace(
+      "<td>STA-EXAMP1-C-001</td>",
+      "<td></td>"
+    );
+    expect(parseNcsbeReportDetailPage(html).cover.boeId).toBeNull();
+  });
+
+  it("fails closed when the redesigned page's links disagree on the report id", () => {
+    const html = fixture("report-cover-redesign-900001.html").replace("?rid=900001", "?rid=900002");
+    expect(() => parseNcsbeReportDetailPage(html)).toThrow(/expected one report id in its links, found 2/);
+  });
+
+  it("fails closed on an unknown redesigned cover row", () => {
+    const html = fixture("report-cover-redesign-900001.html").replace(
+      '<th scope="row">Filed Date</th>',
+      '<th scope="row">Date Filed</th>'
+    );
+    expect(() => parseNcsbeReportDetailPage(html)).toThrow(/unknown row "Date Filed"/);
+  });
+
+  it("fails closed on an unknown section in the redesigned summary grid", () => {
+    const html = fixture("report-cover-redesign-900001.html").replace(
+      '"Section":"Total Receipts"',
+      '"Section":"Total Recieptz"'
+    );
+    expect(() => parseNcsbeReportDetailPage(html)).toThrow(/unknown section/);
+  });
+
+  it("fails closed on a page with neither cover shape", () => {
+    expect(() => parseNcsbeReportDetailPage("<html><body>Page Not Found</body></html>")).toThrow(
+      /neither the legacy dataCover nor the #panelCover table/
+    );
+  });
 });
 
 describe("parseNcsbeReceiptsPage", () => {
@@ -337,6 +397,23 @@ describe("parseNcsbeReceiptsPage", () => {
     expect(() => parseNcsbeReceiptsPage("<html><body>An error occurred</body></html>")).toThrow(
       /does not parse/
     );
+  });
+
+  it("parses the redesigned grid handler's Kendo envelope", () => {
+    const page = parseNcsbeReceiptsPage(fixture("receipts-redesign-900001-p0.json"));
+    expect(page.recordCount).toBe(3);
+    expect(page.rows).toHaveLength(3);
+    expect(page.rows[0]).toMatchObject({
+      groupId: 22400011,
+      isAggregated: true,
+      amountCents: 500,
+      sumToDateCents: 4000,
+      receiptTypeCode: "IND ",
+    });
+  });
+
+  it("fails closed when the Kendo envelope reports errors", () => {
+    expect(() => parseNcsbeReceiptsPage('{"Data":[],"Total":0,"Errors":["boom"]}')).toThrow(/returned errors/);
   });
 
   it("fails closed on JSON without the Data.results envelope", () => {

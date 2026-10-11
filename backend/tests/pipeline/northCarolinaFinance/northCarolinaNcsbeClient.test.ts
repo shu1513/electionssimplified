@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   createNcsbeTransport,
+  extractNcsbeAntiForgeryToken,
   fetchNcsbeReceiptPages,
   ncsbeCommitteeSearchUrl,
   ncsbeCsvExportUrl,
@@ -13,7 +14,9 @@ import {
   ncsbeIeDocTypeInventoryUrl,
   ncsbeReceiptsUrl,
   ncsbeReportDetailUrl,
+  ncsbeTransactionForm,
   type NcsbeFetchFn,
+  type NcsbeFormBody,
   type NcsbeTransport,
 } from "../../../src/pipeline/northCarolinaFinance/northCarolinaNcsbeClient.js";
 
@@ -60,15 +63,30 @@ describe("NCSBE url builders", () => {
       "https://cf.ncsbe.gov/CFOrgLkup/DocumentGeneralResult/?OGID=57190&SID=STA-JV516O-C-001"
     );
     expect(ncsbeReportDetailUrl("229931")).toBe("https://cf.ncsbe.gov/CFOrgLkup/ReportDetail/?RID=229931&TP=ALL");
-    expect(ncsbeReceiptsUrl("229931", 0)).toBe(
-      "https://cf.ncsbe.gov/CFOrgLkup/GetReceipts?ReportID=229931&page=0&pageSize=300"
+    expect(ncsbeReceiptsUrl("229931")).toBe(
+      "https://cf.ncsbe.gov/CFOrgLkup/ReportDetail?rid=229931&handler=ReadReceipts"
     );
-    expect(ncsbeExpendituresUrl("232624", 2)).toBe(
-      "https://cf.ncsbe.gov/CFOrgLkup/GetExpenditures?ReportID=232624&ShowIEColumns=true&page=2&pageSize=300"
+    expect(ncsbeExpendituresUrl("232624")).toBe(
+      "https://cf.ncsbe.gov/CFOrgLkup/ReportDetail?rid=232624&handler=ReadExpenditures"
     );
     expect(ncsbeCsvExportUrl("229931", "Gadson Q1")).toBe(
       "https://cf.ncsbe.gov/CFOrgLkup/ExportDetailResults/?ReportID=229931&Type=ALL&Title=Gadson%20Q1"
     );
+  });
+
+  it("sends the 1-based wire page and the token in the POST form", () => {
+    expect(ncsbeTransactionForm(0, "tok")).toEqual({
+      page: "1",
+      pageSize: "300",
+      __RequestVerificationToken: "tok",
+    });
+    expect(ncsbeTransactionForm(2, "tok").page).toBe("3");
+    expect(() => ncsbeTransactionForm(0, " ")).toThrow(/needs an anti-forgery token/);
+  });
+
+  it("reads the anti-forgery token from the redesigned report page", () => {
+    expect(extractNcsbeAntiForgeryToken(fixture("report-cover-redesign-900001.html"))).toBe("test-antiforgery-token");
+    expect(() => extractNcsbeAntiForgeryToken("<html></html>")).toThrow(/no anti-forgery token/);
   });
 
   it("single-quotes the IE doc-type codes — the unquoted form is an error page", () => {
@@ -163,22 +181,29 @@ describe("createNcsbeTransport", () => {
   });
 });
 
-function directTransport(handler: (url: string) => string): NcsbeTransport {
-  return { fetchText: async (url) => handler(url) };
+// Hands the handler the 0-based cache page decoded from the POST form.
+function directTransport(handler: (page: number, url: string, form?: NcsbeFormBody) => string): NcsbeTransport {
+  return { fetchText: async (url, form) => handler(Number(form?.page) - 1, url, form) };
 }
 
 describe("fetchNcsbeReceiptPages", () => {
   it("fetches a single-page report whole", async () => {
     const body = fixture("receipts-gadson-229931-p0.json");
-    const urls: string[] = [];
+    const requests: Array<{ url: string; form?: NcsbeFormBody }> = [];
     const result = await fetchNcsbeReceiptPages(
-      directTransport((url) => {
-        urls.push(url);
+      directTransport((_page, url, form) => {
+        requests.push({ url, form });
         return body;
       }),
-      "229931"
+      "229931",
+      "tok"
     );
-    expect(urls).toEqual(["https://cf.ncsbe.gov/CFOrgLkup/GetReceipts?ReportID=229931&page=0&pageSize=300"]);
+    expect(requests).toEqual([
+      {
+        url: "https://cf.ncsbe.gov/CFOrgLkup/ReportDetail?rid=229931&handler=ReadReceipts",
+        form: { page: "1", pageSize: "300", __RequestVerificationToken: "tok" },
+      },
+    ]);
     expect(result.recordCount).toBe(19);
     expect(result.rows).toHaveLength(19);
     expect(result.pages).toHaveLength(1);
@@ -186,12 +211,12 @@ describe("fetchNcsbeReceiptPages", () => {
 
   it("pages until the row count equals recordCountKey (fixed 300-row pages)", async () => {
     const result = await fetchNcsbeReceiptPages(
-      directTransport((url) => {
-        const page = Number(/page=(\d+)/.exec(url)![1]);
+      directTransport((page) => {
         if (page === 0) return transactionBody(335, 300, 0);
         return transactionBody(335, 35, 300);
       }),
-      "1"
+      "1",
+      "tok"
     );
     expect(result.recordCount).toBe(335);
     expect(result.rows).toHaveLength(335);
@@ -199,7 +224,7 @@ describe("fetchNcsbeReceiptPages", () => {
   });
 
   it("accepts an empty report (recordCountKey 0)", async () => {
-    const result = await fetchNcsbeReceiptPages(directTransport(() => transactionBody(0, 0)), "1");
+    const result = await fetchNcsbeReceiptPages(directTransport(() => transactionBody(0, 0)), "1", "tok");
     expect(result.recordCount).toBe(0);
     expect(result.rows).toHaveLength(0);
     expect(result.pages).toHaveLength(1);
@@ -208,13 +233,13 @@ describe("fetchNcsbeReceiptPages", () => {
   it("fails closed when a page is empty before the count is reached", async () => {
     await expect(
       fetchNcsbeReceiptPages(
-        directTransport((url) => {
-          const page = Number(/page=(\d+)/.exec(url)![1]);
+        directTransport((page) => {
           if (page === 0) return transactionBody(400, 300, 0);
           // The server claims 400 rows but serves nothing more.
           return transactionBody(400, 0, 300);
         }),
-        "1"
+        "1",
+        "tok"
       )
     ).rejects.toThrow(/page 1 returned 0 rows, expected 100 under the fixed 300-row page contract/);
   });
@@ -222,19 +247,19 @@ describe("fetchNcsbeReceiptPages", () => {
   it("fails closed when recordCountKey drifts mid-fetch", async () => {
     await expect(
       fetchNcsbeReceiptPages(
-        directTransport((url) => {
-          const page = Number(/page=(\d+)/.exec(url)![1]);
+        directTransport((page) => {
           if (page === 0) return transactionBody(400, 300, 0);
           return transactionBody(500, 100, 300);
         }),
-        "1"
+        "1",
+        "tok"
       )
     ).rejects.toThrow(/recordCountKey changed mid-fetch \(400 -> 500 on page 1\)/);
   });
 
   it("fails closed on an overshoot", async () => {
     await expect(
-      fetchNcsbeReceiptPages(directTransport(() => transactionBody(250, 300)), "1")
+      fetchNcsbeReceiptPages(directTransport(() => transactionBody(250, 300)), "1", "tok")
     ).rejects.toThrow(/page 0 returned 300 rows, expected 250 under the fixed 300-row page contract/);
   });
 
@@ -244,24 +269,24 @@ describe("fetchNcsbeReceiptPages", () => {
     // the pinned page layout is part of the contract, so it fails closed.
     await expect(
       fetchNcsbeReceiptPages(
-        directTransport((url) => {
-          const page = Number(/page=(\d+)/.exec(url)![1]);
+        directTransport((page) => {
           return transactionBody(400, 100, page * 100);
         }),
-        "1"
+        "1",
+        "tok"
       )
     ).rejects.toThrow(/page 0 returned 100 rows, expected 300 under the fixed 300-row page contract/);
   });
 
   it("fails closed on an HTML error body", async () => {
     await expect(
-      fetchNcsbeReceiptPages(directTransport(() => "<html>An error occurred</html>"), "1")
+      fetchNcsbeReceiptPages(directTransport(() => "<html>An error occurred</html>"), "1", "tok")
     ).rejects.toThrow(/does not parse/);
   });
 
   it("fails closed on an absurd recordCountKey instead of paging for hours", async () => {
     await expect(
-      fetchNcsbeReceiptPages(directTransport(() => transactionBody(5_000_000, 300)), "1")
+      fetchNcsbeReceiptPages(directTransport(() => transactionBody(5_000_000, 300)), "1", "tok")
     ).rejects.toThrow(/recordCountKey 5000000 exceeds the sanity ceiling/);
   });
 });
