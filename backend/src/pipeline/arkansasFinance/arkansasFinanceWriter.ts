@@ -8,10 +8,9 @@
 // 266). cash_on_hand is a signed balance (CFIS reports negative balances for
 // indebted campaigns).
 //
-// Outside groups/breakdowns are never written — Arkansas publishes no
-// structured independent-expenditure target or stance (Phase 0 finding) — so
-// outside totals replace to NULL and the empty outside arrays make the shared
-// writer delete stray rows.
+// Direct-only acquisitions do not establish outside-spending availability.
+// Preserve existing outside totals and rows until a verified outside component
+// is supplied through its own acquisition path.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -92,12 +91,6 @@ const writer = createStandardStateFinanceSnapshotWriter({
   label: "Arkansas",
   // Migration 266 constrains election_year to 2026+ (Nov-2026 scope).
   minElectionYear: 2026,
-  summaryUpdatePolicy: {
-    // Outside totals are ALWAYS null for Arkansas; replace unconditionally so
-    // a stray historical value can never survive a sync.
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
-  },
   allowNegativeCashOnHand: true,
   normalizeCommitteeId: normalizeStoredFilingEntityId,
   manualLinkProtection: true,
@@ -155,7 +148,5 @@ export async function replaceArkansasCandidateFinanceSnapshot(
         ? undefined
         : { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null },
     directBreakdowns: input.directBreakdowns,
-    outsideGroups: [],
-    outsideGroupBreakdowns: [],
   });
 }
