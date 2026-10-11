@@ -607,7 +607,9 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByText("Put on the ballot by:")).toBeInTheDocument();
+    // Collapsed by default: the summary is the toggle, the details sit
+    // under the official-text link.
+    expect(await screen.findByText("Proposed by:")).toBeInTheDocument();
     expect(screen.getByText(/State Legislature \(HB 300, Rep\. Jane Smith\)/)).toBeInTheDocument();
     expect(screen.getByText("Rep. Smith is a Republican from Baton Rouge.")).toBeInTheDocument();
     // The proposer's source is its own evidence line; the same URL is not

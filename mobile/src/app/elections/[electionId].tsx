@@ -114,6 +114,8 @@ export default function ElectionScreen() {
     electionId: "",
     on: false,
   });
+  // "Proposed by" on a measure: collapsed by default, like the finance section.
+  const [proposerExpanded, setProposerExpanded] = useState(false);
 
   const election = useQuery({
     queryKey: ["election", electionId],
@@ -321,17 +323,6 @@ export default function ElectionScreen() {
             </View>
           ) : null}
           {measure.summary ? <Text className="mt-2 text-sm text-ink">{measure.summary}</Text> : null}
-          {/* Whose idea it was, with the plain-language explainer and its
-              source, mirroring the web page. */}
-          {measure.proposed_by ? (
-            <View className="mt-2">
-              <Text className="text-sm text-ink">
-                <Text className="font-medium text-ink-soft">Put on the ballot by:</Text> {measure.proposed_by.name}
-              </Text>
-              <Text className="text-xs text-ink-soft">{measure.proposed_by.about}</Text>
-              <SourceLine url={measure.proposed_by.source_url} />
-            </View>
-          ) : null}
           <View className="mt-3 gap-3">
             <View className="rounded border border-green-200 bg-green-50 p-3">
               <Text className="text-sm font-semibold text-green-900">A YES vote means</Text>
@@ -371,6 +362,33 @@ export default function ElectionScreen() {
                 ? `Read the official measure text${isPdfUrl(measure.official_measure_url) ? " (PDF)" : ""}`
                 : "More about this measure"}
             </Text>
+          ) : null}
+          {/* Whose idea it was, with the plain-language explainer and its
+              source, mirroring the web page: collapsed by default so it
+              does not push the Yes/No boxes down. */}
+          {measure.proposed_by ? (
+            <View className="mt-2">
+              <Pressable
+                onPress={() => setProposerExpanded((current) => !current)}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: proposerExpanded }}
+                // The label replaces the child text for screen readers, so
+                // it must carry the name; the visible row starts with a
+                // disclosure glyph that would otherwise be read aloud.
+                accessibilityLabel={`Proposed by: ${measure.proposed_by.name}`}
+              >
+                <Text className="text-sm text-ink">
+                  <Text className="font-medium text-ink-soft">{proposerExpanded ? "▾" : "▸"} Proposed by:</Text>{" "}
+                  {measure.proposed_by.name}
+                </Text>
+              </Pressable>
+              {proposerExpanded ? (
+                <>
+                  <Text className="mt-1 text-xs text-ink-soft">{measure.proposed_by.about}</Text>
+                  <SourceLine url={measure.proposed_by.source_url} />
+                </>
+              ) : null}
+            </View>
           ) : null}
           <SourceFootnote
             urls={measure.source_urls.filter(
