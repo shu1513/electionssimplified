@@ -16,6 +16,8 @@ import {
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 import { readStrictFlagValues } from "../utils/cliFlags.js";
 
+import { runRefreshConnecticutEcrisIndependentExpendituresScript } from "./refreshConnecticutEcrisIndependentExpenditures.js";
+
 export { DEFAULT_CONNECTICUT_ECRIS_CACHE_DIR };
 
 export type RefreshConnecticutEcrisRawDataScriptOptions = {
@@ -143,6 +145,28 @@ export async function runRefreshConnecticutEcrisRawDataScript(input: {
     now: startedAt,
   });
 
+  // Receipt and IE publication are independent; an unchanged receipt export
+  // must not prevent new IE filings from reaching the yearly cache.
+  let independentExpenditures:
+    | ({ status: "refreshed" } & Awaited<ReturnType<typeof runRefreshConnecticutEcrisIndependentExpendituresScript>>)
+    | { status: "failed"; error: string }
+    | null = null;
+  if (input.options.transactionType === "receipts" && input.options.committeeType === "candidate_exploratory") {
+    try {
+      independentExpenditures = {
+        status: "refreshed",
+        ...await runRefreshConnecticutEcrisIndependentExpendituresScript({
+          options: input.options,
+          fetchImpl: input.fetchImpl,
+          now: startedAt,
+        }),
+      };
+    } catch (error) {
+      // The IE runner replaces its cache only after a complete successful fetch.
+      independentExpenditures = { status: "failed", error: error instanceof Error ? error.message : String(error) };
+    }
+  }
+
   return {
     type: "connecticut_ecris_raw_data_refresh",
     ts: new Date().toISOString(),
@@ -159,6 +183,7 @@ export async function runRefreshConnecticutEcrisRawDataScript(input: {
     remote: refresh.remote,
     previous: refresh.previous,
     current: refresh.current,
+    independent_expenditures: independentExpenditures,
   };
 }
 

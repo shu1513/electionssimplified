@@ -3171,7 +3171,12 @@ describe("lookupElectionDetailById", () => {
             source_url: null,
           },
         ],
-      });
+      })
+      .mockResolvedValueOnce({ rows: [] }) // outside groups
+      .mockResolvedValueOnce({ rows: [{
+        candidate_id: candidateId, election_id: officeElectionId, committee_id: "NUTMEG PAC",
+        committee_name: "Nutmeg PAC", committee_type: null, amount: "125.00", source_url: null,
+      }] });
 
     const result = await lookupElectionDetailById({ query }, officeElectionId);
 
@@ -3196,6 +3201,13 @@ describe("lookupElectionDetailById", () => {
           },
         ],
         top_employers: [],
+        pac_money_by_interest: [{
+          interest: "unclassified", interest_name: "Not yet sorted", amount: 125, pac_count: 1,
+          pacs: [{
+            committee_id: "NUTMEG PAC", committee_name: "Nutmeg PAC", amount: 125,
+            source_url: "https://seec.ct.gov/portal/ecris/CurPreYears",
+          }],
+        }],
         top_industries: [
           {
             category_name: "lawyers_and_legal_services",
@@ -3229,9 +3241,10 @@ describe("lookupElectionDetailById", () => {
         top_outside_supporting_industries: [],
       },
     });
-    expect(query).toHaveBeenCalledTimes(11);
+    expect(query).toHaveBeenCalledTimes(13);
     expect(query.mock.calls[7]?.[0]).toContain("public.ct_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.ct_candidate_finance_direct_breakdowns");
+    expect(query.mock.calls[10]?.[0]).toContain("public.ct_candidate_finance_pac_donors");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type IN ('occupation', 'industry')");
     expect(query.mock.calls[9]?.[0]).toContain("public.ct_candidate_finance_outside_groups");
     expect(query.mock.calls.map((call) => String(call[0])).join("\\n")).not.toContain("public.co_candidate_finance");

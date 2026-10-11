@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import type { ConnecticutFinancePacDonor } from "./connecticutDirectContributionAggregator.js";
 import {
   MANUAL_PROTECTED_LINK_RETURNING,
   assertLinkWriteNotBlocked,
@@ -64,6 +65,8 @@ export type ConnecticutFinanceSnapshotInput = {
   summary?: ConnecticutFinanceSummaryInput;
   /** Omit when unavailable; pass [] after a successful aggregation with no breakdowns. */
   directBreakdowns?: readonly ConnecticutFinanceDirectBreakdownInput[];
+  /** Omit to preserve; a successful empty aggregation clears stale committee donors. */
+  pacDonors?: readonly ConnecticutFinancePacDonor[];
   /** Omit when unavailable; pass [] after a successful aggregation with no outside groups. */
   outsideGroups?: readonly ConnecticutFinanceOutsideGroupInput[];
 };
@@ -73,6 +76,7 @@ export type ConnecticutFinanceSnapshotWriteResult = {
   summaryWritten: boolean;
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
+  pacDonorsWritten: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -430,6 +434,49 @@ async function deleteStaleOutsideGroups(input: {
   );
 }
 
+async function replacePacDonors(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donors: readonly ConnecticutFinancePacDonor[];
+  syncedAt: Date;
+}): Promise<void> {
+  for (const donor of input.donors) {
+    if (!Number.isFinite(donor.amount) || donor.amount <= 0) {
+      throw new Error("Connecticut committee donor amount must be positive");
+    }
+    const count = normalizeNullableCount(donor.contributionCount);
+    await input.db.query(
+      `
+        INSERT INTO public.ct_candidate_finance_pac_donors (
+          link_id, election_year, committee_id, committee_name, committee_type,
+          amount, contribution_count, source_url, last_synced_at
+        ) VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz)
+        ON CONFLICT (link_id, election_year, committee_id) DO UPDATE SET
+          committee_name = EXCLUDED.committee_name,
+          committee_type = EXCLUDED.committee_type,
+          amount = EXCLUDED.amount,
+          contribution_count = EXCLUDED.contribution_count,
+          source_url = EXCLUDED.source_url,
+          last_synced_at = EXCLUDED.last_synced_at
+      `,
+      [
+        input.linkId, input.electionYear,
+        requireNonEmpty(donor.committeeId, "Connecticut committee donor id"),
+        requireNonEmpty(donor.committeeName, "Connecticut committee donor name"),
+        normalizeOptionalText(donor.committeeType), donor.amount, count,
+        normalizeOptionalText(donor.sourceUrl), input.syncedAt.toISOString(),
+      ]
+    );
+  }
+  await input.db.query(
+    `DELETE FROM public.ct_candidate_finance_pac_donors
+     WHERE link_id = $1::uuid AND election_year = $2
+       AND NOT (committee_id = ANY($3::text[]))`,
+    [input.linkId, input.electionYear, input.donors.map((donor) => donor.committeeId.trim())]
+  );
+}
+
 export async function replaceConnecticutCandidateFinanceSnapshot(
   input: ConnecticutFinanceSnapshotInput
 ): Promise<ConnecticutFinanceSnapshotWriteResult> {
@@ -453,6 +500,10 @@ export async function replaceConnecticutCandidateFinanceSnapshot(
       await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
     }
 
+    if (input.pacDonors) {
+      await replacePacDonors({ db, linkId, electionYear, donors: input.pacDonors, syncedAt });
+    }
+
     for (const group of input.outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
@@ -465,6 +516,7 @@ export async function replaceConnecticutCandidateFinanceSnapshot(
       summaryWritten: Boolean(input.summary),
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
+      pacDonorsWritten: input.pacDonors?.length ?? 0,
     };
   });
 }

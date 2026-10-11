@@ -1,3 +1,7 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { getConnecticutEcrisArtifactCachePaths } from "../../../src/pipeline/connecticutFinance/connecticutEcrisArtifactCache.js";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -663,6 +667,7 @@ describe("connecticutCandidateFinanceBatchSync", () => {
         if (text.includes("INSERT INTO public.ct_candidate_finance_direct_breakdowns")) {
           return { rows: [], rowCount: 1 };
         }
+        if (text.includes("ct_candidate_finance_pac_donors")) return { rows: [], rowCount: 1 };
         if (text.includes("DELETE FROM public.ct_candidate_finance_direct_breakdowns")) {
           return { rows: [], rowCount: 1 };
         }
@@ -734,4 +739,38 @@ describe("connecticutCandidateFinanceBatchSync", () => {
 
     expect(db.query).not.toHaveBeenCalled();
   });
+});
+
+it("keeps registry types from recipients filtered out of the due batch", async () => {
+  const cacheDir = await mkdtemp(join(tmpdir(), "ct-registry-"));
+  try {
+    const rows = [
+      receipt({ "Contributor Name": "Exploratory Donor", "Receipt Type": "Contributions from Other Committees" }),
+      receipt({ Committee: "Exploratory Donor", "Committee ID": "999", "Committee Type": "Exploratory Committee" }),
+    ];
+    const columns = Object.keys(rows[0]!);
+    const csv = [columns, ...rows.map((row) => columns.map((key) => row[key] ?? ""))]
+      .map((row) => row.map((cell) => '"' + cell.replace(/"/g, '""') + '"').join(",")).join("\n");
+    const paths = getConnecticutEcrisArtifactCachePaths({
+      cacheDir, year: 2026, transactionType: "receipts", committeeType: "candidate_exploratory", period: "election", format: "csv",
+    });
+    await writeFile(paths.filePath, csv);
+    const db = createMockDb([{
+      candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, candidate_name: "Timothy Ackert", election_year: 2026,
+      office_name: "State Lower Chamber Legislator", district: "8", committee_id: "14376",
+      committee_name: "ACKERT FOR THE 8TH", source_url: null, last_synced_at: null, total_due_rows: "1",
+    }]);
+    const syncFn = vi.fn().mockResolvedValue({});
+    await syncDueConnecticutCandidateFinance({
+      db, rawDataCacheDir: cacheDir, autoLinkMissingLinks: false, syncConnecticutCandidateFinanceFn: syncFn,
+    });
+    expect(syncFn).toHaveBeenCalledWith(expect.objectContaining({
+      receiptRows: [rows[0]],
+      committeeRegistry: expect.arrayContaining([
+        { committeeId: "999", committeeName: "Exploratory Donor", committeeType: "Exploratory Committee" },
+      ]),
+    }));
+  } finally {
+    await rm(cacheDir, { recursive: true, force: true });
+  }
 });

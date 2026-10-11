@@ -1,4 +1,5 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { runRefreshConnecticutEcrisIndependentExpendituresScript } from "../../../src/scripts/refreshConnecticutEcrisIndependentExpenditures.js";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -89,4 +90,17 @@ describe("connecticutEcrisIndependentExpenditureCache", () => {
       "Malformed Connecticut eCRIS independent expenditure artifact"
     );
   });
+});
+
+it("keeps the saved IE artifact when the live refresh fails", async () => {
+  const cacheDir = await makeTempDir();
+  const written = await writeConnecticutEcrisIndependentExpenditureCache({
+    cacheDir, fetchResult: { year: 2026, sourceUrl: "https://seec.ct.gov/eCrisReporting/SearchingIndependentExpenditure.aspx", rows: [row()], searchWindows: [] },
+  });
+  const before = await readFile(written.filePath, "utf8");
+  await expect(runRefreshConnecticutEcrisIndependentExpendituresScript({
+    options: { year: 2026, cacheDir, force: true, timeoutMs: 1000 },
+    fetchImpl: async () => new Response("Unavailable", { status: 503 }),
+  })).rejects.toThrow();
+  expect(await readFile(written.filePath, "utf8")).toBe(before);
 });
