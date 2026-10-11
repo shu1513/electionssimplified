@@ -8,7 +8,7 @@ adapter for verified committee donors and explicitly allocated third-party
 expenses. Implementation and normal local sync proof remain pending.
 
 Reference: Pennsylvania's saved-page-first batch acquisition, direct committee
-classification, migration322 and uncapped donor totals before display caps.
+classification, migration 322 and uncapped donor totals before display caps.
 Delaware's reported `Political Action Committee`/`PAC` contributor types supply
 primary class authority; retain verified registry identity/class separately.
 Name hints alone cannot promote business/group/labor-union donors. Unknown
@@ -16,60 +16,63 @@ interests stay “Not yet sorted”; committee gifts do not increase Raised twic
 
 Fresh research witnesses, pending replay through the normal sync:
 
-- Carlie Carey:57 native/CSV receipts, current cover $25,215.80, five reported
-  PAC checks of $600 ($3,000);19 outgoing native/CSV expenses=$3,870.82. Genuine
-  full source brackets and allfive legal donor registry identities agree.
-- Jennings: full applicable2023–2026 cycle,819 unique native receipts. One
-  exact repeatedID at a page boundary is transport overlap; distinct economic
-  occurrences remain. Primary30Day separately publishes $1,240 under-$100
-  ScheduleA aggregate absent from both itemized exports. Retain that real
+- Carlie Carey: 57 native/CSV receipts, current cover $25,215.80, five reported
+  PAC checks of $600 ($3,000); 19 outgoing native/CSV expenses = $3,870.82. Genuine
+  full source brackets and all five legal donor registry identities agree.
+- Jennings: full applicable 2023–2026 cycle, 819 unique native receipts. One
+  exact repeated ID at a page boundary is transport overlap; distinct economic
+  occurrences remain. Primary 30-Day separately publishes a $1,240 under-$100
+  Schedule A aggregate absent from both itemized exports. Retain that real
   control without invented gifts/counts. `Electronic Fund Transfer` is a current
-  cash label; `Refund/Rebate` must follow actual ScheduleA/cover semantics,
+  cash label; `Refund/Rebate` must follow actual Schedule A/cover semantics,
   without assumed reimbursement or donor-return classification.
-- THE STATEHOUSE FUND: current financial ScheduleB explicitly assigns $499,015
-  to support Kathleen Jennings/AttorneyGeneral/Democratic. Full cover:
-  $525,000 receipts−$499,015 expenses=$25,985. Native category=`Other Expenses`,
+- THE STATEHOUSE FUND: current financial Schedule B explicitly assigns $499,015
+  to support Kathleen Jennings, Attorney General, Democratic. Full cover:
+  $525,000 receipts − $499,015 expenses = $25,985. Native category = `Other Expenses`,
   not source-coded IEC. Exact receiving-committee affiliation bridges Friends
   of Kathy Jennings; no generic nickname alias. SO alone never allocates.
-- Actual owner/calendar/filenameGUID/current-and-all-version inventory govern
+- Actual owner, calendar, filename GUID and current/all-version inventory govern
   report identity. Repeated footer `Document:14904 Version:1` is a template
   label; current-view `2099 Annual` is a placeholder. Neither proves financial
   scope/currentness. Native IDs/full fields and fresh source brackets are needed.
 - Receipts initialize at `/Public/ViewReceiptsMain`, then search POST to
   `/Public/ViewReceipts`. Expenses need actual `CommitteeType`/`FilingYear`
   selects and blank selects; old `*Data` containers alone returned empty while
-  the correct public search returned456 rows.
+  the correct public search returned 456 rows. Third-party funder exports use
+  `/Public/ExportCSVNew_TP` with a separate eight-column contract. Their literal
+  `Filed Reports` value `Other` is not the native event-period identity.
 
 Reuse existing restricted atomic acquisition/cache, parsers, sync and shared
 transactional writer hook. First preserve omitted outside amounts/groups on
 direct refresh. Positive components require full cash/refund/control/currentness
 and exact local ownership proof. Saved artifacts retain original times; closing
 sources must be freshly acquired. Missing/failed components retain stored money.
-No global outside zero,2026-only Jennings subset, Original-only workaround,
-economic dedupe or manually inserted canonical money. Migration331–333 remain
+No global outside zero, 2026-only Jennings subset, Original-only workaround,
+economic dedupe or manually inserted canonical money. Migrations 331–333 remain
 reserved; add the next file only after verifying numbering. Ordinary fresh
 local CLI row counts, candidate amounts and reader output are required before PR.
 
 ### Deadlines and mandatory fresh reruns
 
-[Official2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):
-General30Day throughOct4 dueOct6/2026 at11:59p.m.; General8Day throughOct26
-dueOct28 at11:59p.m.; annual throughDec31 dueJan20/2027. Fresh acquisition after
-the already-passed Oct6 deadline, againOct29, andJan21/2027. Third-party event
-filings have48h/24h windows: fresh daily checks through election and immediate
+[Official 2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):
+General 30-Day through October 4, due October 6, 2026 at 11:59 p.m.; General
+8-Day through October 26, due October 28 at 11:59 p.m.; annual through
+December 31, due January 20, 2027. Acquire fresh sources after the already-passed
+October 6 deadline, again October 29, and January 21, 2027. Third-party event
+filings have 48h/24h windows: fresh daily checks through election and immediate
 post-election followup. Late filings remain open coverage; no automation created.
 
 [§8002(11)a/d](https://delcode.delaware.gov/title15/c080/sc01/index.html) ends
-the applicable candidate/third-party cycle onDec31; a4 is a contribution-limit
+the applicable candidate/third-party cycle on December 31; a4 is a contribution-limit
 split. Keep statutory `windowEnd` separate from `publishedThrough`.
 [§8030(g)](https://delcode.delaware.gov/title15/c080/sc04/index.html) permits
 eight-day expense detail deferral; timely reports cannot establish full absence.
 
 Selection implemented: `--candidate-id UUID`, `--election-year 2026`, `--refresh`,
-`--lookback-days 100`. Scope and refresh apply beforeSQLLIMIT; scoped runs skip
+`--lookback-days 100`. Scope and refresh apply before SQL LIMIT; scoped runs skip
 unrelated autolink. `--force` enables source/write flags, not due refresh;
-`--refresh` bypasses staleness, not source authorization. January21 requires
-the100-day lookback (79 days afterNov3). Eligible-link rules still exclude
+`--refresh` bypasses staleness, not source authorization. January 21 requires
+the 100-day lookback (79 days after November 3). Eligible-link rules still exclude
 lost/withdrawn candidates; this is not full historical coverage.
 
 Once full source verification is integrated, mandatory fresh rerun form:
@@ -78,7 +81,7 @@ Once full source verification is integrated, mandatory fresh rerun form:
 DATABASE_URL='postgresql:///voteapp?host=/tmp&connect_timeout=5' AI_API_CALLS_ALLOWED=false DELAWARE_CAMPAIGN_FINANCE_ENABLED=true npm run delaware-candidates:finance:sync-due -- --election-year 2026 --refresh --force --write --no-auto-link --max 100 --lookback-days 100 --cache-dir /absolute/restricted/cache
 ```
 
-Use this afterOct28 andJan20 deadlines; increase/process the eligible cohort
+Use this after October 28 and January 20 deadlines; increase/process the eligible cohort
 until every due scope has an explicit result. Current positive-component proof
 and ordinary sync validation remain pending. Dry-run omits `--write` and never
 acquires or writes; it only inspects existing cache. Never fake time or
