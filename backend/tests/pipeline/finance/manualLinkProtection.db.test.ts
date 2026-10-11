@@ -199,7 +199,7 @@ const WRITERS: WriterCase[] = [
     filerName: `Filer ${i}`,
   })),
   simple("tennessee", "tn_candidate_finance_links", "tncamp_search", upsertTennesseeFinanceLink as never, (i) => ({
-    campCandidateId: `TN-${i}`,
+    campCandidateId: i === "A" ? "1001" : "1002",
     ownerName: `Owner ${i}`,
   })),
   simple("texas (factory)", "tx_candidate_finance_links", "tec_bulk", upsertTexasFinanceLink as never, (i) => ({
