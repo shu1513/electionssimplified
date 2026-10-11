@@ -67,6 +67,13 @@ export type AlabamaCashRow = {
   contributionDate: string;
   lastName: string;
   firstName: string;
+  /** Retain source identity fields for exact native/bulk agreement. */
+  middleName?: string;
+  suffix?: string;
+  address1?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
   contributionId: string;
   filedDate: string;
   contributionType: string;
@@ -98,6 +105,7 @@ export function parseAlabamaAmountCents(raw: string): number | null {
   const negative = trimmed.startsWith("-");
   const [whole, fraction = ""] = (negative ? trimmed.slice(1) : trimmed).split(".");
   const cents = Number(whole) * 100 + Number(fraction.padEnd(2, "0") || "0");
+  if (!Number.isSafeInteger(cents)) return null;
   return negative ? -cents : cents;
 }
 
@@ -200,6 +208,12 @@ export function parseAlabamaCashExtract(csvText: string): AlabamaExtractParseRes
         contributionDate: record[2]!.trim(),
         lastName: record[3]!.trim(),
         firstName: record[4]!.trim(),
+        middleName: record[5]!.trim(),
+        suffix: record[6]!.trim(),
+        address1: record[7]!.trim(),
+        city: record[8]!.trim(),
+        state: record[9]!.trim(),
+        zip: record[10]!.trim(),
         contributionId: record[11]!.trim(),
         filedDate: record[12]!.trim(),
         contributionType: record[13]!.trim(),

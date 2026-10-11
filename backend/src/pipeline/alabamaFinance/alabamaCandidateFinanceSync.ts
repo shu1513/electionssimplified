@@ -25,6 +25,7 @@ import {
 import {
   DEFAULT_ALABAMA_FCPA_CACHE_DIR,
   readAlabamaFcpaArtifact,
+  type AlabamaFcpaArtifactCacheMetadata,
 } from "./alabamaFcpaArtifactCache.js";
 import type { AlabamaFcpaClientOptions, AlabamaRaceRow } from "./alabamaFcpaClient.js";
 import { parseAlabamaCashExtract, type AlabamaCashRow } from "./alabamaFcpaCsv.js";
@@ -47,6 +48,8 @@ import {
   updateAlabamaFinanceLinkFcpaCommitteeNumber,
   type AlabamaFinanceLinkSource,
 } from "./alabamaFinanceWriter.js";
+import { createAlabamaVerifiedPacLoader } from "./alabamaVerifiedPacLoader.js";
+import type { AlabamaPacDonorAggregationResult } from "./alabamaPacDonorAggregator.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -79,7 +82,7 @@ export function alabamaBucketExtractYears(electionYear: number, termYears: numbe
 
 export type AlabamaCashRowsLoader = (
   year: number
-) => Promise<{ rows: AlabamaCashRow[]; quarantinedCount: number }>;
+) => Promise<{ rows: AlabamaCashRow[]; quarantinedCount: number; metadata?: AlabamaFcpaArtifactCacheMetadata }>;
 
 /** Reads and parses one cached cash artifact per year; no live fetches. */
 export function createAlabamaCashRowsLoader(cacheDir?: string): AlabamaCashRowsLoader {
@@ -87,18 +90,18 @@ export function createAlabamaCashRowsLoader(cacheDir?: string): AlabamaCashRowsL
     cacheDir ??
       (process.env.ALABAMA_FCPA_RAW_DATA_CACHE_DIR?.trim() || DEFAULT_ALABAMA_FCPA_CACHE_DIR)
   );
-  const parsed = new Map<number, Promise<{ rows: AlabamaCashRow[]; quarantinedCount: number }>>();
+  const parsed = new Map<number, ReturnType<AlabamaCashRowsLoader>>();
   return (year) => {
     let entry = parsed.get(year);
     if (entry === undefined) {
       entry = (async () => {
-        const { csvText } = await readAlabamaFcpaArtifact({
+        const { csvText, metadata } = await readAlabamaFcpaArtifact({
           kind: "cash",
           year,
           cacheDir: resolvedCacheDir,
         });
         const result = parseAlabamaCashExtract(csvText);
-        return { rows: result.rows, quarantinedCount: result.quarantined.length };
+        return { rows: result.rows, quarantinedCount: result.quarantined.length, metadata };
       })();
       parsed.set(year, entry);
     }
@@ -135,6 +138,10 @@ export type AlabamaCandidateFinanceSyncResult = {
   bucketDiagnostics: string[];
   quarantinedRowCount: number;
   summaryWritten: boolean;
+  pacDonorsAccepted: boolean;
+  pacDonorsWritten: number;
+  pacDonorAmount: number | null;
+  pacDiagnostics: string[];
 };
 
 export async function syncAlabamaCandidateFinance(input: {
@@ -161,6 +168,7 @@ export async function syncAlabamaCandidateFinance(input: {
   loadOfficeRaceContext?: (electionYear: number, officeLabel: string) => Promise<AlabamaOfficeRaceContext>;
   loadCashRows?: AlabamaCashRowsLoader;
   loadCycleCovers?: AlabamaCycleCoversLoader;
+  loadPacDonors?: ReturnType<typeof createAlabamaVerifiedPacLoader>;
 }): Promise<AlabamaCandidateFinanceSyncResult> {
   const candidateName = input.candidateName.trim();
   if (!candidateName) {
@@ -281,12 +289,23 @@ export async function syncAlabamaCandidateFinance(input: {
   // buckets must always correspond to the summary being written.
   const bucketExtractYears = alabamaBucketExtractYears(input.electionYear, termYears);
   const bucketDiagnostics: string[] = [];
+  const rawCashLoader = input.loadCashRows ?? createAlabamaCashRowsLoader(input.cacheDir);
+  // Both components use one immutable parsed year snapshot, including injected
+  // loaders: a second component must not observe a different cached generation.
+  const loadedYears = new Map<number, ReturnType<AlabamaCashRowsLoader>>();
+  const loadCashRows: AlabamaCashRowsLoader = (year) => {
+    let loaded = loadedYears.get(year);
+    if (!loaded) {
+      loaded = rawCashLoader(year);
+      loadedYears.set(year, loaded);
+    }
+    return loaded;
+  };
   let aggregation: AlabamaDirectFinanceAggregationResult | null = null;
   let quarantinedRowCount = 0;
   if (fcpaCommitteeNumber === null) {
     bucketDiagnostics.push("fcpa_committee_number_missing");
   } else {
-    const loadCashRows = input.loadCashRows ?? createAlabamaCashRowsLoader(input.cacheDir);
     const cashRows: AlabamaCashRow[] = [];
     for (const year of bucketExtractYears) {
       try {
@@ -316,9 +335,30 @@ export async function syncAlabamaCandidateFinance(input: {
   const bucketsUsable = aggregation !== null && aggregation.bucketsUsable;
   const breakdowns = bucketsUsable ? aggregation!.breakdowns : [];
 
+  let pacSource: AlabamaPacDonorAggregationResult = { diagnostics: ["fcpa_committee_number_missing"] };
+  if (fcpaCommitteeNumber !== null) {
+    try {
+      const loadPacDonors = input.loadPacDonors ?? createAlabamaVerifiedPacLoader({
+        loadCashRows, clientOptions: input.clientOptions,
+      });
+      pacSource = await loadPacDonors({
+        internalCommitteeId: input.link.internalCommitteeId,
+        fcpaCommitteeNumber,
+        windowStart: cycleWindowStart,
+        windowEnd: `${input.electionYear}-12-31`,
+        extractYears: bucketExtractYears,
+        coversCashCents: covers.cashCents,
+        authoritativeCoverCount: covers.windowFilingCount,
+      });
+    } catch (error) {
+      pacSource = { diagnostics: [`pac_source_unavailable: ${error instanceof Error ? error.message : String(error)}`] };
+    }
+  }
+
   const sourceUrl = input.link.sourceUrl ?? null;
   let summaryWritten = false;
   let bucketsWritten = 0;
+  let pacDonorsWritten = 0;
   if (!dryRun) {
     const writeResult = await replaceAlabamaCandidateFinanceSnapshot({
       db: input.db,
@@ -351,9 +391,11 @@ export async function syncAlabamaCandidateFinance(input: {
         contributorCount: breakdown.contributorCount,
         sourceUrl,
       })),
+      pacDonors: pacSource.pacDonors,
     });
     summaryWritten = writeResult.summaryWritten;
     bucketsWritten = writeResult.directBreakdownsWritten;
+    pacDonorsWritten = writeResult.pacDonorsWritten ?? 0;
   }
 
   return {
@@ -376,5 +418,10 @@ export async function syncAlabamaCandidateFinance(input: {
     bucketDiagnostics,
     quarantinedRowCount,
     summaryWritten,
+    pacDonorsAccepted: pacSource.pacDonors !== undefined,
+    pacDonorsWritten,
+    pacDonorAmount: pacSource.pacDonors === undefined ? null
+      : roundToCents(pacSource.pacDonors.reduce((sum, donor) => sum + donor.amount, 0)),
+    pacDiagnostics: pacSource.diagnostics,
   };
 }

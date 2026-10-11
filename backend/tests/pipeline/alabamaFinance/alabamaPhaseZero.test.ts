@@ -64,6 +64,23 @@ describe("parseAlabamaAmountCents", () => {
 });
 
 describe("parseAlabamaCashExtract", () => {
+  it("retains complete donor name and address fields for native source identity checks", () => {
+    const fields = cashLine().split(",");
+    fields[5] = "Leon";
+    fields[6] = "III";
+    const parsed = parseAlabamaCashExtract(`${CASH_HEADER}\n${fields.join(",")}\n`);
+    expect(parsed.rows[0]).toMatchObject({
+      middleName: "Leon", suffix: "III", address1: "1 Main St",
+      city: fields[8], state: fields[9], zip: fields[10],
+    });
+  });
+
+  it("quarantines unsafe monetary cents instead of silently losing precision", () => {
+    const parsed = parseAlabamaCashExtract(`${CASH_HEADER}\n${cashLine({ amount: "90071992547410.00" })}`);
+    expect(parsed.rows).toEqual([]);
+    expect(parsed.quarantined).toEqual([{ recordNumber: 1, fieldCount: 19, reason: "bad_amount" }]);
+  });
+
   it("parses clean rows including quoted fields with commas and newlines", () => {
     const quoted = cashLine().replace("1 Main St", '"1 Main St, Apt 2\nRear"');
     const csv = `﻿${CASH_HEADER}\n${cashLine()}\r\n${quoted}\n`;

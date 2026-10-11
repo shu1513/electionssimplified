@@ -7,9 +7,9 @@
 // upsert (updateAlabamaFinanceLinkFcpaCommitteeNumber below) and the sync
 // skips size buckets with a diagnostic while it is NULL.
 //
-// Outside groups/breakdowns are never written — Alabama publishes no
-// independent-expenditure targeting data — so outside totals replace to NULL
-// and the empty outside arrays make the shared writer delete stray rows.
+// Official attachments can identify candidate support, but the acquired
+// expenditure contract lacks verified candidate-specific outside dollar coverage.
+// Omit unknown outside components so direct syncs preserve stored evidence.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -56,6 +56,16 @@ export type AlabamaFinanceSummaryInput = {
 export type AlabamaFinanceDirectBreakdownInput =
   StandardStateFinanceDirectBreakdownInput<"contribution_size">;
 
+export type AlabamaFinancePacDonorInput = {
+  /** Public FCPA number, or reported:<normalized name> identifying a reported donor group, not a legal committee. */
+  committeeId: string;
+  committeeName: string;
+  committeeType: "Political Action Committee";
+  amount: number;
+  contributionCount: number;
+  sourceUrl?: string | null;
+};
+
 export type AlabamaFinanceSnapshotInput = {
   db: ConnectableQueryable;
   link: AlabamaFinanceLinkInput;
@@ -63,9 +73,13 @@ export type AlabamaFinanceSnapshotInput = {
   summary?: AlabamaFinanceSummaryInput;
   /** Omit when buckets are gated off; pass [] to clear stored buckets. */
   directBreakdowns?: readonly AlabamaFinanceDirectBreakdownInput[];
+  /** Omitted preserves donors; [] clears only a complete accepted source snapshot. */
+  pacDonors?: readonly AlabamaFinancePacDonorInput[];
 };
 
-export type AlabamaFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
+export type AlabamaFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult & {
+  pacDonorsWritten?: number;
+};
 
 function normalizeInternalCommitteeId(value: number): string {
   if (!Number.isSafeInteger(value) || value <= 0) {
@@ -86,10 +100,6 @@ const writer = createStandardStateFinanceSnapshotWriter({
   // Migration 263 constrains election_year to 2024+ (Nov-2026 scope).
   minElectionYear: 2024,
   summaryUpdatePolicy: {
-    // Outside totals are ALWAYS null for Alabama; replace unconditionally so
-    // a stray historical value can never survive a sync.
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
     // The sync stores null cash on hand only for an overdrawn committee; the
     // default preserve-when-null would keep a stale positive balance showing.
     cash_on_hand: "replace",
@@ -160,19 +170,107 @@ export async function updateAlabamaFinanceLinkFcpaCommitteeNumber(input: {
   );
 }
 
+/** Reported groups cite the receiving typed-PAC ledger, not a guessed donor legal page. */
+function isReportedPacSourceUrl(sourceUrl: string | null): boolean {
+  if (!sourceUrl) return false;
+  try {
+    const url = new URL(sourceUrl);
+    if (url.origin !== "https://fcpa.alabamavotes.gov" || url.pathname !== "/page.request.do"
+      || url.username || url.password || url.hash) return false;
+    const expected = {
+      page: "com.acf.common.page.contributionsearchresults", sortDirection: "DESC",
+      sortBy: "transactionId", pageNumber: "1", pageSize: "1000",
+    };
+    const keys = [...url.searchParams.keys()];
+    if (keys.length !== 6 || new Set(keys).size !== keys.length
+      || Object.entries(expected).some(([key, value]) => url.searchParams.get(key) !== value)
+      || !url.searchParams.has("criteria")) return false;
+    const criteria: unknown = JSON.parse(url.searchParams.get("criteria")!);
+    if (!Array.isArray(criteria) || criteria.length !== 2) return false;
+    const fields = new Map<string, string>();
+    for (const item of criteria) {
+      if (!item || typeof item !== "object" || Object.keys(item).sort().join(",") !==
+        "comparison_type,comparison_value_1,field_key" || item.comparison_type !== "equalTo"
+        || typeof item.field_key !== "string" || typeof item.comparison_value_1 !== "string"
+        || fields.has(item.field_key)) return false;
+      fields.set(item.field_key, item.comparison_value_1);
+    }
+    const receiver = fields.get("committeeId") ?? "";
+    return fields.get("contributorType") === "4" && /^[1-9]\d*$/.test(receiver)
+      && Number.isSafeInteger(Number(receiver));
+  } catch {
+    return false;
+  }
+}
+
 export async function replaceAlabamaCandidateFinanceSnapshot(
   input: AlabamaFinanceSnapshotInput
 ): Promise<AlabamaFinanceSnapshotWriteResult> {
-  return writer.replaceSnapshot({
+  const donors = input.pacDonors?.map((donor) => {
+    const committeeId = donor.committeeId.trim();
+    const committeeName = donor.committeeName.trim();
+    if (!committeeName) throw new Error("Alabama PAC donor committee name is required");
+    const reportedName = committeeName.normalize("NFKC").toUpperCase()
+      .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+    const publicId = /^[1-9]\d*$/.test(committeeId) && Number.isSafeInteger(Number(committeeId));
+    const reportedId = reportedName.length > 0 && committeeId === "reported:" + reportedName;
+    if (!publicId && !reportedId) {
+      throw new Error("Invalid Alabama PAC donor public or reported-name identity");
+    }
+    const sourceUrl = donor.sourceUrl?.trim() || null;
+    if (reportedId && !isReportedPacSourceUrl(sourceUrl)) {
+      throw new Error("Alabama PAC donor reported identity requires official receiving PAC-search provenance");
+    }
+    if (donor.committeeType !== "Political Action Committee") {
+      throw new Error("Alabama PAC donor must have an explicit Political Action Committee source type");
+    }
+    // Decimal text accepts cent values such as 0.29 without binary rounding.
+    const money = /^(\d+)(?:\.(\d{1,2}))?$/.exec(String(donor.amount));
+    const cents = money
+      ? BigInt(money[1]!) * 100n + BigInt((money[2] ?? "").padEnd(2, "0") || "0")
+      : 0n;
+    if (!Number.isFinite(donor.amount) || cents <= 0n || cents > BigInt(Number.MAX_SAFE_INTEGER)) {
+      throw new Error("Alabama PAC donor amount must be positive exact safe cents");
+    }
+    if (!Number.isSafeInteger(donor.contributionCount) ||
+        donor.contributionCount <= 0 || donor.contributionCount > 2_147_483_647) {
+      throw new Error("Alabama PAC donor contribution count must be a positive database integer");
+    }
+    return { ...donor, committeeId, committeeName, sourceUrl };
+  });
+  if (donors && new Set(donors.map((donor) => donor.committeeId)).size !== donors.length) {
+    throw new Error("Alabama PAC donor snapshot contains duplicate donor identities");
+  }
+  const result = await writer.replaceSnapshot({
     db: input.db,
     link: toStandardLink(input.link),
     syncedAt: input.syncedAt,
-    summary:
-      input.summary === undefined
-        ? undefined
-        : { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null },
+    summary: input.summary,
     directBreakdowns: input.directBreakdowns,
-    outsideGroups: [],
-    outsideGroupBreakdowns: [],
+    ...(donors === undefined ? {} : {
+      afterSnapshotWrite: async ({ db, linkId, electionYear, syncedAt }) => {
+        for (const donor of donors) {
+          await db.query(`
+            INSERT INTO public.al_candidate_finance_pac_donors (
+              link_id, election_year, committee_id, committee_name, committee_type,
+              amount, contribution_count, source_url, last_synced_at
+            )
+            VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz)
+            ON CONFLICT (link_id, election_year, committee_id)
+            DO UPDATE SET committee_name = EXCLUDED.committee_name,
+              committee_type = EXCLUDED.committee_type, amount = EXCLUDED.amount,
+              contribution_count = EXCLUDED.contribution_count, source_url = EXCLUDED.source_url,
+              last_synced_at = EXCLUDED.last_synced_at
+          `, [linkId, electionYear, donor.committeeId, donor.committeeName, donor.committeeType,
+            donor.amount, donor.contributionCount, donor.sourceUrl, syncedAt.toISOString()]);
+        }
+        await db.query(`
+          DELETE FROM public.al_candidate_finance_pac_donors AS donor
+          WHERE donor.link_id = $1::uuid AND donor.election_year = $2
+            AND NOT (donor.committee_id = ANY($3::text[]))
+        `, [linkId, electionYear, donors.map((donor) => donor.committeeId)]);
+      },
+    }),
   });
+  return { ...result, ...(donors === undefined ? {} : { pacDonorsWritten: donors.length }) };
 }
