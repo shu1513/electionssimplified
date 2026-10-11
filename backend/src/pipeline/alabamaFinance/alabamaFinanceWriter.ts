@@ -7,9 +7,9 @@
 // upsert (updateAlabamaFinanceLinkFcpaCommitteeNumber below) and the sync
 // skips size buckets with a diagnostic while it is NULL.
 //
-// Outside groups/breakdowns are never written — Alabama publishes no
-// independent-expenditure targeting data — so outside totals replace to NULL
-// and the empty outside arrays make the shared writer delete stray rows.
+// Official attachments can identify candidate support, but the acquired
+// expenditure contract lacks verified candidate-specific outside dollar coverage.
+// Omit unknown outside components so direct syncs preserve stored evidence.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -86,10 +86,6 @@ const writer = createStandardStateFinanceSnapshotWriter({
   // Migration 263 constrains election_year to 2024+ (Nov-2026 scope).
   minElectionYear: 2024,
   summaryUpdatePolicy: {
-    // Outside totals are ALWAYS null for Alabama; replace unconditionally so
-    // a stray historical value can never survive a sync.
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
     // The sync stores null cash on hand only for an overdrawn committee; the
     // default preserve-when-null would keep a stale positive balance showing.
     cash_on_hand: "replace",
@@ -167,12 +163,7 @@ export async function replaceAlabamaCandidateFinanceSnapshot(
     db: input.db,
     link: toStandardLink(input.link),
     syncedAt: input.syncedAt,
-    summary:
-      input.summary === undefined
-        ? undefined
-        : { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null },
+    summary: input.summary,
     directBreakdowns: input.directBreakdowns,
-    outsideGroups: [],
-    outsideGroupBreakdowns: [],
   });
 }

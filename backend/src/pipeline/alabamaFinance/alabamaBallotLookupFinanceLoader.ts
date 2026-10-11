@@ -1,7 +1,7 @@
 // Alabama ballot-lookup finance loader: thin config wrapper over the
-// standard loader. Outside totals are never stored (Alabama publishes no
-// independent-expenditure targeting data), so they surface as null with the
-// coverage note — never $0. The direct note is the source-wide static one
+// standard loader. Acquired sources lack verified candidate-specific outside
+// dollar coverage; unknown totals remain unavailable and prior stored outside
+// components are preserved. The direct note is the source-wide static one
 // from the aggregator; the standard family persists no per-candidate note.
 
 import type { Pool, PoolClient } from "pg";
@@ -21,7 +21,7 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 
 const ALABAMA_FCPA_SOURCE_URL = "https://fcpa.alabamavotes.gov/";
 const ALABAMA_OUTSIDE_COVERAGE_NOTE =
-  "Alabama disclosures do not identify independent expenditures by candidate or position, so outside spending totals are unavailable rather than zero.";
+  "This integration lacks verified candidate-specific outside spending dollar coverage. Unknown totals are unavailable rather than zero; previously stored outside components are preserved.";
 
 export async function loadAlabamaCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
