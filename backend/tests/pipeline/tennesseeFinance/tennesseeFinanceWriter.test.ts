@@ -174,6 +174,18 @@ describe("tennesseeFinanceWriter", () => {
     expect(String(db.query.mock.calls[0]?.[0])).toContain("INSERT INTO public.tn_candidate_finance_links");
     expect(String(db.query.mock.calls[0]?.[0])).toContain("ON CONFLICT (candidate_id, election_id, camp_candidate_id)");
     expect(String(db.query.mock.calls[0]?.[0])).toContain("pg_advisory_xact_lock");
+    const sql = String(db.query.mock.calls[0]?.[0]);
+    expect(sql).toContain("WITH link_write_lock AS MATERIALIZED");
+    expect(sql).toContain("camp_write_lock AS MATERIALIZED");
+    expect(sql).toContain("'tn-camp:' || $7::text || ':' || $3::text");
+    expect(sql).toContain("FROM link_write_lock");
+    expect(sql).toContain("FROM camp_write_lock");
+  });
+
+  it("rejects noncanonical campaign IDs before querying", async () => {
+    const db = createMockDb();
+    await expect(upsertTennesseeFinanceLink({db,link:{...baseLink(),campCandidateId:"01234"}})).rejects.toThrow("Tennessee");
+    expect(db.query).not.toHaveBeenCalled();
   });
 
   it("replaces a Tennessee snapshot with outside groups", async () => {
@@ -348,7 +360,7 @@ describe("Tennessee independently optional PAC snapshots", () => {
   const provenance = (empty = false): TennesseePacSourceProvenance => ({
     version: 1, candidateId: CANDIDATE_ID, electionId: ELECTION_ID, campCandidateId: "1234", electionYear: 2026,
     windowStart: "2025-01-01", windowEnd: "2026-12-31", registryFingerprint: "a".repeat(64),
-    currentManifestFingerprint: "b".repeat(64), nativeAllFingerprint: "c".repeat(64), nativePacFingerprint: "d".repeat(64),
+    currentManifestFingerprint: "b".repeat(64), nativeAllFingerprint: "c".repeat(64), nativePacFingerprint: "d".repeat(64), candidateContextFingerprint: "a".repeat(64),
     reports: [{ reportId: "123786", periodIdentity: "Early Year End Supplemental 2025", periodStart: "2025-07-01",
       periodEnd: "2026-01-15", sourceUrl, rawSha256: "e".repeat(64), semanticFingerprint: "f".repeat(64) }],
     receipts: empty ? [] : [{ reportId: "123786", occurrence: 0, donorId: donor.committeeId,
@@ -374,6 +386,23 @@ describe("Tennessee independently optional PAC snapshots", () => {
     const db = createMockDb();
     await replaceTennesseeCandidateFinanceSnapshot({ db, link: baseLink(), summary: { totalReceipts: 5000 } });
     expect(db.query.mock.calls.some(call => String(call[0]).includes("pac_donors") || String(call[0]).includes("pac_source_provenance"))).toBe(false);
+  });
+  it("stores original pre-period dates only with explicit source relation", async () => {
+    const db=createMockDb(),p=provenance();
+    const receipt={...p.receipts[0]!,date:"2025-06-23",dateRelation:"predates_report_period" as const};
+    await replaceTennesseeCandidateFinanceSnapshot({db,link:baseLink(),pacDonors:[donor],pacSourceProvenance:{...p,receipts:[receipt]}});
+    const stored=db.query.mock.calls.find(call=>String(call[0]).includes("(link_id,election_year,pac_source_provenance,last_synced_at)"));
+    expect(JSON.parse(String(stored?.[1]?.[2])).receipts[0]).toEqual(receipt);
+  });
+  it.each([
+    {date:"2025-06-23"},
+    {date:"2025-08-19",dateRelation:"predates_report_period"},
+    {date:"2026-01-16",dateRelation:"predates_report_period"},
+  ])("rejects missing, misleading, or future date relation before writes %j", async override=>{
+    const db=createMockDb(),p=provenance();
+    await expect(replaceTennesseeCandidateFinanceSnapshot({db,link:baseLink(),pacDonors:[donor],
+      pacSourceProvenance:{...p,receipts:[{...p.receipts[0]!,...override}]} as TennesseePacSourceProvenance})).rejects.toThrow("Invalid Tennessee PAC source provenance");
+    expect(db.query).not.toHaveBeenCalled();
   });
   it("clears only the verified link/year donor snapshot on an independently proven empty result", async () => {
     const db = createMockDb();

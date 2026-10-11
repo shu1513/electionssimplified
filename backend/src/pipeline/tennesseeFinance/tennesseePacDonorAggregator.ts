@@ -1,3 +1,5 @@
+import { resolveTennesseeLocalNameAuthority,type TennesseeLocalNameAuthority } from "./tennesseeVerifiedLocalName.js";
+
 export type TennesseeFinancePacDonor = {
   committeeId: string;
   committeeName: string;
@@ -32,9 +34,12 @@ export type TennesseePacSourceProvenance = {
   currentManifestFingerprint: string;
   nativeAllFingerprint: string;
   nativePacFingerprint: string;
+  candidateContextFingerprint: string;
+  localNameAuthority?: TennesseeLocalNameAuthority;
   reports: readonly { reportId: string; periodIdentity: string; periodStart: string; periodEnd: string;
     rawSha256: string; semanticFingerprint: string; sourceUrl: string }[];
-  receipts: readonly { reportId: string; occurrence: number; donorId: string; date: string; amountCents: number }[];
+  receipts: readonly { reportId: string; occurrence: number; donorId: string; date: string; amountCents: number;
+    dateRelation?: "predates_report_period" }[];
 };
 
 export function normalizeTennesseeReportedDonorName(name: string): string {
@@ -93,17 +98,26 @@ export function validateTennesseePacSourceProvenance(input: {
   electionId: string;
   campCandidateId: string;
   electionYear: number;
+  officeName: string;
+  district?: string | null;
+  candidateNameNormalized: string;
+  ownerName: string;
 }): void {
   validateTennesseePacDonors(input.donors);
   const p = input.provenance;
   const fail = () => { throw new Error("Invalid Tennessee PAC source provenance"); };
   const hash = (value: string) => /^[a-f0-9]{64}$/.test(value);
+  if (p.localNameAuthority !== undefined) {
+    const expected = resolveTennesseeLocalNameAuthority({ ...input },p.localNameAuthority.sourceName);
+    const canonical = (value: object) => JSON.stringify(Object.entries(value).sort(([a],[b]) => a.localeCompare(b)));
+    if (!expected || canonical(expected) !== canonical(p.localNameAuthority)) fail();
+  }
   if (p.version !== 1 || p.candidateId !== input.candidateId || p.electionId !== input.electionId
     || p.campCandidateId !== input.campCandidateId || !isTennesseeCampId(p.campCandidateId)
     || p.electionYear !== input.electionYear || !Number.isInteger(p.electionYear) || p.electionYear < 2000 || p.electionYear > 2100
     || !validDate(p.windowStart) || !validDate(p.windowEnd) || p.windowStart > p.windowEnd
     || p.windowStart !== `${p.electionYear - 1}-01-01` || p.windowEnd !== `${p.electionYear}-12-31`
-    || ![p.registryFingerprint, p.currentManifestFingerprint, p.nativeAllFingerprint, p.nativePacFingerprint].every(hash)
+    || ![p.registryFingerprint, p.currentManifestFingerprint, p.nativeAllFingerprint, p.nativePacFingerprint,p.candidateContextFingerprint].every(hash)
     || !Array.isArray(p.reports) || p.reports.length === 0 || !Array.isArray(p.receipts)) fail();
   const reports = new Map<string, string>();
   const periods = new Map<string, { start: string; end: string }>();
@@ -126,7 +140,8 @@ export function validateTennesseePacSourceProvenance(input: {
     const key = `${receipt.reportId}:${receipt.occurrence}`;
     if (!reports.has(receipt.reportId) || !Number.isSafeInteger(receipt.occurrence) || receipt.occurrence < 0
       || occurrences.has(key) || !validDate(receipt.date) || receipt.date < p.windowStart || receipt.date > p.windowEnd
-      || receipt.date < periods.get(receipt.reportId)!.start || receipt.date > periods.get(receipt.reportId)!.end
+      || receipt.date > periods.get(receipt.reportId)!.end
+      || receipt.dateRelation !== (receipt.date < periods.get(receipt.reportId)!.start ? "predates_report_period" : undefined)
       || !Number.isSafeInteger(receipt.amountCents) || receipt.amountCents <= 0) fail();
     occurrences.add(key);
     const sum = sums.get(receipt.donorId) ?? { cents: 0, count: 0 };

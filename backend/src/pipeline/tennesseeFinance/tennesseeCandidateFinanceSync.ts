@@ -30,6 +30,7 @@ import {
   type TennesseeFinanceLinkSource,
   type TennesseeFinanceOutsideGroupBreakdownInput,
   type TennesseeFinanceOutsideGroupInput,
+  type TennesseeVerifiedFinanceSnapshot,
 } from "./tennesseeFinanceWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -48,7 +49,8 @@ export type TennesseeCandidateFinanceSyncInput = {
   linkSource?: TennesseeFinanceLinkSource;
   sourceUrl?: string | null;
   reportListUrl?: string | null;
-  contributions: readonly TennesseeCampContributionRecord[];
+  contributions?: readonly TennesseeCampContributionRecord[];
+  verifiedFinance?: TennesseeVerifiedFinanceSnapshot;
   contributionSourceUrl?: string | null;
   expenditures?: readonly TennesseeCampExpenditureRecord[];
   expenditureSourceUrl?: string | null;
@@ -75,8 +77,8 @@ export type TennesseeCandidateFinanceSyncResult = {
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
-  totalReceipts: number;
-  directContributionTotal: number;
+  totalReceipts: number | null;
+  directContributionTotal: number | null;
   outsideSupportTotal: number | null;
   outsideOpposeTotal: number | null;
   matchedContributionRowCount: number;
@@ -89,6 +91,9 @@ export type TennesseeCandidateFinanceSyncResult = {
   includedOutsideContributionRowCount: number;
   skippedOutsideContributionRowCount: number;
   outsideGroupCount: number;
+  pacDonorsWritten?: number;
+  sourceVerificationDiagnostics?: readonly string[];
+  outsideEvidenceAccepted?: boolean;
 };
 
 const DEFAULT_AI_CLASSIFICATION_MIN_AMOUNT = 25_000;
@@ -391,8 +396,38 @@ export async function syncTennesseeCandidateFinance(
   const electionYear = normalizeElectionYear(input.electionYear);
   const syncedAt = normalizeTimestamp(input.now);
   const dryRun = input.dryRun === true;
-  const aiClassificationMinAmount = normalizeAiClassificationMinAmount(input.aiClassificationMinAmount);
   const link = toFinanceLink({ ...input, electionYear, now: syncedAt });
+  if (input.verifiedFinance) {
+    if (input.contributions !== undefined || input.expenditures !== undefined || input.outsideGroupContributionRecords !== undefined) {
+      throw new Error("Tennessee verified finance cannot mix with legacy discovery records");
+    }
+    const snapshot = input.verifiedFinance;
+    const hasAccepted = snapshot.summary !== undefined || snapshot.directBreakdowns !== undefined
+      || snapshot.pacDonors !== undefined || Boolean(snapshot.outsideReportEvidence?.verifiedReports.length);
+    const classifications = new Map<string, FinanceLabelClassification>();
+    for (const donor of snapshot.pacDonors ?? []) {
+      const classification = classifyFinanceLabel({ rawLabel: donor.committeeName,labelType: "committee" });
+      classifications.set(classification.normalizedLabel,classification);
+    }
+    const write = !dryRun && hasAccepted ? await replaceTennesseeCandidateFinanceSnapshot({
+      ...snapshot,db:input.db,link,syncedAt,classifications: [...classifications.values()] }) : undefined;
+    return { candidateId: link.candidateId,electionId: link.electionId,electionYear,dryRun,
+      linkWritten: Boolean(write),summaryWritten: write?.summaryWritten ?? false,
+      directBreakdownsWritten: write?.directBreakdownsWritten ?? 0,outsideGroupsWritten: write?.outsideGroupsWritten ?? 0,
+      outsideGroupBreakdownsWritten: 0,pacDonorsWritten: write?.pacDonorsWritten ?? 0,
+      totalReceipts: snapshot.summary?.totalReceipts ?? null,directContributionTotal: snapshot.summary?.directContributionTotal ?? null,
+      outsideSupportTotal: write?.outsideSupportTotal ?? null,outsideOpposeTotal: write?.outsideOpposeTotal ?? null,
+      matchedContributionRowCount: snapshot.pacSourceProvenance?.receipts.length ?? 0,
+      includedContributionRowCount: snapshot.pacSourceProvenance?.receipts.length ?? 0,skippedContributionRowCount: 0,
+      matchedExpenditureRowCount: snapshot.outsideReportEvidence?.verifiedReports.reduce((sum, report) => sum + report.occurrences.length,0) ?? 0,
+      includedExpenditureRowCount: snapshot.outsideReportEvidence?.verifiedReports.reduce((sum, report) => sum + report.occurrences.length,0) ?? 0,
+      skippedExpenditureRowCount: 0,matchedOutsideContributionRowCount: 0,includedOutsideContributionRowCount: 0,
+      skippedOutsideContributionRowCount: 0,outsideGroupCount: write?.outsideGroupsWritten ?? 0,
+      sourceVerificationDiagnostics: [...snapshot.diagnostics,...(write?.outsideEvidenceDiagnostics ?? [])],
+      ...(write?.outsideEvidenceAccepted === undefined ? {} : { outsideEvidenceAccepted: write.outsideEvidenceAccepted }) };
+  }
+  if (input.contributions === undefined) throw new Error("Tennessee finance requires verified evidence or contribution records");
+  const aiClassificationMinAmount = normalizeAiClassificationMinAmount(input.aiClassificationMinAmount);
   const directFinance = aggregateDirect({
     ownerName: link.ownerName,
     candidateName: input.candidateName,

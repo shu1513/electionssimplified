@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { syncTennesseeCandidateFinance } from "../../../src/pipeline/tennesseeFinance/tennesseeCandidateFinanceSync.js";
 import type { TennesseeCampContributionRecord } from "../../../src/pipeline/tennesseeFinance/tennesseeCampClient.js";
 import type { TennesseeCampExpenditureRecord } from "../../../src/pipeline/tennesseeFinance/tennesseeCampClient.js";
+import type { TennesseeVerifiedFinanceSnapshot } from "../../../src/pipeline/tennesseeFinance/tennesseeFinanceWriter.js";
 
 function contribution(overrides: Partial<TennesseeCampContributionRecord> = {}): TennesseeCampContributionRecord {
   return {
@@ -49,6 +50,66 @@ function createMockDb() {
     client,
   };
 }
+
+describe("Tennessee verified finance sync path", () => {
+  const identity = { candidateId: "11111111-1111-4111-8111-111111111111",electionId: "22222222-2222-4222-8222-222222222222",
+    candidateName: "Jane Doe",electionYear: 2026,officeName: "State Senator",district: "3",campCandidateId: "794",ownerName: "DOE, JANE" };
+  const sourceUrl = "https://apps.tn.gov/tncamp/search/pub/report_full.htm?reportId=123786";
+  const pacSnapshot = (): TennesseeVerifiedFinanceSnapshot => ({ diagnostics: [],pacDonors: [{ committeeId: "reported:EXAMPLE PAC",
+    committeeName: "Example PAC",committeeType: "Political Action Committee",amount: 1000,contributionCount: 1,sourceUrl }],
+    pacSourceProvenance: { version: 1,candidateId: identity.candidateId,electionId: identity.electionId,campCandidateId: "794",electionYear: 2026,
+      windowStart: "2025-01-01",windowEnd: "2026-12-31",registryFingerprint: "a".repeat(64),currentManifestFingerprint: "b".repeat(64),
+      nativeAllFingerprint: "c".repeat(64),nativePacFingerprint: "d".repeat(64),candidateContextFingerprint: "a".repeat(64),
+      reports: [{ reportId: "123786",periodIdentity: "Early Year End Supplemental 2025",periodStart: "2025-07-01",periodEnd: "2026-01-15",
+        rawSha256: "e".repeat(64),semanticFingerprint: "f".repeat(64),sourceUrl }],
+      receipts: [{ reportId: "123786",occurrence: 1,donorId: "reported:EXAMPLE PAC",date: "2025-08-19",amountCents: 100000 }] } });
+
+  it("persists all verified labels and PAC rows without legacy aggregation or provider calls", async () => {
+    const db = createMockDb(), classifier = vi.fn();
+    const verifiedFinance = { ...pacSnapshot(),summary: { totalReceipts: 10000,directContributionTotal: 10000,sourceUrl },
+      directBreakdowns: Array.from({ length: 30 }, (_,i) => ({ categoryType: "occupation" as const,categoryName: `Reported ${i}`,amount: 100,contributorCount: 1,sourceUrl })) };
+    const synced = await syncTennesseeCandidateFinance({ db,...identity,verifiedFinance,financeIndustryClassifier: classifier });
+    expect(synced).toMatchObject({ totalReceipts: 10000,directContributionTotal: 10000,pacDonorsWritten: 1,directBreakdownsWritten: 30,
+      outsideSupportTotal: null,outsideOpposeTotal: null,sourceVerificationDiagnostics: [] });
+    expect(classifier).not.toHaveBeenCalled();
+    expect(db.query.mock.calls.filter(call => String(call[0]).includes("INSERT INTO public.tn_candidate_finance_direct_breakdowns"))).toHaveLength(30);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("DELETE FROM public.tn_candidate_finance_outside"))).toBe(false);
+  });
+  it("omits unavailable Raised while persisting independently verified dated PAC receipts", async () => {
+    const db = createMockDb();
+    const synced = await syncTennesseeCandidateFinance({ db,...identity,verifiedFinance: pacSnapshot() });
+    expect(synced).toMatchObject({ totalReceipts: null,directContributionTotal: null,pacDonorsWritten: 1 });
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("total_receipts,"))).toBe(false);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("pac_source_provenance"))).toBe(true);
+  });
+  it("does not write or mark unavailable source components synced", async () => {
+    const db = createMockDb();
+    const synced = await syncTennesseeCandidateFinance({ db,...identity,verifiedFinance: { diagnostics: ["Current report unavailable"] } });
+    expect(synced).toMatchObject({ linkWritten: false,summaryWritten: false,totalReceipts: null,
+      sourceVerificationDiagnostics: ["Current report unavailable"] });
+    expect(db.connect).not.toHaveBeenCalled();expect(db.query).not.toHaveBeenCalled();
+  });
+  it("retains trusted sync identity and verification time when prepared source DTO includes its own link", async () => {
+    const db=createMockDb(),now=new Date("2026-10-11T16:00:00Z");
+    const prepared={...pacSnapshot(),link:{...identity,candidateNameNormalized:"JANE DOE",lastVerifiedAt:undefined},coverage:{}};
+    await syncTennesseeCandidateFinance({db,...identity,now,verifiedFinance:prepared});
+    const upsert=db.query.mock.calls.find(call=>String(call[0]).includes("INSERT INTO public.tn_candidate_finance_links"));
+    expect(upsert?.[1]?.[13]).toBe(now.toISOString());
+    expect(upsert?.[1]?.[0]).toBe(identity.candidateId);
+  });
+  it("dry run emits verified cash values while avoiding all persistence", async () => {
+    const db = createMockDb();
+    const synced = await syncTennesseeCandidateFinance({ db,...identity,dryRun: true,verifiedFinance: {
+      ...pacSnapshot(),summary: { totalReceipts: 10000,directContributionTotal: 10000 } } });
+    expect(synced).toMatchObject({ totalReceipts: 10000,linkWritten: false,pacDonorsWritten: 0 });
+    expect(db.query).not.toHaveBeenCalled();
+  });
+  it("rejects legacy discovery mixed with verified evidence", async () => {
+    const db = createMockDb();
+    await expect(syncTennesseeCandidateFinance({ db,...identity,contributions: [],verifiedFinance: pacSnapshot() })).rejects.toThrow("cannot mix");
+    expect(db.query).not.toHaveBeenCalled();
+  });
+});
 
 describe("tennesseeCandidateFinanceSync", () => {
   it("aggregates and skips writes during dry runs", async () => {

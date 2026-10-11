@@ -11,6 +11,7 @@ import {
 import { assertSnapshotDbIsNotPoolClient } from "../finance/financeWriterPoolGuard.js";
 import {
   validateTennesseePacSourceProvenance,
+  isTennesseeCampId,
   type TennesseeFinancePacDonor,
   type TennesseePacSourceProvenance,
 } from "./tennesseePacDonorAggregator.js";
@@ -111,7 +112,14 @@ export type TennesseeFinanceSnapshotWriteResult = {
   pacDonorsWritten: number;
   outsideEvidenceAccepted?: boolean;
   outsideEvidenceDiagnostics?: string[];
+  outsideSupportTotal?: number | null;
+  outsideOpposeTotal?: number | null;
 };
+
+export type TennesseeVerifiedFinanceSnapshot = Pick<TennesseeFinanceSnapshotInput,
+  "summary" | "directBreakdowns" | "pacDonors" | "pacSourceProvenance" | "outsideReportEvidence"> & {
+    diagnostics: readonly string[];
+  };
 
 function requireNonEmpty(value: string, fieldName: string): string {
   const trimmed = value.trim();
@@ -199,6 +207,8 @@ function validateTennesseeFinanceSnapshotInput(input: TennesseeFinanceSnapshotIn
       provenance: input.pacSourceProvenance, donors: input.pacDonors,
       candidateId: input.link.candidateId, electionId: input.link.electionId,
       campCandidateId: input.link.campCandidateId, electionYear: input.link.electionYear,
+      officeName: input.link.officeName,district: input.link.district,
+      candidateNameNormalized: input.link.candidateNameNormalized,ownerName: input.link.ownerName,
     });
   }
   if (input.outsideGroupBreakdowns && !input.outsideGroups) {
@@ -246,10 +256,15 @@ export async function upsertTennesseeFinanceLink(input: {
   db: Queryable;
   link: TennesseeFinanceLinkInput;
 }): Promise<{ linkId: string }> {
+  const ambiguousSentinel = input.link.linkStatus === "ambiguous" && input.link.campCandidateId === "AMBIGUOUS";
+  if (!isTennesseeCampId(input.link.campCandidateId) && !ambiguousSentinel) throw new Error("Invalid canonical Tennessee CAMP candidate id");
   const result = await input.db.query<ManualProtectedLinkRow>(
     `
-      WITH link_write_lock AS (
+      WITH link_write_lock AS MATERIALIZED (
         SELECT pg_advisory_xact_lock(hashtextextended($1::uuid::text || ':' || $2::uuid::text,0))
+      ), camp_write_lock AS MATERIALIZED (
+        SELECT pg_advisory_xact_lock(hashtextextended('tn-camp:' || $7::text || ':' || $3::text,0))
+        FROM link_write_lock
       )
       INSERT INTO public.tn_candidate_finance_links (
         candidate_id,
@@ -268,7 +283,7 @@ export async function upsertTennesseeFinanceLink(input: {
         last_verified_at
       )
       SELECT $1::uuid, $2::uuid, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::timestamptz
-      FROM link_write_lock
+      FROM camp_write_lock
       ON CONFLICT (candidate_id, election_id, camp_candidate_id)
       DO UPDATE SET
         candidate_name_normalized = EXCLUDED.candidate_name_normalized,
@@ -616,8 +631,10 @@ async function prepareOutsideEvidenceUpdate(input: {
           WHERE b.link_id=link.id AND b.election_year=link.election_year AND b.amount>0)) AS has_outside_money
     FROM public.tn_candidate_finance_links link LEFT JOIN public.tn_candidate_finance_summaries summary
       ON summary.link_id=link.id AND summary.election_year=link.election_year
-    WHERE link.candidate_id=$1::uuid AND link.election_id=$2::uuid AND link.link_status='active'
-    ORDER BY link.id FOR UPDATE OF link`, [input.link.candidateId,input.link.electionId]);
+    WHERE link.link_status='active' AND (
+      (link.candidate_id=$1::uuid AND link.election_id=$2::uuid)
+      OR (link.camp_candidate_id=$3 AND link.election_year=$4 AND link.candidate_id<>$1::uuid))
+    ORDER BY link.id FOR UPDATE OF link`, [input.link.candidateId,input.link.electionId,input.link.campCandidateId,input.link.electionYear]);
   if (owners.rows.length !== 1 || owners.rows[0]?.id !== input.linkId
     || owners.rows[0].election_year !== input.link.electionYear) return preserve("outside owner is ambiguous across active links");
   const owner = owners.rows[0]!;
@@ -740,6 +757,7 @@ export async function replaceTennesseeCandidateFinanceSnapshot(
       outsideGroupBreakdownsWritten: outsideGroupBreakdowns?.length ?? 0,
       pacDonorsWritten: input.pacDonors?.length ?? 0,
       ...(evidence ? { outsideEvidenceAccepted: Boolean(evidence.update), outsideEvidenceDiagnostics: evidence.diagnostics } : {}),
+      ...(evidence?.update ? { outsideSupportTotal: evidence.update.supportTotal, outsideOpposeTotal: evidence.update.opposeTotal } : {}),
     };
   });
 }

@@ -1,3 +1,5 @@
+import { resolveTennesseeLocalNameAuthority, type TennesseeLocalNameAuthority } from "./tennesseeVerifiedLocalName.js";
+
 /** Report-scoped authority only; source completeness must be verified upstream. */
 export type TennesseeOutsideCandidateContext = {
   candidateId: string;
@@ -7,6 +9,7 @@ export type TennesseeOutsideCandidateContext = {
   officeName: string;
   district: string | null;
   candidateContextFingerprint: string;
+  localNameAuthority?: TennesseeLocalNameAuthority;
 };
 
 export type TennesseeOutsideEvidenceOccurrence = {
@@ -102,6 +105,21 @@ function validateContext(context: TennesseeOutsideCandidateContext): void {
   if (context.district !== null) requireText(context.district, "district");
   if (!Number.isInteger(context.electionYear) || context.electionYear < 2000 || context.electionYear > 2100) throw new Error("Invalid electionYear");
   requireHash(context.candidateContextFingerprint, "candidateContextFingerprint");
+  if (context.localNameAuthority !== undefined) {
+    const authority = context.localNameAuthority;
+    if (!authority || typeof authority !== "object" || Array.isArray(authority)) throw new Error("Invalid local name authority descriptor");
+    requireText(authority.localName, "authority localName");
+    requireText(authority.sourceName, "authority sourceName");
+    const resolved = resolveTennesseeLocalNameAuthority({
+      candidateId: context.candidateId, electionId: context.electionId, campCandidateId: context.campCandidateId,
+      electionYear: context.electionYear, officeName: context.officeName, district: context.district,
+      candidateNameNormalized: authority.localName, ownerName: authority.sourceName,
+    }, authority.sourceName);
+    // PostgreSQL JSONB reorders object keys. Compare exact keys/values, including
+    // URL array order, without accidentally accepting added authority fields.
+    const descriptorJson = (value: TennesseeLocalNameAuthority) => JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)));
+    if (!resolved || descriptorJson(authority) !== descriptorJson(resolved)) throw new Error("Local name authority does not match its exact scoped rule");
+  }
 }
 function sameContext(left: TennesseeOutsideCandidateContext, right: TennesseeOutsideCandidateContext): boolean {
   return left.candidateId === right.candidateId && left.electionId === right.electionId && left.campCandidateId === right.campCandidateId

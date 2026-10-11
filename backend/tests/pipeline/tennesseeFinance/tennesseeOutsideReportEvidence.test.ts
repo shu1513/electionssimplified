@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { resolveTennesseeLocalNameAuthority } from "../../../src/pipeline/tennesseeFinance/tennesseeVerifiedLocalName.js";
 import { mergeTennesseeOutsideReportEvidence, summarizeTennesseeOutsideReportProvenance, type TennesseeOutsideCandidateContext, type TennesseeOutsideEvidenceOccurrence, type TennesseeVerifiedOutsideReportEvidence } from "../../../src/pipeline/tennesseeFinance/tennesseeOutsideReportEvidence.js";
 
 // Synthetic policy closures only: these fixtures do not claim a live source zero.
@@ -196,5 +197,48 @@ describe("summarizeTennesseeOutsideReportProvenance (synthetic stored authority)
     expect(summarizeTennesseeOutsideReportProvenance(provenance([report({ occurrences: [] })]))).toMatchObject({
       diagnostics: [], result: { outsideGroups: [], supportTotal: null, opposeTotal: null, provenance: { version: 1 } },
     });
+  });
+});
+
+
+describe("optional finite local-name authority in stored outside context", () => {
+  const scopedContext = () => {
+    const identity = { ...context, candidateId: "b13cdb24-792f-4f80-8231-64e83fe9118d" };
+    const localNameAuthority = resolveTennesseeLocalNameAuthority({ ...identity,
+      candidateNameNormalized: "DEWEY RUSTY CROWE", ownerName: "CROWE, RUSTY" }, "CROWE, RUSTY")!;
+    return { ...identity, localNameAuthority };
+  };
+  it("preserves a validated finite descriptor and accepts JSONB object-key reordering", () => {
+    const candidateContext = scopedContext();
+    const merged = mergeTennesseeOutsideReportEvidence({ candidateContext, verifiedReports: [report()] });
+    expect(merged.update?.provenance.candidateContext.localNameAuthority).toEqual(candidateContext.localNameAuthority);
+    const reordered = Object.fromEntries(Object.entries(candidateContext.localNameAuthority).reverse());
+    const stored = { ...merged.update!.provenance, candidateContext: { ...candidateContext, localNameAuthority: reordered } };
+    expect(summarizeTennesseeOutsideReportProvenance(stored).result?.provenance.candidateContext.localNameAuthority).toEqual(candidateContext.localNameAuthority);
+  });
+  it("accepts exact full-name authority without a finite exception or legacy descriptor requirement", () => {
+    const localNameAuthority = { method: "exact_full_name" as const, localName: "Synthetic Candidate", sourceName: "CANDIDATE, SYNTHETIC" };
+    const result = mergeTennesseeOutsideReportEvidence({ candidateContext: { ...context, localNameAuthority }, verifiedReports: [report()] });
+    expect(result.update?.provenance.candidateContext.localNameAuthority).toEqual(localNameAuthority);
+    expect(summarizeTennesseeOutsideReportProvenance(provenance()).result).toBeDefined();
+  });
+  it.each([
+    { candidateId: "other-local-person" }, { campCandidateId: "795" }, { electionYear: 2028 },
+    { officeName: "State Representative" }, { district: "4" },
+  ])("rejects reviewed authority outside its exact context scope %j", (override) => {
+    const candidateContext = { ...scopedContext(), ...override };
+    const checked = summarizeTennesseeOutsideReportProvenance({ version: 1, candidateContext, reports: [report()] });
+    expect(checked.result).toBeUndefined();
+    expect(checked.diagnostics.join(" ")).toContain("scoped rule");
+  });
+  it.each([
+    { method: "generic_nickname" }, { sourceUrls: ["https://example.org/unreviewed"] },
+    { localName: "DEWEY E RUSTY CROWE II" }, { ruleId: "other-rule" }, { unexplainedAlias: true },
+  ])("rejects malformed or invented authority %j", (override) => {
+    const candidateContext = scopedContext();
+    const checked = summarizeTennesseeOutsideReportProvenance({ version: 1, candidateContext: { ...candidateContext,
+      localNameAuthority: { ...candidateContext.localNameAuthority, ...override } }, reports: [report()] });
+    expect(checked.result).toBeUndefined();
+    expect(checked.diagnostics).not.toEqual([]);
   });
 });
