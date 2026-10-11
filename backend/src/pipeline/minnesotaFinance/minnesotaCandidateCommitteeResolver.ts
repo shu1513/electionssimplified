@@ -317,11 +317,26 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal first name first, nicknames only when nothing matched literally: a
+// "Greg" candidate must not turn ambiguous because a different "Gregory" with
+// the same surname also filed, and a candidate registered under both the
+// nickname and the formal name keeps the literal committee (georgia pattern).
 export function resolveMinnesotaCandidateCommittee(
   input: MinnesotaCandidateCommitteeResolverInput
 ): MinnesotaCandidateCommitteeResolution {
+  const literal = resolveMinnesotaCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveMinnesotaCandidateCommitteeByName(input, true);
+}
+
+function resolveMinnesotaCandidateCommitteeByName(
+  input: MinnesotaCandidateCommitteeResolverInput,
+  expandNicknames: boolean
+): MinnesotaCandidateCommitteeResolution {
   const electionYear = normalizeElectionYear(input.electionYear);
-  const candidateNameKeys = normalizeMinnesotaCandidateNameKeys(input.candidateName, { expandNicknames: true });
+  const candidateNameKeys = normalizeMinnesotaCandidateNameKeys(input.candidateName, { expandNicknames });
   const candidateNameKey = candidateNameNormalized(input.candidateName);
   const officeMatch = mapMinnesotaFinanceOffice({
     officeScope: input.officeScope,

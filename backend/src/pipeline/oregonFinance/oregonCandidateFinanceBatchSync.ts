@@ -4,6 +4,7 @@ import {
   autoLinkMissingOregonCandidateFinanceLinks,
   listOregonCandidateElectionsMissingFinanceLinks,
   type OregonCandidateSearchRowsLoader,
+  type OregonFinanceAutoLinkResult,
 } from "./oregonCandidateFinanceAutoLink.js";
 import type { OregonCandidateCommitteeResolver } from "./oregonCandidateCommitteeResolver.js";
 import {
@@ -316,20 +317,43 @@ export async function syncDueOregonCandidateFinance(
       });
       autoLinkAttemptedCount = missingLinkCandidates.length;
       // The directory is searched by active year, so load it once per
-      // election year among the candidates.
+      // election year among the candidates. A year whose directory does not
+      // load (portal blocked, or the search hit ORESTAR's 999-row cap) only
+      // skips that year's candidates; the other years still link.
       const directoryRowsByYear = new Map<number, Awaited<ReturnType<OregonCandidateSearchRowsLoader>>>();
+      const directoryFailureByYear = new Map<number, string>();
       for (const candidateElection of missingLinkCandidates) {
-        if (!directoryRowsByYear.has(candidateElection.electionYear)) {
-          directoryRowsByYear.set(candidateElection.electionYear, await loadCandidateSearchRows(candidateElection));
+        const year = candidateElection.electionYear;
+        if (directoryRowsByYear.has(year) || directoryFailureByYear.has(year)) {
+          continue;
+        }
+        try {
+          directoryRowsByYear.set(year, await loadCandidateSearchRows(candidateElection));
+        } catch (error) {
+          directoryFailureByYear.set(year, error instanceof Error ? error.message : String(error));
         }
       }
-      const autoLinkResults = await autoLinkMissingOregonCandidateFinanceLinks({
-        db: input.db,
-        now,
-        candidateElections: missingLinkCandidates,
-        loadCandidateSearchRows: (candidateElection) => directoryRowsByYear.get(candidateElection.electionYear) ?? [],
-        resolveCandidateCommittee: input.resolveCandidateCommittee,
-      });
+      const autoLinkResults: OregonFinanceAutoLinkResult[] = missingLinkCandidates
+        .filter((candidateElection) => directoryFailureByYear.has(candidateElection.electionYear))
+        .map((candidateElection) => ({
+          candidateId: candidateElection.candidateId,
+          electionId: candidateElection.electionId,
+          status: "skipped",
+          reason: `Oregon committee directory for ${candidateElection.electionYear} did not load: ${
+            directoryFailureByYear.get(candidateElection.electionYear) ?? "unknown error"
+          }`,
+        }));
+      autoLinkResults.push(
+        ...(await autoLinkMissingOregonCandidateFinanceLinks({
+          db: input.db,
+          now,
+          candidateElections: missingLinkCandidates.filter((candidateElection) =>
+            directoryRowsByYear.has(candidateElection.electionYear)
+          ),
+          loadCandidateSearchRows: (candidateElection) => directoryRowsByYear.get(candidateElection.electionYear) ?? [],
+          resolveCandidateCommittee: input.resolveCandidateCommittee,
+        }))
+      );
       autoLinkLinkedCount = autoLinkResults.filter((result) => result.status === "linked").length;
       for (const result of autoLinkResults) {
         if (result.status !== "linked") {

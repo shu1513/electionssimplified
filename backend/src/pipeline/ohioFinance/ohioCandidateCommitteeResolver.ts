@@ -388,14 +388,29 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal first name first, nicknames only when nothing matched literally: a
+// "Greg" candidate must not turn ambiguous because a different "Gregory" with
+// the same surname also filed, and a candidate registered under both the
+// nickname and the formal name keeps the literal committee (georgia pattern).
 export function resolveOhioCandidateCommittee(
   input: OhioCandidateCommitteeResolverInput
+): OhioCandidateCommitteeResolution {
+  const literal = resolveOhioCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveOhioCandidateCommitteeByName(input, true);
+}
+
+function resolveOhioCandidateCommitteeByName(
+  input: OhioCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): OhioCandidateCommitteeResolution {
   normalizeElectionYear(input.electionYear);
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeOhioCandidateNameKeys(input.candidateName, { expandNicknames: true });
+  const candidateNameKeys = normalizeOhioCandidateNameKeys(input.candidateName, { expandNicknames });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeDistrict(input.district);
 

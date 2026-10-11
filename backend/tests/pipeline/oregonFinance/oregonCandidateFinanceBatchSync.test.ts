@@ -222,6 +222,84 @@ describe("oregonCandidateFinanceBatchSync", () => {
     );
   });
 
+  it("still auto-links the other election years when one year's directory fails to load", async () => {
+    // Directory loads are per election year. A 2024 search that throws (the
+    // portal blocked, or ORESTAR's 999-row cap) must not take the 2026
+    // candidates down with it.
+    const db = {
+      query: vi
+        .fn()
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              candidate_id: "33333333-3333-4333-8333-333333333333",
+              election_id: "44444444-4444-4444-8444-444444444444",
+              candidate_name: "Pat Older",
+              election_year: 2024,
+              office_scope: "statewide",
+              office_name: "Governor",
+              district: "Oregon",
+            },
+            {
+              candidate_id: "55555555-5555-4555-8555-555555555555",
+              election_id: "66666666-6666-4666-8666-666666666666",
+              candidate_name: "Tina Kotek",
+              election_year: 2026,
+              office_scope: "statewide",
+              office_name: "Governor",
+              district: "Oregon",
+            },
+          ],
+        })
+        .mockResolvedValueOnce({ rows: [{ id: "77777777-7777-4777-8777-777777777777" }], rowCount: 1 })
+        .mockResolvedValueOnce({ rows: [], rowCount: 0 }),
+      connect: vi.fn(),
+    };
+    const loadCandidateSearchRows = vi.fn(async (candidateElection: { electionYear: number }) => {
+      if (candidateElection.electionYear === 2024) {
+        throw new Error("ORESTAR committee search hit its 999-row cap; refusing to use a truncated directory");
+      }
+      return [
+        {
+          transactionId: "4458653",
+          date: "10/12/2022",
+          status: "Original",
+          filerCommitteeName: "Friends of Tina Kotek",
+          filerCommitteeId: "4792",
+          committeeUrl: "https://secure.sos.state.or.us/orestar/sooDetail.do?cneCommitteeId=4792",
+          contributorPayee: "Jane Donor",
+          transactionSubtype: "Cash Contribution",
+          amount: 100,
+          detailUrl: "https://secure.sos.state.or.us/orestar/gotoPublicTransactionDetail.do?tranRsn=4458653",
+        },
+      ];
+    });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const result = await syncDueOregonCandidateFinance({
+        db,
+        now: NOW,
+        loadCandidateSearchRows,
+        loadTransactionDetails: vi.fn(async () => []),
+        syncOregonCandidateFinanceFn: vi.fn() as never,
+      });
+
+      expect(result).toMatchObject({ autoLinkAttemptedCount: 2, autoLinkLinkedCount: 1 });
+      expect(loadCandidateSearchRows).toHaveBeenCalledTimes(2);
+      expect(String(db.query.mock.calls[1]?.[0])).toContain("INSERT INTO public.or_candidate_finance_links");
+      expect(warn).toHaveBeenCalledWith(
+        "Oregon finance auto-link did not link candidate election:",
+        expect.objectContaining({
+          electionId: "44444444-4444-4444-8444-444444444444",
+          status: "skipped",
+          reason: expect.stringContaining("directory for 2024 did not load: ORESTAR committee search hit its 999-row cap"),
+        })
+      );
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it("auto-links missing Oregon finance links before syncing linked rows when configured", async () => {
     const db = {
       query: vi

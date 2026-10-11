@@ -110,7 +110,7 @@ function committeeNameMatches(committeeName: string, token: string): boolean {
  * matches "KamelaSmith" but "Gold" does not match "Goldberg".
  */
 function gluedCommitteeNameMatches(committeeName: string, token: string): boolean {
-  for (const piece of committeeName.normalize("NFKD").replace(/[̀-ͯ]/g, "").split(/[^A-Za-z]+/)) {
+  for (const piece of committeeName.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").split(/[^A-Za-z]+/)) {
     if (piece.length <= token.length) {
       if (piece.toUpperCase() === token) return true;
       continue;

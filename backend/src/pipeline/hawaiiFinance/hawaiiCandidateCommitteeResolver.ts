@@ -346,7 +346,10 @@ export async function searchAndResolveHawaiiCandidateCommittee(
       electionYear: input.electionYear,
       office: officeSearchInput.cscOffice,
       district: officeSearchInput.district,
-      limit: 50,
+      // The surname LIKE filter and the blank-district rows share this page,
+      // ordered by total raised, so a common surname could push the wanted
+      // candidate past a small page. One request either way.
+      limit: 500,
     },
     options
   );

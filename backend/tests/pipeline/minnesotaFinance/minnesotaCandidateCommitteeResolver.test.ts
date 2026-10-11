@@ -294,6 +294,34 @@ describe("Minnesota candidate committee resolver", () => {
     ).toMatchObject({ status: "matched", committeeId: "15719" });
   });
 
+  it("keeps the literal first-name match when a nickname variant also files", () => {
+    // Nicknames only widen the search after the literal name found nothing, so
+    // a different Ronald Latz does not make Ron Latz ambiguous.
+    expect(
+      resolveMinnesotaCandidateCommittee({
+        candidateName: "Ron Latz",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "46",
+        electionYear: 2026,
+        candidateRows: [
+          {
+            "Recipient reg num": "16553",
+            Recipient: "Latz, Ronald S Senate Committee",
+            "Recipient type": "PCC",
+            Year: "2026",
+          },
+          {
+            "Recipient reg num": "16554",
+            Recipient: "Latz, Ron Senate Committee",
+            "Recipient type": "PCC",
+            Year: "2026",
+          },
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "16554" });
+  });
+
   it("matches a formal recipient name through the VoteApp nickname (live: Ron Latz)", () => {
     expect(
       resolveMinnesotaCandidateCommittee({

@@ -70,6 +70,23 @@ describe("indianaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("keeps the literal first-name match when a nickname variant also files", () => {
+    // Nicknames only widen the search after the literal name found nothing, so
+    // a different Gregory Ballard does not make Greg Ballard ambiguous.
+    expect(
+      resolveIndianaCandidateCommittee({
+        candidateName: "Greg Ballard",
+        officeScope: "statewide",
+        officeName: "Secretary of State",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ FileNumber: "8001", Committee: "Greg for Indiana", CandidateName: "Gregory Alan Ballard" }),
+          contribution({ FileNumber: "8002", Committee: "Friends of Greg Ballard", CandidateName: "Greg Ballard" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "8002" });
+  });
+
   it("matches the filed formal first name through a VoteApp nickname", () => {
     // Live: "Greg for Indiana" rows carry CandidateName "Gregory Alan Ballard".
     expect(

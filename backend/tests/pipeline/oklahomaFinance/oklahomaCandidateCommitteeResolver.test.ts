@@ -89,6 +89,23 @@ describe("oklahomaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("keeps the literal first-name match when a nickname variant also files", () => {
+    // Nicknames only widen the search after the literal name found nothing, so
+    // a different Gerald Griffin does not make Jerry Griffin ambiguous.
+    expect(
+      resolveOklahomaCandidateCommittee({
+        candidateName: "Jerry Griffin",
+        officeScope: "statewide",
+        officeName: "Governor",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ "Org ID": "12220", "Committee Name": "", "Candidate Name": "GERALD RAY GRIFFIN" }),
+          contribution({ "Org ID": "12221", "Committee Name": "", "Candidate Name": "JERRY GRIFFIN" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "12221" });
+  });
+
   it("matches a formal Guardian name through the VoteApp nickname (live: Jerry Griffin)", () => {
     expect(
       resolveOklahomaCandidateCommittee({

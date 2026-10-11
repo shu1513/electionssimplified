@@ -121,6 +121,38 @@ describe("resolveOhioCandidateCommittee", () => {
     ).toMatchObject({ status: "matched", committeeId: "12345" });
   });
 
+  it("keeps the literal first-name match when a nickname variant also files", () => {
+    // Nicknames only widen the search after the literal name found nothing, so
+    // a different Matthew Huffman does not make Matt Huffman ambiguous.
+    expect(
+      resolveOhioCandidateCommittee({
+        candidateName: "Matt Huffman",
+        officeScope: "state_lower",
+        officeName: "State Lower Chamber Legislator",
+        electionYear: 2026,
+        district: "78",
+        candidateListRows: [
+          listRow({
+            committeeName: "MATTHEW HUFFMAN FOR OHIO",
+            masterKey: "10592",
+            candidateFirstName: "MATTHEW",
+            candidateLastName: "HUFFMAN",
+            office: "HOUSE",
+            district: "78",
+          }),
+          listRow({
+            committeeName: "MATT HUFFMAN FOR OHIO",
+            masterKey: "10593",
+            candidateFirstName: "MATT",
+            candidateLastName: "HUFFMAN",
+            office: "HOUSE",
+            district: "78",
+          }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "10593" });
+  });
+
   it("matches the list's formal first name through a VoteApp nickname", () => {
     // Live: "MATT HUFFMAN FOR OHIO" lists the candidate as MATTHEW HUFFMAN,
     // and "FRIENDS OF BILL DEMORA" lists BILL where VoteApp has William.

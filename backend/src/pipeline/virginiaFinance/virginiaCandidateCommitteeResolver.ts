@@ -313,22 +313,39 @@ export function resolveVirginiaCandidateCommittee(
 }
 
 // cfreports matches the search text as one substring, so "Nathaniel Fritzen"
-// finds nothing when the filing reads "Nathaniel Alexander Fritzen". Fall
-// back to the surname when the full name finds nothing; the resolver still
-// requires a first+last name match.
-export async function searchVirginiaCandidateCommitteesByName(
-  candidateName: string,
-  options: VirginiaCampaignFinanceClientOptions = {}
-): Promise<VirginiaCommitteeSearchResult[]> {
-  const results = await searchVirginiaCandidateCommittees({ committeeName: candidateName }, options);
-  if (results.length > 0) {
-    return results;
-  }
+// finds nothing when the filing reads "Nathaniel Alexander Fritzen". Search
+// the full name first and the surname second. The resolver still requires a
+// first+last name match.
+export function virginiaCandidateCommitteeSearchQueries(candidateName: string): string[] {
+  const queries = [candidateName];
   const surname = normalizePersonName(candidateName).split(" ").filter(Boolean).at(-1);
-  if (!surname || surname === normalizePersonName(candidateName)) {
-    return results;
+  if (surname && surname !== normalizePersonName(candidateName)) {
+    queries.push(surname);
   }
-  return searchVirginiaCandidateCommittees({ committeeName: surname }, options);
+  return queries;
+}
+
+// Runs the search queries in order and resolves each result set; the next
+// query runs only while the previous one resolved no committee. A full-name
+// hit that the resolver rejects (another committee type, another office's
+// filings) therefore still gets the surname retry, while a match or an
+// ambiguity on the full name is final.
+export async function resolveVirginiaCandidateCommitteeAcrossSearches(input: {
+  candidateName: string;
+  search: (query: string) => Promise<readonly VirginiaCommitteeSearchResult[]>;
+  resolve: (
+    committeeResults: readonly VirginiaCommitteeSearchResult[]
+  ) => Promise<VirginiaCandidateCommitteeResolution> | VirginiaCandidateCommitteeResolution;
+}): Promise<VirginiaCandidateCommitteeResolution> {
+  const queries = virginiaCandidateCommitteeSearchQueries(input.candidateName);
+  let resolution = await input.resolve(await input.search(queries[0] ?? input.candidateName));
+  for (const query of queries.slice(1)) {
+    if (resolution.status !== "unmatched" || resolution.reason !== "no_candidate_committee_match") {
+      break;
+    }
+    resolution = await input.resolve(await input.search(query));
+  }
+  return resolution;
 }
 
 export async function searchAndResolveVirginiaCandidateCommittee(
@@ -339,13 +356,18 @@ export async function searchAndResolveVirginiaCandidateCommittee(
     return resolveVirginiaCandidateCommittee({ ...input, committeeResults: [], reportHeaders: [] });
   }
 
-  const committeeResults = await searchVirginiaCandidateCommitteesByName(input.candidateName, options);
-  const reportHeaders = committeeResults.flatMap(
-    (result) => input.reportHeadersByCommitteeId?.get(result.committeeId) ?? []
-  );
-  return resolveVirginiaCandidateCommittee({
-    ...input,
-    committeeResults,
-    ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
+  return resolveVirginiaCandidateCommitteeAcrossSearches({
+    candidateName: input.candidateName,
+    search: (query) => searchVirginiaCandidateCommittees({ committeeName: query }, options),
+    resolve: (committeeResults) => {
+      const reportHeaders = committeeResults.flatMap(
+        (result) => input.reportHeadersByCommitteeId?.get(result.committeeId) ?? []
+      );
+      return resolveVirginiaCandidateCommittee({
+        ...input,
+        committeeResults,
+        ...(reportHeaders.length > 0 ? { reportHeaders } : {}),
+      });
+    },
   });
 }
