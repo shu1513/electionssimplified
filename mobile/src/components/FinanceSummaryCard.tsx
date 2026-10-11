@@ -113,16 +113,29 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
               {openInterest === row.interest ? (
                 <View className="mb-2 ml-3 mt-1 gap-0.5 border-l border-line pl-3">
                   {row.pacs.map((pac) => (
-                    <View key={pac.committee_id} className="flex-row justify-between gap-3">
-                      <Text
-                        className="flex-1 text-xs text-ink-mid"
-                        {...(pac.source_url
-                          ? { accessibilityRole: "link" as const, onPress: () => openExternalUrl(pac.source_url ?? "") }
-                          : {})}
-                      >
-                        {pac.committee_name}
-                      </Text>
-                      <Text className="shrink-0 text-xs text-ink-soft">{formatMoney(pac.amount)}</Text>
+                    <View key={pac.committee_id}>
+                      <View className="flex-row justify-between gap-3">
+                        <Text
+                          className="flex-1 text-xs text-ink-mid"
+                          {...(pac.source_url
+                            ? { accessibilityRole: "link" as const, onPress: () => openExternalUrl(pac.source_url ?? "") }
+                            : {})}
+                        >
+                          {pac.committee_name}
+                        </Text>
+                        <Text className="shrink-0 text-xs text-ink-soft">{formatMoney(pac.amount)}</Text>
+                      </View>
+                      {pac.label ? (
+                        <Text className="mt-0.5 text-xs text-ink-mid">
+                          {pac.label}
+                          {(pac.label_source_urls ?? []).map((url) => (
+                            <Text key={url} className="text-ink-soft" onPress={() => openExternalUrl(url)}>
+                              {" · "}
+                              <Text className="underline">{formatSourceHost(url)}</Text>
+                            </Text>
+                          ))}
+                        </Text>
+                      ) : null}
                     </View>
                   ))}
                   {row.pac_count > row.pacs.length ? (

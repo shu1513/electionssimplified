@@ -44,6 +44,8 @@ export function labelableFinanceCommittees(
     ...summary.outside_spending.top_supporting_groups,
     ...summary.outside_spending.top_opposing_groups,
     ...(summary.direct_campaign.conduit_donations ?? []),
+    // The committees named under each "PAC money by interest" row.
+    ...(summary.direct_campaign.pac_money_by_interest ?? []).flatMap((interest) => interest.pacs),
   ];
 }
 

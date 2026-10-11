@@ -228,6 +228,8 @@ export async function runPennsylvaniaCandidateFinanceSyncJob(
       selectedCandidateCount: 0,
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
+      outsideSpendingFetchedYears: [],
+      outsideSpendingFetchErrors: {},
       results: [],
     };
   }

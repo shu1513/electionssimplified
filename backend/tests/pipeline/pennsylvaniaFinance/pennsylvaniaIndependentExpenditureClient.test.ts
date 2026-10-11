@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_URL,
   buildPennsylvaniaIndependentExpenditureElectionPostbackBody,
   fetchPennsylvaniaIndependentExpenditures,
+  findPennsylvaniaIndependentExpenditureElectionOptionForYear,
   parsePennsylvaniaIndependentExpenditureDataJson,
   parsePennsylvaniaIndependentExpenditureElectionOptions,
   parsePennsylvaniaIndependentExpenditureHiddenFields,
@@ -93,6 +95,59 @@ describe("pennsylvaniaIndependentExpenditureClient", () => {
       { id: "2024G", label: "2024 General", selected: false },
       { id: "2026G", label: "2026 General", selected: true },
     ]);
+  });
+
+  // Shape of the live page (2026-10-11): the rows sit in a hidden input whose
+  // single-quoted value HTML-encodes apostrophes, flags are "YES"/"NO", and
+  // the dropdown names each election with its year first.
+  const HIDDEN_INPUT_HTML = `
+    <html><body><form method="post" action="./IndependentExpenditure.aspx">
+      <input type="hidden" name="__VIEWSTATE" value="view-state-2" />
+      <select name="ctl00$ContentPlaceHolder1$ddlElection" id="ctl00_ContentPlaceHolder1_ddlElection">
+        <option selected="selected" value="116">2026 General Election (11/03/2026)</option>
+        <option value="111">2025 Municipal Election (11/04/2025)</option>
+        <option value="106">2024 Presidential Election (11/05/2024)</option>
+        <option value="118">2026 Special Election 12th Legislative District (08/18/2026)</option>
+      </select>
+      <input id='dataJson' type='hidden' value='[{"IndependentExpenseID":11326,"FilerName":"JAMES FOY","Organization":"CITIZEN&#39;S ALLIANCE PAC","ElectionDate":"05/15/2026","CandidateQuestion":"JOSH SHAPIRO FOR GOVERNOR OF PENNSYLVANIA","IsSupported":"YES","IsOpposed":"NO","Description":"MAILER -> VOTERS","Amount":444.96}]' />
+      <script>var dataJson = document.getElementById("dataJson").value;</script>
+    </form></body></html>
+  `;
+
+  it("parses rows from the hidden dataJson input and decodes HTML entities", () => {
+    expect(parsePennsylvaniaIndependentExpenditureDataJson(HIDDEN_INPUT_HTML)).toEqual([
+      {
+        IndependentExpenseID: 11326,
+        FilerName: "JAMES FOY",
+        Organization: "CITIZEN'S ALLIANCE PAC",
+        ElectionDate: "05/15/2026",
+        CandidateQuestion: "JOSH SHAPIRO FOR GOVERNOR OF PENNSYLVANIA",
+        IsSupported: "YES",
+        IsOpposed: "NO",
+        Description: "MAILER -> VOTERS",
+        Amount: 444.96,
+      },
+    ]);
+  });
+
+  it("finds the live election select and the bucket for an election year", () => {
+    const options = parsePennsylvaniaIndependentExpenditureElectionOptions(HIDDEN_INPUT_HTML);
+    expect(options.map((option) => option.id)).toEqual(["116", "111", "106", "118"]);
+    expect(options[0]?.selected).toBe(true);
+    expect(findPennsylvaniaIndependentExpenditureElectionOptionForYear(options, 2026)?.id).toBe("116");
+    expect(findPennsylvaniaIndependentExpenditureElectionOptionForYear(options, 2025)?.id).toBe("111");
+    expect(findPennsylvaniaIndependentExpenditureElectionOptionForYear(options, 2023)).toBeNull();
+    expect(
+      buildPennsylvaniaIndependentExpenditureElectionPostbackBody({ html: HIDDEN_INPUT_HTML, electionId: "111" }).get(
+        "ctl00$ContentPlaceHolder1$ddlElection"
+      )
+    ).toBe("111");
+  });
+
+  it("defaults to the singular list page address", () => {
+    expect(PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_URL).toBe(
+      "https://www.campaignfinanceonline.pa.gov/Pages/IndependentExpenditure.aspx"
+    );
   });
 
   it("builds an ASP.NET postback body for an election selection", () => {

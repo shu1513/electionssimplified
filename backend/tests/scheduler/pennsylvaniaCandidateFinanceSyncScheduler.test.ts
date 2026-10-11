@@ -64,6 +64,8 @@ describe("pennsylvaniaCandidateFinanceSyncScheduler", () => {
       selectedCandidateCount: 0,
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
+      outsideSpendingFetchedYears: [],
+      outsideSpendingFetchErrors: {},
       results: [],
     });
     expect(Pool).not.toHaveBeenCalled();

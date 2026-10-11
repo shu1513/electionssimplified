@@ -1,6 +1,16 @@
+// The list page is the singular "IndependentExpenditure.aspx" linked from the
+// Campaign Finance Online home page; the plural spelling returns the site's
+// error page (verified 2026-10-11).
 export const PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_URL =
-  "https://www.campaignfinanceonline.pa.gov/pages/IndependentExpenditures.aspx";
+  "https://www.campaignfinanceonline.pa.gov/Pages/IndependentExpenditure.aspx";
 export const PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_TIMEOUT_MS = 60_000;
+// The site is fronted by a bot filter that refuses Node's default user agent
+// outright and sometimes answers a browser user agent with a JavaScript
+// challenge page instead of the list. The batch sync therefore prefers a
+// saved copy of the page (see readPennsylvaniaIndependentExpenditurePageFile)
+// and treats a challenge page as "not fetched", never as "no expenditures".
+const PENNSYLVANIA_INDEPENDENT_EXPENDITURE_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36";
 
 export type PennsylvaniaIndependentExpenditureClientOptions = {
   fetchImpl?: typeof fetch;
@@ -261,7 +271,52 @@ function asRows(value: unknown): PennsylvaniaIndependentExpenditureRow[] {
   return value.filter((row): row is PennsylvaniaIndependentExpenditureRow => row !== null && typeof row === "object");
 }
 
+// The live page stores the rows in `<input id='dataJson' type='hidden'
+// value='[...]'>`. The value is an HTML attribute, so apostrophes arrive as
+// `&#39;` and must be decoded before JSON.parse — otherwise group names such
+// as "CITIZEN'S ALLIANCE PAC" would be stored with the entity and never match
+// the filer registry. Returns null when the page has no such input.
+function parseHiddenInputDataJson(html: string): PennsylvaniaIndependentExpenditureRow[] | null {
+  const tagPattern = /<input\b[^>]*\b(?:id|name)\s*=\s*(?:"dataJson"|'dataJson'|dataJson\b)/gi;
+  const tagMatch = tagPattern.exec(html);
+  if (!tagMatch) {
+    return null;
+  }
+  // Scan to the closing ">" outside quotes: the JSON value may itself contain ">".
+  let quote = "";
+  let endIndex = -1;
+  for (let index = tagMatch.index; index < html.length; index += 1) {
+    const char = html[index] ?? "";
+    if (quote) {
+      if (char === quote) {
+        quote = "";
+      }
+      continue;
+    }
+    if (char === "\"" || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char === ">") {
+      endIndex = index;
+      break;
+    }
+  }
+  if (endIndex < 0) {
+    throw new Error("Unterminated Pennsylvania independent expenditure dataJson input tag");
+  }
+  const value = parseHtmlAttributes(html.slice(tagMatch.index, endIndex + 1)).value;
+  if (value === undefined) {
+    throw new Error("Pennsylvania independent expenditure dataJson input had no value");
+  }
+  return asRows(JSON.parse(value));
+}
+
 export function parsePennsylvaniaIndependentExpenditureDataJson(html: string): PennsylvaniaIndependentExpenditureRow[] {
+  const hiddenInputRows = parseHiddenInputDataJson(html);
+  if (hiddenInputRows) {
+    return hiddenInputRows;
+  }
   const markerIndex = html.search(/\bdataJson\b/);
   if (markerIndex < 0) {
     throw new Error("Pennsylvania independent expenditure page did not include dataJson");
@@ -287,6 +342,19 @@ export function parsePennsylvaniaIndependentExpenditureDataJson(html: string): P
     throw new Error("Pennsylvania independent expenditure dataJson array was not found");
   }
   return asRows(JSON.parse(scanJsonArray(rest, arrayStart)));
+}
+
+// The election dropdown lists one bucket per election ("2026 General Election
+// (11/03/2026)", "2026 Special Election 12th Legislative District (08/18/2026)",
+// ...). The year's main bucket is listed first and its rows already carry the
+// year's primary and special dates, so the first option whose label starts
+// with the year is the bucket for that election year.
+export function findPennsylvaniaIndependentExpenditureElectionOptionForYear(
+  options: readonly PennsylvaniaIndependentExpenditureElectionOption[],
+  electionYear: number
+): PennsylvaniaIndependentExpenditureElectionOption | null {
+  const prefix = `${electionYear} `;
+  return options.find((option) => option.label.startsWith(prefix)) ?? null;
 }
 
 export function buildPennsylvaniaIndependentExpenditureElectionPostbackBody(input: {
@@ -352,7 +420,7 @@ export async function fetchPennsylvaniaIndependentExpenditures(
   const sourceUrl = normalizeHttpsUrl(input.url ?? PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_URL);
   const landingHtml = await fetchPennsylvaniaIndependentExpenditureHtml(
     sourceUrl,
-    { headers: { accept: "text/html,*/*;q=0.8" } },
+    { headers: { accept: "text/html,*/*;q=0.8", "user-agent": PENNSYLVANIA_INDEPENDENT_EXPENDITURE_USER_AGENT } },
     options
   );
   const electionId = input.electionId?.trim() || null;
@@ -364,6 +432,7 @@ export async function fetchPennsylvaniaIndependentExpenditures(
           headers: {
             accept: "text/html,*/*;q=0.8",
             "content-type": "application/x-www-form-urlencoded",
+            "user-agent": PENNSYLVANIA_INDEPENDENT_EXPENDITURE_USER_AGENT,
           },
           body: buildPennsylvaniaIndependentExpenditureElectionPostbackBody({
             html: landingHtml,
@@ -381,4 +450,24 @@ export async function fetchPennsylvaniaIndependentExpenditures(
     electionId,
     electionOptions: parsePennsylvaniaIndependentExpenditureElectionOptions(html, input.electionFieldName),
   };
+}
+
+// A saved copy of the list page (browser "Save page as", or curl when the bot
+// filter lets it through), read in place of a live fetch. The page must have
+// the wanted election selected in its dropdown; the caller checks the year.
+export function parsePennsylvaniaIndependentExpenditurePageHtml(input: {
+  html: string;
+  sourceUrl?: string;
+}): PennsylvaniaIndependentExpenditurePage {
+  const electionOptions = parsePennsylvaniaIndependentExpenditureElectionOptions(input.html);
+  return {
+    rows: parsePennsylvaniaIndependentExpenditureDataJson(input.html),
+    sourceUrl: input.sourceUrl ?? PENNSYLVANIA_INDEPENDENT_EXPENDITURE_DEFAULT_URL,
+    electionId: electionOptions.find((option) => option.selected)?.id ?? null,
+    electionOptions,
+  };
+}
+
+export function pennsylvaniaIndependentExpenditurePageFilePath(input: { cacheDir: string; electionYear: number }): string {
+  return `${input.cacheDir}/independent-expenditures/${input.electionYear}.html`;
 }

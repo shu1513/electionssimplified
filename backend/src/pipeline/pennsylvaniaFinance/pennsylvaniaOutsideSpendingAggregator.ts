@@ -109,6 +109,10 @@ function rowOrganization(row: PennsylvaniaIndependentExpenditureRow): string {
   return String(row.Organization ?? "").trim().replace(/\s+/g, " ");
 }
 
+// Filers write the target as "JOSH SHAPIRO", "Joshua D. Shapiro", "JOSH D
+// SHAPIRO", "Josh Shapiro and Austin Davis", ... A two-token key (first +
+// last) therefore also matches with one token between the names (2022:
+// $1.8M of filings carried a middle initial). A surname alone never matches.
 function targetMatchesCandidate(input: {
   candidateQuestion: string;
   candidateNameKeys: ReadonlySet<string>;
@@ -119,7 +123,14 @@ function targetMatchesCandidate(input: {
   }
   for (const key of input.candidateNameKeys) {
     const normalizedKey = normalizeTextKey(key);
-    if (normalizedKey && target.includes(` ${normalizedKey} `)) {
+    if (!normalizedKey) {
+      continue;
+    }
+    if (target.includes(` ${normalizedKey} `)) {
+      return true;
+    }
+    const tokens = normalizedKey.split(" ");
+    if (tokens.length === 2 && new RegExp(` ${tokens[0]} [A-Z0-9]+ ${tokens[1]} `).test(target)) {
       return true;
     }
   }
@@ -177,7 +188,9 @@ export function aggregatePennsylvaniaOutsideSpending(
 ): PennsylvaniaOutsideSpendingAggregationResult {
   normalizePennsylvaniaCampaignFinanceExportYear(input.electionYear);
   const maxGroups = normalizePositiveInteger(input.maxGroups, DEFAULT_MAX_GROUPS, "maxGroups");
-  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName);
+  // Filers write the target as they please ("JOSH SHAPIRO FOR GOVERNOR",
+  // "JOSHUA SHAPIRO"), so VoteApp-side nickname keys are matched too.
+  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName, { expandNicknames: true });
   if (candidateNameKeys.size === 0) {
     return {
       summary: null,

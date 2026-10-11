@@ -74,12 +74,22 @@ export type PennsylvaniaFinanceOutsideGroupBreakdownInput = {
   sourceUrl?: string | null;
 };
 
+export type PennsylvaniaFinancePacDonorInput = {
+  committeeId: string;
+  committeeName: string;
+  amount: number;
+  contributionCount: number;
+  sourceUrl?: string | null;
+};
+
 export type PennsylvaniaFinanceSnapshotInput = {
   db: Queryable;
   link: PennsylvaniaFinanceLinkInput;
   syncedAt?: Date;
   summary?: PennsylvaniaFinanceSummaryInput;
   directBreakdowns?: readonly PennsylvaniaFinanceDirectBreakdownInput[];
+  // When given, replaces the link's committee donors for the cycle.
+  pacDonors?: readonly PennsylvaniaFinancePacDonorInput[];
   outsideGroups?: readonly PennsylvaniaFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly PennsylvaniaFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
@@ -89,6 +99,7 @@ export type PennsylvaniaFinanceSnapshotWriteResult = {
   linkId: string;
   summaryWritten: boolean;
   directBreakdownsWritten: number;
+  pacDonorsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
 };
@@ -400,6 +411,72 @@ async function upsertDirectBreakdown(input: {
   );
 }
 
+function normalizeCount(value: number, fieldName: string): number {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`${fieldName} must be a nonnegative integer`);
+  }
+  return value;
+}
+
+async function upsertPacDonor(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donor: PennsylvaniaFinancePacDonorInput;
+  syncedAt: Date;
+}): Promise<void> {
+  await input.db.query(
+    `
+      INSERT INTO public.pa_candidate_finance_pac_donors (
+        link_id,
+        election_year,
+        committee_id,
+        committee_name,
+        amount,
+        contribution_count,
+        source_url,
+        last_synced_at
+      )
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8::timestamptz)
+      ON CONFLICT (link_id, election_year, committee_id)
+      DO UPDATE SET
+        committee_name = EXCLUDED.committee_name,
+        amount = EXCLUDED.amount,
+        contribution_count = EXCLUDED.contribution_count,
+        source_url = EXCLUDED.source_url,
+        last_synced_at = EXCLUDED.last_synced_at
+    `,
+    [
+      requireNonEmpty(input.linkId, "Pennsylvania finance link id"),
+      normalizeElectionYear(input.electionYear),
+      requireNonEmpty(input.donor.committeeId, "Pennsylvania PAC donor committee id"),
+      requireNonEmpty(input.donor.committeeName, "Pennsylvania PAC donor committee name"),
+      normalizeAmount(input.donor.amount, "PAC donor amount"),
+      normalizeCount(input.donor.contributionCount, "PAC donor contribution count"),
+      normalizeOptionalText(input.donor.sourceUrl),
+      input.syncedAt.toISOString(),
+    ]
+  );
+}
+
+async function deleteStalePacDonors(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donors: readonly PennsylvaniaFinancePacDonorInput[];
+}): Promise<void> {
+  const keep = input.donors.map((donor) => requireNonEmpty(donor.committeeId, "Pennsylvania PAC donor committee id"));
+  await input.db.query(
+    `
+      DELETE FROM public.pa_candidate_finance_pac_donors
+      WHERE link_id = $1::uuid
+        AND election_year = $2
+        AND NOT (committee_id = ANY($3::text[]))
+    `,
+    [requireNonEmpty(input.linkId, "Pennsylvania finance link id"), normalizeElectionYear(input.electionYear), keep]
+  );
+}
+
 async function upsertOutsideGroup(input: {
   db: Queryable;
   linkId: string;
@@ -603,6 +680,15 @@ export async function replacePennsylvaniaCandidateFinanceSnapshot(
       await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
     }
 
+    // Donors with a zero total are not stored (the table requires amount > 0).
+    const pacDonors = input.pacDonors?.filter((donor) => donor.amount > 0);
+    for (const donor of pacDonors ?? []) {
+      await upsertPacDonor({ db, linkId, electionYear, donor, syncedAt });
+    }
+    if (pacDonors) {
+      await deleteStalePacDonors({ db, linkId, electionYear, donors: pacDonors });
+    }
+
     for (const group of input.outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
@@ -629,6 +715,7 @@ export async function replacePennsylvaniaCandidateFinanceSnapshot(
       linkId,
       summaryWritten: Boolean(input.summary),
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
+      pacDonorsWritten: pacDonors?.length ?? 0,
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
       outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
     };

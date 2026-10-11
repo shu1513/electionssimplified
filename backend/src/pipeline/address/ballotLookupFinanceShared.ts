@@ -71,6 +71,10 @@ export type BallotLookupFinancePacInterest = {
     committee_name: string;
     amount: number;
     source_url: string | null;
+    /** Researched one-line description of the committee (finance_committee_labels), as on outside groups. */
+    label?: string;
+    /** Evidence URLs behind `label` — present exactly when `label` is. */
+    label_source_urls?: string[];
   }[];
 };
 

@@ -120,10 +120,77 @@ describe("pennsylvaniaDirectContributionAggregator", () => {
           sourceUrl,
         },
       ],
+      pacDonors: [],
       matchedContributionRowCount: 3,
       includedContributionEventCount: 4,
       skippedContributionEventCount: 1,
     });
+  });
+
+  it("reports committee donors: registry matches by filer id, committee-named organizations by name", () => {
+    const filerRow = (overrides: Record<string, string>) =>
+      ({
+        CampaignfinanceID: "1",
+        FILERID: "",
+        EYEAR: "2026",
+        SubmittedDate: "",
+        CYCLE: "",
+        AMMEND: "",
+        TERMINATE: "",
+        FILERTYPE: "2",
+        FILERNAME: "",
+        OFFICE: "",
+        DISTRICT: "",
+        PARTY: "",
+        ADDRESS1: "",
+        ADDRESS2: "",
+        CITY: "",
+        STATE: "",
+        ZIPCODE: "",
+        COUNTY: "",
+        PHONE: "",
+        BEGINNING: "",
+        MONETARY: "",
+        INKIND: "",
+        ...overrides,
+      }) as never;
+    const result = aggregatePennsylvaniaDirectContributions({
+      filerId: "12345",
+      electionYear: 2026,
+      sourceUrl: "https://pa.example/2026.zip",
+      filerRows: [
+        filerRow({ FILERID: "7001", FILERNAME: "GREATER PA CARPENTERS PAC" }),
+        filerRow({ FILERID: "7002", FILERNAME: "Friends of Kim Ward", OFFICE: "STS" }),
+        // A lobbyist (type 3) named like a person is not a committee.
+        filerRow({ FILERID: "7003", FILERNAME: "WILLIAM R. SASSO", FILERTYPE: "3" }),
+        // Two registrations share a name: keep the name as the id.
+        filerRow({ FILERID: "7004", FILERNAME: "LOCAL 5 PAC" }),
+        filerRow({ FILERID: "7005", FILERNAME: "LOCAL 5 PAC" }),
+      ],
+      contributionRows: [
+        contribution({ CampaignFinanceID: "1", CONTRIBUTOR: "Greater PA Carpenters PAC", OCCUPATION: "", ENAME: "", CONTAMT1: "1000.00", CONTAMT2: "500.00", CONTDATE2: "20260201" }),
+        contribution({ CampaignFinanceID: "2", CONTRIBUTOR: "Friends of Kim Ward", OCCUPATION: "", ENAME: "", CONTAMT1: "250.00" }),
+        contribution({ CampaignFinanceID: "3", CONTRIBUTOR: "William R. Sasso", OCCUPATION: "", ENAME: "", CONTAMT1: "900.00" }),
+        contribution({ CampaignFinanceID: "4", CONTRIBUTOR: "Local 5 PAC", OCCUPATION: "", ENAME: "", CONTAMT1: "100.00" }),
+        contribution({ CampaignFinanceID: "5", CONTRIBUTOR: "Democratic Governors Association", OCCUPATION: "", ENAME: "", CONTAMT1: "2000.00" }),
+        // An occupation or an employer means a person, even with a committee-like word.
+        contribution({ CampaignFinanceID: "6", CONTRIBUTOR: "Pat Union", OCCUPATION: "Retired", ENAME: "", CONTAMT1: "50.00" }),
+        contribution({ CampaignFinanceID: "8", CONTRIBUTOR: "Jane Council", OCCUPATION: "", ENAME: "Law Firm", CONTAMT1: "75.00" }),
+        // "Cope" is a surname as often as a union fund abbreviation.
+        contribution({ CampaignFinanceID: "9", CONTRIBUTOR: "John Cope", OCCUPATION: "", ENAME: "", CONTAMT1: "100.00" }),
+        // Outside the cycle: ignored like every other event.
+        contribution({ CampaignFinanceID: "7", CONTRIBUTOR: "Democratic Governors Association", OCCUPATION: "", ENAME: "", CONTAMT1: "5000.00", CONTDATE1: "20240101" }),
+      ],
+    });
+
+    expect(result.pacDonors).toEqual([
+      { committeeId: "DEMOCRATIC GOVERNORS ASSOCIATION", committeeName: "Democratic Governors Association", amount: 2000, contributionCount: 1, sourceUrl: "https://pa.example/2026.zip" },
+      { committeeId: "7001", committeeName: "Greater PA Carpenters PAC", amount: 1500, contributionCount: 2, sourceUrl: "https://pa.example/2026.zip" },
+      { committeeId: "7002", committeeName: "Friends of Kim Ward", amount: 250, contributionCount: 1, sourceUrl: "https://pa.example/2026.zip" },
+      { committeeId: "LOCAL 5 PAC", committeeName: "Local 5 PAC", amount: 100, contributionCount: 1, sourceUrl: "https://pa.example/2026.zip" },
+    ]);
+    // Committee money stays inside the regular totals.
+    expect(result.summary.totalReceipts).toBe(4975);
   });
 
   it("matches filer IDs case-insensitively and counts distinct contributors", () => {

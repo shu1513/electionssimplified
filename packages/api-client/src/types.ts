@@ -335,7 +335,15 @@ export type FinancePacInterest = {
   interest_name: string;
   amount: number;
   pac_count: number;
-  pacs: { committee_id: string; committee_name: string; amount: number; source_url: string | null }[];
+  pacs: {
+    committee_id: string;
+    committee_name: string;
+    amount: number;
+    source_url: string | null;
+    /** Researched one-line description of the committee, as on outside groups. */
+    label?: string;
+    label_source_urls?: string[];
+  }[];
 };
 
 export type FinanceUnallocatedOutsideEdge = {

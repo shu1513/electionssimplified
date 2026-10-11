@@ -1,4 +1,4 @@
-import { stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { Pool, PoolClient } from "pg";
 
@@ -26,9 +26,17 @@ import {
 } from "./pennsylvaniaCandidateFinanceSync.js";
 import { PENNSYLVANIA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./pennsylvaniaFinanceEligibleOffices.js";
 import {
+  fetchPennsylvaniaIndependentExpenditures,
+  findPennsylvaniaIndependentExpenditureElectionOptionForYear,
+  parsePennsylvaniaIndependentExpenditurePageHtml,
+  pennsylvaniaIndependentExpenditurePageFilePath,
+  type PennsylvaniaIndependentExpenditurePage,
+} from "./pennsylvaniaIndependentExpenditureClient.js";
+import {
   resolvePennsylvaniaOutsideGroupsForContributionAggregation,
   type PennsylvaniaOutsideSpendingGroup,
 } from "./pennsylvaniaOutsideGroupContributionAggregator.js";
+import { aggregatePennsylvaniaOutsideSpending } from "./pennsylvaniaOutsideSpendingAggregator.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -68,6 +76,11 @@ export type PennsylvaniaCandidateFinanceBatchSyncInput = {
   autoLinkMissingLinks?: boolean;
   paDataByYear?: ReadonlyMap<number, PennsylvaniaCampaignFinanceDataForYear>;
   outsideGroupsByLinkId?: ReadonlyMap<string, readonly PennsylvaniaOutsideSpendingGroup[]>;
+  // Fetch each due election year's independent expenditures from the state's
+  // list page (default). When false, or when the fetch fails, the groups
+  // already stored for the link are kept as they are.
+  fetchOutsideSpending?: boolean;
+  fetchPennsylvaniaIndependentExpendituresFn?: typeof fetchPennsylvaniaIndependentExpenditures;
   financeIndustryClassifier?: FinanceIndustryClassifier;
   aiClassificationMinAmount?: number;
   syncPennsylvaniaCandidateFinanceFn?: typeof syncPennsylvaniaCandidateFinance;
@@ -94,6 +107,8 @@ export type PennsylvaniaCandidateFinanceBatchSyncResult = {
   selectedCandidateCount: number;
   syncedCandidateCount: number;
   failedCandidateCount: number;
+  outsideSpendingFetchedYears: number[];
+  outsideSpendingFetchErrors: Record<string, string>;
   results: PennsylvaniaCandidateFinanceBatchSyncItemResult[];
 };
 
@@ -377,6 +392,111 @@ async function loadAutoLinkFilerRowsForElectionYear(input: {
   };
 }
 
+function resolvePennsylvaniaRawDataCacheDir(rawDataCacheDir: string | undefined): string {
+  return (
+    rawDataCacheDir ??
+    (process.env.PENNSYLVANIA_CAMPAIGN_FINANCE_EXPORT_CACHE_DIR?.trim() ||
+      DEFAULT_PENNSYLVANIA_CAMPAIGN_FINANCE_EXPORT_CACHE_DIR)
+  );
+}
+
+// A saved copy of the list page under <cacheDir>/independent-expenditures/
+// <year>.html, or null when there is none.
+async function readSavedPennsylvaniaIndependentExpenditurePage(
+  filePath: string
+): Promise<PennsylvaniaIndependentExpenditurePage | null> {
+  let html: string;
+  try {
+    html = await readFile(filePath, "utf8");
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+  return parsePennsylvaniaIndependentExpenditurePageHtml({ html });
+}
+
+// Independent expenditures come from the state's list page, one bucket per
+// election year: a saved copy of the page when one exists, else a live fetch.
+// Every due row of a loaded year gets an entry (an empty list when nothing
+// names the candidate) so groups that disappeared upstream are removed; a
+// year that could not be loaded gets no entries at all.
+async function fetchOutsideSpendingGroupsByLinkId(input: {
+  dueRows: readonly PennsylvaniaCandidateFinanceDueRow[];
+  cacheDir: string;
+  fetchFn: typeof fetchPennsylvaniaIndependentExpenditures;
+}): Promise<{
+  groupsByLinkId: Map<string, PennsylvaniaOutsideSpendingGroup[]>;
+  fetchedYears: number[];
+  errorsByYear: Record<string, string>;
+}> {
+  const groupsByLinkId = new Map<string, PennsylvaniaOutsideSpendingGroup[]>();
+  const fetchedYears: number[] = [];
+  const errorsByYear: Record<string, string> = {};
+  const rowsByYear = groupDueRowsByYear(input.dueRows);
+
+  // The landing page is fetched at most once, and only when some year has no
+  // saved copy.
+  let landingPromise: Promise<PennsylvaniaIndependentExpenditurePage> | null = null;
+  const loadLanding = () => (landingPromise ??= input.fetchFn({}));
+
+  for (const [electionYear, rows] of [...rowsByYear.entries()].sort((left, right) => left[0] - right[0])) {
+    try {
+      let page: PennsylvaniaIndependentExpenditurePage;
+      const savedPath = pennsylvaniaIndependentExpenditurePageFilePath({ cacheDir: input.cacheDir, electionYear });
+      const saved = await readSavedPennsylvaniaIndependentExpenditurePage(savedPath);
+      if (saved) {
+        const selected = saved.electionOptions.find((option) => option.selected);
+        if (!selected || !selected.label.startsWith(`${electionYear} `)) {
+          throw new Error(
+            `Saved Pennsylvania independent expenditure page ${savedPath} has "${selected?.label ?? "no election"}" selected, not a ${electionYear} election`
+          );
+        }
+        page = saved;
+      } else {
+        const landing = await loadLanding();
+        const option = findPennsylvaniaIndependentExpenditureElectionOptionForYear(landing.electionOptions, electionYear);
+        if (!option) {
+          throw new Error(`Pennsylvania independent expenditure page lists no ${electionYear} election`);
+        }
+        page = option.selected ? landing : await input.fetchFn({ electionId: option.id });
+      }
+      // Expenditures name the candidate, not a committee, and the read side
+      // sums every link's totals, so a candidate with two linked committees
+      // gets the groups on one link (the lowest id) and none on the others.
+      const linkHoldingGroups = new Map<string, string>();
+      for (const row of [...rows].sort((left, right) => left.linkId.localeCompare(right.linkId))) {
+        const key = `${row.candidateId}\u0000${row.electionId}`;
+        if (!linkHoldingGroups.has(key)) {
+          linkHoldingGroups.set(key, row.linkId);
+        }
+      }
+      for (const row of rows) {
+        if (linkHoldingGroups.get(`${row.candidateId}\u0000${row.electionId}`) !== row.linkId) {
+          groupsByLinkId.set(row.linkId, []);
+          continue;
+        }
+        const aggregation = aggregatePennsylvaniaOutsideSpending({
+          candidateName: row.candidateName,
+          electionYear,
+          expenditureRows: page.rows,
+          sourceUrl: page.sourceUrl,
+          electionId: page.electionId,
+          // Every group is stored and the sync totals from this list, so the
+          // aggregator's display cap must not drop any.
+          maxGroups: Number.MAX_SAFE_INTEGER,
+        });
+        groupsByLinkId.set(row.linkId, aggregation.summary?.groups ?? []);
+      }
+      fetchedYears.push(electionYear);
+    } catch (error) {
+      errorsByYear[String(electionYear)] = error instanceof Error ? error.message : String(error);
+    }
+  }
+  return { groupsByLinkId, fetchedYears, errorsByYear };
+}
+
 export async function listDuePennsylvaniaCandidateFinanceSyncRows(
   db: Queryable,
   input: {
@@ -592,12 +712,29 @@ export async function syncDuePennsylvaniaCandidateFinance(
   const outsideGroupsByLinkId = new Map<string, readonly PennsylvaniaOutsideSpendingGroup[]>(
     input.outsideGroupsByLinkId ? [...input.outsideGroupsByLinkId.entries()] : []
   );
+  const outsideSpendingFetchedYears: number[] = [];
+  const outsideSpendingFetchErrors: Record<string, string> = {};
   if (!input.outsideGroupsByLinkId && due.rows.length > 0) {
     for (const [linkId, groups] of await listPennsylvaniaCandidateFinanceOutsideGroupsForLinks(
       input.db,
       due.rows.map((row) => row.linkId)
     )) {
       outsideGroupsByLinkId.set(linkId, groups);
+    }
+    if (input.fetchOutsideSpending !== false) {
+      const fetched = await fetchOutsideSpendingGroupsByLinkId({
+        dueRows: due.rows,
+        cacheDir: resolvePennsylvaniaRawDataCacheDir(input.rawDataCacheDir),
+        fetchFn: input.fetchPennsylvaniaIndependentExpendituresFn ?? fetchPennsylvaniaIndependentExpenditures,
+      });
+      for (const [linkId, groups] of fetched.groupsByLinkId) {
+        outsideGroupsByLinkId.set(linkId, groups);
+      }
+      outsideSpendingFetchedYears.push(...fetched.fetchedYears);
+      Object.assign(outsideSpendingFetchErrors, fetched.errorsByYear);
+      for (const [year, message] of Object.entries(fetched.errorsByYear)) {
+        console.warn(`Pennsylvania independent expenditures not fetched for ${year}; keeping stored outside groups:`, message);
+      }
     }
   }
   const paDataByYear = new Map<number, PennsylvaniaCampaignFinanceDataForYear>(
@@ -711,6 +848,8 @@ export async function syncDuePennsylvaniaCandidateFinance(
     selectedCandidateCount: due.rows.length,
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
+    outsideSpendingFetchedYears,
+    outsideSpendingFetchErrors,
     results,
   };
 }

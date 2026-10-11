@@ -163,6 +163,40 @@ describe("pennsylvaniaOutsideSpendingAggregator", () => {
     });
   });
 
+  it("matches the live target wording and the candidate's formal first name", () => {
+    const result = aggregatePennsylvaniaOutsideSpending({
+      candidateName: "Josh Shapiro",
+      electionYear: 2026,
+      expenditureRows: [
+        ieRow({
+          CandidateQuestion: "JOSH SHAPIRO FOR GOVERNOR OF PENNSYLVANIA",
+          Organization: "IBEW LOCAL 98 COMMITTEE ON POLITICAL EDUCATION",
+          Amount: 444.96,
+          IsSupported: "YES",
+          IsOpposed: "NO",
+        }),
+        ieRow({ CandidateQuestion: "JOSHUA SHAPIRO", Organization: "KEYSTONE FUND", Amount: 100, IsSupported: "NO", IsOpposed: "YES" }),
+        ieRow({ CandidateQuestion: "JOSH SHAPIRO", Organization: "KEYSTONE FUND", Amount: 50, IsSupported: "YES", IsOpposed: "NO" }),
+        // 2022 filings: a middle initial between the names, in either form.
+        ieRow({ CandidateQuestion: "Joshua D. Shapiro", Organization: "BlackPAC", Amount: 649661, IsSupported: "YES", IsOpposed: "NO" }),
+        ieRow({ CandidateQuestion: "JOSH D SHAPIRO", Organization: "BlackPAC", Amount: 581112, IsSupported: "YES", IsOpposed: "NO" }),
+        ieRow({ CandidateQuestion: "Josh Shapiro and Austin Davis", Organization: "PHILLY NEIGHBORHOOD NETWORKS", Amount: 22711, IsSupported: "YES", IsOpposed: "NO" }),
+        // Surname alone never matches.
+        ieRow({ CandidateQuestion: "Shapiro", Organization: "KEYSTONE FUND", Amount: 36000, IsSupported: "YES", IsOpposed: "NO" }),
+      ],
+    });
+
+    expect(result.matchedExpenditureRowCount).toBe(6);
+    expect(result.summary).toMatchObject({ supportTotal: 1253978.96, opposeTotal: 100 });
+    expect(result.summary?.groups.map((group) => [group.groupName, group.supportOppose, group.amount])).toEqual([
+      ["BlackPAC", "support", 1230773],
+      ["PHILLY NEIGHBORHOOD NETWORKS", "support", 22711],
+      ["IBEW LOCAL 98 COMMITTEE ON POLITICAL EDUCATION", "support", 444.96],
+      ["KEYSTONE FUND", "oppose", 100],
+      ["KEYSTONE FUND", "support", 50],
+    ]);
+  });
+
   it("returns no summary when no candidate targets match", () => {
     const result = aggregatePennsylvaniaOutsideSpending({
       candidateName: "Jane Doe",
