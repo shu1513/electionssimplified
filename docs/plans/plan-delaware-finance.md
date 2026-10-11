@@ -1,5 +1,78 @@
 # Delaware Campaign Finance Plan
 
+## October 11, 2026 finance-gap work
+
+This section supersedes historical outside-allocation, PDF-footer-version and
+election-day-window conclusions below. One Delaware PR will extend the existing
+adapter for verified committee donors and explicitly allocated third-party
+expenses. Implementation and normal local sync proof remain pending.
+
+Reference: Pennsylvania's saved-page-first batch acquisition, direct committee
+classification, migration322 and uncapped donor totals before display caps.
+Delaware's reported `Political Action Committee`/`PAC` contributor types supply
+primary class authority; retain verified registry identity/class separately.
+Name hints alone cannot promote business/group/labor-union donors. Unknown
+interests stay “Not yet sorted”; committee gifts do not increase Raised twice.
+
+Fresh research witnesses, pending replay through the normal sync:
+
+- Carlie Carey:57 native/CSV receipts, current cover $25,215.80, five reported
+  PAC checks of $600 ($3,000);19 outgoing native/CSV expenses=$3,870.82. Genuine
+  full source brackets and allfive legal donor registry identities agree.
+- Jennings: full applicable2023–2026 cycle,819 unique native receipts. One
+  exact repeatedID at a page boundary is transport overlap; distinct economic
+  occurrences remain. Primary30Day separately publishes $1,240 under-$100
+  ScheduleA aggregate absent from both itemized exports. Retain that real
+  control without invented gifts/counts. `Electronic Fund Transfer` is a current
+  cash label; `Refund/Rebate` must follow actual ScheduleA/cover semantics,
+  without assumed reimbursement or donor-return classification.
+- THE STATEHOUSE FUND: current financial ScheduleB explicitly assigns $499,015
+  to support Kathleen Jennings/AttorneyGeneral/Democratic. Full cover:
+  $525,000 receipts−$499,015 expenses=$25,985. Native category=`Other Expenses`,
+  not source-coded IEC. Exact receiving-committee affiliation bridges Friends
+  of Kathy Jennings; no generic nickname alias. SO alone never allocates.
+- Actual owner/calendar/filenameGUID/current-and-all-version inventory govern
+  report identity. Repeated footer `Document:14904 Version:1` is a template
+  label; current-view `2099 Annual` is a placeholder. Neither proves financial
+  scope/currentness. Native IDs/full fields and fresh source brackets are needed.
+- Receipts initialize at `/Public/ViewReceiptsMain`, then search POST to
+  `/Public/ViewReceipts`. Expenses need actual `CommitteeType`/`FilingYear`
+  selects and blank selects; old `*Data` containers alone returned empty while
+  the correct public search returned456 rows.
+
+Reuse existing restricted atomic acquisition/cache, parsers, sync and shared
+transactional writer hook. First preserve omitted outside amounts/groups on
+direct refresh. Positive components require full cash/refund/control/currentness
+and exact local ownership proof. Saved artifacts retain original times; closing
+sources must be freshly acquired. Missing/failed components retain stored money.
+No global outside zero,2026-only Jennings subset, Original-only workaround,
+economic dedupe or manually inserted canonical money. Migration331–333 remain
+reserved; add the next file only after verifying numbering. Ordinary fresh
+local CLI row counts, candidate amounts and reader output are required before PR.
+
+### Deadlines and mandatory fresh reruns
+
+[Official2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):
+General30Day throughOct4 dueOct6/2026 at11:59p.m.; General8Day throughOct26
+dueOct28 at11:59p.m.; annual throughDec31 dueJan20/2027. Fresh acquisition after
+the already-passed Oct6 deadline, againOct29, andJan21/2027. Third-party event
+filings have48h/24h windows: fresh daily checks through election and immediate
+post-election followup. Late filings remain open coverage; no automation created.
+
+[§8002(11)a/d](https://delcode.delaware.gov/title15/c080/sc01/index.html) ends
+the applicable candidate/third-party cycle onDec31; a4 is a contribution-limit
+split. Keep statutory `windowEnd` separate from `publishedThrough`.
+[§8030(g)](https://delcode.delaware.gov/title15/c080/sc04/index.html) permits
+eight-day expense detail deferral; timely reports cannot establish full absence.
+
+`--force` currently enables flags, not due refresh. Planned scoped refresh must
+select beforeLIMIT and support100-day post-election lookback soJan21 selects
+theNov3 race. Record exact implemented options here when available. Never fake
+time/last_synced_at. State flags and `AI_API_CALLS_ALLOWED=false` stay inline,
+never in `.env`. No production, providers, deployment or automatic reminders.
+
+## Historical initial adapter plan
+
 Written 2026-08-26 after a live curl probe of the Delaware CFRS portal (session flow, receipts/expense/committee/filed-report searches, CSV exports, two TP report PDFs) cross-validated against an independent 2026-08-03 feasibility report. Revised the same day after an external review round; every adopted correction below was re-verified against the live portal, the statutes, or the code before adoption (2026 candidate lists, § 8002(11)/§ 8004/§ 8032 text, shared writer/loader field shapes, CSV vs grid-JSON column sets, clean-URL ShowReview fetch, the `*_RAW_DATA_REFRESH_ENABLED` house flag pattern). Feasibility doc with raw endpoint details: `backend/docs/delaware-campaign-finance.md` (currently uncommitted — the Phase 0 PR commits it). Verdict: **GO for direct finance — Phase 0 first.** Occupation: **published from disclosed values only** with a coverage note; employer text stored but never published; no industry classification (see hard fact 1). Candidate-targeted outside totals: **no v1 phase exists** — registration-level stance is real but the expenditure→candidate edge is missing; outside fields publish as `null` with a coverage note, never `$0`.
 
 Scope: CFRS covers Delaware state and local filers. The Nov-2026 CFRS cohort is **state statewide races — Attorney General, State Treasurer, Auditor of Accounts (all three confirmed on the official 2026 general candidate list) — plus General Assembly (all House, ~half Senate) and county offices**, with municipal/school elections available later. Federal races (US House, US Senate) use the FEC path. The statewide races are the highest-value CFRS targets and must be in the Phase 2 cohort.
