@@ -338,4 +338,21 @@ describe("newMexicoCandidateFinanceAutoLink", () => {
     expect(predicate(contribution({ "Candidate Last Name": "Haaland", "Candidate First Name": "Deb" }))).toBe(true);
     expect(predicate(contribution({ "Candidate Last Name": "Other", "Candidate First Name": "Person" }))).toBe(false);
   });
+
+  it("admits formal-name rows for a VoteApp nickname in the pre-filter", () => {
+    // Live: Sam Kane's CFIS rows carry Candidate First Name "SAMUEL".
+    const predicate = buildNewMexicoCandidateNamePredicate([
+      {
+        candidateId: CANDIDATE_ID,
+        electionId: ELECTION_ID,
+        candidateName: "Sam Kane",
+        electionYear: 2026,
+        officeScope: "statewide",
+        officeName: "Attorney General",
+        district: null,
+      },
+    ]);
+
+    expect(predicate(contribution({ "Candidate Last Name": "KANE", "Candidate First Name": "SAMUEL" }))).toBe(true);
+  });
 });

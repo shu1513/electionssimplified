@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { NewMexicoCfisContributionRow } from "./newMexicoCfisArtifactReader.js";
 import { isNewMexicoFinanceEligibleOffice } from "./newMexicoFinanceEligibleOffices.js";
@@ -75,12 +76,35 @@ function normalizePersonName(value: string): string {
     .trim();
 }
 
-export function normalizeNewMexicoCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Sam Kane" → "SAMUEL KANE"): CFIS rows carry the formal name
+// while VoteApp stores the campaign name. Expand the VoteApp side only
+// (personFirstNameNicknames.ts explains why).
+export function normalizeNewMexicoCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const normalized = normalizePersonName(trimmed);
   const keys = new Set<string>();
   if (normalized) {
     keys.add(normalized);
+  }
+  const nicknameKeys = new Set<string>();
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  function withNicknameKeys(): Set<string> {
+    for (const key of nicknameKeys) {
+      keys.add(key);
+    }
+    return keys;
   }
 
   const commaParts = trimmed
@@ -95,18 +119,18 @@ export function normalizeNewMexicoCandidateNameKeys(value: string): Set<string> 
       keys.add(flipped);
       const flippedParts = flipped.split(" ").filter(Boolean);
       if (flippedParts.length >= 2) {
-        keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+        addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
       }
     }
-    return keys;
+    return withNicknameKeys();
   }
 
   const parts = normalized.split(" ").filter(Boolean);
   if (parts.length >= 2) {
-    keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+    addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
   }
 
-  return keys;
+  return withNicknameKeys();
 }
 
 function normalizeOfficeScope(value: string): "statewide" | "state_upper" | "state_lower" | null {
@@ -206,7 +230,13 @@ function candidateNameFromContributionRow(row: NewMexicoCfisContributionRow): st
 // which would hand "John A. Smith" the committee of "John B. Smith" whenever
 // the cycle and office agree. A contradicting middle name rejects the pair.
 export function newMexicoCandidateNameMiddleConflict(candidateName: string, rowName: string): boolean {
-  return hasMiddleNameConflict({ candidateName, rowNames: [rowName], normalizePersonName });
+  return hasMiddleNameConflict({
+    candidateName,
+    rowNames: [rowName],
+    normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
+  });
 }
 
 function rowMatchesCandidateName(input: {
@@ -249,7 +279,7 @@ export function resolveNewMexicoCandidateCommittee(
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeNewMexicoCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeNewMexicoCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeDistrict(input.district);
 
