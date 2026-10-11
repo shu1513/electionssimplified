@@ -27,7 +27,16 @@ describe("syncDueMichiganCandidateFinance script", () => {
     });
   });
 
-  it("defaults to AI industry classification enabled", () => {
+  it("parses supplemental raw cache and refresh options", () => {
+    expect(parseSyncDueMichiganCandidateFinanceScriptArgs([
+      "--raw-cache-dir", "/local/mitn", "--refresh-supplemental-data",
+    ])).toMatchObject({ rawDataCacheDir: "/local/mitn", refreshSupplementalData: true });
+    expect(() => parseSyncDueMichiganCandidateFinanceScriptArgs(["--raw-cache-dir"])).toThrow(
+      "Missing --raw-cache-dir value"
+    );
+  });
+
+  it("defaults to normal sync without supplemental force refresh", () => {
     expect(parseSyncDueMichiganCandidateFinanceScriptArgs([])).toMatchObject({
       dryRun: false,
       force: false,

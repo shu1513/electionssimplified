@@ -43,6 +43,8 @@ import type {
   MichiganMitnLegacyExpenditureRow,
 } from "./michiganMitnLegacyRowTypes.js";
 
+import type { MichiganMitnCommitteeSearchRow } from "./michiganMitnPublicSearchClient.js";
+
 type Queryable = Pick<Pool | PoolClient, "query">;
 
 const DEFAULT_AI_CLASSIFICATION_MIN_AMOUNT = 25_000;
@@ -64,6 +66,10 @@ export type MichiganCandidateFinanceSyncInput = {
   currentOffice?: string | null;
   contributionRows: readonly MichiganMitnLegacyContributionRow[];
   expenditureRows?: readonly MichiganMitnLegacyExpenditureRow[];
+  committeeRegistryRows?: readonly MichiganMitnCommitteeSearchRow[];
+  /** A unique registry Candidate match to the trusted link, checked by batch. */
+  outsideTargetCommitteeName?: string;
+  outsideTargetCommitteeNames?: readonly string[];
   /** Provenance for the written link; defaults to the MiTN public search. */
   linkSource?: MichiganFinanceLinkSource;
   sourceUrl?: string | null;
@@ -96,6 +102,7 @@ export type MichiganCandidateFinanceSyncResult = {
   summaryWritten: boolean;
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
+  pacDonorsWritten?: number;
   outsideGroupBreakdownsWritten: number;
   totalReceipts: number | null;
   directContributionTotal: number | null;
@@ -181,6 +188,7 @@ function toFinanceLink(input: {
 }
 
 function aggregateDirect(input: {
+  committeeRegistryRows?: readonly MichiganMitnCommitteeSearchRow[];
   committeeId: string;
   electionYear: number;
   contributionRows: readonly MichiganMitnLegacyContributionRow[];
@@ -188,6 +196,7 @@ function aggregateDirect(input: {
   maxBreakdownsPerCategory?: number;
 }): MichiganDirectContributionAggregationResult {
   return aggregateMichiganDirectContributions({
+    committeeRegistryRows: input.committeeRegistryRows,
     committeeId: input.committeeId,
     electionYear: input.electionYear,
     contributionRows: input.contributionRows,
@@ -197,6 +206,8 @@ function aggregateDirect(input: {
 }
 
 function aggregateOutside(input: {
+  targetCommitteeName?: string;
+  targetCommitteeNames?: readonly string[];
   candidateName: string;
   electionYear: number;
   officeScope: string;
@@ -207,6 +218,8 @@ function aggregateOutside(input: {
   maxGroups?: number;
 }): MichiganOutsideSpendingAggregationResult {
   return aggregateMichiganOutsideSpending({
+    targetCommitteeName: input.targetCommitteeName,
+    targetCommitteeNames: input.targetCommitteeNames,
     candidateName: input.candidateName,
     officeScope: input.officeScope,
     officeName: input.officeName,
@@ -524,6 +537,7 @@ export async function syncMichiganCandidateFinance(
   }
 
   const directFinance = aggregateDirect({
+    committeeRegistryRows: input.committeeRegistryRows,
     committeeId: resolution.committeeId,
     electionYear,
     contributionRows: input.contributionRows,
@@ -534,6 +548,8 @@ export async function syncMichiganCandidateFinance(
   const outsideDataAvailable = expenditureRows !== undefined;
   const outsideFinance = expenditureRows
     ? aggregateOutside({
+        targetCommitteeName: input.outsideTargetCommitteeName,
+        targetCommitteeNames: input.outsideTargetCommitteeNames,
         candidateName,
         electionYear,
         officeScope,
@@ -587,8 +603,10 @@ export async function syncMichiganCandidateFinance(
       syncedAt,
       summary,
       directBreakdowns: directFinance.directBreakdowns,
+      pacDonors: directFinance.pacDonors,
+      candidateElectionOutsideSnapshot: outsideDataAvailable && input.outsideTargetCommitteeNames !== undefined,
       outsideGroups,
-      outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
+      outsideGroupBreakdowns: outsideDataAvailable ? outsideIndustryFinance.outsideGroupBreakdowns ?? [] : undefined,
       classifications: outsideIndustryFinance.classifications,
     });
   }
@@ -603,6 +621,7 @@ export async function syncMichiganCandidateFinance(
     summaryWritten: !input.dryRun,
     directBreakdownsWritten: input.dryRun ? 0 : directFinance.directBreakdowns.length,
     outsideGroupsWritten: input.dryRun ? 0 : outsideGroups?.length ?? 0,
+    ...(directFinance.pacDonors !== undefined ? { pacDonorsWritten: input.dryRun ? 0 : directFinance.pacDonors.length } : {}),
     outsideGroupBreakdownsWritten: input.dryRun ? 0 : outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0,
     totalReceipts: directFinance.summary.totalReceipts,
     directContributionTotal: directFinance.summary.directContributionTotal,

@@ -6965,6 +6965,7 @@ describe("lookupElectionDetailById", () => {
     vi.stubEnv("MICHIGAN_CAMPAIGN_FINANCE_ENABLED", "true");
     const genericMichiganSourceUrl =
       "https://www.michigan.gov/sos/elections/disclosure/cfr/committee-search/intro/welcome-to-the-michigan-campaign-finance-searchable-database";
+    const pacSourceUrl = "https://mi-boe.entellitrak.com/etk-mi-boe-prod/page.request.do?page=page.miboeContributionPublicSearch";
     const query = vi
       .fn()
       // Terminal default: the trailing current_race_ratings lookup (empty = no
@@ -7117,6 +7118,26 @@ describe("lookupElectionDetailById", () => {
           },
         ],
       })
+      .mockResolvedValueOnce({ rows: [
+        {
+          candidate_id: candidateId, election_id: officeElectionId,
+          committee_id: "508347", committee_name: "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE",
+          committee_type: "Independent", amount: "12250.00", source_url: pacSourceUrl,
+          industry_slug: "labor_unions", classification_source: "manual", confidence: "high",
+        },
+        {
+          candidate_id: candidateId, election_id: officeElectionId,
+          committee_id: "unknown-pac", committee_name: "Great Lakes Neighbors PAC",
+          committee_type: "Political", amount: "750.00", source_url: null,
+          industry_slug: null, classification_source: null, confidence: null,
+        },
+        {
+          candidate_id: candidateId, election_id: officeElectionId,
+          committee_id: "candidate-committee", committee_name: "Other Candidate for Governor",
+          committee_type: "Candidate", amount: "9000.00", source_url: null,
+          industry_slug: "labor_unions", classification_source: "manual", confidence: "high",
+        },
+      ] })
       .mockResolvedValueOnce({ rows: [] });
 
     // Trailing committee-labels lookup (applyFinanceCommitteeLabels):
@@ -7136,6 +7157,18 @@ describe("lookupElectionDetailById", () => {
         total_spent: 90000,
         cash_on_hand: 110000,
         debts_owed: null,
+        direct_coverage_note:
+          "PAC donors include unique Michigan registry committee matches; unregistered or ambiguous organizations are omitted.",
+        pac_money_by_interest: [
+          {
+            interest: "labor_unions", interest_name: "Labor unions", amount: 12250, pac_count: 1,
+            pacs: [{ committee_id: "508347", committee_name: "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE", amount: 12250, source_url: pacSourceUrl }],
+          },
+          {
+            interest: "unclassified", interest_name: "Not yet sorted", amount: 750, pac_count: 1,
+            pacs: [{ committee_id: "unknown-pac", committee_name: "Great Lakes Neighbors PAC", amount: 750, source_url: genericMichiganSourceUrl }],
+          },
+        ],
         top_occupations: [
           {
             category_name: "ATTORNEY",
@@ -7158,6 +7191,8 @@ describe("lookupElectionDetailById", () => {
       outside_spending: {
         support_total: 80000,
         oppose_total: 12500,
+        outside_coverage_note:
+          "Only itemized independent expenditures with a unique candidate committee and matching office are included. Unidentified or multi-candidate expenses are omitted.",
         top_supporting_groups: [
           {
             committee_id: "520012",
@@ -7225,7 +7260,14 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(15);
+    expect(query).toHaveBeenCalledTimes(16);
+    const pacSql = String(query.mock.calls[12]?.[0]);
+    expect(pacSql).toContain("public.mi_candidate_finance_pac_donors");
+    expect(pacSql).toContain("sum(donor.amount) AS amount");
+    expect(pacSql).toContain("link.link_status = 'active'");
+    expect(pacSql).toContain("donor.election_year = link.election_year");
+    expect(pacSql).toContain("GROUP BY selected.candidate_id, selected.election_id, donor.committee_id");
+    expect(query.mock.calls[12]?.[1]).toEqual([JSON.stringify([{ candidate_id: candidateId, election_id: officeElectionId }])]);
     expect(query.mock.calls[7]?.[0]).toContain("public.mi_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.mi_candidate_finance_direct_breakdowns");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type IN ('occupation', 'contribution_size')");
