@@ -83,7 +83,7 @@ function TeamGrid() {
                 className="h-24 w-24 shrink-0 rounded-full object-cover"
               />
               <span className="min-w-0">
-                <span className="block font-semibold transition-colors group-hover:text-rausch group-hover:underline">
+                <span className="block font-semibold text-navy transition-colors group-hover:text-rausch group-hover:underline">
                   {m.name}
                 </span>
                 {m.role ? <span className="block text-sm text-ink-soft">{m.role}</span> : null}
