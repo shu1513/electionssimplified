@@ -227,6 +227,96 @@ export async function assertFloridaCommitteeDonorLocalOwnership(input: {
   assertContext(input.prepared, input.link);
 }
 
+function object(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) fail("invalid prior source object");
+  return value as Record<string, unknown>;
+}
+function sourceDay(value: unknown): string {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+    !Number.isFinite(Date.parse(value + "T00:00:00Z")) ||
+    new Date(value + "T00:00:00Z").toISOString().slice(0, 10) !== value)
+    fail("invalid prior report date");
+  return value;
+}
+function sourceBoundary(value: unknown, prepared: PreparedFloridaCommitteeDonorFinance): {
+  periods: Set<string>; closingStart: number; closingEnd: number;
+} {
+  const p = object(value), current = prepared.finance.provenance;
+  if (p.version !== 1 || p.authority !== "current_processed" ||
+    canonical(p.context) !== canonical(current.context) ||
+    p.windowStart !== current.windowStart || p.windowEnd !== current.windowEnd ||
+    sourceDay(p.windowStart) > sourceDay(p.windowEnd) ||
+    typeof p.financialFingerprint !== "string" || !HASH.test(p.financialFingerprint) ||
+    !Array.isArray(p.reports) || !p.reports.length ||
+    !Array.isArray(p.sourceMetadata) || !Array.isArray(p.sourceHashes) ||
+    p.sourceMetadata.length !== p.sourceHashes.length)
+    fail("invalid prior processed source scope");
+  const periods = new Set<string>(), sequences = new Set<number>();
+  for (const raw of p.reports) {
+    const r = object(raw);
+    if (r.account !== current.context.sourceAccount || r.electionYear !== current.context.electionYear ||
+      r.candidateName !== current.context.candidateName ||
+      !Number.isSafeInteger(r.sequence) || (r.sequence as number) < 1 || sequences.has(r.sequence as number) ||
+      !Number.isInteger(r.reportYear) || typeof r.reportType !== "string" || !/^[A-Z0-9]+$/.test(r.reportType) ||
+      sourceDay(r.periodStart) > sourceDay(r.periodEnd) ||
+      r.fileStatus !== "Filed Report" || r.reviewStatus !== "Reviewed" || r.queued !== 0 ||
+      typeof r.amended !== "boolean" || typeof r.waiver !== "boolean" ||
+      !Number.isSafeInteger(r.contributionCount) || (r.contributionCount as number) < 0 ||
+      !(r.completeness === "Complete Detail Records" ||
+        (r.waiver && r.completeness === "No Detail Records Found" && r.contributionCount === 0)) ||
+      ![r.monetaryCents, r.loanCents, r.inKindCents].every(Number.isSafeInteger) ||
+      typeof r.financialFingerprint !== "string" || !HASH.test(r.financialFingerprint) ||
+      !r.fullMetadata || typeof r.fullMetadata !== "object" || Array.isArray(r.fullMetadata) ||
+      (r.nativeSequence !== null && (!Number.isSafeInteger(r.nativeSequence) || (r.nativeSequence as number) < 1)))
+      fail("invalid prior current report coverage");
+    for (const field of ["dueDate", "filedAt", "reviewedAt"]) sourceDay(r[field]);
+    const key = JSON.stringify([r.reportYear, r.reportType, r.periodStart, r.periodEnd]);
+    if (periods.has(key)) fail("ambiguous prior report period");
+    periods.add(key); sequences.add(r.sequence as number);
+  }
+  const before: number[] = [], starts: number[] = [], ends: number[] = [];
+  for (const [i, raw] of p.sourceMetadata.entries()) {
+    const m = object(raw);
+    if (typeof m.url !== "string" || typeof m.sha256 !== "string" || !HASH.test(m.sha256) ||
+      p.sourceHashes[i] !== m.sha256 || m.status !== 200 ||
+      !Number.isSafeInteger(m.byteCount) || (m.byteCount as number) < 1 ||
+      !["GET", "POST"].includes(m.method as string) || typeof m.contentType !== "string" ||
+      (m.method === "GET" ? m.financeFields !== null : !m.financeFields) ||
+      typeof m.startedAt !== "string" || typeof m.completedAt !== "string")
+      fail("invalid prior source metadata");
+    const url = new URL(m.url);
+    if (url.protocol !== "https:" || url.username || url.password || url.port || url.hash ||
+      !["dos.elections.myflorida.com", "efs.dos.state.fl.us"].includes(url.hostname))
+      fail("invalid prior source URL");
+    if (m.financeFields && Object.entries(object(m.financeFields)).some(([key, v]) =>
+      /token|password|secret|cookie|authorization|viewstate|validation/i.test(key) || typeof v !== "string"))
+      fail("invalid prior source request fields");
+    const start = Date.parse(m.startedAt), end = Date.parse(m.completedAt);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) fail("invalid prior source capture interval");
+    if (m.phase === "before") before.push(end);
+    else if (m.phase === "after") { starts.push(start); ends.push(end); }
+    else fail("invalid prior source capture phase");
+  }
+  if (before.length < 4 || starts.length < 4 || Math.max(...before) > Math.min(...starts))
+    fail("invalid prior full source bracket");
+  return { periods, closingStart: Math.min(...starts), closingEnd: Math.max(...ends) };
+}
+function replacementRetainsPriorSource(
+  row: unknown, prepared: PreparedFloridaCommitteeDonorFinance, electionYear: number
+): boolean {
+  try {
+    const stored = object(row), p = object(stored.provenance);
+    if (stored.source_account !== prepared.source.proof.context.sourceAccount ||
+      stored.election_year !== electionYear || electionYear !== prepared.source.proof.context.electionYear ||
+      canonical(p.localContext) !== canonical(prepared.source.localContext) ||
+      !Array.isArray(p.accountCatalogHashes) || p.accountCatalogHashes.length < 2 ||
+      !p.accountCatalogHashes.every(h => typeof h === "string" && HASH.test(h))) return false;
+    const prior = sourceBoundary(p, prepared), incoming = sourceBoundary(prepared.finance.provenance, prepared);
+    return incoming.closingStart >= prior.closingEnd &&
+      [...prior.periods].every(period => incoming.periods.has(period));
+  } catch { return false; }
+}
+
 /** Called only inside the existing snapshot transaction, after ownership recheck. */
 export async function writeFloridaCommitteeDonorFinance(input: {
   db: Queryable;
@@ -235,9 +325,23 @@ export async function writeFloridaCommitteeDonorFinance(input: {
   syncedAt: Date;
   prepared: PreparedFloridaCommitteeDonorFinance;
 }): Promise<number> {
-  const { finance, source } = input.prepared;
+  const db = input.db;
+  const retained = structuredClone({ linkId: input.linkId, electionYear: input.electionYear,
+    syncedAt: input.syncedAt, prepared: input.prepared });
+  const { finance, source } = retained.prepared;
+  const prior = await db.query(
+    `SELECT source_account, election_year, provenance
+     FROM public.fl_candidate_finance_pac_sources
+     WHERE link_id = $1::uuid AND election_year = $2
+     FOR UPDATE`,
+    [retained.linkId, retained.electionYear],
+  );
+  // Unknown, missing-period or older source authority is a PAC-only no-op.
+  // Independent direct data can commit; a DB failure above still rolls back.
+  if (prior.rows.length > 1 || (prior.rows.length === 1 &&
+    !replacementRetainsPriorSource(prior.rows[0], retained.prepared, retained.electionYear))) return 0;
   for (const donor of finance.donors) {
-    await input.db.query(
+    await db.query(
       `
       INSERT INTO public.fl_candidate_finance_pac_donors (
         link_id, election_year, committee_id, committee_name, committee_type,
@@ -250,8 +354,8 @@ export async function writeFloridaCommitteeDonorFinance(input: {
         source_url = EXCLUDED.source_url, last_synced_at = EXCLUDED.last_synced_at
     `,
       [
-        input.linkId,
-        input.electionYear,
+        retained.linkId,
+        retained.electionYear,
         donor.committeeId,
         donor.committeeName,
         donor.committeeType,
@@ -261,7 +365,7 @@ export async function writeFloridaCommitteeDonorFinance(input: {
         donor.contributionCount,
         donor.refundCount,
         donor.sourceUrl,
-        input.syncedAt.toISOString(),
+        retained.syncedAt.toISOString(),
       ],
     );
   }
@@ -270,7 +374,7 @@ export async function writeFloridaCommitteeDonorFinance(input: {
     localContext: source.localContext,
     accountCatalogHashes: source.accountCatalogHashes,
   };
-  await input.db.query(
+  await db.query(
     `
     INSERT INTO public.fl_candidate_finance_pac_sources (
       link_id, election_year, source_account, net_amount, unclassified_cash_amount,
@@ -283,24 +387,24 @@ export async function writeFloridaCommitteeDonorFinance(input: {
       provenance = EXCLUDED.provenance, last_synced_at = EXCLUDED.last_synced_at
   `,
     [
-      input.linkId,
-      input.electionYear,
+      retained.linkId,
+      retained.electionYear,
       source.proof.context.sourceAccount,
       finance.netCommitteeAmount,
       finance.unclassifiedPositiveCashAmount,
       finance.unclassifiedPositiveCashCount,
       JSON.stringify(provenance),
-      input.syncedAt.toISOString(),
+      retained.syncedAt.toISOString(),
     ],
   );
-  await input.db.query(
+  await db.query(
     `
     DELETE FROM public.fl_candidate_finance_pac_donors
     WHERE link_id = $1::uuid AND election_year = $2 AND committee_id <> ALL($3::text[])
   `,
     [
-      input.linkId,
-      input.electionYear,
+      retained.linkId,
+      retained.electionYear,
       finance.donors.map((d) => d.committeeId),
     ],
   );

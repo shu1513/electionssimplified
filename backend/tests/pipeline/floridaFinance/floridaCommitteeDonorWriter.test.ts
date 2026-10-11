@@ -6,6 +6,7 @@ import {
 } from "../../../src/pipeline/floridaFinance/floridaFinanceWriter.js";
 import {
   prepareFloridaCommitteeDonorFinance,
+  writeFloridaCommitteeDonorFinance,
   type FloridaCommitteeDonorFinanceInput,
 } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorWriter.js";
 import { buildFloridaVerifiedCommitteeDonors } from "../../../src/pipeline/floridaFinance/floridaVerifiedCommitteeDonorSource.js";
@@ -204,7 +205,7 @@ async function pacFinance(
     finance,
   };
 }
-function db(localChange: Record<string, unknown> = {}, failSql?: string) {
+function db(localChange: Record<string, unknown> = {}, failSql?: string, priorSources: unknown[] = []) {
   const local = {
     candidate_id: candidateId,
     candidate_election_id: candidateElectionId,
@@ -227,6 +228,8 @@ function db(localChange: Record<string, unknown> = {}, failSql?: string) {
   const query = vi.fn(async (sql: string, _params?: unknown[]) => {
     if (failSql && sql.includes(failSql))
       throw new Error("fixture write failed");
+    if (sql.includes("SELECT source_account, election_year, provenance"))
+      return { rows: priorSources, rowCount: priorSources.length };
     if (sql.includes("candidate_election.status AS candidate_status"))
       return { rows: [local], rowCount: 1 };
     return { rows: [{ id: linkId }], rowCount: 1 };
@@ -557,5 +560,125 @@ describe("Florida atomic verified committee donor writer", () => {
         link: link(),
       }),
     ).resolves.toMatchObject({ finance: { netCommitteeAmount: 1500 } });
+  });
+});
+
+function storedSource(finance: FloridaCommitteeDonorFinanceInput) {
+  const provenance = structuredClone({ ...finance.finance.provenance,
+    localContext: finance.source.localContext, accountCatalogHashes: finance.source.accountCatalogHashes });
+  provenance.sourceMetadata = provenance.sourceMetadata.map((m,i) => ({ ...m,
+    startedAt:new Date(Date.UTC(2026,9,11,19,0,i)).toISOString(),
+    completedAt:new Date(Date.UTC(2026,9,11,19,0,i,100)).toISOString() }));
+  return { source_account:"88773", election_year:2026, provenance };
+}
+const pacMutations = (mock: ReturnType<typeof db>) => statements(mock).filter(sql =>
+  /^\s*(?:INSERT|UPDATE|DELETE)\b/.test(sql) && /fl_candidate_finance_pac_(?:donors|sources)/.test(sql));
+
+describe("locked prior accepted PAC source replacement", () => {
+  it("locks prior provenance before any PAC mutation and accepts a genuinely newer complete source", async () => {
+    const finance=await pacFinance(),prior=storedSource(finance),mock=db({},undefined,[prior]);
+    await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:5000},pacFinance:finance});
+    const sql=statements(mock), index=sql.findIndex(s=>s.includes("SELECT source_account, election_year, provenance"));
+    expect(sql[index]).toContain("FOR UPDATE");
+    expect(call(mock,"SELECT source_account")[1]).toEqual([linkId,2026]);
+    expect(index).toBeLessThan(sql.findIndex(s=>s.includes("INSERT INTO public.fl_candidate_finance_pac_donors")));
+    expect(sql.at(-1)).toBe("COMMIT");
+    expect(pacMutations(mock)).toHaveLength(3);
+  });
+  it("preserves older genuine closing source even with a newer supplied write time while direct commits", async () => {
+    const finance=await pacFinance(),prior=storedSource(finance);
+    prior.provenance.sourceMetadata=prior.provenance.sourceMetadata.map(m=>({...m,
+      startedAt:m.startedAt.replace("2026-10-11","2026-10-12"),completedAt:m.completedAt.replace("2026-10-11","2026-10-12")}));
+    const mock=db({},undefined,[prior]);
+    const result=await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:9999},
+      syncedAt:new Date("2030-01-01T00:00:00Z"),pacFinance:finance});
+    expect(result).toMatchObject({summaryWritten:true,pacDonorsWritten:0});
+    expect(pacMutations(mock)).toEqual([]);
+    expect(call(mock,"INSERT INTO public.fl_candidate_finance_summaries")[1]?.[2]).toBe(9999);
+    expect(statements(mock).at(-1)).toBe("COMMIT");
+  });
+  it("preserves an omitted prior period even when current amounts and closing source are valid", async () => {
+    const finance=await pacFinance(),prior=storedSource(finance);
+    prior.provenance.reports=[...prior.provenance.reports,{...prior.provenance.reports[0]!,
+      sequence:7,nativeSequence:7,reportType:"Q2",periodStart:"2026-04-01",periodEnd:"2026-06-30"}];
+    const mock=db({},undefined,[prior]);
+    expect((await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:5000},pacFinance:finance}))
+      .pacDonorsWritten).toBe(0);
+    expect(pacMutations(mock)).toEqual([]);
+    expect(statements(mock).at(-1)).toBe("COMMIT");
+  });
+  it("accepts independently verified same-period amendment despite changed sequence and fingerprint", async () => {
+    const finance=await pacFinance(),prior=storedSource(finance);
+    prior.provenance.reports=prior.provenance.reports.map(r=>({...r,sequence:5,nativeSequence:5,amended:false,
+      financialFingerprint:"b".repeat(64)}));
+    const mock=db({},undefined,[prior]);
+    expect((await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),pacFinance:finance})).pacDonorsWritten).toBe(1);
+    expect(pacMutations(mock)).toHaveLength(3);
+  });
+  it("accepts a current same-period independently verified waiver clear", async () => {
+    const priorFinance=await pacFinance(),prior=storedSource(priorFinance),finance=await pacFinance([]);
+    for(const reports of [finance.source.proof.reports,finance.finance.provenance.reports]){
+      reports[0]!.waiver=true;reports[0]!.completeness="No Detail Records Found";
+      reports[0]!.nativeSequence=null;
+    }
+    const mock=db({},undefined,[prior]);
+    await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),pacFinance:finance});
+    expect(pacMutations(mock)).toHaveLength(2);
+    expect(call(mock,"DELETE FROM public.fl_candidate_finance_pac_donors")[1]).toEqual([linkId,2026,[]]);
+  });
+  it("does not let a verified empty component clear an absent prior period", async () => {
+    const prior=storedSource(await pacFinance()),finance=await pacFinance([]);
+    for(const reports of [finance.source.proof.reports,finance.finance.provenance.reports]){
+      reports[0]!.reportType="Q2";reports[0]!.periodStart="2026-04-01";reports[0]!.periodEnd="2026-06-30";
+    }
+    const mock=db({},undefined,[prior]);
+    await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:1},pacFinance:finance});
+    expect(pacMutations(mock)).toEqual([]);
+    expect(statements(mock).at(-1)).toBe("COMMIT");
+  });
+  it.each([
+    (p:ReturnType<typeof storedSource>)=>{p.source_account="123";},
+    (p:ReturnType<typeof storedSource>)=>{p.election_year=2025;},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.version=2 as never;},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.authority="legacy" as never;},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.localContext.district="10";},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.context.sourceAccount="123";},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.windowStart="2026-01-01";},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.reports=[];},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.reports=[...p.provenance.reports,p.provenance.reports[0]!];},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.sourceMetadata=p.provenance.sourceMetadata.filter(m=>m.phase!=="after");},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.sourceMetadata[4]!.startedAt="not-a-source-time";},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.sourceMetadata[4]!.status=500;},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.sourceMetadata[4]!.url="https://example.com/";},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.sourceMetadata[4]!.sha256="b".repeat(64);},
+    (p:ReturnType<typeof storedSource>)=>{p.provenance.reports[0]!.reviewStatus="Pending";},
+  ])("preserves malformed/incompatible stored authority independently of direct %#",async change=>{
+    const finance=await pacFinance(),prior=storedSource(finance);change(prior);
+    const mock=db({},undefined,[prior]);
+    await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:5000},pacFinance:finance});
+    expect(pacMutations(mock)).toEqual([]);
+    expect(statements(mock).at(-1)).toBe("COMMIT");
+  });
+  it("throws on locked source-read failure so the existing transaction rolls back",async()=>{
+    const mock=db({},"SELECT source_account");
+    await expect(replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:5000},
+      pacFinance:await pacFinance()})).rejects.toThrow("fixture write failed");
+    expect(pacMutations(mock)).toEqual([]);
+    expect(statements(mock).at(-1)).toBe("ROLLBACK");
+  });
+  it("retains the incoming generation before the newly awaited prior-source read",async()=>{
+    const finance=await pacFinance(),prepared=await prepareFloridaCommitteeDonorFinance({pacFinance:finance,link:link()}),
+      prior=storedSource(finance);
+    const input={db:{query:vi.fn(async()=>({rows:[prior],rowCount:1}))},linkId,electionYear:2026,syncedAt:new Date(syncedAt),prepared};
+    input.db.query.mockImplementationOnce(async()=>{
+      input.linkId=candidateId;input.electionYear=2025;input.syncedAt.setUTCFullYear(2030);
+      prepared.finance.donors[0]!.amount=999999;prepared.finance.provenance.reports=[];
+      return {rows:[prior],rowCount:1};
+    });
+    await writeFloridaCommitteeDonorFinance(input);
+    const mutation=input.db.query.mock.calls.find(c=>String(c[0]).includes("INSERT INTO public.fl_candidate_finance_pac_donors"));
+    expect(mutation?.[1]?.slice(0,2)).toEqual([linkId,2026]);
+    expect(mutation?.[1]?.[5]).toBe(1500);
+    expect(mutation?.[1]?.at(-1)).toBe(syncedAt.toISOString());
   });
 });
