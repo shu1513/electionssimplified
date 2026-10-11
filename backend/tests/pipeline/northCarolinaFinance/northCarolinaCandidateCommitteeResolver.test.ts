@@ -46,6 +46,41 @@ const BASE_INPUT = {
 };
 
 describe("resolveNorthCarolinaCandidateCommittee", () => {
+  it("matches the formal CandName through a VoteApp nickname, literal first", () => {
+    // Live: VoteApp "Tim Longest", NCSBE CandName "TIMOTHY WORTH LONGEST JR".
+    const timothy = searchRow({
+      orgName: "TIM LONGEST FOR NORTH CAROLINA (LONGEST, TIMOTHY WORTH, JR.)",
+      sboeId: "STA-P80279-C-001",
+      candName: "TIMOTHY WORTH LONGEST JR",
+      orgGroupId: 49685,
+    });
+    expect(
+      resolveNorthCarolinaCandidateCommittee({ ...BASE_INPUT, candidateName: "Tim Longest", searchRows: [timothy] })
+    ).toMatchObject({ status: "matched", committeeId: "STA-P80279-C-001" });
+    // A literal "Tim" committee wins over the nickname one instead of
+    // turning ambiguous.
+    const tim = searchRow({ sboeId: "STA-AAAAAA-C-001", candName: "TIM LONGEST", orgGroupId: 1 });
+    expect(
+      resolveNorthCarolinaCandidateCommittee({
+        ...BASE_INPUT,
+        candidateName: "Tim Longest",
+        searchRows: [timothy, tim],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "STA-AAAAAA-C-001" });
+    expect([...normalizeNorthCarolinaCandidateNameKeys("Tim Longest")]).not.toContain("TIMOTHY LONGEST");
+  });
+
+  it("reads a comma before a bare suffix as part of a first-last name", () => {
+    // Live: VoteApp "Kenneth W. Bentley, Jr.", CandName "KENNETH WALTER BENTLEY JR".
+    expect(
+      resolveNorthCarolinaCandidateCommittee({
+        ...BASE_INPUT,
+        candidateName: "Kenneth W. Bentley, Jr.",
+        searchRows: [searchRow({ candName: "KENNETH WALTER BENTLEY JR" })],
+      })
+    ).toMatchObject({ status: "matched" });
+  });
+
   it("resolves Gadson from the real committee-search fixture", () => {
     const resolution = resolveNorthCarolinaCandidateCommittee({
       ...BASE_INPUT,

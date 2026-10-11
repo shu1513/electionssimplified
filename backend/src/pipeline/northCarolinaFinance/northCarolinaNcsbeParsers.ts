@@ -203,8 +203,31 @@ export type NcsbeCommitteeSearchRow = {
   orgGroupId: number;
 };
 
+// The search and document-list pages embed their rows one of two ways: the
+// original `var data = [...]`, or (portal redesign seen live 2026-10-10) a
+// Kendo grid config whose inline data source is `"data":{"Data":[...],
+// "Total":n}` with every row inline (no server paging). Same row schema in
+// both; the old marker is tried first so cached artifacts still parse. The
+// redesigned page drops the grid entirely when nothing matches and shows a
+// `divNoResults` block ("No committees found.") instead — that is an empty
+// result, not a broken page.
+const NCSBE_LEGACY_GRID_DATA_MARKER = "var data = ";
+const NCSBE_KENDO_GRID_DATA_MARKER = '"data":{"Data":';
+const NCSBE_NO_RESULTS_MARKER = 'id="divNoResults"';
+
+function extractNcsbeGridRowsJson(html: string, label: string): string {
+  if (html.includes(NCSBE_LEGACY_GRID_DATA_MARKER)) {
+    return extractNcsbeEmbeddedJson({ html, marker: NCSBE_LEGACY_GRID_DATA_MARKER, open: "[", label }).raw;
+  }
+  if (!html.includes(NCSBE_KENDO_GRID_DATA_MARKER) && html.includes(NCSBE_NO_RESULTS_MARKER)) {
+    return "[]";
+  }
+  const marker = NCSBE_KENDO_GRID_DATA_MARKER;
+  return extractNcsbeEmbeddedJson({ html, marker, open: "[", label }).raw;
+}
+
 export function parseNcsbeCommitteeSearchPage(html: string): NcsbeCommitteeSearchRow[] {
-  const { raw } = extractNcsbeEmbeddedJson({ html, marker: "var data = ", open: "[", label: "committee search" });
+  const raw = extractNcsbeGridRowsJson(html, "committee search");
   const parsed = parseJsonStrict(raw, "committee search");
   if (!Array.isArray(parsed)) {
     throw new Error("NCSBE committee search: embedded data is not an array");
@@ -283,7 +306,7 @@ export type NcsbeDocumentRow = {
 };
 
 export function parseNcsbeDocumentListPage(html: string): NcsbeDocumentRow[] {
-  const { raw } = extractNcsbeEmbeddedJson({ html, marker: "var data = ", open: "[", label: "document list" });
+  const raw = extractNcsbeGridRowsJson(html, "document list");
   const parsed = parseJsonStrict(raw, "document list");
   if (!Array.isArray(parsed)) {
     throw new Error("NCSBE document list: embedded data is not an array");

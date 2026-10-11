@@ -199,11 +199,30 @@ function groupDueRowsByYear(
   return byYear;
 }
 
-// The cached-search query convention: the candidate's display name, trimmed,
-// exactly as the acquisition passes it to the portal search. One function so
-// the cache writer and this reader can never disagree on the key.
+// The cached-search query convention: the candidate's SURNAME, exactly as the
+// acquisition passes it to the portal search. One function so the cache
+// writer and this reader can never disagree on the key. The portal matches
+// the query as a substring of the committee/candidate names, so the full
+// display name missed most filers (live 2026-10-10: "Veleria M. Levy" found
+// nothing against CandName "VELERIA M LEVY"; "Tom McInnis" nothing against
+// "THOMAS MOSES MCINNIS"). The resolver narrows the surname rows by name.
+const NORTH_CAROLINA_SEARCH_SUFFIX_TOKENS = new Set(["JR", "SR", "II", "III", "IV", "V"]);
+
 export function northCarolinaCommitteeSearchQueryForCandidateName(candidateName: string): string {
-  const query = candidateName.trim();
+  const isSuffix = (token: string) => NORTH_CAROLINA_SEARCH_SUFFIX_TOKENS.has(token.replace(/\./g, "").toUpperCase());
+  const segments = candidateName
+    .replace(/\([^()]*\)/g, " ")
+    .split(",")
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  // "Last, First" names the surname first; a comma before a bare suffix
+  // ("Danny Earl Britt, Jr.") does not.
+  const commaForm = segments.length >= 2 && !segments.slice(1).every(isSuffix);
+  const tokens = (segments[0] ?? "").split(/\s+/).filter(Boolean);
+  while (tokens.length > 1 && isSuffix(tokens[tokens.length - 1]!)) {
+    tokens.pop();
+  }
+  const query = commaForm ? (segments[0] ?? "") : (tokens[tokens.length - 1] ?? "").replace(/[.,]+$/, "");
   if (query.length === 0) {
     throw new Error("North Carolina committee search needs a non-empty candidate name");
   }

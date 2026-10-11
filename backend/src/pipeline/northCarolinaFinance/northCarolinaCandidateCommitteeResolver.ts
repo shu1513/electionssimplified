@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { isNorthCarolinaFinanceEligibleOffice } from "./northCarolinaFinanceEligibleOffices.js";
 import {
   isNcsbeLegalExpenseFundSboeId,
@@ -102,15 +103,33 @@ function normalizePersonName(value: string | null | undefined): string {
   return normalizeTextKey(value).replace(NAME_SUFFIX_PATTERN, " ").replace(/\s+/g, " ").trim();
 }
 
-export function normalizeNorthCarolinaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Tim Longest" -> "TIMOTHY LONGEST"): NCSBE CandName carries the
+// formal name while VoteApp stores the campaign name. Expand the VoteApp side
+// only (personFirstNameNicknames.ts explains why).
+export function normalizeNorthCarolinaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
   const trimmedWithoutParentheticals = trimmed.replace(/\([^()]+\)/g, " ");
   const baseParts = normalizePersonName(trimmedWithoutParentheticals).split(" ").filter(Boolean);
   const lastBaseToken = baseParts.length >= 2 ? baseParts[baseParts.length - 1] : null;
 
   function addName(raw: string): void {
-    const hasComma = raw.includes(",");
+    // A comma before a bare suffix ("Kenneth W. Bentley, Jr.") is not a
+    // "Last, First" boundary; only count commas that split two name parts.
+    const hasComma = raw.split(",").filter((part) => normalizePersonName(part)).length >= 2;
     const normalized = normalizePersonName(raw);
     if (normalized) {
       keys.add(normalized);
@@ -118,7 +137,7 @@ export function normalizeNorthCarolinaCandidateNameKeys(value: string): Set<stri
 
     const parts = normalized.split(" ").filter(Boolean);
     if (!hasComma && parts.length >= 2) {
-      keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+      addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
     }
 
     const commaParts = raw
@@ -133,7 +152,7 @@ export function normalizeNorthCarolinaCandidateNameKeys(value: string): Set<stri
         keys.add(flipped);
         const flippedParts = flipped.split(" ").filter(Boolean);
         if (flippedParts.length >= 2) {
-          keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+          addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
         }
       }
     }
@@ -150,6 +169,10 @@ export function normalizeNorthCarolinaCandidateNameKeys(value: string): Set<stri
     }
   }
 
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
 }
 
@@ -348,14 +371,28 @@ function toCommitteeMatch(input: {
   };
 }
 
+// Literal names first; nickname keys only when nothing matches literally, so
+// a candidate whose search also returns a formal-name committee of another
+// person keeps the literal one instead of turning ambiguous.
 export function resolveNorthCarolinaCandidateCommittee(
   input: NorthCarolinaCandidateCommitteeResolverInput
+): NorthCarolinaCandidateCommitteeResolution {
+  const literal = resolveNorthCarolinaCandidateCommitteeByName(input, false);
+  if (literal.status !== "unmatched" || literal.reason !== "no_candidate_committee_match") {
+    return literal;
+  }
+  return resolveNorthCarolinaCandidateCommitteeByName(input, true);
+}
+
+function resolveNorthCarolinaCandidateCommitteeByName(
+  input: NorthCarolinaCandidateCommitteeResolverInput,
+  expandNicknames: boolean
 ): NorthCarolinaCandidateCommitteeResolution {
   normalizeElectionYear(input.electionYear);
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeNorthCarolinaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeNorthCarolinaCandidateNameKeys(input.candidateName, { expandNicknames });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
 
   if (candidateNameKeys.size === 0) {

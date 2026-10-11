@@ -132,6 +132,33 @@ describe("parseNcsbeCommitteeSearchPage", () => {
     });
     expect(rows.every((row) => Number.isInteger(row.orgGroupId))).toBe(true);
   });
+
+  it("parses the redesigned Kendo-grid result page (live 2026-10-10)", () => {
+    // Trimmed from the live "Longest" search: rows now sit in the grid
+    // config's inline data source instead of `var data = [...]`.
+    const html =
+      '<div id="gridCommitteeResults"></div><script>kendo.syncReady(function(){jQuery("#gridCommitteeResults")' +
+      '.kendoGrid({"dataSource":{"transport":{"read":{"url":""}},"schema":{"data":"Data","total":"Total"},' +
+      '"data":{"Data":[{"OrgName":"TIM LONGEST FOR NORTH CAROLINA (LONGEST, TIMOTHY WORTH, JR.)",' +
+      '"SBoEID":"STA-P80279-C-001","OldID":null,"CandName":"TIMOTHY WORTH LONGEST JR",' +
+      '"StatusDesc":"ACTIVE (NON-EXEMPT)","OrgGroupID":49685,"Link":null}],"Total":1}}});});</script>';
+    expect(parseNcsbeCommitteeSearchPage(html)).toEqual([
+      {
+        orgName: "TIM LONGEST FOR NORTH CAROLINA (LONGEST, TIMOTHY WORTH, JR.)",
+        sboeId: "STA-P80279-C-001",
+        oldId: null,
+        candName: "TIMOTHY WORTH LONGEST JR",
+        statusDesc: "ACTIVE (NON-EXEMPT)",
+        orgGroupId: 49685,
+      },
+    ]);
+  });
+
+  it("reads the redesigned no-results page as an empty result", () => {
+    const html = '<div id="divNoResults" class="text-center"><b>No committees found.</b></div>';
+    expect(parseNcsbeCommitteeSearchPage(html)).toEqual([]);
+    expect(() => parseNcsbeCommitteeSearchPage("<html><body>error</body></html>")).toThrow(/not found/);
+  });
 });
 
 describe("parseNcsbeDocumentListPage", () => {
@@ -152,6 +179,19 @@ describe("parseNcsbeDocumentListPage", () => {
     expect(q1?.periodStartDate.iso).toBe("2026-01-01");
     expect(q1?.periodEndDate.iso).toBe("2026-02-14");
     expect(q1?.dataImportDate.iso).toBe("2026-02-24");
+  });
+
+  it("parses the redesigned Kendo-grid inventory page (live 2026-10-10)", () => {
+    const html =
+      '<script>jQuery("#grid").kendoGrid({"dataSource":{"schema":{"data":"Data","total":"Total"},' +
+      '"data":{"Data":[{"ImageReceiptDate":"07/08/2026","DataImportDate":"07/08/2026",' +
+      '"CommitteeName":"TIM LONGEST FOR NORTH CAROLINA","SBoEID":"STA-P80279-C-001","ReportYear":2026,' +
+      '"DocumentType":"Disclosure Report","ReportType":"Second Quarter","IsAmendment":"N",' +
+      '"PeriodStartDate":"02/15/2026","PeriodEndDate":"06/30/2026","ImageType":"IMAGE","DataType":"DATA",' +
+      '"DataLink":"231820","ImageLink":"ViewDocumentImage/?DID=338303"}],"Total":1}}});</script>';
+    const rows = parseNcsbeDocumentListPage(html);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ sboeId: "STA-P80279-C-001", reportType: "Second Quarter", dataLink: "231820" });
   });
 
   it("surfaces the live year-3026 period date as implausible instead of trusting it", () => {
