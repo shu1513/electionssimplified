@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import { normalizePennsylvaniaCampaignFinanceExportYear } from "./pennsylvaniaCampaignFinanceArtifactCache.js";
 import type { PennsylvaniaCampaignFinanceFilerRow } from "./pennsylvaniaCampaignFinanceReader.js";
@@ -62,6 +63,9 @@ function normalizeTextKey(value: string | null | undefined): string {
     .replace(/[\u0300-\u036f]/g, "")
     .toUpperCase()
     .replace(/&/g, " AND ")
+    // "La'Tasha" / "O'Neal" file as LATASHA / ONEAL; an apostrophe is not a
+    // word break.
+    .replace(/['\u2019]/g, "")
     .replace(/[^A-Z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -69,7 +73,7 @@ function normalizeTextKey(value: string | null | undefined): string {
 
 function normalizeCommitteeTextKey(value: string | null | undefined): string {
   return normalizeTextKey(value)
-    .replace(/\b(THE|OF|FOR|COMMITTEE|FRIENDS|TO|ELECT|CITIZENS|CAMPAIGN|PEOPLE|PENNSYLVANIANS|PA|INC)\b/g, " ")
+    .replace(/\b(THE|OF|FOR|COMMITTEE|FRIENDS|TO|ELECT|CITIZENS|CAMPAIGN|PEOPLE|PENNSYLVANIANS|PENNSYLVANIA|PA|INC|STATE|REPRESENTATIVE|REP|SENATOR|SENATE|HOUSE)\b/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -83,9 +87,27 @@ function normalizePersonName(value: string | null | undefined): string {
     .trim();
 }
 
-export function normalizePennsylvaniaCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("Josh Shapiro" → "JOSHUA SHAPIRO"). PA files candidates under
+// formal names ("SHAPIRO, JOSHUA D") while VoteApp stores campaign names.
+// Expand the VoteApp side only (personFirstNameNicknames.ts explains why);
+// filer rows are keyed literally.
+export function normalizePennsylvaniaCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
+
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
 
   function addName(raw: string): void {
     const hasComma = raw.includes(",");
@@ -96,7 +118,7 @@ export function normalizePennsylvaniaCandidateNameKeys(value: string): Set<strin
 
     const parts = normalized.split(" ").filter(Boolean);
     if (!hasComma && parts.length >= 2) {
-      keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+      addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
     }
 
     const commaParts = raw
@@ -111,7 +133,7 @@ export function normalizePennsylvaniaCandidateNameKeys(value: string): Set<strin
         keys.add(flipped);
         const flippedParts = flipped.split(" ").filter(Boolean);
         if (flippedParts.length >= 2) {
-          keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+          addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
         }
       }
     }
@@ -121,10 +143,56 @@ export function normalizePennsylvaniaCandidateNameKeys(value: string): Set<strin
   for (const match of trimmed.matchAll(/\(([^()]+)\)/g)) {
     if (match[1]) {
       addName(match[1]);
+      // "NATALIE NICOLE STUCK (MIHALEK)": a one-word parenthetical after a
+      // full name is the surname the candidate runs under.
+      const outerFirst = normalizePersonName(trimmed.replace(/\([^()]+\)/g, " ")).split(" ")[0] ?? "";
+      const inner = normalizePersonName(match[1]);
+      if (outerFirst && inner && !inner.includes(" ")) {
+        addFirstLast(outerFirst, inner);
+      }
     }
   }
 
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
+}
+
+// The candidate's surname: the last token of the first+last key.
+function candidateSurname(value: string): string {
+  const keys = [...normalizePennsylvaniaCandidateNameKeys(value)];
+  const firstLast = keys.find((key) => key.split(" ").length === 2) ?? keys[0] ?? "";
+  const tokens = firstLast.split(" ").filter(Boolean);
+  return tokens[tokens.length - 1] ?? "";
+}
+
+// Statewide committees are often named by surname alone ("Shapiro for
+// Pennsylvania", "Garrity for PA"), so no first+last key can match them.
+// Accept such a committee only when its own row names THIS office (blank
+// OFFICE rows never reach here) and the committee name, minus wrappers, is
+// exactly the candidate's surname. The caller also requires the candidate's
+// own office-matched registration row before admitting the committee.
+function committeeMatchesSurnameOnly(input: {
+  row: PennsylvaniaCampaignFinanceFilerRow;
+  surname: string;
+}): boolean {
+  if (!input.surname) {
+    return false;
+  }
+  // A registration row (FILERTYPE 1) is sometimes filed under the committee
+  // name ("BENNINGHOFF FOR REPRESENTATIVE"); a plain person name on a
+  // registration row never qualifies, so a same-surname stranger's own
+  // registration cannot match through here.
+  const isCommittee = input.row.FILERTYPE.trim() === "2";
+  return filerNameVariants(input.row).some((variant) => {
+    const key = normalizeCommitteeTextKey(variant);
+    if (key !== input.surname) {
+      return false;
+    }
+    return isCommittee || normalizeTextKey(variant) !== key;
+  });
 }
 
 function candidateNameNormalized(value: string): string {
@@ -158,6 +226,12 @@ function filerNameKeys(row: PennsylvaniaCampaignFinanceFilerRow): Set<string> {
     const committeeKey = normalizeCommitteeTextKey(candidate);
     if (committeeKey) {
       keys.add(committeeKey);
+      // "LATASHA D. MAYES FOR STATE REPRESENTATIVE" minus wrappers is a
+      // person name with a middle initial; key it like one so first+last
+      // can meet the candidate.
+      for (const key of normalizePennsylvaniaCandidateNameKeys(committeeKey)) {
+        keys.add(key);
+      }
     }
   }
   return keys;
@@ -215,6 +289,8 @@ function rowMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: filerNameVariants(input.row),
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 
@@ -297,12 +373,60 @@ function toFilerMatch(input: {
   };
 }
 
+function sharesZipOrPhone(
+  left: readonly PennsylvaniaCampaignFinanceFilerRow[],
+  right: readonly PennsylvaniaCampaignFinanceFilerRow[]
+): boolean {
+  const zips = new Set(left.map((row) => zip5(row.ZIPCODE)).filter((zip) => zip.length === 5));
+  const phones = new Set(left.map((row) => phoneDigits(row.PHONE)).filter((phone) => phone.length >= 7));
+  return right.some((row) => zips.has(zip5(row.ZIPCODE)) || phones.has(phoneDigits(row.PHONE)));
+}
+
+// True when a person-name key of the row ends in the candidate's surname.
+function rowCarriesSurname(input: { row: PennsylvaniaCampaignFinanceFilerRow; surname: string }): boolean {
+  if (!input.surname) {
+    return false;
+  }
+  for (const variant of filerNameVariants(input.row)) {
+    for (const key of normalizePennsylvaniaCandidateNameKeys(variant)) {
+      const tokens = key.split(" ");
+      if (tokens.length >= 2 && tokens[tokens.length - 1] === input.surname) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+function dedupeSameNameCommittees(accumulators: CandidateFilerAccumulator[]): CandidateFilerAccumulator[] {
+  const byName = new Map<string, CandidateFilerAccumulator>();
+  for (const accumulator of accumulators) {
+    // Only a literally identical name (wrappers kept) is a duplicate.
+    const name = normalizeTextKey(stripFilerWrapper(accumulator.filerName));
+    const current = byName.get(name);
+    if (!current) {
+      byName.set(name, accumulator);
+      continue;
+    }
+    const latest = (rows: PennsylvaniaCampaignFinanceFilerRow[]): string =>
+      rows.reduce((max, row) => ((row.SubmittedDate ?? "").trim() > max ? (row.SubmittedDate ?? "").trim() : max), "");
+    const replace =
+      accumulator.rows.length > current.rows.length ||
+      (accumulator.rows.length === current.rows.length && latest(accumulator.rows) > latest(current.rows));
+    if (replace) {
+      byName.set(name, accumulator);
+    }
+  }
+  return [...byName.values()].sort((left, right) => left.filerId.localeCompare(right.filerId));
+}
+
 export function resolvePennsylvaniaCandidateCommittee(
   input: PennsylvaniaCandidateCommitteeResolverInput
 ): PennsylvaniaCandidateCommitteeResolution {
   const electionYear = normalizePennsylvaniaCampaignFinanceExportYear(input.electionYear);
-  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizePennsylvaniaCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const candidateNameKey = candidateNameNormalized(input.candidateName);
+  const surname = candidateSurname(input.candidateName);
   const officeSearchInput = toPennsylvaniaFinanceOfficeSearchInput({
     officeScope: input.officeScope,
     officeCanonicalName: input.officeName,
@@ -331,6 +455,11 @@ export function resolvePennsylvaniaCandidateCommittee(
   }
 
   const rowsByFiler = new Map<string, CandidateFilerAccumulator>();
+  const surnameOnlyByFiler = new Map<string, CandidateFilerAccumulator>();
+  // Another person with the candidate's surname registered for THIS race
+  // (John Smith vs Jane Smith). A surname-only filer could then be either
+  // one's, so none is admitted.
+  let rivalSurnameRegistration = false;
   for (const row of input.filerRows) {
     const filerId = row.FILERID.trim().toUpperCase();
     const filerName = row.FILERNAME.trim();
@@ -346,18 +475,48 @@ export function resolvePennsylvaniaCandidateCommittee(
     if (!rowMatchesOfficeContext({ row, officeSearchInput })) {
       continue;
     }
-    if (!rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })) {
+    const fullNameMatch = rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys });
+    const target = fullNameMatch
+      ? rowsByFiler
+      : committeeMatchesSurnameOnly({ row, surname })
+        ? surnameOnlyByFiler
+        : null;
+    if (!target) {
+      if (row.FILERTYPE.trim() === "1" && rowCarriesSurname({ row, surname })) {
+        rivalSurnameRegistration = true;
+      }
       continue;
     }
 
-    const accumulator = rowsByFiler.get(filerId) ?? {
+    const accumulator = target.get(filerId) ?? {
       filerId,
       filerName,
       filerType: row.FILERTYPE.trim() || null,
       rows: [],
     };
     accumulator.rows.push(row);
-    rowsByFiler.set(filerId, accumulator);
+    target.set(filerId, accumulator);
+  }
+
+  // Surname-only filers are admitted only when no same-surname rival
+  // registered for this race. A surname-only registration row
+  // ("BENNINGHOFF FOR REPRESENTATIVE", FILERTYPE 1) is the candidacy itself;
+  // a surname-only committee also needs the candidate's own office-matched
+  // registration row, whose explicit OFFICE/DISTRICT ties it to this race.
+  if (!rivalSurnameRegistration) {
+    for (const [filerId, accumulator] of surnameOnlyByFiler) {
+      if (accumulator.filerType === "1" && !rowsByFiler.has(filerId)) {
+        rowsByFiler.set(filerId, accumulator);
+      }
+    }
+    const hasRegistrationRow = [...rowsByFiler.values()].some((accumulator) => accumulator.filerType === "1");
+    if (hasRegistrationRow) {
+      for (const [filerId, accumulator] of surnameOnlyByFiler) {
+        if (!rowsByFiler.has(filerId)) {
+          rowsByFiler.set(filerId, accumulator);
+        }
+      }
+    }
   }
 
   // Most PA committee rows carry no usable office context (3,428 of 4,060
@@ -403,6 +562,28 @@ export function resolvePennsylvaniaCandidateCommittee(
       rows.push(row);
       committeeRowsByFilerId.set(filerId, rows);
     }
+    // Registration rows in this cycle for ANY other race whose person name
+    // matches the candidate: a same-name stranger. While one exists, a
+    // blank-OFFICE committee matched by name alone could be theirs.
+    const strangerRegistrationExists = input.filerRows.some(
+      (row) =>
+        row.FILERTYPE.trim() === "1" &&
+        rowMatchesElectionYear(row, electionYear) &&
+        !rowsByFiler.has(row.FILERID.trim().toUpperCase()) &&
+        rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })
+    );
+    // Two registration ids for THIS race under the candidate's name are one
+    // person re-registering (George Margetas, 2026C0025 and 2026C1193, same
+    // ZIP and phone) or two people with the same name. Without a shared ZIP
+    // or phone between them they count as possible homonyms, and a committee
+    // matched by name alone is not admitted for either.
+    const registrationFilers = [...rowsByFiler.values()].filter((accumulator) => accumulator.filerType === "1");
+    const homonymRegistrations =
+      registrationFilers.length > 1 &&
+      !registrationFilers.every((accumulator, index) =>
+        index === 0 || registrationFilers.slice(0, index).some((other) => sharesZipOrPhone(accumulator.rows, other.rows))
+      );
+    const nameOnlyCommitteeAllowed = !strangerRegistrationExists && !homonymRegistrations;
     const filerContextVerdicts = new Map<string, boolean>();
     const filerContextAgreesWithRace = (filerId: string): boolean => {
       const cached = filerContextVerdicts.get(filerId);
@@ -451,7 +632,8 @@ export function resolvePennsylvaniaCandidateCommittee(
       if (!isLikelyCandidateFiler(row)) {
         continue;
       }
-      if (!rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys })) {
+      const fullNameMatch = rowMatchesCandidateName({ row, candidateName: input.candidateName, candidateNameKeys });
+      if (!fullNameMatch && (rivalSurnameRegistration || !committeeMatchesSurnameOnly({ row, surname }))) {
         continue;
       }
       const rowZip = zip5(row.ZIPCODE);
@@ -459,7 +641,12 @@ export function resolvePennsylvaniaCandidateCommittee(
       const corroborated =
         (rowZip.length === 5 && registrationZips.has(rowZip)) ||
         (rowPhone.length >= 7 && registrationPhones.has(rowPhone));
-      if (!corroborated) {
+      // A committee carrying the candidate's full name ("FRIENDS OF CAMERA
+      // BARTOLOTTA") is theirs unless a same-name stranger also registered
+      // this cycle; committees in Harrisburg rarely share the candidate's
+      // home ZIP or phone. A surname-only committee ("GAYDOS FOR PA") still
+      // needs the ZIP or phone corroboration.
+      if (!corroborated && !(fullNameMatch && nameOnlyCommitteeAllowed)) {
         continue;
       }
 
@@ -502,9 +689,14 @@ export function resolvePennsylvaniaCandidateCommittee(
   // for the same office/district/year, the committee is the funded vehicle.
   // Two committees (or two candidate registrations with no committee) stay
   // ambiguous — there is no evidence which vehicle carries the money.
-  const committeeMatches = matches.filter((match) => match.filerType === "2");
+  // PA sometimes carries one committee under two filer ids with the same
+  // name ("FRIENDS OF PAT HARKINS" as 2005299 and 8300058). Keep the id that
+  // filed the most reports this cycle; the other is a dormant duplicate.
+  const committeeMatches = dedupeSameNameCommittees(
+    [...rowsByFiler.values()].filter((accumulator) => accumulator.filerType === "2")
+  ).map((accumulator) => toFilerMatch({ accumulator, sourceUrl }));
   const candidateMatches = matches.filter((match) => match.filerType === "1");
-  if (committeeMatches.length === 1 && candidateMatches.length === matches.length - 1) {
+  if (committeeMatches.length === 1 && candidateMatches.length + committeeMatches.length <= matches.length) {
     return {
       status: "matched",
       ...committeeMatches[0],

@@ -16,6 +16,7 @@ export const NEW_YORK_SODA_MAX_PAGE_LIMIT = 50_000;
 export const NEW_YORK_SODA_DEFAULT_MAX_PAGES = 25;
 export const NEW_YORK_INDEPENDENT_EXPENDITURE_COMMITTEE_TYPE = "Independent Expenditure Committee";
 export const NEW_YORK_AUTHORIZED_SINGLE_CANDIDATE_COMMITTEE_TYPE = "Authorized Single Candidate Committee";
+export const NEW_YORK_PUBLIC_CAMPAIGN_FINANCE_COMMITTEE_TYPE = "Public Campaign Finance Committee";
 
 const FILER_ID_CHUNK_SIZE = 50;
 const TRANS_NUMBER_CHUNK_SIZE = 50;
@@ -424,9 +425,16 @@ export async function searchNewYorkActiveAuthorizedCommitteeFilers(
       // filer_type_desc='State' matters: ~80% of active authorized committees
       // are county-level filers, and a county candidate with the same name
       // must never be linked to a state candidate (verified 2026-07-11).
+      // 2026 statewide and legislative candidates in the public matching
+      // program file as "Public Campaign Finance Committee" ("Blakeman for
+      // New York", "James for NY 2026"); the authorized-committee type alone
+      // missed every one of them.
       $where: [
         "compliance_type_desc='COMMITTEE'",
-        `committee_type_desc=${soqlString(NEW_YORK_AUTHORIZED_SINGLE_CANDIDATE_COMMITTEE_TYPE)}`,
+        `committee_type_desc IN ${soqlInList([
+          NEW_YORK_AUTHORIZED_SINGLE_CANDIDATE_COMMITTEE_TYPE,
+          NEW_YORK_PUBLIC_CAMPAIGN_FINANCE_COMMITTEE_TYPE,
+        ])}`,
         "filer_status='ACTIVE'",
         "filer_type_desc='State'",
         `upper(filer_name) like ${soqlString(`%${nameContains}%`)}`,

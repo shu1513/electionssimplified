@@ -60,19 +60,24 @@ function mapCandidateElectionRow(row: CandidateElectionQueryRow): ColoradoFinanc
 export function buildColoradoCandidateNamePredicate(
   candidates: readonly ColoradoFinanceAutoLinkCandidateElection[]
 ): (row: ColoradoTracerContributionRow) => boolean {
-  const candidateNameKeysByYear = new Map<number, Set<string>>();
+  // The pre-filter must admit every row the resolver could match. Exact
+  // full-name keys dropped "PHILIP WEISER" rows for "Phil Weiser" before the
+  // resolver's nickname-aware recall could see them, so rows are kept by
+  // surname token and the resolver decides.
+  const surnames = new Set<string>();
   for (const candidate of candidates) {
-    const keys = candidateNameKeysByYear.get(candidate.electionYear) ?? new Set<string>();
     for (const key of normalizeColoradoCandidateNameKeys(candidate.candidateName)) {
-      keys.add(key);
+      const tokens = key.split(" ").filter(Boolean);
+      if (tokens.length >= 2) {
+        surnames.add(tokens[tokens.length - 1]!);
+      }
     }
-    candidateNameKeysByYear.set(candidate.electionYear, keys);
   }
 
   return (row) => {
-    for (const keys of candidateNameKeysByYear.values()) {
-      for (const rowKey of normalizeColoradoCandidateNameKeys(row.CandidateName)) {
-        if (keys.has(rowKey)) {
+    for (const rowKey of normalizeColoradoCandidateNameKeys(row.CandidateName)) {
+      for (const token of rowKey.split(" ")) {
+        if (token && surnames.has(token)) {
           return true;
         }
       }
@@ -125,7 +130,12 @@ export async function listColoradoCandidateElectionsMissingFinanceLinks(
             AND link.election_id = election.id
             AND link.link_status = 'active'
         )
-      ORDER BY election.election_date ASC, candidate.display_name ASC NULLS LAST, candidate.id ASC
+      -- Random order, biased toward upcoming races: unmatched candidates never
+      -- get a link, so a stable order under a row cap retried the same prefix
+      -- every run and starved the tail (Katie Hobbs was never attempted). The
+      -- bias is a weight, not a tier, so past races within the window still
+      -- rotate in under the cap.
+      ORDER BY random() + CASE WHEN election.election_date < CURRENT_DATE THEN 0.5 ELSE 0 END
       LIMIT $2::int
     `,
     [

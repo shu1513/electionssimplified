@@ -132,7 +132,12 @@ export async function listIllinoisCandidateElectionsMissingFinanceLinks(
             AND link.election_id = election.id
             AND link.link_status = 'active'
         )
-      ORDER BY election.election_date ASC, candidate.display_name ASC NULLS LAST, candidate.id ASC
+      -- Random order, biased toward upcoming races: unmatched candidates never
+      -- get a link, so a stable order under a row cap retried the same prefix
+      -- every run and starved the tail (Katie Hobbs was never attempted). The
+      -- bias is a weight, not a tier, so past races within the window still
+      -- rotate in under the cap.
+      ORDER BY random() + CASE WHEN election.election_date < CURRENT_DATE THEN 0.5 ELSE 0 END
       LIMIT $2::int
     `,
     [

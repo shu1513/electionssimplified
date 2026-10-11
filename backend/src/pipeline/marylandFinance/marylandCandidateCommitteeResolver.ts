@@ -1,3 +1,4 @@
+import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import type { MarylandCfsCommitteeRow } from "./marylandCfsArtifactReader.js";
 import { isMarylandFinanceEligibleOffice } from "./marylandFinanceEligibleOffices.js";
@@ -76,12 +77,29 @@ function normalizePersonName(value: string | null | undefined): string {
     .trim();
 }
 
-export function normalizeMarylandCandidateNameKeys(value: string): Set<string> {
+// expandNicknames adds first+last keys for the first name's nickname
+// variants ("James B. Rutledge, III" → "JIM RUTLEDGE" for "Friends of Jim
+// Rutledge"). Expand the VoteApp side only (personFirstNameNicknames.ts
+// explains why); rows are keyed literally.
+export function normalizeMarylandCandidateNameKeys(
+  value: string,
+  options: { expandNicknames?: boolean } = {}
+): Set<string> {
   const trimmed = value.trim();
   const keys = new Set<string>();
+  const nicknameKeys = new Set<string>();
   const trimmedWithoutParentheticals = trimmed.replace(/\([^()]+\)/g, " ");
   const baseParts = normalizePersonName(trimmedWithoutParentheticals).split(" ").filter(Boolean);
   const lastBaseToken = baseParts.length >= 2 ? baseParts[baseParts.length - 1] : null;
+
+  function addFirstLast(first: string, last: string): void {
+    keys.add(`${first} ${last}`);
+    if (options.expandNicknames) {
+      for (const variant of firstNameVariants(first)) {
+        nicknameKeys.add(`${variant} ${last}`);
+      }
+    }
+  }
 
   function addName(raw: string): void {
     const hasComma = raw.includes(",");
@@ -92,7 +110,7 @@ export function normalizeMarylandCandidateNameKeys(value: string): Set<string> {
 
     const parts = normalized.split(" ").filter(Boolean);
     if (!hasComma && parts.length >= 2) {
-      keys.add(`${parts[0]} ${parts[parts.length - 1]}`);
+      addFirstLast(parts[0] ?? "", parts[parts.length - 1] ?? "");
     }
 
     const commaParts = raw
@@ -107,7 +125,7 @@ export function normalizeMarylandCandidateNameKeys(value: string): Set<string> {
         keys.add(flipped);
         const flippedParts = flipped.split(" ").filter(Boolean);
         if (flippedParts.length >= 2) {
-          keys.add(`${flippedParts[0]} ${flippedParts[flippedParts.length - 1]}`);
+          addFirstLast(flippedParts[0] ?? "", flippedParts[flippedParts.length - 1] ?? "");
         }
       }
     }
@@ -124,6 +142,10 @@ export function normalizeMarylandCandidateNameKeys(value: string): Set<string> {
     }
   }
 
+  // Nickname keys go last so the first key (used for storage) is unchanged.
+  for (const key of nicknameKeys) {
+    keys.add(key);
+  }
   return keys;
 }
 
@@ -297,6 +319,8 @@ function rowMatchesCandidateName(input: {
     candidateName: input.candidateName,
     rowNames: [candidateNameFromCommitteeRow(input.row)],
     normalizePersonName,
+    firstNamesEquivalent: (candidateFirst, rowFirst) =>
+      candidateFirst === rowFirst || firstNameVariants(candidateFirst).includes(rowFirst),
   });
 }
 
@@ -326,7 +350,7 @@ export function resolveMarylandCandidateCommittee(
   const officeScope = normalizeOfficeScope(input.officeScope);
   const officeCanonicalName = canonicalOfficeNameForInput(input.officeName);
   const officeNameNormalized = officeCanonicalName ?? normalizeTextKey(input.officeName);
-  const candidateNameKeys = normalizeMarylandCandidateNameKeys(input.candidateName);
+  const candidateNameKeys = normalizeMarylandCandidateNameKeys(input.candidateName, { expandNicknames: true });
   const candidateNameNormalized = [...candidateNameKeys][0] ?? normalizePersonName(input.candidateName);
   const expectedDistrict = normalizeDistrict(input.district);
 

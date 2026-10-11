@@ -282,4 +282,12 @@ describe("massachusettsFinanceEligibleOffices", () => {
       })
     ).toBeNull();
   });
+
+  it("maps OCPF's live treasurer label to the State Treasurer office", () => {
+    expect(mapMassachusettsOcpfOffice({ officeSought: "Statewide, Treasurer of the Commonwealth" })).toMatchObject({
+      officeCanonicalName: "State Treasurer",
+      ocpfOffice: "Statewide, Treasurer",
+      district: null,
+    });
+  });
 });

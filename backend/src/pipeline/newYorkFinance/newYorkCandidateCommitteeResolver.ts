@@ -35,7 +35,7 @@ export type NewYorkCandidateCommitteeMatch = {
   filerId: string;
   filerName: string;
   candidateFilerId: string;
-  confidence: "exact";
+  confidence: "exact" | "surname_committee";
   source: "ny_soda_api";
   sourceUrl: string | null;
 };
@@ -180,6 +180,51 @@ function committeeNameContainsCandidate(
   return tokens.has(name.firstName) && tokens.has(name.lastName);
 }
 
+// Statewide committees are often named by surname alone ("Blakeman for New
+// York", "James for NY 2026"). For a statewide race with exactly one
+// registered candidate filer, a committee whose name minus wrappers and
+// office words is exactly the surname is admitted when no full-name
+// committee exists; an office word in the name must name this race.
+const STATEWIDE_OFFICE_WORDS: Record<string, readonly string[]> = {
+  Governor: ["GOVERNOR", "GOV"],
+  "Lieutenant Governor": ["LIEUTENANT", "LT", "GOVERNOR", "GOV"],
+  "Attorney General": ["ATTORNEY", "AG"],
+  "State Comptroller": ["COMPTROLLER"],
+};
+const ALL_OFFICE_WORDS = new Set([
+  ...Object.values(STATEWIDE_OFFICE_WORDS).flat(),
+  "ASSEMBLY", "SENATE", "SENATOR", "ASSEMBLYMAN", "ASSEMBLYWOMAN", "ASSEMBLYMEMBER",
+  "CONGRESS", "MAYOR", "COUNCIL", "JUDGE", "JUSTICE", "COURT", "SUPERVISOR", "LEGISLATOR",
+  "LEGISLATURE", "DISTRICT", "DA", "SHERIFF", "CLERK", "COMPTROLLER", "ATTORNEY",
+]);
+const COMMITTEE_WRAPPER_WORDS = new Set([
+  "THE", "OF", "FOR", "TO", "ELECT", "RE", "REELECT", "VOTE", "COMMITTEE", "FRIENDS", "CITIZENS",
+  "PEOPLE", "NEW", "YORK", "YORKERS", "NY", "NYS", "NYC", "CAMPAIGN", "INC", "AND", "A", "TEAM",
+  "OUR", "ALL", "ONE", "KEEP", "WITH", "NEIGHBORS", "SUPPORTERS", "VICTORY", "FUND",
+]);
+
+function committeeNameIsSurnameOnly(input: {
+  committeeName: string;
+  lastName: string;
+  officeCanonicalName: string;
+}): boolean {
+  const raceWords = new Set(STATEWIDE_OFFICE_WORDS[input.officeCanonicalName] ?? []);
+  const nameTokens: string[] = [];
+  for (const token of normalizeTextKey(input.committeeName).split(" ").filter(Boolean)) {
+    if (COMMITTEE_WRAPPER_WORDS.has(token) || /^\d{2,4}$/.test(token)) {
+      continue;
+    }
+    if (ALL_OFFICE_WORDS.has(token)) {
+      if (!raceWords.has(token)) {
+        return false;
+      }
+      continue;
+    }
+    nameTokens.push(token);
+  }
+  return nameTokens.length === 1 && nameTokens[0] === input.lastName;
+}
+
 export function resolveNewYorkCandidateCommittee(
   input: NewYorkCandidateCommitteeResolverInput
 ): NewYorkCandidateCommitteeResolution {
@@ -241,6 +286,21 @@ export function resolveNewYorkCandidateCommittee(
       matchingCommittees.set(committee.filerId, committee);
     }
   }
+  let confidence: NewYorkCandidateCommitteeMatch["confidence"] = "exact";
+  if (matchingCommittees.size === 0 && input.officeScope === "statewide") {
+    for (const committee of input.committeeFilers) {
+      if (
+        committeeNameIsSurnameOnly({
+          committeeName: committee.filerName,
+          lastName: firstLast.lastName,
+          officeCanonicalName: input.officeName.trim(),
+        })
+      ) {
+        matchingCommittees.set(committee.filerId, committee);
+      }
+    }
+    confidence = "surname_committee";
+  }
   if (matchingCommittees.size === 0) {
     return {
       status: "unmatched",
@@ -265,7 +325,7 @@ export function resolveNewYorkCandidateCommittee(
     filerId: committee.filerId,
     filerName: committee.filerName,
     candidateFilerId,
-    confidence: "exact",
+    confidence,
     source: "ny_soda_api",
     sourceUrl: NEW_YORK_SODA_FILERS_PAGE_URL,
   };

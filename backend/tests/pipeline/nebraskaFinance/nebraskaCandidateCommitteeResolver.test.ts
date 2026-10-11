@@ -141,6 +141,23 @@ describe("nebraskaCandidateCommitteeResolver", () => {
     expect(resolve("Rick Vest", "VEST, RICK V")).toMatchObject({ status: "matched", committeeId: "1001" });
   });
 
+  it("matches NADC's formal first name through a VoteApp nickname", () => {
+    // Live: "FRIENDS OF MIKE HILGERS" rows carry Candidate Name "MICHAEL HILGERS".
+    expect(
+      resolveNebraskaCandidateCommittee({
+        candidateName: "Mike Hilgers",
+        officeScope: "statewide",
+        officeName: "Attorney General",
+        electionYear: 2026,
+        contributionRows: [
+          contribution({ "Org ID": "7425", "Filer Name": "FRIENDS OF MIKE HILGERS", "Candidate Name": "MICHAEL HILGERS", "Receipt Date": "01/06/2025" }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", committeeId: "7425" });
+    expect([...normalizeNebraskaCandidateNameKeys("Mike Hilgers")]).toEqual(["MIKE HILGERS"]);
+    expect([...normalizeNebraskaCandidateNameKeys("Mike Hilgers", { expandNicknames: true })]).toEqual(["MIKE HILGERS", "MICHAEL HILGERS"]);
+  });
+
   it("matches safe statewide offices", () => {
     expect(
       resolveNebraskaCandidateCommittee({

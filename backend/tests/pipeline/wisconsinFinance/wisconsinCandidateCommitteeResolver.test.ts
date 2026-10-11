@@ -218,6 +218,41 @@ describe("wisconsinCandidateCommitteeResolver", () => {
     });
   });
 
+  it("matches a formal Sunshine candidate name through a VoteApp nickname", () => {
+    // Live: Sunshine lists "Joshua Kaul" on "Kaul for Attorney General";
+    // VoteApp stores "Josh Kaul".
+    expect(
+      resolveWisconsinCandidateCommittee({
+        candidateName: "Josh Kaul",
+        officeScope: "statewide",
+        officeName: "Attorney General",
+        electionYear: 2026,
+        committees: [
+          committee({ entityId: "16762", committeeId: "458", assignedCommitteeId: "0105879", committeeName: "Kaul for Attorney General", committeeType: "State Candidate", committeeStatus: "Approved", committeeStatusSlug: "ACTIVE", candidateNames: ["Joshua Kaul", "Mandy Roberts"] }),
+          committee({ entityId: "11628922", committeeId: "56289", committeeName: "Recall Josh Kaul", committeeType: "Recall", committeeStatus: "Terminated", committeeStatusSlug: "TERMINATED", candidateNames: ["William Leverson"] }),
+        ],
+      })
+    ).toMatchObject({ status: "matched", entityId: "16762" });
+    expect([...normalizeWisconsinCandidateNameKeys("Josh Kaul")]).toEqual(["JOSH KAUL"]);
+    expect([...normalizeWisconsinCandidateNameKeys("Josh Kaul", { expandNicknames: true })]).toEqual(["JOSH KAUL", "JOSHUA KAUL"]);
+  });
+
+  it("prefers the one committee whose name carries the race office when several belong to the candidate", () => {
+    // Live: Eric Toney keeps "Citizens for Eric Toney" (his local committee)
+    // active beside "Toney for Attorney General".
+    const toney = [
+      committee({ entityId: "16017", committeeId: "215", assignedCommitteeId: "0106408", committeeName: "Toney for Attorney General", committeeType: "State Candidate", committeeStatus: "Approved", committeeStatusSlug: "ACTIVE", candidateNames: ["Eric Toney", "Lane Ruhland"] }),
+      committee({ entityId: "1991532", committeeId: "21871", assignedCommitteeId: "0105253", committeeName: "Citizens for Eric Toney", committeeType: "State Candidate", committeeStatus: "Approved", committeeStatusSlug: "ACTIVE", candidateNames: ["Eric Toney", "Robert Hopp Sr."] }),
+    ];
+    expect(
+      resolveWisconsinCandidateCommittee({ candidateName: "Eric Toney", officeScope: "statewide", officeName: "Attorney General", electionYear: 2026, committees: toney })
+    ).toMatchObject({ status: "matched", entityId: "16017" });
+    // Neither names the race: still ambiguous.
+    expect(
+      resolveWisconsinCandidateCommittee({ candidateName: "Eric Toney", officeScope: "statewide", officeName: "Governor", electionYear: 2026, committees: toney })
+    ).toMatchObject({ status: "ambiguous", reason: "multiple_matching_committees" });
+  });
+
   it("requires districts for legislative offices", () => {
     expect(
       resolveWisconsinCandidateCommittee({

@@ -51,17 +51,28 @@ function committeeCandidateName(row: MarylandCfsCommitteeRow): string {
 export function buildMarylandCandidateNamePredicate(
   candidates: readonly MarylandFinanceAutoLinkCandidateElection[]
 ): (row: MarylandCfsCommitteeRow) => boolean {
-  const candidateNameKeys = new Set<string>();
+  // The pre-filter must admit every row the resolver could match: the
+  // resolver also matches on committee-name tokens ("Moore, Wes For
+  // Maryland" beside candidate fields "WESTLEY MOORE"), so rows are kept by
+  // surname token in either place and the resolver decides.
+  const surnames = new Set<string>();
   for (const candidate of candidates) {
     for (const key of normalizeMarylandCandidateNameKeys(candidate.candidateName)) {
-      candidateNameKeys.add(key);
+      const tokens = key.split(" ").filter(Boolean);
+      if (tokens.length >= 2) {
+        surnames.add(tokens[tokens.length - 1]!);
+      }
     }
   }
 
   return (row) => {
-    for (const rowKey of normalizeMarylandCandidateNameKeys(committeeCandidateName(row))) {
-      if (candidateNameKeys.has(rowKey)) {
-        return true;
+    for (const text of [committeeCandidateName(row), row["Committee Name"] ?? ""]) {
+      for (const key of normalizeMarylandCandidateNameKeys(text)) {
+        for (const token of key.split(" ")) {
+          if (token && surnames.has(token)) {
+            return true;
+          }
+        }
       }
     }
     return false;
