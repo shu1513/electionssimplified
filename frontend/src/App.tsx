@@ -346,7 +346,7 @@ export function App() {
             draft link at phone widths) the nav drops to its own line instead
             of the shrink-0 logo painting over it. ml-auto keeps the wrapped
             nav right-aligned. */}
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-[800px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-4">
           <Link
             to="/"
             className="flex shrink-0 items-center gap-[5px] text-base font-extrabold tracking-tight text-rausch sm:text-[26px]"
