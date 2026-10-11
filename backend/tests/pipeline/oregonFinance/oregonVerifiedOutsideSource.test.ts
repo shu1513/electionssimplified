@@ -227,6 +227,30 @@ describe("Oregon scoped Original cash IE evidence",()=>{
    expect(valid(e,{...i.candidateContext,district:"19"})).toBe(false);
    expect(valid(e,c)).toBe(false);
  });
+ it("accepts the published SOO office/seat line wrap without dropping any field content",()=>{
+   const i=input();i.candidateContext.officeName="State Lower Chamber Legislator";
+   for(const s of[i.before,i.after]){
+     s.receivingSoo=replacement(s.receivingSoo,soo().replace("State Representative, 20th District","State Representative,<br>20th District"));
+     s.qualifiedTargetSoo=replacement(s.qualifiedTargetSoo,soo().replace("State Representative, 20th District","State Representative,<br>20th District"));
+   }
+   expect(verify(i).evidence?.opposeCents).toBe(250000);
+ });
+ it.each(["receivingSoo","qualifiedTargetSoo"] as const)("preserves a wrong seat in a wrapped %s field",field=>{
+   const i=input();
+   for(const s of[i.before,i.after])s[field]=replacement(s[field],soo().replace("State Representative, 20th District","State Representative,<br>19th District"));
+   omitted(i,/receiving election\/office\/person mismatch/);
+ });
+ it("keeps the raw SOO line-array bracket authoritative after field comparison",()=>{
+   const i=input();
+   for(const field of["receivingSoo","qualifiedTargetSoo"] as const)
+     i.after[field]=replacement(i.after[field],soo().replace("State Representative, 20th District","State Representative,<br>20th District"));
+   omitted(i,/changed/);
+ });
+ it("does not remove source office punctuation while joining wrapped lines",()=>{
+   const i=input();
+   for(const s of[i.before,i.after])s.receivingSoo=replacement(s.receivingSoo,soo().replace("State Representative, 20th District","State Representative<br>20th District"));
+   omitted(i,/receiving election\/office\/person mismatch/);
+ });
  it.each(["State Upper Chamber Legislator","Commissioner of the Bureau of Labor and Industries"])("preserves unproved local office alias %s",officeName=>{
    omitted({...input(),candidateContext:{...c,officeName}},/unsupported/);
  });

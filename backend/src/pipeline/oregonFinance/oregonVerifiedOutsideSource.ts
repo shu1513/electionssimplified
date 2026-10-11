@@ -111,7 +111,7 @@ function sourceOffice(c: OregonPacCandidateContext): string {
 }
 function receiving(s: OregonVerifiedSoo, c: OregonPacCandidateContext): void {
   if (s.committeeType !== "Candidate Committee" || !s.candidateName || person(s.candidateName) !== person(c.candidateName) ||
-      fingerprint(s.electionOfficeLines) !== fingerprint(["2026 General Election", sourceOffice(c)])) fail("receiving election/office/person mismatch");
+      norm(s.electionOfficeLines.join(" ")) !== norm("2026 General Election " + sourceOffice(c))) fail("receiving election/office/person mismatch");
 }
 function targetContext(s: OregonOutsideSourceSnapshot, c: OregonPacCandidateContext) {
   // Initial source contract has a complete single native results page. Continuation is unknown, never truncated acceptance.
