@@ -43,6 +43,7 @@ const FIRST_NAME_NICKNAME_GROUPS: readonly (readonly string[])[] = [
   ["BERNARD", "BERNIE"],
   ["BRADLEY", "BRAD"],
   ["CALVIN", "CAL"],
+  ["CATHERINE", "CATHY", "KATIE"],
   ["CHARLES", "CHARLIE", "CHUCK"],
   ["CHRISTINA", "CHRIS"],
   ["CHRISTINE", "CHRIS"],
