@@ -1,9 +1,8 @@
 // Arkansas finance batch sync: optional auto-link pass, then the due list,
-// then a per-candidate sync. One full CFIS registration sweep is shared by
-// auto-link and every sync in the batch (the memoizing loader); each
-// candidate then costs one windowed receipt pull. Per-candidate failures are
-// recorded and the batch continues (fail-visible, never fail-silent). Every
-// step is injectable for tests.
+// then verified PAC/IE acquisition and per-candidate receipt sync. The legacy
+// registration sweep is shared by auto-link and receipt sync; verified source
+// components acquire their own fresh opening/closing context. Per-candidate
+// write failures are recorded and the batch continues. Steps are injectable.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -21,6 +20,11 @@ import {
   type ArkansasCandidateFinanceSyncResult,
 } from "./arkansasCandidateFinanceSync.js";
 import type { ArkansasCfisClientOptions } from "./arkansasCfisClient.js";
+import type { ArkansasVerifiedRawCapture } from "./arkansasVerifiedRawCache.js";
+import { createArkansasVerifiedFinanceLoader, type ArkansasVerifiedFinanceLoader } from "./arkansasVerifiedFinanceLoader.js";
+import { aggregateArkansasVerifiedOutsideEvidence, type ArkansasOutsideIdentityCoverProof } from "./arkansasVerifiedOutsideEvidence.js";
+import { normalizeArkansasCandidateNameForStorage } from "./arkansasCandidateFilerResolver.js";
+import type { ArkansasFinanceLinkInput } from "./arkansasFinanceWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -47,6 +51,8 @@ export type ArkansasCandidateFinanceBatchSyncInput = {
   dryRun?: boolean;
   autoLinkMissingLinks?: boolean;
   clientOptions?: ArkansasCfisClientOptions;
+  onRawResponse?: (capture: ArkansasVerifiedRawCapture) => void | Promise<void>;
+  verifiedFinanceLoader?: ArkansasVerifiedFinanceLoader;
   log?: (message: string) => void;
   autoLinkFn?: typeof autoLinkMissingArkansasCandidateFinanceLinks;
   listDueRowsFn?: typeof listDueArkansasCandidateFinanceSyncRows;
@@ -127,9 +133,64 @@ export async function syncDueArkansasCandidateFinance(
   const rows = scopedRows.slice(0, maxCandidates);
 
   const syncCandidate = input.syncCandidateFn ?? syncArkansasCandidateFinance;
+  const toLink = (row: ArkansasCandidateFinanceDueRow): ArkansasFinanceLinkInput => ({
+    candidateId: row.candidateId, electionId: row.electionId, electionYear: row.electionYear,
+    candidateNameNormalized: normalizeArkansasCandidateNameForStorage(row.candidateName),
+    officeName: row.officeName, district: row.district, filingEntityId: row.filingEntityId, filerName: row.filerName,
+    linkStatus: "active", linkSource: row.linkSource, sourceUrl: row.sourceUrl,
+  });
+  const prepared: NonNullable<Parameters<typeof syncArkansasCandidateFinance>[0]["verifiedFinance"]>[] = [];
+  if (rows.length && (!input.syncCandidateFn || input.verifiedFinanceLoader)) {
+    const loader = input.verifiedFinanceLoader ?? createArkansasVerifiedFinanceLoader({
+      clientOptions: input.clientOptions, onRawResponse: input.onRawResponse,
+    });
+    const prior = await input.db.query<{ candidate_id: string; election_id: string;
+      filing_entity_id: string; pac_source_provenance: unknown }>(`
+      SELECT link.candidate_id, link.election_id, link.filing_entity_id, summary.pac_source_provenance
+      FROM public.ar_candidate_finance_links link
+      JOIN jsonb_to_recordset($1::jsonb) AS selected(candidate_id uuid, election_id uuid)
+        ON selected.candidate_id = link.candidate_id AND selected.election_id = link.election_id
+      LEFT JOIN public.ar_candidate_finance_summaries summary
+        ON summary.link_id = link.id AND summary.election_year = link.election_year
+      WHERE link.link_status = 'active'`, [JSON.stringify(rows.map(row => ({
+      candidate_id: row.candidateId, election_id: row.electionId,
+    })))]);
+    const outsideByYear = new Map<number, Awaited<ReturnType<ArkansasVerifiedFinanceLoader["loadIndependentSpending"]>>>();
+    for (const year of new Set(rows.map(row => row.electionYear))) {
+      outsideByYear.set(year, await loader.loadIndependentSpending({ electionYear: year }));
+    }
+    for (const row of rows) {
+      const link = toLink(row), previous = prior.rows.find(p => p.candidate_id === row.candidateId
+        && p.election_id === row.electionId && p.filing_entity_id === String(row.filingEntityId));
+      const pac = await loader.loadCandidate({ link, officeScope: row.officeScope,
+        priorPacSourceProvenance: previous?.pac_source_provenance });
+      const outside = outsideByYear.get(row.electionYear)!;
+      const diagnostics = [...pac.diagnostics, ...outside.diagnostics];
+      let identityCover: ArkansasOutsideIdentityCoverProof | undefined;
+      if (outside.ieProofs?.length && row.filingEntityId === 8277 && row.electionYear === 2026) {
+        const identity = await loader.loadCandidateIdentity({ entityId: 8277, electionYear: 2026,
+          officeName: "State Representative", district: "24", reportGuid: "0e3b5e5d-b829-4c96-9558-68935accb8d3" });
+        diagnostics.push(...identity.diagnostics);
+        if (identity.identity && identity.registryBefore && identity.registryAfter
+          && identity.reportsBefore && identity.reportsAfter && identity.pdf) {
+          identityCover = { identity: identity.identity, registryBefore: identity.registryBefore,
+            registryAfter: identity.registryAfter, reportsBefore: identity.reportsBefore,
+            reportsAfter: identity.reportsAfter, pdf: identity.pdf };
+        }
+      }
+      const outsideEvidence = [];
+      if (outside.registryBefore && outside.registryAfter) for (const proof of outside.ieProofs ?? []) {
+        const allocated = aggregateArkansasVerifiedOutsideEvidence({ link, financialEvidence: proof,
+          registryBefore: outside.registryBefore, registryAfter: outside.registryAfter, candidateIdentityCover: identityCover });
+        diagnostics.push(...allocated.diagnostics);
+        if (allocated.evidence) outsideEvidence.push(allocated.evidence);
+      }
+      prepared.push({ pacDonors: pac.pacDonors, pacSourceProvenance: pac.pacSourceProvenance, outsideEvidence, diagnostics });
+    }
+  }
   const candidates: ArkansasCandidateFinanceBatchSyncResult["candidates"] = [];
   let succeeded = 0;
-  for (const row of rows) {
+  for (const [index, row] of rows.entries()) {
     try {
       const result = await syncCandidate({
         db: input.db,
@@ -150,6 +211,7 @@ export async function syncDueArkansasCandidateFinance(
         dryRun,
         clientOptions: input.clientOptions,
         loadRegistrations,
+        verifiedFinance: prepared[index],
       });
       succeeded += 1;
       candidates.push({ row, ok: true, result });

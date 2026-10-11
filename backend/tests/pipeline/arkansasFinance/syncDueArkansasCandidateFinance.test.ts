@@ -10,6 +10,7 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
       refresh: false,
       candidateId: undefined,
       electionYear: undefined,
+      rawCacheDir: undefined,
       dnsFallback: false,
       autoLinkMissingLinks: true,
       maxCandidates: undefined,
@@ -35,6 +36,7 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
       refresh: false,
       candidateId: undefined,
       electionYear: undefined,
+      rawCacheDir: undefined,
       dnsFallback: true,
       autoLinkMissingLinks: false,
       maxCandidates: 3,
@@ -59,5 +61,7 @@ describe("parseSyncDueArkansasCandidateFinanceScriptArgs", () => {
   it("rejects unknown flags and bad numbers", () => {
     expect(() => parseSyncDueArkansasCandidateFinanceScriptArgs(["--cache-dir=x"])).toThrow(/cache-dir/);
     expect(() => parseSyncDueArkansasCandidateFinanceScriptArgs(["--max-candidates=0"])).toThrow(/--max-candidates/);
+    expect(() => parseSyncDueArkansasCandidateFinanceScriptArgs(["--raw-cache-dir=relative"])).toThrow(/absolute/);
+    expect(parseSyncDueArkansasCandidateFinanceScriptArgs(["--raw-cache-dir=/tmp/arkansas-source"])).toMatchObject({ rawCacheDir: "/tmp/arkansas-source" });
   });
 });

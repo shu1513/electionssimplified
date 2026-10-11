@@ -92,7 +92,7 @@ describe("arkansasBallotLookupFinanceLoader", () => {
       [ELECTION]
     );
 
-    expect(query).toHaveBeenCalledTimes(5);
+    expect(query).toHaveBeenCalledTimes(6);
     const summary = result.get(`${CANDIDATE_ID}\u0000${ELECTION_ID}`);
     expect(summary).toMatchObject({
       source: "ARKANSAS_CFIS",
@@ -140,6 +140,81 @@ describe("arkansasBallotLookupFinanceLoader", () => {
     expect(directSql).toContain("breakdown.category_type IN ('occupation', 'contribution_size')");
     expect(outsideGroupSql).toContain("outside_group.filing_entity_id AS committee_id");
     expect(outsideGroupSql).toContain("min(outside_group.filer_name) AS committee_name");
+  });
+
+  it("sums all typed PAC donors before display caps and keeps partial outside totals unknown", async () => {
+    vi.stubEnv("ARKANSAS_CAMPAIGN_FINANCE_ENABLED", "true");
+    const donor = (id: number) => ({
+      candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: `reported:ZETA ${id}`,
+      committee_name: `Zeta ${id}`, committee_type: "Political Action Committee", amount: "100.25",
+      source_url: "https://ethics-disclosures.sos.arkansas.gov/public/cf/candidateprofile?guid=receiver&tabName=TCON",
+      industry_slug: "construction", classification_source: "rule", confidence: "low",
+    });
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes("ar_candidate_finance_pac_donors")) {
+        return { rows: [...Array.from({ length: 7 }, (_, id) => donor(id)),
+          { ...donor(8), committee_type: "Business", amount: "9000" },
+          { ...donor(9), amount: "0" }] };
+      }
+      if (sql.includes("count(DISTINCT link.filing_entity_id)")) return { rows: [{
+        candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7243", election_year: 2026,
+        total_receipts: "80412", direct_contribution_total: "80412", total_disbursements: "1000",
+        cash_on_hand: "79412", outside_support_total: null, outside_oppose_total: null,
+        source_url: "https://ethics-disclosures.sos.arkansas.gov/", last_synced_at: "2026-10-11T12:00:00Z",
+      }] };
+      if (sql.includes("outside_group.filing_entity_id AS committee_id")) return { rows: [{
+        candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "1085", committee_name: "NRA IEF",
+        support_oppose: "support", amount: "145.47", expenditure_count: "2", source_url: null,
+      }] };
+      return { rows: [] };
+    });
+    const summaries = await loadArkansasCandidateFinanceSummariesByCandidateElection({ query }, [
+      { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID },
+    ], [ELECTION]);
+    const summary = summaries.get(`${CANDIDATE_ID}\u0000${ELECTION_ID}`)!;
+    expect(summary.direct_campaign.total_raised).toBe(80412);
+    expect(summary.direct_campaign.pac_money_by_interest).toHaveLength(1);
+    expect(summary.direct_campaign.pac_money_by_interest![0]).toMatchObject({
+      interest_name: "Not yet sorted", amount: 701.75, pac_count: 7,
+    });
+    expect(summary.direct_campaign.pac_money_by_interest![0]!.pacs).toHaveLength(5);
+    expect(summary.direct_campaign.pac_money_by_interest![0]!.pacs[0]!.source_url).toContain("tabName=TCON");
+    expect(summary.outside_spending).toMatchObject({ support_total: null, oppose_total: null,
+      top_supporting_groups: [{ amount: 145.47, committee_id: "1085" }] });
+    const pacCall = query.mock.calls.find(([sql]) => sql.includes("ar_candidate_finance_pac_donors"))!;
+    expect(pacCall[0]).toContain("max(donor.amount)");
+    expect(pacCall[0]).toContain("link.filing_entity_id, donor.committee_id");
+    expect(pacCall[0]).toContain("donor.election_year = link.election_year");
+  });
+
+  it("honors manual classifications, rejects low-confidence stored guesses and scopes PAC queries to returned summaries", async () => {
+    vi.stubEnv("ARKANSAS_CAMPAIGN_FINANCE_ENABLED", "true");
+    const otherCandidate = "33333333-3333-4333-8333-333333333333";
+    const query = vi.fn(async (sql: string, params?: unknown[]) => {
+      if (sql.includes("ar_candidate_finance_pac_donors")) {
+        expect(params).toEqual([JSON.stringify([{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID }])]);
+        return { rows: [
+          { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "registry:1",
+            committee_name: "Zeta Committee", committee_type: "Political Action Committee", amount: 500,
+            source_url: null, industry_slug: "construction", classification_source: "manual", confidence: "low" },
+          { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "registry:2",
+            committee_name: "Theta Committee", committee_type: "Political Action Committee", amount: 250,
+            source_url: null, industry_slug: "construction", classification_source: "ai", confidence: "low" },
+        ] };
+      }
+      if (sql.includes("count(DISTINCT link.filing_entity_id)")) return { rows: [{
+        candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7243", election_year: 2026,
+        total_receipts: "1000", outside_support_total: null, outside_oppose_total: null,
+      }] };
+      return { rows: [] };
+    });
+    const summary = (await loadArkansasCandidateFinanceSummariesByCandidateElection({ query }, [
+      { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID },
+      { candidate_id: otherCandidate, election_id: ELECTION_ID },
+    ], [ELECTION])).get(`${CANDIDATE_ID}\u0000${ELECTION_ID}`)!;
+    const interests = summary.direct_campaign.pac_money_by_interest!;
+    expect(interests.find(group => group.interest === "construction")).toMatchObject({ amount: 500, pac_count: 1 });
+    expect(interests.find(group => group.interest_name === "Not yet sorted")).toMatchObject({ amount: 250, pac_count: 1 });
   });
 
   it("references only AR outside-group columns created by migrations", async () => {

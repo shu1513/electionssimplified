@@ -29,6 +29,8 @@ import {
   type ArkansasFinanceLinkSource,
   type ArkansasFinanceSnapshotWriteResult,
 } from "./arkansasFinanceWriter.js";
+import type { ArkansasFinancePacDonor, ArkansasPacSourceProvenance } from "./arkansasPacSourceEvidence.js";
+import type { ArkansasVerifiedOutsideEvidence } from "./arkansasVerifiedOutsideEvidence.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -57,6 +59,13 @@ export type ArkansasCandidateFinanceSyncInput = {
   /** Memoized registry sweep; a batch shares one across auto-link and every sync. */
   loadRegistrations?: () => Promise<ArkansasFilerRegistrationRow[]>;
   fetchTransactions?: typeof getAllArkansasTransactions;
+  /** Internally prepared source evidence from the normal verified batch. */
+  verifiedFinance?: {
+    pacDonors?: readonly ArkansasFinancePacDonor[];
+    pacSourceProvenance?: ArkansasPacSourceProvenance;
+    outsideEvidence?: readonly ArkansasVerifiedOutsideEvidence[];
+    diagnostics: readonly string[];
+  };
 };
 
 export type ArkansasCandidateFinanceSyncResult = {
@@ -70,6 +79,9 @@ export type ArkansasCandidateFinanceSyncResult = {
   aggregation: ArkansasDirectContributionAggregationResult;
   summaryWritten: boolean;
   directBreakdownsWritten: number;
+  pacDonorsWritten?: number;
+  outsideGroupsWritten?: number;
+  sourceDiagnostics?: readonly string[];
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -198,6 +210,9 @@ export async function syncArkansasCandidateFinance(
       // [] after an unreconciled pull clears stale breakdowns; the totals
       // above are the state's own figures and publish either way.
       directBreakdowns: aggregation.directBreakdowns,
+      pacDonors: input.verifiedFinance?.pacDonors,
+      pacSourceProvenance: input.verifiedFinance?.pacSourceProvenance,
+      outsideEvidence: input.verifiedFinance?.outsideEvidence,
     });
   }
 
@@ -208,6 +223,11 @@ export async function syncArkansasCandidateFinance(
     dryRun,
     filingEntityId: input.link.filingEntityId,
     registrationGuid: registration.registrationGuid,
+    ...(input.verifiedFinance ? {
+      pacDonorsWritten: write?.pacDonorsWritten ?? 0,
+      outsideGroupsWritten: write?.outsideGroupsWritten ?? 0,
+      sourceDiagnostics: [...input.verifiedFinance.diagnostics, ...(write?.outsideDiagnostics ?? [])],
+    } : {}),
     receiptRowCount: receiptRows.length,
     aggregation,
     summaryWritten: write?.summaryWritten ?? false,

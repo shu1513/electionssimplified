@@ -125,4 +125,34 @@ describe("syncDueArkansasCandidateFinance", () => {
     expect(autoLinkFn).not.toHaveBeenCalled();
     expect(syncCandidateFn).not.toHaveBeenCalled();
   });
+
+  it("prepares closed independent source components before writes and preserves unavailable evidence", async () => {
+    const events: string[] = [], rows = [dueRow(), dueRow({ candidateId: "44444444-4444-4444-8444-444444444444", filingEntityId: 7243 })];
+    const query = vi.fn(async () => ({ rows: [] }));
+    const loadIndependentSpending = vi.fn(async () => {
+      events.push("outside-closed");
+      return { scope: "current_original_ief_reports" as const, attemptedRegistrationGuids: [],
+        unverifiedRegistrationGuids: [], diagnostics: ["outside source unavailable"] };
+    });
+    const loadCandidate = vi.fn(async ({ link }: { link: { candidateId: string } }) => {
+      events.push(`pac-closed:${link.candidateId}`);
+      return { diagnostics: ["PAC source unavailable"] };
+    });
+    const loadCandidateIdentity = vi.fn(async () => ({ diagnostics: [] }));
+    const syncCandidateFn = vi.fn(async input => {
+      expect(events.slice(0, 3)).toEqual(["outside-closed", `pac-closed:${rows[0]!.candidateId}`, `pac-closed:${rows[1]!.candidateId}`]);
+      events.push("write");
+      expect(input.verifiedFinance).toEqual({ pacDonors: undefined, pacSourceProvenance: undefined,
+        outsideEvidence: [], diagnostics: ["PAC source unavailable", "outside source unavailable"] });
+      return { summaryWritten: true } as never;
+    });
+    const result = await syncDueArkansasCandidateFinance({ db: { query, connect: vi.fn() } as never, now: NOW,
+      autoLinkMissingLinks: false, maxCandidates: 2, listDueRowsFn: vi.fn(async () => ({ rows, totalDueRows: 2 })),
+      syncCandidateFn, verifiedFinanceLoader: { loadCandidate, loadIndependentSpending, loadCandidateIdentity } });
+    expect(loadIndependentSpending).toHaveBeenCalledTimes(1);
+    expect(loadCandidate).toHaveBeenCalledTimes(2);
+    expect(loadCandidateIdentity).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ attempted: 2, succeeded: 2, failed: 0 });
+    expect(query.mock.calls).toHaveLength(1);
+  });
 });
