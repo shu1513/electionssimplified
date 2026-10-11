@@ -52,6 +52,7 @@ const STATE_UPPER_CANONICAL_NAME = "State Senator";
 const STATE_LOWER_CANONICAL_NAME = "State Lower Chamber Legislator";
 const EXECUTIVE_COUNCILOR_CANONICAL_NAME = "Executive Councilor";
 const STATE_BOARD_OF_EDUCATION_CANONICAL_NAME = "State Board of Education Member";
+const CITY_COUNCIL_MEMBER_CANONICAL_NAME = "City Council Member";
 const SCHOOL_BOARD_CANONICAL_NAME = "School Board Member";
 const STATE_LEVEL_JUDGE_CANONICAL_NAME = "State Level Judge";
 const COUNTY_LEVEL_JUDGE_CANONICAL_NAME = "County Level Judge";
@@ -944,6 +945,17 @@ export function isDcWardStateBoardOfEducationTitle(state: string, titleText: str
   return state.trim().toUpperCase() === "DC" && /\bstate board of education\b/.test(titleText);
 }
 
+// DC's ward Council seat ("Ward 5 Member of the Council") sits on a ward row
+// typed state_upper. It is a seat on the Council of the District of Columbia,
+// not a state senate seat (migration 320).
+export function isDcWardCouncilTitle(state: string, titleText: string): boolean {
+  return (
+    state.trim().toUpperCase() === "DC" &&
+    /\bcouncil\b/i.test(titleText) &&
+    !/\bstate board of education\b/i.test(titleText)
+  );
+}
+
 function isWashingtonState(state: string): boolean {
   const normalized = state.trim().toLowerCase();
   return normalized === "wa" || normalized === "washington";
@@ -1445,6 +1457,25 @@ export class OfficeMatcher {
       }
     }
 
+    // DC's ward Council seat goes to the state_upper City Council Member office
+    // (migration 320). Ahead of every alias: the State Senator route below
+    // persists its aliases, so a database whose earlier runs learned "member
+    // of the council" -> State Senator would otherwise return that alias first.
+    // DC only and never persisted.
+    if (input.scope === "state_upper" && isDcWardCouncilTitle(input.state, titleMatcherKey || normalizedAlias)) {
+      const office = findSingleScopeOffice(await this.loadOffices(input.scope), CITY_COUNCIL_MEMBER_CANONICAL_NAME);
+      if (office) {
+        return {
+          officeId: office.id,
+          method: "deterministic_fallback",
+          confidence: 1,
+          normalizedAlias,
+          aliasMemoryKey: titleMatcherKey,
+          shouldPersistAlias: false,
+        };
+      }
+    }
+
     let exactOfficeId = aliases.get(normalizedAlias);
     if (!exactOfficeId && titleMatcherKey.length > 0 && titleMatcherKey !== normalizedAlias) {
       exactOfficeId = aliases.get(titleMatcherKey);
@@ -1574,7 +1605,7 @@ export class OfficeMatcher {
     }
 
     // The District of Columbia has no state legislature; its ward rows are
-    // typed state_upper because the ward's Council seat stands in for one. The
+    // typed state_upper and the ward Council seat is routed above. The
     // ward also elects its member of the DC State Board of Education (DC Code
     // § 38-2651), which is on the same ward ballot ("Ward 5 Member of the
     // State Board of Education", DCBOE certified list, live). Route it to the

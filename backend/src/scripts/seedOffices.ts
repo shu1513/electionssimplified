@@ -321,6 +321,19 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // The District of Columbia's ward Council seat, on the same ward row. It
+    // is a seat on the Council of the District of Columbia, like the Chairman
+    // and at-large seats on place City Council Member, so the same bullets
+    // (migration 320).
+    scope: "state_upper",
+    canonicalName: "City Council Member",
+    summary: [
+      "Passing city laws, called ordinances",
+      "Approving the city budget",
+      "Funding city services, such as police, trash, and parks",
+    ].join("\n"),
+  },
+  {
     scope: "state_lower",
     canonicalName: "State Lower Chamber Legislator",
     summary: [

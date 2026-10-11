@@ -1,6 +1,6 @@
 export type DistrictOfColumbiaFinanceEligibleOfficeKey = `${string}::${string}`;
 
-export type DistrictOfColumbiaFinanceOfficeScope = "place" | "statewide";
+export type DistrictOfColumbiaFinanceOfficeScope = "place" | "state_upper" | "statewide";
 
 export type DistrictOfColumbiaOcfSeat = "AT-LARGE" | `WARD ${number}` | null;
 
@@ -21,6 +21,9 @@ export type DistrictOfColumbiaOcfOfficeSearchInput = {
 export const DISTRICT_OF_COLUMBIA_FINANCE_ELIGIBLE_OFFICE_KEYS = [
   "place::Mayor",
   "place::City Council Member",
+  // DC's ward Council seats sit on the ward rows, which are typed state_upper
+  // (migration 320).
+  "state_upper::City Council Member",
   "statewide::Attorney General",
 ] as const satisfies readonly DistrictOfColumbiaFinanceEligibleOfficeKey[];
 
@@ -91,6 +94,12 @@ const DISTRICT_OF_COLUMBIA_APP_OFFICE_DEFINITIONS: DistrictOfColumbiaOcfOfficeDe
   { officeScope: "place", officeCanonicalName: "Mayor", ocfOffice: "Mayor", requiresSeat: false },
   {
     officeScope: "place",
+    officeCanonicalName: "City Council Member",
+    ocfOffice: "Councilmember",
+    requiresSeat: true,
+  },
+  {
+    officeScope: "state_upper",
     officeCanonicalName: "City Council Member",
     ocfOffice: "Councilmember",
     requiresSeat: true,

@@ -3486,6 +3486,8 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- DC's ward-elected State Board of Education seat (migration 280): the
     -- statewide board's set, since it is the same policy job at ward scope.
     ('state_upper', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),
+    -- DC's ward Council seat (migration 320): place City Council Member's set.
+    ('state_upper', 'City Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     -- Colorado's congressional-district regent and State Board of Education
     -- seats (migration 304): the statewide boards' sets, same jobs.
     ('us_house', 'State Board of Education Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]),

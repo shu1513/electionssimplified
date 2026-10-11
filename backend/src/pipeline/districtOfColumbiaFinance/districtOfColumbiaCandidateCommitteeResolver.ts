@@ -223,11 +223,22 @@ function recordMatchesOffice(input: {
     return true;
   }
 
-  const committeeName = normalizeTextKey(input.record.committeeName ?? "");
-  if (input.expectedSeat === "AT-LARGE") {
-    return /\bAT\s+LARGE\b/.test(committeeName);
+  // The committee name often carries the seat ("Doe for Ward 7", "Doe At
+  // Large"). The seat normalizer reads every spelling the seat column would
+  // ("Ward 07", "AtLarge", "citywide"), so read the name with it rather than
+  // a second regex that drifts from it.
+  const nameSeat = normalizeDistrictOfColumbiaOcfSeat(normalizeTextKey(input.record.committeeName ?? ""));
+  if (nameSeat === input.expectedSeat) {
+    return true;
   }
-  return committeeName.includes(input.expectedSeat);
+
+  // OCF's contribution export carries no office or seat, and a ward
+  // committee's name often omits the ward (live: "Committee to Re - Elect
+  // Zachary Parker 2026", Ward 5, 612 rows). A row that names the candidate
+  // and says nothing about any seat cannot contradict the ward, so accept it;
+  // the name and cycle checks still apply. A row that names some other seat
+  // stays out.
+  return rowSeat === null && nameSeat === null && Boolean(input.record.candidateName?.trim());
 }
 
 function toCommitteeMatch(input: {
@@ -248,7 +259,10 @@ function isSeatRequiredInput(input: {
   officeScope: string;
   officeName: string;
 }): boolean {
-  return input.officeScope === "place" && input.officeName.trim() === "City Council Member";
+  return (
+    (input.officeScope === "place" || input.officeScope === "state_upper") &&
+    input.officeName.trim() === "City Council Member"
+  );
 }
 
 export function resolveDistrictOfColumbiaCandidateCommittee(

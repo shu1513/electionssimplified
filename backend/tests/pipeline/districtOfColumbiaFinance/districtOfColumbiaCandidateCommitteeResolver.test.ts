@@ -282,6 +282,49 @@ describe("districtOfColumbiaCandidateCommitteeResolver", () => {
     });
   });
 
+  it("links a state_upper ward Council race through OCF rows that carry no office or seat", () => {
+    // OCF's export has no office or seat column; the live Ward 5 committee
+    // name omits the ward too (migration 320 moved ward races to state_upper).
+    const seatless = record({
+      office: undefined,
+      seat: undefined,
+      electionYear: undefined,
+      candidateName: "Zachary Parker",
+      committeeName: "Committee to Re - Elect Zachary Parker 2026",
+      committeeKey: "COMMITTEE TO RE - ELECT ZACHARY PARKER 2026",
+    });
+    const resolve = (contributionRecords: DistrictOfColumbiaOcfContributionRecord[]) =>
+      resolveDistrictOfColumbiaCandidateCommittee({
+        candidateName: "Zachary Parker",
+        officeScope: "state_upper",
+        officeName: "City Council Member",
+        seat: "Ward 5 Member of the Council Ward 5 (2024); District of Columbia",
+        electionYear: 2026,
+        contributionRecords,
+      });
+
+    expect(resolve([seatless])).toMatchObject({
+      status: "matched",
+      committeeKey: "COMMITTEE TO RE - ELECT ZACHARY PARKER 2026",
+    });
+    // A committee that names another ward stays out, in any spelling the
+    // seat normalizer reads.
+    for (const committeeName of ["Parker for Ward 7", "Parker for Ward 07", "Parker for AtLarge", "Parker Citywide"]) {
+      expect(resolve([{ ...seatless, committeeName, committeeKey: committeeName.toUpperCase() }])).toMatchObject({
+        status: "unmatched",
+        reason: "no_candidate_committee_match",
+      });
+    }
+    // A committee that names this ward in a zero-padded spelling still links.
+    expect(
+      resolve([{ ...seatless, committeeName: "Parker for Ward 05", committeeKey: "PARKER FOR WARD 05" }])
+    ).toMatchObject({ status: "matched", committeeKey: "PARKER FOR WARD 05" });
+    // A row with no candidate name cannot use the seatless path.
+    expect(
+      resolve([{ ...seatless, candidateName: undefined }])
+    ).toMatchObject({ status: "unmatched", reason: "no_candidate_committee_match" });
+  });
+
   it("does not guess when multiple D.C. committees match", () => {
     expect(
       resolveDistrictOfColumbiaCandidateCommittee({
