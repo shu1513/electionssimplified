@@ -189,7 +189,7 @@ export default function HomeScreen() {
         {/* What the service is, where a first-time visitor looks — same line
             the web hero carries. */}
         <Text className="mt-3 text-center text-sm font-medium text-ink-soft">
-          Factual, nonpartisan records with linked sources.
+          Votes, actions, and funding, with linked sources.
         </Text>
 
         <View className="mt-6 gap-4">
