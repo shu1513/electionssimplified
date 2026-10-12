@@ -60,6 +60,17 @@ edition. This conservative gate runs before writes and preserves old snapshots.
 
 Source facts and candidate packet transport are now implemented; accepted-money
 composition, transactional persistence and normal fresh sync proof remain open.
+The independently refreshed third-party packet now replays through the outside
+source verifier: 49 opening and 50 closing original captures prove one literal
+$499,015 support allocation for Kathleen Jennings. Every original byte/hash and
+capture time is retained. One unique receipt monetary identity has a different
+PDF/native address snapshot; repeated monetary identities still require address
+corroboration and equivalent source classes, mechanisms, periods and targets.
+This is source proof, pending ordinary persistence and card validation; it grants
+no candidate-wide outside zero or complete-coverage authority.
+Complete all-type/status registry transport and explicit blank-date whole-account
+candidate queries are implemented. Current-cycle cash and PAC composition remain
+separate verification steps; reported and registry-derived classes stay distinct.
 Migration 334 adds donor/provenance storage and has passed local rollback
 validation; it remains unapplied. The PAC reader now includes all eligible
 linked-committee totals before display caps, excludes known candidate/self

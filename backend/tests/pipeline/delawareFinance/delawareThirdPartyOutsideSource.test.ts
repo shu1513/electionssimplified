@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   verifyDelawareThirdPartyOutsideSource,
   fingerprintDelawareThirdPartyOrganizationHtml,
+  decodeDelawareCandidateOwnerSource,
+  decodeDelawareReportInventorySource,
+  validateDelawareSourceCapturePacket,
   type DelawareOutsideSourcePacket,
   type DelawareOutsideCandidateScope,
   type DelawareOutsidePayerScope,
@@ -500,6 +503,33 @@ function input() {
   };
 }
 describe("Delaware pure TP outside full source binder (synthetic protocol)", () => {
+  it("shares original-envelope owner and inventory decoders without granting cycle authority", () => {
+    const source = phase();
+    const owner = { cfId: candidate.receivingCfId, memberId: candidate.receivingMemberId,
+      committeeName: candidate.receivingCommitteeName };
+    const facts = decodeDelawareCandidateOwnerSource({ captures: source.receiverIdentity, owner });
+    expect(facts.ownerRegistry.versions).toEqual([7]);
+    expect(facts.organizationHtml).toHaveLength(1);
+    expect(decodeDelawareReportInventorySource({ captures: source.candidateCycleAuthority, owner }))
+      .toMatchObject([{ cfId: owner.cfId, document: { publicReportFileName: receiverFile } }]);
+    source.receiverIdentity[0]!.requestScopeRedacted = true;
+    expect(() => validateDelawareSourceCapturePacket(source.receiverIdentity)).toThrow("invalid/redacted source envelope");
+    expect(() => decodeDelawareCandidateOwnerSource({ captures: source.receiverIdentity, owner })).toThrow();
+    expect(() => decodeDelawareReportInventorySource({ captures: source.allVersionReports, owner })).toThrow();
+  });
+  it("corroborates unique monetary identities despite stable address snapshots differing from the PDF", async () => {
+    const i = input();
+    for (const phase of [i.before, i.after]) {
+      for (const c of [phase.genericMemberReceipts[2]!, phase.thirdPartyReceiptExport[2]!,
+        phase.expenses[1]!, phase.expenses[2]!]) {
+        changed(c, s => s.replaceAll("SANITIZED ADDRESS", "UPDATED SANITIZED ADDRESS"));
+      }
+    }
+    const result = await verifyDelawareThirdPartyOutsideSource(i);
+    expect(result.proof?.allocations).toMatchObject([{ transactionId: 786022, amountCents: 49901500 }]);
+    expect(result.diagnostics.join()).toContain("2 unique monetary identities");
+    expect(JSON.stringify(result.proof)).not.toContain("UPDATED SANITIZED ADDRESS");
+  });
   it("binds separate whole native/TP8 facets, literal target and reported candidacy period", async () => {
     const r = await verifyDelawareThirdPartyOutsideSource(input());
     expect(r.diagnostics.join()).not.toContain("Delaware outside source:");
@@ -742,11 +772,15 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
     expect(r.proof).toBeUndefined();
     expect(r.diagnostics.join()).toContain("multiple current-period");
   });
-  it("retains legitimate identical expense occurrences with distinct stable IDs and literal target rows", async () => {
+  it.each(["equivalent", "address_mismatch", "target_mismatch"])("handles repeated monetary identities: %s", async (kind) => {
     const i = input();
     for (const phase of [i.before, i.after]) {
       const first = { ...nativeExpense(), ExpenseAmount: 249507.5 },
         second = { ...first, Transaction_Id: 786023 };
+      if (kind === "address_mismatch") {
+        first.Address = first.AddressLine1 = "UPDATED SANITIZED ADDRESS";
+        second.Address = second.AddressLine1 = "UPDATED SANITIZED ADDRESS";
+      }
       changed(phase.expenses[0]!, (s) => s.replace("total:1", "total:2"));
       changed(phase.expenses[1]!, () =>
         JSON.stringify({ data: [first, second], total: 99 }),
@@ -785,7 +819,7 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
         cell("SANITIZED ADDRESS", 300, 278),
         cell("$499,015.00", 621, 278),
         cell("$249,507.50", 700, 278),
-        cell("Support of Kathleen Jennings - State", 129, 258),
+        cell(`${kind === "target_mismatch" ? "Oppose" : "Support"} of Kathleen Jennings - State`, 129, 258),
         cell("Office - Attorney General - Democratic", 129, 248),
       );
       const cap = phase.reportPdfs[0]!;
@@ -794,6 +828,11 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
       cap.sha256 = createHash("sha256").update(cap.body).digest("hex");
     }
     const result = await verifyDelawareThirdPartyOutsideSource(i);
+    if (kind !== "equivalent") {
+      expect(result.proof).toBeUndefined();
+      expect(result.diagnostics.join()).toContain(kind === "address_mismatch" ? "address corroboration" : "ambiguous source class/mechanism/target");
+      return;
+    }
     expect(
       result.proof?.allocations.map((r) => [
         r.transactionId,

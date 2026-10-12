@@ -798,16 +798,12 @@ function matchFinancial(
     display(
       rawString(r, kind === "receipts" ? "ContributorName" : "PayeeName"),
     ),
-    transport(
-      rawString(r, kind === "receipts" ? "ContributorAddress" : "Address"),
-    ),
     kind === "receipts" ? "" : display(rawString(r, "VendorName")),
   ];
   const pdfTuple = (r: DelawareThirdPartyPdfOccurrence) => [
     r.date,
     r.amountCents,
     display(r.name),
-    transport(r.address),
     display(r.vendor),
   ];
   if (!equal(tuples(native.map(nativeTuple)), tuples(pdf.map(pdfTuple))))
@@ -819,7 +815,48 @@ function matchFinancial(
     q.push(r);
     queues.set(k, q);
   });
-  return pdf.map((r) => queues.get(canonical(pdfTuple(r)))!.shift()!);
+  let addressDifferences = 0;
+  const pdfGroups = new Map<string, DelawareThirdPartyPdfOccurrence[]>();
+  pdf.forEach((r) => {
+    const key = canonical(pdfTuple(r));
+    const rows = pdfGroups.get(key) ?? [];
+    rows.push(r);
+    pdfGroups.set(key, rows);
+  });
+  // A unique exact monetary identity can carry a different address snapshot.
+  // Repeated identities need address corroboration and equivalent source facts;
+  // otherwise an ordinal pairing would invent which native ID has which target.
+  for (const [key, rows] of queues) {
+    if (rows.length < 2) continue;
+    const occurrences = pdfGroups.get(key)!;
+    const nativeAddress = (r: DelawareNativeLedgerRow) => transport(
+      rawString(r, kind === "receipts" ? "ContributorAddress" : "Address"),
+    );
+    if (!equal(tuples(rows.map(nativeAddress)), tuples(occurrences.map(r => transport(r.address)))))
+      fail("repeated PDF/native monetary identities lack address corroboration");
+    for (const address of new Set(rows.map(nativeAddress))) {
+      const nativeFacts = rows.filter(r => nativeAddress(r) === address).map(r => [
+        rawString(r, kind === "receipts" ? "ContributorType" : "PayeeType"),
+        rawString(r, kind === "receipts" ? "ContributionType" : "ExpenseMethod"),
+        rawString(r, "FilingPeriodName"),
+        rawString(r, "FileAmendedVersion"),
+      ]);
+      const targets = occurrences.filter(r => transport(r.address) === address).map(r => r.target ?? null);
+      if (new Set(nativeFacts.map(canonical)).size !== 1 || new Set(targets.map(canonical)).size !== 1)
+        fail("repeated monetary identities have ambiguous source class/mechanism/target");
+    }
+  }
+  const matched = pdf.map((r) => {
+    const queue = queues.get(canonical(pdfTuple(r)))!;
+    const address = transport(r.address);
+    const index = queue.findIndex(row => transport(rawString(row,
+      kind === "receipts" ? "ContributorAddress" : "Address")) === address);
+    const row = queue.splice(index < 0 ? 0 : index, 1)[0]!;
+    if (transport(rawString(row, kind === "receipts" ? "ContributorAddress" : "Address")) !== address)
+      addressDifferences += 1;
+    return row;
+  });
+  return { matched, addressDifferences };
 }
 function noSupplementalActivity(r: DelawareThirdPartyFinancialReport) {
   const controls = Object.values(r.supplementalTotals).flat();
@@ -1164,17 +1201,20 @@ async function decodePhase(
     assignedExpenses = new Set<number>();
   const allocations: DelawareVerifiedThirdPartyOutsideProof["allocations"][number][] =
     [];
+  let addressDifferences = 0;
   for (const r of financial) {
     const bound = (row: DelawareNativeLedgerRow) =>
       row.date >= r.facts.periodStart && row.date <= r.facts.periodEnd;
     const cashRows = receipts.filter(bound),
       expenseRows = outgoing.filter(bound);
-    matchFinancial(cashRows, r.facts.receipts, "receipts");
-    const matched = matchFinancial(
+    const receiptMatch = matchFinancial(cashRows, r.facts.receipts, "receipts");
+    const expenseMatch = matchFinancial(
       expenseRows,
       r.facts.expenditures,
       "expenses",
     );
+    const matched = expenseMatch.matched;
+    addressDifferences += receiptMatch.addressDifferences + expenseMatch.addressDifferences;
     cashRows.forEach((row) => assignedReceipts.add(row.transactionId));
     expenseRows.forEach((row) => assignedExpenses.add(row.transactionId));
     if (
@@ -1237,6 +1277,7 @@ async function decodePhase(
     receipts,
     outgoing,
     allocations,
+    addressDifferences,
     reg,
     org,
     receiverProof,
@@ -1250,6 +1291,33 @@ function captures(p: DelawareOutsideSourcePacket) {
   return Object.entries(p)
     .filter(([k]) => k !== "unsupportedFacets")
     .flatMap(([, v]) => v);
+}
+/** Validate original public envelopes and order; this establishes no money authority. */
+export function validateDelawareSourceCapturePacket(captures: readonly DelawareCfrsResponseCapture[]) {
+  packet(captures);
+}
+
+/** Decode complete CF01 owner/SO source facts without asserting an election cycle. */
+export function decodeDelawareCandidateOwnerSource(input: {
+  captures: readonly DelawareCfrsResponseCapture[];
+  owner: { cfId: string; memberId: number; committeeName: string };
+}) {
+  packet(input.captures);
+  const ownerRegistry = registry(input.captures, input.owner, "01");
+  const organizationHtml = organization(input.captures, input.owner.memberId, "01",
+    input.owner.committeeName, ownerRegistry.versions);
+  return { ownerRegistry, organizationHtml };
+}
+
+/** Decode actual all-version/current-pointer inventories; no maximum-edition guess. */
+export function decodeDelawareReportInventorySource(input: {
+  captures: readonly DelawareCfrsResponseCapture[];
+  owner: { cfId: string; memberId: number; committeeName: string };
+  current?: boolean;
+}) {
+  packet(input.captures);
+  return reports(input.captures, input.owner.memberId, input.owner.committeeName,
+    input.owner.cfId, input.current ?? false);
 }
 /** Pure immutable-byte source replay; emits positive report scopes only, never candidate-wide zero. */
 export async function verifyDelawareThirdPartyOutsideSource(input: {
@@ -1374,6 +1442,9 @@ export async function verifyDelawareThirdPartyOutsideSource(input: {
     return {
       proof,
       diagnostics: [
+        ...(closing.addressDifferences > 0 ? [
+          `${closing.addressDifferences} unique monetary identities have different PDF/native address snapshots; original source fields retained.`,
+        ] : []),
         ...((before.unsupportedFacets?.length ?? 0) +
           (after.unsupportedFacets?.length ?? 0) >
         0
