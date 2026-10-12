@@ -48,6 +48,7 @@ import { Pool } from "pg";
 import { loadProjectEnv } from "../config/env.js";
 import { assertKnownCliFlags } from "./manualCliFlags.js";
 import {
+  type CandidateElectionLinkFkReference,
   isManualCandidateFinanceTargetFkReference,
   listCandidateElectionLinkFkReferences,
   listCandidateScopedElectionFkTables,
@@ -142,6 +143,37 @@ function requireEnv(name: string): string {
 // outside-group links) or fail with PostgreSQL's generic FK error (manual
 // finance filing targets). Mirrors the guards manual:candidate-elections:move
 // runs before its duplicate-merge delete.
+function isPairKeyedReference(ref: CandidateElectionLinkFkReference): boolean {
+  return (
+    ref.columnCount === 2 &&
+    (ref.column === "candidate_id" || ref.column === "election_id") &&
+    ref.column === ref.referencedColumn
+  );
+}
+
+// Tables whose FK constraint maps exactly candidate_id -> candidate_id and
+// election_id -> election_id (both columns present, nothing else).
+function pairKeyedFkTables(references: CandidateElectionLinkFkReference[]): Set<string> {
+  const byConstraint = new Map<string, CandidateElectionLinkFkReference[]>();
+  for (const ref of references) {
+    const key = `${ref.table}|${ref.constraintName}`;
+    byConstraint.set(key, [...(byConstraint.get(key) ?? []), ref]);
+  }
+  const tables = new Set<string>();
+  for (const refs of byConstraint.values()) {
+    const columns = new Set(refs.map((ref) => ref.column));
+    if (
+      refs.length === 2 &&
+      refs.every(isPairKeyedReference) &&
+      columns.has("candidate_id") &&
+      columns.has("election_id")
+    ) {
+      tables.add(refs[0]!.table);
+    }
+  }
+  return tables;
+}
+
 async function assertNoLinkScopedRows(
   client: UnlinkCandidateElectionClient,
   input: { candidateId: string; electionId: string; linkId: string }
@@ -183,13 +215,35 @@ async function assertNoLinkScopedRows(
   }
 
   // The choices FK is composite onto (candidate_id, election_id) and was
-  // counted above; the filing-targets FK likewise. Every other FK onto
-  // candidate_elections must be a single column onto id for the id-keyed
-  // count below to mean anything; any other shape is refused, not guessed.
-  const linkFkReferences = (await listCandidateElectionLinkFkReferences(client)).filter(
+  // counted above; the filing-targets FK likewise. Any other FK that maps
+  // exactly (candidate_id, election_id) onto the same columns is counted by
+  // the pair below (e.g. ks_independent_expenditure_evidence, ON DELETE SET
+  // NULL, which would silently orphan evidence rows). Every remaining FK
+  // must be a single column onto id for the id-keyed count to mean
+  // anything; any other shape is refused, not guessed.
+  const allLinkFkReferences = (await listCandidateElectionLinkFkReferences(client)).filter(
     (ref) =>
       ref.constraintName !== "fk_user_election_choices_candidacy" &&
       !isManualCandidateFinanceTargetFkReference(ref)
+  );
+  const pairKeyed = pairKeyedFkTables(allLinkFkReferences);
+  const pairReferenced: string[] = [];
+  for (const table of pairKeyed) {
+    const countResult = await client.query<{ n: string }>(
+      `SELECT count(*)::text AS n FROM ${table} WHERE candidate_id = $1::uuid AND election_id = $2::uuid`,
+      [input.candidateId, input.electionId]
+    );
+    const n = Number(countResult.rows[0]?.n ?? "0");
+    if (n > 0) pairReferenced.push(`${table} (${n})`);
+  }
+  if (pairReferenced.length > 0) {
+    throw new Error(
+      `Candidacy ${input.candidateId}/${input.electionId} is referenced by rows the delete would ` +
+        `cascade or orphan: ${pairReferenced.join(", ")}. Resolve those rows first (user decision), then re-run.`
+    );
+  }
+  const linkFkReferences = allLinkFkReferences.filter(
+    (ref) => !pairKeyed.has(ref.table) || !isPairKeyedReference(ref)
   );
   const unsupported = [
     ...new Set(
