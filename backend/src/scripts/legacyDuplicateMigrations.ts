@@ -3,7 +3,7 @@
 // research preflight check (checkManualResearchPreflight.ts) read this list, so
 // keep it here — two copies drifted once already and broke preflight.
 //
-// These exact duplicate sets were merged before duplicate-prefix enforcement existed.
+// These exact duplicate sets were already applied under their original filenames.
 // Keep the filenames stable so applied databases do not replay renamed migrations.
 export const LEGACY_DUPLICATE_MIGRATION_FILES_BY_PREFIX = new Map<string, string[]>([
   [
@@ -63,6 +63,16 @@ export const LEGACY_DUPLICATE_MIGRATION_FILES_BY_PREFIX = new Map<string, string
     [
       "305_add_county_hospital_trustee_and_extension_council_offices.sql",
       "305_add_local_special_transit_district_director_office.sql",
+    ],
+  ],
+  // #1569 and #1572 independently used 334. Delaware's migration was already
+  // applied locally before Oregon merged, so keep both applied filenames.
+  // They touch unrelated state tables and are safe in either filename order.
+  [
+    "334",
+    [
+      "334_add_delaware_verified_finance_evidence.sql",
+      "334_clear_oregon_unproven_outside_zeros.sql",
     ],
   ],
 ]);

@@ -8,6 +8,7 @@
 import {
   createStandardStateFinanceDueListQuery,
   type StandardStateFinanceDueListQuery,
+  type StandardStateFinanceDueListInput,
 } from "../finance/standardStateFinanceDueListQuery.js";
 import { DELAWARE_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./delawareFinanceEligibleOffices.js";
 import type { DelawareFinanceLinkSource } from "./delawareFinanceWriter.js";
@@ -28,7 +29,7 @@ export type DelawareCandidateFinanceDueRow = {
   lastSyncedAt: string | null;
 };
 
-export const listDueDelawareCandidateFinanceSyncRows: StandardStateFinanceDueListQuery<DelawareCandidateFinanceDueRow> =
+const queryDueDelawareCandidateFinanceSyncRows: StandardStateFinanceDueListQuery<DelawareCandidateFinanceDueRow> =
   createStandardStateFinanceDueListQuery({
     state: "DE",
     tables: {
@@ -56,3 +57,32 @@ export const listDueDelawareCandidateFinanceSyncRows: StandardStateFinanceDueLis
       lastSyncedAt: row.last_synced_at,
     }),
   });
+
+/** Validated before either live orchestration or the due SQL can run. */
+export function validateDelawareFinanceSyncScope(
+  input: Pick<StandardStateFinanceDueListInput, "candidateId" | "electionYear" | "refresh">
+): void {
+  if (
+    input.candidateId !== undefined &&
+    (typeof input.candidateId !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.candidateId))
+  ) {
+    throw new Error("Invalid Delaware finance candidateId: expected UUID");
+  }
+  if (
+    input.electionYear !== undefined &&
+    (!Number.isSafeInteger(input.electionYear) || input.electionYear < 2026 || input.electionYear > 2100)
+  ) {
+    throw new Error("Invalid Delaware finance electionYear: expected 2026..2100");
+  }
+  if (input.refresh !== undefined && typeof input.refresh !== "boolean") {
+    throw new Error("Invalid Delaware finance refresh: expected boolean");
+  }
+}
+
+export const listDueDelawareCandidateFinanceSyncRows: StandardStateFinanceDueListQuery<
+  DelawareCandidateFinanceDueRow
+> = async (db, input) => {
+  validateDelawareFinanceSyncScope(input);
+  return queryDueDelawareCandidateFinanceSyncRows(db, input);
+};

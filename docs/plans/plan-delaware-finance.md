@@ -1,5 +1,199 @@
 # Delaware Campaign Finance Plan
 
+## October 11, 2026 finance-gap work
+
+This section supersedes historical outside-allocation, PDF-footer-version and
+election-day-window conclusions below. One Delaware PR will extend the existing
+adapter for verified committee donors and explicitly allocated third-party
+expenses. Normal local sync and card proof remain pending.
+
+Reference: Pennsylvania's saved-page-first batch acquisition, direct committee
+classification, migration 322 and uncapped donor totals before display caps.
+Delaware's reported `Political Action Committee`/`PAC` contributor types supply
+primary class authority; retain verified registry identity/class separately.
+Name hints alone cannot promote business/group/labor-union donors. Unknown
+interests stay “Not yet sorted”; committee gifts do not increase Raised twice.
+
+Fresh research witnesses, pending replay through the normal sync:
+
+- Carlie Carey: 57 native/CSV receipts, current cover $25,215.80, five reported
+  PAC checks of $600 ($3,000); 19 outgoing native/CSV expenses = $3,870.82. Genuine
+  full source brackets and all five legal donor registry identities agree.
+- Jennings: full applicable 2023–2026 cycle, 819 unique native receipts. One
+  exact repeated ID at a page boundary is transport overlap; distinct economic
+  occurrences remain. Primary 30-Day separately publishes a $1,240 under-$100
+  Schedule A aggregate absent from both itemized exports. Retain that real
+  control without invented gifts/counts. `Electronic Fund Transfer` is a current
+  cash label; `Refund/Rebate` must follow actual Schedule A/cover semantics,
+  without assumed reimbursement or donor-return classification.
+- THE STATEHOUSE FUND: current financial Schedule B explicitly assigns $499,015
+  to support Kathleen Jennings, Attorney General, Democratic. Full cover:
+  $525,000 receipts − $499,015 expenses = $25,985. Native category = `Other Expenses`,
+  not source-coded IEC. Exact receiving-committee affiliation bridges Friends
+  of Kathy Jennings; no generic nickname alias. SO alone never allocates.
+- Actual owner, calendar, filename GUID and current/all-version inventory govern
+  report identity. Repeated footer `Document:14904 Version:1` is a template
+  label; current-view `2099 Annual` is a placeholder. Neither proves financial
+  scope/currentness. Native IDs/full fields and fresh source brackets are needed.
+- Receipts initialize at `/Public/ViewReceiptsMain`, then search POST to
+  `/Public/ViewReceipts`. Expenses need actual `CommitteeType`/`FilingYear`
+  selects and blank selects; old `*Data` containers alone returned empty while
+  the correct public search returned 456 rows. Third-party funder exports use
+  `/Public/ExportCSVNew_TP` with a separate eight-column contract. Their literal
+  `Filed Reports` value `Other` is not the native event-period identity.
+
+Reuse existing restricted atomic acquisition/cache, parsers, sync and shared
+transactional writer hook. First preserve omitted outside amounts/groups on
+direct refresh. Positive components require full cash/refund/control/currentness
+and exact local ownership proof. Saved artifacts retain original times; closing
+sources must be freshly acquired. Missing/failed components retain stored money.
+No global outside zero, 2026-only Jennings subset, Original-only workaround,
+economic dedupe or manually inserted canonical money. Migrations 331–333 remain
+reserved; add the next file only after verifying numbering. Ordinary fresh
+local CLI row counts, candidate amounts and reader output are required before PR.
+
+Immediate inventory correction: the legacy cover-only sync may accept a sole
+document for a filing calendar under either Original or Amended. It must reject
+multiple editions until full financial/current-pointer proof resolves them.
+Footer version values remain optional descriptive metadata and never choose an
+edition. This conservative gate runs before writes and preserves old snapshots.
+
+Source facts, current cash/PAC verification and transactional committee/outside
+storage are implemented. Ordinary live batch writes now call the current-source
+loader and persist independently accepted cash, PAC and outside components in
+one transaction. Cash-only updates retain sibling receiving committees; unknown
+Raised preserves its previous value. Existing occupation/size charts are untouched
+because this change supplies no newly verified chart data. Indexed original-source
+bundles cannot authorize legacy cache-only writes. Source-disabled and dry-run
+paths acquire no current source evidence; ordinary source-disabled writes
+preserve stored money even if another directory contains a legacy cache.
+The combined Delaware evidence, cache, source, writer, reader, due-selection and
+CLI regressions, including the source-loader orchestration and shared finance
+suite, pass 910 tests in 53 files (three DB-dependent assertions skipped).
+Independent reviews found no remaining blocker after durable source-cache
+commit gating and source-disabled preservation. Backend typecheck passes.
+Migration 334 was applied through the normal CLI to the explicit local
+database only; its file/ledger checksum is
+`254202cbf9321cb81bbfe271fb87bc400fded6368ee22aaf73ec3277cd671987`.
+Before normal sync, both Carey and Jennings had no direct summary, donor or
+outside rows. Carey's ordinary local CLI now succeeds using a genuine saved
+opening and freshly acquired closing: Raised/receipts $25,215.80, spent $3,870.82,
+cash on hand $21,344.98, and eight committee donor rows totaling $6,200. The
+production card reader shows the uncapped $6,200/eight donors under “Not yet
+sorted” with five names displayed. Committee classification includes an exact
+registered PAC match for a contributor reported as a corporation; reported and
+registered classes remain distinct. These gifts do not increase Raised twice.
+Outside discovery remains incomplete; Carey's outside scalars stay NULL.
+Jennings' ordinary saved-opening/fresh-closing CLI also succeeds: reported
+receipts $581,765.95, Raised $570,807.57, spent $528,493.37, and cash $92,937.91.
+The actual local DB contains one Statehouse support row for $499,015, and the
+production card reader displays that same group/amount. Jennings' PAC component
+remains unavailable for unsupported broad source classifications; global outside
+totals remain NULL because bounded discovery does not establish completeness.
+Failed
+fresh candidate closure attempts wrote no money; one separately captured fresh
+producer succeeded, so no producer guard was relaxed for the unreproduced error.
+
+Real source replay exposed three narrow grammar/transport fixes: retain the
+published blank-name type-05 certification rows; accept the exact matching
+legislative report district suffix; compare full raw registry row multisets
+because four row positions changed while all fields and duplicate counts stayed
+identical. Complete scope, count, exhaustion, chronology and money controls remain.
+
+The next original source-only capture closes Jennings' cash at $570,807.57 direct
+contributions but accepts no outside proof: Statehouse's opening rendered one
+receipt while its native response returned zero; its genuine later closing
+returns the correct one receipt. A second payer has unresolved 2018 current-report
+labels and no 2026 allocation. The implemented correction retains a structurally
+complete payer closing in the reusable raw-cache index even when its prior opening
+failed. That failed pair still accepts no dollars. A later ordinary run must use
+the untouched saved closing as its new opening and acquire a genuinely new closing,
+then pass all existing financial, count, identity and chronology checks. Original
+failed responses remain journaled; no monetary flag or fabricated metadata is added.
+The later ordinary CLI uses that actual indexed closing as its new opening,
+acquires a new closing, and independently accepts the $499,015 Statehouse
+allocation. Logs and read-only row/card proof are retained in the goal scratch
+directory; no manual canonical inserts or monetary-result injection occurred.
+The independently refreshed third-party packet now replays through the outside
+source verifier: 49 opening and 50 closing original captures prove one literal
+$499,015 support allocation for Kathleen Jennings. Every original byte/hash and
+capture time is retained. One unique receipt monetary identity has a different
+PDF/native address snapshot; repeated monetary identities still require address
+corroboration and equivalent source classes, mechanisms, periods and targets.
+The later ordinary persistence/card validation agrees with this source proof;
+it grants no candidate-wide outside zero or complete-coverage authority.
+Complete all-type/status registry transport and explicit blank-date whole-account
+candidate queries are implemented. Current-cycle cash and PAC composition remain
+separate verification steps; reported and registry-derived classes stay distinct.
+Original source packets now have a bounded capture-reference index and separate
+restricted official-election files in the existing atomic cache. Pure replay
+redecodes original bodies and retains failed attempts, times and economic IDs.
+Current cash/PAC verification uses real full native/CSV/PDF source facts, paired
+same-office official witnesses or bounded new-account history. Unknown classes
+or mechanisms preserve the affected component. Source observations are individually
+timestamped; they do not provide an atomic publication snapshot at transaction end.
+Later filings/amendments remain open coverage and require the reruns below.
+Both optional storage components share the snapshot transaction and receiver/year
+lock; SQL failure rolls back the whole write. Scoped updates retain other active
+receiving committees, signed/zero donor positions and unavailable direct Raised.
+Omitted outside components retain existing groups and unknown headline totals.
+Migration 334 adds donor/provenance storage and has passed local rollback
+validation; it remains unapplied. The PAC reader now includes all eligible
+linked-committee totals before display caps, excludes known candidate/self
+committees and retains unknown interests as Not yet sorted. This read-side
+wiring has no accepted rows until the ordinary verified producer is integrated.
+Complete candidate PDF facts retain anonymous controls and outstanding debt:
+Jennings has three outstanding loans totaling $34,000, with no current payment.
+Some anonymous controls already have distinct native aggregate rows; the $1,240
+Primary 30-Day control does not. Bind each representation before adding totals.
+Reported candidate-committee transfers stay distinct from political committees
+eligible for the PAC card. Do not force final totals to the initial PAC scout.
+
+Independent cycle witnesses are the [official 2022 statewide result](https://elections.delaware.gov/reports/GE2022.html)
+and [official 2026 General ballot](https://elections.delaware.gov/elections/general/sampleballots/GE2026/15-10.html).
+Their full raw source facts confirm the same named candidate and Attorney General
+office; the final verifier must bind them to CF01 identity and the statutory case.
+Do not infer historical office from today's office label on old report rows.
+
+### Deadlines and mandatory fresh reruns
+
+[Official 2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):
+General 30-Day through October 4, due October 6, 2026 at 11:59 p.m.; General
+8-Day through October 26, due October 28 at 11:59 p.m.; annual through
+December 31, due January 20, 2027. Acquire fresh sources after the already-passed
+October 6 deadline, again October 29, and January 21, 2027. Third-party event
+filings have 48h/24h windows: fresh daily checks through election and immediate
+post-election followup. Late filings remain open coverage; no automation created.
+
+[§8002(11)a/d](https://delcode.delaware.gov/title15/c080/sc01/index.html) ends
+the applicable candidate/third-party cycle on December 31; a4 is a contribution-limit
+split. Keep statutory `windowEnd` separate from `publishedThrough`.
+[§8030(g)](https://delcode.delaware.gov/title15/c080/sc04/index.html) permits
+eight-day expense detail deferral; timely reports cannot establish full absence.
+
+Selection implemented: `--candidate-id UUID`, `--election-year 2026`, `--refresh`,
+`--lookback-days 100`. Scope and refresh apply before SQL LIMIT; scoped runs skip
+unrelated autolink. `--force` enables source/write flags, not due refresh;
+`--refresh` bypasses staleness, not source authorization. January 21 requires
+the 100-day lookback (79 days after November 3). Eligible-link rules still exclude
+lost/withdrawn candidates; this is not full historical coverage.
+
+Mandatory fresh rerun form:
+
+```sh
+DATABASE_URL='postgresql:///voteapp?host=/tmp&connect_timeout=5' AI_API_CALLS_ALLOWED=false DELAWARE_CAMPAIGN_FINANCE_ENABLED=true npm run delaware-candidates:finance:sync-due -- --election-year 2026 --refresh --force --write --no-auto-link --max 100 --lookback-days 100 --cache-dir /absolute/restricted/cache
+```
+
+Use this after October 28 and January 20 deadlines; increase/process the eligible cohort
+until every due scope has an explicit result. Carey's direct cash/donor proof and
+Jennings' ordinary outside persistence/card proof are validated locally.
+Dry-run omits `--write` and never
+acquires or writes; it only inspects existing cache. Never fake time or
+last_synced_at. Flags stay inline, never in `.env`. No production, providers,
+deployment or automatic reminders.
+
+## Historical initial adapter plan
+
 Written 2026-08-26 after a live curl probe of the Delaware CFRS portal (session flow, receipts/expense/committee/filed-report searches, CSV exports, two TP report PDFs) cross-validated against an independent 2026-08-03 feasibility report. Revised the same day after an external review round; every adopted correction below was re-verified against the live portal, the statutes, or the code before adoption (2026 candidate lists, § 8002(11)/§ 8004/§ 8032 text, shared writer/loader field shapes, CSV vs grid-JSON column sets, clean-URL ShowReview fetch, the `*_RAW_DATA_REFRESH_ENABLED` house flag pattern). Feasibility doc with raw endpoint details: `backend/docs/delaware-campaign-finance.md` (currently uncommitted — the Phase 0 PR commits it). Verdict: **GO for direct finance — Phase 0 first.** Occupation: **published from disclosed values only** with a coverage note; employer text stored but never published; no industry classification (see hard fact 1). Candidate-targeted outside totals: **no v1 phase exists** — registration-level stance is real but the expenditure→candidate edge is missing; outside fields publish as `null` with a coverage note, never `$0`.
 
 Scope: CFRS covers Delaware state and local filers. The Nov-2026 CFRS cohort is **state statewide races — Attorney General, State Treasurer, Auditor of Accounts (all three confirmed on the official 2026 general candidate list) — plus General Assembly (all House, ~half Senate) and county offices**, with municipal/school elections available later. Federal races (US House, US Senate) use the FEC path. The statewide races are the highest-value CFRS targets and must be in the Phase 2 cohort.

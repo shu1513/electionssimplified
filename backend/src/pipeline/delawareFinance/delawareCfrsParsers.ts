@@ -82,6 +82,13 @@ export const DELAWARE_EXPENSE_CSV_COLUMNS = [
 export type DelawareReceiptCsvRow = Record<(typeof DELAWARE_RECEIPT_CSV_COLUMNS)[number], string>;
 export type DelawareExpenseCsvRow = Record<(typeof DELAWARE_EXPENSE_CSV_COLUMNS)[number], string>;
 
+/** Actual third-party funder export, observed 2026-10-11; not candidate receipts. */
+export const DELAWARE_THIRD_PARTY_RECEIPT_CSV_COLUMNS = [
+  "Contribution Date", "Contributor Name", "Contributor Address", "Employer Name",
+  "Filed Reports", "Employer Occupation", "Contribution Amount", "Receiving Committee",
+] as const;
+export type DelawareThirdPartyReceiptCsvRow = Record<(typeof DELAWARE_THIRD_PARTY_RECEIPT_CSV_COLUMNS)[number], string>;
+
 /** The aggregate pseudo-contributor rows that itemize sub-$100 money in bulk. */
 export const DELAWARE_SUB_100_AGGREGATE_TYPE = "Total of Contributions not exceeding $100";
 
@@ -151,6 +158,15 @@ export function parseDelawareExpensesCsv(text: string): {
 } {
   const parsed = parseDelawareCsv(text, DELAWARE_EXPENSE_CSV_COLUMNS, "expenses");
   return { rows: parsed.rows as unknown as DelawareExpenseCsvRow[], malformedRowCount: parsed.malformedRowCount };
+}
+
+/** No contributor class or public CF_ID is published in this export. */
+export function parseDelawareThirdPartyReceiptsCsv(text: string): {
+  rows: DelawareThirdPartyReceiptCsvRow[];
+  malformedRowCount: number;
+} {
+  const parsed = parseDelawareCsv(text, DELAWARE_THIRD_PARTY_RECEIPT_CSV_COLUMNS, "third-party receipts");
+  return { rows: parsed.rows as unknown as DelawareThirdPartyReceiptCsvRow[], malformedRowCount: parsed.malformedRowCount };
 }
 
 // --- Amounts ---------------------------------------------------------------
@@ -493,7 +509,7 @@ export type DelawareReportCover = {
   /** "REPORTING PERIOD : <from> TO <to>" as printed (MM/DD/YYYY); null when absent. */
   reportingPeriodFrom: string | null;
   reportingPeriodTo: string | null;
-  /** Footer "Document: N Version: M" — the amendment version; null when absent. */
+  /** Literal footer label; not independently proved report amendment authority. */
   documentVersion: number | null;
   /** How the values were located — "rows" (label-aligned) or "sequence" (reading order). */
   method: "rows" | "sequence";

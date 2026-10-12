@@ -6,8 +6,8 @@
 // closed (plan acceptance list): committee identity, CSV count == stored
 // search total, per-report cash identity + chain (inventory), per-period
 // cover reconciliation, unambiguous window, no unrecognized contribution
-// types. Outside fields are never written (hard fact 7) — the loader
-// publishes them as null with a coverage note.
+// types. This direct-only path has no accepted outside component; the writer
+// preserves stored outside data and the loader states incomplete coverage.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -43,7 +43,7 @@ type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
 export type DelawareCandidateFinanceSyncResult = {
   dryRun: boolean;
-  window: Pick<DelawareElectionPeriodWindow, "windowStart" | "windowEnd" | "basis">;
+  window: Pick<DelawareElectionPeriodWindow, "windowStart" | "windowEnd" | "publishedThrough" | "basis">;
   windowPeriodKeys: string[];
   totalReceipts: number;
   directContributionTotal: number;
@@ -76,7 +76,7 @@ export async function syncDelawareCandidateFinance(input: {
   electionId: string;
   candidateName: string;
   electionYear: number;
-  /** ISO general-election date — the window end (fact 5). */
+  /** ISO general-election date; the finance cycle continues through December31. */
   electionDate: string;
   officeScope: string;
   officeName: string;
@@ -120,6 +120,11 @@ export async function syncDelawareCandidateFinance(input: {
 
   const artifacts =
     input.artifacts ?? (await readDelawareCfrsCommitteeArtifacts({ cacheDir: input.cacheDir, cfId }));
+  if (artifacts.sourcePacketIndex !== undefined) {
+    throw new DelawareCandidateFinanceSyncError(
+      "Delaware indexed source evidence requires the current source refresh path; legacy cache-only writes are unavailable"
+    );
+  }
 
   // --- Committee identity gates. ---
   if (artifacts.manifest.cfId !== cfId) {
@@ -304,7 +309,7 @@ export async function syncDelawareCandidateFinance(input: {
 
   return {
     dryRun: input.dryRun === true,
-    window: { windowStart: window.windowStart, windowEnd: window.windowEnd, basis: window.basis },
+    window: { windowStart: window.windowStart, windowEnd: window.windowEnd, publishedThrough: window.publishedThrough, basis: window.basis },
     windowPeriodKeys: [...windowPeriodKeys].sort(),
     totalReceipts,
     directContributionTotal,

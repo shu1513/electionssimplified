@@ -1,12 +1,11 @@
 // Delaware filed-report inventory: canonical per-period selection and
 // election-period window resolution (docs/plans/plan-delaware-finance.md facts 3 + 5).
 //
-// Amendment rule (fact 3, proven live 2026-08-26/27): the canonical version
-// per filing period is the HIGHEST PDF-footer `Version:` per
-// FilingCalendarID. The portal's "View Current Report" control is not
-// per-period (it returns only the single most recent report) and filed-date
-// sorting cannot break same-period ties, so version selection comes from
-// the PDFs themselves. Everything here fails closed: ambiguous versions,
+// PDF footer versions repeat across unrelated reports and cannot choose an
+// amendment. This cover-only path accepts a sole document per filing calendar,
+// under either Original or Amended, and preserves ambiguity otherwise. The
+// current-account pointer alone does not identify every historical period.
+// Everything here fails closed: ambiguous editions,
 // unparseable dates, chain breaks, or window misalignment throw instead of
 // producing a partial inventory.
 
@@ -51,20 +50,31 @@ export function delawareFilingPeriodKey(name: string): string {
   return `${year} ${kind}${election}`;
 }
 
-/** MM/DD/YYYY (as printed on report covers) -> YYYY-MM-DD; throws otherwise. */
+function isValidIsoDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+/** MM/DD/YYYY (as printed on report covers) -> real ISO date; throws otherwise. */
 export function delawareCoverDateToIso(value: string | null): string {
   const match = value === null ? null : /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
   if (match === null) {
     throw new DelawareReportInventoryError(`unparseable Delaware cover date: "${value}"`);
   }
-  return `${match[3]}-${match[1]}-${match[2]}`;
+  const iso = `${match[3]}-${match[1]}-${match[2]}`;
+  if (!isValidIsoDate(iso)) {
+    throw new DelawareReportInventoryError(`invalid Delaware cover date: "${value}"`);
+  }
+  return iso;
 }
 
 export type DelawareCanonicalReport = {
   filingPeriodName: string;
   periodKey: string;
   filingCalendarId: number;
-  documentVersion: number;
+  /** Optional template footer metadata, never edition-selection authority. */
+  documentVersion: number | null;
   /** ISO reporting-period bounds from the canonical cover. */
   periodFrom: string;
   periodTo: string;
@@ -75,8 +85,8 @@ export type DelawareCanonicalReport = {
 };
 
 /**
- * Selects the canonical (max-version) report per FilingCalendarID and
- * validates the whole inventory: unambiguous versions, parseable periods,
+ * Requires a sole report per FilingCalendarID and
+ * validates the whole inventory: unambiguous documents, parseable periods,
  * one period key per calendar entry, sequential non-overlapping periods,
  * and a fully continuous balance chain (each beginning balance equals the
  * prior canonical ending balance). Returns the canonical reports sorted by
@@ -103,26 +113,17 @@ export function buildDelawareCanonicalReportInventory(
 
   const canonical: DelawareCanonicalReport[] = [];
   for (const [filingCalendarId, entries] of byCalendar) {
-    for (const entry of entries) {
-      if (entry.cover.documentVersion === null) {
-        throw new DelawareReportInventoryError(
-          `report [${entry.row.filingPeriodName}] (calendar ${filingCalendarId}) has no PDF footer version`
-        );
-      }
-    }
-    const maxVersion = Math.max(...entries.map((entry) => entry.cover.documentVersion!));
-    const winners = entries.filter((entry) => entry.cover.documentVersion === maxVersion);
-    if (winners.length !== 1) {
+    if (entries.length !== 1) {
       throw new DelawareReportInventoryError(
-        `ambiguous canonical version for filing calendar ${filingCalendarId}: ${winners.length} reports carry version ${maxVersion}`
+        `ambiguous report editions for filing calendar ${filingCalendarId}: ${entries.length} entries need financial currentness proof`
       );
     }
-    const winner = winners[0]!;
+    const winner = entries[0]!;
     canonical.push({
       filingPeriodName: winner.row.filingPeriodName,
       periodKey: delawareFilingPeriodKey(winner.row.filingPeriodName),
       filingCalendarId,
-      documentVersion: maxVersion,
+      documentVersion: winner.cover.documentVersion,
       periodFrom: delawareCoverDateToIso(winner.cover.reportingPeriodFrom),
       periodTo: delawareCoverDateToIso(winner.cover.reportingPeriodTo),
       beginningBalanceCents: winner.cover.beginningBalanceCents,
@@ -172,11 +173,13 @@ export function buildDelawareCanonicalReportInventory(
 export type DelawareElectionPeriodWindow = {
   /** ISO date the window opens (inclusive). */
   windowStart: string;
-  /** ISO election date the window closes (inclusive). */
+  /** December31 following the general election (§8002(11)a). */
   windowEnd: string;
+  /** Latest actually published report end; not the statutory window end. */
+  publishedThrough: string;
   /** Canonical reports fully inside the window, in period order. */
   reports: DelawareCanonicalReport[];
-  /** Which statutory case produced windowStart. */
+  /** Legacy report-history rule used for windowStart; not office-history proof. */
   basis: "post_prior_election" | "committee_first_report";
 };
 
@@ -194,9 +197,10 @@ export type DelawareElectionPeriodWindow = {
  *   challenger case: the period opens with the first contribution, which is
  *   where the first report starts).
  *
- * The primary and general are separate statutory periods; the published
- * window spans both so a general-election page shows the candidacy's money
- * to date. Fails closed when any canonical report STRADDLES the window
+ * The primary/general split in §8002(11)a4 concerns contribution limits.
+ * The finance window spans both and ends December31 after the general
+ * election, including the final annual report filed the next January.
+ * Fails closed when any canonical report STRADDLES the window
  * start (a report that mixes prior-period and current-period money cannot
  * be split — plan: ambiguous window -> no publication).
  *
@@ -214,13 +218,14 @@ export function resolveDelawareElectionPeriodWindow(input: {
   electionDate: string;
   canonicalReports: readonly DelawareCanonicalReport[];
 }): DelawareElectionPeriodWindow {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.electionDate)) {
+  if (!isValidIsoDate(input.electionDate)) {
     throw new DelawareReportInventoryError(`invalid election date: "${input.electionDate}"`);
   }
   if (input.canonicalReports.length === 0) {
     throw new DelawareReportInventoryError("cannot resolve a window from an empty inventory");
   }
   const electionYear = Number.parseInt(input.electionDate.slice(0, 4), 10);
+  const windowEnd = `${electionYear}-12-31`;
   const janFirstOfElectionYear = `${electionYear}-01-01`;
   const priorElectionReports = input.canonicalReports.filter(
     (report) => report.periodKey.includes("Day") && report.periodTo < janFirstOfElectionYear
@@ -248,15 +253,20 @@ export function resolveDelawareElectionPeriodWindow(input: {
           `(${report.periodFrom}..${report.periodTo}) — ambiguous window, not publishable`
       );
     }
-    if (report.periodTo > input.electionDate) {
+    if (report.periodTo > windowEnd) {
+      if (report.periodFrom <= windowEnd) {
+        throw new DelawareReportInventoryError(
+          `report [${report.filingPeriodName}] straddles the window end ${windowEnd} — ambiguous window, not publishable`
+        );
+      }
       continue;
     }
     reports.push(report);
   }
   if (reports.length === 0) {
     throw new DelawareReportInventoryError(
-      `no canonical report lies inside the window ${windowStart}..${input.electionDate}`
+      `no canonical report lies inside the window ${windowStart}..${windowEnd}`
     );
   }
-  return { windowStart, windowEnd: input.electionDate, reports, basis };
+  return { windowStart, windowEnd, publishedThrough: reports.at(-1)!.periodTo, reports, basis };
 }

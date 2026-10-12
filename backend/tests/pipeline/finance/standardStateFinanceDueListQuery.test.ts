@@ -267,11 +267,15 @@ describe("createStandardStateFinanceDueListQuery", () => {
     expect(sql).toContain("district.state = 'DC'");
     expect(sql).toContain("FROM public.dc_candidate_finance_links AS link");
     // Canonical columns stay in place around the overridden identity columns.
-    expect(normalizeSql(sql)).toContain("link.district, link.committee_key, link.committee_name, link.link_source, link.source_url,");
+    expect(normalizeSql(sql)).toContain(
+      "link.district, link.committee_key, link.committee_name, link.link_source, link.source_url,"
+    );
   });
 
   it("adds the general-stage filter and election_date only when configured", async () => {
-    const db = createMockDb([dueRow({ election_date: "2026-11-03T00:00:00.000Z", link_source: "cers_portal" })]);
+    const db = createMockDb([
+      dueRow({ election_date: "2026-11-03T00:00:00.000Z", link_source: "cers_portal" }),
+    ]);
     const mapRow = vi.fn((row: StandardStateFinanceDueQueryRow) => ({
       electionDate: row.election_date,
       linkSource: row.link_source,
@@ -301,7 +305,9 @@ describe("createStandardStateFinanceDueListQuery", () => {
       "          link.election_year,\n          election.election_date::text AS election_date,\n          office.scope AS office_scope,"
     );
     expect(sql).toContain("        election_year,\n        election_date,\n        office_scope,");
-    expect(sql).toContain("          link.committee_id,\n          link.committee_name,\n          link.link_source,\n          link.source_url,");
+    expect(sql).toContain(
+      "          link.committee_id,\n          link.committee_name,\n          link.link_source,\n          link.source_url,"
+    );
     // Parameters are unchanged: the stage is a validated literal, not a bind.
     expect(db.query.mock.calls[0]?.[1]).toEqual([
       "2026-06-01T00:00:00.000Z",
@@ -323,7 +329,9 @@ describe("createStandardStateFinanceDueListQuery", () => {
   });
 
   it("adds ballot_title only when configured", async () => {
-    const db = createMockDb([dueRow({ ballot_title: "Circuit Judge, 10th Circuit, Place 1", fcpa_committee_number: null })]);
+    const db = createMockDb([
+      dueRow({ ballot_title: "Circuit Judge, 10th Circuit, Place 1", fcpa_committee_number: null }),
+    ]);
     const mapRow = vi.fn((row: StandardStateFinanceDueQueryRow) => ({
       ballotTitle: row.ballot_title,
       fcpaCommitteeNumber: row.fcpa_committee_number,
@@ -346,7 +354,9 @@ describe("createStandardStateFinanceDueListQuery", () => {
     // Nothing selected without the flag; the stage filter is independent of it.
     expect(sql).not.toContain("ballot_title");
     expect(sql).toContain("          AND election.election_stage = 'general'\n");
-    expect(result.rows).toEqual([{ ballotTitle: "Circuit Judge, 10th Circuit, Place 1", fcpaCommitteeNumber: null }]);
+    expect(result.rows).toEqual([
+      { ballotTitle: "Circuit Judge, 10th Circuit, Place 1", fcpaCommitteeNumber: null },
+    ]);
 
     const titledDb = createMockDb([dueRow({ ballot_title: "Governor" })]);
     const listTitledRows = createStandardStateFinanceDueListQuery({
@@ -401,6 +411,59 @@ describe("createStandardStateFinanceDueListQuery", () => {
     expect(secondKeys).not.toBe(firstKeys);
   });
 
+  it("applies optional candidate/year scope and refresh inside the CTE before LIMIT", async () => {
+    const db = createMockDb([dueRow({ last_synced_at: DUE_LIST_INPUT.now.toISOString() })]);
+    const result = await createCanonicalQuery()(db, {
+      ...DUE_LIST_INPUT,
+      candidateId: CANDIDATE_ID,
+      electionYear: 2026,
+      refresh: true,
+    });
+    const [sqlValue, params] = db.query.mock.calls[0]!;
+    const sql = String(sqlValue);
+    expect(sql).toContain("AND link.candidate_id = $7::uuid");
+    expect(sql).toContain("AND link.election_year = $8::int");
+    expect(sql).toContain("AND EXTRACT(YEAR FROM election.election_date)::int = $8::int");
+    expect(sql).toContain("$9::boolean");
+    expect(normalizeSql(sql)).toContain(
+      "AND ( $9::boolean OR summary.last_synced_at IS NULL OR summary.last_synced_at <"
+    );
+    expect(sql.indexOf("link.candidate_id = $7")).toBeLessThan(sql.indexOf("LIMIT $3"));
+    expect(sql.indexOf("link.election_year = $8")).toBeLessThan(sql.indexOf("LIMIT $3"));
+    expect(sql.indexOf("$9::boolean")).toBeLessThan(sql.indexOf("LIMIT $3"));
+    expect(params?.slice(6)).toEqual([CANDIDATE_ID, 2026, true]);
+    expect(result.rows[0]?.lastSyncedAt).toBe(DUE_LIST_INPUT.now.toISOString());
+    expect(sql).toContain("candidate_election.status NOT IN ('withdrawn', 'lost')");
+    expect(sql).toContain("district.state = 'TX'");
+  });
+
+  it("keeps bind numbering and the original SQL correct for independent optional scopes", async () => {
+    const query = createCanonicalQuery();
+    const db = createMockDb();
+    await query(db, { ...DUE_LIST_INPUT, electionYear: 2026 });
+    expect(String(db.query.mock.calls[0]?.[0])).toContain("link.election_year = $7::int");
+    expect(db.query.mock.calls[0]?.[1]?.slice(6)).toEqual([2026]);
+    await query(db, { ...DUE_LIST_INPUT, refresh: true });
+    expect(String(db.query.mock.calls[1]?.[0])).toContain("$7::boolean");
+    expect(db.query.mock.calls[1]?.[1]?.slice(6)).toEqual([true]);
+    await query(db, { ...DUE_LIST_INPUT, refresh: false });
+    expect(String(db.query.mock.calls[2]?.[0])).toBe(EXPECTED_CANONICAL_TEXAS_SQL);
+    expect(db.query.mock.calls[2]?.[1]).toHaveLength(6);
+  });
+
+  it.each([
+    { candidateId: "not-a-uuid" },
+    { electionYear: 2026.5 },
+    { electionYear: 2101 },
+    { refresh: "true" },
+  ])("rejects invalid optional scope before querying: %j", async (scope) => {
+    const db = createMockDb();
+    await expect(createCanonicalQuery()(db, { ...DUE_LIST_INPUT, ...scope } as never)).rejects.toThrow(
+      "Invalid standard finance due-list"
+    );
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid configuration at construction", () => {
     const base = {
       state: "TX",
@@ -431,7 +494,11 @@ describe("createStandardStateFinanceDueListQuery", () => {
       })
     ).toThrow("Invalid standard finance table identifier: Bad-Name");
     expect(() =>
-      createStandardStateFinanceDueListQuery({ ...base, linkColumns: ["committee_id, committee_name"], mapRow })
+      createStandardStateFinanceDueListQuery({
+        ...base,
+        linkColumns: ["committee_id, committee_name"],
+        mapRow,
+      })
     ).toThrow("Invalid standard finance due-list link column: committee_id, committee_name");
     expect(() => createStandardStateFinanceDueListQuery({ ...base, linkColumns: [], mapRow })).toThrow(
       "Standard finance due-list link columns must not be empty"
