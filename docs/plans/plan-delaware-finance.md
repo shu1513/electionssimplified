@@ -59,7 +59,12 @@ Footer version values remain optional descriptive metadata and never choose an
 edition. This conservative gate runs before writes and preserves old snapshots.
 
 Source facts and candidate packet transport are now implemented; accepted-money
-composition, persistence, reader wiring and normal fresh sync proof remain open.
+composition, transactional persistence and normal fresh sync proof remain open.
+Migration 334 adds donor/provenance storage and has passed local rollback
+validation; it remains unapplied. The PAC reader now includes all eligible
+linked-committee totals before display caps, excludes known candidate/self
+committees and retains unknown interests as Not yet sorted. This read-side
+wiring has no accepted rows until the ordinary verified producer is integrated.
 Complete candidate PDF facts retain anonymous controls and outstanding debt:
 Jennings has three outstanding loans totaling $34,000, with no current payment.
 Some anonymous controls already have distinct native aggregate rows; the $1,240
