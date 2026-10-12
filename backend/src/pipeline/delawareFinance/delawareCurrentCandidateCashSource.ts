@@ -500,7 +500,12 @@ function registry(caps: readonly DelawareCfrsResponseCapture[]) {
     JSON.parse(text(pages.at(-1)!)).data.length >= 500
   )
     fail("donor registry exhaustion missing");
-  return rows;
+  // Queries with blank order controls publish the physical row universe,
+  // not an ordering guarantee. Canonical full rows retain every field and
+  // duplicate occurrence for comparison and deterministic composition.
+  return rows.map((row) => ({ row, key: canonical(row) }))
+    .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
+    .map(({ row }) => row);
 }
 function raw(row: DelawareNativeLedgerRow, key: string) {
   const s = row.rawFields[key];

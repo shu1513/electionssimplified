@@ -1225,3 +1225,32 @@ it("keeps unknown blank-name committee classes unresolved instead of waiving com
   expect(result.cash).toBeDefined();
   expect(result.pac).toBeUndefined();
 });
+
+function changeClosingRegistry(p:DelawareCurrentCandidateCashInput, edit:(rows:Record<string,unknown>[])=>void) {
+  const grid=p.donorRegistryAfter.find(c=>new URL(c.url).pathname==='/Public/_ViewCommittees')!;
+  const parsed=JSON.parse(grid.body.toString());edit(parsed.data);parsed.total=parsed.data.length;
+  replaceBody(grid,JSON.stringify(parsed));
+  const search=p.donorRegistryAfter.find(c=>new URL(c.url).pathname==='/Public/Search')!;
+  replaceBody(search,`jQuery('#Grid').tGrid({total:${parsed.total}});`);
+}
+it('accepts complete raw registry reordering with identical physical rows and deterministic donor composition',async()=>{
+  const p=input();replaceRegistry(p,[...regRows(),{...regRows()[1]!,Formtype:'FF'}]);
+  const before=await verifyDelawareCurrentCandidateCash(p);
+  changeClosingRegistry(p,rows=>rows.reverse());
+  const reordered=await verifyDelawareCurrentCandidateCash(p);
+  expect(reordered.pac?.donors,reordered.diagnostics.join('; ')).toEqual(before.pac?.donors);
+  expect(reordered.pac?.sourceProvenance.donors).toEqual(before.pac?.sourceProvenance.donors);
+  expect(reordered.pac?.sourceProvenance.registrySources.at(-1)?.sha256).toBe(p.donorRegistryAfter.at(-1)!.sha256);
+  expect(reordered.pac?.donors[0]?.cashAmountCents).toBe(60000);
+});
+it('preserves whole PAC when any raw registry field changes despite identical legal donor name and amounts',async()=>{
+  const p=input();changeClosingRegistry(p,rows=>{rows[1]!.ObservedSourceMetadata='changed';});
+  const result=await verifyDelawareCurrentCandidateCash(p);
+  expect(result.cash).toBeDefined();expect(result.pac).toBeUndefined();
+});
+it.each(['remove','add'])('does not discard duplicate physical registry multiplicity when rows %s',async change=>{
+  const p=input();replaceRegistry(p,[...regRows(),{...regRows()[1]!}]);
+  changeClosingRegistry(p,rows=>{if(change==='remove')rows.pop();else rows.push({...rows[1]!});});
+  const result=await verifyDelawareCurrentCandidateCash(p);
+  expect(result.cash).toBeDefined();expect(result.pac).toBeUndefined();
+});
