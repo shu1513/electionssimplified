@@ -76,7 +76,7 @@ describe("HomePage pre-search notice", () => {
     for (const [name, href] of [
       ["Terms of Use", "/terms"],
       ["Privacy Policy", "/privacy"],
-      ["AI Research and Election Information Disclaimer", "/disclaimer"],
+      ["AI-Assisted Research and Election Information Disclaimer", "/disclaimer"],
     ] as const) {
       const link = screen.getByRole("link", { name });
       expect(link).toHaveAttribute("href", href);

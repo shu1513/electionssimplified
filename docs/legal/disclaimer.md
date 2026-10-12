@@ -22,7 +22,7 @@ free service and invited an unconscionability challenge to the whole
 document. Tracks the Terms 1.5 bump.
 -->
 
-# Elections Simplified AI Research and Election Information Disclaimer
+# Elections Simplified AI-Assisted Research and Election Information Disclaimer
 
 **Last updated:** September 16, 2026
 **Version:** 1.5

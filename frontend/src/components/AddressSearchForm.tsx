@@ -15,7 +15,7 @@ import { errorCategoryOf, track } from "../lib/usage";
 const DOCUMENT_LINKS = {
   terms: { href: "/terms", label: "Terms of Use" },
   privacy: { href: "/privacy", label: "Privacy Policy" },
-  disclaimer: { href: "/disclaimer", label: "AI Research and Election Information Disclaimer" },
+  disclaimer: { href: "/disclaimer", label: "AI-Assisted Research and Election Information Disclaimer" },
 } as const;
 
 function NoticeLink({ doc }: { doc: keyof typeof DOCUMENT_LINKS }) {

@@ -1,7 +1,7 @@
 import { AddressSearchForm } from "./AddressSearchForm";
 
 /** The one-line claim under the hero; also the share card's second line. */
-export const TAGLINE = "Factual, nonpartisan, AI-assisted research with linked sources";
+export const TAGLINE = "Votes, actions, and donors, with linked sources";
 
 /**
  * The landing page's pitch and address search. Shared by the site's home

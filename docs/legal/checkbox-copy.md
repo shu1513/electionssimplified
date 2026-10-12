@@ -166,7 +166,7 @@ open in a new tab so the typed address is not lost; in the app they open the
 legal screens, and the address is still there on return.
 
 > By clicking Search you agree to the [Terms of Use], [Privacy Policy], and
-> [AI Research and Election Information Disclaimer].
+> [AI-Assisted Research and Election Information Disclaimer].
 
 ### Archived: anonymous terms dialog (2026-08-30 to 2026-10-10)
 
@@ -181,7 +181,7 @@ and links, then **Cancel** and **Agree and search**. The box was empty every
 time it opened and the agree button stayed disabled until it was ticked.
 
 > [ ] I have read and agree to the [Terms of Use], [Privacy Policy], and
-> [AI Research and Election Information Disclaimer].
+> [AI-Assisted Research and Election Information Disclaimer].
 
 Dialog paragraphs (web until 2026-09-28, mobile until 2026-10-10):
 
@@ -221,12 +221,12 @@ binds at all.
 ## Signup checkbox (account registration)
 
 > [ ] I have read and agree to the [Terms of Use], [Privacy Policy], and
-> [AI Research and Election Information Disclaimer].
+> [AI-Assisted Research and Election Information Disclaimer].
 
 ## Re-acceptance checkbox (signed-in interstitial after a version bump)
 
 > [ ] I have read and agree to the updated [Terms of Use], [Privacy Policy],
-> and [AI Research and Election Information Disclaimer].
+> and [AI-Assisted Research and Election Information Disclaimer].
 
 Rules for the interstitial (1.5, 2026-09-16): declining must not trap the
 account. The modal carries a **log out** control, and it does not cover the
