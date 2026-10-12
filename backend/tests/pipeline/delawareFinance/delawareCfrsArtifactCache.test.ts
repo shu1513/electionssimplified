@@ -208,6 +208,15 @@ describe("Delaware immutable source-capture journal", () => {
     expect(result.sourceCaptures).toEqual([cap]);
   });
 
+  it("roundtrips the observed native expense route with its full paging scope", async () => {
+    const cap = capture({
+      url: "https://cfrs.elections.delaware.gov/Public/_ViewExpensesCustom?theme=vista",
+      financeFields: { page: "1", size: "500", orderBy: "", groupBy: "", filter: "" },
+    });
+    await storeDelawareCfrsCommitteeArtifacts({ ...storeInput(), sourceCaptures: [cap] });
+    expect((await readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: CF_ID })).sourceCaptures).toEqual([cap]);
+  });
+
   it("keeps absence distinct from an explicitly empty observation journal", async () => {
     await storeDelawareCfrsCommitteeArtifacts(storeInput());
     expect(

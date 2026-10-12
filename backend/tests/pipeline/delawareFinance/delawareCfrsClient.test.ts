@@ -451,6 +451,19 @@ describe("delawareCfrsClient", () => {
     expect(captures[0]).toMatchObject({ financeFields: fields, requestScopeRedacted: false });
   });
 
+  it("retains the observed native expense route and paging scope", async () => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl } = recordingFetch([htmlResponse("ok")]);
+    const session = createDelawareCfrsSession({
+      fetchImpl, sleep: noSleep,
+      onResponseCapture: (capture) => { captures.push(capture); },
+    });
+    const url = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.expensesGridJson, { theme: "vista" });
+    const fields = { page: "1", size: "500", orderBy: "", groupBy: "", filter: "" };
+    await session.postForm(url, fields, { xhr: true });
+    expect(captures[0]).toMatchObject({ url, financeFields: fields, requestScopeRedacted: false });
+  });
+
   it("does not hand oversize bytes to the observer", async () => {
     const observer = vi.fn();
     const { fetchImpl } = recordingFetch([htmlResponse("x".repeat(100))]);

@@ -40,9 +40,9 @@ export const DELAWARE_CFRS_PAGES = {
   receiptsThirdPartyExportCsv: "/Public/ExportCSVNew_TP",
   /**
    * Receipts grid JSON of the stored search (form-encoded POST: page/size/
-   * orderBy/groupBy/filter). Its `total` is unstable and its row shape is
-   * NOT a pinned contract — probe-advisory evidence only (rows carry
-   * Transaction_id + FileAmendedVersion, which the CSV lacks).
+   * orderBy/groupBy/filter). Its `total` is advisory. Full row closure is
+   * independently checked against the rendered count and CSV by the native
+   * ledger decoder (including Transaction_id and FileAmendedVersion).
    */
   receiptsGridJson: "/Public/_ViewReceiptsCustom",
   /** Expenses search form (GET only — the search POSTs elsewhere, see below). */
@@ -51,6 +51,8 @@ export const DELAWARE_CFRS_PAGES = {
   expensesSearchPost: "/Public/OtherSearch",
   /** Expenses CSV export of the session's stored expenses search. */
   expensesExportCsv: "/Public/ExportExpensestoCsv",
+  /** Native expense rows of the stored search, independently closed against CSV. */
+  expensesGridJson: "/Public/_ViewExpensesCustom",
   /** Committee search form (GET warms the session). */
   committeeSearch: "/Public/ViewCommittees",
   /** Committee search POST target. */
