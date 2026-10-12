@@ -1,3 +1,4 @@
+import { aggregateSouthCarolinaDirectFinance } from "./southCarolinaDirectContributionAggregator.js";
 import {
   parseSouthCarolinaCivilDate,
   type SouthCarolinaCandidateReportRow,
@@ -329,12 +330,18 @@ export function aggregateSouthCarolinaCommitteeDonors(
       if (rows[0]!.group === "Yes" && matchedOrganizationTuples.get(key) !== rows.length)
         return fail("Organization multiset incomplete");
     }
+    let organizationReturnCount = 0;
     for (const returned of returnRows) {
       const owner = nameKey(returned.name);
-      const g = organizations.get(owner);
-      if (!g || [...annual].some((r) => nameKey(r.contributorName) === owner && r.group !== "Yes"))
+      const classes = new Set(annual.filter((r) => nameKey(r.contributorName) === owner).map((r) => r.group));
+      if (!owner || classes.size !== 1)
         return fail("Returned reported owner is unknown or ambiguous");
+      // A literal, unambiguous individual refund reconciles expenses without reducing PAC totals.
+      if (classes.has("No")) continue;
+      const g = organizations.get(owner);
+      if (!g) return fail("Returned reported owner is unknown or ambiguous");
       g.returned = sum([g.returned, returned.amount]);
+      organizationReturnCount++;
     }
     for (const notice of refundNotices) {
       const match = /^Sent refund check, hasn't cleared bank as of ([A-Z][a-z]+) (\d{1,2})\.$/.exec(notice.description);
@@ -363,12 +370,27 @@ export function aggregateSouthCarolinaCommitteeDonors(
         return fail("Contribution refund/recredit description unresolved");
       }
     }
+    // Period controls alone cannot prove that the first observed report includes earlier activity.
+    // Reuse the direct component's cumulative reset/continuation rules, separately for each run.
+    for (const runId of runIds) {
+      const runPeriods = periods.filter((p) => p.report.campaignId === runId);
+      const cumulative = aggregateSouthCarolinaDirectFinance({
+        ...input,
+        reports: runPeriods.map((p) => p.report),
+      });
+      if (
+        cumulative.status !== "aggregated" ||
+        cents(cumulative.directContributionTotal) !== sum(runPeriods.map((p) => cents(p.detail.contributionsTotal))) ||
+        cents(cumulative.totalDisbursements) !== sum(runPeriods.map((p) => cents(p.detail.expendituresTotal)))
+      )
+        return fail("Cumulative financial coverage incomplete");
+    }
     if (ignoredIndividualProjection)
       diagnostics.push(
         `${ignoredIndividualProjection} individual name projections retained outside organization matching`,
       );
-    if (returnRows.length)
-      diagnostics.push(`${returnRows.length} explicit reported-owner returns netted without gift-ID inference`);
+    if (organizationReturnCount)
+      diagnostics.push(`${organizationReturnCount} explicit reported-owner returns netted without gift-ID inference`);
     const donors: SouthCarolinaReportedCommitteeDonor[] = [];
     for (const [key, g] of organizations) {
       if (!g.occupationBlank || !politicalName(g.name)) continue;

@@ -52,6 +52,37 @@ describe("ordinary SC source acquisition and donor component", () => {
     await expect(sync()).rejects.toThrow("HTTP 503");
     expect(query).not.toHaveBeenCalled();
   });
+  it.each([0, 500])("only clears empty donors with complete cumulative coverage (%i dollars)", async cumulative => {
+    const { input, query } = await setup();
+    const source = api();
+    const fetchImpl: typeof fetch = async (request, init) => {
+      const response = await source.fetchImpl(request, init);
+      const body = await response.json();
+      const url = String(request);
+      if (url.endsWith("Candidate/Reports")) {
+        Object.assign(body.results[0], { contributions: cumulative, expenses: 0, balance: cumulative });
+        body.results[0].reportWithDates.filingStartDate = "2026-04-01";
+      } else if (url.includes("Report/Details")) {
+        body.filingPeriod = "4/1/2026 - 6/30/2026";
+        for (const line of body.overview.income) {
+          line.filingPeriod = 0;
+          line.electionCycleTotal = ["Cash Contributions", "Total"].includes(line.type) ? cumulative : 0;
+        }
+        for (const line of body.overview.expenditures) line.filingPeriod = line.electionCycleTotal = 0;
+        Object.assign(body.overview.totals[0], { startingBalance: cumulative, endingBalance: cumulative });
+        body.contributions = { contributionsTotal: 0, details: [] };
+        body.expenditures = { expendituresTotal: 0, details: [] };
+      } else return new Response("[]", { headers: { "content-type": "application/json" } });
+      return new Response(JSON.stringify(body), { headers: { "content-type": "application/json" } });
+    };
+    const sync = () => syncSouthCarolinaCandidateFinance({ ...input, clientOptions: { fetchImpl } });
+    await sync();
+    query.mockClear();
+    const result = await sync();
+    expect(result).toMatchObject({ summaryWritten: true, directContributionTotal: cumulative, pacDonorTotal: cumulative ? null : 0 });
+    expect(query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.sc_candidate_finance_pac_donors"))).toBe(cumulative === 0);
+    if (cumulative) expect(result.pacDonorDiagnostics?.join(" ")).toMatch(/Cumulative financial coverage/);
+  });
   it("cache initialization failure preserves donors but still writes valid direct totals", async () => {
     const { input, query } = await setup(); const blocked = join(input.sourceCacheDir, "file");
     await writeFile(blocked, "not a directory");
