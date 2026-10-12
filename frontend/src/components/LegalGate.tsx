@@ -51,7 +51,7 @@ export function LegalGate({ label, checked, onChange, inputId, linksInNewTab = f
         </Link>
         <Link to="/disclaimer" {...linkTarget} className="text-ink underline hover:text-rausch">
           {/* Full title, matching the checkbox labels word-for-word. */}
-          AI Research and Election Information Disclaimer
+          AI-Assisted Research and Election Information Disclaimer
         </Link>
       </p>
     </div>

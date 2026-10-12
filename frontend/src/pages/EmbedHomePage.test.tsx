@@ -28,7 +28,7 @@ describe("EmbedHomePage", () => {
     expect(await screen.findByRole("heading", { level: 1 })).toHaveTextContent(
       "See who your candidates really are by their track records"
     );
-    expect(screen.getByText("Factual, nonpartisan, AI-assisted research with linked sources")).toBeInTheDocument();
+    expect(screen.getByText("Factual, nonpartisan records with linked sources")).toBeInTheDocument();
     const field = screen.getByLabelText("Enter address or ZIP to see your elections and candidates");
     expect(field).not.toHaveFocus();
     // No big wordmark in a publisher's article: one small credit at the

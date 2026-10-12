@@ -91,7 +91,7 @@ describe("legal copy matches docs/legal/checkbox-copy.md", () => {
     for (const title of [
       "Terms of Use",
       "Privacy Policy",
-      "AI Research and Election Information Disclaimer",
+      "AI-Assisted Research and Election Information Disclaimer",
     ]) {
       expect(copy).toContain(title);
     }
@@ -144,8 +144,12 @@ const PINNED_DOCUMENTS = [
     // bespoke bellwether hold; §13 feedback license excludes personal data.
     // Bundle bumps to 1.5, GRACE_TERMS_VERSIONS ships ["1.4"], signed-in
     // users re-accept once so the record points at the text in force.
+    // 1.5 wording fix (2026-10-11): the Disclaimer's title, cited in the
+    // acceptance paragraph, is now "AI-Assisted Research and Election
+    // Information Disclaimer" — same document, no change in rights, so the
+    // hash is re-pinned WITHOUT a version bump or re-acceptance.
     version: "1.5",
-    sha256: "39a4ab0e2a339af72882eeb25a244a152a68ef4814938df4e9fe59e3497840e2",
+    sha256: "9e43071110820950c1438a47db10ff743015ba9dfe1e4c4989fce5602cf373f2",
   },
   {
     filename: "privacy-policy.md",
@@ -202,8 +206,11 @@ const PINNED_DOCUMENTS = [
     // as drafts, not recommendations; §17 cap aligned with Terms §8 plus a
     // non-excludable-liability carve-out; §18 prospective "Release" (Civil
     // Code §1542 waiver) deleted. Tracks the Terms 1.5 bump.
+    // 1.5 wording fix (2026-10-11): title "AI Research ..." → "AI-Assisted
+    // Research ..." to match the body text. Title only — hash re-pinned
+    // WITHOUT a version bump or re-acceptance.
     version: "1.5",
-    sha256: "cdd9a7b7c30db87b1c3827ae5147a7431d9b0a8d881dc015c1756a3015519cdd",
+    sha256: "2060494510ad8825d9f39c0d5291b97aa8a58a6ee14b1c95654382667f5f1d2e",
   },
 ] as const;
 

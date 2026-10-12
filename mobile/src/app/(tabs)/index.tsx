@@ -189,7 +189,7 @@ export default function HomeScreen() {
         {/* What the service is, where a first-time visitor looks — same line
             the web hero carries. */}
         <Text className="mt-3 text-center text-sm font-medium text-ink-soft">
-          Independent, nonpartisan, AI-assisted election research with linked sources.
+          Factual, nonpartisan records with linked sources.
         </Text>
 
         <View className="mt-6 gap-4">
@@ -261,7 +261,7 @@ export default function HomeScreen() {
               accessibilityRole="link"
               onPress={() => router.push("/legal/disclaimer")}
             >
-              AI Research and Election Information Disclaimer
+              AI-Assisted Research and Election Information Disclaimer
             </Text>
             .
           </Text>
