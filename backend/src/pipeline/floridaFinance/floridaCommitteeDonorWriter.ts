@@ -324,7 +324,7 @@ export async function writeFloridaCommitteeDonorFinance(input: {
   electionYear: number;
   syncedAt: Date;
   prepared: PreparedFloridaCommitteeDonorFinance;
-}): Promise<number> {
+}): Promise<{ pacDonorsWritten: number; netCommitteeAmount?: number }> {
   const db = input.db;
   const retained = structuredClone({ linkId: input.linkId, electionYear: input.electionYear,
     syncedAt: input.syncedAt, prepared: input.prepared });
@@ -339,7 +339,7 @@ export async function writeFloridaCommitteeDonorFinance(input: {
   // Unknown, missing-period or older source authority is a PAC-only no-op.
   // Independent direct data can commit; a DB failure above still rolls back.
   if (prior.rows.length > 1 || (prior.rows.length === 1 &&
-    !replacementRetainsPriorSource(prior.rows[0], retained.prepared, retained.electionYear))) return 0;
+    !replacementRetainsPriorSource(prior.rows[0], retained.prepared, retained.electionYear))) return { pacDonorsWritten: 0 };
   for (const donor of finance.donors) {
     await db.query(
       `
@@ -408,5 +408,5 @@ export async function writeFloridaCommitteeDonorFinance(input: {
       finance.donors.map((d) => d.committeeId),
     ],
   );
-  return finance.donors.length;
+  return { pacDonorsWritten: finance.donors.length, netCommitteeAmount: finance.netCommitteeAmount };
 }

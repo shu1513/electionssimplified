@@ -254,6 +254,7 @@ describe("Florida atomic verified committee donor writer", () => {
       pacFinance: await pacFinance(),
     });
     expect(result.pacDonorsWritten).toBe(1);
+    expect(result.netCommitteeAmount).toBe(1500);
     const sql = statements(mock);
     expect(sql[0]).toBe("BEGIN");
     expect(sql.at(-1)).toBe("COMMIT");
@@ -593,6 +594,7 @@ describe("locked prior accepted PAC source replacement", () => {
     const result=await replaceFloridaCandidateFinanceSnapshot({db:mock.pool,link:link(),summary:{totalReceipts:9999},
       syncedAt:new Date("2030-01-01T00:00:00Z"),pacFinance:finance});
     expect(result).toMatchObject({summaryWritten:true,pacDonorsWritten:0});
+    expect(result).not.toHaveProperty("netCommitteeAmount");
     expect(pacMutations(mock)).toEqual([]);
     expect(call(mock,"INSERT INTO public.fl_candidate_finance_summaries")[1]?.[2]).toBe(9999);
     expect(statements(mock).at(-1)).toBe("COMMIT");

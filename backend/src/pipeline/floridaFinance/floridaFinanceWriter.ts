@@ -129,6 +129,7 @@ export type FloridaFinanceSnapshotWriteResult = {
   outsideGroupBreakdownsWritten: number;
   outsideGroupSupportLinksWritten: number;
   pacDonorsWritten?: number;
+  netCommitteeAmount?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -790,7 +791,7 @@ export async function replaceFloridaCandidateFinanceSnapshot(
       await upsertSummary({ db, linkId, electionYear, summary, syncedAt });
     }
 
-    const pacDonorsWritten = preparedPac ? await writeFloridaCommitteeDonorFinance({
+    const pacResult = preparedPac ? await writeFloridaCommitteeDonorFinance({
       db, linkId, electionYear, syncedAt, prepared: preparedPac,
     }) : undefined;
 
@@ -837,7 +838,7 @@ export async function replaceFloridaCandidateFinanceSnapshot(
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
       outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
       outsideGroupSupportLinksWritten: input.outsideGroupSupportLinks?.length ?? 0,
-      ...(pacDonorsWritten === undefined ? {} : { pacDonorsWritten }),
+      ...pacResult,
     };
   });
 }

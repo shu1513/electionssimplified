@@ -183,7 +183,8 @@ export function createFloridaProcessedFinanceSourceLoader(options: {
           const sequences = decodedActivity.periods.flatMap((p) =>
             p.nativeSequence === null ? [] : [p.nativeSequence],
           );
-          const maximum = Math.max(0, ...sequences);
+          // Waivers have no native selector but still need their own EFS report.
+          const maximum = Math.max(decodedActivity.periods.length, ...sequences);
           if (!maximum || maximum > maxSlots)
             throw new Error(
               "Florida processed status discovery unavailable or over bound",

@@ -32,6 +32,7 @@ import {
   type FloridaFinanceOutsideGroupBreakdownInput,
   type FloridaFinanceOutsideGroupInput,
   type FloridaFinanceSummaryInput,
+  type FloridaFinanceSnapshotWriteResult,
   type FloridaOutsideGroupSupportLinkInput,
   type FloridaOutsideGroupSupportLinkRow,
 } from "./floridaFinanceWriter.js";
@@ -644,8 +645,9 @@ export async function syncFloridaCandidateFinance(
   });
   const directBreakdowns = toDirectBreakdowns(directFinance.directBreakdowns);
 
+  let writeResult: FloridaFinanceSnapshotWriteResult | undefined;
   if (!input.dryRun) {
-    await replaceFloridaCandidateFinanceSnapshot({
+    writeResult = await replaceFloridaCandidateFinanceSnapshot({
       db: input.db,
       link,
       syncedAt,
@@ -666,8 +668,9 @@ export async function syncFloridaCandidateFinance(
     dryRun: input.dryRun === true,
     resolution,
     ...(input.pacFinance ? {
-      pacDonorsWritten: input.dryRun ? 0 : input.pacFinance.finance.donors.length,
-      netCommitteeAmount: input.pacFinance.finance.netCommitteeAmount,
+      pacDonorsWritten: writeResult?.pacDonorsWritten ?? 0,
+      ...(input.dryRun ? { netCommitteeAmount: input.pacFinance.finance.netCommitteeAmount }
+        : writeResult?.netCommitteeAmount === undefined ? {} : { netCommitteeAmount: writeResult.netCommitteeAmount }),
     } : {}),
     linkWritten: !input.dryRun,
     summaryWritten: !input.dryRun,

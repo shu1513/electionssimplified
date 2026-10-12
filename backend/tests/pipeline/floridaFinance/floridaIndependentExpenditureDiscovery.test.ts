@@ -164,7 +164,7 @@ describe("Florida bounded expenditure discovery", () => {
       expect(result.authority).toBe("discovery_only");
     }
   });
-  it("saved first uses genuine raw cache; absent cache acquires live exactly once", async () => {
+  it("ordinary discovery refreshes an empty cache and finds newly filed spending", async () => {
     const cacheDir = await directory(),
       fetchFn = vi.fn(async () => response());
     const first = createFloridaIndependentExpenditureDiscovery({
@@ -174,6 +174,7 @@ describe("Florida bounded expenditure discovery", () => {
         minIntervalMs: 0,
       }).request,
     });
+    fetchFn.mockImplementationOnce(async () => response(tsv()));
     const a = await first.load(scope);
     const second = createFloridaIndependentExpenditureDiscovery({
       request: createFloridaFinanceRawSourceClient({
@@ -183,8 +184,9 @@ describe("Florida bounded expenditure discovery", () => {
       }).request,
     });
     const b = await second.load(scope);
-    expect(a).toEqual(b);
-    expect(fetchFn).toHaveBeenCalledTimes(1);
+    expect(a).toMatchObject({ status: "discovered", rows: [] });
+    expect(b).toMatchObject({ status: "discovered", rows: [{ amountCents: 100000 }] });
+    expect(fetchFn).toHaveBeenCalledTimes(2);
   });
   it("refresh bypasses a saved opening and captures new rows without changing original metadata", async () => {
     const cacheDir = await directory(),

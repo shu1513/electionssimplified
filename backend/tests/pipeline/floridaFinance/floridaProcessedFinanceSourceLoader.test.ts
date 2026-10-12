@@ -272,16 +272,25 @@ describe("Florida processed source loader (synthetic publication protocol)", () 
         .every((r) => r.startedAt.startsWith("2026-10-11")),
     ).toBe(true);
   });
-  it("never invents a waived zero from a missing trailing EFS status", async () => {
+  it("acquires a trailing waiver beyond the last native selector", async () => {
     const source = fixture((body, c) =>
-      c.request.url.includes("TreSel.exe") ? activity(true) : body,
+      c.request.url.includes("TreSel.exe") ? activity(true)
+        : c.request.url.includes("SeqNum=4")
+          ? efs(4, { lblCoveragePeriod: "10/1/2026-10/11/2026", lblCntCon: "0" }, true)
+          : body,
     );
     const result = await load(source);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.proof?.reports.map(r => r.sequence)).toEqual([1, 2, 3, 4]);
+    expect(result.proof?.reports[3]).toMatchObject({ waiver: true, nativeSequence: null, contributionCount: 0 });
+    expect(result.proof?.rows).toHaveLength(4);
+    expect(source.calls.filter(c => c.request.url.includes("SeqNum=4"))).toHaveLength(2);
+  });
+  it("preserves when the trailing waiver lacks its own EFS coverage", async () => {
+    const source = fixture((body, c) => c.request.url.includes("TreSel.exe") ? activity(true) : body);
+    const result = await load(source);
     expect(result.proof).toBeUndefined();
-    expect(result.diagnostics[0]).toContain("coverage missing");
-    expect(source.calls.some((c) => c.request.url.includes("SeqNum=4"))).toBe(
-      false,
-    );
+    expect(source.calls.some(c => c.request.url.includes("SeqNum=4"))).toBe(true);
   });
   it.each([
     ["lblID", "88808", "account/coverage"],

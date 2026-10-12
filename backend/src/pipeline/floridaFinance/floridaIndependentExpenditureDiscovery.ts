@@ -223,7 +223,8 @@ export function createFloridaIndependentExpenditureDiscovery(options: {
         // Keep a separate expected request even if an injected transport mutates its input.
         const evidence = structuredClone(
           await options.request(structuredClone(expected), {
-            savedFirst: options.refresh !== true,
+            // Discovery has no closing capture; refresh it to find new payers.
+            savedFirst: false,
           }),
         );
         if (
