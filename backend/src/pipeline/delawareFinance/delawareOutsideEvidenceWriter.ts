@@ -207,7 +207,10 @@ function project(value: Proof, link: DelawareFinanceLinkInput): Proof {
     !/^01\d{6}$/.test(c.receivingCfId) ||
     !same(text(c.receivingCommitteeName), link.committeeName) ||
     c.officeName !== expectedOffice ||
-    c.district !== (link.district ?? null) ||
+    // Legacy statewide links store the literal state label; the finite office
+    // check below keeps this projection unavailable to legislative seats.
+    c.district !==
+      (link.district === "Delaware" ? null : (link.district ?? null)) ||
     c.district !== null ||
     ![
       "Attorney General",

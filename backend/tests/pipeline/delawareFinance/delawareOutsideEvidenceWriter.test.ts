@@ -181,6 +181,59 @@ describe("Delaware scoped positive outside writer", () => {
     expect((await execute(rejected, [p])).groupsWritten).toBe(0);
     expect(mutations(rejected)).toHaveLength(0);
   });
+  it("accepts only the exact legacy Delaware statewide label as null seat", async () => {
+    const d = db();
+    const r = await writeDelawareOutsideEvidence({
+      db: d as never,
+      linkId,
+      link: { ...link, district: "Delaware" },
+      syncedAt: new Date("2026-10-03T00:00:00Z"),
+      prior: null,
+      incoming: [proof()],
+    });
+    expect(r.groupsWritten).toBe(1);
+    expect(
+      JSON.parse(d.query.mock.calls[2]![1]![2] as string).evidence[0].candidate
+        .district,
+    ).toBeNull();
+  });
+  it.each(["1", "District 1", "delaware", "State of Delaware", ""])(
+    "preserves unsupported local seat %s",
+    async (district) => {
+      const d = db();
+      const r = await writeDelawareOutsideEvidence({
+        db: d as never,
+        linkId,
+        link: { ...link, district },
+        syncedAt: new Date("2026-10-03T00:00:00Z"),
+        prior: null,
+        incoming: [proof()],
+      });
+      expect(r.groupsWritten).toBe(0);
+      expect(mutations(d)).toHaveLength(0);
+    },
+  );
+  it("does not apply the legacy state-label projection to a legislative office", async () => {
+    const d = db(),
+      p = proof();
+    p.candidate.officeName = "State Representative";
+    p.allocations[0]!.literalTarget =
+      "Support of Jane Example - State Office - State Representative - Democratic";
+    const r = await writeDelawareOutsideEvidence({
+      db: d as never,
+      linkId,
+      link: {
+        ...link,
+        officeName: "State Lower Chamber Legislator",
+        district: "Delaware",
+      },
+      syncedAt: new Date("2026-10-03T00:00:00Z"),
+      prior: null,
+      incoming: [p],
+    });
+    expect(r.groupsWritten).toBe(0);
+    expect(mutations(d)).toHaveLength(0);
+  });
   it("sums every uncapped allocation and retains distinct equal gift IDs", async () => {
     const p = proof(),
       d = db();
