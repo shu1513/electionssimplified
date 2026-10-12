@@ -68,9 +68,11 @@ bundles cannot authorize legacy cache-only writes. Source-disabled and dry-run
 paths acquire no current source evidence; ordinary source-disabled writes
 preserve stored money even if another directory contains a legacy cache.
 The combined Delaware evidence, cache, source, writer, reader, due-selection and
-CLI regressions pass 631 tests in 30 files; source-loader orchestration tests are
-tracked separately while their independent review finishes. Backend typecheck
-passes. Migration 334 was applied through the normal CLI to the explicit local
+CLI regressions, including the source-loader orchestration and shared finance
+suite, pass 887 tests in 53 files (three DB-dependent assertions skipped).
+Independent reviews found no remaining blocker after durable source-cache
+commit gating and source-disabled preservation. Backend typecheck passes.
+Migration 334 was applied through the normal CLI to the explicit local
 database only; its file/ledger checksum is
 `254202cbf9321cb81bbfe271fb87bc400fded6368ee22aaf73ec3277cd671987`.
 Before normal sync, both Carey and Jennings have no direct summary, donor or
