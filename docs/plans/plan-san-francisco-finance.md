@@ -17,6 +17,16 @@ upload-age, current Form460 coverage, sync flags and anomaly guards remain.
 The next normal dry-run then reached a separate HTTP428 source failure. No
 financial data has been written or accepted from that failed acquisition.
 
+The subsequent controlled transport probe completed the same six source
+requests with fresh connections. Adding `Connection: close` to the existing
+client then passed the ordinary four-candidate District8 dry-run: four
+successes, zero failures, two candidates with outside groups, through
+September19. Batch results now retain the financial diagnostics instead of
+discarding them. Three candidates reconcile to the cent; one has a $255,000
+raw-versus-dashboard residual that requires investigation before accepting
+new direct detail. HTTP428 still fails acquisition and preserves stored money;
+this transport observation does not establish an upstream root cause.
+
 Named committee cash requires nonmemoA and verified unpaired monetaryF497,
 signedA returns and separately associated later ScheduleE/RFD refunds. C is
 nonmonetary. COM means recipientcommittee and includes candidate campaigns;

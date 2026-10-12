@@ -110,6 +110,32 @@ describe("getSanFranciscoCommitteeSummaryRows", () => {
 });
 
 describe("Open Data request retry", () => {
+  it("uses fresh connections throughout pagination without changing token or timeout handling", async () => {
+    const requests: RequestInit[] = [];
+    const fetchImpl: typeof fetch = async (_url, init) => {
+      requests.push(init!);
+      // Reproduces the endpoint's empty 428 when connection reuse is allowed.
+      const headers = new Headers(init?.headers);
+      if (headers.get("connection") !== "close")
+        return new Response(null, { status: 428 });
+      return new Response(requests.length === 1 ? '[{"filing_nid":"1"}]' : '[]', {
+        status: 200,
+      });
+    };
+    await getSanFranciscoCommitteeSummaryRows(
+      { fppcId: "1463099" },
+      { fetchImpl, pageLimit: 1, appToken: "test-token" },
+    );
+    expect(requests).toHaveLength(2);
+    for (const request of requests) {
+      const headers = new Headers(request.headers);
+      expect(headers.get("accept")).toBe("application/json");
+      expect(headers.get("X-App-Token")).toBe("test-token");
+      expect(request.signal).toBeInstanceOf(AbortSignal);
+      expect(request.signal?.aborted).toBe(false);
+    }
+  });
+
   // Retry lives in the shared fetch path, so one entry point covers all of
   // the dataset getters.
   const failThenSucceed = (failures: Response[] | Error[]) => {
@@ -164,6 +190,16 @@ describe("Open Data request retry", () => {
     await expect(
       getSanFranciscoCommitteeSummaryRows({ fppcId: "1463099" }, { fetchImpl }),
     ).rejects.toThrow(/request failed: 404/);
+    expect(callCount()).toBe(1);
+  });
+
+  it("still rejects an empty 428 instead of accepting missing source rows", async () => {
+    const { fetchImpl, callCount } = failThenSucceed([
+      new Response(null, { status: 428 }),
+    ]);
+    await expect(
+      getSanFranciscoCommitteeSummaryRows({ fppcId: "1463099" }, { fetchImpl }),
+    ).rejects.toThrow(/request failed: 428/);
     expect(callCount()).toBe(1);
   });
 

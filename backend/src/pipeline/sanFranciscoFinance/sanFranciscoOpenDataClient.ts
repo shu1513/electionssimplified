@@ -118,7 +118,13 @@ async function fetchRows(
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    const headers = new Headers({ accept: "application/json" });
+    // Avoid the empty HTTP 428 observed after earlier successful requests on
+    // reused connections. Fresh connections passed the same six-request
+    // source probe and the ordinary four-candidate batch without query changes.
+    const headers = new Headers({
+      accept: "application/json",
+      connection: "close",
+    });
     if (options.appToken?.trim())
       headers.set("X-App-Token", options.appToken.trim());
     try {

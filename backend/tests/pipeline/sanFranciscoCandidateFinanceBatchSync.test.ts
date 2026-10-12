@@ -88,6 +88,35 @@ beforeEach(() => {
 });
 
 describe("syncDueSanFranciscoCandidateFinance", () => {
+  it("retains candidate financial diagnostics in ordinary dry-run results", async () => {
+    const diagnostics = {
+      linkWritten: false,
+      directBreakdownCount: 48,
+      outsideGroupCount: 3,
+      totalRaisedCents: 77795799,
+      directContributionCents: 77795799,
+      publicFundsStatus: "none" as const,
+      publicFundsCents: 0,
+      reconciliationDifferenceCents: 25500000,
+      form460Filings: 3,
+      reportedThrough: "2026-09-19",
+    };
+    vi.mocked(syncSanFranciscoCandidateFinance).mockResolvedValue(diagnostics);
+    const db = fakeDb({ dueRows: [dueRow("1")] });
+    const result = await syncDueSanFranciscoCandidateFinance({
+      db,
+      now: NOW,
+      dryRun: true,
+    });
+    expect(result.results).toEqual([{
+      candidateId: "cand-1",
+      electionId: "elec-bos04",
+      ok: true,
+      result: diagnostics,
+    }]);
+    expect(result.syncedCandidateCount).toBe(1);
+  });
+
   it("syncs due candidates with one manifest fetch and one freshness check per batch", async () => {
     const db = fakeDb({ dueRows: [dueRow("1"), dueRow("2")] });
     const result = await syncDueSanFranciscoCandidateFinance({ db, now: NOW });
