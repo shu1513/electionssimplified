@@ -75,6 +75,29 @@ export type SouthCarolinaReportVersion = {
   name: string;
 };
 
+export type SouthCarolinaItemizedContribution = {
+  /** Profile identity; reused across separate receipt occurrences. */
+  contributorId: number;
+  name: string;
+  civilDate: string;
+  amountCents: number;
+  occupation: string | null;
+  description: string | null;
+  sourceDate: string;
+  sourceDateSort?: string;
+};
+
+export type SouthCarolinaItemizedExpenditure = {
+  /** Payee profile identity, not a receipt or expenditure transaction ID. */
+  paidToId: number;
+  name: string;
+  civilDate: string;
+  amountCents: number;
+  description: string | null;
+  sourceDate: string;
+  sourceDateSort?: string;
+};
+
 export type SouthCarolinaReportDetails = {
   filerName: string;
   electionDate: string;
@@ -90,6 +113,10 @@ export type SouthCarolinaReportDetails = {
   totals: SouthCarolinaReportBalanceLine[];
   // Newest first as served; the first entry is the current version.
   versions: SouthCarolinaReportVersion[];
+  // Absent legacy fields remain unavailable, distinct from a source empty list.
+  itemizedContributions?: SouthCarolinaItemizedContribution[];
+  itemizedExpenditures?: SouthCarolinaItemizedExpenditure[];
+  itemizedUnavailable?: true;
 };
 
 export type SouthCarolinaContributionSearchRow = {
@@ -157,7 +184,7 @@ function requiredNumber(value: unknown, label: string): number {
 
 function requiredPositiveInteger(value: unknown, label: string): number {
   const parsed = requiredNumber(value, label);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
+  if (!Number.isSafeInteger(parsed) || parsed <= 0) {
     badResponse(`Invalid South Carolina ethics ${label}`);
   }
   return parsed;
@@ -310,6 +337,103 @@ function parseBalanceLine(value: unknown): SouthCarolinaReportBalanceLine {
   };
 }
 
+/** Parse only published civil-date shapes; zero-date sort fields are not dates. */
+export function parseSouthCarolinaCivilDate(value: string): string {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  let iso: string;
+  const numeric = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value);
+  const printed = /^([A-Z][a-z]{2}) (\d{1,2}), (\d{4})$/.exec(value);
+  if (numeric) {
+    iso = `${numeric[3]}-${numeric[1]!.padStart(2, "0")}-${numeric[2]!.padStart(2, "0")}`;
+  } else if (printed && months.includes(printed[1]!)) {
+    iso = `${printed[3]}-${String(months.indexOf(printed[1]!) + 1).padStart(2, "0")}-${printed[2]!.padStart(2, "0")}`;
+  } else if (/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?(?:Z|[+-]\d{2}:\d{2})?)?$/.test(value)) {
+    iso = value.slice(0, 10);
+  } else {
+    return badResponse("Invalid South Carolina published civil date");
+  }
+  const date = new Date(iso + "T00:00:00Z");
+  if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== iso || iso.startsWith("0000")) {
+    return badResponse("Invalid South Carolina published civil day");
+  }
+  return iso;
+}
+
+function itemizedCents(value: unknown): number {
+  const amount = requiredNumber(value, "itemized amount");
+  const cents = Math.round(amount * 100);
+  if (!Number.isSafeInteger(cents) || Math.abs(amount * 100 - cents) > 1e-6) {
+    return badResponse("South Carolina itemized amount is not cent-exact");
+  }
+  return cents;
+}
+function financialText(value: unknown, field: string): string | null {
+  if (value !== null && typeof value !== "string") return badResponse(`Invalid South Carolina itemized ${field}`);
+  return value as string | null;
+}
+function itemizedName(value: unknown): string {
+  requiredString(value, "itemized name");
+  return value as string;
+}
+function parseItemizedContribution(value: unknown): SouthCarolinaItemizedContribution {
+  const row = objectValue(value, "itemized contribution");
+  const sourceDate = requiredString(row.date, "itemized date");
+  return {
+    contributorId: requiredPositiveInteger(row.contributorId, "contributor profile ID"),
+    name: itemizedName(row.contributor),
+    civilDate: parseSouthCarolinaCivilDate(sourceDate),
+    amountCents: itemizedCents(row.amount),
+    occupation: financialText(row.occupation, "occupation"),
+    description: financialText(row.description, "description"),
+    sourceDate,
+    ...(Object.hasOwn(row, "dateSort") ? { sourceDateSort: requiredString(row.dateSort, "itemized dateSort") } : {}),
+  };
+}
+function parseItemizedExpenditure(value: unknown): SouthCarolinaItemizedExpenditure {
+  const row = objectValue(value, "itemized expenditure");
+  const sourceDate = requiredString(row.date, "itemized date");
+  return {
+    paidToId: requiredPositiveInteger(row.paidToId, "payee profile ID"),
+    name: itemizedName(row.paidTo),
+    civilDate: parseSouthCarolinaCivilDate(sourceDate),
+    amountCents: itemizedCents(row.amount),
+    description: financialText(row.description, "description"),
+    sourceDate,
+    ...(Object.hasOwn(row, "dateSort") ? { sourceDateSort: requiredString(row.dateSort, "itemized dateSort") } : {}),
+  };
+}
+
+function parseReportItemization(
+  contributions: Record<string, unknown>,
+  expenditures: Record<string, unknown>,
+): Pick<SouthCarolinaReportDetails, "itemizedContributions" | "itemizedExpenditures" | "itemizedUnavailable"> {
+  try {
+    return {
+      ...(Object.hasOwn(contributions, "details")
+        ? {
+            itemizedContributions: arrayValue(contributions.details, "itemized contributions").map(
+              parseItemizedContribution,
+            ),
+          }
+        : {}),
+      ...(Object.hasOwn(expenditures, "details")
+        ? {
+            itemizedExpenditures: arrayValue(expenditures.details, "itemized expenditures").map(
+              parseItemizedExpenditure,
+            ),
+          }
+        : {}),
+    };
+  } catch (error) {
+    // Invalid optional itemization cannot certify donors, but does not erase
+    // independently validated summary controls used by existing direct sync.
+    if (error instanceof SouthCarolinaEthicsClientError && error.code === "bad_response") {
+      return { itemizedUnavailable: true };
+    }
+    throw error;
+  }
+}
+
 function parseReportVersion(value: unknown): SouthCarolinaReportVersion {
   const row = objectValue(value, "report version");
   return {
@@ -443,6 +567,7 @@ export async function getSouthCarolinaReportDetails(
     ),
     totals: arrayValue(overview.totals, "report-details totals").map(parseBalanceLine),
     versions,
+    ...parseReportItemization(contributions, expenditures),
   };
 }
 

@@ -119,4 +119,20 @@ describe("listDueSouthCarolinaCandidateFinanceSyncRows", () => {
     });
     expect(result).toEqual({ rows: [], totalDueRows: 0 });
   });
+
+  it("applies refresh and candidate/year scopes before LIMIT", async () => {
+    const db = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    await listDueSouthCarolinaCandidateFinanceSyncRows(db, {
+      now: new Date("2026-10-20T00:00:00Z"), staleAfterDays: 7, maxCandidates: 1,
+      electionLookbackDays: 100, electionLookaheadDays: 730, refresh: true,
+      candidateId: "09f72416-21e9-4a08-b172-a6e958d2f660", electionYear: 2026,
+    });
+    const [sql, params] = db.query.mock.calls[0]!;
+    for (const predicate of ["$9::boolean", "link.candidate_id = $7::uuid", "link.election_year = $8::int",
+      "EXTRACT(YEAR FROM election.election_date)::int = $8::int"]) {
+      expect(String(sql)).toContain(predicate);
+      expect(String(sql).indexOf(predicate)).toBeLessThan(String(sql).indexOf("LIMIT $3"));
+    }
+    expect(params.slice(-3)).toEqual(["09f72416-21e9-4a08-b172-a6e958d2f660", 2026, true]);
+  });
 });

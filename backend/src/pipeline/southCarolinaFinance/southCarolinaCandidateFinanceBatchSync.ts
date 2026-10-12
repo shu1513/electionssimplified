@@ -40,6 +40,10 @@ export type SouthCarolinaCandidateFinanceBatchSyncInput = {
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   dryRun?: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  sourceCacheDir?: string;
   autoLinkMissingLinks?: boolean;
   log?: (message: string) => void;
   autoLinkFn?: typeof autoLinkMissingSouthCarolinaCandidateFinanceLinks;
@@ -75,7 +79,7 @@ export async function syncDueSouthCarolinaCandidateFinance(
   const dryRun = input.dryRun === true;
 
   let autoLinkResults: SouthCarolinaFinanceAutoLinkResult[] = [];
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (!dryRun && input.autoLinkMissingLinks !== false && !input.candidateId && !input.electionYear) {
     const autoLink = input.autoLinkFn ?? autoLinkMissingSouthCarolinaCandidateFinanceLinks;
     try {
       autoLinkResults = await autoLink({
@@ -99,6 +103,9 @@ export async function syncDueSouthCarolinaCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    refresh: input.refresh,
+    candidateId: input.candidateId,
+    electionYear: input.electionYear,
   });
 
   const syncCandidate = input.syncCandidateFn ?? syncSouthCarolinaCandidateFinance;
@@ -124,6 +131,7 @@ export async function syncDueSouthCarolinaCandidateFinance(
         },
         now,
         dryRun,
+        sourceCacheDir: input.sourceCacheDir,
       });
       succeeded += 1;
       candidates.push({ row, ok: true, result });
