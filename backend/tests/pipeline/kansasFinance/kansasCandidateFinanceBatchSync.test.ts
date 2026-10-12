@@ -74,6 +74,54 @@ describe("syncDueKansasCandidateFinance", () => {
     expect(syncCandidateFn).not.toHaveBeenCalled();
     expect(result.independentExpenditures.writtenRows).toBe(1);
   });
+  it.each([
+    ["2027-01-11T12:00:00Z", undefined, undefined, 2026],
+    ["2027-01-20T23:59:00Z", undefined, undefined, 2026],
+    ["2027-01-21T00:00:00Z", undefined, undefined, 2027],
+    ["2027-02-11T12:00:00Z", 100, undefined, 2026],
+    ["2027-01-11T12:00:00Z", 0, undefined, 2027],
+    ["2027-01-11T12:00:00Z", undefined, 2027, 2027],
+    ["2026-01-11T12:00:00Z", undefined, undefined, 2026],
+    ["2026-10-12T12:00:00Z", undefined, undefined, 2026],
+  ])(
+    "uses the in-scope IE cycle at %s (lookback %s, explicit year %s)",
+    async (date, electionLookbackDays, electionYear, expectedYear) => {
+      const ie = vi.fn(async () => ieResult);
+      await syncDueKansasCandidateFinance({
+        db: { query: vi.fn(), connect: vi.fn() } as never,
+        now: new Date(date),
+        electionLookbackDays,
+        electionYear,
+        listDueRowsFn: vi.fn(async () => ({ rows: [], totalDueRows: 0 })),
+        syncIndependentExpendituresFn: ie,
+        log: vi.fn(),
+      });
+      expect(ie).toHaveBeenCalledOnce();
+      expect(ie).toHaveBeenCalledWith(
+        expect.objectContaining({ electionYear: expectedYear }),
+      );
+    },
+  );
+
+  it("keeps IE and direct finance on the completed cycle for a January catch-up", async () => {
+    const ie = vi.fn(async () => ieResult);
+    const direct = vi.fn(async () => ({ status: "synced" }) as never);
+    await syncDueKansasCandidateFinance({
+      db: { query: vi.fn(), connect: vi.fn() } as never,
+      now: new Date("2027-01-11T12:00:00Z"),
+      listDueRowsFn: vi.fn(async () => ({ rows: [dueRow()], totalDueRows: 1 })),
+      syncCandidateFn: direct,
+      syncIndependentExpendituresFn: ie,
+      log: vi.fn(),
+    });
+    expect(ie).toHaveBeenCalledWith(
+      expect.objectContaining({ electionYear: 2026 }),
+    );
+    expect(direct).toHaveBeenCalledWith(
+      expect.objectContaining({ electionYear: 2026 }),
+    );
+  });
+
   it("retains IE success when direct finance fails", async () => {
     const result = await syncDueKansasCandidateFinance({
       db: { query: vi.fn(), connect: vi.fn() } as never,

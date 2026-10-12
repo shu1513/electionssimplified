@@ -21,6 +21,7 @@ import type { KansasCfrSessionOptions } from "./kansasCfrViewerClient.js";
 import { createKansasFilingPoolLoader } from "./kansasFilingSearch.js";
 import { createKansasOutsideRowLoader } from "./kansasOutsideSpendingAggregator.js";
 import { createKansasKpdcRowLoader } from "./kansasPaperInventory.js";
+import { kansasGeneralDate } from "./kansasReportInventory.js";
 import {
   syncKansasIndependentExpenditures,
   type KansasIESyncResult,
@@ -93,6 +94,20 @@ export async function syncDueKansasCandidateFinance(
     input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
 
+  const calendarYear = now.getUTCFullYear();
+  const previousYear = calendarYear - 1;
+  const lookbackStart = new Date(now);
+  lookbackStart.setUTCHours(0, 0, 0, 0);
+  lookbackStart.setUTCDate(lookbackStart.getUTCDate() - electionLookbackDays);
+  // January filings still belong to the completed regular election cycle
+  // while its general election remains in the direct batch's catch-up window.
+  // Resolve this independently of links and staleness in the direct due list.
+  const ieElectionYear =
+    input.electionYear ??
+    (previousYear % 2 === 0 && kansasGeneralDate(previousYear) >= lookbackStart
+      ? previousYear
+      : calendarYear);
+
   // A failed direct receipt component, missing receiving link or empty direct
   // due list cannot suppress independently disclosed expenditure evidence.
   let independentExpenditures: KansasIESyncResult;
@@ -101,7 +116,7 @@ export async function syncDueKansasCandidateFinance(
       input.syncIndependentExpendituresFn ?? syncKansasIndependentExpenditures
     )({
       db: input.db,
-      electionYear: input.electionYear ?? now.getUTCFullYear(),
+      electionYear: ieElectionYear,
       now,
       dryRun,
       observationFile: input.ieObservationFile,
