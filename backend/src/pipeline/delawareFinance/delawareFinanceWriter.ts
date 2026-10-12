@@ -9,6 +9,7 @@
 import type { Pool, PoolClient } from "pg";
 import { writeDelawareOutsideEvidence } from "./delawareOutsideEvidenceWriter.js";
 import type { DelawareVerifiedThirdPartyOutsideProof } from "./delawareThirdPartyOutsideSource.js";
+import { writeDelawarePacEvidence, type DelawarePacEvidence } from "./delawarePacEvidenceWriter.js";
 
 import {
   createStandardStateFinanceSnapshotWriter,
@@ -42,10 +43,15 @@ export type DelawareFinanceSnapshotInput = {
   summary?: DelawareFinanceSummaryInput;
   directBreakdowns?: readonly DelawareFinanceDirectBreakdownInput[];
   outsideEvidence?: readonly DelawareVerifiedThirdPartyOutsideProof[];
+  pacEvidence?: DelawarePacEvidence;
+  /** A scoped cash refresh does not establish that another receiving account is obsolete. */
+  linkReplacementPolicy?: "retain";
 };
 
 export type DelawareFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult & {
   outsideDiagnostics?: readonly string[];
+  pacDonorsWritten?: number;
+  pacDiagnostics?: readonly string[];
 };
 
 /** CF_ID: exactly eight digits as issued by CFRS (e.g. "01005311"). */
@@ -57,30 +63,34 @@ export function normalizeDelawareCfId(value: string): string {
   return normalized;
 }
 
-const writer = createStandardStateFinanceSnapshotWriter({
-  label: "Delaware",
-  minElectionYear: 2026,
-  summaryUpdatePolicy: {
-    total_receipts: "replace",
-    direct_contribution_total: "replace",
-    total_disbursements: "replace",
-    cash_on_hand: "replace",
-    // A direct refresh provides no authority to replace outside amounts.
-    outside_support_total: "preserveWhenNull",
-    outside_oppose_total: "preserveWhenNull",
-    source_url: "replace",
-  },
-  normalizeCommitteeId: normalizeDelawareCfId,
-  supersededLinkSource: "cfrs_portal",
-  manualLinkProtection: true,
-  tables: {
-    links: "de_candidate_finance_links",
-    summaries: "de_candidate_finance_summaries",
-    directBreakdowns: "de_candidate_finance_direct_breakdowns",
-    outsideGroups: "de_candidate_finance_outside_groups",
-    outsideGroupBreakdowns: "de_candidate_finance_outside_group_breakdowns",
-  },
-});
+function createDelawareSnapshotWriter(supersededLinkSource?: string) {
+  return createStandardStateFinanceSnapshotWriter({
+    label: "Delaware",
+    minElectionYear: 2026,
+    summaryUpdatePolicy: {
+      total_receipts: "replace",
+      direct_contribution_total: "preserveWhenNull",
+      total_disbursements: "replace",
+      cash_on_hand: "replace",
+      // A direct refresh provides no authority to replace outside amounts.
+      outside_support_total: "preserveWhenNull",
+      outside_oppose_total: "preserveWhenNull",
+      source_url: "replace",
+    },
+    normalizeCommitteeId: normalizeDelawareCfId,
+    supersededLinkSource,
+    manualLinkProtection: true,
+    tables: {
+      links: "de_candidate_finance_links",
+      summaries: "de_candidate_finance_summaries",
+      directBreakdowns: "de_candidate_finance_direct_breakdowns",
+      outsideGroups: "de_candidate_finance_outside_groups",
+      outsideGroupBreakdowns: "de_candidate_finance_outside_group_breakdowns",
+    },
+  });
+}
+const writer = createDelawareSnapshotWriter("cfrs_portal");
+const scopedWriter = createDelawareSnapshotWriter();
 
 export async function upsertDelawareFinanceLink(input: {
   db: Queryable;
@@ -94,13 +104,18 @@ export async function replaceDelawareCandidateFinanceSnapshot(
 ): Promise<DelawareFinanceSnapshotWriteResult> {
   const link = structuredClone(input.link);
   const outsideEvidence = structuredClone(input.outsideEvidence ?? []);
+  const pacEvidence = input.pacEvidence === undefined ? undefined : structuredClone(input.pacEvidence);
   const syncedAt = input.syncedAt ?? new Date();
   let outsideGroupsWritten = 0;
   let outsideDiagnostics: readonly string[] = [];
+  let pacDonorsWritten = 0;
+  let pacDiagnostics: readonly string[] = [];
   // Select only supported direct fields, including at the runtime boundary:
   // neither caller-supplied outside scalars nor extra outside arrays authorize
   // an outside write. Unknown outside components stay omitted.
-  const result = await writer.replaceSnapshot({
+  const snapshotWriter = outsideEvidence.length || pacEvidence !== undefined || input.linkReplacementPolicy === "retain"
+    ? scopedWriter : writer;
+  const result = await snapshotWriter.replaceSnapshot({
     db: input.db,
     link,
     syncedAt,
@@ -115,7 +130,7 @@ export async function replaceDelawareCandidateFinanceSnapshot(
             cashOnHand: input.summary.cashOnHand,
             sourceUrl: input.summary.sourceUrl,
           },
-    ...(outsideEvidence.length ? { afterSnapshotWrite: async ({ db, linkId, electionYear }: {
+    ...(outsideEvidence.length || pacEvidence !== undefined ? { afterSnapshotWrite: async ({ db, linkId, electionYear }: {
       db: Queryable; linkId: string; electionYear: number;
     }) => {
       await db.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))", [
@@ -133,17 +148,28 @@ export async function replaceDelawareCandidateFinanceSnapshot(
         VALUES ($1::uuid, $2::integer, $3::text, $4::timestamptz)
         ON CONFLICT (link_id, election_year) DO NOTHING`,
       [linkId, electionYear, link.sourceUrl ?? null, syncedAt]);
-      const prior = await db.query<{ outside_report_provenance: unknown }>(`
-        SELECT outside_report_provenance FROM public.de_candidate_finance_summaries
+      const prior = await db.query<{ pac_source_provenance: unknown; outside_report_provenance: unknown }>(`
+        SELECT pac_source_provenance, outside_report_provenance FROM public.de_candidate_finance_summaries
         WHERE link_id = $1::uuid AND election_year = $2::integer FOR UPDATE`, [linkId, electionYear]);
-      if (prior.rows.length !== 1) throw new Error("Delaware outside summary authority is missing");
-      const outside = await writeDelawareOutsideEvidence({
-        db, linkId, link, syncedAt, prior: prior.rows[0]!.outside_report_provenance, incoming: outsideEvidence,
-      });
-      outsideGroupsWritten = outside.groupsWritten;
-      outsideDiagnostics = outside.diagnostics;
+      if (prior.rows.length !== 1) throw new Error("Delaware finance summary authority is missing");
+      if (pacEvidence !== undefined) {
+        const pac = await writeDelawarePacEvidence({
+          db, linkId, link, syncedAt, prior: prior.rows[0]!.pac_source_provenance, incoming: pacEvidence,
+        });
+        pacDonorsWritten = pac.donorsWritten;
+        pacDiagnostics = pac.diagnostics;
+      }
+      if (outsideEvidence.length) {
+        const outside = await writeDelawareOutsideEvidence({
+          db, linkId, link, syncedAt, prior: prior.rows[0]!.outside_report_provenance, incoming: outsideEvidence,
+        });
+        outsideGroupsWritten = outside.groupsWritten;
+        outsideDiagnostics = outside.diagnostics;
+      }
     } } : {}),
   });
   return { ...result, outsideGroupsWritten,
-    ...(outsideDiagnostics.length ? { outsideDiagnostics } : {}) };
+    ...(outsideDiagnostics.length ? { outsideDiagnostics } : {}),
+    ...(pacEvidence !== undefined ? { pacDonorsWritten } : {}),
+    ...(pacDiagnostics.length ? { pacDiagnostics } : {}) };
 }
