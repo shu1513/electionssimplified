@@ -121,6 +121,50 @@ function official(v: unknown): URL {
   }
   return u;
 }
+export type DelawareFinanceSourceMetadata = Pick<
+  DelawareCfrsResponseCapture,
+  "url" | "sha256" | "byteCount" | "startedAt" | "completedAt"
+>;
+/** Projects original public metadata only; establishes no source/money authority. */
+export function projectDelawareFinanceSourceMetadata(
+  value: DelawareFinanceSourceMetadata,
+  source: "cfrs" | "official_election" = "cfrs",
+): DelawareFinanceSourceMetadata {
+  if (source === "cfrs") official(value.url);
+  else {
+    const u = new URL(text(value.url));
+    if (
+      u.origin !== "https://elections.delaware.gov" ||
+      u.username ||
+      u.password ||
+      u.hash ||
+      u.search ||
+      !(
+        u.pathname === "/reports/GE2022.html" ||
+        /^\/elections\/general\/sampleballots\/GE2026\/\d{2}-\d{2}\.html$/.test(
+          u.pathname,
+        )
+      )
+    )
+      fail();
+  }
+  const startedAt = timestamp(value.startedAt),
+    completedAt = timestamp(value.completedAt);
+  if (
+    startedAt > completedAt ||
+    !Number.isSafeInteger(value.byteCount) ||
+    value.byteCount <= 0 ||
+    value.byteCount > (source === "official_election" ? 12 : 4) * 1024 * 1024
+  )
+    fail();
+  return {
+    url: value.url,
+    sha256: digest(value.sha256),
+    byteCount: value.byteCount,
+    startedAt,
+    completedAt,
+  };
+}
 const financeKeys = new Set(
   "CommitteeStatus CommitteeType CommitteeTypeData ContributionType ContributorType FilingPeriodName FilingYear FormType MemberId ReportName Submit btnSearch chkTP chkViewCurrReport committeeNameData ddlCounty ddlElectiontype ddlExpenCategory ddlExpensePurpose ddlOffice ddlOfficeSought ddlPayeeType ddljurisdiction dtCloseEndDate dtCloseStartDate dtEndDate dtStartDate expenseCategoryData expensePruposeData filingYearData filter groupBy hdnCommitteeName hdnFilingPeriodName hdnFixedAssets hdnReportName hdnTP hdnViewCurrent hdnddlCounty hdnddlOffice hdnddlOfficeSought hdnddljurisdiction orderBy page payeeTypeData rdGroup size txtCommitteeID txtCommitteeName txtContributorName txtFirstName txtPayeeFirstName txtPayeeLastName txtReceivingRegistrant txtRegistrant".split(
     " ",
@@ -129,8 +173,8 @@ const financeKeys = new Set(
 function metadata(
   m: Omit<DelawareCfrsResponseCapture, "body">,
 ): Omit<DelawareCfrsResponseCapture, "body"> {
-  official(m.url);
-  const url = m.url;
+  const base = projectDelawareFinanceSourceMetadata(m);
+  const url = base.url;
   if (
     !(["GET", "POST"] as const).includes(m.method) ||
     m.status !== 200 ||
