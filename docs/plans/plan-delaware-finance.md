@@ -84,7 +84,13 @@ sorted” with five names displayed. Committee classification includes an exact
 registered PAC match for a contributor reported as a corporation; reported and
 registered classes remain distinct. These gifts do not increase Raised twice.
 Outside discovery remains incomplete; Carey's outside scalars stay NULL.
-Jennings' normal persistence and outside card proof remain pending. Failed
+Jennings' ordinary saved-opening/fresh-closing CLI also succeeds: reported
+receipts $581,765.95, Raised $570,807.57, spent $528,493.37, and cash $92,937.91.
+The actual local DB contains one Statehouse support row for $499,015, and the
+production card reader displays that same group/amount. Jennings' PAC component
+remains unavailable for unsupported broad source classifications; global outside
+totals remain NULL because bounded discovery does not establish completeness.
+Failed
 fresh candidate closure attempts wrote no money; one separately captured fresh
 producer succeeded, so no producer guard was relaxed for the unreproduced error.
 
@@ -94,24 +100,28 @@ legislative report district suffix; compare full raw registry row multisets
 because four row positions changed while all fields and duplicate counts stayed
 identical. Complete scope, count, exhaustion, chronology and money controls remain.
 
-The next original source capture closes Jennings' cash at $570,807.57 direct
+The next original source-only capture closes Jennings' cash at $570,807.57 direct
 contributions but accepts no outside proof: Statehouse's opening rendered one
 receipt while its native response returned zero; its genuine later closing
 returns the correct one receipt. A second payer has unresolved 2018 current-report
-labels and no 2026 allocation. The minimal correction is to retain a structurally
+labels and no 2026 allocation. The implemented correction retains a structurally
 complete payer closing in the reusable raw-cache index even when its prior opening
 failed. That failed pair still accepts no dollars. A later ordinary run must use
 the untouched saved closing as its new opening and acquire a genuinely new closing,
 then pass all existing financial, count, identity and chronology checks. Original
 failed responses remain journaled; no monetary flag or fabricated metadata is added.
+The later ordinary CLI uses that actual indexed closing as its new opening,
+acquires a new closing, and independently accepts the $499,015 Statehouse
+allocation. Logs and read-only row/card proof are retained in the goal scratch
+directory; no manual canonical inserts or monetary-result injection occurred.
 The independently refreshed third-party packet now replays through the outside
 source verifier: 49 opening and 50 closing original captures prove one literal
 $499,015 support allocation for Kathleen Jennings. Every original byte/hash and
 capture time is retained. One unique receipt monetary identity has a different
 PDF/native address snapshot; repeated monetary identities still require address
 corroboration and equivalent source classes, mechanisms, periods and targets.
-This is source proof, pending ordinary persistence and card validation; it grants
-no candidate-wide outside zero or complete-coverage authority.
+The later ordinary persistence/card validation agrees with this source proof;
+it grants no candidate-wide outside zero or complete-coverage authority.
 Complete all-type/status registry transport and explicit blank-date whole-account
 candidate queries are implemented. Current-cycle cash and PAC composition remain
 separate verification steps; reported and registry-derived classes stay distinct.
@@ -175,8 +185,8 @@ DATABASE_URL='postgresql:///voteapp?host=/tmp&connect_timeout=5' AI_API_CALLS_AL
 ```
 
 Use this after October 28 and January 20 deadlines; increase/process the eligible cohort
-until every due scope has an explicit result. Carey's direct cash and donor proof
-is validated; Jennings' ordinary outside persistence/card proof remains pending.
+until every due scope has an explicit result. Carey's direct cash/donor proof and
+Jennings' ordinary outside persistence/card proof are validated locally.
 Dry-run omits `--write` and never
 acquires or writes; it only inspects existing cache. Never fake time or
 last_synced_at. Flags stay inline, never in `.env`. No production, providers,
