@@ -244,14 +244,9 @@ export function createFloridaProcessedExpenseSourceLoader(options: {
             },
             closing,
           );
-          const maximumNative = Math.max(
-            0,
-            ...cover.periods.map((period) => period.nativeSequence ?? 0),
-          );
-          const slotBound =
-            maximumNative >= maxSlots
-              ? maxSlots
-              : Math.min(maxSlots, maximumNative + cover.periods.length);
+          // Native selectors and EFS sequences are independent. Scan the full
+          // bounded EFS range, including later slots that may duplicate coverage.
+          const slotBound = maxSlots;
           const matches = new Map<string, FloridaProcessedRawEvidence[]>();
           let unboundSlots = 0;
           for (let sequence = 1; sequence <= slotBound; sequence++) {

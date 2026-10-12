@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createFloridaCandidateOutsideFinanceSource } from "../../../src/pipeline/floridaFinance/floridaCandidateOutsideFinanceSource.js";
+import * as rawSource from "../../../src/pipeline/floridaFinance/floridaFinanceRawSourceClient.js";
 import { FLORIDA_EXPENDITURE_DISCOVERY_HEADERS } from "../../../src/pipeline/floridaFinance/floridaIndependentExpenditureDiscovery.js";
 const row = {
   candidate_id: "candidate", candidate_election_id: "candidate-election", election_id: "election", candidate_name: "Adam Botana",
@@ -12,7 +13,7 @@ const row = {
 };
 const input = { candidateId: row.candidate_id, electionId: row.election_id, committeeId: row.committee_id };
 const roots: string[] = [];
-afterEach(async () => { vi.unstubAllGlobals(); await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))); });
+afterEach(async () => { vi.restoreAllMocks(); vi.unstubAllGlobals(); await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))); });
 async function source(query: ReturnType<typeof vi.fn>, refresh = false) {
   const cacheDir = await mkdtemp(join(tmpdir(), "fl-outside-test-")); roots.push(cacheDir);
   return createFloridaCandidateOutsideFinanceSource({ db: { query }, cacheDir, minIntervalMs: 0, refresh });
@@ -28,6 +29,22 @@ describe("Florida normal candidate outside source", () => {
     expect(String(fetch.mock.calls[0][1].body)).toContain("cpurpose=TEXT+MESSAGES%3B+PRO-Adam+Botana");
     expect(query).toHaveBeenCalledTimes(2);
     expect(query.mock.calls[1][1]).toEqual([row.candidate_election_id, 2026]);
+  });
+  it("allows the next candidate to acquire discovery after one candidate exhausts its budget", async () => {
+    const original = rawSource.createFloridaFinanceRawSourceClient;
+    vi.spyOn(rawSource, "createFloridaFinanceRawSourceClient").mockImplementation(options => original({ ...options, maxRequests: 1 }));
+    const transport = fullProtocol();
+    const fetch = vi.fn().mockImplementationOnce(transport.fetch).mockResolvedValueOnce(new Response(
+      FLORIDA_EXPENDITURE_DISCOVERY_HEADERS.join("\t") + "\n", { headers: { "content-type": "text/tab-separated-values" } }));
+    vi.stubGlobal("fetch", fetch);
+    const query = vi.fn().mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] });
+    const batch = await source(query, true);
+    expect((await batch.load(input)).diagnostics.join()).toContain("budget exhausted");
+    const next = await batch.load(input);
+    expect(next.status).toBe("loaded");
+    expect(next.diagnostics.join()).not.toContain("budget exhausted");
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
   it("refreshes a previously accepted payer even when current discovery fails", async () => {
     const requests: string[] = [];
@@ -124,7 +141,7 @@ describe("Florida candidate outside nested acquisition", () => {
     expect(transport.events.filter(event => event === "expense-owner")).toHaveLength(2);
     expect(transport.fetch.mock.calls.filter(([url]) => url.includes("ComDetail.asp"))).toHaveLength(4);
     expect(transport.events.filter(event => event === "expense-native")).toHaveLength(4);
-    expect(transport.events.filter(event => event === "expense-status")).toHaveLength(6);
+    expect(transport.events.filter(event => event === "expense-status")).toHaveLength(128);
   });
   it("drops financially valid packets if a same-name account appears before final registry closure", async () => {
     const transport = fullProtocol(true); vi.stubGlobal("fetch", transport.fetch);

@@ -9,6 +9,8 @@ import {
   type FloridaProcessedSourcePacket,
 } from "../../../src/pipeline/floridaFinance/floridaProcessedFinanceSource.js";
 
+import { buildFloridaVerifiedCommitteeDonors } from "../../../src/pipeline/floridaFinance/floridaVerifiedCommitteeDonorSource.js";
+
 // Synthetic current-publication fixtures. They make no claim that source funds were accepted.
 const context = {
   sourceAccount: "88807",
@@ -279,6 +281,24 @@ describe("Florida current processed source", () => {
     expect(r.proof?.rows.filter((x) => x.amount === "1000.00")).toHaveLength(2);
     expect(r.proof?.rows[3].amount).toBe("-500.00");
     expect(r.proof?.nativeRows[0]).not.toHaveProperty("recipientName");
+  });
+  it("passes grouped amounts and signed refunds through committee proof validation", async () => {
+    const i = input();
+    for (const packet of [i.before, i.after]) {
+      packet.genericExport = change(packet.genericExport, text => text.replaceAll("\t1000.00\t", "\t1,000.00\t"));
+    }
+    const result = verifyFloridaProcessedFinanceSource(i);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.proof).toBeDefined();
+    const finance = await buildFloridaVerifiedCommitteeDonors({ proof: result.proof!, lookupDonor: async receipt => ({
+      status: "resolved", diagnostics: [], sourceHashes: Array(6).fill("a".repeat(64)),
+      identity: { committeeId: "64858", committeeName: receipt.reportedName, committeeType: "PAC",
+        sourceUrl: "https://dos.elections.myflorida.com/committees/ComDetail.asp?account=64858",
+        includedInCommitteeDonorScope: true, resolution: "unique_exact_name" },
+    }) });
+    expect(finance).toMatchObject({ status: "accepted", netCommitteeAmount: 2000 });
+    expect(result.proof!.rows.filter(row => row.amount === "1000.00")).toHaveLength(2);
+    expect(result.proof!.rows[3].amount).toBe("-500.00");
   });
   it.each(["Amending", "Pending Report"])(
     "preserves %s despite stable current money",

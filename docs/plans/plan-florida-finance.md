@@ -1,8 +1,7 @@
 # Florida finance gaps
 
 Updated October 11, 2026. Separate Florida work starts from main after the
-all-source analysis and ranking in
-`~/.claude/tmp/voteapp-finance-gaps-2026-10/plan.md`. The local cohort has 437
+October 2026 all-source finance-gap analysis and ranking. The local cohort has 437
 active finance links for 338 candidates. Oregon PR #1569 remains separate.
 
 ## Source and wiring findings
@@ -112,9 +111,9 @@ Primary sources:
 [PC/IXO calendar](https://dos.fl.gov/media/709820/2026-reporting-dates-pc.pdf),
 [party calendar](https://dos.fl.gov/media/709817/2026-reporting-dates-parties.pdf).
 
-Detailed raw-source journals and financial reconciliation witnesses remain local
-under `~/.claude/tmp/voteapp-finance-gaps-2026-10/`; no credentials or raw donor
-address exports belong in Git.
+Detailed raw-source journals and financial reconciliation witnesses remain outside
+the repository; reviewers can request them from the PR author. No credentials or
+raw donor address exports belong in Git.
 
 ## Completed source-row foundation
 

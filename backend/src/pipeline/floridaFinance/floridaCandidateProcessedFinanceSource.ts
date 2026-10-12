@@ -28,7 +28,8 @@ export function createFloridaCandidateProcessedFinanceSource(options: {
       try {
         const local = await loadFloridaLocalFinanceContext({ ...input, db: options.db });
         if (local.status === "preserve") return { status: "preserve", diagnostics: [local.reason] };
-        catalog ??= accounts.fetchCatalog({ electionId: "20261103-GEN", savedFirst: !options.refresh });
+        catalog ??= accounts.fetchCatalog({ electionId: "20261103-GEN", savedFirst: !options.refresh })
+          .catch((error: unknown) => { catalog = undefined; throw error; });
         const directory = await catalog;
         const owner = resolveFloridaCandidateAccount({ rows: directory.rows, target: {
           candidateId: local.context.candidateId, candidateName: local.context.candidateName,

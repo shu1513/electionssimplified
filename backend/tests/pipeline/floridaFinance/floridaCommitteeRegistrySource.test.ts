@@ -1,4 +1,4 @@
-import { FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
+import { FLORIDA_CCE_CERTIFICATION_REVOCATION_AUTHORITY, resolveFloridaCommitteeDonorIdentity } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { FloridaProcessedRawEvidence } from "../../../src/pipeline/floridaFinance/floridaProcessedFinanceSource.js";
@@ -118,6 +118,8 @@ describe("Florida bounded all-status registry source", () => {
   it("brackets two literal prefixes and every selected detail with explicit fresh closing phase", async () => {
     const m=mock([current]); const result=await createFloridaCommitteeRegistrySource(m).lookupDonor(receipt);
     expect(result.identity?.committeeId).toBe("60813");
+    expect(resolveFloridaCommitteeDonorIdentity({ ...receipt, registrations: result.registrations,
+      queryProof: result.queryProof }).identity).toEqual(result.identity);
     expect(m.calls.map(c=>[c.method,c.phase])).toEqual([["POST","opening"],["POST","opening"],["GET","opening"],
       ["GET","closing"],["POST","closing"],["POST","closing"]]);
     expect(m.calls.filter(c=>c.method==="POST").every(c=>c.financeFields!.comName!.length<30&&c.financeFields!.LkupTypeName==="L")).toBe(true);

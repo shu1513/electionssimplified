@@ -230,10 +230,37 @@ describe("Florida current expense packet loader", () => {
     ).toEqual(["0", "2", "0", "2"]);
     expect(
       m.calls.filter((c) => c.request.url.includes("SeqNum=")),
-    ).toHaveLength(10);
+    ).toHaveLength(128);
     expect(
       result.source && verifyFloridaProcessedExpenseSource(result.source).proof,
     ).toEqual(result.proof);
+  });
+  it("finds EFS 41 for native selector 2 across missing slots", async () => {
+    const acquisition = () => mock((body, c) => c.request.url.endsWith("SeqNum=41")
+      ? efs(3).replace("P7 - 3", "P7 - 41") : body,
+    (raw, c) => {
+      if (c.request.url.endsWith("SeqNum=3")) raw.status = 404;
+      if (c.request.url.endsWith("SeqNum=41")) raw.status = 200;
+    });
+    const m = acquisition();
+    const result = await createFloridaProcessedExpenseSourceLoader({ request: m.request }).load({ context });
+    expect(result.proof?.rows).toHaveLength(3);
+    expect(result.proof?.reports.find(r => r.cover.nativeSequence === 2)?.current.sequence).toBe(41);
+    expect(m.calls.filter(c => c.request.url.endsWith("SeqNum=41"))).toHaveLength(2);
+    const limited = acquisition();
+    const bounded = await createFloridaProcessedExpenseSourceLoader({ request: limited.request,
+      maxReportSlots: 40 }).load({ context });
+    expect(bounded.proof).toBeUndefined();
+    expect(bounded.diagnostics.join()).toContain("0 EFS matches within 40 slots");
+    expect(limited.calls.some(c => c.request.url.endsWith("SeqNum=41"))).toBe(false);
+  });
+  it("rejects duplicate coverage at a later EFS slot after all periods already matched", async () => {
+    const m = mock((body, c) => c.request.url.endsWith("SeqNum=41")
+      ? efs(3).replace("P7 - 3", "P7 - 41") : body,
+    (raw, c) => { if (c.request.url.endsWith("SeqNum=41")) raw.status = 200; });
+    const result = await createFloridaProcessedExpenseSourceLoader({ request: m.request }).load({ context });
+    expect(result.proof).toBeUndefined();
+    expect(result.diagnostics.join()).toContain("2 EFS matches");
   });
   it("refresh bypasses every opening and fresh closing still uses no saved data", async () => {
     const m = mock();
@@ -269,7 +296,7 @@ describe("Florida current expense packet loader", () => {
       }).request,
     }).load({ context });
     expect(first.proof).toBeDefined();
-    expect(fetchFn).toHaveBeenCalledTimes(20);
+    expect(fetchFn).toHaveBeenCalledTimes(138);
     const second = await createFloridaProcessedExpenseSourceLoader({
       request: createFloridaFinanceRawSourceClient({
         cacheDir,
@@ -278,7 +305,7 @@ describe("Florida current expense packet loader", () => {
       }).request,
     }).load({ context });
     expect(second.proof).toBeDefined();
-    expect(fetchFn).toHaveBeenCalledTimes(31);
+    expect(fetchFn).toHaveBeenCalledTimes(267);
     const oldClosing = first
       .proof!.sourceMetadata.filter((r) => r.phase === "after")
       .map(({ phase: _, ...r }) => r);

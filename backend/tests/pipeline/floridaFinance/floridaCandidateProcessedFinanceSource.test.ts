@@ -54,6 +54,15 @@ describe("Florida automatic source composition", () => {
     await source(true).load(input);
     expect(mocks.catalog).toHaveBeenCalledWith({ electionId: "20261103-GEN", savedFirst: false });
   });
+  it("retries a failed catalog and caches the successful retry", async () => {
+    mocks.catalog.mockRejectedValueOnce(new Error("public source HTTP503"));
+    const batch = source();
+    expect(await batch.load(input)).toEqual({ status: "preserve", diagnostics: ["public source HTTP503"] });
+    expect((await batch.load(input)).status).toBe("verified");
+    expect((await batch.load(input)).status).toBe("verified");
+    expect(mocks.catalog).toHaveBeenCalledTimes(2);
+    expect(mocks.finance).toHaveBeenCalledTimes(2);
+  });
   it("preserves source failure", async () => {
     mocks.catalog.mockRejectedValue(new Error("public source HTTP503"));
     expect(await source().load(input)).toEqual({ status: "preserve", diagnostics: ["public source HTTP503"] });

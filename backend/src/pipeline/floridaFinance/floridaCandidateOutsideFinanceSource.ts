@@ -30,16 +30,6 @@ export function createFloridaCandidateOutsideFinanceSource(options: {
   refresh?: boolean;
   minIntervalMs?: number;
 }): FloridaCandidateOutsideFinanceSource {
-  const raw = createFloridaFinanceRawSourceClient({
-    cacheDir: resolve(options.cacheDir, "outside-source"),
-    refresh: options.refresh, minIntervalMs: options.minIntervalMs, maxRequests: 1000
-  });
-  const discovery = createFloridaIndependentExpenditureDiscovery({ request: raw.request, refresh: options.refresh });
-  const payer = createFloridaOutsidePayerSource({ request: raw.request, refresh: options.refresh });
-  // Financial captures must fit inside the registry opening/closing interval.
-  // Reusing its just-captured opening owner GET would predate completion of the
-  // opening registry authority, so this nested packet is always genuinely fresh.
-  const expenses = createFloridaProcessedExpenseSourceLoader({ request: raw.request, refresh: true });
   return {
     async load(input) {
       try {
@@ -48,6 +38,16 @@ export function createFloridaCandidateOutsideFinanceSource(options: {
         if (local.status === "preserve") return { status: "preserve", diagnostics: [local.reason] };
         const context = local.context;
         if (context.officeScope !== "state_lower") return { status: "preserve", diagnostics: ["No source-witnessed explicit Purpose grammar for this office."] };
+        const raw = createFloridaFinanceRawSourceClient({
+          cacheDir: resolve(options.cacheDir, "outside-source"),
+          refresh: options.refresh, minIntervalMs: options.minIntervalMs, maxRequests: 1000
+        });
+        const discovery = createFloridaIndependentExpenditureDiscovery({ request: raw.request, refresh: options.refresh });
+        const payer = createFloridaOutsidePayerSource({ request: raw.request, refresh: options.refresh });
+        // Financial captures must fit inside the registry opening/closing interval.
+        // Reusing its just-captured opening owner GET would predate completion of the
+        // opening registry authority, so this nested packet is always genuinely fresh.
+        const expenses = createFloridaProcessedExpenseSourceLoader({ request: raw.request, refresh: true });
         const tracked = await options.db.query<{ payer_name: string; payer_type: string }>(`
           SELECT payer_name, payer_type FROM public.fl_candidate_finance_ie_sources
           WHERE candidate_election_id = $1::uuid AND election_year = $2

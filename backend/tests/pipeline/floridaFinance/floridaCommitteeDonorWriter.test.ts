@@ -1,5 +1,14 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import * as rawSource from "../../../src/pipeline/floridaFinance/floridaFinanceRawSourceClient.js";
+import * as processedSource from "../../../src/pipeline/floridaFinance/floridaCandidateProcessedFinanceSource.js";
+import * as registrySource from "../../../src/pipeline/floridaFinance/floridaCommitteeRegistrySource.js";
+import { createFloridaCandidateCommitteeFinanceSource } from "../../../src/pipeline/floridaFinance/floridaCandidateCommitteeFinanceSource.js";
+import { fingerprintFloridaCommitteeDonorRegistrations, resolveFloridaCommitteeDonorIdentity,
+  type FloridaCommitteeDonorRegistration } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorIdentity.js";
 import { createHash } from "node:crypto";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   replaceFloridaCandidateFinanceSnapshot,
   type FloridaFinanceLinkInput,
@@ -682,5 +691,83 @@ describe("locked prior accepted PAC source replacement", () => {
     expect(mutation?.[1]?.slice(0,2)).toEqual([linkId,2026]);
     expect(mutation?.[1]?.[5]).toBe(1500);
     expect(mutation?.[1]?.at(-1)).toBe(syncedAt.toISOString());
+  });
+});
+
+// Exercise acquisition reuse through the real row resolver, aggregator, and writer replay.
+describe("Florida candidate registry acquisition and writer replay", () => {
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+  const input = { candidateId, electionId, committeeId: localContext.committeeId };
+  function acquisition(registrations: FloridaCommitteeDonorRegistration[]) {
+    const fingerprint = fingerprintFloridaCommitteeDonorRegistrations(registrations);
+    const evidence = { registrations, sourceHashes: Array(6).fill(h), queryProof: {
+      prefixes: ["Example PA", "Example PAC"], fingerprintBefore: fingerprint, fingerprintAfter: fingerprint,
+    } };
+    const lookupDonor = vi.fn(async receipt => ({
+      ...resolveFloridaCommitteeDonorIdentity({ ...receipt, ...evidence }), ...evidence,
+    }));
+    vi.spyOn(registrySource, "createFloridaCommitteeRegistrySource").mockReturnValue({ lookupDonor });
+    return lookupDonor;
+  }
+  function registration(committeeId = "64858"): FloridaCommitteeDonorRegistration {
+    return { committeeId, committeeName: "Example PAC", committeeType: "PAC", status: "Active",
+      address: "1 Main St.", cityStateZip: "City FL 12345", sourceUrl: origin + "/committees/ComDetail.asp?account=" + committeeId,
+      registration: null, disbandment: null };
+  }
+  async function source(rows: FloridaContributionRow[]) {
+    const fixture = await pacFinance(rows);
+    vi.spyOn(processedSource, "createFloridaCandidateProcessedFinanceSource")
+      .mockReturnValue({ load: vi.fn().mockResolvedValue(fixture.source) });
+    return createFloridaCandidateCommitteeFinanceSource({ db: db(), cacheDir: "/unused-test-cache" });
+  }
+  it("acquires 501 repeated receipts once per candidate and retains every replay occurrence", async () => {
+    const lookup = acquisition([registration()]);
+    const batch = await source(Array.from({ length: 501 }, () => row()));
+    const result = await batch.load(input);
+    expect(result.status).toBe("accepted");
+    if (result.status !== "accepted") throw Error(result.diagnostics.join());
+    expect(lookup).toHaveBeenCalledTimes(1);
+    expect(result.pacFinance.finance.donors[0]).toMatchObject({ amount: 501000, contributionCount: 501 });
+    expect(result.pacFinance.finance.provenance.registryLookups).toHaveLength(501);
+    await expect(prepareFloridaCommitteeDonorFinance({ pacFinance: result.pacFinance, link: link() })).resolves.toBeDefined();
+    expect((await batch.load(input)).status).toBe("accepted");
+    expect(lookup).toHaveBeenCalledTimes(2);
+  });
+  it.each([false, true])("resolves each repeated name's date and address separately (wrong address: %s)", async wrongAddress => {
+    const date = (effectiveDate: string) => ({ effectiveDate, sha256: h,
+      sourceUrl: origin + "/campaign-docs/PDFHandler.ashx?AcctType=01/10/26&TrackNum=123" });
+    const lookup = acquisition([
+      { ...registration("64858"), status: "Closed", registration: date("2025-01-01"), disbandment: date("2026-01-10") },
+      { ...registration("64859"), address: "2 New St.", registration: date("2026-01-10") },
+    ]);
+    const batch = await source([row(), row({ contributionDate: "2026-01-20", address: wrongAddress ? "Wrong street" : "2 New St." })]);
+    const result = await batch.load(input);
+    expect(lookup).toHaveBeenCalledTimes(1);
+    expect(result.status).toBe(wrongAddress ? "preserve" : "accepted");
+    if (result.status === "accepted") {
+      expect(result.pacFinance.finance.provenance.registryLookups.map(r => r.result.identity?.committeeId)).toEqual(["64858", "64859"]);
+      await expect(prepareFloridaCommitteeDonorFinance({ pacFinance: result.pacFinance, link: link() })).resolves.toBeDefined();
+    }
+  });
+  it("gives the next candidate a fresh budget after acquisition exhaustion", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "fl-committee-budget-"));
+    try {
+      const original = rawSource.createFloridaFinanceRawSourceClient;
+      vi.spyOn(rawSource, "createFloridaFinanceRawSourceClient").mockImplementation(options => original({ ...options, maxRequests: 1 }));
+      const fetch = vi.fn(async () => new Response("synthetic response")); vi.stubGlobal("fetch", fetch);
+      const fixture = await pacFinance([row()]);
+      let candidates = 0;
+      vi.spyOn(processedSource, "createFloridaCandidateProcessedFinanceSource").mockImplementation(options => ({ load: async () => {
+        const request = { url: origin + "/candidates/CanDetail.asp?account=88773", method: "GET" as const, financeFields: null };
+        await options.request(request);
+        if (++candidates === 1) await options.request(request);
+        return fixture.source;
+      } }));
+      acquisition([registration()]);
+      const batch = createFloridaCandidateCommitteeFinanceSource({ db: db(), cacheDir, minIntervalMs: 0, refresh: true });
+      expect(await batch.load(input)).toMatchObject({ status: "preserve", diagnostics: [expect.stringContaining("budget exhausted")] });
+      expect((await batch.load(input)).status).toBe("accepted");
+      expect(fetch).toHaveBeenCalledTimes(2);
+    } finally { await rm(cacheDir, { recursive: true, force: true }); }
   });
 });

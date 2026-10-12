@@ -264,11 +264,13 @@ function decodeGeneric(raw: string): FloridaContributionRow[] {
   return tsv(raw, genericHeaders).map((c) => {
     if (!c[0].trim() || !c[4].trim() || !/^[A-Z]+$/.test(c[3]))
       fail("missing generic identity");
-    amount(c[2]);
+    const cents = amount(c[2]);
+    const absolute = Math.abs(cents);
+    const canonicalAmount = `${cents < 0 ? "-" : ""}${Math.floor(absolute / 100)}.${String(absolute % 100).padStart(2, "0")}`;
     return {
       recipientName: c[0],
       contributionDate: date(c[1]),
-      amount: c[2],
+      amount: canonicalAmount,
       transactionType: c[3],
       contributorName: c[4],
       address: c[5],

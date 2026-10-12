@@ -8,6 +8,7 @@ import {
   resolveFloridaCommitteeDonorIdentity,
   type FloridaCommitteeDateEvidence,
   type FloridaCommitteeDonorIdentityResult,
+  type FloridaCommitteeDonorQueryProof,
   type FloridaCommitteeDonorRegistration,
 } from "./floridaCommitteeDonorIdentity.js";
 
@@ -41,6 +42,7 @@ export type FloridaReviewedCommitteeDates = {
 export type FloridaCommitteeRegistryLookupResult = FloridaCommitteeDonorIdentityResult & {
   sourceHashes: readonly string[];
   registrations?: readonly FloridaCommitteeDonorRegistration[];
+  queryProof?: FloridaCommitteeDonorQueryProof;
 };
 const ORIGIN = "https://dos.elections.myflorida.com";
 const SEARCH = ORIGIN + "/committees/ComLkupByName.asp";
@@ -406,9 +408,9 @@ export function createFloridaCommitteeRegistrySource(options: {
             rawFields: { queryCells: r.rawFields, detail: d ?? null } };
         });
         const fp = fingerprintFloridaCommitteeDonorRegistrations(registrations);
-        return { ...resolveFloridaCommitteeDonorIdentity({ ...receipt, registrations, queryProof: {
-          prefixes, fingerprintBefore: fp, fingerprintAfter: fp,
-        } }), registrations, sourceHashes: hashes };
+        const queryProof = { prefixes, fingerprintBefore: fp, fingerprintAfter: fp };
+        return { ...resolveFloridaCommitteeDonorIdentity({ ...receipt, registrations, queryProof }),
+          registrations, queryProof, sourceHashes: hashes };
       } catch (error) {
         return { status: "unresolved", diagnostics: [error instanceof Error ? error.message : "Registry lookup failed."], sourceHashes: hashes };
       }
