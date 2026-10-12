@@ -75,6 +75,16 @@ export const LEGACY_DUPLICATE_MIGRATION_FILES_BY_PREFIX = new Map<string, string
       "334_clear_oregon_unproven_outside_zeros.sql",
     ],
   ],
+  // #1575 and #1578 independently used 336 and both were applied locally.
+  // Keep their filenames/checksums stable. Kansas IE storage and research-area
+  // links touch unrelated objects and are safe in either application order.
+  [
+    "336",
+    [
+      "336_add_kansas_independent_expenditure_evidence.sql",
+      "336_add_limit_foreign_influence_research_area.sql",
+    ],
+  ],
 ]);
 
 export function isLegacyDuplicateMigrationSet(
