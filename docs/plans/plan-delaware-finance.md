@@ -69,14 +69,30 @@ paths acquire no current source evidence; ordinary source-disabled writes
 preserve stored money even if another directory contains a legacy cache.
 The combined Delaware evidence, cache, source, writer, reader, due-selection and
 CLI regressions, including the source-loader orchestration and shared finance
-suite, pass 887 tests in 53 files (three DB-dependent assertions skipped).
+suite, pass 907 tests in 53 files (three DB-dependent assertions skipped).
 Independent reviews found no remaining blocker after durable source-cache
 commit gating and source-disabled preservation. Backend typecheck passes.
 Migration 334 was applied through the normal CLI to the explicit local
 database only; its file/ledger checksum is
 `254202cbf9321cb81bbfe271fb87bc400fded6368ee22aaf73ec3277cd671987`.
-Before normal sync, both Carey and Jennings have no direct summary, donor or
-outside rows. Real fresh sync/card proof remains pending.
+Before normal sync, both Carey and Jennings had no direct summary, donor or
+outside rows. Carey's ordinary local CLI now succeeds using a genuine saved
+opening and freshly acquired closing: Raised/receipts $25,215.80, spent $3,870.82,
+cash on hand $21,344.98, and eight committee donor rows totaling $6,200. The
+production card reader shows the uncapped $6,200/eight donors under “Not yet
+sorted” with five names displayed. Committee classification includes an exact
+registered PAC match for a contributor reported as a corporation; reported and
+registered classes remain distinct. These gifts do not increase Raised twice.
+Outside discovery remains incomplete; Carey's outside scalars stay NULL.
+Jennings' normal persistence and outside card proof remain pending. Failed
+fresh candidate closure attempts wrote no money; one separately captured fresh
+producer succeeded, so no producer guard was relaxed for the unreproduced error.
+
+Real source replay exposed three narrow grammar/transport fixes: retain the
+published blank-name type-05 certification rows; accept the exact matching
+legislative report district suffix; compare full raw registry row multisets
+because four row positions changed while all fields and duplicate counts stayed
+identical. Complete scope, count, exhaustion, chronology and money controls remain.
 The independently refreshed third-party packet now replays through the outside
 source verifier: 49 opening and 50 closing original captures prove one literal
 $499,015 support allocation for Kathleen Jennings. Every original byte/hash and
