@@ -13,6 +13,11 @@ import type {
   OregonFinanceOutsideCategoryType,
 } from "./oregonFinanceAggregator.js";
 import type { OregonOrestarSupportOppose } from "./oregonOrestarParser.js";
+import {
+  createOregonVerifiedFinancePersistence,
+  type OregonVerifiedFinanceComponents,
+  type OregonVerifiedFinanceWriteCounts,
+} from "./oregonVerifiedFinancePersistence.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & {
@@ -68,30 +73,31 @@ export type OregonFinanceSnapshotInput = {
   outsideGroups?: readonly OregonFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly OregonFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  verifiedFinance?: OregonVerifiedFinanceComponents;
 };
 
-export type OregonFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
+export type OregonFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult & Partial<OregonVerifiedFinanceWriteCounts>;
 
-const writer = createStandardStateFinanceSnapshotWriter({
+const writerConfig = {
   label: "Oregon",
   minElectionYear: 2000,
-  // Oregon replaces every summary column, including the outside totals — a
-  // refresh without expenditure data legitimately nulls them.
+  // Contributions do not establish outside-spending coverage. An omitted
+  // outside component preserves its last accepted totals.
   summaryUpdatePolicy: {
-    total_receipts: "replace",
-    direct_contribution_total: "replace",
-    total_disbursements: "replace",
-    cash_on_hand: "replace",
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
-    source_url: "replace",
+    total_receipts: "replace" as const,
+    direct_contribution_total: "replace" as const,
+    total_disbursements: "replace" as const,
+    cash_on_hand: "replace" as const,
+    outside_support_total: "preserveWhenNull" as const,
+    outside_oppose_total: "preserveWhenNull" as const,
+    source_url: "replace" as const,
   },
   // Presence-only, matching the bespoke writer. The or_ breakdown table does
   // carry the ON DELETE CASCADE FK to the groups table, so the known
   // stale-group cascade window (see the capability matrix) exists here exactly
   // as it did before the migration; tightening to "pairing" would reject
   // inputs the bespoke writer accepted and is a separate behavior decision.
-  outsideGroupValidation: "presence",
+  outsideGroupValidation: "presence" as const,
   outsideGroupIdentityColumns: { id: "sponsor_id", name: "sponsor_name" },
   tables: {
     links: "or_candidate_finance_links",
@@ -100,7 +106,9 @@ const writer = createStandardStateFinanceSnapshotWriter({
     outsideGroups: "or_candidate_finance_outside_groups",
     outsideGroupBreakdowns: "or_candidate_finance_outside_group_breakdowns",
   },
-});
+};
+const writer = createStandardStateFinanceSnapshotWriter(writerConfig);
+const verifiedWriter = createStandardStateFinanceSnapshotWriter({ ...writerConfig, manualLinkProtection: true });
 
 function requireNonEmpty(value: string, fieldName: string): string {
   const trimmed = value.trim();
@@ -164,15 +172,34 @@ export async function upsertOregonFinanceLink(input: {
 export async function replaceOregonCandidateFinanceSnapshot(
   input: OregonFinanceSnapshotInput
 ): Promise<OregonFinanceSnapshotWriteResult> {
+  if (input.verifiedFinance) {
+    // Retain one generation for both validation hooks and shared writes.
+    // The Pool is intentionally excluded from the data clone.
+    input = { db: input.db, ...structuredClone({
+      link: input.link, syncedAt: input.syncedAt, summary: input.summary,
+      directBreakdowns: input.directBreakdowns, outsideGroups: input.outsideGroups,
+      outsideGroupBreakdowns: input.outsideGroupBreakdowns,
+      classifications: input.classifications, verifiedFinance: input.verifiedFinance,
+    }) };
+  }
   const syncedAt = input.syncedAt ?? new Date();
   if (Number.isNaN(syncedAt.getTime())) {
     throw new Error("Invalid Oregon finance sync timestamp");
   }
   validateOregonFinanceLinkInput(input.link);
-  return writer.replaceSnapshot({
+  if (input.verifiedFinance && (input.outsideGroups !== undefined || input.outsideGroupBreakdowns !== undefined ||
+      input.summary?.outsideSupportTotal != null || input.summary?.outsideOpposeTotal != null)) {
+    throw new Error("Oregon verified finance cannot replace outside coverage with a legacy snapshot");
+  }
+  const persistence = input.verifiedFinance && createOregonVerifiedFinancePersistence({
+    link: input.link, components: input.verifiedFinance,
+  });
+  const result = await (persistence ? verifiedWriter : writer).replaceSnapshot({
     ...input,
     syncedAt,
     db: requireOregonPool(input.db),
+    beforeSnapshotWrite: persistence?.beforeSnapshotWrite,
+    afterSnapshotWrite: persistence?.afterSnapshotWrite,
     outsideGroups: input.outsideGroups?.map((group) => ({
       committeeId: group.sponsorId,
       committeeName: group.sponsorName,
@@ -190,4 +217,6 @@ export async function replaceOregonCandidateFinanceSnapshot(
       sourceUrl: breakdown.sourceUrl,
     })),
   });
+  return persistence ? { ...result, ...persistence.counts,
+    outsideGroupsWritten: result.outsideGroupsWritten + persistence.counts.verifiedOutsideGroupsWritten } : result;
 }

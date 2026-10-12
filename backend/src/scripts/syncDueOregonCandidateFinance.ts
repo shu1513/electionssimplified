@@ -8,12 +8,18 @@ import {
   syncDueOregonCandidateFinance,
   type OregonCandidateFinanceBatchSyncResult,
 } from "../pipeline/oregonFinance/oregonCandidateFinanceBatchSync.js";
-import { readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
+import { isUuid } from "../utils/uuid.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueOregonCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  autoLinkMissingLinks?: boolean;
+  rawCacheDir?: string;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -24,16 +30,28 @@ export type SyncDueOregonCandidateFinanceScriptOptions = {
   minIndustryAmount?: number;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
-const KNOWN_VALUE_FLAGS = new Set(["--direct-max-breakdowns", "--lookahead-days", "--lookback-days", "--max-candidates", "--min-industry-amount", "--outside-max-breakdowns", "--outside-max-groups", "--stale-after-days"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh", "--no-auto-link"]);
+const KNOWN_VALUE_FLAGS = new Set(["--raw-cache-dir", "--candidate-id", "--election-year", "--direct-max-breakdowns", "--lookahead-days", "--lookback-days", "--max-candidates", "--min-industry-amount", "--outside-max-breakdowns", "--outside-max-groups", "--stale-after-days"]);
 
 export function parseSyncDueOregonCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueOregonCandidateFinanceScriptOptions {
   assertKnownCliFlags(args, "Oregon candidate finance due sync", KNOWN_BOOLEAN_FLAGS, KNOWN_VALUE_FLAGS);
+  const candidateId = readStrictFlagValue(args, "--candidate-id");
+  const electionYear = readStrictPositiveIntegerFlag(args, "--election-year");
+  const rawCacheDir = readStrictFlagValue(args, "--raw-cache-dir");
+  if (candidateId !== null && !isUuid(candidateId)) throw new Error("--candidate-id must be a UUID");
+  if (electionYear !== undefined && (electionYear < 2000 || electionYear > 2100)) {
+    throw new Error("--election-year must be between 2000 and 2100");
+  }
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    ...(args.includes("--refresh") ? { refresh: true } : {}),
+    ...(candidateId !== null ? { candidateId: candidateId.toLowerCase() } : {}),
+    ...(electionYear !== undefined ? { electionYear } : {}),
+    ...(args.includes("--no-auto-link") ? { autoLinkMissingLinks: false } : {}),
+    ...(rawCacheDir !== null ? { rawCacheDir } : {}),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
@@ -84,6 +102,11 @@ async function main(): Promise<void> {
       db: pool,
       now: startedAt,
       dryRun: options.dryRun,
+      refresh: options.refresh,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
+      autoLinkMissingLinks: options.autoLinkMissingLinks,
+      rawCacheDir: options.rawCacheDir,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,

@@ -98,6 +98,14 @@ describe("oregonFinanceAggregator", () => {
               associationType: "independent_expenditure",
               supportOppose: "support",
               targetCommitteeName: "Friends of Tina Kotek",
+              targetCommitteeId: "4792",
+              amount: 67_766.61,
+              rawText: "Independent Expenditure in Support - Friends of Tina Kotek (4792) - $67,766.61",
+            },
+            {
+              associationType: "independent_expenditure",
+              supportOppose: "support",
+              targetCommitteeName: "Friends of Tina Kotek",
               targetCommitteeId: null,
               amount: 50_000,
               rawText: "Independent Expenditure in Support - Friends of Tina Kotek - $50,000.00",
@@ -140,7 +148,7 @@ describe("oregonFinanceAggregator", () => {
     });
     expect(result.matchedExpenditureRowCount).toBe(2);
     expect(result.includedAssociationCount).toBe(2);
-    expect(result.skippedAssociationCount).toBe(2);
+    expect(result.skippedAssociationCount).toBe(3);
     expect(result.outsideGroups).toEqual([
       expect.objectContaining({
         sponsorId: "55555",
@@ -207,12 +215,12 @@ describe("oregonFinanceAggregator", () => {
           amount: 67_766.61,
           outsideAssociations: [
             {
-              associationType: "in_kind_expenditure",
+              associationType: "independent_expenditure",
               supportOppose: "support",
               targetCommitteeName: "Friends of Tina Kotek",
               targetCommitteeId: "4792",
               amount: 67_766.61,
-              rawText: "In-Kind Expenditure - Friends of Tina Kotek (4792) - $67,766.61",
+              rawText: "Independent Expenditure in Support - Friends of Tina Kotek (4792) - $67,766.61",
             },
           ],
         }),

@@ -82,6 +82,14 @@ function transactionDetails(): OregonOrestarTransactionDetail[] {
           amount: 67_766.61,
           rawText: "In-Kind Expenditure - Friends of Tina Kotek (4792) - $67,766.61",
         },
+        {
+          associationType: "independent_expenditure",
+          supportOppose: "support",
+          targetCommitteeName: "Friends of Tina Kotek",
+          targetCommitteeId: "4792",
+          amount: 67_766.61,
+          rawText: "Independent Expenditure in Support - Friends of Tina Kotek (4792) - $67,766.61",
+        },
       ],
       sourceUrl: "https://secure.sos.state.or.us/orestar/gotoPublicTransactionDetail.do?tranRsn=4406263",
     }),
@@ -123,7 +131,7 @@ function transactionDetails(): OregonOrestarTransactionDetail[] {
 
 describe("oregonCandidateFinanceSync", () => {
   it("aggregates parsed ORESTAR transaction details and writes an Oregon snapshot", async () => {
-    const input = baseInput(transactionDetails());
+    const input = { ...baseInput(transactionDetails()), outsideTransactionDetails: transactionDetails() };
     const result = await syncOregonCandidateFinance(input);
 
     expect(result).toMatchObject({
@@ -145,7 +153,7 @@ describe("oregonCandidateFinanceSync", () => {
       skippedDirectContributionRowCount: 0,
       matchedExpenditureRowCount: 1,
       includedOutsideAssociationCount: 1,
-      skippedOutsideAssociationCount: 0,
+      skippedOutsideAssociationCount: 1,
       matchedOutsideGroupContributionRowCount: 3,
       includedOutsideGroupContributionRowCount: 2,
       skippedOutsideGroupContributionRowCount: 1,
@@ -209,7 +217,7 @@ describe("oregonCandidateFinanceSync", () => {
   });
 
   it("does not write in dry-run mode but returns aggregation counts", async () => {
-    const input = baseInput(transactionDetails());
+    const input = { ...baseInput(transactionDetails()), outsideTransactionDetails: transactionDetails() };
     const result = await syncOregonCandidateFinance({ ...input, dryRun: true });
 
     expect(result).toMatchObject({
@@ -227,14 +235,14 @@ describe("oregonCandidateFinanceSync", () => {
     expect(input.db.query).not.toHaveBeenCalled();
   });
 
-  it("can sync an empty known committee snapshot", async () => {
+  it("preserves outside data when the receiving committee has no contributions", async () => {
     const input = baseInput([]);
     const result = await syncOregonCandidateFinance(input);
 
     expect(result).toMatchObject({
       directContributionTotal: 0,
-      outsideSupportTotal: 0,
-      outsideOpposeTotal: 0,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
       transactionDetailCount: 0,
       directBreakdownsWritten: 0,
       outsideGroupsWritten: 0,
@@ -245,9 +253,29 @@ describe("oregonCandidateFinanceSync", () => {
       "INSERT INTO public.or_candidate_finance_links",
       "INSERT INTO public.or_candidate_finance_summaries",
       "DELETE FROM public.or_candidate_finance_direct_breakdowns",
-      "DELETE FROM public.or_candidate_finance_outside_group_breakdowns",
-      "DELETE FROM public.or_candidate_finance_outside_groups",
       "COMMIT",
+    ]);
+  });
+
+  it("never treats receiving receipts or in-kind associations as outside-source coverage", async () => {
+    const input = baseInput(transactionDetails());
+    const result = await syncOregonCandidateFinance(input);
+
+    expect(result).toMatchObject({
+      directContributionTotal: 10_150,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
+      outsideGroupsWritten: 0,
+      outsideGroupBreakdownsWritten: 0,
+      includedOutsideAssociationCount: 0,
+    });
+    const sql = input.db.client.query.mock.calls.map((call) => String(call[0]));
+    expect(sql.some((statement) => statement.includes("or_candidate_finance_outside_"))).toBe(false);
+    const summaryCall = input.db.client.query.mock.calls.find((call) =>
+      String(call[0]).includes("INSERT INTO public.or_candidate_finance_summaries")
+    );
+    expect(summaryCall?.[1]).toEqual([
+      LINK_ID, 2022, null, 10_150, null, null, null, null, SOURCE_URL, NOW.toISOString(),
     ]);
   });
 
