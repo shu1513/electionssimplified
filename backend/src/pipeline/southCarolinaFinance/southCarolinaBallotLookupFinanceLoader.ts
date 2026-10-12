@@ -1,7 +1,6 @@
 // South Carolina ballot-lookup finance loader: thin config wrapper over the
-// standard loader. Outside totals are never stored (committee filings expose
-// no independent-expenditure flag, candidate target, or support/oppose), so
-// they surface as null with the coverage note — never $0. The direct note is
+// standard loader. Outside coverage remains incomplete; unavailable totals
+// surface as null while stored groups remain readable. The direct note is
 // the source-wide static one from the aggregator; the standard family
 // persists no per-candidate note (that variant is a sync diagnostic only).
 
@@ -22,7 +21,7 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 
 const SOUTH_CAROLINA_ETHICS_SOURCE_URL = "https://ethicsfiling.sc.gov/public";
 const SOUTH_CAROLINA_OUTSIDE_COVERAGE_NOTE =
-  "South Carolina committee filings do not identify independent expenditures by candidate or position, so outside spending totals are unavailable rather than zero.";
+  "South Carolina outside spending coverage is incomplete. Unavailable totals do not mean zero.";
 
 export async function loadSouthCarolinaCandidateFinanceSummariesByCandidateElection(
   db: Queryable,

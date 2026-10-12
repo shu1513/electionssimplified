@@ -2,11 +2,8 @@
 // Phase 4). Thin wrapper over the standard state-finance writer. Identity:
 // the Ethics API's positive integer candidateFilerId, stored as text in
 // candidate_filer_id (id 0 marks SEI-only filers with no candidate account
-// and must never be linked). Outside groups/breakdowns are never written —
-// SC filings carry no expenditure -> candidate + position edge — so the
-// snapshot input deliberately omits them: outside totals are forced to NULL
-// ("replace" mode, so a stray historical value can never survive a sync) and
-// the empty outside arrays make the shared writer delete any stray rows.
+// and must never be linked). This candidate-only path acquires no outside
+// evidence. Omitted outside components preserve stored totals and groups.
 //
 // Presence semantics live in the caller (Phase 5 sync): the writer is only
 // called with filed data or a filed-zero snapshot; source-unavailable and
@@ -95,13 +92,6 @@ const writer = createStandardStateFinanceSnapshotWriter({
   label: "South Carolina",
   // Oldest election run observed live on the Ethics API (2008 primaries).
   minElectionYear: 2008,
-  summaryUpdatePolicy: {
-    // Outside totals are ALWAYS null for South Carolina; the shared writer's
-    // preserveWhenNull default would let a stray historical value survive
-    // every sync, so these two columns replace unconditionally.
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
-  },
   // The ending "Campaign Funds" balance is report-cover arithmetic; an
   // indebted campaign can legitimately report negative cash (migration 260
   // leaves cash_on_hand unconstrained).
@@ -149,9 +139,8 @@ export async function upsertSouthCarolinaFinanceLink(input: {
 export async function replaceSouthCarolinaCandidateFinanceSnapshot(
   input: SouthCarolinaFinanceSnapshotInput
 ): Promise<SouthCarolinaFinanceSnapshotWriteResult> {
-  // Enforce the outside-null contract at the single write chokepoint: outside
-  // totals are forced to NULL, and the empty outside arrays make the shared
-  // writer delete any stray outside rows during the snapshot transaction.
+  // Unavailable outside amounts use the shared preserveWhenNull policy.
+  // Omit groups entirely: [] would claim verified absence and delete rows.
   return writer.replaceSnapshot({
     db: input.db,
     link: toStandardLink(input.link),
@@ -161,7 +150,5 @@ export async function replaceSouthCarolinaCandidateFinanceSnapshot(
         ? undefined
         : { ...input.summary, outsideSupportTotal: null, outsideOpposeTotal: null },
     directBreakdowns: input.directBreakdowns,
-    outsideGroups: [],
-    outsideGroupBreakdowns: [],
   });
 }

@@ -1,5 +1,26 @@
 # South Carolina Campaign Finance Plan
 
+## October 12, 2026 finance-gap continuation
+
+The candidate-only sync acquires no outside evidence, so omitted outside totals
+and groups now preserve previously stored values independently of direct cash.
+The reader describes incomplete coverage without treating missing values as zero.
+This foundation does not implement PAC donors or allocate vendor-only IE payments.
+Those features remain pending exact typed registry identity, complete current
+receipt/return reconciliation and an actual published candidate/stance allocation.
+Generic `Group=Yes` is not a PAC type; reported names and distinct source IDs must
+remain intact. No Original-only amendment policy or inferred return ownership.
+
+[Official election guidance](https://ethics.sc.gov/campaigns/election-material):
+combined quarterly/pre-election due October 19, covering through October 14.
+Mandatory fresh source rerun October 20; posting retry October 23. Verify the
+January 10, 2027 Q4 weekend treatment before the January rerun. Scoped genuine
+refresh-before-LIMIT selection remains required; current `--force` only enables
+the sync flag. Flags stay inline, AI false; no production or automatic reminders.
+The historical v1 outside-null/deletion contract below is superseded by these
+omission/preservation semantics. Source feature completion still requires ordinary
+local sync, real row counts and the production card reader before a state-only PR.
+
 Written 2026-08-26 after a live feasibility probe of both South Carolina disclosure systems; revised same day after a design review was itself verified point-by-point with further live probes (ID-space check, McMaster 2022 cycle-reset evidence, shared writer/loader code reads). Source findings, verified numbers, endpoint shapes, and statute cites live in `backend/docs/south-carolina-campaign-finance.md`; this plan is the implementation contract. The module must stay isolated, flag-gated, conservative about identity, and reuse the shared standard-state finance infrastructure (`standardStateFinanceSnapshotWriter.ts`, `standardStateFinanceBallotLookupLoader.ts`, `standardStateFinanceDueListQuery.ts`).
 
 ## Verdict and v1 scope

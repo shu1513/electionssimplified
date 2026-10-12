@@ -63,7 +63,7 @@ describe("southCarolinaFinanceWriter", () => {
     ]);
   });
 
-  it("replaces a filed snapshot transactionally with the outside-null contract", async () => {
+  it("updates filed direct money without replacing unavailable outside components", async () => {
     const client = { query: vi.fn(successfulQuery), release: vi.fn() };
     const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
 
@@ -99,14 +99,17 @@ describe("southCarolinaFinanceWriter", () => {
     const calls = client.query.mock.calls;
     const summary = calls.find((call) => String(call[0]).includes("sc_candidate_finance_summaries"));
     const summarySql = String(summary?.[0]);
-    // Direct totals preserve stored values on NULL; outside totals replace
-    // unconditionally so a stray historical value can never survive a sync.
+    // Missing direct and outside amounts preserve prior values independently.
     expect(summarySql).toContain(
       "total_receipts = COALESCE(EXCLUDED.total_receipts, sc_candidate_finance_summaries.total_receipts)"
     );
-    expect(summarySql).toContain("outside_support_total = EXCLUDED.outside_support_total");
-    expect(summarySql).toContain("outside_oppose_total = EXCLUDED.outside_oppose_total");
-    // Outside totals forced to NULL at the write chokepoint.
+    expect(summarySql).toContain(
+      "outside_support_total = COALESCE(EXCLUDED.outside_support_total, sc_candidate_finance_summaries.outside_support_total)"
+    );
+    expect(summarySql).toContain(
+      "outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, sc_candidate_finance_summaries.outside_oppose_total)"
+    );
+    // NULL means unavailable, not a verified zero.
     expect(summary?.[1]?.slice(2, 9)).toEqual([
       6_195_452.22,
       4_943_600.56,
@@ -122,18 +125,18 @@ describe("southCarolinaFinanceWriter", () => {
     );
     expect(directInserts.map((call) => call[1]?.[2])).toEqual(["occupation", "contribution_size"]);
 
-    // The hardcoded empty outside arrays clear any stray rows every snapshot.
+    // No outside acquisition means no replacement or deletion.
     expect(
       calls.some((call) => String(call[0]).includes("INSERT INTO public.sc_candidate_finance_outside_groups"))
     ).toBe(false);
     expect(
       calls.some((call) => String(call[0]).includes("DELETE FROM public.sc_candidate_finance_outside_groups"))
-    ).toBe(true);
+    ).toBe(false);
     expect(
       calls.some((call) =>
         String(call[0]).includes("DELETE FROM public.sc_candidate_finance_outside_group_breakdowns")
       )
-    ).toBe(true);
+    ).toBe(false);
 
     const supersede = calls.find(
       (call) =>

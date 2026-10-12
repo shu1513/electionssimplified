@@ -18,6 +18,6 @@ describe("southCarolinaBallotLookupFinanceLoader", () => {
     ineligibleOffice: { office_scope: "county", office_canonical_name: "Sheriff" },
     directCoverageNote: SOUTH_CAROLINA_DIRECT_COVERAGE_NOTE,
     outsideCoverageNote:
-      "South Carolina committee filings do not identify independent expenditures by candidate or position, so outside spending totals are unavailable rather than zero.",
+      "South Carolina outside spending coverage is incomplete. Unavailable totals do not mean zero.",
   });
 });
