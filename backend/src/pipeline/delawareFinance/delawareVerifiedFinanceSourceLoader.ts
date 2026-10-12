@@ -932,7 +932,7 @@ export async function loadDelawareVerifiedFinanceSource(
         // close this failed pair or authorize money in the current run.
         payerClosings.push({ payer, packet: closing.packet });
         diagnostics.push(
-          "Complete payer closing retained for a future saved opening; current failed pair has no outside authority",
+          "Payer closing observed for a possible future saved opening; current failed pair has no outside authority",
         );
         continue;
       }
@@ -998,7 +998,19 @@ export async function loadDelawareVerifiedFinanceSource(
       const candidateCaptureIndices = indices(after.sourceCaptures),
         registryOpeningCaptureIndices = indices(globalOpening.sourceCaptures),
         registryClosingCaptureIndices = indices(globalClosing.sourceCaptures);
-      const payers = payerClosings.map(({ payer, packet }) => ({
+      // Keep incomplete payer observations in the journal, not the reusable index.
+      const indexablePayerClosings = payerClosings.filter(({ packet }) => {
+        const complete = Object.entries(packet).every(
+          ([facet, captures]) =>
+            facet === "unsupportedFacets" || captures.length > 0,
+        );
+        if (!complete)
+          diagnostics.push(
+            "Incomplete payer closing not indexed; raw observations retained",
+          );
+        return complete;
+      });
+      const payers = indexablePayerClosings.map(({ payer, packet }) => ({
         ...payer,
         facets: {
           registry: indices(packet.registry),

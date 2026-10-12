@@ -614,6 +614,8 @@ type Scenario = {
   payer?: boolean;
   missingPayerSoo?: boolean;
   payerPdfFailure?: boolean;
+  payerNoReports?: boolean;
+  payerPacketMissingSoo?: boolean;
   payerNativeEmptyReads?: number;
   payerClosingCallbackFailure?: boolean;
   retryOnce?: boolean;
@@ -629,7 +631,8 @@ type Scenario = {
 function network(scenario: Scenario = {}) {
   const statewide = !!(scenario.payer || scenario.incumbent);
   let ballots = 0,
-    payerNativeReads = 0;
+    payerNativeReads = 0,
+    payerSearches = 0;
   const requests: {
     path: string;
     fields: Record<string, string>;
@@ -745,6 +748,7 @@ function network(scenario: Scenario = {}) {
     if (route === "/Public/Search") {
       const broad = !fields.CommitteeType && !fields.txtCommitteeID;
       if (broad) broadSearches++;
+      if (fields.CommitteeType === "04") payerSearches++;
       if (
         broad &&
         broadSearches >= 2 &&
@@ -768,7 +772,9 @@ function network(scenario: Scenario = {}) {
       const so = `/Public/ShowReview?memberID=${found.MemberID}&memVersID=1&cTypeCode=${found.CommitteeTypeCode}&ftype=SO&fpath=&fname=&isPublic=true`;
       return respond(
         render(registryRows.length) +
-          (scenario.missingPayerSoo && fields.CommitteeType === "04"
+          (fields.CommitteeType === "04" &&
+          (scenario.missingPayerSoo ||
+            (scenario.payerPacketMissingSoo && payerSearches > 1))
             ? ""
             : `<a href="${so.replaceAll("&", "&amp;")}">Statement of Organization</a>`),
       );
@@ -801,10 +807,15 @@ function network(scenario: Scenario = {}) {
     if (
       route === "/Public/_ViewFiledReports" &&
       reportMember === String(payer.memberId)
-    )
+    ) {
+      if (scenario.payerNoReports)
+        return respond(
+          `${render(0)}<div id="Grid"><table><tbody></tbody></table></div>`,
+        );
       return respond(
         `${render(1)}<div id="Grid"><table><tbody><tr>${["18 Aug 2026 Filing 1.0 11:07 AM", `<a onclick="downloadReport(&#39;${payerFile}&#39;,&#39;739099&#39;,&#39;315&#39;)">Original Financial Statement</a>`, payer.cfId, payer.committeeName, "3rd Party Advertisers", "08/18/2026", "2026", "", "Active"].map((v) => `<td>${v}</td>`).join("")}</tr></tbody></table></div>`,
       );
+    }
     if (route === "/Public/_ViewFiledReports")
       return respond(
         `${render(1)}<div id="Grid"><table><tbody><tr><td>2026 30 Day 2026 General Election 11/03/2026</td><td><a onclick="downloadReport(&#39;${file}&#39;,&#39;${owner.memberId}&#39;,&#39;1273&#39;)">Amended Financial Statement</a></td><td>${owner.cfId}</td><td>${owner.committeeName}</td><td>Candidate Committee</td><td>10/05/2026</td><td>2026</td><td>State Office - ${statewide ? "Attorney General" : "State Representative"}</td><td>Active</td></tr></tbody></table></div>`,
@@ -1226,6 +1237,70 @@ it("an observed affiliation without complete current PDF proof cannot authorize 
   expect(result.pac?.donors[0]?.cashAmountCents).toBe(60000);
   expect(result.outsideEvidence).toEqual([]);
 });
+it.each([
+  "fresh",
+  "failed_opening",
+  "cached_opening",
+  "missing_organization",
+] as const)(
+  "keeps candidate components when an affiliated payer closing has an empty facet: %s",
+  async (kind) => {
+    if (kind === "cached_opening") await load(network({ payer: true }));
+    const source = network({
+      payer: true,
+      payerNoReports: kind !== "missing_organization",
+      payerPacketMissingSoo: kind === "missing_organization",
+      ...(kind === "failed_opening" ? { payerNativeEmptyReads: 1 } : {}),
+    });
+    const result = await load(source);
+    expect(
+      result.cash?.directContributionCents,
+      result.diagnostics.join("; "),
+    ).toBe(184000);
+    expect(result.pac?.donors[0]?.cashAmountCents).toBe(60000);
+    expect(result.outsideEvidence).toEqual([]);
+    const saved = await readDelawareCfrsCommitteeArtifacts({
+      cacheDir,
+      cfId: owner.cfId,
+    });
+    expect(saved.sourcePacketIndex!.payers).toEqual([]);
+    // Excluding reuse does not discard original observed responses.
+    expect(
+      source.captures.every((capture) =>
+        saved.sourceCaptures!.some(
+          (savedCapture) =>
+            savedCapture.sha256 === capture.sha256 &&
+            savedCapture.startedAt === capture.startedAt,
+        ),
+      ),
+    ).toBe(true);
+    if (kind !== "missing_organization") {
+      expect(
+        saved.sourceCaptures!.some(
+          (c) =>
+            new URL(c.url).pathname === "/Public/_ViewFiledReports" &&
+            c.body.toString().includes("total:0"),
+        ),
+      ).toBe(true);
+      expect(
+        source.captures.some(
+          (c) =>
+            new URL(c.url).pathname === "/Public/FiledReports" &&
+            new URL(c.url).searchParams.get("CommitteeID") ===
+              String(payer.memberId),
+        ),
+      ).toBe(false);
+    }
+    const healthy = network({ payer: true });
+    const recovered = await load(healthy);
+    expect(recovered.outsideEvidence).toHaveLength(1);
+    expect(
+      healthy.requests.filter(
+        (r) => r.path === "/Public/ViewReceipts" && r.fields.hdnTP === "1",
+      ),
+    ).toHaveLength(2);
+  },
+);
 it("missing observed payer organization editions preserve outside discovery without narrowing cash", async () => {
   const result = await load(network({ payer: true, missingPayerSoo: true }));
   expect(result.outsideEvidence).toEqual([]);
