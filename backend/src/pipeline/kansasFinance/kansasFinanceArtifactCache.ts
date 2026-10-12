@@ -22,6 +22,8 @@ export const DEFAULT_KANSAS_FINANCE_CACHE_DIR = "scratch/kansas-campaign-finance
 export const KANSAS_FINANCE_ARTIFACT_SCHEMA_VERSION = 1;
 
 export type KansasFinanceArtifactKind =
+  /** Original paper PDF opened from the SOS IndividualEntity viewer. */
+  | "viewer_pdf"
   /** Scanned filing PDF from the CFAScanned tree (id = path under the tree). */
   | "kpdc_pdf"
   /** CFAScanned link-tree index page (id = path under the tree). */
@@ -57,6 +59,7 @@ export type KansasFinanceArtifactManifest = {
 };
 
 const KINDS = new Set<KansasFinanceArtifactKind>([
+  "viewer_pdf",
   "kpdc_pdf",
   "kpdc_index",
   "viewer_export",
