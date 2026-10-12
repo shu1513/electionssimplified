@@ -1,12 +1,11 @@
 // Delaware filed-report inventory: canonical per-period selection and
 // election-period window resolution (docs/plans/plan-delaware-finance.md facts 3 + 5).
 //
-// Amendment rule (fact 3, proven live 2026-08-26/27): the canonical version
-// per filing period is the HIGHEST PDF-footer `Version:` per
-// FilingCalendarID. The portal's "View Current Report" control is not
-// per-period (it returns only the single most recent report) and filed-date
-// sorting cannot break same-period ties, so version selection comes from
-// the PDFs themselves. Everything here fails closed: ambiguous versions,
+// PDF footer versions repeat across unrelated reports and cannot choose an
+// amendment. This cover-only path accepts a sole document per filing calendar,
+// under either Original or Amended, and preserves ambiguity otherwise. The
+// current-account pointer alone does not identify every historical period.
+// Everything here fails closed: ambiguous editions,
 // unparseable dates, chain breaks, or window misalignment throw instead of
 // producing a partial inventory.
 
@@ -74,7 +73,8 @@ export type DelawareCanonicalReport = {
   filingPeriodName: string;
   periodKey: string;
   filingCalendarId: number;
-  documentVersion: number;
+  /** Optional template footer metadata, never edition-selection authority. */
+  documentVersion: number | null;
   /** ISO reporting-period bounds from the canonical cover. */
   periodFrom: string;
   periodTo: string;
@@ -85,8 +85,8 @@ export type DelawareCanonicalReport = {
 };
 
 /**
- * Selects the canonical (max-version) report per FilingCalendarID and
- * validates the whole inventory: unambiguous versions, parseable periods,
+ * Requires a sole report per FilingCalendarID and
+ * validates the whole inventory: unambiguous documents, parseable periods,
  * one period key per calendar entry, sequential non-overlapping periods,
  * and a fully continuous balance chain (each beginning balance equals the
  * prior canonical ending balance). Returns the canonical reports sorted by
@@ -113,26 +113,17 @@ export function buildDelawareCanonicalReportInventory(
 
   const canonical: DelawareCanonicalReport[] = [];
   for (const [filingCalendarId, entries] of byCalendar) {
-    for (const entry of entries) {
-      if (entry.cover.documentVersion === null) {
-        throw new DelawareReportInventoryError(
-          `report [${entry.row.filingPeriodName}] (calendar ${filingCalendarId}) has no PDF footer version`
-        );
-      }
-    }
-    const maxVersion = Math.max(...entries.map((entry) => entry.cover.documentVersion!));
-    const winners = entries.filter((entry) => entry.cover.documentVersion === maxVersion);
-    if (winners.length !== 1) {
+    if (entries.length !== 1) {
       throw new DelawareReportInventoryError(
-        `ambiguous canonical version for filing calendar ${filingCalendarId}: ${winners.length} reports carry version ${maxVersion}`
+        `ambiguous report editions for filing calendar ${filingCalendarId}: ${entries.length} entries need financial currentness proof`
       );
     }
-    const winner = winners[0]!;
+    const winner = entries[0]!;
     canonical.push({
       filingPeriodName: winner.row.filingPeriodName,
       periodKey: delawareFilingPeriodKey(winner.row.filingPeriodName),
       filingCalendarId,
-      documentVersion: maxVersion,
+      documentVersion: winner.cover.documentVersion,
       periodFrom: delawareCoverDateToIso(winner.cover.reportingPeriodFrom),
       periodTo: delawareCoverDateToIso(winner.cover.reportingPeriodTo),
       beginningBalanceCents: winner.cover.beginningBalanceCents,

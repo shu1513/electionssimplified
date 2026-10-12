@@ -55,8 +55,7 @@ function meyerShapedReports() {
     report({ period: "2022 8 Day 2022 General Election 11/08/2022", calendarId: 3, version: 1, from: "10/11/2022", to: "10/31/2022", beginning: 360_00, receipts: 50_00, expenditures: 10_00 }),
     report({ period: "2022 Annual", calendarId: 4, version: 1, from: "11/01/2022", to: "12/31/2022", beginning: 400_00, receipts: 20_00, expenditures: 5_00 }),
     report({ period: "2023 Annual", calendarId: 5, version: 1, from: "01/01/2023", to: "12/31/2023", beginning: 415_00, receipts: 800_00, expenditures: 100_00 }),
-    // Same-period amendment: v2 is canonical.
-    report({ period: "2024 30 Day 2024 General Election 11/05/2024", calendarId: 6, version: 1, from: "01/01/2024", to: "10/07/2024", beginning: 1_115_00, receipts: 900_00, expenditures: 300_00 }),
+    // A sole amended report is usable; its footer is descriptive only.
     report({ period: "2024 30 Day 2024 General Election 11/05/2024", calendarId: 6, version: 2, from: "01/01/2024", to: "10/07/2024", beginning: 1_115_00, receipts: 950_00, expenditures: 300_00 }),
     report({ period: "2024 8 Day 2024 General Election 11/05/2024", calendarId: 7, version: 1, from: "10/08/2024", to: "10/28/2024", beginning: 1_765_00, receipts: 60_00, expenditures: 25_00 }),
   ];
@@ -84,7 +83,7 @@ describe("delawareFilingPeriodKey", () => {
 });
 
 describe("buildDelawareCanonicalReportInventory", () => {
-  it("selects max-version per filing calendar and validates the chain", () => {
+  it("accepts sole Original and Amended documents and validates the chain", () => {
     const canonical = buildDelawareCanonicalReportInventory(meyerShapedReports());
     expect(canonical).toHaveLength(7);
     const thirtyDay2024 = canonical.find((entry) => entry.periodKey === "2024 30 Day General");
@@ -103,10 +102,22 @@ describe("buildDelawareCanonicalReportInventory", () => {
     expect(() => buildDelawareCanonicalReportInventory(reports)).toThrow(/balance chain break/);
   });
 
-  it("fails closed on ambiguous versions and overlapping periods", () => {
+  it("fails closed on multiple editions despite different footers or financial totals", () => {
+    const reports = meyerShapedReports();
+    reports.push(report({ period: "2024 30 Day 2024 General Election 11/05/2024", calendarId: 6, version: 1, from: "01/01/2024", to: "10/07/2024", beginning: 1_115_00, receipts: 900_00, expenditures: 300_00 }));
+    expect(() => buildDelawareCanonicalReportInventory(reports)).toThrow(/ambiguous report editions/);
+  });
+
+  it("accepts a sole document without a template footer version", () => {
+    const reports = meyerShapedReports();
+    reports[5]!.cover.documentVersion = null;
+    expect(buildDelawareCanonicalReportInventory(reports)[5]!.documentVersion).toBeNull();
+  });
+
+  it("fails closed on duplicate editions and overlapping periods", () => {
     const duplicated = [...meyerShapedReports()];
     duplicated.push(report({ period: "2024 8 Day 2024 General Election 11/05/2024", calendarId: 7, version: 1, from: "10/08/2024", to: "10/28/2024", beginning: 1_765_00, receipts: 60_00, expenditures: 25_00 }));
-    expect(() => buildDelawareCanonicalReportInventory(duplicated)).toThrow(/ambiguous canonical version/);
+    expect(() => buildDelawareCanonicalReportInventory(duplicated)).toThrow(/ambiguous report editions/);
 
     const overlapping = meyerShapedReports();
     overlapping[2]!.cover.reportingPeriodFrom = "10/01/2022";

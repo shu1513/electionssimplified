@@ -52,6 +52,12 @@ economic dedupe or manually inserted canonical money. Migrations 331–333 remai
 reserved; add the next file only after verifying numbering. Ordinary fresh
 local CLI row counts, candidate amounts and reader output are required before PR.
 
+Immediate inventory correction: the legacy cover-only sync may accept a sole
+document for a filing calendar under either Original or Amended. It must reject
+multiple editions until full financial/current-pointer proof resolves them.
+Footer version values remain optional descriptive metadata and never choose an
+edition. This conservative gate runs before writes and preserves old snapshots.
+
 ### Deadlines and mandatory fresh reruns
 
 [Official 2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):

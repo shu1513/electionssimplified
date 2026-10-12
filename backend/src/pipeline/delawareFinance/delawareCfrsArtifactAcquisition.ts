@@ -351,8 +351,8 @@ export async function acquireDelawareCfrsCommitteeArtifacts(
   }
   log(`[acquire ${cfId}] expenses: ${expenses.rows.length} rows`);
 
-  // Filed reports (ALL versions — the sync's max-PDF-version canonical
-  // selection needs the full lineage) and every attached report PDF.
+  // Filed reports (all editions) and every attached report PDF. The
+  // cover-only sync refuses ambiguous editions; footer values cannot select.
   const filedReports = await fetchFiledReports(session, memberId, committeeName, log);
   for (const row of filedReports.rows) {
     if (row.cfId !== cfId) {
