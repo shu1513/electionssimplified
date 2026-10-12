@@ -5,7 +5,7 @@
 This section supersedes historical outside-allocation, PDF-footer-version and
 election-day-window conclusions below. One Delaware PR will extend the existing
 adapter for verified committee donors and explicitly allocated third-party
-expenses. Implementation and normal local sync proof remain pending.
+expenses. Normal local sync and card proof remain pending.
 
 Reference: Pennsylvania's saved-page-first batch acquisition, direct committee
 classification, migration 322 and uncapped donor totals before display caps.
@@ -59,11 +59,22 @@ Footer version values remain optional descriptive metadata and never choose an
 edition. This conservative gate runs before writes and preserves old snapshots.
 
 Source facts, current cash/PAC verification and transactional committee/outside
-storage are implemented. Saved-opening/fresh-closing source orchestration and
-normal local sync/card proof remain open. The combined Delaware evidence,
-cache, source, writer, reader, due-selection and CLI regressions pass 620 tests
-in 29 files; the new source loader is still under implementation and excluded
-from that milestone. Backend typecheck passes.
+storage are implemented. Ordinary live batch writes now call the current-source
+loader and persist independently accepted cash, PAC and outside components in
+one transaction. Cash-only updates retain sibling receiving committees; unknown
+Raised preserves its previous value. Existing occupation/size charts are untouched
+because this change supplies no newly verified chart data. Indexed original-source
+bundles cannot authorize legacy cache-only writes. Source-disabled and dry-run
+paths acquire no current source evidence; ordinary source-disabled writes
+preserve stored money even if another directory contains a legacy cache.
+The combined Delaware evidence, cache, source, writer, reader, due-selection and
+CLI regressions pass 631 tests in 30 files; source-loader orchestration tests are
+tracked separately while their independent review finishes. Backend typecheck
+passes. Migration 334 was applied through the normal CLI to the explicit local
+database only; its file/ledger checksum is
+`254202cbf9321cb81bbfe271fb87bc400fded6368ee22aaf73ec3277cd671987`.
+Before normal sync, both Carey and Jennings have no direct summary, donor or
+outside rows. Real fresh sync/card proof remains pending.
 The independently refreshed third-party packet now replays through the outside
 source verifier: 49 opening and 50 closing original captures prove one literal
 $499,015 support allocation for Kathleen Jennings. Every original byte/hash and

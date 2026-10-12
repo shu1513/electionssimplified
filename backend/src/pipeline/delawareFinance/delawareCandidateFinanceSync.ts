@@ -120,6 +120,11 @@ export async function syncDelawareCandidateFinance(input: {
 
   const artifacts =
     input.artifacts ?? (await readDelawareCfrsCommitteeArtifacts({ cacheDir: input.cacheDir, cfId }));
+  if (artifacts.sourcePacketIndex !== undefined) {
+    throw new DelawareCandidateFinanceSyncError(
+      "Delaware indexed source evidence requires the current source refresh path; legacy cache-only writes are unavailable"
+    );
+  }
 
   // --- Committee identity gates. ---
   if (artifacts.manifest.cfId !== cfId) {

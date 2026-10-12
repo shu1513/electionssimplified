@@ -1,10 +1,7 @@
-// Delaware finance batch sync: optional auto-link pass, then the due list,
-// then per due candidate an artifact-acquisition pass (live, flag-gated,
-// deduped by CF_ID) followed by the CACHE-ONLY sync. When live fetches are
-// not allowed the sync runs against whatever the cache holds, and a due
-// candidate with no cached bundle records a per-candidate failure — the
-// batch continues (fail-visible, never fail-silent). Every step is
-// injectable for tests.
+// Delaware finance batch sync: optional auto-link, then scoped due links.
+// Live writes use paired original source evidence for independent cash,
+// PAC and outside components. Source-disabled writes preserve stored money;
+// legacy cache-only computation remains available for dry runs and tests.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -23,6 +20,10 @@ import {
   syncDelawareCandidateFinance,
   type DelawareCandidateFinanceSyncResult,
 } from "./delawareCandidateFinanceSync.js";
+import {
+  syncDelawareVerifiedCandidateFinance,
+  type DelawareVerifiedCandidateFinanceSyncResult,
+} from "./delawareVerifiedCandidateFinanceSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -58,6 +59,7 @@ export type DelawareCandidateFinanceBatchSyncInput = {
   listDueRowsFn?: typeof listDueDelawareCandidateFinanceSyncRows;
   acquireArtifactsFn?: typeof acquireDelawareCfrsCommitteeArtifacts;
   syncCandidateFn?: typeof syncDelawareCandidateFinance;
+  verifiedSyncCandidateFn?: typeof syncDelawareVerifiedCandidateFinance;
 };
 
 export type DelawareCandidateFinanceBatchSyncResult = {
@@ -70,7 +72,7 @@ export type DelawareCandidateFinanceBatchSyncResult = {
   candidates: {
     row: DelawareCandidateFinanceDueRow;
     ok: boolean;
-    result?: DelawareCandidateFinanceSyncResult;
+    result?: DelawareCandidateFinanceSyncResult | DelawareVerifiedCandidateFinanceSyncResult;
     error?: string;
   }[];
 };
@@ -103,8 +105,9 @@ export async function syncDueDelawareCandidateFinance(
   const liveCfrsAllowed = isDelawareCampaignFinanceRawDataRefreshEnabled(input.forceRawDataRefresh === true);
   if (!dryRun && !liveCfrsAllowed) {
     log(
-      "Delaware live CFRS passes (auto-link, artifact acquisition) skipped: they require " +
-        "DELAWARE_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED (or a per-run force) — syncing cache-only"
+      "Delaware live CFRS passes skipped: they require " +
+        "DELAWARE_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED (or a per-run force); " +
+        "ordinary writes preserve stored money"
     );
   }
   if (!dryRun && !scoped && input.autoLinkMissingLinks !== false && liveCfrsAllowed) {
@@ -145,6 +148,20 @@ export async function syncDueDelawareCandidateFinance(
   let succeeded = 0;
   for (const row of due.rows) {
     try {
+      if (!dryRun && !liveCfrsAllowed && input.syncCandidateFn === undefined) {
+        throw new Error("Delaware current source refresh disabled; stored finance preserved");
+      }
+      // Normal live runs use the original-capture verifier, including saved
+      // opening reuse. The legacy acquisition/cache path remains injectable
+      // for its existing tests and available for legacy cache-only dry runs.
+      if (!dryRun && liveCfrsAllowed && input.syncCandidateFn === undefined) {
+        const result = await (input.verifiedSyncCandidateFn ?? syncDelawareVerifiedCandidateFinance)({
+          db: input.db, row, cacheDir: input.cacheDir, refresh: input.refresh, log,
+        });
+        succeeded += 1;
+        candidates.push({ row, ok: true, result });
+        continue;
+      }
       if (!dryRun && liveCfrsAllowed) {
         let acquired = acquisitions.get(row.cfId);
         if (acquired === undefined) {

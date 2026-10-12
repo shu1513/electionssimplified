@@ -129,6 +129,14 @@ function baseInput(db: unknown) {
 }
 
 describe("syncDelawareCandidateFinance", () => {
+  it("rejects indexed modern source evidence before legacy cache-only computation or writes", async () => {
+    const db = { query: vi.fn(), connect: vi.fn() };
+    const indexed = artifacts({ sourcePacketIndex: { version: 1 } as never });
+    await expect(syncDelawareCandidateFinance({ ...baseInput(db), artifacts: indexed }))
+      .rejects.toThrow("requires the current source refresh path");
+    expect(db.query).not.toHaveBeenCalled();
+    expect(db.connect).not.toHaveBeenCalled();
+  });
   it("computes window totals on a dry run without touching the database", async () => {
     const db = { query: vi.fn(), connect: vi.fn() };
     const result = await syncDelawareCandidateFinance({ ...baseInput(db), dryRun: true });

@@ -26,6 +26,45 @@ function dueRow(overrides: Partial<DelawareCandidateFinanceDueRow> = {}): Delawa
 
 const db = { query: vi.fn(), connect: vi.fn() } as never;
 
+describe("normal verified batch route", () => {
+  it("preserves money on default source-disabled runs even when a legacy cache exists", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "false");
+    const verifiedSyncCandidateFn = vi.fn();
+    const result = await syncDueDelawareCandidateFinance({ db, forceRawDataRefresh: true,
+      autoLinkMissingLinks: false, cacheDir: "/tmp/old-legacy-cache",
+      listDueRowsFn: vi.fn().mockResolvedValue({ rows: [dueRow()], totalDueRows: 1 }),
+      verifiedSyncCandidateFn, log: () => {} });
+    expect(result).toMatchObject({ succeeded: 0, failed: 1 });
+    expect(result.candidates[0]!.error).toContain("stored finance preserved");
+    expect(verifiedSyncCandidateFn).not.toHaveBeenCalled();
+    expect((db as unknown as { connect: ReturnType<typeof vi.fn> }).connect).not.toHaveBeenCalled();
+  });
+  it("uses the verified route for live writes and isolates source failures", async () => {
+    vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const acquireArtifactsFn = vi.fn();
+    const verifiedSyncCandidateFn = vi.fn().mockRejectedValueOnce(new Error("changed current source"))
+      .mockResolvedValueOnce({ dryRun: false, outsideGroupsWritten: 1 });
+    const result = await syncDueDelawareCandidateFinance({ db, forceRawDataRefresh: true,
+      autoLinkMissingLinks: false, refresh: true, cacheDir: "/tmp/de",
+      listDueRowsFn: vi.fn().mockResolvedValue({ rows: [dueRow(), dueRow({ cfId: "01008888" })], totalDueRows: 2 }),
+      acquireArtifactsFn, verifiedSyncCandidateFn, log: () => {} });
+    expect(acquireArtifactsFn).not.toHaveBeenCalled();
+    expect(verifiedSyncCandidateFn.mock.calls[1]![0]).toMatchObject({ refresh: true, cacheDir: "/tmp/de", row: { cfId: "01008888" } });
+    expect(result).toMatchObject({ succeeded: 1, failed: 1 });
+  });
+  it("never acquires verified evidence when source flags are disabled or the run is dry", async () => {
+    const verifiedSyncCandidateFn = vi.fn();
+    const syncCandidateFn = vi.fn().mockResolvedValue({ dryRun: true });
+    for (const dryRun of [false, true]) {
+      vi.stubEnv("DELAWARE_CAMPAIGN_FINANCE_ENABLED", dryRun ? "true" : "false");
+      await syncDueDelawareCandidateFinance({ db, dryRun, forceRawDataRefresh: true, autoLinkMissingLinks: false,
+        listDueRowsFn: vi.fn().mockResolvedValue({ rows: [dueRow()], totalDueRows: 1 }),
+        verifiedSyncCandidateFn, syncCandidateFn, log: () => {} });
+    }
+    expect(verifiedSyncCandidateFn).not.toHaveBeenCalled();
+  });
+});
+
 describe("syncDueDelawareCandidateFinance", () => {
   it("auto-links, acquires artifacts, syncs each due row, and isolates per-candidate failures", async () => {
     // The per-run force stands in for the refresh env var but never for the
@@ -210,7 +249,7 @@ describe("syncDueDelawareCandidateFinance", () => {
     expect(result.autoLinkResults).toEqual([]);
     expect(
       messages.some((message) =>
-        message.includes("live CFRS passes (auto-link, artifact acquisition) skipped")
+        message.includes("live CFRS passes skipped") && message.includes("ordinary writes preserve stored money")
       )
     ).toBe(true);
   });
