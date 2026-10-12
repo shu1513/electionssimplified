@@ -3,6 +3,7 @@ import {
   buildDelawareExpensesSearchFields,
   buildDelawareFiledReportsSearchFields,
   buildDelawareReceiptsSearchFields,
+  isDelawareCfrsCaptureFieldAllowed,
   DELAWARE_CFRS_EXPORT_QUERY,
   type DelawareCfrsResponseCapture,
 } from "./delawareCfrsClient.js";
@@ -248,8 +249,9 @@ function scope(
     !fields ||
     Object.keys(expected).some(
       (key) =>
-        !Object.hasOwn(fields, key) ||
-        (!allowed.includes(key) && fields[key] !== expected[key]),
+        (!Object.hasOwn(fields, key)
+          ? expected[key] !== "" || isDelawareCfrsCaptureFieldAllowed(key, "")
+          : !allowed.includes(key) && fields[key] !== expected[key]),
     ) ||
     Object.entries(fields).some(
       ([key, value]) =>

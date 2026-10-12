@@ -9,6 +9,7 @@ import {
   buildDelawareExpensesSearchFields,
   buildDelawareFiledReportsSearchFields,
   buildDelawareReceiptsSearchFields,
+  isDelawareCfrsCaptureFieldAllowed,
 } from "../../../src/pipeline/delawareFinance/delawareCfrsClient.js";
 import {
   DELAWARE_EXPENSE_CSV_COLUMNS,
@@ -611,6 +612,19 @@ describe("Delaware candidate source monetary occurrence bindings", () => {
     await expect(bindDelawareCandidateFinancialFacts(q)).rejects.toThrow(
       /supplied PDF facts/,
     );
+  });
+  it("accepts the client capture contract without inventing omitted private blank controls", async () => {
+    const p = packet();
+    for (const c of [...p.inventoryCaptures, ...p.receipts.captures, ...p.expenses.captures]) {
+      if (c.financeFields) c.financeFields = Object.fromEntries(Object.entries(c.financeFields)
+        .filter(([key, value]) => isDelawareCfrsCaptureFieldAllowed(key, value)));
+    }
+    const result = await bindDelawareCandidateFinancialFacts(p);
+    expect(result.reports).toHaveLength(1);
+    expect(result.sourceMetadata.find(c => c.url.includes("ViewReceipts"))!.financeFields)
+      .not.toHaveProperty("txtStreet");
+    delete (p.receipts.captures[0]!.financeFields as Record<string, string>).ContributorType;
+    await expect(bindDelawareCandidateFinancialFacts(p)).rejects.toThrow(/query scope/);
   });
   it("rejects narrowed query and wrong source file/calendar request", async () => {
     const p = packet();

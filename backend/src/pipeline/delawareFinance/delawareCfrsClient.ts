@@ -556,7 +556,7 @@ export function isDelawareCfrsPublicReportFileName(value: string): boolean {
     /^CampaignFinance_(?:[1-9]\d*_[1-9]\d*_)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.pdf$/.test(value);
 }
 
-function captureFieldAllowed(key: string, value: string): boolean {
+export function isDelawareCfrsCaptureFieldAllowed(key: string, value: string): boolean {
   if (key === "FileName") return isDelawareCfrsPublicReportFileName(value);
   if (key === "fpath" || key === "fname") return value === "";
   if (key === "filter" || key === "Grid-filter") return value === "" || value === "~";
@@ -573,7 +573,7 @@ function captureRequestScope(
   parsed.hash = "";
   if (!CAPTURE_PATHS.has(parsed.pathname)) parsed.pathname = "/";
   for (const [key, value] of [...parsed.searchParams]) {
-    if (!captureFieldAllowed(key, value)) {
+    if (!isDelawareCfrsCaptureFieldAllowed(key, value)) {
       parsed.searchParams.delete(key);
       requestScopeRedacted = true;
     }
@@ -581,7 +581,7 @@ function captureRequestScope(
   const financeFields: Record<string, string> | null = body === undefined ? null : {};
   if (financeFields !== null) {
     for (const [key, value] of new URLSearchParams(body)) {
-      if (captureFieldAllowed(key, value)) financeFields[key] = value;
+      if (isDelawareCfrsCaptureFieldAllowed(key, value)) financeFields[key] = value;
       // Blank excluded form controls activate no filter and contain no secret.
       // A nonblank excluded value makes this capture unusable as full scope.
       else if (value !== "") requestScopeRedacted = true;
