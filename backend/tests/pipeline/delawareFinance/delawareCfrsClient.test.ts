@@ -439,6 +439,18 @@ describe("delawareCfrsClient", () => {
     expect(captures[2]?.financeFields).not.toHaveProperty("txtStreet");
   });
 
+  it("retains the observed current-report checkbox in source scope", async () => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl } = recordingFetch([htmlResponse("ok")]);
+    const session = createDelawareCfrsSession({
+      fetchImpl, sleep: noSleep,
+      onResponseCapture: (capture) => { captures.push(capture); },
+    });
+    const fields = { MemberId: "458984", hdnViewCurrent: "true", chkViewCurrReport: "on" };
+    await session.postForm(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsSearch), fields);
+    expect(captures[0]).toMatchObject({ financeFields: fields, requestScopeRedacted: false });
+  });
+
   it("does not hand oversize bytes to the observer", async () => {
     const observer = vi.fn();
     const { fetchImpl } = recordingFetch([htmlResponse("x".repeat(100))]);

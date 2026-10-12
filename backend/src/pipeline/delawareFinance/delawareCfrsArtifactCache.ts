@@ -138,6 +138,7 @@ const JOURNAL_FINANCE_FIELDS = new Set([
   "hdnFilingPeriodName",
   "hdnReportName",
   "hdnViewCurrent",
+  "chkViewCurrReport",
   "hdnTP",
   "chkTP",
   "hdnFixedAssets",

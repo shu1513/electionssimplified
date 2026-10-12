@@ -198,6 +198,16 @@ describe("Delaware immutable source-capture journal", () => {
       expect((await stat(join(cacheDir, CF_ID, c.path))).mode & 0o777).toBe(0o600);
     expect((await stat(join(cacheDir, CF_ID, "source-captures"))).mode & 0o777).toBe(0o700);
   });
+  it("roundtrips the actual current-report checkbox without redacting authority scope", async () => {
+    const cap = capture({
+      url: "https://cfrs.elections.delaware.gov/Public/ViewFiledReports",
+      financeFields: { MemberId: "458984", hdnViewCurrent: "true", chkViewCurrReport: "on" },
+    });
+    await storeDelawareCfrsCommitteeArtifacts({ ...storeInput(), sourceCaptures: [cap] });
+    const result = await readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: CF_ID });
+    expect(result.sourceCaptures).toEqual([cap]);
+  });
+
   it("keeps absence distinct from an explicitly empty observation journal", async () => {
     await storeDelawareCfrsCommitteeArtifacts(storeInput());
     expect(
