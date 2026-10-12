@@ -44,6 +44,20 @@ describe("Delaware reported committee facts", () => {
     expect(result.donors).toEqual([]);
     expect(result.unresolvedReceiptIds).toEqual([1, 2, 3]);
   });
+
+  it("retains the observed Political Committee class and aggregate-class source IDs", () => {
+    const aggregateClass = "Total of Contributions not exceeding $100";
+    const result = facts([
+      receipt(1, 60000, { ContributorType: "Political Committee" }),
+      receipt(2, 1000, { ContributorType: aggregateClass, ContributionType: "Cash" }),
+      receipt(3, 11200, { ContributorType: aggregateClass, ContributionType: aggregateClass }),
+    ]);
+    expect(result.donors).toHaveLength(1);
+    expect(result.donors[0]).toMatchObject({ reportedContributorType: "Political Committee", cashCents: 60000 });
+    expect(result.reportedAggregateReceiptIds).toEqual([2, 3]);
+    expect(result.unresolvedReceiptIds).toEqual([]);
+    expect(result.donors[0]!.giftTransactionIds).toEqual([1]);
+  });
   it("keeps financial vendor refunds separate and individual returns out of PAC net", () => {
     const result = facts([
       receipt(1, 530000), receipt(2, 975838, { ContributorName: "Vendor", ContributionType: "Refund/Rebate", ContributorType: "Corporation/Partnership/Other Entity" }),

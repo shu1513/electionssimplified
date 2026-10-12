@@ -3,12 +3,13 @@ import type { DelawareNativeLedger } from "./delawareNativeLedger.js";
 
 /** Published contributor classes, not keyword or employer-name guesses. */
 const COMMITTEE_TYPES = new Set([
-  "Political Action Committee", "PAC", "Candidate Committee",
+  "Political Action Committee", "Political Committee", "PAC", "Candidate Committee",
   "Out-of-State or Federal Committee", "Dem or Rep National Sub-Committees",
 ]);
 const CASH_TYPES = new Set(["Check", "Credit Card", "EFT", "Electronic Fund Transfer", "Cash"]);
 const NON_GIFT_TYPES = new Set(["Candidate Loan", "Other Income", "Refund/Rebate"]);
 const PERSONAL_TYPES = new Set(["Individual", "Self (Candidate)"]);
+const REPORTED_AGGREGATE_TYPE = "Total of Contributions not exceeding $100";
 
 export type DelawareReportedCommitteeFact = {
   /** Reported-name namespace; never presented as a registered legal CF_ID. */
@@ -26,6 +27,8 @@ export type DelawareReportedCommitteeFacts = {
   unresolvedReturnIds: number[];
   possibleSelfReceiptIds: number[];
   nonGiftReceiptIds: number[];
+  /** Published aggregate-class rows; PDF binding decides itemized vs anonymous control. */
+  reportedAggregateReceiptIds: number[];
   receiptFingerprint: string;
   expenseFingerprint: string;
 };
@@ -62,6 +65,7 @@ export function aggregateDelawareReportedCommitteeFacts(input: {
   const unresolvedReturnIds: number[] = [];
   const possibleSelfReceiptIds: number[] = [];
   const nonGiftReceiptIds: number[] = [];
+  const reportedAggregateReceiptIds: number[] = [];
   for (const row of input.receipts.rows) {
     const raw = row.rawFields;
     if (field(raw, "WC_ID") !== input.receivingCfId) {
@@ -70,6 +74,13 @@ export function aggregateDelawareReportedCommitteeFacts(input: {
     const type = field(raw, "ContributionType");
     const contributorType = field(raw, "ContributorType");
     const name = field(raw, "ContributorName");
+    if (contributorType === REPORTED_AGGREGATE_TYPE) {
+      // Actual sources use this class for both an itemized cash row and
+      // native representations of separate anonymous PDF controls. Neither
+      // supplies a named committee; do not guess its financial placement.
+      reportedAggregateReceiptIds.push(row.transactionId);
+      continue;
+    }
     if (NON_GIFT_TYPES.has(type)) {
       nonGiftReceiptIds.push(row.transactionId);
       continue;
@@ -130,6 +141,7 @@ export function aggregateDelawareReportedCommitteeFacts(input: {
   return {
     donors: [...donors.values()].sort((a, b) => a.reportedIdentity.localeCompare(b.reportedIdentity)),
     unresolvedReceiptIds, unresolvedReturnIds, possibleSelfReceiptIds, nonGiftReceiptIds,
+    reportedAggregateReceiptIds,
     receiptFingerprint: input.receipts.rawRowFingerprint,
     expenseFingerprint: input.expenses.rawRowFingerprint,
   };
