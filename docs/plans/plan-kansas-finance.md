@@ -26,17 +26,17 @@ source roles, and the groups' funders are not published.
 
 Ordinary local source acquisition of six American Conservative Fund PDF records
 covered 14 complete financial pages, 61 printed rows and $802,098.06. Twenty-three
-rows resolve to four existing candidate/election contexts. Kyler Sweely, House102,
+rows resolve to four existing candidate/election contexts. Kyler Sweely, House 102,
 has seven itemized support rows/$78,683.40 across four PDFs, despite zero active
 direct-finance links. The production reader and actual frontend card expose that
 group while Raised and overall outside totals remain unknown. The direct cohort's
-125 summaries, amounts and September6 timestamps are unchanged. This proves the
+125 summaries, amounts and September 6 timestamps are unchanged. This proves the
 independent bridge and the reviewed document coverage; it does not certify all
 188 native filings, every payer or every spending channel.
 
-Pre-general report due October26, through October22: obtain a genuinely new
-inventory and fresh PDFs October27, retry October30; catch up daily October31–
-November3 and retry November6 for late posting. Reusing the old saved inventory
+Pre-general report due October 26, through October 22: obtain a genuinely new
+inventory and fresh PDFs October 27, retry October 30; catch up daily October 31–
+November 3 and retry November 6 for late posting. Reusing the old saved inventory
 does not satisfy these checks. New PDFs/changed originals require source-backed
 financial review before acceptance. January weekend treatment remains to verify.
 

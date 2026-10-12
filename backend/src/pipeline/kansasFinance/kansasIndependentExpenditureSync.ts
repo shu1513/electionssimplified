@@ -48,7 +48,7 @@ export type KansasIEBrowserObservation = {
 };
 
 export type KansasIESyncResult = {
-  status: "observed" | "unavailable";
+  status: "observed" | "partial" | "unavailable";
   recordCount: number | null;
   acquiredDocuments: number;
   acceptedDocuments: number;
@@ -228,6 +228,7 @@ export async function syncKansasIndependentExpenditures(input: {
   const facts = new Map<string, { payerName: string; filingDate: string }>();
   let sourceObservation: unknown;
   let totalBytes = 0;
+  let acquisitionFailed = false;
   const retain = async (document: KansasIEPaperDocument) => {
     totalBytes += document.body.byteLength;
     if (totalBytes > 60 * 1024 * 1024)
@@ -274,11 +275,21 @@ export async function syncKansasIndependentExpenditures(input: {
         maxResponseBytes: 8 * 1024 * 1024,
       });
       for (const row of packet.filings) {
-        const document = await getKansasIEPaperDocument(
-          session,
-          row.sourceUrl,
-          packet.sourceUrl,
-        );
+        let document: KansasIEPaperDocument;
+        try {
+          document = await getKansasIEPaperDocument(
+            session,
+            row.sourceUrl,
+            packet.sourceUrl,
+          );
+        } catch (error) {
+          acquisitionFailed = true;
+          result.diagnostics.push(
+            `${row.sourceUrl}: ${error instanceof Error ? error.message : "Kansas IE PDF unavailable"}`,
+          );
+          continue;
+        }
+        // Cache failures and aggregate byte limits remain fatal for this run.
         await retain(document);
         facts.set(row.sourceUrl, {
           payerName: row.name,
@@ -299,7 +310,16 @@ export async function syncKansasIndependentExpenditures(input: {
         filings: searched.filings.map(({ row }) => row),
       };
       for (const filing of searched.filings) {
-        const document = await filing.openPaperDocument();
+        let document: KansasIEPaperDocument;
+        try {
+          document = await filing.openPaperDocument();
+        } catch (error) {
+          acquisitionFailed = true;
+          result.diagnostics.push(
+            `${filing.row.name} (${filing.row.fileDate}): ${error instanceof Error ? error.message : "Kansas IE PDF unavailable"}`,
+          );
+          continue;
+        }
         await retain(document);
         facts.set(document.sourceUrl, {
           payerName: filing.row.name,
@@ -332,8 +352,13 @@ export async function syncKansasIndependentExpenditures(input: {
         result.mappedRows += written.mappedRowCount;
       }
     }
-    result.status = "observed";
-    if (packet) {
+    result.status = acquisitionFailed
+      ? documents.length > 0
+        ? "partial"
+        : "unavailable"
+      : "observed";
+    if (packet && !input.observationFile) {
+      // An explicitly scoped run must not narrow the default batch inventory.
       // Keep the actual rendered observation time. Repeated PDF GETs do not
       // transform this saved inventory into a newly observed government page.
       await mkdir(resolve(cacheDir, "ie-inventory"), {

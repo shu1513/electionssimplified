@@ -234,9 +234,11 @@ function ieRow(
 }
 
 function expectOutsidePreserved(client: ReturnType<typeof writingDb>["client"]) {
-  const summarySql = client.query.mock.calls.find(([sql]) =>
+  const summaryCall = client.query.mock.calls.find(([sql]) =>
     String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"),
-  )?.[0];
+  );
+  const summarySql = summaryCall?.[0];
+  expect(summaryCall?.[1]?.slice(6, 8)).toEqual([null, null]);
   expect(String(summarySql)).toContain(
     "outside_support_total = COALESCE(EXCLUDED.outside_support_total, ks_candidate_finance_summaries.outside_support_total)",
   );

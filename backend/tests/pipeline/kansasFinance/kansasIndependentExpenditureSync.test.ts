@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   acceptedKansasIEStatements,
   syncKansasIndependentExpenditures,
@@ -10,6 +10,31 @@ import {
 } from "../../../src/pipeline/kansasFinance/kansasIndependentExpenditureSync.js";
 import { KANSAS_REVIEWED_IE_STATEMENTS } from "../../../src/pipeline/kansasFinance/kansasReviewedIEStatements.js";
 import type { KansasIEPaperDocument } from "../../../src/pipeline/kansasFinance/kansasIndependentExpenditureClient.js";
+import * as ieClient from "../../../src/pipeline/kansasFinance/kansasIndependentExpenditureClient.js";
+
+// Keep the reviewed control groups and row arithmetic, with synthetic PDF bytes.
+vi.mock(
+  "../../../src/pipeline/kansasFinance/kansasReviewedIEStatements.js",
+  async (importOriginal) => {
+    const original =
+      await importOriginal<
+        typeof import("../../../src/pipeline/kansasFinance/kansasReviewedIEStatements.js")
+      >();
+    const { createHash } = await import("node:crypto");
+    return {
+      ...original,
+      KANSAS_REVIEWED_IE_STATEMENTS: original.KANSAS_REVIEWED_IE_STATEMENTS.map(
+        (statement) => ({
+          ...statement,
+          sha256: createHash("sha256")
+            .update("%PDF-synthetic reviewed fixture")
+            .digest("hex"),
+        }),
+      ),
+    };
+  },
+);
+afterEach(() => vi.restoreAllMocks());
 
 const now = new Date("2026-10-12T18:00:00Z");
 function packet() {
@@ -40,7 +65,7 @@ function packet() {
     ],
   };
 }
-const fixtureBody = Buffer.from("synthetic reviewed fixture");
+const fixtureBody = Buffer.from("%PDF-synthetic reviewed fixture");
 const fixtureHash = createHash("sha256").update(fixtureBody).digest("hex");
 const reviewedFixtures = KANSAS_REVIEWED_IE_STATEMENTS.map((s) => ({
   ...s,
@@ -225,7 +250,24 @@ describe("Kansas saved rendered observation", () => {
         writtenRows: 0,
       });
       expect(writeDocumentFn).not.toHaveBeenCalled();
+      await expect(
+        readFile(join(cacheDir, "ie-inventory", "2026.json")),
+      ).rejects.toMatchObject({ code: "ENOENT" });
       const repeated = await syncKansasIndependentExpenditures({
+        db: { connect: vi.fn() } as never,
+        electionYear: 2026,
+        now,
+        observationFile,
+        cacheDir,
+        sessionOptions: { fetchImpl, spacingMs: 0 },
+        writeDocumentFn,
+      });
+      expect(repeated.acquiredDocuments).toBe(1);
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+      const nativeSearch = vi
+        .spyOn(ieClient, "searchKansasIndependentExpenditures")
+        .mockResolvedValue({ recordCount: 0, filings: [] });
+      await syncKansasIndependentExpenditures({
         db: { connect: vi.fn() } as never,
         electionYear: 2026,
         now,
@@ -233,12 +275,165 @@ describe("Kansas saved rendered observation", () => {
         sessionOptions: { fetchImpl, spacingMs: 0 },
         writeDocumentFn,
       });
-      expect(repeated.acquiredDocuments).toBe(1);
+      expect(nativeSearch).toHaveBeenCalledOnce();
+      expect(nativeSearch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          startDate: "01/01/2026",
+          endDate: "10/12/2026",
+        }),
+      );
       expect(fetchImpl).toHaveBeenCalledTimes(2);
     } finally {
       await rm(cacheDir, { recursive: true, force: true });
     }
   });
+  it("keeps the default inventory intact after an explicitly scoped run", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "ks-ie-scope-"));
+    try {
+      const savedInventory = join(cacheDir, "ie-inventory", "2026.json");
+      await mkdir(join(cacheDir, "ie-inventory"));
+      const existing = JSON.stringify({
+        priorInventory: "must remain unchanged",
+      });
+      await writeFile(savedInventory, existing);
+      const observationFile = join(cacheDir, "scoped.json");
+      await writeFile(observationFile, JSON.stringify(packet()));
+      await syncKansasIndependentExpenditures({
+        db: { connect: vi.fn() } as never,
+        electionYear: 2026,
+        now,
+        cacheDir,
+        observationFile,
+        sessionOptions: {
+          spacingMs: 0,
+          fetchImpl: async () =>
+            new Response("%PDF-synthetic", {
+              headers: { "Content-Type": "application/pdf" },
+            }),
+        },
+        writeDocumentFn: vi.fn(),
+      });
+      expect(await readFile(savedInventory, "utf8")).toBe(existing);
+    } finally {
+      await rm(cacheDir, { recursive: true, force: true });
+    }
+  });
+
+  it.each(["saved", "native"] as const)(
+    "%s acquisition isolates a failed PDF and still verifies complete controls",
+    async (mode) => {
+      const cacheDir = await mkdtemp(join(tmpdir(), "ks-ie-partial-"));
+      try {
+        const docs = originals();
+        // The first singleton fails, as does the second October companion.
+        // Three intervening complete singleton controls must still be written.
+        const failed = new Set([docs[0]!.sourceUrl, docs[5]!.sourceUrl]);
+        const source = packet();
+        source.scope.filerName = reviewedFixtures[0]!.payerName;
+        source.filings = reviewedFixtures.map((statement) => ({
+          ...source.filings[0]!,
+          name: statement.payerName,
+          sourceUrl: statement.sourceUrl,
+          fileDate: statement.filingDate.replace(
+            /^(\d{4})-(\d{2})-(\d{2})$/,
+            "$2/$3/$1",
+          ),
+        }));
+        source.recordCount = source.filings.length;
+        const observationFile = join(cacheDir, "scoped.json");
+        await writeFile(observationFile, JSON.stringify(source));
+        const open = vi.fn(async (url: string) => {
+          if (failed.has(url)) throw new Error("synthetic PDF unavailable");
+          return docs.find((doc) => doc.sourceUrl === url)!;
+        });
+        if (mode === "native")
+          vi.spyOn(
+            ieClient,
+            "searchKansasIndependentExpenditures",
+          ).mockResolvedValue({
+            recordCount: source.recordCount,
+            filings: source.filings.map((row) => ({
+              row,
+              openPaperDocument: () => open(row.sourceUrl),
+            })) as never,
+          });
+        const fetchImpl = vi.fn(async (url: string | URL | Request) => {
+          await open(String(url));
+          return new Response(fixtureBody, {
+            headers: { "Content-Type": "application/pdf" },
+          });
+        });
+        const writeDocumentFn = vi.fn(
+          async (_input: { sourceUrl: string }) => ({
+            rowCount: 1,
+            mappedRowCount: 1,
+          }),
+        );
+        const result = await syncKansasIndependentExpenditures({
+          db: { connect: vi.fn() } as never,
+          electionYear: 2026,
+          now,
+          cacheDir,
+          observationFile: mode === "saved" ? observationFile : undefined,
+          sessionOptions: { fetchImpl, spacingMs: 0 },
+          writeDocumentFn,
+        });
+        expect(open).toHaveBeenCalledTimes(6);
+        expect(result).toMatchObject({
+          status: "partial",
+          recordCount: 6,
+          acquiredDocuments: 4,
+          acceptedDocuments: 3,
+          pendingDocuments: 1,
+          writtenRows: 3,
+        });
+        expect(
+          writeDocumentFn.mock.calls.map(
+            ([input]) => (input as { sourceUrl: string }).sourceUrl,
+          ),
+        ).toEqual(docs.slice(1, 4).map((doc) => doc.sourceUrl));
+        expect(
+          result.diagnostics.filter((line) =>
+            line.includes("synthetic PDF unavailable"),
+          ),
+        ).toHaveLength(2);
+      } finally {
+        await rm(cacheDir, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it("reports unavailable when every saved PDF fails without writing evidence", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "ks-ie-failed-"));
+    try {
+      const observationFile = join(cacheDir, "scoped.json");
+      await writeFile(observationFile, JSON.stringify(packet()));
+      const writeDocumentFn = vi.fn();
+      const result = await syncKansasIndependentExpenditures({
+        db: { connect: vi.fn() } as never,
+        electionYear: 2026,
+        now,
+        cacheDir,
+        observationFile,
+        sessionOptions: {
+          spacingMs: 0,
+          fetchImpl: async () => new Response(null, { status: 202 }),
+        },
+        writeDocumentFn,
+      });
+      expect(result).toMatchObject({
+        status: "unavailable",
+        recordCount: 1,
+        acquiredDocuments: 0,
+        writtenRows: 0,
+      });
+      expect(result.diagnostics).not.toHaveLength(0);
+      expect(writeDocumentFn).not.toHaveBeenCalled();
+    } finally {
+      await rm(cacheDir, { recursive: true, force: true });
+    }
+  });
+
   it("records native source unavailability and preserves the canonical component", async () => {
     const cacheDir = await mkdtemp(join(tmpdir(), "ks-ie-test-"));
     try {
