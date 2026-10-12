@@ -2,12 +2,13 @@
 // Thin wrapper over the standard state-finance writer. Identity: the public
 // CF_ID (8 digits) is canonical — Phase 0 proved zero conflicts across the
 // full registry. The portal's MemberID is an acquisition key only and never
-// reaches these tables. This direct-only path has no verified outside
-// component. Delaware financial reports can publish explicit candidate
-// allocations; until that source proof is integrated, omitted outside data
-// preserves any previously stored totals, groups and breakdowns.
+// reaches these tables. Scoped financial-report outside proofs use the same
+// snapshot transaction. Omitted outside data preserves stored totals, groups
+// and breakdowns; caller-supplied outside headlines never authorize writes.
 
 import type { Pool, PoolClient } from "pg";
+import { writeDelawareOutsideEvidence } from "./delawareOutsideEvidenceWriter.js";
+import type { DelawareVerifiedThirdPartyOutsideProof } from "./delawareThirdPartyOutsideSource.js";
 
 import {
   createStandardStateFinanceSnapshotWriter,
@@ -40,9 +41,12 @@ export type DelawareFinanceSnapshotInput = {
   syncedAt?: Date;
   summary?: DelawareFinanceSummaryInput;
   directBreakdowns?: readonly DelawareFinanceDirectBreakdownInput[];
+  outsideEvidence?: readonly DelawareVerifiedThirdPartyOutsideProof[];
 };
 
-export type DelawareFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
+export type DelawareFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult & {
+  outsideDiagnostics?: readonly string[];
+};
 
 /** CF_ID: exactly eight digits as issued by CFRS (e.g. "01005311"). */
 export function normalizeDelawareCfId(value: string): string {
@@ -88,13 +92,18 @@ export async function upsertDelawareFinanceLink(input: {
 export async function replaceDelawareCandidateFinanceSnapshot(
   input: DelawareFinanceSnapshotInput
 ): Promise<DelawareFinanceSnapshotWriteResult> {
+  const link = structuredClone(input.link);
+  const outsideEvidence = structuredClone(input.outsideEvidence ?? []);
+  const syncedAt = input.syncedAt ?? new Date();
+  let outsideGroupsWritten = 0;
+  let outsideDiagnostics: readonly string[] = [];
   // Select only supported direct fields, including at the runtime boundary:
   // neither caller-supplied outside scalars nor extra outside arrays authorize
   // an outside write. Unknown outside components stay omitted.
-  return writer.replaceSnapshot({
+  const result = await writer.replaceSnapshot({
     db: input.db,
-    link: input.link,
-    syncedAt: input.syncedAt,
+    link,
+    syncedAt,
     directBreakdowns: input.directBreakdowns,
     summary:
       input.summary === undefined
@@ -106,5 +115,35 @@ export async function replaceDelawareCandidateFinanceSnapshot(
             cashOnHand: input.summary.cashOnHand,
             sourceUrl: input.summary.sourceUrl,
           },
+    ...(outsideEvidence.length ? { afterSnapshotWrite: async ({ db, linkId, electionYear }: {
+      db: Queryable; linkId: string; electionYear: number;
+    }) => {
+      await db.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))", [
+        `delaware-finance:${normalizeDelawareCfId(link.committeeId)}:${electionYear}`,
+      ]);
+      const owners = await db.query(`SELECT id FROM public.de_candidate_finance_links
+        WHERE committee_id = $1::text AND election_year = $2::integer
+          AND link_status = 'active' AND candidate_id <> $3::uuid LIMIT 1`,
+      [normalizeDelawareCfId(link.committeeId), electionYear, link.candidateId]);
+      if (owners.rows.length) throw new Error("Delaware finance committee has another active candidate owner");
+      // An outside-only update creates no direct monetary totals and never
+      // refreshes an existing direct summary's timestamp or source URL.
+      await db.query(`INSERT INTO public.de_candidate_finance_summaries
+        (link_id, election_year, source_url, last_synced_at)
+        VALUES ($1::uuid, $2::integer, $3::text, $4::timestamptz)
+        ON CONFLICT (link_id, election_year) DO NOTHING`,
+      [linkId, electionYear, link.sourceUrl ?? null, syncedAt]);
+      const prior = await db.query<{ outside_report_provenance: unknown }>(`
+        SELECT outside_report_provenance FROM public.de_candidate_finance_summaries
+        WHERE link_id = $1::uuid AND election_year = $2::integer FOR UPDATE`, [linkId, electionYear]);
+      if (prior.rows.length !== 1) throw new Error("Delaware outside summary authority is missing");
+      const outside = await writeDelawareOutsideEvidence({
+        db, linkId, link, syncedAt, prior: prior.rows[0]!.outside_report_provenance, incoming: outsideEvidence,
+      });
+      outsideGroupsWritten = outside.groupsWritten;
+      outsideDiagnostics = outside.diagnostics;
+    } } : {}),
   });
+  return { ...result, outsideGroupsWritten,
+    ...(outsideDiagnostics.length ? { outsideDiagnostics } : {}) };
 }
