@@ -30,6 +30,8 @@ import { normalizeSouthCarolinaCandidateNameForStorage } from "./southCarolinaCa
 import { southCarolinaAcceptedElectionDates } from "./southCarolinaElectionCalendar.js";
 import { southCarolinaConflictingOfficeLabels } from "./southCarolinaOfficeEvidence.js";
 import { isSouthCarolinaFinanceEligibleOffice } from "./southCarolinaFinanceEligibleOffices.js";
+import { aggregateSouthCarolinaCommitteeDonors } from "./southCarolinaCommitteeDonorAggregator.js";
+import { createSouthCarolinaSourceSession } from "./southCarolinaSourceCache.js";
 import {
   replaceSouthCarolinaCandidateFinanceSnapshot,
   type SouthCarolinaFinanceLinkSource,
@@ -62,6 +64,10 @@ export type SouthCarolinaCandidateFinanceSyncResult = {
   otherRunContributionRowCount: number;
   summaryWritten: boolean;
   directBreakdownsWritten: number;
+  pacDonorsWritten?: number;
+  pacDonorCount?: number;
+  pacDonorTotal?: number | null;
+  pacDonorDiagnostics?: string[];
 };
 
 export async function syncSouthCarolinaCandidateFinance(input: {
@@ -85,6 +91,7 @@ export async function syncSouthCarolinaCandidateFinance(input: {
   dryRun?: boolean;
   maxOccupationBreakdowns?: number;
   clientOptions?: SouthCarolinaEthicsClientOptions;
+  sourceCacheDir?: string;
   fetchCandidateReports?: typeof getSouthCarolinaCandidateReports;
   fetchReportDetails?: typeof getSouthCarolinaReportDetails;
   fetchContributions?: typeof searchSouthCarolinaContributions;
@@ -115,7 +122,25 @@ export async function syncSouthCarolinaCandidateFinance(input: {
   const fetchDetails = input.fetchReportDetails ?? getSouthCarolinaReportDetails;
   const fetchContributions = input.fetchContributions ?? searchSouthCarolinaContributions;
 
-  const reports = await fetchReports(input.filer.candidateFilerId, input.clientOptions);
+  // Function overrides are legacy test seams. Ordinary acquisition always
+  // journals original HTTP bytes; a fetchImpl override still uses that path.
+  const pacDonorDiagnostics: string[] = [];
+  let session: Awaited<ReturnType<typeof createSouthCarolinaSourceSession>> | null = null;
+  if (!input.fetchCandidateReports && !input.fetchReportDetails && !input.fetchContributions) {
+    try {
+      session = await createSouthCarolinaSourceSession({
+      cacheDir: input.sourceCacheDir ?? "scratch/south-carolina-campaign-finance",
+      candidateFilerId: input.filer.candidateFilerId,
+      electionYear: input.electionYear,
+      fetchImpl: input.clientOptions?.fetchImpl,
+      });
+    } catch {
+      pacDonorDiagnostics.push("Source capture unavailable; existing donor rows preserved");
+    }
+  }
+  const clientOptions = session ? { ...input.clientOptions, fetchImpl: session.fetchImpl } : input.clientOptions;
+
+  const reports = await fetchReports(input.filer.candidateFilerId, clientOptions);
   const runs = selectSouthCarolinaAcceptedRuns(reports, input.electionYear, acceptedElectionDates);
   if (runs.length === 0) {
     // No submitted report for this race's cycle events yet. Never manufacture
@@ -147,7 +172,7 @@ export async function syncSouthCarolinaCandidateFinance(input: {
     for (const phaseFinal of run.phaseFinals) {
       detailsByReportId.set(
         phaseFinal.reportId,
-        await fetchDetails(phaseFinal.reportId, input.clientOptions)
+        await fetchDetails(phaseFinal.reportId, clientOptions)
       );
     }
   }
@@ -169,7 +194,7 @@ export async function syncSouthCarolinaCandidateFinance(input: {
   const contributionRows = [];
   for (const year of contributionYears) {
     contributionRows.push(
-      ...(await fetchContributions({ candidate: searchTerm, contributionYear: year }, input.clientOptions))
+      ...(await fetchContributions({ candidate: searchTerm, contributionYear: year }, clientOptions))
     );
   }
 
@@ -232,8 +257,38 @@ export async function syncSouthCarolinaCandidateFinance(input: {
     };
   }
 
+  // PAC evidence is independent of direct summary availability. Fetch every
+  // current period, including returns, rather than only cumulative phase finals.
+  let pacDonors: ReturnType<typeof aggregateSouthCarolinaCommitteeDonors>["pacDonors"] = undefined;
+  if (session) {
+    try {
+      for (const report of reports) {
+        if (acceptedRunIds.has(report.campaignId) && acceptedElectionDates.includes(report.electionDate)
+          && !detailsByReportId.has(report.reportId)) {
+          detailsByReportId.set(report.reportId, await fetchDetails(report.reportId, clientOptions));
+        }
+      }
+      // The repeated inventory is also a captured request. finish rejects a
+      // changed inventory within this acquisition before indexing the closing.
+      await fetchReports(input.filer.candidateFilerId, clientOptions);
+      const proof = await session.finish();
+      pacDonorDiagnostics.push(...proof.diagnostics);
+      if (proof.stablePair) {
+        const donors = aggregateSouthCarolinaCommitteeDonors({
+          candidateFilerId: input.filer.candidateFilerId, electionYear: input.electionYear,
+          reports, detailsByReportId, contributionRows, acceptedElectionDates,
+          sourceUrl, filerName,
+        });
+        pacDonors = donors.pacDonors;
+        pacDonorDiagnostics.push(...donors.diagnostics);
+      }
+    } catch {
+      pacDonorDiagnostics.push("Committee source unavailable; existing donor rows preserved");
+    }
+  }
   let summaryWritten = false;
   let directBreakdownsWritten = 0;
+  let pacDonorsWritten = 0;
   if (!dryRun) {
     const writeResult = await replaceSouthCarolinaCandidateFinanceSnapshot({
       db: input.db,
@@ -266,9 +321,11 @@ export async function syncSouthCarolinaCandidateFinance(input: {
         contributorCount: breakdown.contributorCount,
         sourceUrl: breakdown.sourceUrl,
       })),
+      pacDonors,
     });
     summaryWritten = writeResult.summaryWritten;
     directBreakdownsWritten = writeResult.directBreakdownsWritten;
+    pacDonorsWritten = writeResult.pacDonorsWritten ?? 0;
   }
 
   return {
@@ -286,5 +343,9 @@ export async function syncSouthCarolinaCandidateFinance(input: {
     otherRunContributionRowCount: aggregation.otherRunContributionRowCount,
     summaryWritten,
     directBreakdownsWritten,
+    pacDonorsWritten,
+    pacDonorCount: pacDonors?.length,
+    pacDonorTotal: pacDonors ? Math.round(pacDonors.reduce((total, donor) => total + donor.amount, 0) * 100) / 100 : null,
+    pacDonorDiagnostics,
   };
 }

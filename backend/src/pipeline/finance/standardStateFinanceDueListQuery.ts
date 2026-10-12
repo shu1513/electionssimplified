@@ -8,6 +8,9 @@ export type StandardStateFinanceDueListInput = {
   maxCandidates: number;
   electionLookbackDays: number;
   electionLookaheadDays: number;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
 };
 
 /**
@@ -92,6 +95,8 @@ export type StandardStateFinanceDueListConfig = {
    * office_name and district). Read through mapRow. Default false.
    */
   selectBallotTitle?: boolean;
+  /** Enables state CLI scopes and refresh before ordering/LIMIT. */
+  scopedRefresh?: boolean;
 };
 
 const ELECTION_STAGES: readonly string[] = ["general"];
@@ -166,6 +171,10 @@ function buildDueListSql(config: StandardStateFinanceDueListConfig): string {
   const outerElectionDate = config.selectElectionDate ? "        election_date,\n" : "";
   const innerBallotTitle = config.selectBallotTitle ? "          election.official_ballot_title AS ballot_title,\n" : "";
   const outerBallotTitle = config.selectBallotTitle ? "        ballot_title,\n" : "";
+  const scopes = config.scopedRefresh
+    ? "          AND ($8::uuid IS NULL OR link.candidate_id = $8::uuid)\n          AND ($9::int IS NULL OR link.election_year = $9::int)\n"
+    : "";
+  const refresh = config.scopedRefresh ? "            OR $7::boolean\n" : "";
   return `
       WITH due AS (
         SELECT
@@ -207,10 +216,10 @@ ${stageFilter}          AND election.election_date >= (($1::timestamptz AT TIME 
           AND election.election_date <= (($1::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days => $5::int))
           AND candidate_election.status NOT IN ('withdrawn', 'lost')
           AND (office.scope || '::' || office.canonical_name) = ANY($6::text[])
-          AND (
+${scopes}          AND (
             summary.last_synced_at IS NULL
             OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
-          )
+${refresh}          )
         ORDER BY summary.last_synced_at ASC NULLS FIRST,
                  election.election_date ASC,
                  link.candidate_name_normalized ASC,
@@ -275,6 +284,7 @@ export function createStandardStateFinanceDueListQuery(
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...config.eligibleOfficeKeys],
+      ...(config.scopedRefresh ? [input.refresh === true, input.candidateId ?? null, input.electionYear ?? null] : []),
     ]);
     return {
       rows: result.rows.map(mapRow),

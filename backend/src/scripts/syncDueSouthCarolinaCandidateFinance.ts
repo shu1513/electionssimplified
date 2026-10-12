@@ -11,12 +11,17 @@ import {
 import {
   assertNoUnknownSouthCarolinaFinanceFlags,
   parseSouthCarolinaFinancePositiveIntegerFlag,
+  parseSouthCarolinaFinanceFlagValue,
 } from "./southCarolinaCandidateFinanceCliArgs.js";
 
 export type SyncDueSouthCarolinaCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
   autoLinkMissingLinks: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  sourceCacheDir?: string;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -27,10 +32,22 @@ export function parseSyncDueSouthCarolinaCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueSouthCarolinaCandidateFinanceScriptOptions {
   assertNoUnknownSouthCarolinaFinanceFlags(args);
+  const candidateId = parseSouthCarolinaFinanceFlagValue(args, "--candidate-id") ?? undefined;
+  if (candidateId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidateId)) {
+    throw new Error("Invalid --candidate-id UUID");
+  }
+  const electionYear = parseSouthCarolinaFinancePositiveIntegerFlag(args, "--election-year");
+  if (electionYear !== undefined && (electionYear < 2000 || electionYear > 2100)) {
+    throw new Error("Invalid --election-year value");
+  }
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     autoLinkMissingLinks: !args.includes("--no-auto-link"),
+    refresh: args.includes("--refresh"),
+    candidateId,
+    electionYear,
+    sourceCacheDir: parseSouthCarolinaFinanceFlagValue(args, "--source-cache-dir") ?? undefined,
     maxCandidates: parseSouthCarolinaFinancePositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: parseSouthCarolinaFinancePositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: parseSouthCarolinaFinancePositiveIntegerFlag(args, "--lookback-days"),
@@ -82,6 +99,10 @@ async function main(): Promise<void> {
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
+      refresh: options.refresh,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
+      sourceCacheDir: options.sourceCacheDir,
     });
 
     console.log(

@@ -1,4 +1,4 @@
-const SOUTH_CAROLINA_FINANCE_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--no-auto-link"]);
+const SOUTH_CAROLINA_FINANCE_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--no-auto-link", "--refresh"]);
 const SOUTH_CAROLINA_FINANCE_VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",
@@ -7,6 +7,9 @@ const SOUTH_CAROLINA_FINANCE_VALUE_FLAGS = new Set([
   "--candidate-name",
   "--election-date",
   "--filer-id",
+  "--candidate-id",
+  "--election-year",
+  "--source-cache-dir",
 ]);
 
 export function assertNoUnknownSouthCarolinaFinanceFlags(args: readonly string[]): void {

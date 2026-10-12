@@ -51,6 +51,9 @@ describe("listDueSouthCarolinaCandidateFinanceSyncRows", () => {
       76,
       730,
       [...SOUTH_CAROLINA_FINANCE_ELIGIBLE_OFFICE_KEYS],
+      false,
+      null,
+      null,
     ]);
 
     expect(result.totalDueRows).toBe(3);
@@ -118,5 +121,18 @@ describe("listDueSouthCarolinaCandidateFinanceSyncRows", () => {
       electionLookaheadDays: 730,
     });
     expect(result).toEqual({ rows: [], totalDueRows: 0 });
+  });
+
+  it("applies refresh and candidate/year scopes before LIMIT", async () => {
+    const db = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    await listDueSouthCarolinaCandidateFinanceSyncRows(db, {
+      now: new Date("2026-10-20T00:00:00Z"), staleAfterDays: 7, maxCandidates: 1,
+      electionLookbackDays: 100, electionLookaheadDays: 730, refresh: true,
+      candidateId: "09f72416-21e9-4a08-b172-a6e958d2f660", electionYear: 2026,
+    });
+    const [sql, params] = db.query.mock.calls[0]!;
+    expect(String(sql).indexOf("OR $7::boolean")).toBeLessThan(String(sql).indexOf("LIMIT $3"));
+    expect(String(sql).indexOf("link.candidate_id = $8::uuid")).toBeLessThan(String(sql).indexOf("LIMIT $3"));
+    expect(params.slice(-3)).toEqual([true, "09f72416-21e9-4a08-b172-a6e958d2f660", 2026]);
   });
 });

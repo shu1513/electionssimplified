@@ -40,6 +40,7 @@ function parseStoredFilerId(value: string): number {
 export const listDueSouthCarolinaCandidateFinanceSyncRows: StandardStateFinanceDueListQuery<SouthCarolinaCandidateFinanceDueRow> =
   createStandardStateFinanceDueListQuery({
     state: "SC",
+    scopedRefresh: true,
     tables: {
       links: "sc_candidate_finance_links",
       summaries: "sc_candidate_finance_summaries",

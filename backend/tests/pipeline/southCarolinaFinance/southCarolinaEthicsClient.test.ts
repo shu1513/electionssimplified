@@ -354,3 +354,105 @@ describe("South Carolina ethics client", () => {
     expect(error.status).toBe(502);
   });
 });
+
+describe("South Carolina full itemized financial DTOs", () => {
+  const full = () => ({
+    ...reportDetails,
+    contributions: {
+      contributionsTotal: 1000,
+      details: [
+        {
+          dateSort: "2026-05-11T04:00:00",
+          date: "May 11, 2026",
+          contributorId: 799997,
+          contributor: " Manufactured Housing Institute of SC",
+          amount: 1000,
+          occupation: " ",
+          description: "Sent refund check, hasn't cleared bank as of June 30. ",
+          address: "Private source value",
+        },
+      ],
+    },
+    expenditures: {
+      expendituresTotal: 1000,
+      details: [
+        {
+          dateSort: "0001-01-01T00:00:00",
+          date: "Jun 11, 2026",
+          paidToId: 295815,
+          paidTo: "Manufactured Housing Institute of SC ",
+          amount: 1000,
+          description: "returned with check # 2640",
+          address: "Private source value",
+        },
+      ],
+    },
+  });
+  it("retains financial names, namespace IDs, dates, cents and descriptions without contact fields", async () => {
+    const d = await getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(full())) });
+    expect(d.itemizedContributions).toEqual([
+      {
+        contributorId: 799997,
+        name: " Manufactured Housing Institute of SC",
+        civilDate: "2026-05-11",
+        amountCents: 100000,
+        occupation: " ",
+        description: "Sent refund check, hasn't cleared bank as of June 30. ",
+        sourceDate: "May 11, 2026",
+        sourceDateSort: "2026-05-11T04:00:00",
+      },
+    ]);
+    expect(d.itemizedExpenditures?.[0]).toMatchObject({
+      paidToId: 295815,
+      civilDate: "2026-06-11",
+      sourceDateSort: "0001-01-01T00:00:00",
+      amountCents: 100000,
+    });
+    expect(JSON.stringify(d)).not.toContain("Private source value");
+  });
+  it("keeps absent legacy fields unknown, distinct from published empty arrays", async () => {
+    const b = full();
+    delete (b.contributions as any).details;
+    delete (b.expenditures as any).details;
+    const d = await getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(b)) });
+    expect(d.itemizedContributions).toBeUndefined();
+    expect(d.itemizedExpenditures).toBeUndefined();
+    expect(d.itemizedUnavailable).toBeUndefined();
+    const empty = await getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(reportDetails)) });
+    expect(empty.itemizedContributions).toEqual([]);
+  });
+  it("keeps direct controls but omits BOTH arrays for malformed PRESENT itemization", async () => {
+    for (const change of [
+      { date: "Feb 30, 2026" },
+      { amount: 1.001 },
+      { contributorId: Number.MAX_SAFE_INTEGER + 1 },
+    ]) {
+      const b = full();
+      Object.assign(b.contributions.details[0]!, change);
+      const d = await getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(b)) });
+      expect(d).toMatchObject({ contributionsTotal: 1000, expendituresTotal: 1000, itemizedUnavailable: true });
+      expect(d.income).toEqual(reportDetails.overview.income);
+      expect(d.itemizedContributions).toBeUndefined();
+      expect(d.itemizedExpenditures).toBeUndefined();
+    }
+  });
+  it("keeps summary controls but refuses null lists or missing descriptions", async () => {
+    for (const field of ["nullList", "description"] as const) {
+      const b = full();
+      if (field === "nullList") (b.expenditures as any).details = null;
+      else delete (b.contributions.details[0] as any).description;
+      const d = await getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(b)) });
+      expect(d.itemizedUnavailable).toBe(true);
+      expect(d.itemizedContributions).toBeUndefined();
+      expect(d.itemizedExpenditures).toBeUndefined();
+      expect(d.contributionsTotal).toBe(1000);
+    }
+  });
+  it("still throws for malformed authoritative summary fields", async () => {
+    const b = full();
+    (b.contributions as any).contributionsTotal = null;
+    await expect(
+      getSouthCarolinaReportDetails(426376, { fetchImpl: mockFetch(jsonResponse(b)) }),
+    ).rejects.toMatchObject({ code: "bad_response" });
+  });
+});
