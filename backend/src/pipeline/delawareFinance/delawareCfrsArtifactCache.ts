@@ -43,6 +43,7 @@ import {
   DELAWARE_CFRS_BASE_URL,
   DELAWARE_CFRS_MAX_RESPONSE_BYTES,
   DELAWARE_CFRS_PAGES,
+  isDelawareCfrsPublicReportFileName,
   type DelawareCfrsResponseCapture,
 } from "./delawareCfrsClient.js";
 
@@ -181,7 +182,7 @@ const JOURNAL_PUBLIC_ID_FIELDS = new Set([
 const JOURNAL_PATHS: ReadonlySet<string> = new Set(["/", ...Object.values(DELAWARE_CFRS_PAGES)]);
 
 function journalFieldAllowed(key: string, value: string): boolean {
-  if (key === "FileName") return /^CampaignFinanceReport_[A-Za-z0-9_-]+\.pdf$/.test(value);
+  if (key === "FileName") return isDelawareCfrsPublicReportFileName(value);
   if (key === "fpath" || key === "fname") return value === "";
   if (key === "filter" || key === "Grid-filter") return value === "" || value === "~";
   if (JOURNAL_PUBLIC_ID_FIELDS.has(key)) return value === "" || /^\d+$/.test(value);

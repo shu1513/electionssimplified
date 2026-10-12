@@ -551,8 +551,13 @@ const CAPTURE_PUBLIC_ID_FIELDS = new Set([
 ]);
 const CAPTURE_PATHS: ReadonlySet<string> = new Set(["/", ...Object.values(DELAWARE_CFRS_PAGES)]);
 
+export function isDelawareCfrsPublicReportFileName(value: string): boolean {
+  return /^CampaignFinanceReport_[A-Za-z0-9_-]+\.pdf$/.test(value) ||
+    /^CampaignFinance_(?:[1-9]\d*_[1-9]\d*_)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.pdf$/.test(value);
+}
+
 function captureFieldAllowed(key: string, value: string): boolean {
-  if (key === "FileName") return /^CampaignFinanceReport_[A-Za-z0-9_-]+\.pdf$/.test(value);
+  if (key === "FileName") return isDelawareCfrsPublicReportFileName(value);
   if (key === "fpath" || key === "fname") return value === "";
   if (key === "filter" || key === "Grid-filter") return value === "" || value === "~";
   if (CAPTURE_PUBLIC_ID_FIELDS.has(key)) return value === "" || /^\d+$/.test(value);

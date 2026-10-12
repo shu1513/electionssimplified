@@ -217,6 +217,15 @@ describe("Delaware immutable source-capture journal", () => {
     expect((await readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: CF_ID })).sourceCaptures).toEqual([cap]);
   });
 
+  it("roundtrips a published legacy financial filename without fabricating scope metadata", async () => {
+    const cap = capture({
+      method: "GET", financeFields: null,
+      url: "https://cfrs.elections.delaware.gov/Public/FiledReports?FileName=CampaignFinance_458984_623_b7770710-ecc1-43c4-848d-b846bbc4cb3d.pdf&CommitteeID=458984&FilingCalendarID=623",
+    });
+    await storeDelawareCfrsCommitteeArtifacts({ ...storeInput(), sourceCaptures: [cap] });
+    expect((await readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: CF_ID })).sourceCaptures).toEqual([cap]);
+  });
+
   it("keeps absence distinct from an explicitly empty observation journal", async () => {
     await storeDelawareCfrsCommitteeArtifacts(storeInput());
     expect(

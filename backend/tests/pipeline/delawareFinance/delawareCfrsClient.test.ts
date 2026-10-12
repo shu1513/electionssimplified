@@ -14,6 +14,7 @@ import {
   buildDelawareReceiptsSearchFields,
   createDelawareCfrsSession,
   isDelawareCfrsErrorBody,
+  isDelawareCfrsPublicReportFileName,
   looksLikeDelawareCfrsHtml,
   type DelawareCfrsFetchFn,
   type DelawareCfrsResponseCapture,
@@ -462,6 +463,28 @@ describe("delawareCfrsClient", () => {
     const fields = { page: "1", size: "500", orderBy: "", groupBy: "", filter: "" };
     await session.postForm(url, fields, { xhr: true });
     expect(captures[0]).toMatchObject({ url, financeFields: fields, requestScopeRedacted: false });
+  });
+
+  it.each([
+    "CampaignFinance_502c0273-3327-4d1d-9f75-073872897dce.pdf",
+    "CampaignFinance_458984_623_b7770710-ecc1-43c4-848d-b846bbc4cb3d.pdf",
+  ])("captures the published legacy financial filename %s without redaction", async (fileName) => {
+    const captures: DelawareCfrsResponseCapture[] = [];
+    const { fetchImpl } = recordingFetch([htmlResponse("ok")]);
+    const session = createDelawareCfrsSession({ fetchImpl, sleep: noSleep,
+      onResponseCapture: capture => { captures.push(capture); } });
+    const url = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportPdf, {
+      FileName: fileName, CommitteeID: "458984", FilingCalendarID: "623",
+    });
+    await session.get(url);
+    expect(captures[0]).toMatchObject({ url, requestScopeRedacted: false });
+  });
+
+  it("refuses unrelated or path-like legacy filename controls", () => {
+    for (const fileName of ["CampaignFinance_secret.pdf", "CampaignFinance_../secret.pdf",
+      "CampaignFinance_0_623_b7770710-ecc1-43c4-848d-b846bbc4cb3d.pdf"]) {
+      expect(isDelawareCfrsPublicReportFileName(fileName)).toBe(false);
+    }
   });
 
   it("does not hand oversize bytes to the observer", async () => {
