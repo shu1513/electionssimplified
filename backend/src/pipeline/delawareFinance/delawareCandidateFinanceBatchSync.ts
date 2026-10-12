@@ -1,10 +1,7 @@
-// Delaware finance batch sync: optional auto-link pass, then the due list,
-// then per due candidate an artifact-acquisition pass (live, flag-gated,
-// deduped by CF_ID) followed by the CACHE-ONLY sync. When live fetches are
-// not allowed the sync runs against whatever the cache holds, and a due
-// candidate with no cached bundle records a per-candidate failure — the
-// batch continues (fail-visible, never fail-silent). Every step is
-// injectable for tests.
+// Delaware finance batch sync: optional auto-link, then scoped due links.
+// Live writes use paired original source evidence for independent cash,
+// PAC and outside components. Source-disabled writes preserve stored money;
+// legacy cache-only computation remains available for dry runs and tests.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -16,12 +13,17 @@ import {
 } from "./delawareCandidateFinanceAutoLink.js";
 import {
   listDueDelawareCandidateFinanceSyncRows,
+  validateDelawareFinanceSyncScope,
   type DelawareCandidateFinanceDueRow,
 } from "./delawareCandidateFinanceDueList.js";
 import {
   syncDelawareCandidateFinance,
   type DelawareCandidateFinanceSyncResult,
 } from "./delawareCandidateFinanceSync.js";
+import {
+  syncDelawareVerifiedCandidateFinance,
+  type DelawareVerifiedCandidateFinanceSyncResult,
+} from "./delawareVerifiedCandidateFinanceSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -36,6 +38,10 @@ export type DelawareCandidateFinanceBatchSyncInput = {
   now?: Date;
   maxCandidates?: number;
   staleAfterDays?: number;
+  candidateId?: string;
+  electionYear?: number;
+  /** Select recently synced eligible links too; does not authorize live fetches. */
+  refresh?: boolean;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   dryRun?: boolean;
@@ -53,6 +59,7 @@ export type DelawareCandidateFinanceBatchSyncInput = {
   listDueRowsFn?: typeof listDueDelawareCandidateFinanceSyncRows;
   acquireArtifactsFn?: typeof acquireDelawareCfrsCommitteeArtifacts;
   syncCandidateFn?: typeof syncDelawareCandidateFinance;
+  verifiedSyncCandidateFn?: typeof syncDelawareVerifiedCandidateFinance;
 };
 
 export type DelawareCandidateFinanceBatchSyncResult = {
@@ -65,7 +72,7 @@ export type DelawareCandidateFinanceBatchSyncResult = {
   candidates: {
     row: DelawareCandidateFinanceDueRow;
     ok: boolean;
-    result?: DelawareCandidateFinanceSyncResult;
+    result?: DelawareCandidateFinanceSyncResult | DelawareVerifiedCandidateFinanceSyncResult;
     error?: string;
   }[];
 };
@@ -73,24 +80,37 @@ export type DelawareCandidateFinanceBatchSyncResult = {
 export async function syncDueDelawareCandidateFinance(
   input: DelawareCandidateFinanceBatchSyncInput
 ): Promise<DelawareCandidateFinanceBatchSyncResult> {
+  validateDelawareFinanceSyncScope(input);
   const now = input.now ?? new Date();
+  if (Number.isNaN(now.getTime())) throw new Error("Invalid Delaware finance sync timestamp");
   const log = input.log ?? ((message: string) => console.log(message));
   const maxCandidates = input.maxCandidates ?? DEFAULT_MAX_CANDIDATES;
   const staleAfterDays = input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
   const electionLookbackDays =
     input.electionLookbackDays ?? DELAWARE_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
+  for (const [name, value] of Object.entries({
+    maxCandidates,
+    staleAfterDays,
+    electionLookbackDays,
+    electionLookaheadDays,
+  })) {
+    if (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)
+      throw new Error(`Invalid Delaware finance ${name}`);
+  }
+  const scoped = input.candidateId !== undefined || input.electionYear !== undefined;
   const dryRun = input.dryRun === true;
 
   let autoLinkResults: DelawareFinanceAutoLinkResult[] = [];
   const liveCfrsAllowed = isDelawareCampaignFinanceRawDataRefreshEnabled(input.forceRawDataRefresh === true);
   if (!dryRun && !liveCfrsAllowed) {
     log(
-      "Delaware live CFRS passes (auto-link, artifact acquisition) skipped: they require " +
-        "DELAWARE_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED (or a per-run force) — syncing cache-only"
+      "Delaware live CFRS passes skipped: they require " +
+        "DELAWARE_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED (or a per-run force); " +
+        "ordinary writes preserve stored money"
     );
   }
-  if (!dryRun && input.autoLinkMissingLinks !== false && liveCfrsAllowed) {
+  if (!dryRun && !scoped && input.autoLinkMissingLinks !== false && liveCfrsAllowed) {
     const autoLink = input.autoLinkFn ?? autoLinkMissingDelawareCandidateFinanceLinks;
     try {
       autoLinkResults = await autoLink({
@@ -114,21 +134,46 @@ export async function syncDueDelawareCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    ...(input.candidateId === undefined ? {} : { candidateId: input.candidateId }),
+    ...(input.electionYear === undefined ? {} : { electionYear: input.electionYear }),
+    ...(input.refresh === true ? { refresh: true } : {}),
   });
 
   const acquireArtifacts = input.acquireArtifactsFn ?? acquireDelawareCfrsCommitteeArtifacts;
   const syncCandidate = input.syncCandidateFn ?? syncDelawareCandidateFinance;
   const candidates: DelawareCandidateFinanceBatchSyncResult["candidates"] = [];
-  // One live acquisition attempt per CF_ID per run — a failed fetch is not
-  // re-hammered when two due rows share a committee; the second row then
-  // syncs against whatever the cache holds and fails visibly on its own.
-  const acquisitionAttempted = new Set<string>();
+  // One settled acquisition per CF_ID per run. Every sibling reuses its
+  // success or failure; a failed refresh never authorizes stale-cache writes.
+  const acquisitions = new Map<string, { ok: true } | { ok: false; error: unknown }>();
   let succeeded = 0;
   for (const row of due.rows) {
     try {
-      if (!dryRun && liveCfrsAllowed && !acquisitionAttempted.has(row.cfId)) {
-        acquisitionAttempted.add(row.cfId);
-        await acquireArtifacts({ cfId: row.cfId, cacheDir: input.cacheDir, log });
+      if (!dryRun && !liveCfrsAllowed && input.syncCandidateFn === undefined) {
+        throw new Error("Delaware current source refresh disabled; stored finance preserved");
+      }
+      // Normal live runs use the original-capture verifier, including saved
+      // opening reuse. The legacy acquisition/cache path remains injectable
+      // for its existing tests and available for legacy cache-only dry runs.
+      if (!dryRun && liveCfrsAllowed && input.syncCandidateFn === undefined) {
+        const result = await (input.verifiedSyncCandidateFn ?? syncDelawareVerifiedCandidateFinance)({
+          db: input.db, row, cacheDir: input.cacheDir, refresh: input.refresh, log,
+        });
+        succeeded += 1;
+        candidates.push({ row, ok: true, result });
+        continue;
+      }
+      if (!dryRun && liveCfrsAllowed) {
+        let acquired = acquisitions.get(row.cfId);
+        if (acquired === undefined) {
+          try {
+            await acquireArtifacts({ cfId: row.cfId, cacheDir: input.cacheDir, log });
+            acquired = { ok: true };
+          } catch (error) {
+            acquired = { ok: false, error };
+          }
+          acquisitions.set(row.cfId, acquired);
+        }
+        if (!acquired.ok) throw acquired.error;
       }
       const result = await syncCandidate({
         db: input.db,

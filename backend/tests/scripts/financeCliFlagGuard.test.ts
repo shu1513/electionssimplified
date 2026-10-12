@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  parseSyncDueFloridaCandidateFinanceScriptArgs,
+  prepareFloridaCandidateFinanceSourceOptions,
+} from "../../src/scripts/syncDueFloridaCandidateFinance.js";
 import { assertKnownCliFlags } from "../../src/scripts/financeCliFlagGuard.js";
 import { parseSyncDueCandidateFinanceScriptArgs } from "../../src/scripts/syncDueCandidateFinance.js";
 import { parseTexasCandidateFinanceSyncTriggerArgs } from "../../src/scripts/triggerTexasCandidateFinanceSync.js";
@@ -124,5 +128,40 @@ describe("second-sweep finance CLI parsers reject silent typos", () => {
     expect(() => parseMaineCandidateFinanceSyncTriggerArgs(["--dry-run=true"])).toThrow(
       /Boolean flag does not accept a value/
     );
+  });
+});
+
+
+describe("Florida bounded candidate and reviewed-source CLI flags", () => {
+  const candidateId = "82937afb-9562-422f-8a79-aacd09e63765";
+  it("parses exact scope and source paths in both argument forms", () => {
+    expect(parseSyncDueFloridaCandidateFinanceScriptArgs([
+      "--candidate-id", candidateId, "--reviewed-committee-dates=/tmp/reviewed.json",
+      "--refresh-export-artifacts", "--dry-run",
+    ])).toMatchObject({ candidateId, reviewedCommitteeDatesPath: "/tmp/reviewed.json",
+      refreshExportArtifacts: true, dryRun: true });
+    expect(parseSyncDueFloridaCandidateFinanceScriptArgs([
+      `--candidate-id=${candidateId}`, "--reviewed-committee-dates", "relative/reviewed.json",
+    ])).toMatchObject({ candidateId, reviewedCommitteeDatesPath: "relative/reviewed.json" });
+  });
+  it("suppresses auto-linking for an existing candidate while unscoped runs retain defaults", async () => {
+    expect(await prepareFloridaCandidateFinanceSourceOptions(
+      parseSyncDueFloridaCandidateFinanceScriptArgs([`--candidate-id=${candidateId}`])
+    )).toEqual({ candidateId, autoLinkMissingLinks: false, reviewedCommitteeDates: undefined });
+    expect(await prepareFloridaCandidateFinanceSourceOptions(parseSyncDueFloridaCandidateFinanceScriptArgs([])))
+      .toEqual({ candidateId: undefined, autoLinkMissingLinks: undefined, reviewedCommitteeDates: undefined });
+  });
+  it("rejects malformed/missing/duplicate new flag values rather than expanding scope", () => {
+    for (const args of [["--candidate-id=invalid"], ["--candidate-id"], ["--reviewed-committee-dates="],
+      [`--candidate-id=${candidateId}`, "--candidate-id", candidateId],
+      ["--reviewed-committee-dates=a", "--reviewed-committee-dates=b"], ["--candidateid=" + candidateId]]) {
+      expect(() => parseSyncDueFloridaCandidateFinanceScriptArgs(args)).toThrow();
+    }
+  });
+  it("fails preparation on a missing reviewed manifest before a sync can begin", async () => {
+    const options = parseSyncDueFloridaCandidateFinanceScriptArgs([
+      "--reviewed-committee-dates=/nonexistent/florida-reviewed-dates.json",
+    ]);
+    await expect(prepareFloridaCandidateFinanceSourceOptions(options)).rejects.toThrow();
   });
 });

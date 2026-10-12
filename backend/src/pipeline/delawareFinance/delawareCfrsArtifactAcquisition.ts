@@ -27,6 +27,7 @@
 // PII: receipts exports carry contributor street addresses — bodies go
 // straight into the restricted cache and are never logged.
 
+import { isDeepStrictEqual } from "node:util";
 import {
   DELAWARE_CFRS_EXPORT_QUERY,
   DELAWARE_CFRS_PAGES,
@@ -38,6 +39,8 @@ import {
   buildDelawareReceiptsSearchFields,
   createDelawareCfrsSession,
   looksLikeDelawareCfrsHtml,
+  DelawareCfrsClientError,
+  type DelawareCfrsResponseCapture,
   type DelawareCfrsResponse,
   type DelawareCfrsSession,
   type DelawareCfrsSessionOptions,
@@ -48,6 +51,7 @@ import {
   parseDelawareExpensesCsv,
   parseDelawareFiledReportsHtml,
   parseDelawareReceiptsCsv,
+  parseDelawareThirdPartyReceiptsCsv,
   type DelawareCommitteeGridRow,
   type DelawareFiledReportRow,
 } from "./delawareCfrsParsers.js";
@@ -56,6 +60,20 @@ import {
   type DelawareCfrsCommitteeArtifactManifest,
   type DelawareCfrsReportPdfInput,
 } from "./delawareCfrsArtifactCache.js";
+
+import {
+  closeDelawareNativeLedger,
+  decodeDelawareReceiptNativePage,
+  decodeDelawareExpenseNativePage,
+  type DelawareNativeLedger,
+  type DelawareNativeLedgerPage,
+} from "./delawareNativeLedger.js";
+
+import type {
+  DelawareOutsidePayerScope,
+  DelawareOutsideCandidateScope,
+  DelawareOutsideSourcePacket,
+} from "./delawareThirdPartyOutsideSource.js";
 
 const MAX_SEARCH_ATTEMPTS = 3;
 const GRID_PAGE_SIZE = 500;
@@ -124,7 +142,9 @@ async function resolveCommitteeRegistration(
     throw new Error(`no CFRS type-01 registry row carries CF_ID ${cfId}`);
   }
   if (byMember.size > 1) {
-    throw new Error(`CF_ID ${cfId} spans ${byMember.size} registry MemberIDs — identity ambiguous, not acquiring`);
+    throw new Error(
+      `CF_ID ${cfId} spans ${byMember.size} registry MemberIDs — identity ambiguous, not acquiring`
+    );
   }
   const row = [...byMember.values()][0]!;
   return { memberId: row.memberId, committeeName: row.committeeName };
@@ -171,9 +191,16 @@ async function exportCsv(
   return text;
 }
 
-function requireRowCount(label: string, rowCount: number, malformedRowCount: number, total: number | null): number {
+function requireRowCount(
+  label: string,
+  rowCount: number,
+  malformedRowCount: number,
+  total: number | null
+): number {
   if (malformedRowCount > 0) {
-    throw new Error(`${label} CSV contains ${malformedRowCount} malformed row(s) — export drift, not acquiring`);
+    throw new Error(
+      `${label} CSV contains ${malformedRowCount} malformed row(s) — export drift, not acquiring`
+    );
   }
   if (total === null) {
     throw new Error(`${label} search page rendered no grid total — layout drift, not acquiring`);
@@ -190,7 +217,9 @@ async function fetchFiledReports(
   committeeName: string,
   log: (message: string) => void
 ): Promise<{ html: string; rows: DelawareFiledReportRow[] }> {
-  const searchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsSearch, { ...DELAWARE_CFRS_THEME_QUERY });
+  const searchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsSearch, {
+    ...DELAWARE_CFRS_THEME_QUERY,
+  });
   let html = "";
   let rows: DelawareFiledReportRow[] = [];
   let total: number | null = null;
@@ -231,7 +260,9 @@ async function fetchFiledReports(
   // Grid-size renders the whole slice for any real candidate committee
   // (2 reports/year); a bigger result would be silent truncation.
   if (rows.length !== total) {
-    throw new Error(`filed-reports grid incomplete: ${rows.length} rows rendered vs total ${total} — not acquiring`);
+    throw new Error(
+      `filed-reports grid incomplete: ${rows.length} rows rendered vs total ${total} — not acquiring`
+    );
   }
   return { html, rows };
 }
@@ -304,25 +335,42 @@ export async function acquireDelawareCfrsCommitteeArtifacts(
 
   // Receipts: warmup GET -> full-field search POST (transient-zero retry) ->
   // full CSV export of the stored search.
-  const receiptsSearchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, { ...DELAWARE_CFRS_THEME_QUERY });
-  const receiptsWarmupUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch);
+  const receiptsSearchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, {
+    ...DELAWARE_CFRS_THEME_QUERY,
+  });
+  const receiptsWarmupUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry);
   await session.get(receiptsWarmupUrl);
   const receiptsTotal = await searchWithTransientZeroRetry(
     () =>
       session.postForm(
         receiptsSearchUrl,
-        buildDelawareReceiptsSearchFields({ txtReceivingRegistrant: committeeName, MemberId: String(memberId) }),
+        buildDelawareReceiptsSearchFields({
+          txtReceivingRegistrant: committeeName,
+          MemberId: String(memberId),
+        }),
         { referer: receiptsWarmupUrl }
       ),
     "receipts",
     log
   );
-  const receiptsCsv = await exportCsv(session, DELAWARE_CFRS_PAGES.receiptsExportCsv, receiptsSearchUrl, "receipts");
+  const receiptsCsv = await exportCsv(
+    session,
+    DELAWARE_CFRS_PAGES.receiptsExportCsv,
+    receiptsSearchUrl,
+    "receipts"
+  );
   const receipts = parseDelawareReceiptsCsv(receiptsCsv);
-  const receiptsSearchTotal = requireRowCount("receipts", receipts.rows.length, receipts.malformedRowCount, receiptsTotal);
+  const receiptsSearchTotal = requireRowCount(
+    "receipts",
+    receipts.rows.length,
+    receipts.malformedRowCount,
+    receiptsTotal
+  );
   for (const row of receipts.rows) {
     if (row.CF_ID !== cfId) {
-      throw new Error(`receipts export carries CF_ID ${row.CF_ID}, expected ${cfId} — search mis-scoped, not acquiring`);
+      throw new Error(
+        `receipts export carries CF_ID ${row.CF_ID}, expected ${cfId} — search mis-scoped, not acquiring`
+      );
     }
   }
   log(`[acquire ${cfId}] receipts: ${receipts.rows.length} rows`);
@@ -341,22 +389,36 @@ export async function acquireDelawareCfrsCommitteeArtifacts(
     "expenses",
     log
   );
-  const expensesCsv = await exportCsv(session, DELAWARE_CFRS_PAGES.expensesExportCsv, expensesSearchUrl, "expenses");
+  const expensesCsv = await exportCsv(
+    session,
+    DELAWARE_CFRS_PAGES.expensesExportCsv,
+    expensesSearchUrl,
+    "expenses"
+  );
   const expenses = parseDelawareExpensesCsv(expensesCsv);
-  const expensesSearchTotal = requireRowCount("expenses", expenses.rows.length, expenses.malformedRowCount, expensesTotal);
+  const expensesSearchTotal = requireRowCount(
+    "expenses",
+    expenses.rows.length,
+    expenses.malformedRowCount,
+    expensesTotal
+  );
   for (const row of expenses.rows) {
     if (row["CF ID"] !== cfId) {
-      throw new Error(`expenses export carries CF ID ${row["CF ID"]}, expected ${cfId} — search mis-scoped, not acquiring`);
+      throw new Error(
+        `expenses export carries CF ID ${row["CF ID"]}, expected ${cfId} — search mis-scoped, not acquiring`
+      );
     }
   }
   log(`[acquire ${cfId}] expenses: ${expenses.rows.length} rows`);
 
-  // Filed reports (ALL versions — the sync's max-PDF-version canonical
-  // selection needs the full lineage) and every attached report PDF.
+  // Filed reports (all editions) and every attached report PDF. The
+  // cover-only sync refuses ambiguous editions; footer values cannot select.
   const filedReports = await fetchFiledReports(session, memberId, committeeName, log);
   for (const row of filedReports.rows) {
     if (row.cfId !== cfId) {
-      throw new Error(`filed-report row carries CF_ID ${row.cfId}, expected ${cfId} — search mis-scoped, not acquiring`);
+      throw new Error(
+        `filed-report row carries CF_ID ${row.cfId}, expected ${cfId} — search mis-scoped, not acquiring`
+      );
     }
   }
   const reportPdfs = await fetchReportPdfs(session, filedReports.rows, memberId);
@@ -384,4 +446,625 @@ export async function acquireDelawareCfrsCommitteeArtifacts(
     filedReportCount: filedReports.rows.length,
     reportPdfCount: reportPdfs.length,
   };
+}
+
+export type DelawareCfrsCandidateSourcePacketInput = {
+  cfId: string;
+  memberId: number;
+  committeeName: string;
+  /** Explicit null requests whole Member history with blank dates; neither mode certifies a legal cycle. */
+  requestWindow: { start: string; end: string } | null;
+  sessionOptions?: DelawareCfrsSessionOptions;
+};
+export type DelawareCfrsCandidateSourcePacket = {
+  sourceCaptures: readonly DelawareCfrsResponseCapture[];
+  registryRows: readonly Readonly<Record<string, unknown>>[];
+  organizationUrls: readonly string[];
+  diagnostics: readonly string[];
+  requestWindow: { start: string; end: string } | null;
+  queryScope: { kind: "bounded_window"; start: string; end: string } | { kind: "whole_member" };
+  allVersionReportRows: readonly DelawareFiledReportRow[];
+  latestAccountReportRows: readonly DelawareFiledReportRow[];
+  reportPdfs: readonly DelawareCfrsReportPdfInput[];
+  receiptsCsv: string;
+  expensesCsv: string;
+  receiptRenderedCount: number;
+  expenseRenderedCount: number;
+  receipts: DelawareNativeLedger;
+  expenses: DelawareNativeLedger;
+};
+function packetDate(value: string): string {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(value) ||
+    !Number.isFinite(Date.parse(value + "T00:00:00Z")) ||
+    new Date(value + "T00:00:00Z").toISOString().slice(0, 10) !== value
+  )
+    throw new Error("Invalid Delaware packet request date");
+  return `${value.slice(5, 7)}/${value.slice(8, 10)}/${value.slice(0, 4)}`;
+}
+function observedOrganizationUrls(html: string, memberId: number, type: "01" | "04" = "01"): string[] {
+  const found = new Set<string>();
+  for (const match of html.matchAll(/<a\b[^>]*\bhref\s*=\s*(["'])([^"']+)\1[^>]*>/gi)) {
+    const raw = match[2]!.replace(/&amp;|&#38;/g, "&");
+    if (!raw.startsWith("/Public/ShowReview?")) continue;
+    const u = new URL(raw, buildDelawareCfrsUrl("/"));
+    // The published link has spaces before '&'. Only trim individual public
+    // query controls; names and financial source fields are never changed.
+    const values = Object.fromEntries([...u.searchParams].map(([k, v]) => [k, v.trim()]));
+    if (values.memberID !== String(memberId) || values.ftype !== "SO") continue;
+    const keys = ["memberID", "memVersID", "cTypeCode", "ftype", "fpath", "fname", "isPublic"];
+    if (
+      u.origin !== new URL(buildDelawareCfrsUrl("/")).origin ||
+      u.username ||
+      u.password ||
+      u.hash ||
+      [...u.searchParams].length !== keys.length ||
+      Object.keys(values).length !== keys.length ||
+      keys.some((k) => !Object.hasOwn(values, k)) ||
+      values.cTypeCode !== type ||
+      !/^[1-9]\d*$/.test(values.memVersID!) ||
+      !Number.isSafeInteger(Number(values.memVersID)) ||
+      values.fpath !== "" ||
+      values.fname !== "" ||
+      values.isPublic !== "true"
+    )
+      throw new Error("Invalid observed Delaware organization link");
+    found.add(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.statementOfOrganization, values));
+  }
+  return [...found];
+}
+async function fetchPacketReportInventory(
+  session: DelawareCfrsSession,
+  memberId: number,
+  name: string,
+  cfId: string,
+  current: boolean
+): Promise<DelawareFiledReportRow[]> {
+  const searchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsSearch, {
+    ...DELAWARE_CFRS_THEME_QUERY,
+  });
+  await session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsSearch));
+  await session.postForm(searchUrl, {
+    ...buildDelawareFiledReportsSearchFields({ MemberId: String(memberId), txtCommitteeName: name }),
+    ...(current ? { hdnViewCurrent: "true", chkViewCurrReport: "on" } : {}),
+  });
+  const rows: DelawareFiledReportRow[] = [];
+  let total: number | null = null;
+  for (let page = 1; page <= MAX_GRID_PAGES; page++) {
+    const response = await session.get(
+      buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.filedReportsGridJson, {
+        ajax: "True",
+        "Grid-page": String(page),
+        "Grid-orderBy": "~",
+        "Grid-groupBy": "~",
+        "Grid-filter": "~",
+        "Grid-size": String(GRID_PAGE_SIZE),
+        theme: "vista",
+      }),
+      { referer: searchUrl }
+    );
+    const parsed = parseDelawareFiledReportsHtml(response.text());
+    if (
+      parsed.total === null ||
+      !Number.isSafeInteger(parsed.total) ||
+      parsed.total < 0 ||
+      (total !== null && total !== parsed.total) ||
+      parsed.rows.length > GRID_PAGE_SIZE
+    )
+      throw new Error("Invalid/changed Delaware packet report count");
+    total = parsed.total;
+    if (
+      parsed.rows.some(
+        (r) =>
+          r.cfId !== cfId ||
+          r.committeeName.trim() !== name ||
+          !r.document ||
+          r.document.memberId !== memberId
+      )
+    )
+      throw new Error("Wrong/missing Delaware packet report identity");
+    rows.push(...parsed.rows);
+    if (rows.length > total) throw new Error("Repeated/incomplete Delaware packet report pages");
+    if (rows.length === total) {
+      const ids = rows.map((r) => r.document!.publicReportFileName);
+      if (new Set(ids).size !== ids.length) throw new Error("Duplicate Delaware packet report identity");
+      return rows;
+    }
+    if (parsed.rows.length !== GRID_PAGE_SIZE) throw new Error("Incomplete Delaware packet report page");
+  }
+  throw new Error("Delaware packet report page cap");
+}
+async function fetchPacketNativePages(
+  session: DelawareCfrsSession,
+  kind: "receipts" | "expenses"
+): Promise<{ pageNumber: number; pageSize: number; page: DelawareNativeLedgerPage }[]> {
+  const pages: { pageNumber: number; pageSize: number; page: DelawareNativeLedgerPage }[] = [];
+  for (let page = 1; page <= MAX_GRID_PAGES; page++) {
+    const response = await session.postForm(
+      buildDelawareCfrsUrl(
+        kind === "receipts" ? DELAWARE_CFRS_PAGES.receiptsGridJson : DELAWARE_CFRS_PAGES.expensesGridJson,
+        { "Grid-size": "15", theme: "vista" }
+      ),
+      { page: String(page), size: String(GRID_PAGE_SIZE), orderBy: "", groupBy: "", filter: "" },
+      { xhr: true }
+    );
+    const decoded = (kind === "receipts" ? decodeDelawareReceiptNativePage : decodeDelawareExpenseNativePage)(
+      response.text()
+    );
+    pages.push({ pageNumber: page, pageSize: GRID_PAGE_SIZE, page: decoded });
+    if (decoded.rows.length < GRID_PAGE_SIZE) {
+      return pages;
+    }
+  }
+  throw new Error(`Delaware packet ${kind} native page cap`);
+}
+async function fetchPacketNativeLedger(
+  session: DelawareCfrsSession,
+  kind: "receipts" | "expenses",
+  renderedCount: number,
+  csvLoader: () => Promise<string>
+): Promise<{ csv: string; ledger: DelawareNativeLedger }> {
+  const pages = await fetchPacketNativePages(session, kind);
+  const csv = await csvLoader();
+  return { csv, ledger: closeDelawareNativeLedger({ pages, renderedCount, csv }) };
+}
+function packetSession(options: DelawareCfrsSessionOptions) {
+  const sourceCaptures: DelawareCfrsResponseCapture[] = [];
+  const observer = options.onResponseCapture;
+  const session = createDelawareCfrsSession({
+    ...options,
+    onResponseCapture: async (c) => {
+      sourceCaptures.push({
+        ...c,
+        body: Buffer.from(c.body),
+        financeFields: c.financeFields === null ? null : { ...c.financeFields },
+      });
+      await observer?.(c);
+    },
+  });
+  return { session, sourceCaptures };
+}
+async function fetchPacketOwnerSource(
+  session: DelawareCfrsSession,
+  scope: { cfId: string; memberId: number; committeeName: string; type: "01" | "04" }
+) {
+  const { cfId, memberId, committeeName, type } = scope;
+  await session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.committeeSearch));
+  const searched = await session.postForm(
+    buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.committeeSearchPost, { ...DELAWARE_CFRS_THEME_QUERY }),
+    buildDelawareCommitteeSearchFields({ CommitteeType: type, txtCommitteeID: cfId })
+  );
+  const registryRows: Readonly<Record<string, unknown>>[] = [];
+  let total: number | null = null;
+  let exhausted = false;
+  for (let page = 1; page <= MAX_GRID_PAGES; page++) {
+    const response = await session.postForm(
+      buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.committeeGridJson, { ...DELAWARE_CFRS_THEME_QUERY }),
+      { page: String(page), size: String(GRID_PAGE_SIZE), orderBy: "", groupBy: "", filter: "" },
+      { xhr: true }
+    );
+    const parsed = parseDelawareCommitteeGridJson(response.text());
+    if (
+      parsed.total === null ||
+      !Number.isSafeInteger(parsed.total) ||
+      parsed.total < 0 ||
+      (total !== null && total !== parsed.total) ||
+      parsed.rows.length > GRID_PAGE_SIZE
+    )
+      throw new Error("Invalid/changed Delaware packet registry count");
+    total = parsed.total;
+    registryRows.push(...(structuredClone(JSON.parse(response.text()).data) as Record<string, unknown>[]));
+    if (registryRows.length > total) throw new Error("Repeated Delaware packet registry pages");
+    if (registryRows.length === total) {
+      exhausted = true;
+      break;
+    }
+    if (parsed.rows.length !== GRID_PAGE_SIZE) throw new Error("Incomplete Delaware packet registry pages");
+  }
+  if (!exhausted) throw new Error("Delaware packet registry page cap");
+  const matches = registryRows.filter((r) => r.Committee_Id === cfId);
+  if (
+    !matches.length ||
+    matches.some(
+      (r) =>
+        r.MemberID !== memberId ||
+        r.CommitteeTypeCode !== type ||
+        typeof r.CommitteeName !== "string" ||
+        r.CommitteeName.trim() !== committeeName
+    )
+  )
+    throw new Error("Delaware packet registry receiver mismatch");
+  const organizationUrls = observedOrganizationUrls(searched.text(), memberId, type);
+  const diagnostics: string[] = [];
+  const observedVersions = new Set<number>();
+  for (const organizationUrl of organizationUrls) {
+    const sourceVersion = Number(new URL(organizationUrl).searchParams.get("memVersID"));
+    if (!matches.some((r) => r.MemberVersID === sourceVersion))
+      throw new Error("Observed Delaware SO link is absent from full registry");
+    observedVersions.add(sourceVersion);
+    await session.get(organizationUrl);
+  }
+  if (!organizationUrls.length)
+    diagnostics.push("No observed organization links; identity authority unavailable.");
+  if (matches.some((r) => !observedVersions.has(Number(r.MemberVersID))))
+    diagnostics.push("Registry editions lack observed SO links; identity authority unresolved.");
+  return { registryRows, organizationUrls, diagnostics };
+}
+/**
+ * Fetches source observations and structurally closed ledgers only. Does not
+ * certify legal cycle, current report editions, PAC money or outside money;
+ * does not write an artifact cache or database. Existing acquire defaults stay separate.
+ */
+export async function fetchDelawareCfrsCandidateSourcePacket(
+  original: DelawareCfrsCandidateSourcePacketInput
+): Promise<DelawareCfrsCandidateSourcePacket> {
+  const input = {
+    ...original,
+    requestWindow: original.requestWindow === null ? null : { ...original.requestWindow },
+    sessionOptions: { ...original.sessionOptions },
+  };
+  const { cfId, memberId } = input;
+  const committeeName = input.committeeName.trim();
+  if (
+    !/^01\d{6}$/.test(cfId) ||
+    !Number.isSafeInteger(memberId) ||
+    memberId <= 0 ||
+    !committeeName ||
+    (input.requestWindow !== null && input.requestWindow.start > input.requestWindow.end)
+  )
+    throw new Error("Invalid Delaware candidate packet scope");
+  const start = input.requestWindow === null ? "" : packetDate(input.requestWindow.start),
+    end = input.requestWindow === null ? "" : packetDate(input.requestWindow.end);
+  const { session, sourceCaptures } = packetSession(input.sessionOptions);
+  const { registryRows, organizationUrls, diagnostics } = await fetchPacketOwnerSource(session, {
+    cfId,
+    memberId,
+    committeeName,
+    type: "01",
+  });
+  const allVersionReportRows = await fetchPacketReportInventory(
+    session,
+    memberId,
+    committeeName,
+    cfId,
+    false
+  );
+  const latestAccountReportRows = await fetchPacketReportInventory(
+    session,
+    memberId,
+    committeeName,
+    cfId,
+    true
+  );
+  const reportPdfs = await fetchReportPdfs(
+    session,
+    [...allVersionReportRows, ...latestAccountReportRows],
+    memberId
+  );
+  packetPdfsValid(reportPdfs);
+  const receiptSearchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, {
+    ...DELAWARE_CFRS_THEME_QUERY,
+  });
+  const receiptEntryUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry);
+  await session.get(receiptEntryUrl);
+  const receiptRenderedCount = await searchWithTransientZeroRetry(
+    () =>
+      session.postForm(
+        receiptSearchUrl,
+        buildDelawareReceiptsSearchFields({
+          MemberId: String(memberId),
+          txtReceivingRegistrant: committeeName,
+          dtStartDate: start,
+          dtEndDate: end,
+        }),
+        { referer: receiptEntryUrl }
+      ),
+    "packet receipts",
+    () => {}
+  );
+  if (receiptRenderedCount === null) throw new Error("Missing Delaware packet receipts count");
+  const receipts = await fetchPacketNativeLedger(session, "receipts", receiptRenderedCount, () =>
+    exportCsv(session, DELAWARE_CFRS_PAGES.receiptsExportCsv, receiptSearchUrl, "packet receipts")
+  );
+  const expenseSearchUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.expensesSearchPost, {
+    ...DELAWARE_CFRS_THEME_QUERY,
+  });
+  await session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.expensesSearch));
+  const expenseRenderedCount = await searchWithTransientZeroRetry(
+    () =>
+      session.postForm(
+        expenseSearchUrl,
+        buildDelawareExpensesSearchFields({
+          MemberId: String(memberId),
+          txtRegistrant: committeeName,
+          CommitteeType: "01",
+          dtStartDate: start,
+          dtEndDate: end,
+        })
+      ),
+    "packet expenses",
+    () => {}
+  );
+  if (expenseRenderedCount === null) throw new Error("Missing Delaware packet expenses count");
+  const expenses = await fetchPacketNativeLedger(session, "expenses", expenseRenderedCount, () =>
+    exportCsv(session, DELAWARE_CFRS_PAGES.expensesExportCsv, expenseSearchUrl, "packet expenses")
+  );
+  for (const [ledger, field] of [
+    [receipts.ledger, "WC_ID"],
+    [expenses.ledger, "CCF_ID"],
+  ] as const)
+    if (
+      ledger.rows.some(
+        (r) =>
+          r.rawFields[field] !== cfId ||
+          (input.requestWindow !== null &&
+            (r.date < input.requestWindow.start || r.date > input.requestWindow.end))
+      )
+    )
+      throw new Error("Delaware packet financial row outside requested account/window");
+  return {
+    sourceCaptures,
+    registryRows,
+    organizationUrls,
+    diagnostics,
+    requestWindow: input.requestWindow,
+    queryScope: input.requestWindow === null
+      ? { kind: "whole_member" }
+      : { kind: "bounded_window", ...input.requestWindow },
+    allVersionReportRows,
+    latestAccountReportRows,
+    reportPdfs,
+    receiptsCsv: receipts.csv,
+    expensesCsv: expenses.csv,
+    receiptRenderedCount,
+    expenseRenderedCount,
+    receipts: receipts.ledger,
+    expenses: expenses.ledger,
+  };
+}
+
+export type DelawareCfrsThirdPartySourcePacketInput = {
+  payer: DelawareOutsidePayerScope;
+  candidate: DelawareOutsideCandidateScope;
+  sessionOptions?: DelawareCfrsSessionOptions;
+};
+export type DelawareCfrsThirdPartySourcePacketResult = {
+  packet?: DelawareOutsideSourcePacket;
+  sourceCaptures: readonly DelawareCfrsResponseCapture[];
+  diagnostics: readonly string[];
+};
+function packetNativeUnion(pages: readonly { page: DelawareNativeLedgerPage }[]) {
+  const rows: DelawareNativeLedgerPage["rows"][number][] = [];
+  const byId = new Map<number, DelawareNativeLedgerPage["rows"][number]>();
+  pages.forEach((p, i) =>
+    p.page.rows.forEach((r, j) => {
+      const previous = byId.get(r.transactionId);
+      if (previous) {
+        if (
+          j !== 0 ||
+          i === 0 ||
+          pages[i - 1]!.page.rows.at(-1)?.transactionId !== r.transactionId ||
+          !isDeepStrictEqual(previous.rawFields, r.rawFields)
+        )
+          throw new Error("Conflicting/repeated Delaware packet native ID");
+      } else {
+        byId.set(r.transactionId, r);
+        rows.push(r);
+      }
+    })
+  );
+  return rows;
+}
+function packetPdfsValid(pdfs: readonly DelawareCfrsReportPdfInput[]) {
+  if (
+    pdfs.some(
+      (p) => p.body.byteLength > 4 * 1024 * 1024 || p.body.subarray(0, 5).toString("ascii") !== "%PDF-"
+    )
+  )
+    throw new Error("Invalid/bounded Delaware packet PDF bytes");
+}
+/** Observed source facets only. Does not verify a current financial generation or write cache/DB. */
+export async function fetchDelawareCfrsThirdPartySourcePacket(
+  original: DelawareCfrsThirdPartySourcePacketInput
+): Promise<DelawareCfrsThirdPartySourcePacketResult> {
+  const input = {
+    payer: { ...original.payer },
+    candidate: { ...original.candidate },
+    sessionOptions: { ...original.sessionOptions },
+  };
+  const p = input.payer,
+    c = input.candidate;
+  p.committeeName = p.committeeName.trim();
+  c.receivingCommitteeName = c.receivingCommitteeName.trim();
+  if (
+    !/^04\d{6}$/.test(p.cfId) ||
+    p.committeeType !== "04" ||
+    !Number.isSafeInteger(p.memberId) ||
+    p.memberId <= 0 ||
+    !p.committeeName ||
+    !/^01\d{6}$/.test(c.receivingCfId) ||
+    !Number.isSafeInteger(c.receivingMemberId) ||
+    c.receivingMemberId <= 0 ||
+    !c.receivingCommitteeName
+  )
+    throw new Error("Invalid Delaware third-party packet owner scope");
+  const { session, sourceCaptures } = packetSession(input.sessionOptions);
+  const diagnostics: string[] = [];
+  let operationName = "payer identity";
+  // Bound by actual operation callbacks, never by rewritten timestamps or assumed phases.
+  const take = async <T>(operation: () => Promise<T>) => {
+    const start = sourceCaptures.length;
+    const value = await operation();
+    return { value, captures: sourceCaptures.slice(start).filter((c) => c.status === 200) };
+  };
+  try {
+    const payerOwner = await take(() => fetchPacketOwnerSource(session, { ...p, type: "04" }));
+    operationName = "receiver identity";
+    const receiverOwner = await take(() =>
+      fetchPacketOwnerSource(session, {
+        cfId: c.receivingCfId,
+        memberId: c.receivingMemberId,
+        committeeName: c.receivingCommitteeName,
+        type: "01",
+      })
+    );
+    diagnostics.push(...payerOwner.value.diagnostics, ...receiverOwner.value.diagnostics);
+    operationName = "payer all-version inventory";
+    const all = await take(() =>
+      fetchPacketReportInventory(session, p.memberId, p.committeeName, p.cfId, false)
+    );
+    operationName = "payer latest-account inventory";
+    const latest = await take(() =>
+      fetchPacketReportInventory(session, p.memberId, p.committeeName, p.cfId, true)
+    );
+    operationName = "payer PDFs";
+    const payerPdfs = await take(() => fetchReportPdfs(session, [...all.value, ...latest.value], p.memberId));
+    packetPdfsValid(payerPdfs.value);
+    operationName = "receiver all-version inventory";
+    const receiverReports = await take(() =>
+      fetchPacketReportInventory(
+        session,
+        c.receivingMemberId,
+        c.receivingCommitteeName,
+        c.receivingCfId,
+        false
+      )
+    );
+    operationName = "receiver PDFs";
+    const receiverPdfs = await take(() =>
+      fetchReportPdfs(session, receiverReports.value, c.receivingMemberId)
+    );
+    packetPdfsValid(receiverPdfs.value);
+    const receiptUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsSearch, {
+      ...DELAWARE_CFRS_THEME_QUERY,
+    });
+    const receiptEntry = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.receiptsEntry);
+    operationName = "generic Member receipts";
+    const generic = await take(async () => {
+      await session.get(receiptEntry);
+      const count = await searchWithTransientZeroRetry(
+        () =>
+          session.postForm(
+            receiptUrl,
+            buildDelawareReceiptsSearchFields({
+              MemberId: String(p.memberId),
+              txtReceivingRegistrant: p.committeeName,
+            }),
+            { referer: receiptEntry }
+          ),
+        "third-party generic receipts",
+        () => {}
+      );
+      if (count === null) throw new Error("Missing generic Member receipt rendered count");
+      const rows = packetNativeUnion(await fetchPacketNativePages(session, "receipts"));
+      if (
+        rows.length !== count ||
+        rows.some(
+          (r) =>
+            r.rawFields.WC_ID !== p.cfId ||
+            typeof r.rawFields.ReceivingCommitteeName !== "string" ||
+            r.rawFields.ReceivingCommitteeName.trim() !== p.committeeName
+        )
+      )
+        throw new Error("Generic Member native receipt count/owner mismatch");
+      return count;
+    });
+    operationName = "TP8 receipts";
+    const tp = await take(async () => {
+      await session.get(receiptEntry);
+      const count = await searchWithTransientZeroRetry(
+        () =>
+          session.postForm(
+            receiptUrl,
+            {
+              ...buildDelawareReceiptsSearchFields({
+                MemberId: String(p.memberId),
+                txtReceivingRegistrant: p.committeeName,
+                hdnTP: "1",
+              }),
+              chkTP: "3",
+            },
+            { referer: receiptEntry }
+          ),
+        "third-party TP8 receipts",
+        () => {}
+      );
+      const exported = await exportCsv(
+        session,
+        DELAWARE_CFRS_PAGES.receiptsThirdPartyExportCsv,
+        receiptUrl,
+        "TP8 receipts"
+      );
+      const decoded = parseDelawareThirdPartyReceiptsCsv(exported);
+      if (
+        count === null ||
+        decoded.malformedRowCount ||
+        decoded.rows.length !== count ||
+        count !== generic.value ||
+        decoded.rows.some((r) => r["Receiving Committee"].trim() !== p.committeeName)
+      )
+        throw new Error("TP8 receipt rendered/count/owner mismatch");
+      return count;
+    });
+    const expenseUrl = buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.expensesSearchPost, {
+      ...DELAWARE_CFRS_THEME_QUERY,
+    });
+    operationName = "payer expenses";
+    const expenses = await take(async () => {
+      await session.get(buildDelawareCfrsUrl(DELAWARE_CFRS_PAGES.expensesSearch));
+      const count = await searchWithTransientZeroRetry(
+        () =>
+          session.postForm(
+            expenseUrl,
+            buildDelawareExpensesSearchFields({
+              MemberId: String(p.memberId),
+              txtRegistrant: p.committeeName,
+              CommitteeType: "04",
+            })
+          ),
+        "third-party expenses",
+        () => {}
+      );
+      if (count === null) throw new Error("Missing third-party expense rendered count");
+      const ledger = await fetchPacketNativeLedger(session, "expenses", count, () =>
+        exportCsv(session, DELAWARE_CFRS_PAGES.expensesExportCsv, expenseUrl, "third-party expenses")
+      );
+      if (
+        ledger.ledger.rows.some(
+          (r) =>
+            r.rawFields.CCF_ID !== p.cfId ||
+            typeof r.rawFields.RegistrantName !== "string" ||
+            r.rawFields.RegistrantName.trim() !== p.committeeName
+        )
+      )
+        throw new Error("Third-party expense owner mismatch");
+      return count;
+    });
+    const packet: DelawareOutsideSourcePacket = {
+      registry: payerOwner.captures.filter(
+        (c) => new URL(c.url).pathname !== DELAWARE_CFRS_PAGES.statementOfOrganization
+      ),
+      payerOrganization: payerOwner.captures.filter(
+        (c) => new URL(c.url).pathname === DELAWARE_CFRS_PAGES.statementOfOrganization
+      ),
+      receiverIdentity: receiverOwner.captures,
+      candidateCycleAuthority: [...receiverReports.captures, ...receiverPdfs.captures],
+      allVersionReports: all.captures,
+      latestAccountReport: latest.captures,
+      genericMemberReceipts: generic.captures,
+      thirdPartyReceiptExport: tp.captures,
+      expenses: expenses.captures,
+      reportPdfs: payerPdfs.captures,
+    };
+    return { packet, sourceCaptures, diagnostics };
+  } catch (error) {
+    if (error instanceof DelawareCfrsClientError && error.code === "capture_error") throw error;
+    return {
+      sourceCaptures,
+      diagnostics: [
+        ...diagnostics,
+        `Delaware third-party packet ${operationName} failed (${error instanceof DelawareCfrsClientError ? error.code : "invalid source facts"}).`,
+      ],
+    };
+  }
 }

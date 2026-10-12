@@ -11,6 +11,7 @@ import {
   parseDelawareFiledReportsHtml,
   parseDelawareJsonDateMs,
   parseDelawareReceiptsCsv,
+  parseDelawareThirdPartyReceiptsCsv,
   parseDelawareRegistrantSuggestions,
   parseDelawareTpAffiliations,
 } from "../../../src/pipeline/delawareFinance/delawareCfrsParsers.js";
@@ -52,6 +53,23 @@ Affiliated Candidate Information
 Name of Party if entire ticket is supported`;
 
 describe("delawareCfrsParsers", () => {
+  it("keeps the eight-column third-party funder export separate from candidate receipts", () => {
+    const body = [
+      "Contribution Date,Contributor Name,Contributor Address,Employer Name,Filed Reports,Employer Occupation,Contribution Amount,Receiving Committee,",
+      "8/7/2026,Example Funder,Sanitized Address,,18 Aug 2026 Filing 1.0,,525000.0000,Example Third Party,",
+    ].join("\r\n");
+    const parsed = parseDelawareThirdPartyReceiptsCsv(body);
+    expect(parsed.malformedRowCount).toBe(0);
+    expect(parsed.rows).toHaveLength(1);
+    expect(parsed.rows[0]!["Contribution Amount"]).toBe("525000.0000");
+    expect(parsed.rows[0]).not.toHaveProperty("Contributor Type");
+    expect(parsed.rows[0]).not.toHaveProperty("CF_ID");
+    expect(() => parseDelawareReceiptsCsv(body)).toThrow(/header drift/);
+    expect(() => parseDelawareThirdPartyReceiptsCsv(RECEIPTS_CSV)).toThrow(/header drift/);
+    expect(() => parseDelawareThirdPartyReceiptsCsv(body.replace("Filed Reports", "Filing Period"))).toThrow(/header drift/);
+    expect(parseDelawareThirdPartyReceiptsCsv(`${body}\r\n8/8/2026,broken`)).toMatchObject({ malformedRowCount: 1 });
+  });
+
   it("parses the receipts CSV (rows one cell short of the dangling-comma header)", () => {
     const parsed = parseDelawareReceiptsCsv(RECEIPTS_CSV);
     expect(parsed.malformedRowCount).toBe(0);

@@ -62,6 +62,8 @@ export type StateFinanceLoaderCharacterizationSpec = {
    * Every other state's payload must not gain the field at all.
    */
   publicFundsReceived?: boolean;
+  /** State-only donor queries following the standard five-query family. */
+  additionalQueryAliases?: readonly Record<string, string>[];
 };
 
 const CANDIDATE_A = "11111111-1111-4111-8111-111111111111";
@@ -456,10 +458,11 @@ export function runStateFinanceLoaderCharacterization(spec: StateFinanceLoaderCh
 
     const result = await spec.load(db, candidateRows, eligibleElectionRows);
 
-    expect(calls).toHaveLength(5);
+    const aliases = [...QUERY_TABLE_ALIASES, ...(spec.additionalQueryAliases ?? [])];
+    expect(calls).toHaveLength(aliases.length);
     // Every query stays on the state's own tables and each expected relation
     // appears in its slot of the fixed query order.
-    for (const [index, aliasTables] of QUERY_TABLE_ALIASES.entries()) {
+    for (const [index, aliasTables] of aliases.entries()) {
       for (const suffix of Object.values(aliasTables)) {
         expect(calls[index]!.sql, `query ${index + 1} should join ${spec.tablePrefix}_${suffix}`).toContain(
           `${spec.tablePrefix}_${suffix}`
@@ -493,9 +496,10 @@ export function runStateFinanceLoaderCharacterization(spec: StateFinanceLoaderCh
     };
 
     await spec.load(db, candidateRows, eligibleElectionRows);
-    expect(queries).toHaveLength(5);
+    const aliases = [...QUERY_TABLE_ALIASES, ...(spec.additionalQueryAliases ?? [])];
+    expect(queries).toHaveLength(aliases.length);
 
-    for (const [index, aliasTables] of QUERY_TABLE_ALIASES.entries()) {
+    for (const [index, aliasTables] of aliases.entries()) {
       for (const [alias, suffix] of Object.entries(aliasTables)) {
         const tableName = `${spec.tablePrefix}_${suffix}`;
         const referenced = new Set(

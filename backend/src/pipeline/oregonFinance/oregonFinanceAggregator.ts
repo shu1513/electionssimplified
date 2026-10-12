@@ -474,7 +474,7 @@ export function aggregateOregonOutsideSpending(
     }
 
     for (const association of detail.outsideAssociations) {
-      if (normalizeId(association.targetCommitteeId) !== candidateCommitteeId) {
+      if (association.associationType !== "independent_expenditure" || normalizeId(association.targetCommitteeId) !== candidateCommitteeId) {
         skippedAssociationCount += 1;
         continue;
       }

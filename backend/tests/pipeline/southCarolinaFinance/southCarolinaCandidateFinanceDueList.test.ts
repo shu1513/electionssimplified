@@ -51,9 +51,6 @@ describe("listDueSouthCarolinaCandidateFinanceSyncRows", () => {
       76,
       730,
       [...SOUTH_CAROLINA_FINANCE_ELIGIBLE_OFFICE_KEYS],
-      false,
-      null,
-      null,
     ]);
 
     expect(result.totalDueRows).toBe(3);
@@ -131,8 +128,11 @@ describe("listDueSouthCarolinaCandidateFinanceSyncRows", () => {
       candidateId: "09f72416-21e9-4a08-b172-a6e958d2f660", electionYear: 2026,
     });
     const [sql, params] = db.query.mock.calls[0]!;
-    expect(String(sql).indexOf("OR $7::boolean")).toBeLessThan(String(sql).indexOf("LIMIT $3"));
-    expect(String(sql).indexOf("link.candidate_id = $8::uuid")).toBeLessThan(String(sql).indexOf("LIMIT $3"));
-    expect(params.slice(-3)).toEqual([true, "09f72416-21e9-4a08-b172-a6e958d2f660", 2026]);
+    for (const predicate of ["$9::boolean", "link.candidate_id = $7::uuid", "link.election_year = $8::int",
+      "EXTRACT(YEAR FROM election.election_date)::int = $8::int"]) {
+      expect(String(sql)).toContain(predicate);
+      expect(String(sql).indexOf(predicate)).toBeLessThan(String(sql).indexOf("LIMIT $3"));
+    }
+    expect(params.slice(-3)).toEqual(["09f72416-21e9-4a08-b172-a6e958d2f660", 2026, true]);
   });
 });

@@ -54,6 +54,28 @@ function poolWithClient() {
 }
 
 describe("createStandardStateFinanceSnapshotWriter config options", () => {
+  it("checks state ownership before inserting the link inside the transaction", async () => {
+    const { db, client } = poolWithClient();
+    const before = vi.fn(async ({ db: tx }: { db: unknown }) => {
+      expect(tx).toBe(client);
+      expect(client.query.mock.calls.map(call => String(call[0]))).toEqual(["BEGIN"]);
+    });
+    await makeWriter().replaceSnapshot({ db, link: linkInput(), beforeSnapshotWrite: before });
+    expect(before).toHaveBeenCalledTimes(1);
+    expect(String(client.query.mock.calls[1]![0])).toContain("INSERT INTO");
+    expect(client.query.mock.calls.at(-1)![0]).toBe("COMMIT");
+  });
+
+  it("rolls back a failed ownership check without inserting a link", async () => {
+    const { db, client } = poolWithClient();
+    await expect(makeWriter().replaceSnapshot({
+      db, link: linkInput(),
+      beforeSnapshotWrite: async () => { throw new Error("Changed ownership"); },
+    })).rejects.toThrow("Changed ownership");
+    expect(client.query.mock.calls.map(call => String(call[0]))).toEqual(["BEGIN", "ROLLBACK"]);
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
   it.each([false, true])("runs state snapshot rows inside the existing transaction with summary=%s", async (withSummary) => {
     const { db, client } = poolWithClient();
     const hook = vi.fn(async ({ db: tx }: Pick<Parameters<ReturnType<typeof makeWriter>["replaceSnapshot"]>[0], "db">) => {

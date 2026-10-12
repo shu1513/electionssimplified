@@ -8,6 +8,9 @@ export type FloridaContributionRow = {
   city: string;
   state: string;
   zip: string;
+  // Public DOS exports combine these fields. Preserve the reported location
+  // without inventing a city/state/ZIP split, including non-US locations.
+  cityStateZip?: string;
   occupation: string;
   inKindDescription: string;
   electionCode?: string;
@@ -29,6 +32,7 @@ export type FloridaContributionFieldKey =
   | "city"
   | "state"
   | "zip"
+  | "cityStateZip"
   | "occupation"
   | "inKindDescription";
 
@@ -64,6 +68,8 @@ const HEADER_ALIASES = new Map<string, FloridaContributionFieldKey>([
   ["ZIP", "zip"],
   ["ZIPCODE", "zip"],
   ["ZIP CODE", "zip"],
+  ["CITY STATE ZIP", "cityStateZip"],
+  ["CITYSTATEZIP", "cityStateZip"],
   ["OCCUPATION", "occupation"],
   ["INKIND DESC", "inKindDescription"],
   ["IN KIND DESC", "inKindDescription"],
@@ -228,6 +234,9 @@ export function parseFloridaContributionTsv(
       city: readField(fields, headerIndexes, "city"),
       state: readField(fields, headerIndexes, "state"),
       zip: readField(fields, headerIndexes, "zip"),
+      ...(headerIndexes.has("cityStateZip")
+        ? { cityStateZip: readField(fields, headerIndexes, "cityStateZip") }
+        : {}),
       occupation: readField(fields, headerIndexes, "occupation"),
       inKindDescription: readField(fields, headerIndexes, "inKindDescription"),
       electionCode: options.electionCode,
@@ -288,6 +297,9 @@ export function parseFloridaContributionFixedWidth(
       city: fixedWidthFieldValue(line, options.fields, "city"),
       state: fixedWidthFieldValue(line, options.fields, "state"),
       zip: fixedWidthFieldValue(line, options.fields, "zip"),
+      ...(options.fields.some((field) => field.key === "cityStateZip")
+        ? { cityStateZip: fixedWidthFieldValue(line, options.fields, "cityStateZip") }
+        : {}),
       occupation: fixedWidthFieldValue(line, options.fields, "occupation"),
       inKindDescription: fixedWidthFieldValue(line, options.fields, "inKindDescription"),
       electionCode: options.electionCode,

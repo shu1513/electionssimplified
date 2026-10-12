@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { syncFloridaCandidateFinance } from "../../../src/pipeline/floridaFinance/floridaCandidateFinanceSync.js";
+import * as financeWriter from "../../../src/pipeline/floridaFinance/floridaFinanceWriter.js";
+import type { FloridaCommitteeDonorFinanceInput } from "../../../src/pipeline/floridaFinance/floridaCommitteeDonorWriter.js";
 import type { FloridaContributionRow } from "../../../src/pipeline/floridaFinance/floridaCampaignFinanceRows.js";
 
 const CANDIDATE_ID = "11111111-1111-1111-1111-111111111111";
@@ -86,6 +88,28 @@ function baseInput() {
 }
 
 describe("floridaCandidateFinanceSync", () => {
+  it.each([
+    { pacDonorsWritten: 1, netCommitteeAmount: 100 },
+    { pacDonorsWritten: 0, netCommitteeAmount: 0 },
+    { pacDonorsWritten: 0 },
+  ])("reports the actual PAC write result %j", async pacResult => {
+    const write = vi.spyOn(financeWriter, "replaceFloridaCandidateFinanceSnapshot").mockResolvedValue({
+      linkId: LINK_ID, summaryWritten: true, directBreakdownsWritten: 0,
+      outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0, outsideGroupSupportLinksWritten: 0,
+      ...pacResult,
+    });
+    try {
+      // Only result forwarding is mocked; writer tests exercise real source-preservation checks.
+      const pacFinance = { finance: { donors: [{}], netCommitteeAmount: 100 } } as unknown as FloridaCommitteeDonorFinanceInput;
+      const result = await syncFloridaCandidateFinance({
+        ...baseInput(), db: createMockDb(), contributionRows: [contribution()], pacFinance,
+      });
+      expect(write).toHaveBeenCalledOnce();
+      expect(result.pacDonorsWritten).toBe(pacResult.pacDonorsWritten);
+      if ("netCommitteeAmount" in pacResult) expect(result.netCommitteeAmount).toBe(pacResult.netCommitteeAmount);
+      else expect(result).not.toHaveProperty("netCommitteeAmount");
+    } finally { write.mockRestore(); }
+  });
   it("aggregates trusted direct and outside finance data and writes a snapshot", async () => {
     const db = createMockDb();
 

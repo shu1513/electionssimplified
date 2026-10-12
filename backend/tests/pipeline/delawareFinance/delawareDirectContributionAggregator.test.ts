@@ -37,6 +37,23 @@ function receiptRow(input: {
 const WINDOW = new Set(["2026 30 Day General"]);
 
 describe("aggregateDelawareDirectFinance", () => {
+  it("counts the current Electronic Fund Transfer cash label without guessing refund semantics", () => {
+    const rows = [
+      receiptRow({ amount: "500.0000", contributionType: "Electronic Fund Transfer", occupation: "Teacher" }),
+      receiptRow({ amount: "-100.0000", contributionType: "Electronic Fund Transfer" }),
+      receiptRow({ amount: "25.0000", contributionType: "EFT" }),
+      receiptRow({ amount: "9758.3800", contributionType: "Refund/Rebate", contributorType: "Business/Group/Organization" }),
+    ];
+    const result = aggregateDelawareDirectFinance({ receiptRows: rows, windowPeriodKeys: WINDOW });
+    expect(result.directContributionCents).toBe(425_00);
+    expect(result.windowRowTotalCents).toBe(10_183_38);
+    expect(result.negativeOrZeroRowCount).toBe(1);
+    expect(result.unrecognizedContributionTypes).toEqual(["Refund/Rebate"]);
+    expect(result.unrecognizedContributionTypeRowCount).toBe(1);
+    expect(result.breakdowns).toContainEqual({ categoryType: "occupation", categoryName: "Teacher", amount: 500, contributorCount: 1 });
+    expect(rows[0]!["Contribution Type"]).toBe("Electronic Fund Transfer");
+  });
+
   it("applies the fact-2 money model: loans/other income out, in-kind and aggregates in", () => {
     const result = aggregateDelawareDirectFinance({
       receiptRows: [

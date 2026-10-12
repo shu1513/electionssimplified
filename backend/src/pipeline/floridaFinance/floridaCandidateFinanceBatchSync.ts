@@ -31,6 +31,10 @@ import {
   type FloridaFinanceAutoLinkCandidateElection,
 } from "./floridaCandidateFinanceAutoLink.js";
 import { FLORIDA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./floridaFinanceEligibleOffices.js";
+import { createFloridaCandidateCommitteeFinanceSource, type FloridaCandidateCommitteeFinanceSource } from "./floridaCandidateCommitteeFinanceSource.js";
+import type { FloridaReviewedCommitteeDates } from "./floridaCommitteeRegistrySource.js";
+import { createFloridaCandidateOutsideFinanceSource, type FloridaCandidateOutsideFinanceSource } from "./floridaCandidateOutsideFinanceSource.js";
+import { writeFloridaOutsideAllocations, type FloridaOutsideAllocationWriteResult } from "./floridaOutsideAllocationWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -101,6 +105,14 @@ export type FloridaCandidateFinanceDueSyncInput = Omit<
   exportRowLimit?: number;
   exportForce?: boolean;
   refreshExportArtifacts?: boolean;
+  candidateId?: string;
+  includeRegisteredCommitteeDonors?: boolean;
+  reviewedCommitteeDates?: readonly FloridaReviewedCommitteeDates[];
+  committeeFinanceSource?: FloridaCandidateCommitteeFinanceSource;
+  includeIndependentExpenditures?: boolean;
+  outsideDb?: Pick<Pool, "connect">;
+  outsideFinanceSource?: FloridaCandidateOutsideFinanceSource;
+  writeOutsideAllocationsFn?: typeof writeFloridaOutsideAllocations;
 };
 
 export type FloridaCandidateFinanceBatchSyncItemResult = {
@@ -111,6 +123,7 @@ export type FloridaCandidateFinanceBatchSyncItemResult = {
   ok: boolean;
   result?: FloridaCandidateFinanceSyncResult;
   error?: string;
+  outsideComponents?: readonly FloridaOutsideAllocationWriteResult[];
 };
 
 export type FloridaCandidateFinanceBatchSyncResult = {
@@ -210,6 +223,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
     maxCandidates: number;
     electionLookbackDays: number;
     electionLookaheadDays: number;
+    candidateId?: string;
   }
 ): Promise<{ rows: FloridaCandidateFinanceDueRow[]; totalDueRows: number }> {
   const result = await db.query<FloridaCandidateFinanceDueQueryRow>(
@@ -248,6 +262,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
           ON summary.link_id = link.id
          AND summary.election_year = link.election_year
         WHERE link.link_status = 'active'
+          AND ${input.candidateId ? "link.candidate_id = $7::uuid" : "TRUE"}
           AND candidate.deleted_at IS NULL
           AND district.state = 'FL'
           AND election.race_type = 'office'
@@ -287,6 +302,7 @@ export async function listDueFloridaCandidateFinanceSyncRows(
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...FLORIDA_FINANCE_ELIGIBLE_OFFICE_KEYS],
+      ...(input.candidateId ? [input.candidateId] : []),
     ]
   );
 
@@ -798,7 +814,7 @@ export async function syncDueFloridaCandidateFinance(
     "exportRowLimit"
   );
 
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (!dryRun && !input.candidateId && input.autoLinkMissingLinks !== false) {
     try {
       const autoLinkExportData = await buildAutoLinkExportData({
         db: input.db,
@@ -847,6 +863,7 @@ export async function syncDueFloridaCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    candidateId: input.candidateId,
   });
   const contributionDataByCommitteeId = new Map(
     input.contributionDataByCommitteeId
@@ -858,6 +875,7 @@ export async function syncDueFloridaCandidateFinance(
   );
   const missingDataResults: FloridaCandidateFinanceBatchSyncItemResult[] = [];
   const syncInputs: FloridaCandidateFinanceBatchSyncItemInput[] = [];
+  let committeeSource = input.committeeFinanceSource;
   for (const row of due.rows) {
     let contributionData = contributionDataByCommitteeId.get(normalizeCommitteeId(row.committeeId));
     if (!hasDirectContributionData(contributionData) && !dryRun && input.fetchMissingContributionData !== false) {
@@ -921,7 +939,19 @@ export async function syncDueFloridaCandidateFinance(
         continue;
       }
     }
-    syncInputs.push(buildDueSyncInput({ row, contributionData }));
+    const syncInput = buildDueSyncInput({ row, contributionData });
+    if (!dryRun && input.includeRegisteredCommitteeDonors !== false) {
+      committeeSource ??= createFloridaCandidateCommitteeFinanceSource({ db: input.db,
+        cacheDir: defaultArtifactCacheDir, refresh: input.refreshExportArtifacts === true,
+        minIntervalMs: exportMinIntervalMs, reviewedDates: input.reviewedCommitteeDates });
+      const committeeFinance = await committeeSource.load({ candidateId: row.candidateId,
+        electionId: row.electionId, committeeId: row.committeeId });
+      if (committeeFinance.status === "accepted") syncInput.pacFinance = committeeFinance.pacFinance;
+      else console.warn("Florida committee donor component preserved:", {
+        candidateId: row.candidateId, electionId: row.electionId, diagnostics: committeeFinance.diagnostics,
+      });
+    }
+    syncInputs.push(syncInput);
   }
   const result = await syncFloridaCandidateFinanceBatch({
     db: input.db,
@@ -934,6 +964,46 @@ export async function syncDueFloridaCandidateFinance(
     aiClassificationMinAmount: input.aiClassificationMinAmount,
     syncFloridaCandidateFinanceFn: input.syncFloridaCandidateFinanceFn,
   });
+
+  // Ordinary direct/PAC sync succeeds independently. Partial outside discovery
+  // never enters the legacy whole-group replacement. Real CLI/scheduler Pools
+  // supply dedicated connections for the scoped writer; query-only callers
+  // preserve this component unless they explicitly supply a connection provider.
+  const connectionProvider = input.outsideDb ??
+    ("connect" in input.db && typeof input.db.connect === "function" ? input.db as Pick<Pool, "connect"> : undefined);
+  if (!dryRun && input.includeIndependentExpenditures !== false && connectionProvider) {
+    const outsideSource = input.outsideFinanceSource ?? createFloridaCandidateOutsideFinanceSource({
+      db: input.db, cacheDir: defaultArtifactCacheDir, refresh: input.refreshExportArtifacts === true,
+      minIntervalMs: exportMinIntervalMs,
+    });
+    const writeOutside = input.writeOutsideAllocationsFn ?? writeFloridaOutsideAllocations;
+    const visited = new Set<string>();
+    for (const item of result.results) {
+      const key = `${item.candidateId}\u0000${item.electionId}`;
+      if (!item.ok || visited.has(key)) continue;
+      visited.add(key);
+      try {
+        const outside = await outsideSource.load({ candidateId: item.candidateId,
+          electionId: item.electionId, committeeId: item.committeeId });
+        if (outside.status === "preserve") {
+          console.warn("Florida independent expenditure component preserved:", { candidateId: item.candidateId,
+            electionId: item.electionId, diagnostics: outside.diagnostics });
+          continue;
+        }
+        const writes: FloridaOutsideAllocationWriteResult[] = [];
+        for (const component of outside.components) writes.push(await writeOutside({ db: connectionProvider,
+          localContext: outside.localContext, ...component }));
+        if (writes.length) item.outsideComponents = writes;
+        if (outside.diagnostics.length || writes.some(write => write.status === "preserve"))
+          console.warn("Florida independent expenditure coverage remains partial:", { candidateId: item.candidateId,
+            electionId: item.electionId, diagnostics: [...outside.diagnostics,
+              ...writes.filter(write => write.status === "preserve").flatMap(write => write.diagnostics)] });
+      } catch (error) {
+        console.warn("Florida independent expenditure component preserved:", { candidateId: item.candidateId,
+          electionId: item.electionId, error: error instanceof Error ? error.message : "Outside source failed" });
+      }
+    }
+  }
 
   return {
     ...result,

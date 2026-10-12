@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 // Delaware CFRS portal client (docs/plans/plan-delaware-finance.md).
 //
 // cfrs.elections.delaware.gov is a classic ASP.NET MVC + Telerik app (the old
@@ -28,15 +30,19 @@ export const DELAWARE_CFRS_BASE_URL = "https://cfrs.elections.delaware.gov";
 
 /** Public pages and endpoints exercised by the probe (verified live 2026-08-26). */
 export const DELAWARE_CFRS_PAGES = {
-  /** Receipts search form (GET warms the session; POST runs the search). */
+  /** Current receipts entry page; GET initializes the native ledger session. */
+  receiptsEntry: "/Public/ViewReceiptsMain",
+  /** Receipts search POST target (distinct from the Main entry page). */
   receiptsSearch: "/Public/ViewReceipts",
   /** Receipts CSV export of the session's stored receipts search. */
   receiptsExportCsv: "/Public/ExportCSVNew",
+  /** Third-party search renders a separate eight-column funder export. */
+  receiptsThirdPartyExportCsv: "/Public/ExportCSVNew_TP",
   /**
    * Receipts grid JSON of the stored search (form-encoded POST: page/size/
-   * orderBy/groupBy/filter). Its `total` is unstable and its row shape is
-   * NOT a pinned contract — probe-advisory evidence only (rows carry
-   * Transaction_id + FileAmendedVersion, which the CSV lacks).
+   * orderBy/groupBy/filter). Its `total` is advisory. Full row closure is
+   * independently checked against the rendered count and CSV by the native
+   * ledger decoder (including Transaction_id and FileAmendedVersion).
    */
   receiptsGridJson: "/Public/_ViewReceiptsCustom",
   /** Expenses search form (GET only — the search POSTs elsewhere, see below). */
@@ -45,6 +51,8 @@ export const DELAWARE_CFRS_PAGES = {
   expensesSearchPost: "/Public/OtherSearch",
   /** Expenses CSV export of the session's stored expenses search. */
   expensesExportCsv: "/Public/ExportExpensestoCsv",
+  /** Native expense rows of the stored search, independently closed against CSV. */
+  expensesGridJson: "/Public/_ViewExpensesCustom",
   /** Committee search form (GET warms the session). */
   committeeSearch: "/Public/ViewCommittees",
   /** Committee search POST target. */
@@ -114,11 +122,7 @@ export function looksLikeDelawareCfrsHtml(body: string): boolean {
 }
 
 export type DelawareCfrsClientErrorCode =
-  | "invalid_request"
-  | "network_error"
-  | "http_error"
-  | "portal_rejection"
-  | "bad_response";
+  "invalid_request" | "network_error" | "http_error" | "portal_rejection" | "bad_response" | "capture_error";
 
 export class DelawareCfrsClientError extends Error {
   constructor(
@@ -223,6 +227,15 @@ export function buildDelawareExpensesSearchFields(
     MemberId: "",
     txtCommitteeID: "",
     committeeNameData: "",
+    // Actual select names observed 2026-10-11. The older *Data names below
+    // are container aliases and cannot substitute for these controls.
+    CommitteeType: "",
+    FilingYear: "",
+    FilingPeriodName: "",
+    ddlPayeeType: "",
+    ddlState: "",
+    ddlExpenCategory: "",
+    ddlExpensePurpose: "",
     CommitteeTypeData: "",
     payeeTypeData: "",
     txtPayeeFirstName: "",
@@ -251,6 +264,13 @@ export type DelawareExpensesSearchField =
   | "MemberId"
   | "txtCommitteeID"
   | "committeeNameData"
+  | "CommitteeType"
+  | "FilingYear"
+  | "FilingPeriodName"
+  | "ddlPayeeType"
+  | "ddlState"
+  | "ddlExpenCategory"
+  | "ddlExpensePurpose"
   | "CommitteeTypeData"
   | "payeeTypeData"
   | "txtPayeeFirstName"
@@ -412,6 +432,24 @@ export type DelawareCfrsFetchFn = (
   }
 ) => Promise<Response>;
 
+/** An observed bounded HTTP response, not a financial completeness assertion. */
+export type DelawareCfrsResponseCapture = {
+  /** Detached original bytes; never aliases the returned response body. */
+  body: Buffer;
+  /** Actual request URL when unredacted; otherwise only its safe projection. */
+  url: string;
+  method: "GET" | "POST";
+  financeFields: Readonly<Record<string, string>> | null;
+  requestScopeRedacted: boolean;
+  attempt: number;
+  startedAt: string;
+  completedAt: string;
+  status: number;
+  contentType: string | null;
+  byteCount: number;
+  sha256: string;
+};
+
 export type DelawareCfrsSessionOptions = {
   fetchImpl?: DelawareCfrsFetchFn;
   sleep?: (ms: number) => Promise<void>;
@@ -422,6 +460,8 @@ export type DelawareCfrsSessionOptions = {
   timeoutMs?: number;
   maxResponseBytes?: number;
   log?: (message: string) => void;
+  /** Awaited for each bounded response before error classification. Failure is nonretryable. */
+  onResponseCapture?: (capture: DelawareCfrsResponseCapture) => void | Promise<void>;
 };
 
 export type DelawareCfrsSession = {
@@ -432,6 +472,123 @@ export type DelawareCfrsSession = {
     options?: { referer?: string; xhr?: boolean }
   ) => Promise<DelawareCfrsResponse>;
 };
+
+// Source finance controls only. No headers, cookies, credentials, CSRF,
+// postal/street filters or opaque fields are copied into request metadata.
+const CAPTURE_FINANCE_FIELDS = new Set([
+  "txtReceivingRegistrant",
+  "txtRegistrant",
+  "txtCommitteeName",
+  "txtCommitteeID",
+  "txtContributorName",
+  "txtFirstName",
+  "txtPayeeFirstName",
+  "txtPayeeLastName",
+  "CommitteeType",
+  "CommitteeStatus",
+  "FormType",
+  "ContributorType",
+  "ContributionType",
+  "FilingYear",
+  "FilingPeriodName",
+  "ReportName",
+  "ddlElectiontype",
+  "dtStartDate",
+  "dtEndDate",
+  "dtCloseStartDate",
+  "dtCloseEndDate",
+  "ddlOffice",
+  "hdnddlOffice",
+  "ddlCounty",
+  "hdnddlCounty",
+  "ddlOfficeSought",
+  "hdnddlOfficeSought",
+  "ddljurisdiction",
+  "hdnddljurisdiction",
+  "hdnCommitteeName",
+  "hdnFilingPeriodName",
+  "hdnReportName",
+  "hdnViewCurrent",
+  "chkViewCurrReport",
+  "hdnTP",
+  "chkTP",
+  "hdnFixedAssets",
+  "ddlPayeeType",
+  "ddlExpenCategory",
+  "ddlExpensePurpose",
+  "CommitteeTypeData",
+  "filingYearData",
+  "expenseCategoryData",
+  "expensePruposeData",
+  "payeeTypeData",
+  "committeeNameData",
+  "btnSearch",
+  "Submit",
+  "rdGroup",
+  "page",
+  "size",
+  "orderBy",
+  "groupBy",
+  "theme",
+  "ajax",
+  "Grid-page",
+  "Grid-size",
+  "Grid-orderBy",
+  "Grid-groupBy",
+  "q",
+  "ftype",
+  "isPublic",
+]);
+const CAPTURE_PUBLIC_ID_FIELDS = new Set([
+  "MemberId",
+  "MemberID",
+  "memberID",
+  "CommitteeID",
+  "CommitteeId",
+  "FilingCalendarID",
+  "memVersID",
+  "cTypeCode",
+]);
+const CAPTURE_PATHS: ReadonlySet<string> = new Set(["/", ...Object.values(DELAWARE_CFRS_PAGES)]);
+
+export function isDelawareCfrsPublicReportFileName(value: string): boolean {
+  return /^CampaignFinanceReport_[A-Za-z0-9_-]+\.pdf$/.test(value) ||
+    /^CampaignFinance_(?:[1-9]\d*_[1-9]\d*_)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\.pdf$/.test(value);
+}
+
+export function isDelawareCfrsCaptureFieldAllowed(key: string, value: string): boolean {
+  if (key === "FileName") return isDelawareCfrsPublicReportFileName(value);
+  if (key === "fpath" || key === "fname") return value === "";
+  if (key === "filter" || key === "Grid-filter") return value === "" || value === "~";
+  if (CAPTURE_PUBLIC_ID_FIELDS.has(key)) return value === "" || /^\d+$/.test(value);
+  return CAPTURE_FINANCE_FIELDS.has(key);
+}
+
+function captureRequestScope(
+  url: string,
+  body: string | undefined
+): Pick<DelawareCfrsResponseCapture, "url" | "financeFields" | "requestScopeRedacted"> {
+  const parsed = new URL(url);
+  let requestScopeRedacted = parsed.hash !== "" || !CAPTURE_PATHS.has(parsed.pathname);
+  parsed.hash = "";
+  if (!CAPTURE_PATHS.has(parsed.pathname)) parsed.pathname = "/";
+  for (const [key, value] of [...parsed.searchParams]) {
+    if (!isDelawareCfrsCaptureFieldAllowed(key, value)) {
+      parsed.searchParams.delete(key);
+      requestScopeRedacted = true;
+    }
+  }
+  const financeFields: Record<string, string> | null = body === undefined ? null : {};
+  if (financeFields !== null) {
+    for (const [key, value] of new URLSearchParams(body)) {
+      if (isDelawareCfrsCaptureFieldAllowed(key, value)) financeFields[key] = value;
+      // Blank excluded form controls activate no filter and contain no secret.
+      // A nonblank excluded value makes this capture unusable as full scope.
+      else if (value !== "") requestScopeRedacted = true;
+    }
+  }
+  return { url: requestScopeRedacted ? parsed.toString() : url, financeFields, requestScopeRedacted };
+}
 
 /** Cookie jar: single host, session lifetime — name/value only, attributes ignored. */
 function parseSetCookieHeader(header: string): { name: string; value: string } | null {
@@ -460,13 +617,19 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
   const sleep = options.sleep ?? ((ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms)));
   const fetchImpl: DelawareCfrsFetchFn = options.fetchImpl ?? ((url, init) => fetch(url, init));
 
+  const onResponseCapture = options.onResponseCapture;
   const cookies = new Map<string, string>();
   let queue: Promise<unknown> = Promise.resolve();
   let anyRequestStarted = false;
 
   function requireCfrsUrl(url: string): void {
     if (!url.startsWith(`${DELAWARE_CFRS_BASE_URL}/`)) {
-      throw new DelawareCfrsClientError("invalid_request", `not a cfrs.elections.delaware.gov URL: ${url}`);
+      throw new DelawareCfrsClientError(
+        "invalid_request",
+        onResponseCapture === undefined
+          ? `not a cfrs.elections.delaware.gov URL: ${url}`
+          : "not a cfrs.elections.delaware.gov URL"
+      );
     }
   }
 
@@ -475,7 +638,8 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
     method: "GET" | "POST",
     body: string | undefined,
     referer: string | undefined,
-    xhr: boolean
+    xhr: boolean,
+    attempt: number
   ): Promise<DelawareCfrsResponse> {
     const headers: Record<string, string> = { "User-Agent": userAgent };
     if (referer !== undefined) {
@@ -491,7 +655,9 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
       headers["Content-Type"] = "application/x-www-form-urlencoded";
     }
 
+    const displayUrl = onResponseCapture === undefined ? url : captureRequestScope(url, body).url;
     let response: Response;
+    const startedAt = onResponseCapture === undefined ? "" : new Date().toISOString();
     try {
       response = await fetchImpl(url, {
         method,
@@ -502,7 +668,10 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new DelawareCfrsClientError("network_error", `CFRS request failed: ${method} ${url} — ${message}`);
+      throw new DelawareCfrsClientError(
+        "network_error",
+        `CFRS request failed: ${method} ${displayUrl}${onResponseCapture === undefined ? ` — ${message}` : ""}`
+      );
     }
 
     for (const header of response.headers.getSetCookie()) {
@@ -519,7 +688,7 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
     if (Number.isSafeInteger(declaredLength) && declaredLength > maxResponseBytes) {
       throw new DelawareCfrsClientError(
         "bad_response",
-        `CFRS response declares ${declaredLength} bytes, over the ${maxResponseBytes} limit: ${url}`
+        `CFRS response declares ${declaredLength} bytes, over the ${maxResponseBytes} limit: ${displayUrl}`
       );
     }
 
@@ -528,16 +697,20 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
       bytes = await response.arrayBuffer();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      throw new DelawareCfrsClientError("network_error", `CFRS response body read failed: ${url} — ${message}`);
+      throw new DelawareCfrsClientError(
+        "network_error",
+        `CFRS response body read failed: ${displayUrl}${onResponseCapture === undefined ? ` — ${message}` : ""}`
+      );
     }
     if (bytes.byteLength > maxResponseBytes) {
       throw new DelawareCfrsClientError(
         "bad_response",
-        `CFRS response exceeds ${maxResponseBytes} bytes (${bytes.byteLength}): ${url}`
+        `CFRS response exceeds ${maxResponseBytes} bytes (${bytes.byteLength}): ${displayUrl}`
       );
     }
 
-    const buffer = Buffer.from(bytes);
+    const completedAt = onResponseCapture === undefined ? "" : new Date().toISOString();
+    const buffer = onResponseCapture === undefined ? Buffer.from(bytes) : Buffer.from(new Uint8Array(bytes));
     const result: DelawareCfrsResponse = {
       status: response.status,
       contentType: response.headers.get("content-type"),
@@ -547,13 +720,39 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
       text: () => buffer.toString("utf-8"),
     };
 
+    if (onResponseCapture !== undefined) {
+      const captured: DelawareCfrsResponseCapture = {
+        body: Buffer.from(buffer),
+        ...captureRequestScope(url, body),
+        method,
+        attempt,
+        startedAt,
+        completedAt,
+        status: result.status,
+        contentType: result.contentType,
+        byteCount: buffer.byteLength,
+        sha256: createHash("sha256").update(buffer).digest("hex"),
+      };
+      try {
+        await onResponseCapture(captured);
+      } catch (error) {
+        const failed = new DelawareCfrsClientError(
+          "capture_error",
+          "CFRS response capture failed",
+          result.status
+        );
+        failed.cause = error;
+        throw failed;
+      }
+    }
+
     // The portal's own fail-closed sentinel: a 200 whose whole body is
     // "Unable to process the request." means the POST was malformed (usually
     // a missing form field) — never data, never retryable.
     if (isDelawareCfrsErrorBody(result.text())) {
       throw new DelawareCfrsClientError(
         "portal_rejection",
-        `CFRS rejected the request ("${DELAWARE_CFRS_ERROR_SENTINEL}") — malformed or incomplete form POST: ${url}`,
+        `CFRS rejected the request ("${DELAWARE_CFRS_ERROR_SENTINEL}") — malformed or incomplete form POST: ${displayUrl}`,
         response.status
       );
     }
@@ -561,7 +760,7 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
     if (response.status >= 400) {
       throw new DelawareCfrsClientError(
         "http_error",
-        `CFRS request failed with HTTP ${response.status}: ${url}`,
+        `CFRS request failed with HTTP ${response.status}: ${displayUrl}`,
         response.status
       );
     }
@@ -580,6 +779,7 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
     } catch (error) {
       return Promise.reject(error);
     }
+    const displayUrl = onResponseCapture === undefined ? url : captureRequestScope(url, body).url;
     const run = queue.then(async () => {
       let lastError: Error | null = null;
       for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -588,7 +788,7 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
         }
         anyRequestStarted = true;
         try {
-          return await performOnce(url, method, body, referer, xhr);
+          return await performOnce(url, method, body, referer, xhr, attempt);
         } catch (error) {
           if (error instanceof DelawareCfrsClientError) {
             const retryable =
@@ -602,11 +802,13 @@ export function createDelawareCfrsSession(options: DelawareCfrsSessionOptions = 
             lastError = error as Error;
           }
         }
-        options.log?.(`CFRS attempt ${attempt}/${maxAttempts} failed for ${url}: ${lastError.message}`);
+        options.log?.(
+          `CFRS attempt ${attempt}/${maxAttempts} failed for ${displayUrl}: ${lastError.message}`
+        );
       }
       throw new DelawareCfrsClientError(
         "network_error",
-        `CFRS request failed after ${maxAttempts} attempts: ${url} — ${lastError?.message}`
+        `CFRS request failed after ${maxAttempts} attempts: ${displayUrl} — ${lastError?.message}`
       );
     });
     // Later requests wait for this one to settle, success or failure.

@@ -25,8 +25,8 @@ import {
 } from "./delawareCfrsParsers.js";
 import { delawareFilingPeriodKey } from "./delawareReportInventory.js";
 
-/** Contribution Type vocabulary pinned from the live 2024 statewide export. */
-const MONETARY_CONTRIBUTION_TYPES = new Set(["Check", "Credit Card", "EFT", "Cash"]);
+/** Known cash labels, including the full EFT label published in 2026. */
+const MONETARY_CONTRIBUTION_TYPES = new Set(["Check", "Credit Card", "EFT", "Electronic Fund Transfer", "Cash"]);
 const IN_KIND_CONTRIBUTION_TYPE = "In-Kind";
 const EXCLUDED_FROM_DIRECT_CONTRIBUTION_TYPES = new Set(["Candidate Loan", "Other Income"]);
 

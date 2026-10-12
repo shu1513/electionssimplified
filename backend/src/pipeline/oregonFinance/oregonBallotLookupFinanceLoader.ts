@@ -15,6 +15,7 @@ import {
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
   type BallotLookupFinanceSummary,
+  type BallotLookupFinancePacInterest,
   type StateFinanceOutsideDonorEvidenceRow,
   type StateFinanceOutsideGroupRow,
   type StateFinanceSummaryRow,
@@ -23,6 +24,12 @@ import {
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
+import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
+import {
+  PAC_INTERESTS_NOT_LISTED,
+  pacInterestDisplayName,
+  UNCLASSIFIED_PAC_INTEREST,
+} from "../finance/pacInterestClassifier.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -37,6 +44,58 @@ type OregonFinanceSummaryRow = StateFinanceSummaryRow;
 type OregonFinanceOutsideGroupRow = StateFinanceOutsideGroupRow;
 type OregonFinanceOutsideDonorEvidenceRow = StateFinanceOutsideDonorEvidenceRow;
 const GENERIC_OREGON_ORESTAR_SOURCE_URL = "https://secure.sos.state.or.us/orestar/gotoPublicTransactionSearch.do";
+const OREGON_NAMED_PAC_COVERAGE_NOTE =
+  "PAC amounts cover named, registered PAC cash gifts. Anonymous small-contribution totals remain unclassified. PAC receipts are part of Raised; verified coverage may differ.";
+
+type OregonFinancePacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  committee_type: string;
+  amount: string | number;
+  source_url: string | null;
+  industry_slug: string | null;
+  classification_source: string | null;
+  confidence: string | null;
+};
+
+function groupOregonPacDonors(
+  rows: readonly OregonFinancePacDonorRow[]
+): Map<string, BallotLookupFinancePacInterest[]> {
+  const grouped = new Map<string, Map<string, BallotLookupFinancePacInterest>>();
+  for (const row of rows) {
+    if (row.committee_type !== "Political Action Committee") continue;
+    const amount = parseFinanceAmount(row.amount);
+    if (amount === null || amount <= 0) continue;
+    const classification = classifyFinanceLabel({ rawLabel: row.committee_name, labelType: "committee" });
+    const storedInterest = row.industry_slug && (row.classification_source === "manual"
+      || (row.confidence === "high" && ["rule", "ai"].includes(row.classification_source ?? "")))
+      ? row.industry_slug : null;
+    const ruleInterest = classification.classificationSource === "rule" && classification.confidence === "high"
+      ? classification.industrySlug : null;
+    const classifiedInterest = storedInterest ?? ruleInterest ?? UNCLASSIFIED_PAC_INTEREST;
+    // ORESTAR's registered PAC class is authoritative even for candidate-controlled
+    // PACs. Federal candidate/leadership exclusions cannot erase these known gifts.
+    const interest = (PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(classifiedInterest)
+      ? UNCLASSIFIED_PAC_INTEREST : classifiedInterest;
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const interests = grouped.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
+    const entry = interests.get(interest) ?? {
+      interest, interest_name: pacInterestDisplayName(interest), amount: 0, pac_count: 0, pacs: [],
+    };
+    entry.amount = Math.round((entry.amount + amount) * 100) / 100;
+    entry.pac_count += 1;
+    entry.pacs.push({ committee_id: row.committee_id, committee_name: row.committee_name,
+      amount, source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_OREGON_ORESTAR_SOURCE_URL) });
+    interests.set(interest, entry);
+    grouped.set(key, interests);
+  }
+  return new Map([...grouped].map(([key, interests]) => [key, [...interests.values()]
+    .map(entry => ({ ...entry, pacs: entry.pacs
+      .sort((a, b) => b.amount - a.amount || a.committee_name.localeCompare(b.committee_name)).slice(0, 5) }))
+    .sort((a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest)).slice(0, 5)]));
+}
 
 export async function loadOregonCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
@@ -452,10 +511,35 @@ export async function loadOregonCandidateFinanceSummariesByCandidateElection(
     );
   }
 
+  const pacDonorResult = await db.query<OregonFinancePacDonorRow>(`
+    WITH selected AS (
+      SELECT candidate_id::uuid AS candidate_id, election_id::uuid AS election_id
+      FROM jsonb_to_recordset($1::jsonb) AS x(candidate_id text, election_id text)
+    ), grouped AS (
+      SELECT selected.candidate_id::text AS candidate_id, selected.election_id::text AS election_id,
+        donor.committee_id, min(donor.committee_name) AS committee_name,
+        min(donor.committee_type) AS committee_type, sum(donor.amount) AS amount,
+        min(donor.source_url) AS source_url
+      FROM selected JOIN public.or_candidate_finance_links link
+        ON link.candidate_id = selected.candidate_id AND link.election_id = selected.election_id
+       AND link.link_status = 'active'
+      JOIN public.or_candidate_finance_pac_donors donor
+        ON donor.link_id = link.id AND donor.election_year = link.election_year
+      WHERE donor.committee_type = 'Political Action Committee'
+      GROUP BY selected.candidate_id, selected.election_id, donor.committee_id
+    ) SELECT grouped.*, classification.industry_slug, classification.classification_source, classification.confidence
+      FROM grouped LEFT JOIN public.finance_label_classifications classification
+        ON classification.label_type = 'committee'
+       AND classification.normalized_label = public.normalize_finance_label(grouped.committee_name)
+      ORDER BY grouped.candidate_id, grouped.election_id, grouped.amount DESC, grouped.committee_name`,
+  [JSON.stringify(selectedRequests)]);
+  const pacInterests = groupOregonPacDonors(pacDonorResult.rows);
+
   return new Map(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
+      const pacMoney = pacInterests.get(key);
       const contributionSizeBuckets = contributionSizeBucketsByCandidateElection.get(key) ?? [];
       const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
         (industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
@@ -485,6 +569,10 @@ export async function loadOregonCandidateFinanceSummariesByCandidateElection(
             top_employers: [],
             top_industries: [],
             contribution_size_buckets: contributionSizeBuckets,
+            ...(pacMoney?.length ? {
+              pac_money_by_interest: pacMoney,
+              direct_coverage_note: OREGON_NAMED_PAC_COVERAGE_NOTE,
+            } : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),

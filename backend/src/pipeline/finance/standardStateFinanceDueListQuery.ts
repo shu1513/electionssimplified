@@ -8,9 +8,11 @@ export type StandardStateFinanceDueListInput = {
   maxCandidates: number;
   electionLookbackDays: number;
   electionLookaheadDays: number;
-  refresh?: boolean;
+  /** Optional explicit scope, applied before ordering and LIMIT. */
   candidateId?: string;
   electionYear?: number;
+  /** Bypass only staleness; all identity/eligibility/window filters remain. */
+  refresh?: boolean;
 };
 
 /**
@@ -95,8 +97,6 @@ export type StandardStateFinanceDueListConfig = {
    * office_name and district). Read through mapRow. Default false.
    */
   selectBallotTitle?: boolean;
-  /** Enables state CLI scopes and refresh before ordering/LIMIT. */
-  scopedRefresh?: boolean;
 };
 
 const ELECTION_STAGES: readonly string[] = ["general"];
@@ -111,7 +111,8 @@ function assertStateCode(value: string): string {
 }
 
 function assertIdentifier(value: string): string {
-  if (!/^[a-z][a-z0-9_]*$/.test(value)) throw new Error(`Invalid standard finance table identifier: ${value}`);
+  if (!/^[a-z][a-z0-9_]*$/.test(value))
+    throw new Error(`Invalid standard finance table identifier: ${value}`);
   return value;
 }
 
@@ -150,7 +151,10 @@ function mapStandardDueRow(row: StandardStateFinanceDueQueryRow): StandardStateF
   };
 }
 
-function buildDueListSql(config: StandardStateFinanceDueListConfig): string {
+function buildDueListSql(
+  config: StandardStateFinanceDueListConfig,
+  scope: { candidateParam?: number; yearParam?: number; refreshParam?: number } = {}
+): string {
   const state = assertStateCode(config.state);
   const linksTable = assertIdentifier(config.tables.links);
   const summariesTable = assertIdentifier(config.tables.summaries);
@@ -165,16 +169,30 @@ function buildDueListSql(config: StandardStateFinanceDueListConfig): string {
   const outerLinkColumns = linkColumns.map((column) => `        ${column},`).join("\n");
   // Optional lines are emitted with their trailing newline so an unset option
   // leaves the canonical template byte-identical.
-  const electionStage = config.electionStage === undefined ? undefined : assertElectionStage(config.electionStage);
-  const stageFilter = electionStage === undefined ? "" : `          AND election.election_stage = '${electionStage}'\n`;
-  const innerElectionDate = config.selectElectionDate ? "          election.election_date::text AS election_date,\n" : "";
-  const outerElectionDate = config.selectElectionDate ? "        election_date,\n" : "";
-  const innerBallotTitle = config.selectBallotTitle ? "          election.official_ballot_title AS ballot_title,\n" : "";
-  const outerBallotTitle = config.selectBallotTitle ? "        ballot_title,\n" : "";
-  const scopes = config.scopedRefresh
-    ? "          AND ($8::uuid IS NULL OR link.candidate_id = $8::uuid)\n          AND ($9::int IS NULL OR link.election_year = $9::int)\n"
+  const electionStage =
+    config.electionStage === undefined ? undefined : assertElectionStage(config.electionStage);
+  const stageFilter =
+    electionStage === undefined ? "" : `          AND election.election_stage = '${electionStage}'\n`;
+  const innerElectionDate = config.selectElectionDate
+    ? "          election.election_date::text AS election_date,\n"
     : "";
-  const refresh = config.scopedRefresh ? "            OR $7::boolean\n" : "";
+  const outerElectionDate = config.selectElectionDate ? "        election_date,\n" : "";
+  const innerBallotTitle = config.selectBallotTitle
+    ? "          election.official_ballot_title AS ballot_title,\n"
+    : "";
+  const outerBallotTitle = config.selectBallotTitle ? "        ballot_title,\n" : "";
+  const scopeFilters = [
+    ...(scope.candidateParam === undefined
+      ? []
+      : [`          AND link.candidate_id = $${scope.candidateParam}::uuid\n`]),
+    ...(scope.yearParam === undefined
+      ? []
+      : [
+          `          AND link.election_year = $${scope.yearParam}::int\n          AND EXTRACT(YEAR FROM election.election_date)::int = $${scope.yearParam}::int\n`,
+        ]),
+  ].join("");
+  const refreshPrefix =
+    scope.refreshParam === undefined ? "" : `            $${scope.refreshParam}::boolean\n            OR`;
   return `
       WITH due AS (
         SELECT
@@ -216,10 +234,10 @@ ${stageFilter}          AND election.election_date >= (($1::timestamptz AT TIME 
           AND election.election_date <= (($1::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days => $5::int))
           AND candidate_election.status NOT IN ('withdrawn', 'lost')
           AND (office.scope || '::' || office.canonical_name) = ANY($6::text[])
-${scopes}          AND (
-            summary.last_synced_at IS NULL
+${scopeFilters}          AND (
+${refreshPrefix}${scope.refreshParam === undefined ? "            " : " "}summary.last_synced_at IS NULL
             OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
-${refresh}          )
+          )
         ORDER BY summary.last_synced_at ASC NULLS FIRST,
                  election.election_date ASC,
                  link.candidate_name_normalized ASC,
@@ -277,15 +295,39 @@ export function createStandardStateFinanceDueListQuery(
   const mapRow = config.mapRow ?? mapStandardDueRow;
 
   return async (db, input) => {
-    const result = await db.query<StandardStateFinanceDueQueryRow>(sql, [
+    if (
+      input.candidateId !== undefined &&
+      (typeof input.candidateId !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.candidateId))
+    ) {
+      throw new Error("Invalid standard finance due-list candidateId: expected UUID");
+    }
+    if (
+      input.electionYear !== undefined &&
+      (!Number.isSafeInteger(input.electionYear) || input.electionYear < 1900 || input.electionYear > 2100)
+    ) {
+      throw new Error("Invalid standard finance due-list electionYear");
+    }
+    if (input.refresh !== undefined && typeof input.refresh !== "boolean") {
+      throw new Error("Invalid standard finance due-list refresh");
+    }
+    const parameters: unknown[] = [
       input.now.toISOString(),
       input.staleAfterDays,
       input.maxCandidates,
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...config.eligibleOfficeKeys],
-      ...(config.scopedRefresh ? [input.refresh === true, input.candidateId ?? null, input.electionYear ?? null] : []),
-    ]);
+    ];
+    const scope: { candidateParam?: number; yearParam?: number; refreshParam?: number } = {};
+    if (input.candidateId !== undefined) scope.candidateParam = parameters.push(input.candidateId);
+    if (input.electionYear !== undefined) scope.yearParam = parameters.push(input.electionYear);
+    if (input.refresh === true) scope.refreshParam = parameters.push(true);
+    const scoped = Object.keys(scope).length > 0;
+    const result = await db.query<StandardStateFinanceDueQueryRow>(
+      scoped ? buildDueListSql(config, scope) : sql,
+      parameters
+    );
     return {
       rows: result.rows.map(mapRow),
       totalDueRows: result.rows.length > 0 ? parseTotalDueRows(result.rows[0]?.total_due_rows) : 0,

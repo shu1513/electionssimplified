@@ -9,6 +9,8 @@ import type {
   BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 import { buildOutsideIndustrySupportExplanation } from "../address/ballotLookupFinanceShared.js";
+import { loadFloridaCommitteeDonorCards } from "./floridaCommitteeDonorBallotSummary.js";
+import { loadFloridaOutsideAllocationCards } from "./floridaOutsideAllocationBallotSummary.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -506,6 +508,8 @@ export async function loadFloridaCandidateFinanceSummariesByCandidateElection(
     [JSON.stringify(selectedRequests)]
   );
 
+  const committeeDonorCards = await loadFloridaCommitteeDonorCards(db, selectedRequests);
+  const outsideAllocationCards = await loadFloridaOutsideAllocationCards(db, selectedRequests);
   const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const contributionSizeBucketsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
   const summaryByCandidateElection = new Map(
@@ -586,6 +590,9 @@ export async function loadFloridaCandidateFinanceSummariesByCandidateElection(
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
       const contributionSizeBuckets = contributionSizeBucketsByCandidateElection.get(key) ?? [];
+      const explicitOutside = row.outside_support_total === null && row.outside_oppose_total === null &&
+        !(supportingGroupsByCandidateElection.get(key)?.length) && !(opposingGroupsByCandidateElection.get(key)?.length)
+        ? outsideAllocationCards.get(key) : undefined;
       const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
         (industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
           const evidenceKey = `${key}\u0000${industry.category_name}`;
@@ -614,14 +621,19 @@ export async function loadFloridaCandidateFinanceSummariesByCandidateElection(
             top_employers: [],
             top_industries: [],
             contribution_size_buckets: contributionSizeBuckets,
+            ...(committeeDonorCards.has(key) ? {
+              pac_money_by_interest: committeeDonorCards.get(key)!.groups,
+              direct_coverage_note: committeeDonorCards.get(key)!.coverageNote,
+            } : {}),
           },
           outside_spending: {
             support_total: parseFinanceAmount(row.outside_support_total),
             oppose_total: parseFinanceAmount(row.outside_oppose_total),
-            top_supporting_groups: supportingGroupsByCandidateElection.get(key) ?? [],
+            top_supporting_groups: explicitOutside?.groups ?? supportingGroupsByCandidateElection.get(key) ?? [],
             top_opposing_groups: opposingGroupsByCandidateElection.get(key) ?? [],
             top_supporting_industries: supportingIndustriesByCandidateElection.get(key) ?? [],
             top_opposing_industries: opposingIndustriesByCandidateElection.get(key) ?? [],
+            ...(explicitOutside ? { outside_coverage_note: explicitOutside.coverageNote } : {}),
           },
           backing_summary: {
             top_direct_donor_occupations: topDirectDonorOccupations,
