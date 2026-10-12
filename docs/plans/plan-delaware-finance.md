@@ -58,8 +58,12 @@ multiple editions until full financial/current-pointer proof resolves them.
 Footer version values remain optional descriptive metadata and never choose an
 edition. This conservative gate runs before writes and preserves old snapshots.
 
-Source facts and candidate packet transport are now implemented; accepted-money
-composition, transactional persistence and normal fresh sync proof remain open.
+Source facts, current cash/PAC verification and transactional committee/outside
+storage are implemented. Saved-opening/fresh-closing source orchestration and
+normal local sync/card proof remain open. The combined Delaware evidence,
+cache, source, writer, reader, due-selection and CLI regressions pass 620 tests
+in 29 files; the new source loader is still under implementation and excluded
+from that milestone. Backend typecheck passes.
 The independently refreshed third-party packet now replays through the outside
 source verifier: 49 opening and 50 closing original captures prove one literal
 $499,015 support allocation for Kathleen Jennings. Every original byte/hash and
@@ -71,6 +75,18 @@ no candidate-wide outside zero or complete-coverage authority.
 Complete all-type/status registry transport and explicit blank-date whole-account
 candidate queries are implemented. Current-cycle cash and PAC composition remain
 separate verification steps; reported and registry-derived classes stay distinct.
+Original source packets now have a bounded capture-reference index and separate
+restricted official-election files in the existing atomic cache. Pure replay
+redecodes original bodies and retains failed attempts, times and economic IDs.
+Current cash/PAC verification uses real full native/CSV/PDF source facts, paired
+same-office official witnesses or bounded new-account history. Unknown classes
+or mechanisms preserve the affected component. Source observations are individually
+timestamped; they do not provide an atomic publication snapshot at transaction end.
+Later filings/amendments remain open coverage and require the reruns below.
+Both optional storage components share the snapshot transaction and receiver/year
+lock; SQL failure rolls back the whole write. Scoped updates retain other active
+receiving committees, signed/zero donor positions and unavailable direct Raised.
+Omitted outside components retain existing groups and unknown headline totals.
 Migration 334 adds donor/provenance storage and has passed local rollback
 validation; it remains unapplied. The PAC reader now includes all eligible
 linked-committee totals before display caps, excludes known candidate/self
