@@ -50,6 +50,10 @@ describe("Delaware official election facts", () => {
     expect(facts.electionDate).toBe("2026-11-03");
     expect("incumbent" in facts).toBe(false);
   });
+  it("does not declare a plurality winner for an unsupported multi-seat office", () => {
+    expect(() => result({ bytes: Buffer.from(election.replaceAll("Attorney General", "Council At Large")),
+      electionYear: 2022, officeName: "Council At Large" })).toThrow(/unsupported statewide single-seat office/);
+  });
   it.each([
     ["wrong date year", sample.replace("2026 General", "2024 General")],
     ["duplicate contest", sample + ballotTable],
