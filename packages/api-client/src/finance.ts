@@ -83,6 +83,7 @@ export function hasFinanceContent(summary: FinanceSummary | null | undefined): s
     direct.top_occupations.length > 0 ||
     direct.top_industries.length > 0 ||
     (direct.contribution_size_buckets?.length ?? 0) > 0 ||
+    (direct.pac_money_by_interest !== undefined && meetsSmallAmountThreshold(direct.pac_money_by_interest)) ||
     hasOutsideFinanceContent(summary) ||
     hasMemberCommunications(summary)
   );

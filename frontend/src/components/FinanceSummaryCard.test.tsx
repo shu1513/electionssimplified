@@ -689,6 +689,18 @@ describe("FinanceSummaryCard", () => {
     expect(within(list).queryByRole("button")).not.toBeInTheDocument();
   });
 
+  it("shows a Nevada PAC-only card before direct totals are available", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "NEVADA_AURORA";
+    summary.direct_campaign.pac_money_by_interest = [{
+      interest: "unclassified", interest_name: "Not yet sorted", amount: 9000, pac_count: 1,
+      pacs: [{ committee_id: "reported:EXAMPLE PAC", committee_name: "Example PAC", amount: 9000, source_url: null }],
+    }];
+    render(hasFinanceContent(summary) ? <FinanceSummaryCard summary={summary} /> : null);
+    expect(screen.getByText("PAC money by interest")).toBeInTheDocument();
+    expect(screen.getByText("Example PAC")).toBeInTheDocument();
+  });
+
   it("says so when no PAC gave, and shows nothing when the PAC list was not loaded", () => {
     const loaded = financeSummary();
     loaded.direct_campaign.pac_money_by_interest = [];
