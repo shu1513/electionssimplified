@@ -926,7 +926,16 @@ export async function loadDelawareVerifiedFinanceSource(
         sessionOptions: options,
       });
       diagnostics.push(...closing.diagnostics);
-      if (!opening || !closing.packet) continue;
+      if (!closing.packet) continue;
+      if (!opening) {
+        // A complete observed closing can seed a later run, but it cannot
+        // close this failed pair or authorize money in the current run.
+        payerClosings.push({ payer, packet: closing.packet });
+        diagnostics.push(
+          "Complete payer closing retained for a future saved opening; current failed pair has no outside authority",
+        );
+        continue;
+      }
       let result = await verifyDelawareThirdPartyOutsideSource({
         payer,
         candidate: target,

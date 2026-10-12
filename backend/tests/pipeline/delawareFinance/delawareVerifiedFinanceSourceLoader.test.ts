@@ -614,6 +614,8 @@ type Scenario = {
   payer?: boolean;
   missingPayerSoo?: boolean;
   payerPdfFailure?: boolean;
+  payerNativeEmptyReads?: number;
+  payerClosingCallbackFailure?: boolean;
   retryOnce?: boolean;
   transientZero?: boolean;
   closingRegistryUnavailable?: boolean;
@@ -624,7 +626,8 @@ type Scenario = {
 };
 function network(scenario: Scenario = {}) {
   const statewide = !!(scenario.payer || scenario.incumbent);
-  let ballots = 0;
+  let ballots = 0,
+    payerNativeReads = 0;
   const requests: {
     path: string;
     fields: Record<string, string>;
@@ -844,7 +847,15 @@ function network(scenario: Scenario = {}) {
       expenseMember = fields.MemberId!;
       return respond(render(1));
     }
-    if (route === "/Public/_ViewReceiptsCustom")
+    if (route === "/Public/_ViewReceiptsCustom") {
+      if (receiptMember === String(payer.memberId)) {
+        payerNativeReads++;
+        if (payerNativeReads <= (scenario.payerNativeEmptyReads ?? 0))
+          return respond(
+            JSON.stringify({ data: [], total: 0 }),
+            "application/json",
+          );
+      }
       return respond(
         JSON.stringify({
           data:
@@ -855,6 +866,7 @@ function network(scenario: Scenario = {}) {
         }),
         "application/json",
       );
+    }
     if (route === "/Public/_ViewExpensesCustom")
       return respond(
         JSON.stringify({
@@ -919,7 +931,13 @@ function network(scenario: Scenario = {}) {
           financeFields:
             c.financeFields === null ? null : { ...c.financeFields },
         });
-        if (scenario.callbackFailure)
+        if (
+          scenario.callbackFailure ||
+          (scenario.payerClosingCallbackFailure &&
+            new URL(c.url).pathname === "/Public/_ViewReceiptsCustom" &&
+            receiptMember === String(payer.memberId) &&
+            payerNativeReads >= 2)
+        )
           throw new Error("synthetic observer failed");
       },
     },
@@ -1179,6 +1197,80 @@ it("reuses a compatible saved payer opening and reacquires a complete fresh clos
     ),
   ).toBe(true);
 });
+it("retains a valid closing after an incompatible opening only for the next genuinely closed run", async () => {
+  const first = network({ payer: true, payerNativeEmptyReads: 1 });
+  const refused = await load(first);
+  expect(refused.outsideEvidence).toEqual([]);
+  expect(refused.cash).toBeDefined();
+  expect(refused.diagnostics.join(" ")).toContain("future saved opening");
+  const saved = await readDelawareCfrsCommitteeArtifacts({
+    cacheDir,
+    cfId: owner.cfId,
+  });
+  expect(saved.sourcePacketIndex!.payers).toHaveLength(1);
+  const native = first.captures.filter(
+    (c) =>
+      new URL(c.url).pathname === "/Public/_ViewReceiptsCustom" &&
+      JSON.parse(c.body.toString()).data.some(
+        (r: Record<string, unknown>) => r.WC_ID === payer.cfId,
+      ),
+  );
+  expect(native).toHaveLength(1);
+  const refs = saved.sourcePacketIndex!.payers[0]!.facets.genericMemberReceipts;
+  expect(
+    refs.some(
+      (i) =>
+        saved.sourceCaptures![i]!.sha256 === native[0]!.sha256 &&
+        saved.sourceCaptures![i]!.startedAt === native[0]!.startedAt,
+    ),
+  ).toBe(true);
+  expect(
+    saved.sourceCaptures!.some(
+      (c) =>
+        new URL(c.url).pathname === "/Public/_ViewReceiptsCustom" &&
+        c.body.toString() === JSON.stringify({ data: [], total: 0 }),
+    ),
+  ).toBe(true);
+  const second = network({ payer: true });
+  const accepted = await load(second);
+  expect(
+    accepted.outsideEvidence,
+    accepted.diagnostics.join("; "),
+  ).toHaveLength(1);
+  expect(accepted.outsideEvidence[0]!.allocations[0]!.amountCents).toBe(
+    49901500,
+  );
+  expect(
+    second.requests.filter(
+      (r) => r.path === "/Public/ViewReceipts" && r.fields.hdnTP === "1",
+    ),
+  ).toHaveLength(1);
+});
+it("does not index an incompatible closing after the opening fails", async () => {
+  const refused = await load(
+    network({ payer: true, payerNativeEmptyReads: 2 }),
+  );
+  expect(refused.outsideEvidence).toEqual([]);
+  const saved = await readDelawareCfrsCommitteeArtifacts({
+    cacheDir,
+    cfId: owner.cfId,
+  });
+  expect(saved.sourcePacketIndex!.payers).toEqual([]);
+});
+it("propagates a failed closing observer instead of committing a future payer opening", async () => {
+  await expect(
+    load(
+      network({
+        payer: true,
+        payerNativeEmptyReads: 1,
+        payerClosingCallbackFailure: true,
+      }),
+    ),
+  ).rejects.toMatchObject({ code: "capture_error" });
+  await expect(
+    readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: owner.cfId }),
+  ).rejects.toThrow();
+});
 it("does not let mutation of the input context during a fetch change source authority", async () => {
   const n = network();
   const original = { ...context };
@@ -1339,7 +1431,11 @@ it("withholds every writable modern component when atomic source storage fails a
     "storeDelawareCfrsCommitteeArtifacts",
   ).mockRejectedValue(new Error("synthetic durable cache failure"));
   const result = await load(
-    network({ payer: true, changedCashAfterPacket: 1 }),
+    network({
+      payer: true,
+      changedCashAfterPacket: 1,
+      payerNativeEmptyReads: 1,
+    }),
     true,
   );
   expect(result.cash).toBeUndefined();
