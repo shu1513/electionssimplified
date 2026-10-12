@@ -69,7 +69,7 @@ paths acquire no current source evidence; ordinary source-disabled writes
 preserve stored money even if another directory contains a legacy cache.
 The combined Delaware evidence, cache, source, writer, reader, due-selection and
 CLI regressions, including the source-loader orchestration and shared finance
-suite, pass 907 tests in 53 files (three DB-dependent assertions skipped).
+suite, pass 910 tests in 53 files (three DB-dependent assertions skipped).
 Independent reviews found no remaining blocker after durable source-cache
 commit gating and source-disabled preservation. Backend typecheck passes.
 Migration 334 was applied through the normal CLI to the explicit local
@@ -93,6 +93,17 @@ published blank-name type-05 certification rows; accept the exact matching
 legislative report district suffix; compare full raw registry row multisets
 because four row positions changed while all fields and duplicate counts stayed
 identical. Complete scope, count, exhaustion, chronology and money controls remain.
+
+The next original source capture closes Jennings' cash at $570,807.57 direct
+contributions but accepts no outside proof: Statehouse's opening rendered one
+receipt while its native response returned zero; its genuine later closing
+returns the correct one receipt. A second payer has unresolved 2018 current-report
+labels and no 2026 allocation. The minimal correction is to retain a structurally
+complete payer closing in the reusable raw-cache index even when its prior opening
+failed. That failed pair still accepts no dollars. A later ordinary run must use
+the untouched saved closing as its new opening and acquire a genuinely new closing,
+then pass all existing financial, count, identity and chronology checks. Original
+failed responses remain journaled; no monetary flag or fabricated metadata is added.
 The independently refreshed third-party packet now replays through the outside
 source verifier: 49 opening and 50 closing original captures prove one literal
 $499,015 support allocation for Kathleen Jennings. Every original byte/hash and
@@ -157,15 +168,16 @@ unrelated autolink. `--force` enables source/write flags, not due refresh;
 the 100-day lookback (79 days after November 3). Eligible-link rules still exclude
 lost/withdrawn candidates; this is not full historical coverage.
 
-Once full source verification is integrated, mandatory fresh rerun form:
+Mandatory fresh rerun form:
 
 ```sh
 DATABASE_URL='postgresql:///voteapp?host=/tmp&connect_timeout=5' AI_API_CALLS_ALLOWED=false DELAWARE_CAMPAIGN_FINANCE_ENABLED=true npm run delaware-candidates:finance:sync-due -- --election-year 2026 --refresh --force --write --no-auto-link --max 100 --lookback-days 100 --cache-dir /absolute/restricted/cache
 ```
 
 Use this after October 28 and January 20 deadlines; increase/process the eligible cohort
-until every due scope has an explicit result. Current positive-component proof
-and ordinary sync validation remain pending. Dry-run omits `--write` and never
+until every due scope has an explicit result. Carey's direct cash and donor proof
+is validated; Jennings' ordinary outside persistence/card proof remains pending.
+Dry-run omits `--write` and never
 acquires or writes; it only inspects existing cache. Never fake time or
 last_synced_at. Flags stay inline, never in `.env`. No production, providers,
 deployment or automatic reminders.
