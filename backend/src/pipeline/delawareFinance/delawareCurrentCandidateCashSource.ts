@@ -7,7 +7,8 @@ import {
   isDelawareCfrsCaptureFieldAllowed,
   type DelawareCfrsResponseCapture,
 } from "./delawareCfrsClient.js";
-import { extractDelawareGridTotal, parseDelawareCommitteeGridJson } from "./delawareCfrsParsers.js";
+import { extractDelawareGridTotal } from "./delawareCfrsParsers.js";
+import { decodeDelawareCompleteCommitteeRegistryPage } from "./delawareCfrsCompleteCommitteeRegistry.js";
 import {
   decodeDelawareCandidateOwnerSource,
   decodeDelawareReportInventorySource,
@@ -366,7 +367,10 @@ async function phase(
       !selected[0]!.filingPeriodName.includes(
         `General Election ${target.electionDate.slice(5, 7)}/${target.electionDate.slice(8)}/${target.electionYear}`,
       ) ||
-      selected[0]!.office !== "State Office - " + target.officeName)
+      !(selected[0]!.office === "State Office - " + target.officeName ||
+        (target.district !== null &&
+          ["State Representative", "State Senator"].includes(target.officeName) &&
+          selected[0]!.office === "State Office - " + target.officeName + " - District " + target.district)))
   )
     fail("new account whole-history candidacy not closed");
   const reports = await Promise.all(
@@ -475,14 +479,14 @@ function registry(caps: readonly DelawareCfrsResponseCapture[]) {
       })
     )
       fail("donor registry page scope/order");
-    const parsed = parseDelawareCommitteeGridJson(text(c));
+    const parsed = decodeDelawareCompleteCommitteeRegistryPage(text(c));
     if (
       parsed.total !== count ||
       parsed.rows.length > 500 ||
       (i < pages.length - 1 && parsed.rows.length !== 500)
     )
       fail("donor registry incomplete counts");
-    const data = JSON.parse(text(c)).data;
+    const data = parsed.rows;
     const fingerprint = canonical(data);
     if (data.length && seenPages.has(fingerprint)) fail("donor registry repeated page");
     seenPages.add(fingerprint);

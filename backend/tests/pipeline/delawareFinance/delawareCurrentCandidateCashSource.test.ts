@@ -1129,3 +1129,99 @@ describe("qualified current Delaware candidate cash/PAC source", () => {
     });
   });
 });
+
+function declaredInventoryOffice(
+  p: DelawareCurrentCandidateCashInput,
+  office: string,
+) {
+  for (const phase of [p.before, p.after]) {
+    const inventories = phase.sourceCaptures.filter(
+      (c) => new URL(c.url).pathname === "/Public/_ViewFiledReports",
+    );
+    for (const cap of inventories)
+      replaceBody(
+        cap,
+        cap.body
+          .toString()
+          .replaceAll("State Office - State Representative", office),
+      );
+    phase.allVersionReportRows = parseDelawareFiledReportsHtml(
+      inventories[0]!.body.toString(),
+    ).rows;
+    phase.latestAccountReportRows = parseDelawareFiledReportsHtml(
+      inventories[1]!.body.toString(),
+    ).rows;
+  }
+}
+it("accepts the exact current legislative office and matching district suffix published by the Carey source", async () => {
+  const p = input();
+  declaredInventoryOffice(
+    p,
+    "State Office - State Representative - District 38",
+  );
+  const result = await verifyDelawareCurrentCandidateCash(p);
+  expect(
+    result.cash?.directContributionCents,
+    result.diagnostics.join("; "),
+  ).toBe(184000);
+  expect(result.pac?.donors[0]?.cashAmountCents).toBe(60000);
+});
+it.each([
+  "State Office - State Representative - District 39",
+  "State Office - State Senator - District 38",
+  "State Office - State Representative - District 038",
+  "State Office - State Representative - district 38",
+  "State Office - State Representative - District 38 - Other",
+])(
+  "preserves a wrong or unsupported literal office/seat declaration %s",
+  async (office) => {
+    const p = input();
+    declaredInventoryOffice(p, office);
+    const result = await verifyDelawareCurrentCandidateCash(p);
+    expect(result.cash).toBeUndefined();
+    expect(result.pac).toBeUndefined();
+  },
+);
+
+it("retains witnessed blank-name type05 certification rows in complete donor-registry closure without inventing donor identity", async () => {
+  const p = input();
+  replaceRegistry(p, [
+    ...regRows(),
+    {
+      MemberID: 101,
+      MemberVersID: 1,
+      Committee_Id: "05000001",
+      CommitteeTypeCode: "05",
+      CommitteeType: "Certification of Intention",
+      CommitteeName: "",
+      CommitteeStatus: "Active",
+    },
+  ]);
+  const result = await verifyDelawareCurrentCandidateCash(p);
+  expect(
+    result.cash?.directContributionCents,
+    result.diagnostics.join("; "),
+  ).toBe(184000);
+  expect(result.pac?.donors).toMatchObject([
+    { committeeId: "02000010", cashAmountCents: 60000 },
+  ]);
+  expect(result.pac?.donors).toHaveLength(1);
+});
+it("keeps unknown blank-name committee classes unresolved instead of waiving complete registry identity", async () => {
+  const p = input();
+  replaceRegistry(p, [
+    ...regRows(),
+    {
+      MemberID: 101,
+      MemberVersID: 1,
+      Committee_Id: "02000101",
+      CommitteeTypeCode: "02",
+      CommitteeType: "Political Action Committee",
+      CommitteeName: "",
+      CommitteeStatus: "Active",
+    },
+  ]);
+  const result = await verifyDelawareCurrentCandidateCash(p);
+  expect(result.cash).toBeDefined();
+  expect(result.pac).toBeUndefined();
+});
