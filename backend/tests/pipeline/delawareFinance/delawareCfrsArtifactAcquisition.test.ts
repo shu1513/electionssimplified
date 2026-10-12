@@ -11,6 +11,7 @@ import type {
 import {
   acquireDelawareCfrsCommitteeArtifacts,
   fetchDelawareCfrsCandidateSourcePacket,
+  fetchDelawareCfrsThirdPartySourcePacket,
 } from "../../../src/pipeline/delawareFinance/delawareCfrsArtifactAcquisition.js";
 import { readDelawareCfrsCommitteeArtifacts } from "../../../src/pipeline/delawareFinance/delawareCfrsArtifactCache.js";
 
@@ -700,5 +701,288 @@ describe("Delaware packet report pagination", () => {
     expect(r.latestAccountReportRows).toHaveLength(1);
     expect(r.reportPdfs).toHaveLength(501);
     expect(new Set(r.reportPdfs.map((p) => p.publicReportFileName)).size).toBe(501);
+  });
+});
+
+const TP_CF = "04009999",
+  TP_MEMBER = 739999,
+  TP_NAME = "Example Third Party";
+function tpReceipt(id = 1) {
+  return { ...nativeReceipt(id), WC_ID: TP_CF, ReceivingCommitteeName: TP_NAME };
+}
+function tpExpense(id = 2) {
+  return {
+    ...nativeExpense(),
+    Transaction_Id: id,
+    CCF_ID: TP_CF,
+    RegistrantName: TP_NAME,
+    ExpenseCategory: "Other Expenses",
+  };
+}
+function tpCsv(rows: Record<string, unknown>[]) {
+  return [
+    "Contribution Date,Contributor Name,Contributor Address,Employer Name,Filed Reports,Employer Occupation,Contribution Amount,Receiving Committee,",
+    ...rows.map(
+      (r) =>
+        [
+          "06/30/2026",
+          r.ContributorName,
+          r.ContributorAddress,
+          r.EmployerName,
+          r.OccupationTitle,
+          r.FileAmendedVersion,
+          Number(r.ContributionAmount).toFixed(4),
+          r.ReceivingCommitteeName,
+        ].join(",") + ","
+    ),
+  ].join("\r\n");
+}
+function thirdPartyScript(): Scripted[] {
+  const original = packetScript();
+  const owner = [...original.slice(0, 4)].map((step, i): Scripted => ({
+    ...step,
+    response: () =>
+      i === 0
+        ? html("form")
+        : i === 1
+          ? html(
+              observedSoo
+                .replaceAll(String(MEMBER_ID), String(TP_MEMBER))
+                .replace("cTypeCode=01", "cTypeCode=04")
+                .replaceAll(packetName, TP_NAME)
+            )
+          : i === 2
+            ? json({
+                data: packetRegistry().data.map((r) => ({
+                  ...r,
+                  MemberID: TP_MEMBER,
+                  Committee_Id: TP_CF,
+                  CommitteeName: TP_NAME,
+                  CommitteeTypeCode: "04",
+                })),
+                total: 2,
+              })
+            : html("published payer SO"),
+  }));
+  const payerReports = packetReports
+    .replaceAll(String(MEMBER_ID), String(TP_MEMBER))
+    .replaceAll(CF_ID, TP_CF)
+    .replaceAll(packetName, TP_NAME)
+    .replaceAll("Candidate Committee", "Third-Party Advertiser");
+  const reportSteps = (part: Scripted[]) =>
+    part.map((step, i): Scripted => ({
+      ...step,
+      response: () => (i === 2 ? html(payerReports) : step.response()),
+    }));
+  return [
+    ...owner,
+    ...original.slice(0, 4),
+    ...reportSteps(original.slice(4, 7)),
+    ...reportSteps(original.slice(7, 10)),
+    original[10]!,
+    ...original.slice(4, 7),
+    original[10]!,
+    original[11]!,
+    original[12]!,
+    { ...original[13]!, response: () => json({ data: [tpReceipt()], total: 0 }) },
+    original[11]!,
+    original[12]!,
+    {
+      match: (u, b) => new URL(u).pathname === "/Public/ExportCSVNew_TP" && b === undefined,
+      response: () => csv(tpCsv([tpReceipt()])),
+    },
+    original[15]!,
+    original[16]!,
+    { ...original[17]!, response: () => json({ data: [tpExpense()], total: 99 }) },
+    { ...original[18]!, response: () => csv(packetCsv([tpExpense()], "expenses")) },
+  ];
+}
+function thirdPartyInput(
+  fetchImpl: DelawareCfrsFetchFn,
+  observer?: (c: DelawareCfrsResponseCapture) => void | Promise<void>
+) {
+  return {
+    payer: { cfId: TP_CF, memberId: TP_MEMBER, committeeName: TP_NAME, committeeType: "04" as const },
+    candidate: {
+      candidateId: "11111111-1111-4111-8111-111111111111",
+      electionId: "22222222-2222-4222-8222-222222222222",
+      electionYear: 2026,
+      electionDate: "2026-11-03",
+      electionStage: "general" as const,
+      candidateName: "Jane Example",
+      officeName: "Attorney General",
+      district: null,
+      party: "Democratic",
+      receivingCfId: CF_ID,
+      receivingMemberId: MEMBER_ID,
+      receivingCommitteeName: packetName,
+    },
+    sessionOptions: { ...sessionOptions, fetchImpl, maxAttempts: 1, onResponseCapture: observer },
+  };
+}
+describe("Delaware third-party packet transport (no financial authority)", () => {
+  it("keeps generic Member native cash and correct TP8 searches independent, with blank financial filters and receiver identity/PDFs only", async () => {
+    const { fetchImpl, requests } = scriptedFetch(thirdPartyScript());
+    const r = await fetchDelawareCfrsThirdPartySourcePacket(thirdPartyInput(fetchImpl));
+    expect(r.packet).toBeDefined();
+    expect(r.sourceCaptures).toHaveLength(29);
+    expect(r.packet!.genericMemberReceipts.map((c) => new URL(c.url).pathname)).toEqual([
+      "/Public/ViewReceiptsMain",
+      "/Public/ViewReceipts",
+      "/Public/_ViewReceiptsCustom",
+    ]);
+    expect(r.packet!.thirdPartyReceiptExport.map((c) => new URL(c.url).pathname)).toEqual([
+      "/Public/ViewReceiptsMain",
+      "/Public/ViewReceipts",
+      "/Public/ExportCSVNew_TP",
+    ]);
+    const searches = requests.filter((q) => new URL(q.url).pathname === "/Public/ViewReceipts" && q.body);
+    expect(searches).toHaveLength(2);
+    const generic = new URLSearchParams(searches[0]!.body),
+      tp = new URLSearchParams(searches[1]!.body);
+    expect(generic.get("hdnTP")).toBe("");
+    expect(tp.get("hdnTP")).toBe("1");
+    expect(tp.get("chkTP")).toBe("3");
+    for (const f of [
+      generic,
+      tp,
+      new URLSearchParams(requests.find((q) => new URL(q.url).pathname === "/Public/OtherSearch")!.body),
+    ]) {
+      expect(f.get("dtStartDate")).toBe("");
+      expect(f.get("dtEndDate")).toBe("");
+      expect(f.get("FilingYear")).toBe("");
+      expect(f.get("FilingPeriodName")).toBe("");
+      expect(f.get("MemberId")).toBe(String(TP_MEMBER));
+    }
+    expect(r.packet!.candidateCycleAuthority.some((c) => new URL(c.url).pathname.includes("Receipt"))).toBe(
+      false
+    );
+    expect(
+      r.packet!.candidateCycleAuthority.filter(
+        (c) => new URL(c.url).pathname === "/Public/ViewFiledReports" && c.method === "POST"
+      )[0]!.financeFields!.hdnViewCurrent
+    ).toBe("");
+    expect(r.packet).not.toHaveProperty("verified");
+    expect(r.packet).not.toHaveProperty("financialZero");
+    await expect(readDelawareCfrsCommitteeArtifacts({ cacheDir, cfId: CF_ID })).rejects.toThrow(
+      /No Delaware/
+    );
+  });
+  it("keeps genuine failed retries in full journal and uses successful actual responses only in packet facets", async () => {
+    const script = thirdPartyScript();
+    script.splice(21, 0, {
+      ...script[21]!,
+      response: () => new Response("temporary unavailable", { status: 503 }),
+    });
+    const input = thirdPartyInput(scriptedFetch(script).fetchImpl);
+    input.sessionOptions.maxAttempts = 2;
+    const r = await fetchDelawareCfrsThirdPartySourcePacket(input);
+    expect(r.packet).toBeDefined();
+    expect(r.sourceCaptures.find((c) => c.status === 503)!.body.toString()).toBe("temporary unavailable");
+    expect(r.packet!.genericMemberReceipts.every((c) => c.status === 200)).toBe(true);
+    expect(r.packet!.genericMemberReceipts.at(-1)!.attempt).toBe(2);
+  });
+  it("preserves a failed TP0 facet instead of supplying stale generic cash or zero authority", async () => {
+    const script = thirdPartyScript();
+    script[23] = { ...script[23]!, response: () => searchResultsHtml(0) };
+    script.splice(24, 0, { ...script[23]! }, { ...script[23]! });
+    const r = await fetchDelawareCfrsThirdPartySourcePacket(thirdPartyInput(scriptedFetch(script).fetchImpl));
+    expect(r.packet).toBeUndefined();
+    expect(r.diagnostics.join()).toMatch(/TP8 receipts failed/);
+    const searches = r.sourceCaptures.filter(
+      (c) => new URL(c.url).pathname === "/Public/ViewReceipts" && c.method === "POST"
+    );
+    expect(searches).toHaveLength(4);
+    expect(searches.slice(1).every((c) => c.body.toString().includes("total:0"))).toBe(true);
+    expect(r.sourceCaptures.some((c) => new URL(c.url).pathname === "/Public/OtherSearch")).toBe(false);
+  });
+  it.each(["native_owner", "tp_header", "tp_owner", "expense_owner", "http_error"])(
+    "omits packet on %s while retaining original attempts and safe diagnostics",
+    async (kind) => {
+      const script = thirdPartyScript();
+      if (kind === "native_owner")
+        script[21] = {
+          ...script[21]!,
+          response: () => json({ data: [{ ...tpReceipt(), WC_ID: "04000001" }], total: 1 }),
+        };
+      if (kind === "tp_header")
+        script[24] = { ...script[24]!, response: () => csv("PRIVATE STREET malformed header") };
+      if (kind === "tp_owner")
+        script[24] = {
+          ...script[24]!,
+          response: () => csv(tpCsv([{ ...tpReceipt(), ReceivingCommitteeName: "Another Committee" }])),
+        };
+      if (kind === "expense_owner")
+        script[27] = {
+          ...script[27]!,
+          response: () => json({ data: [{ ...tpExpense(), CCF_ID: "04000001" }], total: 1 }),
+        };
+      if (kind === "http_error")
+        script[21] = {
+          ...script[21]!,
+          response: () => new Response("PRIVATE STREET server error", { status: 403 }),
+        };
+      const r = await fetchDelawareCfrsThirdPartySourcePacket(
+        thirdPartyInput(scriptedFetch(script).fetchImpl)
+      );
+      expect(r.packet).toBeUndefined();
+      expect(r.sourceCaptures.length).toBeGreaterThan(0);
+      expect(r.diagnostics.join()).not.toContain("PRIVATE STREET");
+      if (kind === "http_error") expect(r.sourceCaptures.at(-1)!.status).toBe(403);
+    }
+  );
+  it("snapshots all input identity/options and isolates caller capture mutation", async () => {
+    const { fetchImpl, requests } = scriptedFetch(thirdPartyScript());
+    let called = 0;
+    const input = thirdPartyInput(fetchImpl, (c) => {
+      called++;
+      c.body.fill(0);
+      if (c.financeFields) (c.financeFields as Record<string, string>).MemberId = "bad";
+    });
+    const pending = fetchDelawareCfrsThirdPartySourcePacket(input);
+    input.payer.committeeName = "wrong";
+    input.candidate.receivingMemberId = 1;
+    input.sessionOptions.onResponseCapture = () => {
+      throw new Error("changed observer");
+    };
+    const r = await pending;
+    expect(r.packet).toBeDefined();
+    expect(called).toBe(requests.length);
+    expect(r.sourceCaptures[0]!.body.toString()).toBe("form");
+    expect(r.packet!.genericMemberReceipts[1]!.financeFields!.MemberId).toBe(String(TP_MEMBER));
+  });
+  it("propagates capture callback failure nonretryably with no later packet operations", async () => {
+    const { fetchImpl, requests } = scriptedFetch(thirdPartyScript());
+    const input = thirdPartyInput(fetchImpl, () => {
+      throw new Error("sink unavailable");
+    });
+    input.sessionOptions.maxAttempts = 3;
+    await expect(fetchDelawareCfrsThirdPartySourcePacket(input)).rejects.toMatchObject({
+      code: "capture_error",
+    });
+    expect(requests).toHaveLength(1);
+  });
+  it("fully pages generic native cash before switching to TP8 and retains the exact boundary overlap without economic dedupe", async () => {
+    const script = thirdPartyScript();
+    const rows = Array.from({ length: 520 }, (_, i) => tpReceipt(i + 1));
+    script[20] = { ...script[20]!, response: () => searchResultsHtml(520) };
+    script[21] = { ...script[21]!, response: () => json({ data: rows.slice(0, 500), total: 0 }) };
+    script[23] = { ...script[23]!, response: () => searchResultsHtml(520) };
+    script[24] = { ...script[24]!, response: () => csv(tpCsv(rows)) };
+    script.splice(22, 0, {
+      match: (u, b) =>
+        new URL(u).pathname === "/Public/_ViewReceiptsCustom" && new URLSearchParams(b).get("page") === "2",
+      response: () => json({ data: rows.slice(499), total: 0 }),
+    });
+    const r = await fetchDelawareCfrsThirdPartySourcePacket(thirdPartyInput(scriptedFetch(script).fetchImpl));
+    expect(r.packet).toBeDefined();
+    expect(
+      r.packet!.genericMemberReceipts.filter((c) => new URL(c.url).pathname === "/Public/_ViewReceiptsCustom")
+    ).toHaveLength(2);
+    expect(
+      r.sourceCaptures.findIndex((c) => new URL(c.url).pathname === "/Public/ExportCSVNew_TP")
+    ).toBeGreaterThan(
+      r.sourceCaptures.findLastIndex((c) => new URL(c.url).pathname === "/Public/_ViewReceiptsCustom")
+    );
   });
 });
