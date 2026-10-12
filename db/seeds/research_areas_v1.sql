@@ -146,6 +146,11 @@ VALUES
     'Set and enforce safety, transparency, and accountability rules for AI systems, including automated decisions and deepfakes.'
   ),
   (
+    'limit_foreign_influence',
+    'Limit Foreign Influence',
+    'Limit foreign influence through political money, lobbying, land ownership, university funding, and access to sensitive data and technology. Excludes foreign aid, arms sales, sanctions, trade, war powers, and records about Israel.'
+  ),
+  (
     'labor_rights',
     'Labor Rights',
     'Protect workers through fair wages, paid leave, safe workplaces, and the right to organize and bargain collectively.'
