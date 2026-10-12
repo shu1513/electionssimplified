@@ -9,12 +9,22 @@
 
 import type { Pool, PoolClient } from "pg";
 
-import { listDueKansasCandidateFinanceSyncRows, type KansasCandidateFinanceDueRow } from "./kansasCandidateFinanceDueList.js";
-import { syncKansasCandidateFinance, type KansasCandidateFinanceSyncResult } from "./kansasCandidateFinanceSync.js";
+import {
+  listDueKansasCandidateFinanceSyncRows,
+  type KansasCandidateFinanceDueRow,
+} from "./kansasCandidateFinanceDueList.js";
+import {
+  syncKansasCandidateFinance,
+  type KansasCandidateFinanceSyncResult,
+} from "./kansasCandidateFinanceSync.js";
 import type { KansasCfrSessionOptions } from "./kansasCfrViewerClient.js";
 import { createKansasFilingPoolLoader } from "./kansasFilingSearch.js";
 import { createKansasOutsideRowLoader } from "./kansasOutsideSpendingAggregator.js";
 import { createKansasKpdcRowLoader } from "./kansasPaperInventory.js";
+import {
+  syncKansasIndependentExpenditures,
+  type KansasIESyncResult,
+} from "./kansasIndependentExpenditureSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -45,10 +55,13 @@ export type KansasCandidateFinanceBatchSyncInput = {
   refresh?: boolean;
   candidateId?: string;
   electionYear?: number;
+  ieObservationFile?: string;
+  ieCacheDir?: string;
   sessionOptions?: KansasCfrSessionOptions;
   log?: (message: string) => void;
   listDueRowsFn?: typeof listDueKansasCandidateFinanceSyncRows;
   syncCandidateFn?: typeof syncKansasCandidateFinance;
+  syncIndependentExpendituresFn?: typeof syncKansasIndependentExpenditures;
 };
 
 export type KansasCandidateFinanceBatchSyncResult = {
@@ -63,20 +76,57 @@ export type KansasCandidateFinanceBatchSyncResult = {
     result?: KansasCandidateFinanceSyncResult;
     error?: string;
   }[];
+  independentExpenditures: KansasIESyncResult;
 };
 
 export async function syncDueKansasCandidateFinance(
-  input: KansasCandidateFinanceBatchSyncInput
+  input: KansasCandidateFinanceBatchSyncInput,
 ): Promise<KansasCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   const log = input.log ?? ((message: string) => console.log(message));
   const maxCandidates = input.maxCandidates ?? DEFAULT_MAX_CANDIDATES;
   const staleAfterDays = input.staleAfterDays ?? DEFAULT_STALE_AFTER_DAYS;
-  const electionLookbackDays = input.electionLookbackDays ?? KANSAS_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
-  const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
+  const electionLookbackDays =
+    input.electionLookbackDays ??
+    KANSAS_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
+  const electionLookaheadDays =
+    input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
 
-  const listDueRows = input.listDueRowsFn ?? listDueKansasCandidateFinanceSyncRows;
+  // A failed direct receipt component, missing receiving link or empty direct
+  // due list cannot suppress independently disclosed expenditure evidence.
+  let independentExpenditures: KansasIESyncResult;
+  try {
+    independentExpenditures = await (
+      input.syncIndependentExpendituresFn ?? syncKansasIndependentExpenditures
+    )({
+      db: input.db,
+      electionYear: input.electionYear ?? now.getUTCFullYear(),
+      now,
+      dryRun,
+      observationFile: input.ieObservationFile,
+      cacheDir: input.ieCacheDir,
+      sessionOptions: input.sessionOptions,
+    });
+  } catch (error) {
+    independentExpenditures = {
+      status: "unavailable",
+      recordCount: null,
+      acquiredDocuments: 0,
+      acceptedDocuments: 0,
+      writtenRows: 0,
+      mappedRows: 0,
+      pendingDocuments: 0,
+      diagnostics: [
+        error instanceof Error ? error.message : "Kansas IE source unavailable",
+      ],
+    };
+  }
+  for (const diagnostic of independentExpenditures.diagnostics)
+    log(`Kansas IE: ${diagnostic}`);
+
+  const listDueRows =
+    input.listDueRowsFn ?? listDueKansasCandidateFinanceSyncRows;
   const due = await listDueRows(input.db, {
     now,
     staleAfterDays,
@@ -92,12 +142,20 @@ export async function syncDueKansasCandidateFinance(
   const loadFilingPool = createKansasFilingPoolLoader({
     now,
     sessionOptions: input.sessionOptions,
-    onSkippedRows: (office, skipped) => log(`Kansas finance sync: ${skipped} ${office.label} rows carried another office and were skipped`),
+    onSkippedRows: (office, skipped) =>
+      log(
+        `Kansas finance sync: ${skipped} ${office.label} rows carried another office and were skipped`,
+      ),
     onEnumerationRetry: (office, filingType) =>
-      log(`Kansas finance sync: ${office.label} "${filingType}" enumeration changed mid-walk; rerunning it once`),
+      log(
+        `Kansas finance sync: ${office.label} "${filingType}" enumeration changed mid-walk; rerunning it once`,
+      ),
   });
   const loadKpdcRows = createKansasKpdcRowLoader({
-    onOrphanLinks: (treePath, count) => log(`Kansas finance sync: ${count} links in ${treePath} precede any candidate row`),
+    onOrphanLinks: (treePath, count) =>
+      log(
+        `Kansas finance sync: ${count} links in ${treePath} precede any candidate row`,
+      ),
   });
   // The transcribed IE rows of a cycle, read once for the whole batch.
   const loadOutsideRows = createKansasOutsideRowLoader(input.db);
@@ -133,7 +191,9 @@ export async function syncDueKansasCandidateFinance(
       candidates.push({ row, ok: true, result });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      log(`Kansas finance sync failed for ${row.candidateName} (${row.committeeId}): ${message}`);
+      log(
+        `Kansas finance sync failed for ${row.candidateName} (${row.committeeId}): ${message}`,
+      );
       candidates.push({ row, ok: false, error: message });
     }
   }
@@ -145,5 +205,6 @@ export async function syncDueKansasCandidateFinance(
     succeeded,
     failed: due.rows.length - succeeded,
     candidates,
+    independentExpenditures,
   };
 }

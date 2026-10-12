@@ -1,5 +1,45 @@
 # Kansas Campaign Finance Plan
 
+## October 12, 2026 independent IE acquisition
+
+The batch now acquires IndividualEntity independent-expenditure statements before
+the direct due list. Direct failures, an empty direct cohort and missing receiving
+finance links therefore do not suppress IE evidence. A genuine saved browser
+observation is used first; otherwise the native WebForms client searches and
+walks the actual result grid. Saved observations retain their actual timestamps
+and expire after 36 hours. Every accepted PDF is freshly fetched, restricted,
+cached immutably and matched to its reviewed original SHA and complete financial
+control. New/changed unreviewed documents preserve prior evidence and are reported
+pending. Browser observations are rendered source facts, never invented HTTP
+responses or source retrieval timestamps.
+
+Migration 336 adds independently stored literal IE rows with nullable qualified
+candidate/election references. No receiving-filer link or direct snapshot is
+created. Exact source name, Kansas House district and election context qualify
+targets; aliases, shared targets and unresolved names remain unmapped. The reader
+can show these itemized groups when the candidate has no direct-finance summary,
+and preserves existing direct amounts and freshness. Overall outside totals remain
+unknown, with the coverage gap stated beside the groups. Legacy transcriptions
+are not added again to the independent evidence view. New contributor-name output
+remains unpublished pending the existing review; group payer names are expenditure
+source roles, and the groups' funders are not published.
+
+Ordinary local source acquisition of six American Conservative Fund PDF records
+covered 14 complete financial pages, 61 printed rows and $802,098.06. Twenty-three
+rows resolve to four existing candidate/election contexts. Kyler Sweely, House102,
+has seven itemized support rows/$78,683.40 across four PDFs, despite zero active
+direct-finance links. The production reader and actual frontend card expose that
+group while Raised and overall outside totals remain unknown. The direct cohort's
+125 summaries, amounts and September6 timestamps are unchanged. This proves the
+independent bridge and the reviewed document coverage; it does not certify all
+188 native filings, every payer or every spending channel.
+
+Pre-general report due October26, through October22: obtain a genuinely new
+inventory and fresh PDFs October27, retry October30; catch up daily October31–
+November3 and retry November6 for late posting. Reusing the old saved inventory
+does not satisfy these checks. New PDFs/changed originals require source-backed
+financial review before acceptance. January weekend treatment remains to verify.
+
 ## October 12, 2026 outside-preservation foundation
 
 The candidate-only direct ledger remains unchanged. Accepted complete transcribed
@@ -34,7 +74,7 @@ filed-date fallback after the existing candidate date fields. This does not
 establish an Original/current/amendment flag. Browser source research observed
 188 filings over ten pages, materially more than the 27-link archive, and only
 page one plus one actual paper opener were observed. The full current inventory
-and financial documents remain required before new monetary acceptance.
+and financial documents remain required before any complete-total authority.
 Never treat a reread of old transcriptions as genuine source
 refresh. January 10, 2027 weekend treatment remains unresolved; verify before
 January checks. No source calls, canonical money writes, migration or automation
