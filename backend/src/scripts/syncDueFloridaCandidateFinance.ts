@@ -8,6 +8,7 @@ import {
   syncDueFloridaCandidateFinance,
   type FloridaCandidateFinanceDueSyncResult,
 } from "../pipeline/floridaFinance/floridaCandidateFinanceBatchSync.js";
+import { loadFloridaReviewedCommitteeDates } from "../pipeline/floridaFinance/floridaReviewedCommitteeDates.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueFloridaCandidateFinanceScriptOptions = {
@@ -21,6 +22,8 @@ export type SyncDueFloridaCandidateFinanceScriptOptions = {
   artifactCacheDir?: string;
   exportMinIntervalMs?: number;
   exportRowLimit?: number;
+  candidateId?: string;
+  reviewedCommitteeDatesPath?: string;
 };
 
 const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh-export-artifacts"]);
@@ -32,6 +35,8 @@ const KNOWN_VALUE_FLAGS = new Set([
   "--artifact-cache-dir",
   "--export-min-interval-ms",
   "--export-row-limit",
+  "--candidate-id",
+  "--reviewed-committee-dates",
 ]);
 
 function assertNoUnknownFloridaCandidateFinanceArgs(args: readonly string[]): void {
@@ -84,7 +89,13 @@ export function parseSyncDueFloridaCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueFloridaCandidateFinanceScriptOptions {
   assertNoUnknownFloridaCandidateFinanceArgs(args);
+  const candidateId = parseFlagValue(args, "--candidate-id") ?? undefined;
+  if (candidateId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidateId)) {
+    throw new Error("Invalid --candidate-id value: expected UUID");
+  }
   return {
+    candidateId,
+    reviewedCommitteeDatesPath: parseFlagValue(args, "--reviewed-committee-dates") ?? undefined,
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     refreshExportArtifacts: args.includes("--refresh-export-artifacts"),
@@ -95,6 +106,20 @@ export function parseSyncDueFloridaCandidateFinanceScriptArgs(
     artifactCacheDir: parseFlagValue(args, "--artifact-cache-dir") || undefined,
     exportMinIntervalMs: parseIntegerFlag({ args, name: "--export-min-interval-ms", allowZero: true }),
     exportRowLimit: parseIntegerFlag({ args, name: "--export-row-limit" }),
+  };
+}
+
+/** Load human-reviewed artifacts before creating a database pool or invoking sync. */
+export async function prepareFloridaCandidateFinanceSourceOptions(
+  options: SyncDueFloridaCandidateFinanceScriptOptions
+) {
+  const reviewedCommitteeDates = options.reviewedCommitteeDatesPath
+    ? await loadFloridaReviewedCommitteeDates(options.reviewedCommitteeDatesPath)
+    : undefined;
+  return {
+    candidateId: options.candidateId,
+    autoLinkMissingLinks: options.candidateId ? false : undefined,
+    reviewedCommitteeDates,
   };
 }
 
@@ -132,10 +157,12 @@ async function main(): Promise<void> {
     return;
   }
 
+  const sourceOptions = await prepareFloridaCandidateFinanceSourceOptions(options);
   const pool = new Pool({ connectionString: getDatabaseUrl() });
   try {
     const result = await syncDueFloridaCandidateFinance({
       db: pool,
+      ...sourceOptions,
       now: startedAt,
       dryRun: options.dryRun,
       maxCandidates: options.maxCandidates,

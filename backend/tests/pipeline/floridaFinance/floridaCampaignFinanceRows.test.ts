@@ -50,6 +50,45 @@ describe("floridaCampaignFinanceRows", () => {
     );
   });
 
+  it("retains the combined location from the actual nine-column public export", () => {
+    const rows = parseFloridaContributionTsv([
+      "Candidate/Committee\tDate\tAmount\tTyp\tContributor Name\tAddress\tCity State Zip\tOccupation\tInkind Desc",
+      "Jane Doe\t08/03/2026\t1000.00\tCHE\tExample PAC\t1 Main St\tTALLAHASSEE FL 32301-1234\tPOLITICAL COMMITTEE\t",
+      "Jane Doe\t08/04/2026\t100.00\tCHE\tDonor\t2 Main St\tTORONTO ON M5V 2T6\t\t",
+    ].join("\n"));
+
+    expect(rows[0]).toMatchObject({
+      cityStateZip: "TALLAHASSEE FL 32301-1234",
+      city: "", state: "", zip: "",
+      contributorName: "Example PAC", transactionType: "CHE", amount: "1000.00",
+    });
+    expect(rows[1].cityStateZip).toBe("TORONTO ON M5V 2T6");
+  });
+
+  it("preserves signed refunds and identical occurrences with combined locations", () => {
+    const gift = "Jane Doe\t06/17/2025\t1000.00\tCHE\tExample PAC\t1 Main St\tMIAMI FL 33101\t\t";
+    const rows = parseFloridaContributionTsv([
+      "Candidate/Committee\tDate\tAmount\tTyp\tContributor Name\tAddress\tCityStateZip\tOccupation\tInkind Desc",
+      gift,
+      gift,
+      "Jane Doe\t03/30/2026\t-500.00\tREF\tExample PAC\t1 Main St\tMIAMI FL 33101\t\t",
+    ].join("\n"));
+
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toEqual(rows[1]);
+    expect(rows[2]).toMatchObject({
+      amount: "-500.00", transactionType: "REF", cityStateZip: "MIAMI FL 33101",
+    });
+  });
+
+  it("retains combined and separate source columns independently", () => {
+    const [row] = parseFloridaContributionTsv([
+      "Candidate/Committee\tDate\tAmount\tContributor Name\tCity\tState\tZip\tCity State Zip",
+      "Jane Doe\t08/03/2026\t1000\tDonor\tMiami\tFL\t33101\tMIAMI FL 33101-1234",
+    ].join("\n"));
+    expect(row).toMatchObject({ city: "Miami", state: "FL", zip: "33101", cityStateZip: "MIAMI FL 33101-1234" });
+  });
+
   it("parses Florida contribution fixed-width exports with supplied field positions", () => {
     const fixed = (value: string, width: number) => value.padEnd(width, " ");
     const fields: FloridaContributionFixedWidthField[] = [

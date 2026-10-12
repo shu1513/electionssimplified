@@ -12,6 +12,7 @@ import {
   type FinanceIndustryClassifier,
 } from "../finance/financeIndustryClassificationService.js";
 import type { FloridaContributionRow } from "./floridaCampaignFinanceRows.js";
+import type { FloridaCommitteeDonorFinanceInput } from "./floridaCommitteeDonorWriter.js";
 import {
   aggregateFloridaDirectContributions,
   type FloridaDirectContributionAggregationResult,
@@ -31,6 +32,7 @@ import {
   type FloridaFinanceOutsideGroupBreakdownInput,
   type FloridaFinanceOutsideGroupInput,
   type FloridaFinanceSummaryInput,
+  type FloridaFinanceSnapshotWriteResult,
   type FloridaOutsideGroupSupportLinkInput,
   type FloridaOutsideGroupSupportLinkRow,
 } from "./floridaFinanceWriter.js";
@@ -85,6 +87,7 @@ export type FloridaCandidateFinanceSyncInput = {
   district?: string | null;
   trustedCommittee: FloridaCandidateFinanceTrustedCommittee;
   contributionRows: readonly FloridaContributionRow[];
+  pacFinance?: FloridaCommitteeDonorFinanceInput;
   trustedOutsideGroups?: readonly FloridaCandidateFinanceTrustedOutsideGroup[];
   outsideGroupSupportEvidence?: readonly FloridaOutsideGroupSupportEvidenceInput[];
   // Outside-group finance is opt-in until Florida support/IE discovery is reliable enough for scheduled syncs.
@@ -132,6 +135,8 @@ export type FloridaCandidateFinanceSyncResult = {
   matchedOutsideContributionRowCount: number;
   includedOutsideContributionRowCount: number;
   skippedOutsideContributionRowCount: number;
+  pacDonorsWritten?: number;
+  netCommitteeAmount?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -640,8 +645,9 @@ export async function syncFloridaCandidateFinance(
   });
   const directBreakdowns = toDirectBreakdowns(directFinance.directBreakdowns);
 
+  let writeResult: FloridaFinanceSnapshotWriteResult | undefined;
   if (!input.dryRun) {
-    await replaceFloridaCandidateFinanceSnapshot({
+    writeResult = await replaceFloridaCandidateFinanceSnapshot({
       db: input.db,
       link,
       syncedAt,
@@ -651,6 +657,7 @@ export async function syncFloridaCandidateFinance(
       outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
       outsideGroupSupportLinks,
       classifications: outsideIndustryFinance.classifications,
+      pacFinance: input.pacFinance,
     });
   }
 
@@ -660,6 +667,11 @@ export async function syncFloridaCandidateFinance(
     electionYear,
     dryRun: input.dryRun === true,
     resolution,
+    ...(input.pacFinance ? {
+      pacDonorsWritten: writeResult?.pacDonorsWritten ?? 0,
+      ...(input.dryRun ? { netCommitteeAmount: input.pacFinance.finance.netCommitteeAmount }
+        : writeResult?.netCommitteeAmount === undefined ? {} : { netCommitteeAmount: writeResult.netCommitteeAmount }),
+    } : {}),
     linkWritten: !input.dryRun,
     summaryWritten: !input.dryRun,
     directBreakdownsWritten: input.dryRun ? 0 : directBreakdowns.length,

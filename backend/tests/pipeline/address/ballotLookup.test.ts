@@ -4463,6 +4463,10 @@ describe("lookupElectionDetailById", () => {
         ],
       });
 
+    // No accepted registered-committee donor component is available.
+    query.mockResolvedValueOnce({ rows: [] });
+    // No verified explicit-expense payer component is available.
+    query.mockResolvedValueOnce({ rows: [] });
     // Trailing committee-labels lookup (applyFinanceCommitteeLabels):
     // none researched, so the groups stay unlabeled.
     query.mockResolvedValueOnce({ rows: [] });
@@ -4568,7 +4572,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(14);
+    expect(query).toHaveBeenCalledTimes(16);
     expect(query.mock.calls[7]?.[0]).toContain("public.fl_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.fl_candidate_finance_direct_breakdowns");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type IN ('occupation', 'contribution_size')");
@@ -4576,6 +4580,8 @@ describe("lookupElectionDetailById", () => {
     expect(query.mock.calls[10]?.[0]).toContain("public.fl_candidate_finance_outside_group_breakdowns");
     expect(query.mock.calls[11]?.[0]).toContain("public.fl_candidate_finance_outside_group_breakdowns");
     expect(query.mock.calls[11]?.[0]).toContain("public.finance_label_classifications");
+    expect(query.mock.calls[12]?.[0]).toContain("public.fl_candidate_finance_pac_sources");
+    expect(query.mock.calls[13]?.[0]).toContain("public.fl_candidate_finance_ie_sources");
   });
 
   it("includes locally synced Arizona finance summaries for Arizona candidate detail", async () => {
