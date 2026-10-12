@@ -233,6 +233,22 @@ function ieRow(
   };
 }
 
+function expectOutsidePreserved(client: ReturnType<typeof writingDb>["client"]) {
+  const summarySql = client.query.mock.calls.find(([sql]) =>
+    String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"),
+  )?.[0];
+  expect(String(summarySql)).toContain(
+    "outside_support_total = COALESCE(EXCLUDED.outside_support_total, ks_candidate_finance_summaries.outside_support_total)",
+  );
+  expect(String(summarySql)).toContain(
+    "outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, ks_candidate_finance_summaries.outside_oppose_total)",
+  );
+  expect(
+    client.query.mock.calls.some(([sql]) =>
+      /DELETE FROM public\.ks_candidate_finance_outside_(?:groups|group_breakdowns)/.test(String(sql)),
+    ),
+  ).toBe(false);
+}
 describe("syncKansasCandidateFinance", () => {
   it("builds the ledger with schedules, aggregates, and writes totals + buckets (direct = line 2 + line 6 − loans)", async () => {
     const { db, client } = writingDb();
@@ -291,9 +307,9 @@ describe("syncKansasCandidateFinance", () => {
       ["contribution_size", "$1-$99", 30],
       ["contribution_size", "$100-$249", 350],
     ]);
-    // No outside rows: null totals (never $0) and the stale-group clear, but no group insert.
+    // No outside evidence: neither a synthetic zero nor deletion of prior groups.
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_outside_groups"))).toBe(false);
-    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.ks_candidate_finance_outside_groups"))).toBe(true);
+    expectOutsidePreserved(client);
   });
 
   it("writes outside totals and one group per filer and direction from the transcribed IE rows naming the recipe", async () => {
@@ -323,11 +339,12 @@ describe("syncKansasCandidateFinance", () => {
       .filter(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_outside_groups"))
       .map(([, params]) => params as unknown[]);
     expect(groupInserts).toHaveLength(2);
+    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.ks_candidate_finance_outside_groups"))).toBe(true);
     expect(groupInserts[0]).toEqual(expect.arrayContaining(["IE:EXAMPLE FUND", "Example Fund", "oppose", 60]));
     expect(groupInserts[1]).toEqual(expect.arrayContaining(["IE:OTHER FUND", "Other Fund", "support", 250]));
   });
 
-  it("reports a filer period that fails its checksum and writes null outside totals, without failing the candidate", async () => {
+  it("preserves outside on a rejected checksum while syncing valid direct totals", async () => {
     const { db, client } = writingDb();
     const { input } = baseInput(db, resolved(filedReports()));
     const loadOutsideRows = vi.fn(async () => [ieRow({ sourceFileName: "IE_EX1_2607.pdf", rowIndex: 1, amountCents: 6_000, statementTotalCents: 10_000 })]);
@@ -349,10 +366,11 @@ describe("syncKansasCandidateFinance", () => {
     });
     const summaryInsert = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"));
     expect(summaryInsert?.[1]?.slice(6, 8)).toEqual([null, null]);
+    expectOutsidePreserved(client);
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_outside_groups"))).toBe(false);
   });
 
-  it("publishes nothing for a candidate named by shared spending with no per-candidate amount", async () => {
+  it("preserves outside for shared spending with no per-candidate allocation", async () => {
     const { db, client } = writingDb();
     const { input } = baseInput(db, resolved(filedReports()));
     const loadOutsideRows = vi.fn(async () => [
@@ -367,9 +385,88 @@ describe("syncKansasCandidateFinance", () => {
     });
     const summaryInsert = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"));
     expect(summaryInsert?.[1]?.slice(6, 8)).toEqual([null, null]);
+    expectOutsidePreserved(client);
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_outside_groups"))).toBe(false);
   });
 
+it("isolates outside loader failure and preserves its rows while writing valid direct totals", async () => {
+  const { db, client } = writingDb();
+  const { input } = baseInput(db, resolved(filedReports()));
+  const result = await syncKansasCandidateFinance({
+    ...input,
+    loadOutsideRows: vi.fn(async () => {
+      throw new Error("transcribed IE source unavailable");
+    }),
+  });
+  expect(result).toMatchObject({
+    status: "synced",
+    totalReceipts: 1400,
+    directContributionTotal: 430,
+    summaryWritten: true,
+    outside: { status: "unavailable", reasons: ["transcribed IE source unavailable"] },
+  });
+  expect(result.diagnostics).toContain("outside unavailable: transcribed IE source unavailable");
+  expectOutsidePreserved(client);
+  expect(
+    client.query.mock.calls.some(([sql]) =>
+      String(sql).includes("INSERT INTO public.ks_candidate_finance_direct_breakdowns"),
+    ),
+  ).toBe(true);
+  expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+});
+
+it("keeps genuine direct filed-zero handling while outside evidence is absent", async () => {
+  const { db, client } = writingDb();
+  const reports = [
+    report(header({ ...ANNUAL }), { begin: 0, spent: 0 }),
+    report(header({ ...PRE_PRIMARY, fileDate: "07/27/2026" }), { begin: 0, spent: 0 }),
+  ];
+  const { input } = baseInput(db, resolved(reports));
+  const result = await syncKansasCandidateFinance(input);
+  expect(result).toMatchObject({
+    status: "synced",
+    totalReceipts: 0,
+    directContributionTotal: 0,
+    outside: { status: "none_found" },
+  });
+  expectOutsidePreserved(client);
+  expect(
+    client.query.mock.calls.some(([sql]) =>
+      String(sql).includes("DELETE FROM public.ks_candidate_finance_direct_breakdowns"),
+    ),
+  ).toBe(true);
+});
+
+it("rolls the valid direct write back when accepted outside insertion fails", async () => {
+  const { db, client } = writingDb();
+  client.query.mockImplementation(async (sql: unknown) => {
+    if (String(sql).includes("INSERT INTO public.ks_candidate_finance_links"))
+      return { rows: [{ id: LINK_ID }], rowCount: 1 };
+    if (String(sql).includes("INSERT INTO public.ks_candidate_finance_outside_groups"))
+      throw new Error("outside SQL failure");
+    return { rows: [], rowCount: 0 };
+  });
+  const { input } = baseInput(db, resolved(filedReports()));
+  await expect(
+    syncKansasCandidateFinance({
+      ...input,
+      loadOutsideRows: vi.fn(async () => [
+        ieRow({ sourceFileName: "IE_EX1_2607.pdf", rowIndex: 1, amountCents: 6000, statementTotalCents: 6000 }),
+      ]),
+    }),
+  ).rejects.toThrow("outside SQL failure");
+  expect(
+    client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries")),
+  ).toBe(true);
+  expect(
+    client.query.mock.calls.some(([sql]) =>
+      String(sql).includes("INSERT INTO public.ks_candidate_finance_direct_breakdowns"),
+    ),
+  ).toBe(true);
+  expect(client.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
+  expect(client.query.mock.calls.some(([sql]) => sql === "COMMIT")).toBe(false);
+  expect(client.release).toHaveBeenCalledOnce();
+});
   it("does not read the outside rows for a candidate whose direct leg fails closed", async () => {
     const { db } = writingDb();
     const { input } = baseInput(db, resolved(filedReports(), { complete: false }));

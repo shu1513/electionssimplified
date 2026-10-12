@@ -121,8 +121,57 @@ describe("replaceKansasCandidateFinanceSnapshot", () => {
     expect(insertLink?.[1]?.[9]).toBe("manual");
     const summary = client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"));
     expect(summary?.[1]).toEqual(["link-1", 2026, 1234.5, 1000, 200, null, null, null, "https://sos.ks.gov/x", syncedAt.toISOString()]);
+    expect(String(summary?.[0])).toContain("outside_support_total = COALESCE(EXCLUDED.outside_support_total, ks_candidate_finance_summaries.outside_support_total)");
+    expect(String(summary?.[0])).toContain("outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, ks_candidate_finance_summaries.outside_oppose_total)");
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO public.ks_candidate_finance_direct_breakdowns"))).toBe(true);
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.ks_candidate_finance_direct_breakdowns"))).toBe(true);
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes("ks_candidate_finance_outside_groups"))).toBe(false);
   });
+it("allows an explicitly supplied numeric zero and empty outside component to replace", async () => {
+  const client = {
+    query: vi.fn(async (sql: unknown) =>
+      String(sql).includes("INSERT INTO public.ks_candidate_finance_links")
+        ? { rows: [{ id: "link-1" }], rowCount: 1 }
+        : { rows: [], rowCount: 0 },
+    ),
+    release: vi.fn(),
+  };
+  const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+  await replaceKansasCandidateFinanceSnapshot({
+    db,
+    link: {
+      candidateId: "11111111-1111-4111-8111-111111111111",
+      electionId: "22222222-2222-4222-8222-222222222222",
+      electionYear: 2026,
+      candidateNameNormalized: "STEVEN BRUNSON",
+      officeName: "State Lower Chamber Legislator",
+      district: "85",
+      committeeId: "7:85:BRUNSON:STEVEN",
+      committeeName: "BRUNSON STEVEN",
+      linkSource: "manual",
+    },
+    syncedAt: new Date("2026-10-12T12:00:00Z"),
+    summary: {
+      totalReceipts: 0,
+      directContributionTotal: 0,
+      totalDisbursements: 0,
+      cashOnHand: 0,
+      outsideSupportTotal: 0,
+      outsideOpposeTotal: 0,
+    },
+    directBreakdowns: [],
+    outsideGroups: [],
+  });
+  const summary = client.query.mock.calls.find(([sql]) =>
+    String(sql).includes("INSERT INTO public.ks_candidate_finance_summaries"),
+  );
+  expect(summary?.[1]?.slice(6, 8)).toEqual([0, 0]);
+  expect(
+    client.query.mock.calls.some(([sql]) =>
+      String(sql).includes("DELETE FROM public.ks_candidate_finance_outside_groups"),
+    ),
+  ).toBe(true);
+  expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+});
+
 });

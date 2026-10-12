@@ -5,13 +5,10 @@
 // "<officeCode>:<district>:<SURNAME>:<FIRST>" built by the resolver;
 // committee_name is the most frequent filed display name.
 //
-// Every summary column is "replace": one sync owns both legs (direct from
-// the viewer, outside from the transcribed IE rows of migration 271), and
-// the outside source is a local table that is never unavailable, so what a
-// sync writes is exactly what the evidence proves — null when a candidate
-// has no outside rows ("none found" is not $0). The Montana preserveWhenNull
-// rule exists for a separately fetched outside sweep that can be missing;
-// Kansas has no such leg.
+// Direct figures retain their existing replacement semantics. Missing or
+// rejected outside evidence preserves prior outside totals and rows; only an
+// explicitly supplied outside component replaces it. A local transcription
+// table's absence or shared allocation is not proof of a financial zero.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -103,8 +100,6 @@ const writer = createStandardStateFinanceSnapshotWriter({
     direct_contribution_total: "replace",
     total_disbursements: "replace",
     cash_on_hand: "replace",
-    outside_support_total: "replace",
-    outside_oppose_total: "replace",
     source_url: "replace",
   },
   outsideGroupValidation: "pairing",
@@ -135,8 +130,8 @@ export async function upsertKansasFinanceLink(input: {
 
 /**
  * Link + summary + direct breakdowns + outside groups in one transaction.
- * The sync passes both legs every time; an empty outside-group list clears
- * stale groups, and undefined would leave them alone.
+ * An explicit outside-group list replaces that component; omission preserves
+ * it. Explicit numeric zero still replaces a stored scalar, while null does not.
  */
 export async function replaceKansasCandidateFinanceSnapshot(
   input: KansasFinanceSnapshotInput

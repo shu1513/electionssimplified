@@ -1,5 +1,47 @@
 # Kansas Campaign Finance Plan
 
+## October 12, 2026 outside-preservation foundation
+
+The candidate-only direct ledger remains unchanged. Accepted complete transcribed
+outside rows still replace their exact groups and numeric amounts. `none_found`,
+quarantined/checksum-rejected, shared/unallocated and unavailable outside outcomes
+now omit the outside component, preserving existing totals and rows. A failed
+outside loader is reported as `unavailable` without blocking valid direct totals;
+a direct ledger failure still preserves the whole snapshot at this baby step.
+No shared amount is split and no convenient subset of Masterson's statements is
+published as a complete candidate total. Explicit source-backed numeric zero and
+direct filed-zero handling retain their existing meaning. Atomic SQL failures
+still roll back all writes.
+
+This is a preservation fix only: no new live IE acquisition, donor recognition,
+PAC storage/reader, PDF currentness or complete-zero authority. It is insufficient
+for a state PR on its own. Named contributor publication remains the existing
+review question in the statutory section below; this foundation authorizes no
+new name-bearing product surface. Source availability and deadlines require
+fresh primary-source confirmation before any later acquisition rollout.
+
+The retained official [2026 calendar](https://kpdc.kansas.gov/wp-content/uploads/2025/07/CFAReportDueDates.pdf)
+lists pre-general due **October 26**, coverage **July 24–October 22**. Mandatory
+fresh source acquisition **October 27**, initial late-notice catch-up **October 30**,
+daily **October 31–November 3**, and publication-lag retry **November 6**.
+Last-minute notices can repeat regular report occurrences; do not double count.
+`--stale-after-days 0` already selects fresh linked snapshots, but cannot refresh
+government IE statements absent a live source path. `--force` bypasses only the
+sync subgate. `--refresh`, candidate UUID and election-year scopes now apply
+before the due-list LIMIT; they do not create new government source evidence.
+The live IndividualEntity paper grid uses `lblPaperDate_N`, now retained as a
+filed-date fallback after the existing candidate date fields. This does not
+establish an Original/current/amendment flag. Browser source research observed
+188 filings over ten pages, materially more than the 27-link archive, and only
+page one plus one actual paper opener were observed. The full current inventory
+and financial documents remain required before new monetary acceptance.
+Never treat a reread of old transcriptions as genuine source
+refresh. January 10, 2027 weekend treatment remains unresolved; verify before
+January checks. No source calls, canonical money writes, migration or automation
+are part of this foundation. The historical outside-null clearing behavior below
+is superseded by these omission/preservation semantics.
+
+
 Written 2026-08-26, revised same day after adversarial review. Based on a live probe of the Kansas SOS CFR viewer and the KPDC scanned archive, with every load-bearing claim verified against primary sources (statute text, filed PDFs, live systems, VoteApp's own ballot data). Companion facts doc: `backend/docs/kansas-finance-feasibility.md`.
 
 Verdict: buildable. Viewer-first architecture — NOT PDF-first. The "last updated March 15, 2022" search on the KPDC site is a legacy app (`kansas.gov/ethics/EthicsSite/`); the live source is the SOS CFR viewer, which is public and current (contribution rows verified through 7/23/2026, IE filings listed through 8/20/2026).

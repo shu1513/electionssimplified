@@ -568,7 +568,7 @@ export function parseKansasScheduleB(html: string): KansasScheduleB {
 
 export type KansasCfrGridRow = {
   index: number;
-  /** lblDate_N (e-filed rows) or lblOriginalDate_N (paper rows). */
+  /** Filed date: lblDate_N, lblOriginalDate_N, or IndividualEntity lblPaperDate_N. */
   fileDate: string;
   amendmentDate: string;
   /** lblAmendmentNo_N on the Appointment of Treasurer grid: "" on an original appointment. */
@@ -634,7 +634,7 @@ export function parseKansasCfrGridRows(html: string, gridId: string): KansasCfrG
       const names = anchorText.get(index) ?? [];
       return {
         index,
-        fileDate: rowFields.get("lblDate") ?? rowFields.get("lblOriginalDate") ?? "",
+        fileDate: rowFields.get("lblDate") ?? rowFields.get("lblOriginalDate") ?? rowFields.get("lblPaperDate") ?? "",
         amendmentDate: rowFields.get("lblAmendmentDate") ?? "",
         amendmentNo: rowFields.get("lblAmendmentNo") ?? "",
         name: names.join(" "),

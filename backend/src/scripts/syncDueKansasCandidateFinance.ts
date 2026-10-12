@@ -18,14 +18,17 @@ import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 export type SyncDueKansasCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
 };
 
-const BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
-const VALUE_FLAGS = new Set(["--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]);
+const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh"]);
+const VALUE_FLAGS = new Set(["--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days", "--candidate-id", "--election-year"]);
 
 function readValueFlag(args: readonly string[], name: string): string | undefined {
   const values: string[] = [];
@@ -60,9 +63,20 @@ function parsePositiveInteger(args: readonly string[], name: string): number | u
 
 export function parseSyncDueKansasCandidateFinanceScriptArgs(args: readonly string[]): SyncDueKansasCandidateFinanceScriptOptions {
   assertKnownCliFlags(args, "Kansas candidate finance due sync", BOOLEAN_FLAGS, VALUE_FLAGS);
+  const candidateId = readValueFlag(args, "--candidate-id");
+  if (candidateId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(candidateId)) {
+    throw new Error("Invalid --candidate-id UUID");
+  }
+  const electionYear = parsePositiveInteger(args, "--election-year");
+  if (electionYear !== undefined && (electionYear < 2024 || electionYear > 2100)) {
+    throw new Error("Invalid --election-year value");
+  }
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    refresh: args.includes("--refresh"),
+    candidateId,
+    electionYear,
     maxCandidates: parsePositiveInteger(args, "--max-candidates"),
     // 0 is a deliberate full resync (the North Dakota convention): every
     // linked candidate in the window is due, whatever its last sync.
@@ -100,6 +114,9 @@ async function main(): Promise<void> {
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
+      refresh: options.refresh,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
       log: (message) => console.warn(message),
     });
     console.log(

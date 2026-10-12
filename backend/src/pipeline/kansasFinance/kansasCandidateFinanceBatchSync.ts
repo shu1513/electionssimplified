@@ -42,6 +42,9 @@ export type KansasCandidateFinanceBatchSyncInput = {
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   dryRun?: boolean;
+  refresh?: boolean;
+  candidateId?: string;
+  electionYear?: number;
   sessionOptions?: KansasCfrSessionOptions;
   log?: (message: string) => void;
   listDueRowsFn?: typeof listDueKansasCandidateFinanceSyncRows;
@@ -80,6 +83,9 @@ export async function syncDueKansasCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    refresh: input.refresh,
+    candidateId: input.candidateId,
+    electionYear: input.electionYear,
   });
 
   // Shared by every candidate: one enumeration per office, one tree per office family.
