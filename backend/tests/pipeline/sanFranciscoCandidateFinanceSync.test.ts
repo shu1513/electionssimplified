@@ -474,7 +474,7 @@ describe("syncSanFranciscoCandidateFinance", () => {
 });
 
 describe("checkSanFranciscoSourceFreshness", () => {
-  it("returns freshness when both datasets are current and coherent", async () => {
+  it("returns observed record timestamps when both datasets are recent", async () => {
     vi.mocked(getSanFranciscoDatasetFreshness)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.summary)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.transactions);
@@ -495,16 +495,24 @@ describe("checkSanFranciscoSourceFreshness", () => {
     ).rejects.toThrow(/summary-totals dataset is stale/);
   });
 
-  it("throws when the datasets disagree on data_as_of", async () => {
+  it("accepts the witnessed October 7/11 record-added maxima without inferring a shared generation", async () => {
+    const observed = {
+      summary: { dataAsOf: "2026-10-07T00:00:00.000", dataLoadedAt: "2026-10-08T00:00:00.000" },
+      transactions: { dataAsOf: "2026-10-11T00:00:00.000", dataLoadedAt: "2026-10-12T00:00:00.000" },
+    };
+    vi.mocked(getSanFranciscoDatasetFreshness)
+      .mockResolvedValueOnce(observed.summary)
+      .mockResolvedValueOnce(observed.transactions);
+    await expect(
+      checkSanFranciscoSourceFreshness({ now: new Date("2026-10-12T22:00:00Z") }),
+    ).resolves.toEqual(observed);
+  });
+
+  it("still refuses stale transaction uploads when record-added dates differ", async () => {
     vi.mocked(getSanFranciscoDatasetFreshness)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.summary)
-      .mockResolvedValueOnce({
-        dataAsOf: "2026-08-05T00:00:00.000",
-        dataLoadedAt: "2026-08-09T00:00:00.000",
-      });
-    await expect(
-      checkSanFranciscoSourceFreshness({ now: NOW }),
-    ).rejects.toThrow(/disagree on data_as_of/);
+      .mockResolvedValueOnce({ dataAsOf: "2026-07-20T00:00:00.000", dataLoadedAt: "2026-07-21T00:00:00.000" });
+    await expect(checkSanFranciscoSourceFreshness({ now: NOW })).rejects.toThrow(/transactions dataset is stale/);
   });
 
   it("throws when freshness metadata is missing", async () => {

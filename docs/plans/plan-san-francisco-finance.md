@@ -1,5 +1,45 @@
 # San Francisco Local Campaign Finance Plan
 
+## October 12, 2026 finance-gap continuation
+
+The current canonical November3 General cohort has33 eligible candidates;
+13 are linked, all with financial scope throughJune30 and August9 observations.
+No stored outside groups or named committee donors exist for those links.
+Outside acquisition is already wired to the official dashboard manifest.
+
+A fresh normal District8 dry-run refused all four linked candidates because
+summary max(data_as_of)=October7 differed from transactions October11. Official
+DataSF metadata defines these as dates individual records were added to source,
+with data_loaded_at describing their upload to the portal; they are not a
+contracted shared refresh generation. The first correction removes only that
+unsupported cross-dataset comparison. Missing/unparseable metadata, seven-day
+upload-age, current Form460 coverage, sync flags and anomaly guards remain.
+The next normal dry-run then reached a separate HTTP428 source failure. No
+financial data has been written or accepted from that failed acquisition.
+
+Named committee cash requires nonmemoA and verified unpaired monetaryF497,
+signedA returns and separately associated later ScheduleE/RFD refunds. C is
+nonmonetary. COM means recipientcommittee and includes candidate campaigns;
+SCC identifies smallcontributorcommittees, PTY party, OTH other entities.
+Reported donor IDs can conflict with names, and terminated registry status
+does not invalidate earlier gifts. Do not infer narrow PAC/legal identity or
+promote businesses from a name, missing registry match or bad reported ID.
+Source/return ownership and current occurrence multiplicity need proof before
+the optional donor store/card increment. Known candidate/leadership interests
+retain the shared display exclusions; true unknowns remain Not yet sorted.
+
+The official candidate pre-election deadline is **October22**, covering
+through **October17**: genuinely fresh **October23/26** reruns. Candidate third
+pre-election filing **October30** covers through **October28**: fresh
+**October31/November2**, after8amPacific to avoid the documented overnight
+incomplete window. This third report is recommended for primarily formed
+candidate committees rather than universally mandatory. Refresh actual
+Form496/497/dashboard publication throughNovember5. The year-end deadline
+is February1,2027: fresh February2/5 reconciliation, separately reviewing
+post-election status/window eligibility. New fetch time is distinct from a new
+publisher cutoff or version. Paper reports remain a separate coverage gap.
+No automation or production action is introduced by this increment.
+
 Written 2026-08-06; revised the same day after a second investigation round. Probed the San Francisco Ethics Commission (SFEC) datasets on DataSF, the official SFEC dashboard repository on GitHub, and audited the current campaign-finance architecture. The implementation must remain isolated, flag-gated, conservative about identity, and reuse the shared finance infrastructure (contract types, classification cache, standard-table loader pattern) instead of adding another large loader inside `ballotLookup.ts`.
 
 The Los Angeles City adapter (`backend/src/pipeline/losAngelesCityFinance/`, migration `173`) is the closest structural blueprint. San Francisco's key difference: DataSF serves only raw filing data, but **SFEC publishes its reconciled dashboard data as machine-readable files in an official GitHub repository**, which this plan uses as the primary identity-and-totals source, with raw DataSF reconstruction as validator and fallback.

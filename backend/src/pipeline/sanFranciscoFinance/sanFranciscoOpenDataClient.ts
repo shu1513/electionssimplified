@@ -304,10 +304,10 @@ export type SanFranciscoDatasetFreshness = {
 /**
  * Dataset-level freshness metadata via a single server-side aggregate. Every
  * campaign-finance dataset carries per-row data_as_of / data_loaded_at
- * columns stamped by DataSF's nightly pipeline; the maxima describe the last
- * completed refresh. Phase 6 source health compares these across datasets —
- * a summary batch newer than the transactions batch means the nightly
- * refresh is mid-flight or wedged, and cross-dataset sums would mix as-ofs.
+ * columns. Official metadata defines them as when a record was added to its
+ * source and uploaded to the portal, respectively. Their maxima describe
+ * observed record activity, not a shared complete refresh generation.
+ * Latest per-filing coverage and financial controls are checked separately.
  */
 export async function getSanFranciscoDatasetFreshness(
   datasetId: string,

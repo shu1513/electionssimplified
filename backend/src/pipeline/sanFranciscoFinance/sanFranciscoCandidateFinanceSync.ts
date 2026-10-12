@@ -75,10 +75,6 @@ const FILING_INDEX_GRACE_DAYS = 5;
 // A nightly pipeline whose newest data_loaded_at is older than this has
 // stalled dataset-wide; writes would silently freeze on old data.
 const MAX_DATASET_AGE_DAYS = 7;
-// Summary and transactions extracts come from the same nightly batch; more
-// than a day of data_as_of skew means the refresh is mid-flight or wedged,
-// and cross-dataset arithmetic would mix as-ofs.
-const MAX_DATASET_AS_OF_SKEW_MS = 26 * 60 * 60 * 1000;
 // Anomaly bound: an order-of-magnitude drop in donor money on an unchanged
 // filing set (same reported-through date) aborts the write. Floors at
 // $1,000 stored so micro-committees cannot trip it on rounding noise.
@@ -105,8 +101,11 @@ export type SanFranciscoSourceFreshness = {
 
 /**
  * Dataset-level source health, checked once per run (the batch sync checks
- * once and threads the result through every candidate). Throws on a stalled
- * or incoherent nightly refresh; returns the freshness for diagnostics.
+ * once and threads the result through every candidate). Retains record upload
+ * age and metadata checks; per-filing coverage is validated separately.
+ * DataSF defines data_as_of as the date a record was added to its source,
+ * not a shared extraction generation. Different form streams can have
+ * different record-date maxima without an incomplete refresh.
  */
 export async function checkSanFranciscoSourceFreshness(input: {
   now: Date;
@@ -125,7 +124,7 @@ export async function checkSanFranciscoSourceFreshness(input: {
   const describe = (
     label: string,
     freshness: SanFranciscoDatasetFreshness,
-  ): number => {
+  ): void => {
     if (!freshness.dataAsOf || !freshness.dataLoadedAt)
       throw new Error(
         `San Francisco ${label} dataset reports no freshness metadata`,
@@ -140,14 +139,9 @@ export async function checkSanFranciscoSourceFreshness(input: {
       throw new Error(
         `San Francisco ${label} dataset is stale: last loaded ${freshness.dataLoadedAt}`,
       );
-    return asOfMs;
   };
-  const summaryAsOfMs = describe("summary-totals", summary);
-  const transactionsAsOfMs = describe("transactions", transactions);
-  if (Math.abs(summaryAsOfMs - transactionsAsOfMs) > MAX_DATASET_AS_OF_SKEW_MS)
-    throw new Error(
-      `San Francisco summary-totals and transactions datasets disagree on data_as_of (${summary.dataAsOf} vs ${transactions.dataAsOf}); the nightly refresh looks incomplete`,
-    );
+  describe("summary-totals", summary);
+  describe("transactions", transactions);
   return { summary, transactions };
 }
 
