@@ -426,6 +426,61 @@ describe("Delaware candidate source monetary occurrence bindings", () => {
         .name,
     ).toBe("Example Vendor (Return Contributions)");
   });
+  it.each([
+    "equivalent",
+    "mixed_category",
+    "mixed_class",
+    "missing_occurrence",
+  ])(
+    "checks repeated annotated returns as a complete group: %s",
+    async (kind) => {
+      const f = facts();
+      f.schedules.expenditures.rows[0]!.columns.name =
+        "Example Vendor (Return Contributions)";
+      (f.schedules.expenditures.rows as DelawareCandidatePdfOccurrence[]).push(
+        occurrence("Example Vendor (Return Contributions)", 10000, 1),
+      );
+      Object.assign(f.schedules.expenditures.controls, {
+        itemizedCents: 20000,
+        grandCents: 20000,
+      });
+      Object.assign(f.cover, {
+        expendituresCents: 20000,
+        endingBalanceCents: 164000,
+      });
+      const expenses = [
+        expense(3, { ExpenseCategory: "Return Contributions" }),
+        expense(2, {
+          ExpenseCategory:
+            kind === "mixed_category"
+              ? "Other Expenses"
+              : "Return Contributions",
+          ...(kind === "mixed_class" ? { PayeeType: "Individual" } : {}),
+        }),
+      ];
+      if (kind === "missing_occurrence") expenses.pop();
+      const result = bindDelawareCandidateFinancialFacts(
+        packet({ facts: f, expenses }),
+      );
+      if (kind !== "equivalent") {
+        await expect(result).rejects.toThrow(
+          kind === "mixed_category"
+            ? "Return Contributions annotation"
+            : kind === "mixed_class"
+              ? "conflicting repeated monetary class"
+              : "complete monetary occurrence multiset mismatch",
+        );
+        return;
+      }
+      const binding = (await result).reports[0]!.bindings.expenditures![0]!;
+      expect(binding.nativeTransactionIds).toEqual([2, 3]);
+      expect(binding.pdfOccurrences).toHaveLength(2);
+      expect(binding.categoryAnnotations).toEqual([
+        { occurrence: 0, literal: "(Return Contributions)" },
+        { occurrence: 1, literal: "(Return Contributions)" },
+      ]);
+    },
+  );
   it("places actual native aggregates once and preserves the printed remainder separately", async () => {
     const p = packet({
       receipts: [

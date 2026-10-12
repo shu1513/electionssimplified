@@ -37,7 +37,7 @@ export const TERMS_VERSION = "1.5";
 // assent IS the notice; those links are the whole basis on which Section 12
 // binds anyone.
 export const PRE_SEARCH_NOTICE =
-  "By clicking Search you agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
+  "By clicking Search you agree to the Terms of Use, Privacy Policy, and AI-Assisted Research and Election Information " +
   "Disclaimer.";
 
 // These are the acceptances the DB records against a terms version
@@ -50,11 +50,11 @@ export const PRE_SEARCH_NOTICE =
 // 2026-10-04 (presentation only, no version bump): Terms of Use Sections 1
 // and 2 and the linked Disclaimer already say each of them.
 export const SIGNUP_CHECKBOX_LABEL =
-  "I have read and agree to the Terms of Use, Privacy Policy, and AI Research and Election Information " +
+  "I have read and agree to the Terms of Use, Privacy Policy, and AI-Assisted Research and Election Information " +
   "Disclaimer.";
 
 export const RENEWAL_CHECKBOX_LABEL =
-  "I have read and agree to the updated Terms of Use, Privacy Policy, and AI Research and Election " +
+  "I have read and agree to the updated Terms of Use, Privacy Policy, and AI-Assisted Research and Election " +
   "Information Disclaimer.";
 
 /**

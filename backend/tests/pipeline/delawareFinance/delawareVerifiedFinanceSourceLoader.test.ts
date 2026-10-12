@@ -619,6 +619,8 @@ type Scenario = {
   retryOnce?: boolean;
   transientZero?: boolean;
   closingRegistryUnavailable?: boolean;
+  registryFailure?:
+    "closing_search_503" | "opening_get_503" | "opening_network";
   allRegistryUnavailable?: boolean;
   changedCashAfterPacket?: number;
   failedPdfAfterPacket?: number;
@@ -657,6 +659,7 @@ function network(scenario: Scenario = {}) {
     reportMember = String(owner.memberId);
   let registryRows = allRows(),
     broadSearches = 0,
+    registryForms = 0,
     packetNumber = 0,
     retry = false,
     zero = false;
@@ -729,10 +732,25 @@ function network(scenario: Scenario = {}) {
         rows[0]!.ContributionAmount = 700;
       return rows;
     };
-    if (route === "/Public/ViewCommittees") return respond("form");
+    if (route === "/Public/ViewCommittees") {
+      registryForms++;
+      if (registryForms <= 3) {
+        if (scenario.registryFailure === "opening_network")
+          throw new Error("synthetic registry transport unavailable");
+        if (scenario.registryFailure === "opening_get_503")
+          return respond("registry unavailable", "text/html", 503);
+      }
+      return respond("form");
+    }
     if (route === "/Public/Search") {
       const broad = !fields.CommitteeType && !fields.txtCommitteeID;
       if (broad) broadSearches++;
+      if (
+        broad &&
+        broadSearches >= 2 &&
+        scenario.registryFailure === "closing_search_503"
+      )
+        return respond("registry unavailable", "text/html", 503);
       registryRows = allRows().filter(
         (r) =>
           (!fields.CommitteeType ||
@@ -1071,6 +1089,47 @@ describe("ordinary Delaware verified source loader", () => {
     expect(result.cash?.directContributionCents).toBe(184000);
     expect(result.pac).toBeUndefined();
   });
+  it.each([
+    "closing_search_503",
+    "opening_get_503",
+    "opening_network",
+  ] as const)(
+    "retains verified cash and original failed registry evidence after %s",
+    async (registryFailure) => {
+      const result = await load(network({ registryFailure }));
+      expect(result.cash?.directContributionCents).toBe(184000);
+      expect(result.pac).toBeUndefined();
+      const saved = await readDelawareCfrsCommitteeArtifacts({
+        cacheDir,
+        cfId: owner.cfId,
+      });
+      const indices =
+        registryFailure === "closing_search_503"
+          ? saved.sourcePacketIndex!.registryClosingCaptureIndices
+          : saved.sourcePacketIndex!.registryOpeningCaptureIndices;
+      const captures = indices.map((i) => saved.sourceCaptures![i]!);
+      if (registryFailure === "opening_network") {
+        expect(captures).toEqual([]);
+      } else {
+        const failed = captures.filter((c) => c.status === 503);
+        expect(failed).toHaveLength(3);
+        expect(failed.map((c) => c.attempt)).toEqual([1, 2, 3]);
+        expect(
+          failed.every((c) => c.body.toString() === "registry unavailable"),
+        ).toBe(true);
+      }
+      // Reuse candidate evidence, but failed registry evidence cannot grant PAC authority.
+      const healthy = network();
+      const replay = await load(healthy);
+      expect(packetCount(healthy)).toBe(1);
+      expect(replay.cash?.directContributionCents).toBe(184000);
+      if (registryFailure !== "closing_search_503")
+        expect(replay.pac).toBeUndefined();
+      const recovered = await load(network());
+      expect(recovered.cash?.directContributionCents).toBe(184000);
+      expect(recovered.pac?.donors[0]?.cashAmountCents).toBe(60000);
+    },
+  );
   it("resolves actual CF01 independently when the complete catalog fails", async () => {
     const result = await load(network({ allRegistryUnavailable: true }));
     expect(result.cash?.directContributionCents).toBe(184000);

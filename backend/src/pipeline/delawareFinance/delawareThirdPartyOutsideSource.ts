@@ -544,7 +544,15 @@ function registry(
     if (identities.some((v) => !equal(v, identities[0])))
       fail("conflicting owner/context rows within published SO edition");
   }
-  return { versions: distinct, members };
+  // Registry display order is not identity; retain every complete row.
+  return {
+    versions: distinct,
+    members: members.sort((a, b) => {
+      const left = canonical(a),
+        right = canonical(b);
+      return left < right ? -1 : left > right ? 1 : 0;
+    }),
+  };
 }
 function reports(
   caps: readonly DelawareCfrsResponseCapture[],
@@ -845,6 +853,8 @@ function matchFinancial(
       if (new Set(nativeFacts.map(canonical)).size !== 1 || new Set(targets.map(canonical)).size !== 1)
         fail("repeated monetary identities have ambiguous source class/mechanism/target");
     }
+    // Equivalent rows must bind to the same PDF occurrences after a reorder.
+    rows.sort((a, b) => a.transactionId - b.transactionId);
   }
   const matched = pdf.map((r) => {
     const queue = queues.get(canonical(pdfTuple(r)))!;

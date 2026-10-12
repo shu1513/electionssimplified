@@ -613,7 +613,37 @@ describe("Delaware optional packet index and official source files", () => {
     expect(result.manifest.sourcePacketIndex).not.toHaveProperty("complete");
   });
 
+  it.each(["search_503", "get_503", "no_response"])(
+    "roundtrips unavailable registry evidence without claiming authority: %s",
+    async (kind) => {
+      const input = indexedInput();
+      if (kind === "no_response") {
+        input.sourcePacketIndex.registryOpeningCaptureIndices = [];
+        input.sourcePacketIndex.registryClosingCaptureIndices = [];
+      } else {
+        for (const i of [0, 2]) {
+          input.sourceCaptures[i]!.status = 503;
+          if (kind === "get_503") {
+            input.sourceCaptures[i]!.url =
+              "https://cfrs.elections.delaware.gov/Public/ViewCommittees";
+            input.sourceCaptures[i]!.method = "GET";
+            input.sourceCaptures[i]!.financeFields = null;
+          }
+        }
+      }
+      await storeDelawareCfrsCommitteeArtifacts(input);
+      const result = await readDelawareCfrsCommitteeArtifacts({
+        cacheDir,
+        cfId: CF_ID,
+      });
+      expect(result.sourcePacketIndex).toEqual(input.sourcePacketIndex);
+      expect(result.sourceCaptures).toEqual(input.sourceCaptures);
+    },
+  );
+
   it.each([
+    "empty_candidate",
+    "filtered_registry_503",
     "missing_journal",
     "negative",
     "out_of_range",
@@ -635,6 +665,11 @@ describe("Delaware optional packet index and official source files", () => {
     const before = await readFile(join(cacheDir, CF_ID, "manifest.json"));
     const input = indexedInput() as any;
     const index = input.sourcePacketIndex;
+    if (kind === "empty_candidate") index.candidateCaptureIndices = [];
+    if (kind === "filtered_registry_503") {
+      input.sourceCaptures[0].status = 503;
+      input.sourceCaptures[0].financeFields.CommitteeStatus = "Active";
+    }
     if (kind === "missing_journal") delete input.sourceCaptures;
     if (kind === "negative") index.candidateCaptureIndices = [-1];
     if (kind === "out_of_range") index.candidateCaptureIndices = [3];

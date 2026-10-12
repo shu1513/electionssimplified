@@ -974,12 +974,7 @@ export async function loadDelawareVerifiedFinanceSource(
     `Outside discovery inspected ${probes} payer identities and ${financial} financial leads; scoped positive reports only`,
   );
   let bundleCommitted = false;
-  if (
-    structurallyClosed &&
-    after &&
-    globalClosing?.sourceCaptures.length &&
-    globalOpening.sourceCaptures.length
-  ) {
+  if (structurallyClosed && after && globalClosing) {
     try {
       // Cache the complete current closing, not a synthesized fresh copy of an old opening.
       const all = [...journal];

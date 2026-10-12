@@ -1,4 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import { loadOregonVerifiedFinanceForCandidate } from "../../../src/pipeline/oregonFinance/oregonVerifiedFinanceBatchLoader.js";
+
+vi.mock("../../../src/pipeline/oregonFinance/oregonVerifiedFinanceBatchLoader.js", () => ({
+  loadOregonVerifiedFinanceForCandidate: vi.fn(async () => ({ diagnostics: [] })),
+}));
 
 import {
   buildOregonOrestarCommitteeExportWorkbook,
@@ -43,6 +48,38 @@ function htmlResponse(html: string, overrides: Partial<{ ok: boolean; status: nu
 }
 
 describe("oregonCandidateFinanceBatchSync", () => {
+  it("calls verified acquisition in the normal batch and forwards its independent components", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [dueRow()], rowCount: 1 })), connect: vi.fn() };
+    const components = { candidateContext: {
+      candidateId: CANDIDATE_ID, electionId: ELECTION_ID, committeeId: "4792", candidateName: "Tina Kotek",
+      electionYear: 2026, electionType: "General" as const, officeName: "Governor", district: null,
+    } };
+    vi.mocked(loadOregonVerifiedFinanceForCandidate).mockResolvedValueOnce({
+      components, diagnostics: ["Outside payer omitted"], generationDir: "/tmp/test-public-generation",
+    });
+    const sync = vi.fn(async (_input: unknown) => ({ candidateId: CANDIDATE_ID }));
+    await syncDueOregonCandidateFinance({ db, now: NOW, maxCandidates: 1, refresh: true,
+      rawCacheDir: "/tmp/test-public-cache", autoLinkMissingLinks: false,
+      loadTransactionDetails: async () => [], syncOregonCandidateFinanceFn: sync as never });
+    expect(loadOregonVerifiedFinanceForCandidate).toHaveBeenCalledWith(expect.objectContaining({
+      db, refresh: true, rawCacheDir: "/tmp/test-public-cache", row: expect.objectContaining({ committeeId: "4792" }),
+    }));
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ verifiedFinance: components,
+      verifiedFinanceDiagnostics: ["Outside payer omitted"], verifiedSourceGenerationDir: "/tmp/test-public-generation" }));
+  });
+
+  it("preserves verified components on acquisition failure while syncing available receipts", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [dueRow()], rowCount: 1 })), connect: vi.fn() };
+    vi.mocked(loadOregonVerifiedFinanceForCandidate).mockRejectedValueOnce(new Error("Portal blocked"));
+    const sync = vi.fn(async (_input: unknown) => ({ candidateId: CANDIDATE_ID }));
+    const result = await syncDueOregonCandidateFinance({ db, now: NOW, maxCandidates: 1, autoLinkMissingLinks: false,
+      loadTransactionDetails: async () => [], syncOregonCandidateFinanceFn: sync as never });
+    expect(result.syncedCandidateCount).toBe(1);
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ verifiedFinance: undefined,
+      verifiedFinanceDiagnostics: ["Oregon verified source acquisition failed: Portal blocked"] }));
+    expect(sync.mock.calls[0]![0]).not.toHaveProperty("outsideTransactionDetails");
+  });
+
   it("lists active Oregon finance links that are due for sync", async () => {
     const db = {
       query: vi.fn(async () => ({
@@ -127,8 +164,41 @@ describe("oregonCandidateFinanceBatchSync", () => {
         "state_upper::State Senator",
         "state_lower::State Lower Chamber Legislator",
       ]),
+      false,
+      null,
+      null,
     ]);
   });
+
+  it("refreshes one scoped candidate before the SQL limit and keeps post-deadline eligibility", async () => {
+    const db = { query: vi.fn(async () => ({ rows: [dueRow()], rowCount: 1 })), connect: vi.fn() };
+    const syncFn = vi.fn().mockResolvedValue({});
+    await syncDueOregonCandidateFinance({
+      db, now: NOW, refresh: true, candidateId: CANDIDATE_ID.toUpperCase(), electionYear: 2026,
+      maxCandidates: 1, loadTransactionDetails: vi.fn().mockResolvedValue([]),
+      syncOregonCandidateFinanceFn: syncFn,
+    });
+    expect(db.query).toHaveBeenCalledTimes(1);
+    const sql = String(db.query.mock.calls[0]?.[0]);
+    expect(sql).toContain("$7::boolean");
+    expect(sql).toContain("($8::uuid IS NULL OR link.candidate_id = $8::uuid)");
+    expect(sql).toContain("($9::int IS NULL OR link.election_year = $9::int)");
+    expect(sql.indexOf("link.candidate_id = $8::uuid")).toBeLessThan(sql.indexOf("LIMIT $3::int"));
+    expect(db.query.mock.calls[0]?.[1]).toEqual([
+      NOW.toISOString(), 7, 1, 100, 730, expect.any(Array), true, CANDIDATE_ID, 2026,
+    ]);
+    expect(syncFn).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([{ candidateId: "invalid" }, { electionYear: 1999 }, { electionYear: 2101 }, { electionYear: 2026.5 }])(
+    "rejects invalid scope before discovery, fetching or writes: %j", async (scope) => {
+      const db = { query: vi.fn(), connect: vi.fn() };
+      const load = vi.fn();
+      await expect(syncDueOregonCandidateFinance({ db, ...scope, loadTransactionDetails: load })).rejects.toThrow(/Oregon finance/);
+      expect(db.query).not.toHaveBeenCalled();
+      expect(load).not.toHaveBeenCalled();
+    }
+  );
 
   it("syncs selected due candidates with injected ORESTAR transaction details and continues after failure", async () => {
     const db = {

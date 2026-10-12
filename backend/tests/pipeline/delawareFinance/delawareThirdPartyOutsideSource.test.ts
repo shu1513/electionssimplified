@@ -772,7 +772,7 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
     expect(r.proof).toBeUndefined();
     expect(r.diagnostics.join()).toContain("multiple current-period");
   });
-  it.each(["equivalent", "address_mismatch", "target_mismatch"])("handles repeated monetary identities: %s", async (kind) => {
+  it.each(["equivalent", "reordered", "address_mismatch", "target_mismatch"])("handles repeated monetary identities: %s", async (kind) => {
     const i = input();
     for (const phase of [i.before, i.after]) {
       const first = { ...nativeExpense(), ExpenseAmount: 249507.5 },
@@ -827,8 +827,14 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
       cap.byteCount = cap.body.length;
       cap.sha256 = createHash("sha256").update(cap.body).digest("hex");
     }
+    if (kind === "reordered")
+      changed(i.after.expenses[1]!, (body) => {
+        const native = JSON.parse(body);
+        native.data.reverse();
+        return JSON.stringify(native);
+      });
     const result = await verifyDelawareThirdPartyOutsideSource(i);
-    if (kind !== "equivalent") {
+    if (kind !== "equivalent" && kind !== "reordered") {
       expect(result.proof).toBeUndefined();
       expect(result.diagnostics.join()).toContain(kind === "address_mismatch" ? "address corroboration" : "ambiguous source class/mechanism/target");
       return;
@@ -862,6 +868,24 @@ describe("Delaware pure TP outside full source binder (synthetic protocol)", () 
     expect(
       (await verifyDelawareThirdPartyOutsideSource(i)).proof,
     ).toBeDefined();
+    changed(i.after.receiverIdentity[1]!, (body) => {
+      const registry = JSON.parse(body);
+      registry.data.reverse();
+      return JSON.stringify(registry);
+    });
+    expect(
+      (await verifyDelawareThirdPartyOutsideSource(i)).proof,
+    ).toBeDefined();
+    const reordered = i.after.receiverIdentity[1]!.body.toString();
+    changed(i.after.receiverIdentity[1]!, (body) => {
+      const registry = JSON.parse(body);
+      registry.data[1].Formtype = "SO";
+      return JSON.stringify(registry);
+    });
+    expect(
+      (await verifyDelawareThirdPartyOutsideSource(i)).proof,
+    ).toBeUndefined();
+    changed(i.after.receiverIdentity[1]!, () => reordered);
     changed(i.after.receiverIdentity[1]!, (s) => {
       const j = JSON.parse(s);
       j.data[0].Office = "State Office - Governor";

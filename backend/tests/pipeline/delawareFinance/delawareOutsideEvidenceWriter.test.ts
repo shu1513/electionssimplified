@@ -291,6 +291,32 @@ describe("Delaware scoped positive outside writer", () => {
     expect(r.diagnostics.length).toBeGreaterThan(0);
     expect(mutations(d)).toHaveLength(0);
   });
+  it("refreshes legacy reversed occurrence bindings without changing the outside total", async () => {
+    const old = proof("01"),
+      next = proof("02");
+    for (const p of [old, next]) {
+      p.allocations = [0, 1].map((occurrence) => ({
+        ...p.allocations[0]!,
+        occurrence,
+        transactionId: 786022 + occurrence,
+        amountCents: 24950750,
+      }));
+    }
+    old.allocations[0]!.transactionId = 786023;
+    old.allocations[1]!.transactionId = 786022;
+    next.reports[0]!.financialFingerprint = "b".repeat(64);
+    const d = db([stored(old)]);
+    expect((await execute(d, [next], provenance(old))).groupsWritten).toBe(1);
+    expect(JSON.parse(d.query.mock.calls[1]![1]![2] as string)[0].amount).toBe(
+      499015,
+    );
+    const update = d.query.mock.calls.find(([sql]) =>
+      sql.includes("UPDATE public.de_candidate_finance_summaries"),
+    )!;
+    expect(JSON.parse(update[1]![2] as string).evidence[0].allocations).toEqual(
+      next.allocations,
+    );
+  });
   it("accepts independently verified same-period amendment identity with retained IDs and newer closure", async () => {
     const old = proof("01"),
       next = proof("02"),

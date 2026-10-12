@@ -496,8 +496,9 @@ function validatePacketIndex(
     return indices.map((v) => journal!.captures[v]!);
   }
   const candidate = references(value.candidateCaptureIndices);
-  const opening = references(value.registryOpeningCaptureIndices);
-  const closing = references(value.registryClosingCaptureIndices);
+  // Unavailable registry attempts remain journal data, not financial authority.
+  const opening = references(value.registryOpeningCaptureIndices, true);
+  const closing = references(value.registryClosingCaptureIndices, true);
   const allGroups = [
     value.candidateCaptureIndices,
     value.registryOpeningCaptureIndices,
@@ -568,7 +569,6 @@ function validatePacketIndex(
     );
     const expected = buildDelawareCommitteeSearchFields();
     if (
-      !searches.some((c) => c.status === 200) ||
       searches.some(
         (c) =>
           [

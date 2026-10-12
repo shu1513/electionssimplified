@@ -522,8 +522,10 @@ function bindOccurrences(
         ),
       );
       if (
-        counterpart?.length !== 1 ||
-        field(counterpart[0]!, "ExpenseCategory") !== "Return Contributions"
+        !counterpart?.length ||
+        counterpart.some(
+          (row) => field(row, "ExpenseCategory") !== "Return Contributions",
+        )
       )
         fail("unbound/ambiguous Return Contributions annotation");
       name = name.slice(0, -suffix.length);
