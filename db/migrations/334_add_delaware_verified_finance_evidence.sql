@@ -39,7 +39,8 @@ CREATE TABLE public.de_candidate_finance_pac_donors (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT de_finance_pac_donors_net_check CHECK (
-    amount > 0 AND cash_amount <> 'NaN'::numeric AND in_kind_amount <> 'NaN'::numeric
+    -- Signed and zero receiver positions must survive candidate-wide netting.
+    cash_amount <> 'NaN'::numeric AND in_kind_amount <> 'NaN'::numeric
   ),
   CONSTRAINT de_finance_pac_donors_unique
     UNIQUE (link_id, election_year, committee_id),
