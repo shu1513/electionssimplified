@@ -485,10 +485,65 @@ function packetInput(
   };
 }
 describe("Delaware candidate source packet transport", () => {
+  it("requests whole Member history using actual blank date selectors, retaining older rows without cycle claims", async () => {
+    const script = packetScript();
+    const old = nativeReceipt(1, "2018-06-30");
+    script[13] = {
+      ...script[13]!,
+      response: () => json({ data: [old], total: 0 }),
+    };
+    script[14] = {
+      ...script[14]!,
+      response: () => csv(packetCsv([old], "receipts")),
+    };
+    const { fetchImpl, requests } = scriptedFetch(script);
+    const r = await fetchDelawareCfrsCandidateSourcePacket({
+      ...packetInput(fetchImpl),
+      requestWindow: null,
+    });
+    expect(r.requestWindow).toBeNull();
+    expect(r.queryScope).toEqual({ kind: "whole_member" });
+    expect(r.receipts.rows[0]!.date).toBe("2018-06-30");
+    for (const route of ["/Public/ViewReceipts", "/Public/OtherSearch"]) {
+      const fields = new URLSearchParams(
+        requests.find((q) => new URL(q.url).pathname === route)!.body,
+      );
+      expect(fields.get("MemberId")).toBe(String(MEMBER_ID));
+      for (const field of [
+        "dtStartDate",
+        "dtEndDate",
+        "FilingYear",
+        "FilingPeriodName",
+      ])
+        expect(fields.get(field)).toBe("");
+    }
+  });
+  it("retains account binding in whole Member mode", async () => {
+    const script = packetScript();
+    const foreign = { ...nativeReceipt(), WC_ID: "01008888" };
+    script[13] = {
+      ...script[13]!,
+      response: () => json({ data: [foreign], total: 0 }),
+    };
+    script[14] = {
+      ...script[14]!,
+      response: () => csv(packetCsv([foreign], "receipts")),
+    };
+    const { fetchImpl } = scriptedFetch(script);
+    await expect(
+      fetchDelawareCfrsCandidateSourcePacket({
+        ...packetInput(fetchImpl),
+        requestWindow: null,
+      }),
+    ).rejects.toThrow(/outside requested account/);
+  });
+
+
   it("fetches exact scoped complete native/CSV facts, all source versions and actual SO href without current/money claims or cache writes", async () => {
     const { fetchImpl, requests } = scriptedFetch(packetScript());
     const start = Date.now();
     const r = await fetchDelawareCfrsCandidateSourcePacket(packetInput(fetchImpl));
+    expect(r.queryScope).toEqual({ kind: "bounded_window", start: "2023-01-01", end: "2026-12-31" });
     expect(r.receipts.rows).toHaveLength(1);
     expect(r.expenses.rows).toHaveLength(1);
     expect(r.registryRows).toHaveLength(2);
@@ -566,7 +621,7 @@ describe("Delaware candidate source packet transport", () => {
       throw new Error("mutated callback");
     };
     const r = await pending;
-    expect(r.requestWindow.start).toBe("2023-01-01");
+    expect(r.requestWindow?.start).toBe("2023-01-01");
     expect(captures).toBe(requests.length);
   });
   it("closes multi-page source identity with only the proved exact boundary overlap while retaining equal distinct gift IDs", async () => {

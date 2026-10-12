@@ -452,8 +452,8 @@ export type DelawareCfrsCandidateSourcePacketInput = {
   cfId: string;
   memberId: number;
   committeeName: string;
-  /** Actual query bounds only. Caller still needs independent legal/campaign qualification. */
-  requestWindow: { start: string; end: string };
+  /** Explicit null requests whole Member history with blank dates; neither mode certifies a legal cycle. */
+  requestWindow: { start: string; end: string } | null;
   sessionOptions?: DelawareCfrsSessionOptions;
 };
 export type DelawareCfrsCandidateSourcePacket = {
@@ -461,7 +461,8 @@ export type DelawareCfrsCandidateSourcePacket = {
   registryRows: readonly Readonly<Record<string, unknown>>[];
   organizationUrls: readonly string[];
   diagnostics: readonly string[];
-  requestWindow: { start: string; end: string };
+  requestWindow: { start: string; end: string } | null;
+  queryScope: { kind: "bounded_window"; start: string; end: string } | { kind: "whole_member" };
   allVersionReportRows: readonly DelawareFiledReportRow[];
   latestAccountReportRows: readonly DelawareFiledReportRow[];
   reportPdfs: readonly DelawareCfrsReportPdfInput[];
@@ -699,7 +700,7 @@ export async function fetchDelawareCfrsCandidateSourcePacket(
 ): Promise<DelawareCfrsCandidateSourcePacket> {
   const input = {
     ...original,
-    requestWindow: { ...original.requestWindow },
+    requestWindow: original.requestWindow === null ? null : { ...original.requestWindow },
     sessionOptions: { ...original.sessionOptions },
   };
   const { cfId, memberId } = input;
@@ -709,11 +710,11 @@ export async function fetchDelawareCfrsCandidateSourcePacket(
     !Number.isSafeInteger(memberId) ||
     memberId <= 0 ||
     !committeeName ||
-    input.requestWindow.start > input.requestWindow.end
+    (input.requestWindow !== null && input.requestWindow.start > input.requestWindow.end)
   )
     throw new Error("Invalid Delaware candidate packet scope");
-  const start = packetDate(input.requestWindow.start),
-    end = packetDate(input.requestWindow.end);
+  const start = input.requestWindow === null ? "" : packetDate(input.requestWindow.start),
+    end = input.requestWindow === null ? "" : packetDate(input.requestWindow.end);
   const { session, sourceCaptures } = packetSession(input.sessionOptions);
   const { registryRows, organizationUrls, diagnostics } = await fetchPacketOwnerSource(session, {
     cfId,
@@ -796,8 +797,8 @@ export async function fetchDelawareCfrsCandidateSourcePacket(
       ledger.rows.some(
         (r) =>
           r.rawFields[field] !== cfId ||
-          r.date < input.requestWindow.start ||
-          r.date > input.requestWindow.end
+          (input.requestWindow !== null &&
+            (r.date < input.requestWindow.start || r.date > input.requestWindow.end))
       )
     )
       throw new Error("Delaware packet financial row outside requested account/window");
@@ -807,6 +808,9 @@ export async function fetchDelawareCfrsCandidateSourcePacket(
     organizationUrls,
     diagnostics,
     requestWindow: input.requestWindow,
+    queryScope: input.requestWindow === null
+      ? { kind: "whole_member" }
+      : { kind: "bounded_window", ...input.requestWindow },
     allVersionReportRows,
     latestAccountReportRows,
     reportPdfs,
