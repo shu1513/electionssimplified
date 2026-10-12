@@ -8,8 +8,12 @@ import {
   syncDueMaineCandidateFinance,
   type MaineCandidateFinanceBatchSyncResult,
 } from "../pipeline/maineFinance/maineCandidateFinanceBatchSync.js";
-import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
+import {
+  readStrictFlagValue,
+  readStrictPositiveIntegerFlag,
+} from "../utils/cliFlags.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
+import { validateMaineMapLightReportUrl } from "../pipeline/maineFinance/maineMapLightReportClient.js";
 
 export type SyncDueMaineCandidateFinanceScriptOptions = {
   dryRun: boolean;
@@ -19,40 +23,94 @@ export type SyncDueMaineCandidateFinanceScriptOptions = {
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   rawCacheDir?: string;
+  sourceMode?: "maplight" | "legacy";
+  candidateId?: string;
+  electionYear?: number;
+  refresh?: boolean;
+  resync?: boolean;
+  mapLightReportUrls?: readonly string[];
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
+const KNOWN_BOOLEAN_FLAGS = new Set([
+  "--dry-run",
+  "--force",
+  "--refresh",
+  "--resync",
+  "--legacy",
+]);
 const KNOWN_VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",
   "--lookback-days",
   "--lookahead-days",
   "--raw-cache-dir",
+  "--candidate-id",
+  "--year",
+  "--report-urls",
 ]);
 
 function validateKnownFlags(args: readonly string[]): void {
-  assertKnownCliFlags(args, "Maine candidate finance due sync", KNOWN_BOOLEAN_FLAGS, KNOWN_VALUE_FLAGS);
+  assertKnownCliFlags(
+    args,
+    "Maine candidate finance due sync",
+    KNOWN_BOOLEAN_FLAGS,
+    KNOWN_VALUE_FLAGS,
+  );
 }
 
 export function parseSyncDueMaineCandidateFinanceScriptArgs(
-  args: readonly string[]
+  args: readonly string[],
 ): SyncDueMaineCandidateFinanceScriptOptions {
   validateKnownFlags(args);
+  const candidateId = readStrictFlagValue(args, "--candidate-id");
+  if (
+    candidateId &&
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      candidateId,
+    )
+  )
+    throw new Error("Invalid --candidate-id: expected UUID");
+  const electionYear = readStrictPositiveIntegerFlag(args, "--year");
+  if (
+    electionYear !== undefined &&
+    (electionYear < 2000 || electionYear > 2100)
+  )
+    throw new Error("Invalid --year: expected election year");
+  const reportUrls = readStrictFlagValue(args, "--report-urls");
+  const mapLightReportUrls = reportUrls
+    ?.split(",")
+    .map(validateMaineMapLightReportUrl);
+  if (args.includes("--legacy") && mapLightReportUrls)
+    throw new Error("--report-urls requires the current Maine publisher");
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
-    electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
-    electionLookaheadDays: readStrictPositiveIntegerFlag(args, "--lookahead-days"),
+    electionLookbackDays: readStrictPositiveIntegerFlag(
+      args,
+      "--lookback-days",
+    ),
+    electionLookaheadDays: readStrictPositiveIntegerFlag(
+      args,
+      "--lookahead-days",
+    ),
     rawCacheDir: readStrictFlagValue(args, "--raw-cache-dir") || undefined,
+    ...(args.includes("--legacy") ? { sourceMode: "legacy" as const } : {}),
+    ...(args.includes("--refresh") ? { refresh: true } : {}),
+    ...(args.includes("--resync") ? { resync: true } : {}),
+    ...(candidateId ? { candidateId } : {}),
+    ...(electionYear !== undefined ? { electionYear } : {}),
+    ...(mapLightReportUrls ? { mapLightReportUrls } : {}),
   };
 }
 
 function getDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL?.trim();
   if (!databaseUrl) {
-    throw new Error("DATABASE_URL is required for Maine candidate finance due sync");
+    throw new Error(
+      "DATABASE_URL is required for Maine candidate finance due sync",
+    );
   }
   return databaseUrl;
 }
@@ -74,10 +132,14 @@ export function toSyncDueMaineCandidateFinanceScriptOutput(input: {
 async function main(): Promise<void> {
   const startedAt = new Date();
   loadProjectEnv();
-  const options = parseSyncDueMaineCandidateFinanceScriptArgs(process.argv.slice(2));
+  const options = parseSyncDueMaineCandidateFinanceScriptArgs(
+    process.argv.slice(2),
+  );
 
   if (!isMaineCampaignFinanceSyncEnabled(options.force)) {
-    console.log("Maine campaign finance due sync disabled; no Maine data loaded");
+    console.log(
+      "Maine campaign finance due sync disabled; no Maine data loaded",
+    );
     return;
   }
 
@@ -93,9 +155,25 @@ async function main(): Promise<void> {
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
       rawDataCacheDir: options.rawCacheDir,
+      sourceMode: options.sourceMode,
+      candidateId: options.candidateId,
+      electionYear: options.electionYear,
+      refresh: options.refresh,
+      resync: options.resync,
+      mapLightReportUrls: options.mapLightReportUrls,
     });
 
-    console.log(JSON.stringify(toSyncDueMaineCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
+    console.log(
+      JSON.stringify(
+        toSyncDueMaineCandidateFinanceScriptOutput({
+          startedAt,
+          options,
+          result,
+        }),
+        null,
+        2,
+      ),
+    );
   } finally {
     await pool.end();
   }

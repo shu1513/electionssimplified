@@ -47,7 +47,67 @@ authorize a canonical write, infer current editions or complete cycle/channel
 coverage, or substitute a known isolated gift for whole accepted source scope.
 The next implementation decision follows the full export/return audit.
 
-## Normal integration and real proof still required
+## Current source integration
+
+The actual Rebuild Maine Q3 report resolves the $5,025 return: it is in
+ordinary Returned Expenditures, with an explicit empty Returned Independent
+Expenditures section. Its 38 IE transactions reconcile to $73,843.66. The
+ordinary return must not be deducted from IE or allocated proportionately.
+This classifies those joined source transactions; it does not establish a
+latest-edition or full-cycle guarantee.
+
+Current acquisition discovers the actual dataset attachment from the guide
+and paged publisher catalog, verifies saved originals first, then checks
+opening/closing selections around bounded downloads. The real ordinary
+raw-refresh on October 12 captured both CSV bodies freshly: 29,739,015 bytes
+for all filers and 379,864 bytes for IE. Their SHA-256 hashes agree with the
+independent source originals. The 344 source and CLI tests and backend
+typecheck passed before storage integration.
+
+The modern batch is the ordinary default. Legacy replay is explicit. Modern
+committee positions and allocated IE have separate source scopes, preserving
+direct summaries/breakdowns and original receiving committee IDs. Official
+SOS ballot context and whole-export own-filer uniqueness qualify candidates;
+unknown offices, conflicting known names, ambiguous rows and unresolved
+returns preserve the affected component. SS/SR legislative bindings are
+established; the governor workbook GOV versus office-key GV discrepancy is
+unresolved. The 2025 dataset remains unavailable in the observed catalog.
+
+## Local monetary proof — October 12
+
+Migration 338 was applied through the normal local migration runner, without
+changing any applied migration. The ordinary default modern sync for Craig
+Hickman persisted two reported committee positions/$600 and 25 allocated IE
+rows: $134,101.94 support and $7,250 oppose. The actual production reader agrees.
+All 19 existing summaries, 104 direct breakdowns, original receiving-link
+business fields and verification timestamps match the prewrite audit. The link
+updated_at changes when evidence is attached; direct freshness stays July 21.
+
+The public Q3 report returned 403 to stateless Node requests while opening in
+the browser. Chrome's HTML-only saved page was registered through
+`registerMaineMapLightSavedReport`, preserving its actual browser-save interval,
+byte count/SHA and `browser_dom` provenance. It does not claim a fresh HTTP
+body/status. The ordinary `--resync` run used that verified saved original and
+reconciled its financial sections against the complete publisher export.
+The preceding fresh sync wrote the donor component and preserved outside data
+when that report was unavailable; it did not write outside zeros.
+
+The actual frontend `FinanceSummaryCard` was rendered from the real reader DTO.
+It shows the outside groups, unchanged Raised and dated scope notes. Hickman's
+$600 committee subset reaches `pac_money_by_interest`; the existing $5,000 PAC
+panel threshold hides it on this witness's card. No global display threshold
+was changed. Overall outside totals remain unknown, and 2025/paper/full-cycle
+coverage is not asserted.
+
+`--refresh` bypasses staleness and forces genuinely fresh source acquisition;
+`--resync` bypasses only staleness while using the verified saved-first path.
+The raw flag must remain inline for network acquisition. Report references
+are exact observed public filer/filing routes, without private queries. A
+saved source registration requires its original SHA/bytes/observation interval,
+canonical public binding and successful financial-section parsing. Browser
+sources are labeled explicitly and have no invented HTTP method/status.
+
+## Verification and remaining scope
 
 - Independently acquire current IE and donor source components through the
   ordinary batch/CLI, using saved originals and fresh source observations.
@@ -56,8 +116,8 @@ The next implementation decision follows the full export/return audit.
 - Use production writer/reader; retain existing direct totals/freshness and
   unavailable prior components. Partial source scope must not clear unrelated
   groups or turn unknown overall spending into zero.
-- Run an actual ordinary local sync with AI disabled and flags inline; verify
-  persisted row counts/money and render an actual candidate finance card.
+- Actual ordinary local sync, persisted money/production reader and candidate
+  card proof are complete for Hickman with AI disabled and flags inline.
 - Run relevant checks and open one Maine-only PR after monetary proof. No PR
   from fixture parser output or a dry run; no production operation.
 
@@ -74,6 +134,10 @@ Post-general is due **December 15**, through December 8: fresh **December 16**.
 PAC annual is due **January 15, 2027**, through December 31: fresh **January 16**.
 Use the explicit 2026 cohort/lookback after election day. Source audits must
 retain actual acquisition/update times and latest accepted report periods.
+The current modern ownership guard accepts declared General candidates.
+Before a post-election rerun, audit changed candidate statuses and extend/test
+eligibility deliberately if necessary; do not claim coverage from a zero-row
+run. Governor qualification and missing 2025 coverage remain separate gaps.
 No automation is included.
 
 Sources: [Maine Ethics](https://www.maine.gov/ethics/),

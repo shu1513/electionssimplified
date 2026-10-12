@@ -31,10 +31,14 @@ async function makeTempDir(): Promise<string> {
 
 afterEach(async () => {
   vi.restoreAllMocks();
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+  await Promise.all(
+    tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+  );
 });
 
-function contribution(overrides: Partial<MaineCfisContributionRow> = {}): MaineCfisContributionRow {
+function contribution(
+  overrides: Partial<MaineCfisContributionRow> = {},
+): MaineCfisContributionRow {
   return {
     OrgID: "1001",
     LegacyID: "618",
@@ -71,7 +75,9 @@ function contribution(overrides: Partial<MaineCfisContributionRow> = {}): MaineC
   };
 }
 
-function expenditure(overrides: Partial<MaineCfisExpenditureRow> = {}): MaineCfisExpenditureRow {
+function expenditure(
+  overrides: Partial<MaineCfisExpenditureRow> = {},
+): MaineCfisExpenditureRow {
   return {
     "Election Year": "2024",
     OrgID: "242",
@@ -122,11 +128,16 @@ function expenditure(overrides: Partial<MaineCfisExpenditureRow> = {}): MaineCfi
 }
 
 function contributionCsv(rows: readonly MaineCfisContributionRow[]): string {
-  const escape = (value: string): string => (/[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
+  const escape = (value: string): string =>
+    /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
   const lines = rows.map((row) =>
-    MAINE_CFIS_CONTRIBUTION_COLUMNS.map((column) => escape(row[column] ?? "")).join(",")
+    MAINE_CFIS_CONTRIBUTION_COLUMNS.map((column) =>
+      escape(row[column] ?? ""),
+    ).join(","),
   );
-  return [MAINE_CFIS_CONTRIBUTION_COLUMNS.join(","), ...lines].join("\n") + "\n";
+  return (
+    [MAINE_CFIS_CONTRIBUTION_COLUMNS.join(","), ...lines].join("\n") + "\n"
+  );
 }
 
 async function writeContributionArtifact(input: {
@@ -162,7 +173,7 @@ async function writeContributionArtifact(input: {
       },
       bytesWritten: Buffer.byteLength(csv, "utf8"),
     }),
-    "utf8"
+    "utf8",
   );
 }
 
@@ -196,7 +207,7 @@ describe("maineCandidateFinanceBatchSync", () => {
         maxCandidates: 10,
         electionLookbackDays: 1,
         electionLookaheadDays: 730,
-      })
+      }),
     ).resolves.toEqual({
       rows: [
         {
@@ -237,7 +248,8 @@ describe("maineCandidateFinanceBatchSync", () => {
     const contributionData: MaineContributionDataForYear = {
       year: 2024,
       filePath: "/tmp/CON_2024.csv",
-      sourceUrl: "https://mainecampaignfinance.com/api/DataDownload/CSVDownloadReport",
+      sourceUrl:
+        "https://mainecampaignfinance.com/api/DataDownload/CSVDownloadReport",
       rowsByCommitteeId: new Map([
         ["1001", [contributionRows[0] as MaineCfisContributionRow]],
         ["242", [contributionRows[1] as MaineCfisContributionRow]],
@@ -246,7 +258,8 @@ describe("maineCandidateFinanceBatchSync", () => {
     const expenditureData: MaineExpenditureDataForYear = {
       year: 2024,
       filePath: "/tmp/EXP_2024.csv",
-      sourceUrl: "https://mainecampaignfinance.com/api/DataDownload/CSVDownloadReport",
+      sourceUrl:
+        "https://mainecampaignfinance.com/api/DataDownload/CSVDownloadReport",
       rows: [expenditure()],
     };
     const db = {
@@ -281,6 +294,7 @@ describe("maineCandidateFinanceBatchSync", () => {
     const syncFn = vi.fn().mockResolvedValue(syncResult);
 
     const result = await syncDueMaineCandidateFinance({
+      sourceMode: "legacy",
       db,
       now: new Date("2026-06-25T12:00:00.000Z"),
       maxCandidates: 10,
@@ -327,7 +341,7 @@ describe("maineCandidateFinanceBatchSync", () => {
           committeeName: "Paul for Maine",
           sourceUrl: "https://mainecampaignfinance.com/",
         },
-      })
+      }),
     );
   });
 
@@ -343,7 +357,10 @@ describe("maineCandidateFinanceBatchSync", () => {
     await writeContributionArtifact({
       cacheDir: rawDataCacheDir,
       filingYear: 2023,
-      rows: [contribution({ "Receipt ID": "R-2023", "Receipt Date": "12/15/2023" }), duplicateAcrossYears],
+      rows: [
+        contribution({ "Receipt ID": "R-2023", "Receipt Date": "12/15/2023" }),
+        duplicateAcrossYears,
+      ],
     });
     await writeContributionArtifact({
       cacheDir: rawDataCacheDir,
@@ -366,6 +383,7 @@ describe("maineCandidateFinanceBatchSync", () => {
     });
 
     const result = await syncDueMaineCandidateFinance({
+      sourceMode: "legacy",
       db,
       now: new Date("2026-06-25T12:00:00.000Z"),
       maxCandidates: 10,
@@ -377,14 +395,15 @@ describe("maineCandidateFinanceBatchSync", () => {
 
     expect(result.syncedCandidateCount).toBe(1);
     expect(syncFn).toHaveBeenCalledTimes(1);
-    const receiptIds = (syncFn.mock.calls[0]?.[0]?.contributionRows as MaineCfisContributionRow[]).map(
-      (row) => row["Receipt ID"]
-    );
+    const receiptIds = (
+      syncFn.mock.calls[0]?.[0]?.contributionRows as MaineCfisContributionRow[]
+    ).map((row) => row["Receipt ID"]);
     expect(receiptIds.sort()).toEqual(["R-2023", "R-2024", "R-BOTH"]);
     expect(
-      (syncFn.mock.calls[0]?.[0]?.contributionRows as MaineCfisContributionRow[]).find(
-        (row) => row["Receipt ID"] === "R-BOTH"
-      )?.["Filed Date"]
+      (
+        syncFn.mock.calls[0]?.[0]
+          ?.contributionRows as MaineCfisContributionRow[]
+      ).find((row) => row["Receipt ID"] === "R-BOTH")?.["Filed Date"],
     ).toBe("03/20/2024");
   });
 
@@ -394,8 +413,24 @@ describe("maineCandidateFinanceBatchSync", () => {
     // run) must satisfy the cycle loader's metadata validation.
     const rawDataCacheDir = await makeTempDir();
     const csvByYear = new Map<number, string>([
-      [2023, contributionCsv([contribution({ "Receipt ID": "R-2023", "Receipt Date": "12/15/2023" })])],
-      [2024, contributionCsv([contribution({ "Receipt ID": "R-2024", "Receipt Date": "03/11/2024" })])],
+      [
+        2023,
+        contributionCsv([
+          contribution({
+            "Receipt ID": "R-2023",
+            "Receipt Date": "12/15/2023",
+          }),
+        ]),
+      ],
+      [
+        2024,
+        contributionCsv([
+          contribution({
+            "Receipt ID": "R-2024",
+            "Receipt Date": "03/11/2024",
+          }),
+        ]),
+      ],
     ]);
     const fetchImpl: typeof fetch = async (_url, init) => {
       const body = JSON.parse(String(init?.body)) as { year: number };
@@ -426,6 +461,7 @@ describe("maineCandidateFinanceBatchSync", () => {
     });
 
     const result = await syncDueMaineCandidateFinance({
+      sourceMode: "legacy",
       db,
       now: new Date("2026-06-25T12:00:00.000Z"),
       maxCandidates: 10,
@@ -436,9 +472,9 @@ describe("maineCandidateFinanceBatchSync", () => {
     });
 
     expect(result.syncedCandidateCount).toBe(1);
-    const receiptIds = (syncFn.mock.calls[0]?.[0]?.contributionRows as MaineCfisContributionRow[]).map(
-      (row) => row["Receipt ID"]
-    );
+    const receiptIds = (
+      syncFn.mock.calls[0]?.[0]?.contributionRows as MaineCfisContributionRow[]
+    ).map((row) => row["Receipt ID"]);
     expect(receiptIds.sort()).toEqual(["R-2023", "R-2024"]);
   });
 
@@ -451,7 +487,11 @@ describe("maineCandidateFinanceBatchSync", () => {
       filingYear: 2023,
       artifactKind: "contributions",
     });
-    await writeFile(paths.filePath, "OrgID,Committee Name\n1001,Paul for Maine\n", "utf8");
+    await writeFile(
+      paths.filePath,
+      "OrgID,Committee Name\n1001,Paul for Maine\n",
+      "utf8",
+    );
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const db = {
       query: vi.fn().mockResolvedValue({ rows: [dueDbRow()] }),
@@ -460,6 +500,7 @@ describe("maineCandidateFinanceBatchSync", () => {
     const syncFn = vi.fn();
 
     const result = await syncDueMaineCandidateFinance({
+      sourceMode: "legacy",
       db,
       now: new Date("2026-06-25T12:00:00.000Z"),
       maxCandidates: 10,
@@ -479,7 +520,7 @@ describe("maineCandidateFinanceBatchSync", () => {
     expect(syncFn).not.toHaveBeenCalled();
     expect(warn).toHaveBeenCalledWith(
       "Maine CFIS expenditure artifact unavailable; syncing direct finance without outside spending:",
-      expect.stringContaining("Maine CFIS expenditure artifact not found")
+      expect.stringContaining("Maine CFIS expenditure artifact not found"),
     );
   });
 });
