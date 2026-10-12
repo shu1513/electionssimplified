@@ -568,6 +568,9 @@ export async function getNewYorkParentExpenditures(
 function committeeReceiptFromRow(row: Record<string, unknown>): NewYorkCommitteeReceiptRow | null {
   const amount = getAmount(row, "org_amt");
   const scheduleAbbrev = getString(row, "filing_sched_abbrev");
+  if (amount === null || !RECEIPT_SCHEDULE_ABBREVS.includes(scheduleAbbrev as typeof RECEIPT_SCHEDULE_ABBREVS[number])) {
+    throw new NewYorkSodaClientError("bad_response", "Incomplete New York monetary receipt source row");
+  }
   const contributorType = getNullableString(row, "cntrbr_type_desc");
   const filingTransId = getString(row, "filing_trans_id");
   const transNumber = getString(row, "trans_number");

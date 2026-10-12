@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
+import { normalizeNewYorkFunderKey } from "./newYorkOutsideGroupContributionAggregator.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
 import {
   MANUAL_PROTECTED_LINK_RETURNING,
@@ -21,7 +22,8 @@ type ClientLikeQueryable = Queryable & {
 export type NewYorkFinanceLinkStatus = "active" | "inactive";
 export type NewYorkFinanceLinkSource = "manual" | "ny_soda_api";
 // occupation is deliberately absent: NYSBOE never collects it.
-export type NewYorkFinanceDirectCategoryType = "contribution_size" | "contributor_type" | "donor" | "industry";
+export type NewYorkFinanceDirectCategoryType =
+  "contribution_size" | "contributor_type" | "donor" | "industry";
 export type NewYorkFinanceOutsideCategoryType = "donor" | "industry";
 export type NewYorkFinanceSupportOppose = "support" | "oppose";
 
@@ -76,6 +78,16 @@ export type NewYorkFinanceOutsideGroupBreakdownInput = {
   sourceUrl?: string | null;
 };
 
+/** Gross reported cash receipts, not legal PAC identity or net/refund authority. */
+export type NewYorkFinancePacDonorInput = {
+  committeeId: string;
+  committeeName: string;
+  sourceReportedClass: "Political Action Committee (PAC)";
+  amount: number;
+  contributionCount: number;
+  sourceUrl?: string | null;
+};
+
 export type NewYorkFinanceSnapshotInput = {
   db: ConnectableQueryable;
   link: NewYorkFinanceLinkInput;
@@ -84,7 +96,11 @@ export type NewYorkFinanceSnapshotInput = {
   directBreakdowns?: readonly NewYorkFinanceDirectBreakdownInput[];
   outsideGroups?: readonly NewYorkFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly NewYorkFinanceOutsideGroupBreakdownInput[];
+  /** upsert retains absent groups/breakdowns from earlier source observations. */
+  outsideWriteMode?: "replace" | "upsert";
   classifications?: readonly FinanceLabelClassification[];
+  /** undefined preserves; [] is an explicit caller-qualified complete component replacement. */
+  pacDonors?: readonly NewYorkFinancePacDonorInput[];
 };
 
 export type NewYorkFinanceSnapshotWriteResult = {
@@ -93,6 +109,7 @@ export type NewYorkFinanceSnapshotWriteResult = {
   directBreakdownsWritten: number;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
+  pacDonorsWritten?: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -110,7 +127,9 @@ function normalizeElectionYear(value: number): number {
   return value;
 }
 
-function normalizeOptionalText(value: string | null | undefined): string | null {
+function normalizeOptionalText(
+  value: string | null | undefined,
+): string | null {
   if (value === undefined || value === null) {
     return null;
   }
@@ -135,19 +154,26 @@ function normalizeAmount(value: number, fieldName: string): number {
   return value;
 }
 
-function normalizeNullableAmount(value: number | null | undefined, fieldName: string): number | null {
+function normalizeNullableAmount(
+  value: number | null | undefined,
+  fieldName: string,
+): number | null {
   if (value === undefined || value === null) {
     return null;
   }
   return normalizeAmount(value, fieldName);
 }
 
-function normalizeNullableCount(value: number | null | undefined): number | null {
+function normalizeNullableCount(
+  value: number | null | undefined,
+): number | null {
   if (value === undefined || value === null) {
     return null;
   }
   if (!Number.isInteger(value) || value < 0) {
-    throw new Error("New York finance contributor count must be a nonnegative integer");
+    throw new Error(
+      "New York finance contributor count must be a nonnegative integer",
+    );
   }
   return value;
 }
@@ -167,24 +193,83 @@ function validateNewYorkFinanceLinkInput(link: NewYorkFinanceLinkInput): void {
   requireNonEmpty(link.candidateId, "candidate id");
   requireNonEmpty(link.electionId, "election id");
   normalizeElectionYear(link.electionYear);
-  requireNonEmpty(link.candidateNameNormalized, "New York finance candidate name");
+  requireNonEmpty(
+    link.candidateNameNormalized,
+    "New York finance candidate name",
+  );
   requireNonEmpty(link.officeName, "New York finance office name");
   requireNonEmpty(link.filerId, "New York filer id");
   requireNonEmpty(link.filerName, "New York filer name");
   normalizeNullableDate(link.lastVerifiedAt);
 }
 
-function validateNewYorkFinanceSnapshotInput(input: NewYorkFinanceSnapshotInput): void {
+function validateNewYorkFinanceSnapshotInput(
+  input: NewYorkFinanceSnapshotInput,
+): void {
   validateNewYorkFinanceLinkInput(input.link);
+  if (
+    input.outsideWriteMode !== undefined &&
+    input.outsideWriteMode !== "replace" &&
+    input.outsideWriteMode !== "upsert"
+  )
+    throw new Error("Invalid New York outside write mode");
+  if (input.pacDonors !== undefined) {
+    if (!Array.isArray(input.pacDonors))
+      throw new Error("Invalid New York PAC donor snapshot");
+    const ids = new Set<string>();
+    for (const donor of input.pacDonors) {
+      const name = requireNonEmpty(
+        donor.committeeName,
+        "New York PAC reported name",
+      );
+      if (
+        donor.committeeId !== `reported:${normalizeNewYorkFunderKey(name)}` ||
+        ids.has(donor.committeeId)
+      )
+        throw new Error(
+          "New York PAC donor identity must be a unique exact reported-name key",
+        );
+      ids.add(donor.committeeId);
+      if (donor.sourceReportedClass !== "Political Action Committee (PAC)")
+        throw new Error(
+          "New York PAC donor requires the literal reported PAC class",
+        );
+      const cents = Math.round(donor.amount * 100);
+      if (
+        !Number.isFinite(donor.amount) ||
+        donor.amount < 0 ||
+        !Number.isSafeInteger(cents) ||
+        Math.abs(donor.amount * 100 - cents) > 0.000001
+      )
+        throw new Error(
+          "New York PAC donor amount must be nonnegative safe exact cents",
+        );
+      if (
+        !Number.isSafeInteger(donor.contributionCount) ||
+        donor.contributionCount < 0
+      )
+        throw new Error(
+          "New York PAC gift count must be a nonnegative safe integer",
+        );
+      normalizeOptionalText(donor.sourceUrl);
+    }
+  }
   if (input.outsideGroupBreakdowns && !input.outsideGroups) {
-    throw new Error("New York outside group breakdowns require outside groups in the same snapshot");
+    throw new Error(
+      "New York outside group breakdowns require outside groups in the same snapshot",
+    );
   }
 }
 
-async function withNewYorkFinanceTransaction<T>(db: Queryable, work: (tx: Queryable) => Promise<T>): Promise<T> {
+async function withNewYorkFinanceTransaction<T>(
+  db: Queryable,
+  work: (tx: Queryable) => Promise<T>,
+): Promise<T> {
   if (!canOpenTransaction(db)) {
     if (isClientLikeQueryable(db)) {
-      throw new Error("New York finance snapshot writes must receive a Pool, not a PoolClient");
+      throw new Error(
+        "New York finance snapshot writes must receive a Pool, not a PoolClient",
+      );
     }
     throw new Error("New York finance snapshot writes must receive a Pool");
   }
@@ -220,7 +305,9 @@ export async function upsertNewYorkFinanceLink(input: {
   // auto-linker) opens its own transaction; a client is already inside one
   // (snapshot writes).
   if (canOpenTransaction(input.db)) {
-    return withNewYorkFinanceTransaction(input.db, (tx) => writeNewYorkFinanceLink({ db: tx, link: input.link }));
+    return withNewYorkFinanceTransaction(input.db, (tx) =>
+      writeNewYorkFinanceLink({ db: tx, link: input.link }),
+    );
   }
   return writeNewYorkFinanceLink(input);
 }
@@ -249,7 +336,7 @@ async function writeNewYorkFinanceLink(input: {
         requireNonEmpty(input.link.electionId, "election id"),
         requireNonEmpty(input.link.filerId, "New York filer id"),
         input.link.linkSource ?? "manual",
-      ]
+      ],
     );
   }
 
@@ -285,7 +372,10 @@ async function writeNewYorkFinanceLink(input: {
       requireNonEmpty(input.link.candidateId, "candidate id"),
       requireNonEmpty(input.link.electionId, "election id"),
       normalizeElectionYear(input.link.electionYear),
-      requireNonEmpty(input.link.candidateNameNormalized, "New York finance candidate name"),
+      requireNonEmpty(
+        input.link.candidateNameNormalized,
+        "New York finance candidate name",
+      ),
       requireNonEmpty(input.link.officeName, "New York finance office name"),
       normalizeOptionalText(input.link.district),
       requireNonEmpty(input.link.filerId, "New York filer id"),
@@ -294,10 +384,15 @@ async function writeNewYorkFinanceLink(input: {
       input.link.linkSource ?? "manual",
       normalizeOptionalText(input.link.sourceUrl),
       normalizeNullableDate(input.link.lastVerifiedAt),
-    ]
+    ],
   );
 
-  assertLinkWriteNotBlocked("New York", result.rows[0], input.link.linkSource ?? "manual", input.link.electionYear);
+  assertLinkWriteNotBlocked(
+    "New York",
+    result.rows[0],
+    input.link.linkSource ?? "manual",
+    input.link.electionYear,
+  );
   const linkId = result.rows[0]?.id;
   if (!linkId) {
     throw new Error("New York finance link upsert did not return an id");
@@ -333,8 +428,8 @@ async function upsertSummary(input: {
         direct_contribution_total = COALESCE(EXCLUDED.direct_contribution_total, ny_candidate_finance_summaries.direct_contribution_total),
         total_disbursements = COALESCE(EXCLUDED.total_disbursements, ny_candidate_finance_summaries.total_disbursements),
         cash_on_hand = COALESCE(EXCLUDED.cash_on_hand, ny_candidate_finance_summaries.cash_on_hand),
-        outside_support_total = EXCLUDED.outside_support_total,
-        outside_oppose_total = EXCLUDED.outside_oppose_total,
+        outside_support_total = COALESCE(EXCLUDED.outside_support_total, ny_candidate_finance_summaries.outside_support_total),
+        outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, ny_candidate_finance_summaries.outside_oppose_total),
         source_url = COALESCE(EXCLUDED.source_url, ny_candidate_finance_summaries.source_url),
         last_synced_at = EXCLUDED.last_synced_at
     `,
@@ -342,14 +437,26 @@ async function upsertSummary(input: {
       requireNonEmpty(input.linkId, "New York finance link id"),
       normalizeElectionYear(input.electionYear),
       normalizeNullableAmount(input.summary.totalReceipts, "total receipts"),
-      normalizeNullableAmount(input.summary.directContributionTotal, "direct contribution total"),
-      normalizeNullableAmount(input.summary.totalDisbursements, "total disbursements"),
+      normalizeNullableAmount(
+        input.summary.directContributionTotal,
+        "direct contribution total",
+      ),
+      normalizeNullableAmount(
+        input.summary.totalDisbursements,
+        "total disbursements",
+      ),
       normalizeNullableAmount(input.summary.cashOnHand, "cash on hand"),
-      normalizeNullableAmount(input.summary.outsideSupportTotal, "outside support total"),
-      normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
+      normalizeNullableAmount(
+        input.summary.outsideSupportTotal,
+        "outside support total",
+      ),
+      normalizeNullableAmount(
+        input.summary.outsideOpposeTotal,
+        "outside oppose total",
+      ),
       normalizeOptionalText(input.summary.sourceUrl),
       input.syncedAt.toISOString(),
-    ]
+    ],
   );
 }
 
@@ -384,12 +491,15 @@ async function upsertDirectBreakdown(input: {
       requireNonEmpty(input.linkId, "New York finance link id"),
       normalizeElectionYear(input.electionYear),
       input.breakdown.categoryType,
-      requireNonEmpty(input.breakdown.categoryName, "New York finance direct breakdown category"),
+      requireNonEmpty(
+        input.breakdown.categoryName,
+        "New York finance direct breakdown category",
+      ),
       normalizeAmount(input.breakdown.amount, "direct breakdown amount"),
       normalizeNullableCount(input.breakdown.contributorCount),
       normalizeOptionalText(input.breakdown.sourceUrl),
       input.syncedAt.toISOString(),
-    ]
+    ],
   );
 }
 
@@ -424,12 +534,15 @@ async function upsertOutsideGroup(input: {
       requireNonEmpty(input.linkId, "New York finance link id"),
       normalizeElectionYear(input.electionYear),
       requireNonEmpty(input.group.filerId, "New York outside group filer id"),
-      requireNonEmpty(input.group.filerName, "New York outside group filer name"),
+      requireNonEmpty(
+        input.group.filerName,
+        "New York outside group filer name",
+      ),
       input.group.supportOppose,
       normalizeAmount(input.group.amount, "outside group amount"),
       normalizeOptionalText(input.group.sourceUrl),
       input.syncedAt.toISOString(),
-    ]
+    ],
   );
 }
 
@@ -465,15 +578,21 @@ async function upsertOutsideGroupBreakdown(input: {
     [
       requireNonEmpty(input.linkId, "New York finance link id"),
       normalizeElectionYear(input.electionYear),
-      requireNonEmpty(input.breakdown.filerId, "New York outside breakdown filer id"),
+      requireNonEmpty(
+        input.breakdown.filerId,
+        "New York outside breakdown filer id",
+      ),
       input.breakdown.supportOppose,
       input.breakdown.categoryType,
-      requireNonEmpty(input.breakdown.categoryName, "New York outside breakdown category"),
+      requireNonEmpty(
+        input.breakdown.categoryName,
+        "New York outside breakdown category",
+      ),
       normalizeAmount(input.breakdown.amount, "outside group breakdown amount"),
       normalizeNullableCount(input.breakdown.contributorCount),
       normalizeOptionalText(input.breakdown.sourceUrl),
       input.syncedAt.toISOString(),
-    ]
+    ],
   );
 }
 
@@ -485,7 +604,10 @@ async function deleteStaleDirectBreakdowns(input: {
 }): Promise<void> {
   const keys = input.breakdowns.map((breakdown) => ({
     category_type: breakdown.categoryType,
-    category_name: requireNonEmpty(breakdown.categoryName, "New York finance direct breakdown category"),
+    category_name: requireNonEmpty(
+      breakdown.categoryName,
+      "New York finance direct breakdown category",
+    ),
   }));
 
   await input.db.query(
@@ -503,7 +625,11 @@ async function deleteStaleDirectBreakdowns(input: {
             AND keep.category_name = ny_candidate_finance_direct_breakdowns.category_name
         )
     `,
-    [requireNonEmpty(input.linkId, "New York finance link id"), normalizeElectionYear(input.electionYear), JSON.stringify(keys)]
+    [
+      requireNonEmpty(input.linkId, "New York finance link id"),
+      normalizeElectionYear(input.electionYear),
+      JSON.stringify(keys),
+    ],
   );
 }
 
@@ -514,10 +640,16 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
   breakdowns: readonly NewYorkFinanceOutsideGroupBreakdownInput[];
 }): Promise<void> {
   const keys = input.breakdowns.map((breakdown) => ({
-    filer_id: requireNonEmpty(breakdown.filerId, "New York outside breakdown filer id"),
+    filer_id: requireNonEmpty(
+      breakdown.filerId,
+      "New York outside breakdown filer id",
+    ),
     support_oppose: breakdown.supportOppose,
     category_type: breakdown.categoryType,
-    category_name: requireNonEmpty(breakdown.categoryName, "New York outside breakdown category"),
+    category_name: requireNonEmpty(
+      breakdown.categoryName,
+      "New York outside breakdown category",
+    ),
   }));
 
   await input.db.query(
@@ -539,7 +671,11 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
             AND keep.category_name = ny_candidate_finance_outside_group_breakdowns.category_name
         )
     `,
-    [requireNonEmpty(input.linkId, "New York finance link id"), normalizeElectionYear(input.electionYear), JSON.stringify(keys)]
+    [
+      requireNonEmpty(input.linkId, "New York finance link id"),
+      normalizeElectionYear(input.electionYear),
+      JSON.stringify(keys),
+    ],
   );
 }
 
@@ -569,13 +705,61 @@ async function deleteStaleOutsideGroups(input: {
             AND keep.support_oppose = ny_candidate_finance_outside_groups.support_oppose
         )
     `,
-    [requireNonEmpty(input.linkId, "New York finance link id"), normalizeElectionYear(input.electionYear), JSON.stringify(keys)]
+    [
+      requireNonEmpty(input.linkId, "New York finance link id"),
+      normalizeElectionYear(input.electionYear),
+      JSON.stringify(keys),
+    ],
+  );
+}
+
+async function replacePacDonors(input: {
+  db: Queryable;
+  linkId: string;
+  electionYear: number;
+  donors: readonly NewYorkFinancePacDonorInput[];
+  syncedAt: Date;
+}): Promise<void> {
+  for (const donor of input.donors) {
+    await input.db.query(
+      `
+      INSERT INTO public.ny_candidate_finance_pac_donors
+        (link_id, election_year, committee_id, committee_name, source_reported_class,
+         amount, contribution_count, source_url, last_synced_at)
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9::timestamptz)
+      ON CONFLICT (link_id, election_year, committee_id) DO UPDATE SET
+        committee_name=EXCLUDED.committee_name,
+        source_reported_class=EXCLUDED.source_reported_class,
+        amount=EXCLUDED.amount, contribution_count=EXCLUDED.contribution_count,
+        source_url=EXCLUDED.source_url, last_synced_at=EXCLUDED.last_synced_at`,
+      [
+        input.linkId,
+        input.electionYear,
+        donor.committeeId,
+        donor.committeeName.trim(),
+        donor.sourceReportedClass,
+        donor.amount,
+        donor.contributionCount,
+        normalizeOptionalText(donor.sourceUrl),
+        input.syncedAt.toISOString(),
+      ],
+    );
+  }
+  await input.db.query(
+    `
+    DELETE FROM public.ny_candidate_finance_pac_donors
+    WHERE link_id=$1::uuid AND election_year=$2
+      AND NOT (committee_id = ANY($3::text[]))`,
+    [input.linkId, input.electionYear, input.donors.map((d) => d.committeeId)],
   );
 }
 
 export async function replaceNewYorkCandidateFinanceSnapshot(
-  input: NewYorkFinanceSnapshotInput
+  input: NewYorkFinanceSnapshotInput,
 ): Promise<NewYorkFinanceSnapshotWriteResult> {
+  // Retain one caller generation before connect/transaction awaits. Pool methods are not cloned.
+  const { db: database, ...data } = input;
+  input = { db: database, ...structuredClone(data) };
   const syncedAt = input.syncedAt ?? new Date();
   if (Number.isNaN(syncedAt.getTime())) {
     throw new Error("Invalid New York finance sync timestamp");
@@ -586,23 +770,46 @@ export async function replaceNewYorkCandidateFinanceSnapshot(
   return await withNewYorkFinanceTransaction(input.db, async (db) => {
     const { linkId } = await upsertNewYorkFinanceLink({ db, link: input.link });
     if (input.summary) {
-      await upsertSummary({ db, linkId, electionYear, summary: input.summary, syncedAt });
+      await upsertSummary({
+        db,
+        linkId,
+        electionYear,
+        summary: input.summary,
+        syncedAt,
+      });
     }
 
     for (const breakdown of input.directBreakdowns ?? []) {
-      await upsertDirectBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
+      await upsertDirectBreakdown({
+        db,
+        linkId,
+        electionYear,
+        breakdown,
+        syncedAt,
+      });
     }
     if (input.directBreakdowns) {
-      await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns });
+      await deleteStaleDirectBreakdowns({
+        db,
+        linkId,
+        electionYear,
+        breakdowns: input.directBreakdowns,
+      });
     }
 
     for (const group of input.outsideGroups ?? []) {
       await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
     }
     for (const breakdown of input.outsideGroupBreakdowns ?? []) {
-      await upsertOutsideGroupBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
+      await upsertOutsideGroupBreakdown({
+        db,
+        linkId,
+        electionYear,
+        breakdown,
+        syncedAt,
+      });
     }
-    if (input.outsideGroupBreakdowns) {
+    if (input.outsideGroupBreakdowns && input.outsideWriteMode !== "upsert") {
       await deleteStaleOutsideGroupBreakdowns({
         db,
         linkId,
@@ -610,8 +817,23 @@ export async function replaceNewYorkCandidateFinanceSnapshot(
         breakdowns: input.outsideGroupBreakdowns,
       });
     }
-    if (input.outsideGroups) {
-      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups });
+    if (input.outsideGroups && input.outsideWriteMode !== "upsert") {
+      await deleteStaleOutsideGroups({
+        db,
+        linkId,
+        electionYear,
+        groups: input.outsideGroups,
+      });
+    }
+
+    if (input.pacDonors !== undefined) {
+      await replacePacDonors({
+        db,
+        linkId,
+        electionYear,
+        donors: input.pacDonors,
+        syncedAt,
+      });
     }
 
     for (const classification of input.classifications ?? []) {
@@ -624,6 +846,9 @@ export async function replaceNewYorkCandidateFinanceSnapshot(
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
       outsideGroupsWritten: input.outsideGroups?.length ?? 0,
       outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
+      ...(input.pacDonors !== undefined
+        ? { pacDonorsWritten: input.pacDonors.length }
+        : {}),
     };
   });
 }

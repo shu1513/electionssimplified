@@ -1,5 +1,53 @@
 # New York Campaign Finance Plan
 
+## October 12, 2026 finance-gap increment
+
+The local baseline has 21 active linked 2026 General candidates, 20 summaries,
+and no stored outside groups. The batch already calls Schedule R acquisition.
+Hochul has no summary: her four-year cycle has 48,691 itemized receipt rows,
+exceeding the client's former 25 × 1,000-row bound after IE acquisition succeeds.
+Receipt queries now default to 5,000-row pages with the existing maximum-page
+guard and explicit caller overrides. No registry, target-name, office, seat,
+race-year, support/oppose or unique-parent IE rule is relaxed.
+
+Direct disclosures have an explicit `Political Action Committee (PAC)` type.
+The new named PAC subset accepts positive monetary Schedule A/B/C receipts
+with that exact reported type and a complete source occurrence identity. It
+excludes Schedule D in-kind, Schedule M refunds, generic organizations and the
+separate `Political Committee` class. Repeated gift identities are rejected
+instead of selecting an unproven amendment version. Source-name keys identify
+reported donor groups, not registered legal accounts. Amounts are **gross cash
+receipts**, already included in Raised; they are not net support. The candidate
+card states this scope. Signed net/refund accounting is a separate increment.
+
+Fresh source controls: Mayer has 204 typed PAC cash receipts/$247,500; Hochul
+has 473/$2,547,192.13. Gift IDs and transaction numbers are unique in these
+bounded complete source queries. Original/amended report flags are not mixed
+within the observed report buckets. These observations do not establish a
+general latest-version contract or complete rapid-filings coverage. Disclosure
+metadata was updated October 12 at 19:49:34 UTC; observation time and publisher
+update are distinct. The existing whole-sync failure path writes no money;
+malformed PAC source evidence or exhausted paging must likewise preserve rows.
+
+Normal targeted rerun: pass the source/read flags inline, then use
+`new-york-candidates:finance:sync-due -- --candidate-id <UUID> --year 2026 --refresh`.
+Candidate/year scope applies before LIMIT and skips unrelated auto-linking.
+`--refresh` bypasses staleness while retaining all eligibility/window checks;
+SODA acquisition is genuinely fresh, without a fixture client. `--force` only
+bypasses the feature gate. No environment-file changes or provider calls.
+
+The [official 2026 filing calendar](https://elections.ny.gov/system/files/documents/2025/12/2026-filing-calendar-12112025-approved.secure.accessible.pdf)
+sets the pre-general deadline at **October 23**, covering through **October 19**.
+Acquire fresh publisher data and rerun **October 24**, then **October 27** for
+late publication. A new fetch of an old snapshot does not prove post-deadline
+coverage. Rapid weekly/24-hour reports require verified independent acquisition
+and deduplication before daily coverage can be claimed; reconcile through
+November 4 when available. The November 30 post-general filing covers through
+November 26: fresh reconciliation **December 1**. The current due-list retains
+only declared candidates and its default post-election grace is one day; the
+December reconciliation therefore also needs a separately reviewed status/window
+scope. No scheduler or automation is added by this increment.
+
 *Written 2026-07-11 against `912f2f35`. Feasibility verified with live queries
 against NY Open Data (Socrata) and the NYSBOE Public Reporting UI on this
 date. Goal: New York state-office campaign finance in ballot lookup — outside

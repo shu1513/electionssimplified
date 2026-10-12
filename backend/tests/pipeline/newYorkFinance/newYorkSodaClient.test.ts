@@ -209,7 +209,7 @@ describe("newYorkSodaClient", () => {
 
   it("rejects incomplete typed PAC monetary receipts instead of publishing a partial donor snapshot", async () => {
     const source = { cntrbr_type_desc: "Political Action Committee (PAC)", filing_sched_abbrev: "C", org_amt: "5000", flng_ent_name: "Example PAC", filing_trans_id: "f-1", trans_number: "t-1" };
-    for (const patch of [{ filing_trans_id: "" }, { trans_number: "" }, { org_amt: "bad" }, { flng_ent_name: "" }, { flng_ent_first_name: "Jane" }]) {
+    for (const patch of [{ filing_trans_id: "" }, { trans_number: "" }, { org_amt: "-1" }, { flng_ent_name: "" }, { flng_ent_first_name: "Jane" }]) {
       const fetchImpl = vi.fn(async () => new Response(JSON.stringify([{ ...source, ...patch }]), { status: 200 }));
       await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl })).rejects.toThrow("Incomplete or ambiguous New York reported PAC monetary receipt");
     }
@@ -224,6 +224,11 @@ describe("newYorkSodaClient", () => {
   it("rejects a page exceeding the requested bound", async () => {
     const fetchImpl = vi.fn(async () => jsonResponse([{ org_amt: "1" }, { org_amt: "1" }]));
     await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl, pageLimit: 1 })).rejects.toThrow("exceeds the requested page limit");
+  });
+
+  it.each([{ row: {} }, { row: { filing_sched_abbrev: "C", org_amt: "bad" } }])("rejects incomplete receipt facts before an empty replacement is possible", async ({row}) => {
+    const fetchImpl = vi.fn(async () => jsonResponse([row]));
+    await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl })).rejects.toThrow("Incomplete New York monetary receipt source row");
   });
 
   it("fetches cycle-scoped itemized IE committee receipts and pages with a stable order", async () => {

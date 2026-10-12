@@ -27,8 +27,20 @@ export type NewYorkDirectBreakdown = {
   sourceUrl: string | null;
 };
 
+export type NewYorkDirectPacDonor = {
+  /** Reported-name identity, not a claimed NY registry filer ID. */
+  committeeId: string;
+  committeeName: string;
+  sourceReportedClass: "Political Action Committee (PAC)";
+  /** Gross positive source A/B/C cash receipts; refunds are a separate source schedule. */
+  amount: number;
+  contributionCount: number;
+  sourceUrl: string | null;
+};
+
 export type NewYorkDirectContributionResult = {
   directContributionTotal: number;
+  pacDonors: NewYorkDirectPacDonor[];
   breakdowns: NewYorkDirectBreakdown[];
   receiptRowCount: number;
   lumpRowCount: number;
@@ -108,11 +120,44 @@ function toBreakdowns(
     .slice(0, limit);
 }
 
+/** Explicit source PAC class only. Generic organization/industry buckets are not PAC identities. */
+function aggregateReportedPacCash(receipts: readonly NewYorkCommitteeReceiptRow[]): NewYorkDirectPacDonor[] {
+  const donors = new Map<string, { name: string; cents: number; count: number }>();
+  const filingIds = new Set<string>();
+  const transNumbers = new Set<string>();
+  for (const receipt of receipts) {
+    if (receipt.contributorType?.trim().replace(/\s+/g, " ").toUpperCase() !== "POLITICAL ACTION COMMITTEE (PAC)" || !["A", "B", "C"].includes(receipt.scheduleAbbrev)) continue;
+    if (receipt.amount === 0) continue;
+    const amountCents = Math.round(receipt.amount * 100);
+    if (!Number.isFinite(receipt.amount) || receipt.amount < 0 || !Number.isSafeInteger(amountCents) || amountCents / 100 !== receipt.amount) {
+      throw new Error("New York PAC cash aggregation requires safe positive exact-cent receipts");
+    }
+    const key = normalizeNewYorkFunderKey(receipt.entityName);
+    if (!key) throw new Error("New York PAC cash aggregation requires a reported donor name");
+    for (const [identity, seen] of [[receipt.filingTransId, filingIds], [receipt.transNumber, transNumbers]] as const) {
+      if (identity === undefined) continue; // Legacy synthetic callers; the live client requires these fields.
+      if (typeof identity !== "string" || !identity.trim()) throw new Error("New York PAC cash aggregation has an invalid source transaction identity");
+      if (seen.has(identity.trim())) throw new Error("New York PAC cash aggregation has a repeated source transaction identity");
+      seen.add(identity.trim());
+    }
+    const existing = donors.get(key);
+    const total = (existing?.cents ?? 0) + amountCents;
+    if (!Number.isSafeInteger(total) || Math.round((total / 100) * 100) !== total) throw new Error("New York PAC cash aggregation exceeds safe exact-cent precision");
+    // Pick an actual published spelling deterministically; never manufacture a legal name.
+    donors.set(key, { name: existing && existing.name < receipt.entityName ? existing.name : receipt.entityName, cents: total, count: (existing?.count ?? 0) + 1 });
+  }
+  return [...donors].map(([key, donor]) => ({ committeeId: `reported:${key}`, committeeName: donor.name,
+    sourceReportedClass: "Political Action Committee (PAC)" as const, amount: donor.cents / 100,
+    contributionCount: donor.count, sourceUrl: NEW_YORK_SODA_DISCLOSURES_PAGE_URL,
+  })).sort((a,b) => b.amount - a.amount || a.committeeId.localeCompare(b.committeeId));
+}
+
 export function aggregateNewYorkDirectContributions(input: {
   receipts: readonly NewYorkCommitteeReceiptRow[];
   maxBreakdownsPerCategory?: number;
 }): NewYorkDirectContributionResult {
   const limit = normalizeLimit(input.maxBreakdownsPerCategory);
+  const pacDonors = aggregateReportedPacCash(input.receipts);
   const sizeBuckets = new Map<string, { amount: number; contributorCount: number }>();
   const typeBuckets = new Map<string, { amount: number; contributorCount: number }>();
   const donorBuckets = new Map<string, { amount: number; contributorCount: number }>();
@@ -146,6 +191,7 @@ export function aggregateNewYorkDirectContributions(input: {
 
   return {
     directContributionTotal: roundCurrency(totalCents / 100),
+    pacDonors,
     breakdowns: [
       ...toBreakdowns("contribution_size", sizeBuckets, null, limit),
       ...toBreakdowns("contributor_type", typeBuckets, null, limit),
