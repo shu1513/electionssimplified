@@ -149,6 +149,26 @@ describe("Kansas IE reviewed source controls", () => {
 });
 
 describe("Kansas saved rendered observation", () => {
+  it("accepts the next-year filed-date window for a prior election cycle", () => {
+    const annual = packet();
+    annual.scope.endDate = "01/11/2027";
+    annual.observedAt = "2027-01-11T17:00:00Z";
+    annual.filings[0]!.openerObservedAt = "2027-01-11T16:59:00Z";
+    expect(
+      validateKansasIEBrowserObservation(
+        annual,
+        2026,
+        new Date("2027-01-11T18:00:00Z"),
+      ).scope.endDate,
+    ).toBe("01/11/2027");
+    expect(() =>
+      validateKansasIEBrowserObservation(
+        { ...annual, scope: { ...annual.scope, endDate: "01/12/2027" } },
+        2026,
+        new Date("2027-01-11T18:00:00Z"),
+      ),
+    ).toThrow("filed-date window");
+  });
   it("validates genuine rendered metadata without inventing HTTP fields", () => {
     expect(validateKansasIEBrowserObservation(packet(), 2026, now).kind).toBe(
       "browser-rendered",

@@ -78,7 +78,6 @@ export function validateKansasIEBrowserObservation(
     packet.scope.filingType !== "Individual Expenditures" ||
     packet.scope.startDate !== `01/01/${electionYear}` ||
     !/^\d{2}\/\d{2}\/\d{4}$/.test(packet.scope.endDate) ||
-    !packet.scope.endDate.endsWith(String(electionYear)) ||
     !Array.isArray(packet.filings) ||
     packet.filings.length !== packet.recordCount ||
     packet.recordCount < 1 ||
@@ -87,6 +86,10 @@ export function validateKansasIEBrowserObservation(
     throw new Error(
       "Invalid, stale or incomplete Kansas IE browser observation",
     );
+  }
+  const windowEnd = Date.parse(`${isoDate(packet.scope.endDate)}T00:00:00Z`);
+  if (windowEnd < Date.UTC(electionYear, 0, 1) || windowEnd > now.getTime()) {
+    throw new Error("Invalid Kansas IE filed-date window");
   }
   const urls = new Set<string>();
   for (const row of packet.filings) {
