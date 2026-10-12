@@ -1086,4 +1086,46 @@ describe("qualified current Delaware candidate cash/PAC source", () => {
     expect(r.cash?.directContributionCents).toBe(184000);
     expect(r.pac).toBeUndefined();
   });
+  it("records actual receipt versus ordinary committee payee roles without treating payments as returned gifts", async () => {
+    const f = facts();
+    f.schedules.expenditures.rows[0]!.columns.name = "Example PAC";
+    const r = await verifyDelawareCurrentCandidateCash(
+      input({
+        facts: f,
+        expenses: [
+          expense(2, {
+            PayeeName: "Example PAC",
+            PayeeType: "Political Action Committee",
+            ExpenseCategory: "Media",
+          }),
+        ],
+      }),
+    );
+    expect(r.pac?.donors[0]?.cashAmountCents).toBe(60000);
+    expect(r.pac?.sourceProvenance.occurrences).toEqual([
+      expect.objectContaining({ transactionId: 1, kind: "receipt", sourceCategory: null }),
+      expect.objectContaining({ transactionId: 2, kind: "expense", sourceCategory: "Media" }),
+    ]);
+  });
+  it("records exact decoded outgoing Return Contributions category separately", async () => {
+    const f = facts();
+    f.schedules.expenditures.rows[0]!.columns.name = "Example PAC (Return Contributions)";
+    const r = await verifyDelawareCurrentCandidateCash(
+      input({
+        facts: f,
+        expenses: [
+          expense(2, {
+            PayeeName: "Example PAC",
+            PayeeType: "Political Action Committee",
+            ExpenseCategory: "Return Contributions",
+          }),
+        ],
+      }),
+    );
+    expect(r.pac?.donors[0]?.cashAmountCents).toBe(50000);
+    expect(r.pac?.sourceProvenance.occurrences[1]).toMatchObject({
+      kind: "expense",
+      sourceCategory: "Return Contributions",
+    });
+  });
 });

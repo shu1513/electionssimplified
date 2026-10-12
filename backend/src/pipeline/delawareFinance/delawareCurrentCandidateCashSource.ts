@@ -785,13 +785,18 @@ export async function verifyDelawareCurrentCandidateCash(
       organizationFingerprints: after.proof.organizationFingerprints,
       receiptFingerprint: after.proof.receiptFingerprint,
       expenseFingerprint: after.proof.expenseFingerprint,
-      occurrences: [...input.after.receipts.rows, ...input.after.expenses.rows].map((r) => ({
+      occurrences: [
+        ...input.after.receipts.rows.map((row) => ({ row, kind: "receipt" as const })),
+        ...input.after.expenses.rows.map((row) => ({ row, kind: "expense" as const })),
+      ].map(({ row: r, kind }) => ({
+        kind,
+        sourceCategory: kind === "expense" ? raw(r, "ExpenseCategory") : null,
         transactionId: r.transactionId,
         date: r.date,
         amountCents: r.amountCents,
         identityFingerprint: hash(canonical(r.rawFields)),
-        sourceClass: r.rawFields.ContributorType ?? r.rawFields.PayeeType,
-        sourceMechanism: r.rawFields.ContributionType ?? r.rawFields.ExpenseMethod,
+        sourceClass: raw(r, kind === "receipt" ? "ContributorType" : "PayeeType"),
+        sourceMechanism: raw(r, kind === "receipt" ? "ContributionType" : "ExpenseMethod"),
       })),
       sourceMetadata: [...input.before.sourceCaptures, ...input.after.sourceCaptures].map(metadata),
     };
