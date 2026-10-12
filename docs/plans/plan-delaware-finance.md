@@ -58,6 +58,21 @@ multiple editions until full financial/current-pointer proof resolves them.
 Footer version values remain optional descriptive metadata and never choose an
 edition. This conservative gate runs before writes and preserves old snapshots.
 
+Source facts and candidate packet transport are now implemented; accepted-money
+composition, persistence, reader wiring and normal fresh sync proof remain open.
+Complete candidate PDF facts retain anonymous controls and outstanding debt:
+Jennings has three outstanding loans totaling $34,000, with no current payment.
+Some anonymous controls already have distinct native aggregate rows; the $1,240
+Primary 30-Day control does not. Bind each representation before adding totals.
+Reported candidate-committee transfers stay distinct from political committees
+eligible for the PAC card. Do not force final totals to the initial PAC scout.
+
+Independent cycle witnesses are the [official 2022 statewide result](https://elections.delaware.gov/reports/GE2022.html)
+and [official 2026 General ballot](https://elections.delaware.gov/elections/general/sampleballots/GE2026/15-10.html).
+Their full raw source facts confirm the same named candidate and Attorney General
+office; the final verifier must bind them to CF01 identity and the statutory case.
+Do not infer historical office from today's office label on old report rows.
+
 ### Deadlines and mandatory fresh reruns
 
 [Official 2026 calendar](https://elections.delaware.gov/public/calendar/pdfs/2026CampaignFinanceReportingPeriods.pdf):
