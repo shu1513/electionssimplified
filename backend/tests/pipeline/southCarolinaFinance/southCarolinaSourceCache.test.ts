@@ -76,4 +76,36 @@ describe("South Carolina immutable source observations", () => {
     expect(await (await session.fetchImpl(url, init)).json()).toEqual({ direct: 100 });
     await expect(session.finish()).rejects.toThrow("raw capture unavailable");
   });
+  it.each(["requests", "response bytes", "session bytes"])("capture %s limit preserves HTTP responses and the saved pointer", async limit => {
+    const scope = await setup();
+    const opening = await createSouthCarolinaSourceSession({ ...scope, fetchImpl: source({ id: 1 }) });
+    await opening.fetchImpl(url, init);
+    await opening.finish();
+    const pointerPath = join(scope.cacheDir, "44315-2026", "latest.json");
+    const pointer = await readFile(pointerPath, "utf8");
+    const size = limit === "response bytes" ? 9 * 1024 * 1024 : limit === "session bytes" ? 8 * 1024 * 1024 : 8;
+    const body = '{"id":1}'.padEnd(size, " ");
+    const session = await createSouthCarolinaSourceSession({ ...scope, fetchImpl: async () => {
+      let offset = 0;
+      return new Response(new ReadableStream({
+        pull(controller) {
+          if (offset === body.length) { controller.close(); return; }
+          const chunk = body.slice(offset, offset + 1024 * 1024);
+          offset += chunk.length;
+          controller.enqueue(new TextEncoder().encode(chunk));
+        },
+      }), { headers: { "content-type": "application/json" } });
+    } });
+    const requests = limit === "requests" ? 31 : limit === "session bytes" ? 8 : 1;
+    for (let i = 0; i < requests; i++) {
+      expect(await (await session.fetchImpl(url, init)).text()).toBe(body);
+    }
+    await expect(session.finish()).rejects.toThrow("raw capture unavailable");
+    expect(await readFile(pointerPath, "utf8")).toBe(pointer);
+    // Later direct requests still work, but no further response is journaled.
+    expect(await (await session.fetchImpl(url, init)).text()).toBe(body);
+    await expect(session.fetchImpl("https://example.com", init)).rejects.toThrow("outside bounded public scope");
+    await expect(session.fetchImpl(url, { ...init, headers: { authorization: "test" } })).rejects.toThrow("unauthenticated");
+  });
+
 });

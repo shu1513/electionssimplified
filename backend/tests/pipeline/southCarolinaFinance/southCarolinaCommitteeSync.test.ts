@@ -83,6 +83,29 @@ describe("ordinary SC source acquisition and donor component", () => {
     expect(query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.sc_candidate_finance_pac_donors"))).toBe(cumulative === 0);
     if (cumulative) expect(result.pacDonorDiagnostics?.join(" ")).toMatch(/Cumulative financial coverage/);
   });
+  it.each([9, 65])("keeps direct validation independent of capture limits (%i MiB)", async mib => {
+    const { input, query } = await setup();
+    const source = api();
+    const fetchImpl: typeof fetch = async (request, init) => {
+      const response = await source.fetchImpl(request, init);
+      if (!String(request).includes("Contribution/Search")) return response;
+      const json = await response.text();
+      return new Response(json.padEnd(mib * 1024 * 1024, " "), { headers: { "content-type": "application/json" } });
+    };
+    const sync = () => syncSouthCarolinaCandidateFinance({ ...input, clientOptions: { fetchImpl } });
+    if (mib > 64) {
+      await expect(sync()).rejects.toThrow("exceeded 67108864 bytes");
+      expect(query).not.toHaveBeenCalled();
+      return;
+    }
+    // A second identical acquisition must still withhold PAC replacement.
+    await sync();
+    query.mockClear();
+    const result = await sync();
+    expect(result).toMatchObject({ summaryWritten: true, directContributionTotal: 100, pacDonorTotal: null });
+    expect(result.pacDonorDiagnostics?.join(" ")).toMatch(/source unavailable/);
+    expect(query.mock.calls.some(([sql]) => String(sql).includes("DELETE FROM public.sc_candidate_finance_pac_donors"))).toBe(false);
+  });
   it("cache initialization failure preserves donors but still writes valid direct totals", async () => {
     const { input, query } = await setup(); const blocked = join(input.sourceCacheDir, "file");
     await writeFile(blocked, "not a directory");

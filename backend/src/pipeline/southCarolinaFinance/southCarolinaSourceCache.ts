@@ -98,10 +98,11 @@ export async function createSouthCarolinaSourceSession(input: {
     const method = init?.method ?? "GET";
     const requestBody = typeof init?.body === "string" ? init.body : null;
     if (!/^https:\/\/ethicsfiling\.sc\.gov\/api\/(?:Ethics\/Get\/Public\/Candidate\/Reports|Ethics\/Get\/Public\/Candidate\/Report\/Details\/\d+|Candidate\/Contribution\/Search\/)\/?$/.test(url)
-      || !["GET", "POST"].includes(method) || requestCount >= 30) {
+      || !["GET", "POST"].includes(method)) {
       throw new Error("South Carolina source request outside bounded public scope");
     }
     requestCount++;
+    if (requestCount > 30) captureUnavailable = true;
     const headers = new Headers(init?.headers);
     if (headers.has("authorization") || headers.has("cookie")) {
       throw new Error("South Carolina public source request must be unauthenticated");
@@ -109,9 +110,11 @@ export async function createSouthCarolinaSourceSession(input: {
     headers.set("User-Agent", "Mozilla/5.0");
     const startedAt = new Date().toISOString();
     const response = await sourceFetch(request, { ...init, headers });
+    if (captureUnavailable) return response;
     const chunks: Uint8Array[] = [];
     let bytes = 0;
-    const reader = response.body?.getReader();
+    // Read a clone so hitting a journal bound leaves the original stream intact.
+    const reader = response.clone().body?.getReader();
     if (reader) {
       while (true) {
         const next = await reader.read();
@@ -119,8 +122,10 @@ export async function createSouthCarolinaSourceSession(input: {
         bytes += next.value.length;
         totalBytes += next.value.length;
         if (bytes > MAX_BYTES || totalBytes > 60 * 1024 * 1024) {
-          await reader.cancel();
-          throw new Error("South Carolina source response exceeded byte bound");
+          captureUnavailable = true;
+          // Tee cancellation waits for the other branch; let the direct client consume it.
+          void reader.cancel().catch(() => {});
+          return response;
         }
         chunks.push(next.value);
       }
@@ -143,7 +148,7 @@ export async function createSouthCarolinaSourceSession(input: {
         captureUnavailable = true;
       }
     }
-    return new Response(body, { status: response.status, headers: { "content-type": capture.contentType } });
+    return response;
   };
   return {
     fetchImpl,
