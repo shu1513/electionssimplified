@@ -34,6 +34,9 @@ atomic snapshot callbacks and PAC interest reader pattern. Donor-only imports
 omit the summary, direct breakdowns and outside components. They must preserve
 direct amounts and direct `last_synced_at`, bind one existing active receiving
 link and recheck canonical state, office, seat, year and candidate status.
+Accepted donor evidence also renders before a direct summary exists, with
+unknown direct/outside totals and donor observation freshness. Existing direct
+cards retain their own totals and freshness.
 
 The source contract must establish complete current cash schedules and paired
 fresh report/manifest observations. Retain equal gift occurrences, signed cash
@@ -54,7 +57,10 @@ return text were observed, and no dedicated no-returns control exists.
 Browser observations are not HTTP response captures. A blocked transfer of
 opaque locator values must not be retried through encoding or hashes. Safe
 financial observations may retain actual times, public report descriptors,
-controls and canonical page paths with query values omitted. The verifier must
+controls and canonical page paths with query values omitted. Each current and
+prior financial observation must retain `candidateName` from that report's
+public owner header; it must match the packet context. Older packets without
+this evidence must be reacquired, not backfilled from the context. The verifier must
 reject descriptors that do not uniquely identify the selected report and must
 not claim omitted locators or source HTTP bodies were retained. Acceptance of
 that safer source contract was verified against the saved packet and tests.

@@ -3,6 +3,7 @@ import type { Pool, PoolClient } from "pg";
 import { isNevadaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
   candidateElectionKey,
+  buildStateFinanceSummaryRequests,
   firstNonEmptySourceUrl,
   parseFinanceAmount,
   officeInputFromElectionRow,
@@ -35,6 +36,14 @@ export async function loadNevadaCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
+  if (!isNevadaCampaignFinanceEnabled()) return new Map();
+  const requests = buildStateFinanceSummaryRequests(
+    "NV",
+    candidateRows,
+    electionRows,
+    (row) => isNevadaFinanceEligibleOffice(officeInputFromElectionRow(row)),
+  );
+  if (requests.length === 0) return new Map();
   const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
@@ -62,27 +71,16 @@ export async function loadNevadaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "nv_candidate_finance_outside_group_breakdowns",
     },
   });
-  if (summaries.size === 0) return summaries;
-  const requests = [
-    ...new Map(
-      candidateRows
-        .filter((row) =>
-          summaries.has(
-            candidateElectionKey(row.candidate_id, row.election_id),
-          ),
-        )
-        .map((row) => [
-          candidateElectionKey(row.candidate_id, row.election_id),
-          row,
-        ]),
-    ).values(),
-  ];
   const result = await db.query<NevadaPacDonorRow>(
     `
     WITH requested AS (
       SELECT * FROM jsonb_to_recordset($1::jsonb) AS r(candidate_id uuid, election_id uuid)
     ), grouped AS (
       SELECT requested.candidate_id::text, requested.election_id::text,
+        max(link.election_year) AS election_year,
+        max(max(source.observed_at)) OVER (
+          PARTITION BY requested.candidate_id, requested.election_id
+        )::text AS observed_at,
         donor.committee_id, min(donor.committee_name) AS committee_name,
         sum(donor.amount) AS amount, sum(donor.contribution_count) AS contribution_count,
         min(donor.source_url) AS source_url
@@ -107,6 +105,38 @@ export async function loadNevadaCandidateFinanceSummariesByCandidateElection(
     Map<string, BallotLookupFinancePacInterest>
   >();
   for (const row of result.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    // Accepted donor evidence can precede the monthly direct-finance import.
+    // Only new cards use donor freshness; existing direct cards keep theirs.
+    if (!summaries.has(key)) {
+      summaries.set(key, {
+        source: "NEVADA_AURORA",
+        cycle: row.election_year,
+        fec_candidate_id: null,
+        last_synced_at: row.observed_at,
+        direct_campaign: {
+          total_raised: null,
+          total_spent: null,
+          cash_on_hand: null,
+          debts_owed: null,
+          top_occupations: [],
+          top_industries: [],
+        },
+        outside_spending: {
+          support_total: null,
+          oppose_total: null,
+          outside_coverage_note: NEVADA_OUTSIDE_COVERAGE_NOTE,
+          top_supporting_groups: [],
+          top_opposing_groups: [],
+          top_supporting_industries: [],
+          top_opposing_industries: [],
+        },
+        backing_summary: {
+          top_direct_donor_occupations: [],
+          top_outside_supporting_industries: [],
+        },
+      });
+    }
     acceptedCandidates.add(
       candidateElectionKey(row.candidate_id, row.election_id),
     );
@@ -136,7 +166,6 @@ export async function loadNevadaCandidateFinanceSummariesByCandidateElection(
         : UNCLASSIFIED_PAC_INTEREST;
     if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest))
       continue;
-    const key = candidateElectionKey(row.candidate_id, row.election_id);
     const groups =
       byCandidate.get(key) ?? new Map<string, BallotLookupFinancePacInterest>();
     const group = groups.get(interest) ?? {
@@ -187,6 +216,8 @@ const NEVADA_COMMITTEE_COVERAGE_NOTE =
   "Committee donor detail identifies reported PAC names in accepted itemized cash, not all PAC money. Name recognition does not establish legal registration identity. Donor detail and direct totals may cover different accepted filing periods.";
 
 type NevadaPacDonorRow = {
+  election_year: number;
+  observed_at: string;
   candidate_id: string;
   election_id: string;
   committee_id: string | null;

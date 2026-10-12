@@ -16,6 +16,7 @@ type Row = {
   loanCheckboxChecked: boolean | null;
 };
 type Report = {
+  candidateName: string;
   reportLabel: string;
   reportYear: number;
   observedAt: string;
@@ -64,6 +65,7 @@ function report(
 ): Report {
   const total = rows.reduce((sum, row) => sum + Number(row.amount.slice(1)), 0);
   return {
+    candidateName: "Synthetic Candidate",
     reportLabel: label,
     reportYear: year,
     observedAt: `2026-10-12T09:${minute}:00.000Z`,
@@ -217,6 +219,31 @@ describe("Nevada manually decoded financial observations", () => {
     expect(result.warnings[0]).toMatch(
       /registry-name acceptance requires complete query/,
     );
+  });
+
+  it("rejects relabeling intact report money as another candidate", () => {
+    const value = fixture();
+    value.context.candidateName = "Different Candidate";
+    expect(() => validate(value)).toThrow(/report candidate ownership/);
+  });
+
+  it.each([undefined, "", "Different Candidate"])(
+    "rejects missing or mismatched report owner %s in paired observations",
+    (candidateName) => {
+      const value = fixture();
+      alterBoth(value, 1, (report) => {
+        Object.assign(report, { candidateName });
+      });
+      expect(() => validate(value)).toThrow(/report candidate ownership/);
+    },
+  );
+
+  it("accepts the same public candidate name with harmless formatting differences", () => {
+    const value = fixture();
+    alterBoth(value, 1, (report) => {
+      report.candidateName = "  SYNTHETIC   CANDIDATE  ";
+    });
+    expect(validate(value).cashCents).toBe(230000);
   });
 
   it("allows an empty recognized-name subset without claiming the whole cash or PAC universe is zero", () => {

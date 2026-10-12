@@ -5,6 +5,7 @@ import {
   parseNevadaCurrencyCents,
   parseNevadaCsvDate,
 } from "./nevadaAuroraCsv.js";
+import { nevadaCandidateNamesMatch } from "./nevadaCandidateFilerResolver.js";
 import type { NevadaFinancePacDonorSource } from "./nevadaFinanceWriter.js";
 import {
   aggregateNevadaObservedPacDonors,
@@ -317,6 +318,16 @@ export function validateNevadaCommitteeDonorObservation(
       );
     }
     const report = matches[0];
+    // The year/label is shared by many filers. Retain the name printed on
+    // each report, not merely the context copied from the candidate search.
+    if (
+      typeof report.candidateName !== "string" ||
+      !nevadaCandidateNamesMatch(filerName, report.candidateName)
+    ) {
+      throw new Error(
+        "Nevada report candidate ownership does not match context",
+      );
+    }
     const observedAt = timestamp(report.observedAt);
     if (
       timestamp(oldMatches[0].observedAt) >= first ||

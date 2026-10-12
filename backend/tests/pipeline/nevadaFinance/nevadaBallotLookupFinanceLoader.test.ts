@@ -158,6 +158,8 @@ function pacRow(changes: Record<string, unknown> = {}) {
   return {
     candidate_id: CANDIDATE_ID,
     election_id: ELECTION_ID,
+    election_year: 2026,
+    observed_at: "2026-10-12T09:20:00.000Z",
     committee_id: "reported:AN UNPLACED PAC",
     committee_name: "An Unplaced PAC",
     amount: "500.00",
@@ -169,14 +171,14 @@ function pacRow(changes: Record<string, unknown> = {}) {
     ...changes,
   };
 }
-async function loadDonorRows(rows: unknown[]) {
+async function loadDonorRows(rows: unknown[], hasDirectSummary = true) {
   vi.stubEnv("NEVADA_CAMPAIGN_FINANCE_ENABLED", "true");
   let call = 0;
   const query = vi.fn(async (sql: string) => {
     if (sql.includes("JOIN public.nv_candidate_finance_pac_sources"))
       return { rows };
     call += 1;
-    return { rows: call === 1 ? [summaryRow()] : [] };
+    return { rows: call === 1 && hasDirectSummary ? [summaryRow()] : [] };
   });
   const summaries =
     await loadNevadaCandidateFinanceSummariesByCandidateElection(
@@ -310,7 +312,7 @@ describe("Nevada committee donor cards", () => {
     );
   });
 
-  it("does not query donor rows when no finance summary or feature eligibility exists", async () => {
+  it("returns no card when both direct summary and donor evidence are absent", async () => {
     vi.stubEnv("NEVADA_CAMPAIGN_FINANCE_ENABLED", "true");
     const query = vi.fn(async () => ({ rows: [] }));
     expect(
@@ -320,7 +322,69 @@ describe("Nevada committee donor cards", () => {
         [ELECTION],
       ),
     ).toEqual(new Map());
-    expect(query).toHaveBeenCalledOnce();
+    expect(query).toHaveBeenCalledTimes(2);
+  });
+
+  it("publishes accepted donors without a direct summary and leaves totals unknown", async () => {
+    const { summary } = await loadDonorRows([pacRow()], false);
+    expect(summary).toMatchObject({
+      source: "NEVADA_AURORA",
+      cycle: 2026,
+      last_synced_at: "2026-10-12T09:20:00.000Z",
+      direct_campaign: {
+        total_raised: null,
+        total_spent: null,
+        cash_on_hand: null,
+        debts_owed: null,
+        pac_money_by_interest: [{ amount: 500 }],
+      },
+      outside_spending: { support_total: null, oppose_total: null },
+    });
+  });
+
+  it("publishes a complete empty donor component without inventing direct totals", async () => {
+    const { summary } = await loadDonorRows(
+      [pacRow({ committee_id: null, committee_name: null, amount: null })],
+      false,
+    );
+    expect(summary?.direct_campaign.pac_money_by_interest).toEqual([]);
+    expect(summary?.direct_campaign.total_raised).toBeNull();
+  });
+
+  it("queries eligible donor-only candidates alongside candidates with direct summaries", async () => {
+    vi.stubEnv("NEVADA_CAMPAIGN_FINANCE_ENABLED", "true");
+    const other = "33333333-3333-4333-8333-333333333333";
+    const excluded = "44444444-4444-4444-8444-444444444444";
+    const query = vi.fn(async (sql: string) => ({
+      rows: sql.includes("JOIN public.nv_candidate_finance_pac_sources")
+        ? [pacRow({ candidate_id: other })]
+        : sql.includes("JOIN public.nv_candidate_finance_summaries")
+          ? [summaryRow()]
+          : [],
+    }));
+    const result = await loadNevadaCandidateFinanceSummariesByCandidateElection(
+      { query },
+      [
+        { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID },
+        { candidate_id: other, election_id: ELECTION_ID },
+        { candidate_id: excluded, election_id: excluded },
+      ],
+      [ELECTION, { ...ELECTION, election_id: excluded, state: "CA" }],
+    );
+    expect(result.size).toBe(2);
+    expect(
+      result.get(`${other}\u0000${ELECTION_ID}`)?.direct_campaign
+        .pac_money_by_interest,
+    ).toMatchObject([{ amount: 500 }]);
+    const call = (query.mock.calls as unknown[][]).find(([sql]) =>
+      String(sql).includes("JOIN public.nv_candidate_finance_pac_sources"),
+    );
+    expect(call?.[1]).toEqual([
+      JSON.stringify([
+        { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID },
+        { candidate_id: other, election_id: ELECTION_ID },
+      ]),
+    ]);
   });
 
   it("filters a donor's final signed zero or negative candidate position rather than clamping its receiving positions", async () => {
