@@ -45,6 +45,32 @@ function fixture(gifts = originalGifts(), miscLabel = "Miscellaneous Cash Contri
 function edit(e: OregonPacRawEvidence, fn: (s: string) => string) { e.bytes = new TextEncoder().encode(fn(new TextDecoder().decode(e.bytes))); e.request.byteCount = e.bytes.length; e.request.sha256 = hashOregonVerifiedBytes(e.bytes); }
 describe("Oregon pure PAC source (synthetic fresh closure protocol)", () => {
     it("closes all59 current occurrences including Individual amendment and11 typedcash, showing4 PACgroups/$17k/5giftIDs", () => { const r = verify(fixture()); expect(r.diagnostics[0]).toContain("23 unclassified"); expect(r.provenance).toMatchObject({ scope: "current_named_registered_pac_cash", unclassifiedMiscCashCount: 23, unclassifiedMiscCashAmountCents: 230000 }); expect(r.pacDonors).toHaveLength(4); expect(r.pacDonors?.reduce((s, d) => s + d.amount, 0)).toBe(17000); expect(r.provenance?.gifts).toHaveLength(5); expect(r.pacDonors?.find(d => d.committeeId === "23238")?.amount).toBe(10000); expect(r.pacDonors?.find(d => d.committeeId === "18385")?.contributionCount).toBe(2); });
+    it.each(["reorder", "missing", "duplicate", "changed_amount"])("checks closing native identities without display order: %s", change => {
+        const input = fixture();
+        const original = verify(input);
+        edit(input.after.contributions.pages[0]!, body => {
+            const table = /<table>([\s\S]*?)<\/table>/.exec(body)!;
+            const rows = [...table[1]!.matchAll(/<tr>[\s\S]*?<\/tr>/g)].map(match => match[0]);
+            const header = rows.shift()!;
+            rows.reverse();
+            if (change === "missing") rows.pop();
+            if (change === "duplicate") rows[rows.length - 1] = rows[0]!;
+            if (change === "changed_amount") rows[0] = rows[0]!.replace("$50.00", "$51.00");
+            return body.replace(table[0], "<table>" + [header, ...rows].join("") + "</table>");
+        });
+        const result = verify(input);
+        if (change !== "reorder") {
+            expect(result.provenance).toBeUndefined();
+            expect(result.pacDonors).toBeUndefined();
+            return;
+        }
+        expect(result.pacDonors).toEqual(original.pacDonors);
+        expect(result.pacDonors?.reduce((sum, donor) => sum + donor.amount, 0)).toBe(17000);
+        expect(result.provenance?.gifts).toHaveLength(5);
+        // These two equal gifts have distinct transaction IDs; keep both.
+        expect(result.pacDonors?.find(donor => donor.committeeId === "18385"))
+            .toMatchObject({ amount: 5000, contributionCount: 2 });
+    });
     it("accepts the source-published space locality in genuine-shaped opening and closing details", () => {
         const input = fixture();
         for (const side of [input.before, input.after])

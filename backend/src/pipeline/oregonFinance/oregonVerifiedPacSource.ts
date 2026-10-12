@@ -170,7 +170,9 @@ function ledger(s: OregonPacSnapshot, input: OregonVerifiedPacInput) {
             !["Cash Contribution", "In-Kind Contribution", "In-Kind/Forgiven Personal Expenditures"].includes(w.subType) || w.expired || w.deleted || !Number.isSafeInteger(w.amountCents) || w.amountCents < 0)
             fail(`native/workbook identity mismatch ${n.transactionId}`);
     }
-    return { rows: workbook.rows, nativeFingerprint: canonical(native), odFingerprint: canonical(od), rawFingerprint: fingerprintOregonVerifiedRows(workbook.rows.map(r => r.rawFields)) };
+    // Display order is not transaction identity; the sorted fingerprint keeps every occurrence.
+    const nativeRowsFingerprint = fingerprintOregonVerifiedRows(native.rows.map(({ occurrence: _ordinal, ...identity }) => identity));
+    return { rows: workbook.rows, nativeFingerprint: canonical({ criteria: native.criteria, rows: nativeRowsFingerprint }), odFingerprint: canonical(od), rawFingerprint: fingerprintOregonVerifiedRows(workbook.rows.map(r => r.rawFields)) };
 }
 function us(s: string): string { return `${s.slice(5, 7)}/${s.slice(8, 10)}/${s.slice(0, 4)}`; }
 function soo(e: OregonPacRawEvidence, id: string): OregonVerifiedSoo {
