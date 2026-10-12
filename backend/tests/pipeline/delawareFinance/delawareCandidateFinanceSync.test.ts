@@ -202,6 +202,30 @@ describe("syncDelawareCandidateFinance", () => {
     ).rejects.toThrow(/per-period cover reconciliation failed/);
   });
 
+  it("preserves the database when a period has an unproven amended edition", async () => {
+    const db = { query: vi.fn(), connect: vi.fn() };
+    const multipleEditions = artifacts({
+      filedReportRows: [FILED_REPORT, {
+        ...FILED_REPORT,
+        reportName: "Amended Financial Statement",
+        document: { ...FILED_REPORT.document!, publicReportFileName: "amended.pdf" },
+      }],
+      filedReportsGridTotal: 2,
+      reportPdfs: [
+        { publicReportFileName: "report1.pdf", filingCalendarId: 900, body: Buffer.from("Original") },
+        { publicReportFileName: "amended.pdf", filingCalendarId: 900, body: Buffer.from("Amended") },
+      ],
+    });
+    await expect(syncDelawareCandidateFinance({
+      ...baseInput(db), artifacts: multipleEditions,
+      extractReportCover: async (bytes) => ({
+        ...COVER, documentVersion: Buffer.from(bytes).toString() === "Amended" ? 2 : 1,
+      }),
+    })).rejects.toThrow(/ambiguous report editions/);
+    expect(db.connect).not.toHaveBeenCalled();
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
   it("fails closed on unrecognized contribution types inside the window", async () => {
     const db = { query: vi.fn(), connect: vi.fn() };
     const withUnknown = artifacts();
