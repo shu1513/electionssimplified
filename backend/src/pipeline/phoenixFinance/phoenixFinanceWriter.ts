@@ -4,15 +4,12 @@
 // automatic link reuses it, a conflicting one errors; an active upsert
 // deactivates other automatic links first.
 //
-// Snapshot semantics: the caller stages every component and calls
-// replacePhoenixCandidateFinanceSnapshot only when all of them passed
-// source-health checks — the write is one transaction, so a summary can
-// never coexist with breakdowns or outside groups from a different as-of.
-// Source unavailable → the caller does not call this at all and the prior
-// snapshot survives untouched; source affirmatively reports no qualifying
-// data → the caller passes zero totals and empty arrays and the
-// delete-and-insert clears the stale detail rows.
-//
+// Snapshot components share one transaction. Direct data is replaced after
+// its source-health checks. Outside groups are optional: omission preserves,
+// and the default upsert retains payers absent from an incomplete observation.
+// Explicit replace is reserved for complete replacement authority. Outside
+// summary omission preserves, while explicit null records unknown coverage.
+
 // Phoenix vs San José: committee identity is the COP ID (new one each
 // election cycle — never parse district or cycle from its digits), there is
 // no "Pending" placeholder to reject, the link carries the portal's own
@@ -57,8 +54,8 @@ export type PhoenixFinanceSummaryInput = {
   cashOnHandCents: number | null;
   debtsOwedCents: number | null;
   loansReceivedCents: number | null;
-  outsideSupportCents: number | null;
-  outsideOpposeCents: number | null;
+  outsideSupportCents?: number | null;
+  outsideOpposeCents?: number | null;
   /** One sentence naming what the direct totals do NOT cover; null = complete. */
   directCoverageNote: string | null;
   /** Same disclosure for the outside totals (unmeasured/curated channels). */
@@ -218,8 +215,8 @@ export async function upsertPhoenixFinanceLink(input: {
 }
 
 /**
- * Writes one candidate's complete finance snapshot — link, summary, direct
- * breakdowns, outside group amounts, and any industry-label classifications —
+ * Writes one candidate's supplied finance components — link, summary, direct
+ * breakdowns, optional outside groups, and industry-label classifications —
  * in a single transaction. See the header comment for the staging contract;
  * any validation failure (negative flow, blank name) rolls the whole
  * snapshot back.
@@ -229,48 +226,122 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
   link: PhoenixFinanceLinkInput;
   summary: PhoenixFinanceSummaryInput;
   directBreakdowns: readonly PhoenixDirectBreakdownInput[];
-  outsideGroups: readonly PhoenixOutsideGroupInput[];
+  /** Omitted means unavailable; an empty upsert does not establish absence. */
+  outsideGroups?: readonly PhoenixOutsideGroupInput[];
+  /** Replace requires complete authority; normal partial city coverage upserts. */
+  outsideWriteMode?: "upsert" | "replace";
   classifications?: readonly FinanceLabelClassification[];
   syncedAt?: Date;
 }): Promise<{ linkId: string }> {
   if (typeof input.db.connect !== "function")
     throw new Error("Phoenix finance snapshot writes require a Pool");
+  // Retain one caller generation before any asynchronous database work.
+  const snapshot = structuredClone({
+    link: input.link,
+    summary: input.summary,
+    directBreakdowns: input.directBreakdowns,
+    outsideGroups: input.outsideGroups,
+    outsideWriteMode: input.outsideWriteMode ?? "upsert",
+    classifications: input.classifications,
+  });
+  if (
+    snapshot.outsideWriteMode !== "upsert" &&
+    snapshot.outsideWriteMode !== "replace"
+  )
+    throw new Error("Phoenix outside write mode is invalid");
+  const outsideKeys = new Set<string>();
+  for (const group of snapshot.outsideGroups ?? []) {
+    const key = JSON.stringify([
+      text(group.spenderFilerId, "spender filer id"),
+      text(group.spenderName, "spender name"),
+      group.supportOppose,
+    ]);
+    if (group.supportOppose !== "support" && group.supportOppose !== "oppose")
+      throw new Error("Phoenix outside direction is invalid");
+    centsToDollars(group.amountCents, "outside amount");
+    if (group.amountCents <= 0)
+      throw new Error("Phoenix outside amount must be positive");
+    if (
+      group.expenditureCount !== null &&
+      (!Number.isSafeInteger(group.expenditureCount) ||
+        group.expenditureCount <= 0)
+    )
+      throw new Error(
+        "Phoenix outside expenditure count must be positive integer or null",
+      );
+    if (outsideKeys.has(key))
+      throw new Error("Phoenix outside group key is repeated");
+    outsideKeys.add(key);
+  }
+  for (const [value, label] of [
+    [snapshot.summary.outsideSupportCents, "outside support"],
+    [snapshot.summary.outsideOpposeCents, "outside oppose"],
+  ] as const)
+    if (value !== undefined) centsToDollars(value, label);
   const syncedAt = (input.syncedAt ?? new Date()).toISOString();
   const client = await input.db.connect();
   try {
     await client.query("BEGIN");
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+      `phx-finance:${snapshot.link.candidateId}:${snapshot.link.electionYear}`,
+    ]);
+    const prior = await client.query<{ last_synced_at: Date | string }>(
+      `SELECT s.last_synced_at FROM public.phx_candidate_finance_summaries s JOIN public.phx_candidate_finance_links l ON l.id=s.link_id WHERE l.candidate_id=$1::uuid AND l.election_id=$2::uuid AND s.election_year=$3 FOR UPDATE OF s`,
+      [
+        snapshot.link.candidateId,
+        snapshot.link.electionId,
+        snapshot.link.electionYear,
+      ],
+    );
+    if (
+      prior.rows.some((row) => {
+        const previous = new Date(row.last_synced_at).getTime();
+        return !Number.isFinite(previous) || previous > Date.parse(syncedAt);
+      })
+    )
+      throw new Error(
+        "Phoenix finance snapshot is older than the stored observation",
+      );
     const { linkId } = await upsertPhoenixFinanceLink({
       db: client,
-      link: input.link,
+      link: snapshot.link,
     });
-    const year = input.link.electionYear;
+    const year = snapshot.link.electionYear;
     await client.query(
-      `INSERT INTO public.phx_candidate_finance_summaries (link_id,election_year,total_raised,total_spent,cash_on_hand,debts_owed,loans_received,outside_support_total,outside_oppose_total,direct_coverage_note,outside_coverage_note,methodology_version,source_url,reported_through,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::date,$15::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_raised=EXCLUDED.total_raised,total_spent=EXCLUDED.total_spent,cash_on_hand=EXCLUDED.cash_on_hand,debts_owed=EXCLUDED.debts_owed,loans_received=EXCLUDED.loans_received,outside_support_total=EXCLUDED.outside_support_total,outside_oppose_total=EXCLUDED.outside_oppose_total,direct_coverage_note=EXCLUDED.direct_coverage_note,outside_coverage_note=EXCLUDED.outside_coverage_note,methodology_version=EXCLUDED.methodology_version,source_url=EXCLUDED.source_url,reported_through=EXCLUDED.reported_through,last_synced_at=EXCLUDED.last_synced_at`,
+      `INSERT INTO public.phx_candidate_finance_summaries (link_id,election_year,total_raised,total_spent,cash_on_hand,debts_owed,loans_received,outside_support_total,outside_oppose_total,direct_coverage_note,outside_coverage_note,methodology_version,source_url,reported_through,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::date,$15::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_raised=EXCLUDED.total_raised,total_spent=EXCLUDED.total_spent,cash_on_hand=EXCLUDED.cash_on_hand,debts_owed=EXCLUDED.debts_owed,loans_received=EXCLUDED.loans_received,outside_support_total=CASE WHEN $16::boolean THEN phx_candidate_finance_summaries.outside_support_total ELSE EXCLUDED.outside_support_total END,outside_oppose_total=CASE WHEN $17::boolean THEN phx_candidate_finance_summaries.outside_oppose_total ELSE EXCLUDED.outside_oppose_total END,direct_coverage_note=EXCLUDED.direct_coverage_note,outside_coverage_note=EXCLUDED.outside_coverage_note,methodology_version=EXCLUDED.methodology_version,source_url=EXCLUDED.source_url,reported_through=EXCLUDED.reported_through,last_synced_at=EXCLUDED.last_synced_at`,
       [
         linkId,
         year,
-        centsToDollars(input.summary.totalRaisedCents, "total raised"),
-        centsToDollars(input.summary.totalSpentCents, "total spent"),
-        centsToDollars(input.summary.cashOnHandCents, "cash on hand", {
+        centsToDollars(snapshot.summary.totalRaisedCents, "total raised"),
+        centsToDollars(snapshot.summary.totalSpentCents, "total spent"),
+        centsToDollars(snapshot.summary.cashOnHandCents, "cash on hand", {
           allowNegative: true,
         }),
-        centsToDollars(input.summary.debtsOwedCents, "debts owed"),
-        centsToDollars(input.summary.loansReceivedCents, "loans received"),
-        centsToDollars(input.summary.outsideSupportCents, "outside support"),
-        centsToDollars(input.summary.outsideOpposeCents, "outside oppose"),
-        optional(input.summary.directCoverageNote),
-        optional(input.summary.outsideCoverageNote),
-        text(input.summary.methodologyVersion, "methodology version"),
-        optional(input.summary.sourceUrl),
-        input.summary.reportedThrough,
+        centsToDollars(snapshot.summary.debtsOwedCents, "debts owed"),
+        centsToDollars(snapshot.summary.loansReceivedCents, "loans received"),
+        centsToDollars(
+          snapshot.summary.outsideSupportCents ?? null,
+          "outside support",
+        ),
+        centsToDollars(
+          snapshot.summary.outsideOpposeCents ?? null,
+          "outside oppose",
+        ),
+        optional(snapshot.summary.directCoverageNote),
+        optional(snapshot.summary.outsideCoverageNote),
+        text(snapshot.summary.methodologyVersion, "methodology version"),
+        optional(snapshot.summary.sourceUrl),
+        snapshot.summary.reportedThrough,
         syncedAt,
+        snapshot.summary.outsideSupportCents === undefined,
+        snapshot.summary.outsideOpposeCents === undefined,
       ],
     );
     await client.query(
       `DELETE FROM public.phx_candidate_finance_direct_breakdowns WHERE link_id=$1::uuid AND election_year=$2`,
       [linkId, year],
     );
-    for (const row of input.directBreakdowns)
+    for (const row of snapshot.directBreakdowns)
       await client.query(
         `INSERT INTO public.phx_candidate_finance_direct_breakdowns (link_id,election_year,category_type,category_name,amount,contributor_count,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8::timestamptz)`,
         [
@@ -284,16 +355,19 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
-    await client.query(
-      `DELETE FROM public.phx_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2`,
-      [linkId, year],
-    );
-    // Plain inserts: the aggregator already groups per (spender identity,
-    // direction) — a unique-key collision here is a caller bug and should
-    // abort the snapshot, not be papered over.
-    for (const group of input.outsideGroups)
+    if (
+      snapshot.outsideGroups !== undefined &&
+      snapshot.outsideWriteMode === "replace"
+    )
       await client.query(
-        `INSERT INTO public.phx_candidate_finance_outside_groups (link_id,election_year,spender_filer_id,spender_name,support_oppose,amount,expenditure_count,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9::timestamptz)`,
+        `DELETE FROM public.phx_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2`,
+        [linkId, year],
+      );
+    // Positive known allocations refresh their exact stored group key;
+    // absent payers or directions survive a partial observation.
+    for (const group of snapshot.outsideGroups ?? [])
+      await client.query(
+        `INSERT INTO public.phx_candidate_finance_outside_groups (link_id,election_year,spender_filer_id,spender_name,support_oppose,amount,expenditure_count,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9::timestamptz) ON CONFLICT (link_id,election_year,spender_filer_id,spender_name,support_oppose) DO UPDATE SET amount=EXCLUDED.amount,expenditure_count=EXCLUDED.expenditure_count,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
         [
           linkId,
           year,
@@ -306,7 +380,7 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
-    for (const classification of input.classifications ?? [])
+    for (const classification of snapshot.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");
     return { linkId };

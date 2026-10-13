@@ -71,12 +71,14 @@ describe("Phoenix ballot finance loader", () => {
             source_url: null,
           },
         ],
-      });
-    const result = await loadPhoenixCandidateFinanceSummariesByCandidateElection(
-      { query } as never,
-      [{ candidate_id: "c", election_id: "e" }],
-      [PHOENIX_COUNCIL_ELECTION],
-    );
+      })
+      .mockResolvedValueOnce({ rows: [] });
+    const result =
+      await loadPhoenixCandidateFinanceSummariesByCandidateElection(
+        { query } as never,
+        [{ candidate_id: "c", election_id: "e" }],
+        [PHOENIX_COUNCIL_ELECTION],
+      );
     expect(result.get(KEY)).toMatchObject({
       source: "PHOENIX_CITY_CLERK",
       cycle: 2026,
@@ -100,8 +102,8 @@ describe("Phoenix ballot finance loader", () => {
         ],
       },
       outside_spending: {
-        support_total: 0,
-        oppose_total: 0,
+        support_total: null,
+        oppose_total: null,
         outside_coverage_note: expect.stringContaining("Phoenix City Clerk"),
         top_opposing_groups: [
           expect.objectContaining({
@@ -122,6 +124,167 @@ describe("Phoenix ballot finance loader", () => {
     ]) {
       expect(sql).toContain(column);
     }
+  });
+
+  function pacRow(over: Record<string, unknown> = {}) {
+    return {
+      candidate_id: "c",
+      election_id: "e",
+      observed_at: "2026-10-12T20:00:00Z",
+      reported_through: "2026-06-30",
+      committee_id: "reported:CIVIC FUTURE PAC",
+      committee_name: "Civic Future PAC",
+      amount: "1250",
+      source_url:
+        "https://apps-secure.phoenix.gov/CampaignFinance/Reports/PrintReport/11111111-1111-4111-8111-111111111111",
+      industry_slug: null,
+      classification_source: null,
+      confidence: null,
+      ...over,
+    };
+  }
+  async function loadPac(rows: Record<string, unknown>[]) {
+    vi.stubEnv("PHOENIX_CAMPAIGN_FINANCE_ENABLED", "true");
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [summaryRow()] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows });
+    const result =
+      await loadPhoenixCandidateFinanceSummariesByCandidateElection(
+        { query } as never,
+        [{ candidate_id: "c", election_id: "e" }],
+        [PHOENIX_COUNCIL_ELECTION],
+      );
+    return { query, summary: result.get(KEY)! };
+  }
+
+  it("omits unavailable PAC evidence and distinguishes an accepted empty generation", async () => {
+    const absent = await loadPac([]);
+    expect(absent.summary.direct_campaign).not.toHaveProperty(
+      "pac_money_by_interest",
+    );
+    const empty = await loadPac([
+      pacRow({ committee_id: null, committee_name: null, amount: null }),
+    ]);
+    expect(empty.summary.direct_campaign.pac_money_by_interest).toEqual([]);
+    expect(empty.summary.direct_campaign.direct_coverage_note).toContain(
+      "Reported PAC monetary receipts net",
+    );
+    expect(empty.summary.last_synced_at).toBe("2026-08-12");
+    expect(empty.summary.direct_campaign.total_raised).toBe(316139.1);
+  });
+
+  it("shows unknown reported groups as Not yet sorted with separate source freshness", async () => {
+    const { summary } = await loadPac([pacRow()]);
+    expect(summary.direct_campaign.pac_money_by_interest).toEqual([
+      {
+        interest: "unclassified",
+        interest_name: "Not yet sorted",
+        amount: 1250,
+        pac_count: 1,
+        pacs: [
+          expect.objectContaining({
+            committee_id: "reported:CIVIC FUTURE PAC",
+            committee_name: "Civic Future PAC",
+            amount: 1250,
+          }),
+        ],
+      },
+    ]);
+    expect(summary.direct_campaign.direct_coverage_note).toContain(
+      "through 2026-06-30",
+    );
+    expect(summary.direct_campaign.direct_coverage_note).toContain(
+      "observed 2026-10-12T20:00:00Z",
+    );
+    expect(summary.direct_campaign.direct_coverage_note).toContain(
+      "In-kind, candidate committees and parties are excluded",
+    );
+    expect(summary.last_synced_at).toBe("2026-08-12");
+  });
+
+  it("uses only trusted classifications and excludes known hidden political buckets", async () => {
+    const { summary } = await loadPac([
+      pacRow({
+        committee_id: "reported:MANUAL",
+        committee_name: "Opaque Fund One",
+        industry_slug: "healthcare",
+        classification_source: "manual",
+        confidence: "low",
+      }),
+      pacRow({
+        committee_id: "reported:UNTRUSTED",
+        committee_name: "Opaque Fund Two",
+        industry_slug: "pharmaceuticals",
+        classification_source: "ai",
+        confidence: "low",
+        amount: "500",
+      }),
+      pacRow({
+        committee_id: "reported:HIDDEN",
+        committee_name: "Opaque Fund Three",
+        industry_slug: "leadership_pacs",
+        classification_source: "manual",
+      }),
+    ]);
+    const interests = summary.direct_campaign.pac_money_by_interest!;
+    expect(interests.map((r) => r.interest)).toEqual([
+      "healthcare",
+      "unclassified",
+    ]);
+    expect(interests[1].amount).toBe(500);
+    expect(
+      interests
+        .flatMap((r) => r.pacs)
+        .some((r) => r.committee_id === "reported:HIDDEN"),
+    ).toBe(false);
+  });
+
+  it("filters nonpositive net positions only after the full signed SQL aggregation", async () => {
+    const { query, summary } = await loadPac([
+      pacRow({ amount: "-50" }),
+      pacRow({ committee_id: "reported:ZERO", amount: "0" }),
+      pacRow({ committee_id: "reported:POSITIVE", amount: "25" }),
+    ]);
+    expect(summary.direct_campaign.pac_money_by_interest?.[0].amount).toBe(25);
+    expect(summary.direct_campaign.pac_money_by_interest?.[0].pac_count).toBe(
+      1,
+    );
+    const sql = String(query.mock.calls[3][0]);
+    expect(sql).toContain("sum(donor.amount)");
+    expect(sql).not.toMatch(/donor\.amount\s*>\s*0/i);
+    expect(sql).not.toContain("LIMIT");
+    expect(sql).toContain("donor.capture_digest=source.capture_digest");
+    expect(sql).toContain("donor.recognition_method='reported_type'");
+    expect(sql).toContain("source.election_year=link.election_year");
+    expect(sql).toContain("link.link_status='active'");
+  });
+
+  it("sums every donor before the five-name cap and retains Not yet sorted", async () => {
+    const rows = Array.from({ length: 7 }, (_, i) =>
+      pacRow({
+        committee_id: `reported:OPAQUE ${i}`,
+        committee_name: `Opaque Fund ${i}`,
+        amount: String(100 + i),
+      }),
+    );
+    const { summary } = await loadPac(rows);
+    const group = summary.direct_campaign.pac_money_by_interest![0];
+    expect(group.amount).toBe(721);
+    expect(group.pac_count).toBe(7);
+    expect(group.pacs).toHaveLength(5);
+    expect(group.pacs[0].committee_id).toBe("reported:OPAQUE 6");
+  });
+
+  it("never exposes stored outside totals as whole coverage while keeping known groups", async () => {
+    const { summary } = await loadPac([]);
+    expect(summary.outside_spending.support_total).toBeNull();
+    expect(summary.outside_spending.oppose_total).toBeNull();
+    expect(summary.outside_spending.outside_coverage_note).toContain(
+      "overall outside totals remain unknown",
+    );
   });
 
   it("does no DB work when the master flag is off or the election is not Phoenix", async () => {

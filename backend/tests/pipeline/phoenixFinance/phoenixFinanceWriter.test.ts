@@ -63,6 +63,7 @@ describe("Phoenix finance writer", () => {
           contributorCount: 7,
         },
       ],
+      outsideWriteMode: "replace",
       outsideGroups: [
         {
           spenderFilerId: "PAC-25-9",
@@ -88,17 +89,304 @@ describe("Phoenix finance writer", () => {
       ]),
     );
     const summaryCall = query.mock.calls.find((call) =>
-      String(call[0]).includes("phx_candidate_finance_summaries"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
     );
     // Cents → exact dollar strings, never floats: raised, spent, cash, loans.
     expect(summaryCall?.[1]).toEqual(
-      expect.arrayContaining(["316139.10", "123456.78", "192682.32", "1000.00"]),
+      expect.arrayContaining([
+        "316139.10",
+        "123456.78",
+        "192682.32",
+        "1000.00",
+      ]),
     );
     // The outside coverage disclosure is persisted alongside the totals.
     expect(summaryCall?.[1]).toEqual(
       expect.arrayContaining([summary.outsideCoverageNote]),
     );
     expect(release).toHaveBeenCalled();
+  });
+
+  it("preserves unavailable groups and omitted scalar fields during direct refresh", async () => {
+    const query = queryMock();
+    await replacePhoenixCandidateFinanceSnapshot({
+      db: {
+        connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+      } as never,
+      link,
+      summary: {
+        ...summary,
+        outsideSupportCents: undefined,
+        outsideOpposeCents: undefined,
+      },
+      directBreakdowns: [],
+    });
+    expect(
+      query.mock.calls.some(([sql]) =>
+        /^(?:INSERT INTO|DELETE FROM|UPDATE) public\.phx_candidate_finance_outside_groups/.test(
+          String(sql),
+        ),
+      ),
+    ).toBe(false);
+    const update = query.mock.calls.find(([sql]) =>
+      String(sql).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
+    );
+    expect(update?.[1].slice(15)).toEqual([true, true]);
+    expect(String(update?.[0])).toContain(
+      "CASE WHEN $16::boolean THEN phx_candidate_finance_summaries.outside_support_total ELSE EXCLUDED.outside_support_total END",
+    );
+    expect(query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+
+  it("writes explicit unknown scalars as NULL rather than restoring old zeros", async () => {
+    const query = queryMock();
+    await replacePhoenixCandidateFinanceSnapshot({
+      db: {
+        connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+      } as never,
+      link,
+      summary,
+      directBreakdowns: [],
+      outsideGroups: [],
+    });
+    const update = query.mock.calls.find(([sql]) =>
+      String(sql).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
+    );
+    expect(update?.[1].slice(7, 9)).toEqual([null, null]);
+    expect(update?.[1].slice(15)).toEqual([false, false]);
+    expect(String(update?.[0])).not.toContain("COALESCE");
+    expect(
+      query.mock.calls.some(([sql]) =>
+        String(sql).startsWith(
+          "DELETE FROM public.phx_candidate_finance_outside_groups",
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it("upserts a lower current positive amount without deleting absent payers or directions", async () => {
+    const query = queryMock();
+    await replacePhoenixCandidateFinanceSnapshot({
+      db: {
+        connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+      } as never,
+      link,
+      summary,
+      directBreakdowns: [],
+      outsideGroups: [
+        {
+          spenderFilerId: "PAC-25-9",
+          spenderName: "KNOWN PAYER",
+          supportOppose: "support",
+          amountCents: 12500,
+          expenditureCount: 1,
+        },
+      ],
+    });
+    expect(
+      query.mock.calls.some(([sql]) =>
+        String(sql).startsWith(
+          "DELETE FROM public.phx_candidate_finance_outside_groups",
+        ),
+      ),
+    ).toBe(false);
+    const group = query.mock.calls.find(([sql]) =>
+      String(sql).startsWith(
+        "INSERT INTO public.phx_candidate_finance_outside_groups",
+      ),
+    );
+    expect(String(group?.[0])).toContain(
+      "ON CONFLICT (link_id,election_year,spender_filer_id,spender_name,support_oppose) DO UPDATE SET amount=EXCLUDED.amount",
+    );
+    expect(group?.[1].slice(2, 7)).toEqual([
+      "PAC-25-9",
+      "KNOWN PAYER",
+      "support",
+      "125.00",
+      1,
+    ]);
+  });
+
+  it("clears groups only for explicit complete empty replacement", async () => {
+    const query = queryMock();
+    await replacePhoenixCandidateFinanceSnapshot({
+      db: {
+        connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+      } as never,
+      link,
+      summary,
+      directBreakdowns: [],
+      outsideGroups: [],
+      outsideWriteMode: "replace",
+    });
+    expect(
+      query.mock.calls.filter(([sql]) =>
+        String(sql).startsWith(
+          "DELETE FROM public.phx_candidate_finance_outside_groups",
+        ),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("rejects stale observations under the lock before financial mutations", async () => {
+    const query = queryMock((sql) =>
+      sql.startsWith("SELECT s.last_synced_at")
+        ? { rows: [{ last_synced_at: "2026-10-12T20:00:00Z" }] }
+        : null,
+    );
+    await expect(
+      replacePhoenixCandidateFinanceSnapshot({
+        db: {
+          connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+        } as never,
+        link,
+        summary,
+        directBreakdowns: [],
+        syncedAt: new Date("2026-10-12T19:00:00Z"),
+      }),
+    ).rejects.toThrow("older than the stored observation");
+    const sql = query.mock.calls.map(([sql]) => String(sql));
+    expect(sql[1]).toContain("pg_advisory_xact_lock");
+    expect(sql[2]).toContain("FOR UPDATE OF s");
+    expect(sql.some((s) => /^(?:INSERT|DELETE|UPDATE)\b/.test(s))).toBe(false);
+    expect(sql).toContain("ROLLBACK");
+    expect(sql).not.toContain("COMMIT");
+  });
+
+  it("rejects invalid or repeated groups and modes before connecting", async () => {
+    const valid = {
+      spenderFilerId: "PAC-25-9",
+      spenderName: "KNOWN PAYER",
+      supportOppose: "support" as const,
+      amountCents: 500,
+      expenditureCount: 1,
+    };
+    for (const groups of [
+      [{ ...valid, amountCents: 0 }],
+      [{ ...valid, amountCents: -1 }],
+      [{ ...valid, amountCents: Infinity }],
+      [{ ...valid, amountCents: Number.MAX_SAFE_INTEGER + 1 }],
+      [{ ...valid, expenditureCount: 1.5 }],
+      [{ ...valid, supportOppose: "unknown" }],
+      [valid, { ...valid }],
+    ]) {
+      const connect = vi.fn();
+      await expect(
+        replacePhoenixCandidateFinanceSnapshot({
+          db: { connect } as never,
+          link,
+          summary,
+          directBreakdowns: [],
+          outsideGroups: groups as never,
+        }),
+      ).rejects.toThrow();
+      expect(connect).not.toHaveBeenCalled();
+    }
+    const connect = vi.fn();
+    await expect(
+      replacePhoenixCandidateFinanceSnapshot({
+        db: { connect } as never,
+        link,
+        summary,
+        directBreakdowns: [],
+        outsideWriteMode: "wrong" as never,
+      }),
+    ).rejects.toThrow("write mode");
+    expect(connect).not.toHaveBeenCalled();
+  });
+
+  it("rolls direct and outside writes back together on group failure", async () => {
+    const query = queryMock();
+    const base = query.getMockImplementation()!;
+    query.mockImplementation((sql: unknown) =>
+      String(sql).startsWith(
+        "INSERT INTO public.phx_candidate_finance_outside_groups",
+      )
+        ? Promise.reject(new Error("database failure"))
+        : base(sql),
+    );
+    const release = vi.fn();
+    await expect(
+      replacePhoenixCandidateFinanceSnapshot({
+        db: { connect: vi.fn().mockResolvedValue({ query, release }) } as never,
+        link,
+        summary,
+        directBreakdowns: [],
+        outsideGroups: [
+          {
+            spenderFilerId: "PAC-25-9",
+            spenderName: "KNOWN PAYER",
+            supportOppose: "support",
+            amountCents: 500,
+            expenditureCount: 1,
+          },
+        ],
+      }),
+    ).rejects.toThrow("database failure");
+    const sql = query.mock.calls.map(([sql]) => String(sql));
+    expect(
+      sql.some((s) =>
+        s.startsWith("INSERT INTO public.phx_candidate_finance_summaries"),
+      ),
+    ).toBe(true);
+    expect(sql).toContain("ROLLBACK");
+    expect(sql).not.toContain("COMMIT");
+    expect(release).toHaveBeenCalled();
+  });
+
+  it("retains one caller generation before a connection await", async () => {
+    const query = queryMock();
+    const mutableLink = { ...link };
+    const mutableSummary = { ...summary };
+    const groups = [
+      {
+        spenderFilerId: "PAC-25-9",
+        spenderName: "KNOWN PAYER",
+        supportOppose: "support" as const,
+        amountCents: 500,
+        expenditureCount: 1,
+      },
+    ];
+    const connect = vi.fn(async () => {
+      mutableLink.copId = "CAN-25-999";
+      mutableSummary.totalRaisedCents = 1;
+      groups[0].amountCents = 999;
+      return { query, release: vi.fn() };
+    });
+    await replacePhoenixCandidateFinanceSnapshot({
+      db: { connect } as never,
+      link: mutableLink,
+      summary: mutableSummary,
+      directBreakdowns: [],
+      outsideGroups: groups,
+    });
+    expect(
+      query.mock.calls.find(([sql]) =>
+        String(sql).startsWith(
+          "INSERT INTO public.phx_candidate_finance_links",
+        ),
+      )?.[1][4],
+    ).toBe("CAN-25-4");
+    expect(
+      query.mock.calls.find(([sql]) =>
+        String(sql).startsWith(
+          "INSERT INTO public.phx_candidate_finance_summaries",
+        ),
+      )?.[1][2],
+    ).toBe("316139.10");
+    expect(
+      query.mock.calls.find(([sql]) =>
+        String(sql).startsWith(
+          "INSERT INTO public.phx_candidate_finance_outside_groups",
+        ),
+      )?.[1][5],
+    ).toBe("5.00");
   });
 
   it("writes the portal cycle identity and bounds on the link row", async () => {
@@ -159,7 +447,9 @@ describe("Phoenix finance writer", () => {
       outsideGroups: [],
     });
     const summaryCall = query.mock.calls.find((call) =>
-      String(call[0]).includes("phx_candidate_finance_summaries"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
     );
     expect(summaryCall?.[1]).toEqual(expect.arrayContaining(["-42.00"]));
   });
@@ -340,7 +630,10 @@ describe("Phoenix finance writer", () => {
       [{ committeeName: " " }, /committee name is required/],
       [{ candidateNameNormalized: "" }, /candidate name is required/],
       [{ portalCycleName: " " }, /portal cycle name is required/],
-      [{ portalCycleStart: "04/01/2025" }, /portal cycle start must be an ISO date/],
+      [
+        { portalCycleStart: "04/01/2025" },
+        /portal cycle start must be an ISO date/,
+      ],
       [{ portalCycleEnd: "2027-3-31" }, /portal cycle end must be an ISO date/],
     ];
     for (const [patch, message] of cases) {

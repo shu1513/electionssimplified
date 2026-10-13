@@ -13,8 +13,16 @@ import {
   parseFinanceAmount,
   type BallotLookupFinanceBreakdown,
   type BallotLookupFinanceOutsideGroup,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
+import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
+import {
+  PAC_INTERESTS_NOT_LISTED,
+  PAC_INTEREST_SLUGS,
+  UNCLASSIFIED_PAC_INTEREST,
+  pacInterestDisplayName,
+} from "../finance/pacInterestClassifier.js";
 import { isPhoenixCityFinanceEligibleElection } from "./phoenixFinanceEligibleOffices.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -52,15 +60,19 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
   electionRows: readonly Election[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
   if (!isPhoenixCampaignFinanceEnabled()) return new Map();
-  const requests = buildStateFinanceSummaryRequests("AZ", candidateRows, electionRows, (row) =>
-    isPhoenixCityFinanceEligibleElection({
-      state: row.state,
-      districtType: row.district_type,
-      geoidCompact: row.geoid_compact,
-      officeScope: row.office_scope,
-      officeCanonicalName: row.office_canonical_name,
-      officialBallotTitle: row.official_ballot_title,
-    }),
+  const requests = buildStateFinanceSummaryRequests(
+    "AZ",
+    candidateRows,
+    electionRows,
+    (row) =>
+      isPhoenixCityFinanceEligibleElection({
+        state: row.state,
+        districtType: row.district_type,
+        geoidCompact: row.geoid_compact,
+        officeScope: row.office_scope,
+        officeCanonicalName: row.office_canonical_name,
+        officialBallotTitle: row.official_ballot_title,
+      }),
   );
   if (!requests.length) return new Map();
   const summaries = await db.query<SummaryRow>(
@@ -181,6 +193,96 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
     `,
     [JSON.stringify(selected)],
   );
+  // The source pointer selects an accepted generation, including a genuinely
+  // empty one. Sum signed positions before filtering or applying display caps.
+  const pac = await db.query<PhoenixPacDonorRow>(
+    `WITH selected AS (
+      SELECT candidate_id::uuid candidate_id,election_id::uuid election_id
+      FROM jsonb_to_recordset($1::jsonb)x(candidate_id text,election_id text)
+    ), grouped AS (
+      SELECT selected.candidate_id::text,selected.election_id::text,
+        max(max(source.observed_at)) OVER (PARTITION BY selected.candidate_id,selected.election_id)::text AS observed_at,
+        min(min(source.reported_through)) OVER (PARTITION BY selected.candidate_id,selected.election_id)::text AS reported_through,
+        donor.committee_id,min(donor.committee_name) AS committee_name,
+        sum(donor.amount) AS amount,min(donor.source_url) AS source_url
+      FROM selected
+      JOIN public.phx_candidate_finance_links link ON link.candidate_id=selected.candidate_id
+        AND link.election_id=selected.election_id AND link.link_status='active'
+      JOIN public.phx_candidate_finance_pac_sources source ON source.link_id=link.id
+        AND source.election_year=link.election_year
+      LEFT JOIN public.phx_candidate_finance_pac_donors donor ON donor.link_id=source.link_id
+        AND donor.election_year=source.election_year AND donor.capture_digest=source.capture_digest
+        AND donor.recognition_method='reported_type'
+      GROUP BY selected.candidate_id,selected.election_id,donor.committee_id
+    )
+    SELECT grouped.*,classification.industry_slug,classification.classification_source,classification.confidence
+    FROM grouped LEFT JOIN public.finance_label_classifications classification
+      ON classification.label_type='committee'
+      AND classification.normalized_label=public.normalize_finance_label(grouped.committee_name)
+    ORDER BY candidate_id,election_id,amount DESC,committee_name`,
+    [JSON.stringify(selected)],
+  );
+  const pacSources = new Map<
+    string,
+    { observedAt: string; reportedThrough: string }
+  >();
+  const pacInterests = new Map<
+    string,
+    Map<string, BallotLookupFinancePacInterest>
+  >();
+  for (const row of pac.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    pacSources.set(key, {
+      observedAt: row.observed_at,
+      reportedThrough: row.reported_through,
+    });
+    if (row.committee_id === null || row.committee_name === null) continue;
+    const amount = parseFinanceAmount(row.amount);
+    if (amount === null || amount <= 0) continue;
+    const classification = classifyFinanceLabel({
+      rawLabel: row.committee_name,
+      labelType: "committee",
+    });
+    const trusted =
+      row.industry_slug &&
+      (row.classification_source === "manual" ||
+        (row.confidence === "high" &&
+          ["rule", "ai"].includes(row.classification_source ?? "")))
+        ? row.industry_slug
+        : null;
+    const rule =
+      classification.classificationSource === "rule" &&
+      classification.confidence === "high"
+        ? classification.industrySlug
+        : null;
+    const proposed = trusted ?? rule;
+    const interest =
+      proposed && (PAC_INTEREST_SLUGS as readonly string[]).includes(proposed)
+        ? proposed
+        : UNCLASSIFIED_PAC_INTEREST;
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest))
+      continue;
+    const byInterest =
+      pacInterests.get(key) ??
+      new Map<string, BallotLookupFinancePacInterest>();
+    const group = byInterest.get(interest) ?? {
+      interest,
+      interest_name: pacInterestDisplayName(interest),
+      amount: 0,
+      pac_count: 0,
+      pacs: [],
+    };
+    group.amount = Math.round((group.amount + amount) * 100) / 100;
+    group.pac_count += 1;
+    group.pacs.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      amount,
+      source_url: row.source_url,
+    });
+    byInterest.set(interest, group);
+    pacInterests.set(key, byInterest);
+  }
   // The summary row carries the stable portal URL; breakdown/group rows store
   // the same URL today, but the fallback keeps the card's footer link alive
   // if a future sync stops writing per-row URLs (the SF lesson).
@@ -215,7 +317,12 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
       expenditure_count: Number.isFinite(expenditureCount)
         ? expenditureCount
         : null,
-      source_url: row.source_url ?? summarySourceUrlByKey.get(candidateElectionKey(row.candidate_id, row.election_id)) ?? null,
+      source_url:
+        row.source_url ??
+        summarySourceUrlByKey.get(
+          candidateElectionKey(row.candidate_id, row.election_id),
+        ) ??
+        null,
     });
     groups.set(key, list);
   }
@@ -224,6 +331,29 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const byType = maps.get(key) ?? new Map();
       const occupations = byType.get("occupation") ?? [];
+      const pacSource = pacSources.get(key);
+      const pacGroups = [...(pacInterests.get(key)?.values() ?? [])]
+        .map((group) => ({
+          ...group,
+          pacs: group.pacs
+            .sort(
+              (a, b) =>
+                b.amount - a.amount ||
+                a.committee_id.localeCompare(b.committee_id),
+            )
+            .slice(0, 5),
+        }))
+        .sort(
+          (a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest),
+        );
+      const directNote = pacSource
+        ? [
+            row.direct_coverage_note,
+            `Reported PAC monetary receipts net of identified returns in accepted city reports through ${pacSource.reportedThrough}; source observed ${pacSource.observedAt}. In-kind, candidate committees and parties are excluded. Reported-name groups do not establish legal registration identity; donor detail and direct totals have separate source observations.`,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : row.direct_coverage_note;
       return [
         key,
         {
@@ -247,16 +377,21 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
             // A(1)(b) aggregate) and deliberately absent.
             contribution_size_buckets: [],
             // Always set by the Phoenix sync (itemization-threshold basis).
-            ...(row.direct_coverage_note === null
+            ...(directNote === null
               ? {}
-              : { direct_coverage_note: row.direct_coverage_note }),
+              : { direct_coverage_note: directNote }),
+            ...(pacSource ? { pac_money_by_interest: pacGroups } : {}),
           },
           outside_spending: {
-            support_total: parseFinanceAmount(row.outside_support_total),
-            oppose_total: parseFinanceAmount(row.outside_oppose_total),
-            ...(row.outside_coverage_note === null
-              ? {}
-              : { outside_coverage_note: row.outside_coverage_note }),
+            // Known groups are partial allocations; missing channels cannot certify totals.
+            support_total: null,
+            oppose_total: null,
+            outside_coverage_note: [
+              row.outside_coverage_note,
+              "Known city-reported allocations may include earlier successful observations. Standing committees, noncommittee IE and Election Funding Disclosures are not fully measured; overall outside totals remain unknown.",
+            ]
+              .filter(Boolean)
+              .join(" "),
             top_supporting_groups: groups.get(`${key}|support`) ?? [],
             top_opposing_groups: groups.get(`${key}|oppose`) ?? [],
             top_supporting_industries: [],
@@ -271,3 +406,17 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
     }),
   );
 }
+
+type PhoenixPacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  observed_at: string;
+  reported_through: string;
+  committee_id: string | null;
+  committee_name: string | null;
+  amount: string | number | null;
+  source_url: string | null;
+  industry_slug: string | null;
+  classification_source: string | null;
+  confidence: string | null;
+};
