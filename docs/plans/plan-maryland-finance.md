@@ -129,3 +129,18 @@ invalid or negative allocation holds the component even beside positive rows;
 it never substitutes the full parent expense. All 141 Maryland tests and
 backend typecheck pass. These fixes and acquisition are not a completed money
 sync or permission to open the Maryland PR before its real card proof.
+
+Subsequent strict money parsing rejects malformed grouping, exponent/hex values,
+internal whitespace, ambiguous signed parentheses, excess precision and unsafe
+cents. Signed source returns remain negative. Mixed positive targets with an
+unknown stance or missing payer also hold the outside component. Independent
+review confirms these guards; all 161 Maryland tests and backend types pass.
+
+The approved single native receipt page reached HTTP 200 and EOF with 100 of
+105,360 declared records. It independently exposes receiving, report and
+transaction identities/versions, return/activity flags and reported donor codes.
+This is only schema/paging evidence; it is not a whole ledger or PAC absence.
+A full census would require 1,054 pages at the observed public limit of 100.
+The next client must retain every source occurrence and fail on paging, count,
+identity or generation drift. Financial role/control qualification stays
+separate, including whether the TCON collection covers loan mechanisms.

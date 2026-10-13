@@ -152,6 +152,22 @@ describe("marylandOutsideSpendingAggregator", () => {
     },
   );
 
+  it.each([
+    { Position: "Unknown" },
+    { "Filing Entity Id": "" },
+    { "Committee Name": "" },
+  ])("holds a positive subset beside an unresolved stance or payer %j", (overrides) => {
+    const result = aggregateMarylandOutsideSpending({
+      candidateName: "Justin Gallucci",
+      officeName: "State Senator",
+      electionYear: 2026,
+      expenditureRows: [expenditure(), expenditure(overrides)],
+    });
+    expect(result.summary).toBeNull();
+    expect(result.includedExpenditureRowCount).toBe(1);
+    expect(result.skippedExpenditureRowCount).toBe(1);
+  });
+
   it("matches direct and comma-form candidate names without fuzzy matching", () => {
     const result = aggregateMarylandOutsideSpending({
       candidateName: "Justin Gallucci",

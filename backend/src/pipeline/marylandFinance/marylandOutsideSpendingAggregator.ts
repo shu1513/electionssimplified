@@ -269,7 +269,7 @@ export function aggregateMarylandOutsideSpending(
   let matchedExpenditureRowCount = 0;
   let includedExpenditureRowCount = 0;
   let skippedExpenditureRowCount = 0;
-  let unresolvedAllocation = false;
+  let unresolvedTarget = false;
 
   for (const row of input.expenditureRows) {
     if (
@@ -291,11 +291,12 @@ export function aggregateMarylandOutsideSpending(
     if (
       !isCandidateCommitteeType(row["Committee Type"]) &&
       isCycleYear({ rawDate: row["Transaction Date"], electionYear }) &&
-      (amountCents === null || amountCents < 0)
+      (amountCents === null || amountCents < 0 ||
+        (amountCents > 0 && (!supportOppose || !committeeId || !committeeName)))
     ) {
       // Publishing the remaining positive subset would hide an unknown target
-      // allocation or an unresolved correction. Preserve the whole component.
-      unresolvedAllocation = true;
+      // allocation, payer, stance or correction. Preserve the whole component.
+      unresolvedTarget = true;
     }
     if (
       !committeeId ||
@@ -336,7 +337,7 @@ export function aggregateMarylandOutsideSpending(
     maxGroups,
     sourceUrl: input.sourceUrl ?? null,
   });
-  if (grouped.length === 0 || unresolvedAllocation) {
+  if (grouped.length === 0 || unresolvedTarget) {
     return {
       summary: null,
       matchedExpenditureRowCount,
