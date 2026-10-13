@@ -109,3 +109,23 @@ its controls cannot be presumed ready. Other five current amended children are
 marked Completed. The registered and ballot committee names differ only in
 candidate-name order, but their independently reviewed formatting association
 and full monetary reconciliation still precede any financial write.
+
+Independent original-length/SHA verification agrees with every complete capture.
+Fatal UTF-8 rejects all three artifacts. Explicit Western research parsing
+reaches 3,890 registration records, but stops expenses at logical row 4,285
+(52 fields, expected 37) and receipts at row 16,195 (6 fields, expected 28).
+Those prefixes are diagnostic counts, not accepted whole ledgers. Complete
+native receiver paging is the next possible path; no malformed row is skipped.
+
+The actual current Annual 2026 amended v2 PDF reached EOF at 24,083,141 bytes
+and 5,041 pages. It reports gross contributions of $6,133,853.49, anonymous
+receipts of $368, returned contributions of $445,565.08 and net monetary
+contributions of $5,688,656.41 for January 9, 2025–January 14, 2026. These
+controls demonstrate why positive PAC gifts alone cannot prove net money.
+Return ownership and full current-cycle reconciliation remain unresolved.
+
+The outside aggregator now uses only Amount Applied for a target. A missing,
+invalid or negative allocation holds the component even beside positive rows;
+it never substitutes the full parent expense. All 141 Maryland tests and
+backend typecheck pass. These fixes and acquisition are not a completed money
+sync or permission to open the Maryland PR before its real card proof.

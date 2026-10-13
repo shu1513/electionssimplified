@@ -74,7 +74,7 @@ describe("marylandOutsideSpendingAggregator", () => {
         expenditure(),
         expenditure({
           "Transaction Amount": "$3,000.25",
-          "Amount Applied": "",
+          "Amount Applied": "$3,000.25",
           Description: "Mail",
         }),
         expenditure({
@@ -118,6 +118,39 @@ describe("marylandOutsideSpendingAggregator", () => {
       skippedExpenditureRowCount: 0,
     });
   });
+
+  it.each(["", "$0.00", "not money", "($25.00)"])(
+    "never assigns the full parent expense when target allocation is %s",
+    (applied) => {
+      const result = aggregateMarylandOutsideSpending({
+        candidateName: "Justin Gallucci",
+        officeName: "State Senator",
+        electionYear: 2026,
+        expenditureRows: [expenditure({
+          "Transaction Amount": "$100,000.00",
+          "Amount Applied": applied,
+        })],
+      });
+      expect(result.summary).toBeNull();
+      expect(result.includedExpenditureRowCount).toBe(0);
+      expect(result.skippedExpenditureRowCount).toBe(1);
+    },
+  );
+
+  it.each(["", "not money", "($25.00)"])(
+    "holds a positive subset when another target allocation is %s",
+    (applied) => {
+      const result = aggregateMarylandOutsideSpending({
+        candidateName: "Justin Gallucci",
+        officeName: "State Senator",
+        electionYear: 2026,
+        expenditureRows: [expenditure(), expenditure({"Amount Applied": applied})],
+      });
+      expect(result.summary).toBeNull();
+      expect(result.includedExpenditureRowCount).toBe(1);
+      expect(result.skippedExpenditureRowCount).toBe(1);
+    },
+  );
 
   it("matches direct and comma-form candidate names without fuzzy matching", () => {
     const result = aggregateMarylandOutsideSpending({

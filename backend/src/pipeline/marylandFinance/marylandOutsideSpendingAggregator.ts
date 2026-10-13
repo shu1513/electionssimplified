@@ -216,11 +216,9 @@ function isCandidateCommitteeType(value: string): boolean {
 }
 
 function expenditureAmountCents(row: MarylandCfsExpenditureRow): number | null {
-  const appliedAmountCents = parseAmountCents(row["Amount Applied"]);
-  if (appliedAmountCents !== null && appliedAmountCents > 0) {
-    return appliedAmountCents;
-  }
-  return parseAmountCents(row["Transaction Amount"]);
+  // A parent expense can fund several targets. Only the published target
+  // allocation can be assigned to this candidate, including a literal zero.
+  return parseAmountCents(row["Amount Applied"]);
 }
 
 function groupKey(input: { committeeId: string; supportOppose: MarylandFinanceSupportOppose }): string {
@@ -271,6 +269,7 @@ export function aggregateMarylandOutsideSpending(
   let matchedExpenditureRowCount = 0;
   let includedExpenditureRowCount = 0;
   let skippedExpenditureRowCount = 0;
+  let unresolvedAllocation = false;
 
   for (const row of input.expenditureRows) {
     if (
@@ -289,6 +288,15 @@ export function aggregateMarylandOutsideSpending(
     const committeeName = row["Committee Name"].trim();
     const supportOppose = supportOpposeFromPosition(row.Position);
     const amountCents = expenditureAmountCents(row);
+    if (
+      !isCandidateCommitteeType(row["Committee Type"]) &&
+      isCycleYear({ rawDate: row["Transaction Date"], electionYear }) &&
+      (amountCents === null || amountCents < 0)
+    ) {
+      // Publishing the remaining positive subset would hide an unknown target
+      // allocation or an unresolved correction. Preserve the whole component.
+      unresolvedAllocation = true;
+    }
     if (
       !committeeId ||
       !committeeName ||
@@ -328,7 +336,7 @@ export function aggregateMarylandOutsideSpending(
     maxGroups,
     sourceUrl: input.sourceUrl ?? null,
   });
-  if (grouped.length === 0) {
+  if (grouped.length === 0 || unresolvedAllocation) {
     return {
       summary: null,
       matchedExpenditureRowCount,
