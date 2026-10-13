@@ -7,8 +7,10 @@ import {
   getVermontContributionCategoriesByFilerRegistrationGuid,
   getVermontContributionDetails,
   getVermontExpenditureDetails,
+  getVermontElectionLookup,
   getVermontOfficeSoughtLookup,
   getVermontTransactionDetailsByGuid,
+  resolveVermontElectionLookup,
 } from "../../../src/pipeline/vermontFinance/vermontCampaignFinanceClient.js";
 
 function jsonResponse(payload: unknown, init: ResponseInit = {}): Response {
@@ -32,10 +34,16 @@ describe("vermontCampaignFinanceClient", () => {
   });
 
   it("builds Vermont campaign finance API URLs", () => {
-    expect(buildVermontCampaignFinanceApiUrl("PublicTransactionDetails/GetContributionsDetails")).toBe(
-      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetContributionsDetails"
+    expect(
+      buildVermontCampaignFinanceApiUrl(
+        "PublicTransactionDetails/GetContributionsDetails",
+      ),
+    ).toBe(
+      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetContributionsDetails",
     );
-    expect(() => buildVermontCampaignFinanceApiUrl("/bad")).toThrow(VermontCampaignFinanceClientError);
+    expect(() => buildVermontCampaignFinanceApiUrl("/bad")).toThrow(
+      VermontCampaignFinanceClientError,
+    );
   });
 
   it("builds transaction search payloads with conservative defaults and optional filters", () => {
@@ -50,21 +58,23 @@ describe("vermontCampaignFinanceClient", () => {
         electionYear: 2024,
         electionId: 24,
         transactionAmountMin: 1000,
-      })
+      }),
     ).toEqual({
       pageNumber: 1,
       pageSize: 25,
       sortBy: "TransactionAmount",
-      sortType: "DESC",
+      sortType: "desc",
       transactionTypeCode: "TCON",
       filerRegistrationGuid: "filer-guid",
       filerName: "Smith",
       electionYear: 2024,
-      electionId: 24,
+      electionID: 24,
       transactionAmountMin: 1000,
     });
 
-    expect(() => buildVermontTransactionSearchPayload({ pageSize: 10_000 })).toThrow(VermontCampaignFinanceClientError);
+    expect(() =>
+      buildVermontTransactionSearchPayload({ pageSize: 10_000 }),
+    ).toThrow(VermontCampaignFinanceClientError);
   });
 
   it("posts contribution searches and parses contribution rows", async () => {
@@ -107,20 +117,24 @@ describe("vermontCampaignFinanceClient", () => {
               stateCode: "VT",
               zipCode: "05464-0437",
             },
-            { guid: "missing required fields" },
           ],
           totalItems: 10697,
         },
         succeeded: true,
         error: null,
-      })
+      }),
     ) as unknown as typeof fetch;
 
     await expect(
       getVermontContributionDetails(
-        { pageNumber: 2, pageSize: 10, sortBy: "TransactionAmount", transactionAmountMin: 1000 },
-        { fetchImpl, timeoutMs: 1000 }
-      )
+        {
+          pageNumber: 2,
+          pageSize: 10,
+          sortBy: "TransactionAmount",
+          transactionAmountMin: 1000,
+        },
+        { fetchImpl, timeoutMs: 1000 },
+      ),
     ).resolves.toEqual({
       totalItems: 10697,
       items: [
@@ -166,14 +180,14 @@ describe("vermontCampaignFinanceClient", () => {
 
     const request = vi.mocked(fetchImpl).mock.calls[0];
     expect(String(request?.[0])).toBe(
-      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetContributionsDetails"
+      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetContributionsDetails",
     );
     expect(request?.[1]?.method).toBe("POST");
     expect(requestBody(fetchImpl)).toMatchObject({
       pageNumber: 2,
       pageSize: 10,
       sortBy: "TransactionAmount",
-      sortType: "DESC",
+      sortType: "desc",
       transactionTypeCode: "TCON",
       transactionAmountMin: 1000,
     });
@@ -183,12 +197,172 @@ describe("vermontCampaignFinanceClient", () => {
     const fetchImpl = vi.fn() as unknown as typeof fetch;
 
     await expect(
-      getVermontContributionDetails({ transactionTypeCode: "TEXP" }, { fetchImpl, timeoutMs: 1000 })
+      getVermontContributionDetails(
+        { transactionTypeCode: "TEXP" },
+        { fetchImpl, timeoutMs: 1000 },
+      ),
     ).rejects.toMatchObject({
       code: "invalid_request",
       message: "Vermont contribution details requires transactionTypeCode TCON",
     });
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("does not discard a malformed physical transaction or invent a declared count", async () => {
+    for (const data of [
+      { items: [null], totalItems: 1 },
+      { items: [{ guid: "missing fields" }], totalItems: 1 },
+      { items: [] },
+      { items: [], totalItems: -1 },
+      { items: [], totalItems: 1.001 },
+      { items: [], totalItems: Number.MAX_SAFE_INTEGER + 1 },
+      { items: [null], totalItems: 0 },
+    ]) {
+      const fetchImpl = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({ data, succeeded: true }),
+        ) as unknown as typeof fetch;
+      await expect(
+        getVermontContributionDetails({}, { fetchImpl }),
+      ).rejects.toMatchObject({ code: "bad_response" });
+      await expect(
+        getVermontExpenditureDetails({}, { fetchImpl }),
+      ).rejects.toMatchObject({ code: "bad_response" });
+    }
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ data: { items: [], totalItems: 0 } }),
+      ) as unknown as typeof fetch;
+    await expect(
+      getVermontContributionDetails({}, { fetchImpl }),
+    ).rejects.toMatchObject({ code: "bad_response" });
+  });
+
+  it("rejects rounded identifiers and fractional or unsafe monetary values", async () => {
+    const valid = {
+      transactionID: 658531,
+      transactionVersionID: 1,
+      guid: "transaction",
+      filerRegistrationGuid: "receiver",
+      filerName: "SCOTT, PHIL",
+      transactionAmount: 5180,
+    };
+    for (const bad of [
+      { transactionID: 658531.001 },
+      { transactionID: 0 },
+      { transactionAmount: 0.001 },
+      { transactionAmount: "5,180.00" },
+      { transactionAmount: "" },
+      { transactionAmount: true },
+      { transactionAmount: Number.MAX_SAFE_INTEGER },
+    ]) {
+      const fetchImpl = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({
+            succeeded: true,
+            data: { items: [{ ...valid, ...bad }], totalItems: 1 },
+          }),
+        ) as unknown as typeof fetch;
+      await expect(
+        getVermontContributionDetails({}, { fetchImpl }),
+      ).rejects.toMatchObject({ code: "bad_response" });
+    }
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({
+          succeeded: true,
+          data: {
+            items: [{ ...valid, transactionAmount: 0.29 }],
+            totalItems: 1,
+            pageNumber: 0,
+            pageSize: 0,
+          },
+        }),
+      ) as unknown as typeof fetch;
+    await expect(
+      getVermontContributionDetails({}, { fetchImpl }),
+    ).resolves.toMatchObject({
+      totalItems: 1,
+      items: [{ transactionAmount: 0.29 }],
+    });
+  });
+
+  it("loads the live election lookup and resolves the exact date/type, excluding combined cycles", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        succeeded: true,
+        data: [
+          { value: "45", name: "2026  Nov 03 - General Election" },
+          { value: "54", name: "2026 Mixed Local & General" },
+          { value: "58", name: "2026 Nov 03 - Public Question" },
+        ],
+      }),
+    ) as unknown as typeof fetch;
+    const items = await getVermontElectionLookup({ fetchImpl });
+    expect(String(vi.mocked(fetchImpl).mock.calls[0]?.[0])).toBe(
+      "https://api.campaignfinance.vermont.gov/api/PublicLookup/GetElectionLookup?key=&fromReadonly=true",
+    );
+    expect(
+      resolveVermontElectionLookup(items, {
+        electionDate: "2026-11-03",
+        electionType: "general",
+      }),
+    ).toEqual({ electionId: 45, name: "2026  Nov 03 - General Election" });
+    expect(() =>
+      resolveVermontElectionLookup(items, {
+        electionDate: "2026-08-11",
+        electionType: "primary",
+      }),
+    ).toThrow("0 exact date/type matches");
+    expect(() =>
+      resolveVermontElectionLookup(
+        [...items, { electionId: 99, name: "2026 Nov 03 - General Election" }],
+        { electionDate: "2026-11-03", electionType: "general" },
+      ),
+    ).toThrow("2 exact date/type matches");
+    expect(() =>
+      resolveVermontElectionLookup(items, {
+        electionDate: "2026-02-30",
+        electionType: "general",
+      }),
+    ).toThrow("Invalid Vermont election date/type context");
+    expect(
+      buildVermontTransactionSearchPayload({ electionId: 45, sortType: "ASC" }),
+    ).toMatchObject({ electionID: 45, sortType: "asc" });
+  });
+
+  it("rejects malformed or duplicate election lookup entries and source failure", async () => {
+    for (const data of [
+      null,
+      [null],
+      [{ value: "45", name: "" }],
+      [{ value: "45.001", name: "General" }],
+      [
+        { value: "45", name: "General" },
+        { value: "45", name: "Other" },
+      ],
+    ]) {
+      const fetchImpl = vi
+        .fn()
+        .mockResolvedValue(
+          jsonResponse({ succeeded: true, data }),
+        ) as unknown as typeof fetch;
+      await expect(
+        getVermontElectionLookup({ fetchImpl }),
+      ).rejects.toMatchObject({ code: "bad_response" });
+    }
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({}, { status: 403 }),
+      ) as unknown as typeof fetch;
+    await expect(getVermontElectionLookup({ fetchImpl })).rejects.toMatchObject(
+      { code: "http_error", status: 403 },
+    );
   });
 
   it("posts expenditure searches and parses expenditure rows with Vermont's entityID casing", async () => {
@@ -204,7 +378,8 @@ describe("vermontCampaignFinanceClient", () => {
               filerName: "RAM, KESHA",
               transactionAmount: 1000,
               transactionDate: "03/22/2022",
-              transactionCategoryDescription: "Returned Contribution to Contributor",
+              transactionCategoryDescription:
+                "Returned Contribution to Contributor",
               transactionCategoryCode: "PURC",
               isStanceSupport: "true",
               payeeType: "Individual",
@@ -234,10 +409,15 @@ describe("vermontCampaignFinanceClient", () => {
         },
         succeeded: true,
         error: null,
-      })
+      }),
     ) as unknown as typeof fetch;
 
-    await expect(getVermontExpenditureDetails({ pageSize: 5 }, { fetchImpl, timeoutMs: 1000 })).resolves.toEqual({
+    await expect(
+      getVermontExpenditureDetails(
+        { pageSize: 5 },
+        { fetchImpl, timeoutMs: 1000 },
+      ),
+    ).resolves.toEqual({
       totalItems: 9441,
       items: [
         {
@@ -249,7 +429,8 @@ describe("vermontCampaignFinanceClient", () => {
           transactionAmount: 1000,
           transactionDate: "03/22/2022",
           transactionCategoryCode: "PURC",
-          transactionCategoryDescription: "Returned Contribution to Contributor",
+          transactionCategoryDescription:
+            "Returned Contribution to Contributor",
           expenditurePurpose: "Returned Contribution to Contributor",
           description: "memo",
           isStanceSupport: true,
@@ -279,16 +460,21 @@ describe("vermontCampaignFinanceClient", () => {
     });
 
     expect(String(vi.mocked(fetchImpl).mock.calls[0]?.[0])).toBe(
-      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetExpenditureDetails"
+      "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetExpenditureDetails",
     );
-    expect(requestBody(fetchImpl)).toMatchObject({ transactionTypeCode: "TEXP" });
+    expect(requestBody(fetchImpl)).toMatchObject({
+      transactionTypeCode: "TEXP",
+    });
   });
 
   it("rejects mismatched expenditure endpoint transaction types before posting", async () => {
     const fetchImpl = vi.fn() as unknown as typeof fetch;
 
     await expect(
-      getVermontExpenditureDetails({ transactionTypeCode: "TCON" }, { fetchImpl, timeoutMs: 1000 })
+      getVermontExpenditureDetails(
+        { transactionTypeCode: "TCON" },
+        { fetchImpl, timeoutMs: 1000 },
+      ),
     ).rejects.toMatchObject({
       code: "invalid_request",
       message: "Vermont expenditure details requires transactionTypeCode TEXP",
@@ -320,11 +506,14 @@ describe("vermontCampaignFinanceClient", () => {
         },
         succeeded: true,
         error: null,
-      })
+      }),
     ) as unknown as typeof fetch;
 
     await expect(
-      getVermontTransactionDetailsByGuid(" 4f68b713-d2a1-44b8-b0fc-12ed5a6ba2a9 ", { fetchImpl, timeoutMs: 1000 })
+      getVermontTransactionDetailsByGuid(
+        " 4f68b713-d2a1-44b8-b0fc-12ed5a6ba2a9 ",
+        { fetchImpl, timeoutMs: 1000 },
+      ),
     ).resolves.toEqual({
       transactionId: 90013,
       transactionVersionId: 1,
@@ -344,7 +533,9 @@ describe("vermontCampaignFinanceClient", () => {
       electionYear: 2016,
       comments: null,
     });
-    expect(requestBody(fetchImpl)).toEqual({ transactionGuid: "4f68b713-d2a1-44b8-b0fc-12ed5a6ba2a9" });
+    expect(requestBody(fetchImpl)).toEqual({
+      transactionGuid: "4f68b713-d2a1-44b8-b0fc-12ed5a6ba2a9",
+    });
   });
 
   it("gets contribution category totals by filer registration guid", async () => {
@@ -360,11 +551,14 @@ describe("vermontCampaignFinanceClient", () => {
         ],
         succeeded: true,
         error: null,
-      })
+      }),
     ) as unknown as typeof fetch;
 
     await expect(
-      getVermontContributionCategoriesByFilerRegistrationGuid(" filer-guid ", { fetchImpl, timeoutMs: 1000 })
+      getVermontContributionCategoriesByFilerRegistrationGuid(" filer-guid ", {
+        fetchImpl,
+        timeoutMs: 1000,
+      }),
     ).resolves.toEqual([
       {
         amount: 39950,
@@ -373,9 +567,11 @@ describe("vermontCampaignFinanceClient", () => {
       },
     ]);
     expect(String(vi.mocked(fetchImpl).mock.calls[0]?.[0])).toBe(
-      "https://api.campaignfinance.vermont.gov/api/PublicFilerDetails/GetContributionsCategoriesDetails"
+      "https://api.campaignfinance.vermont.gov/api/PublicFilerDetails/GetContributionsCategoriesDetails",
     );
-    expect(requestBody(fetchImpl)).toEqual({ filerRegistrationGuid: "filer-guid" });
+    expect(requestBody(fetchImpl)).toEqual({
+      filerRegistrationGuid: "filer-guid",
+    });
   });
 
   it("gets Vermont office sought lookup rows", async () => {
@@ -387,10 +583,12 @@ describe("vermontCampaignFinanceClient", () => {
         ],
         succeeded: true,
         error: null,
-      })
+      }),
     ) as unknown as typeof fetch;
 
-    await expect(getVermontOfficeSoughtLookup({ fetchImpl, timeoutMs: 1000 })).resolves.toEqual([
+    await expect(
+      getVermontOfficeSoughtLookup({ fetchImpl, timeoutMs: 1000 }),
+    ).resolves.toEqual([
       {
         value: "19",
         officeId: 19,
@@ -400,31 +598,54 @@ describe("vermontCampaignFinanceClient", () => {
     ]);
 
     const request = vi.mocked(fetchImpl).mock.calls[0];
-    expect(String(request?.[0])).toBe("https://api.campaignfinance.vermont.gov/api/PublicLookup/GetOfficeSoughtLookup");
+    expect(String(request?.[0])).toBe(
+      "https://api.campaignfinance.vermont.gov/api/PublicLookup/GetOfficeSoughtLookup",
+    );
     expect(request?.[1]?.method).toBe("GET");
     expect(request?.[1]?.body).toBeUndefined();
   });
 
   it("maps HTTP, API envelope, and malformed JSON failures", async () => {
     await expect(
-      getVermontContributionDetails({}, {
-        fetchImpl: vi.fn().mockResolvedValue(jsonResponse({}, { status: 500, statusText: "Server Error" })) as unknown as typeof fetch,
-        timeoutMs: 1000,
-      })
+      getVermontContributionDetails(
+        {},
+        {
+          fetchImpl: vi
+            .fn()
+            .mockResolvedValue(
+              jsonResponse({}, { status: 500, statusText: "Server Error" }),
+            ) as unknown as typeof fetch,
+          timeoutMs: 1000,
+        },
+      ),
     ).rejects.toMatchObject({ code: "http_error", status: 500 });
 
     await expect(
-      getVermontContributionDetails({}, {
-        fetchImpl: vi.fn().mockResolvedValue(jsonResponse({ succeeded: false, error: "Nope" })) as unknown as typeof fetch,
-        timeoutMs: 1000,
-      })
+      getVermontContributionDetails(
+        {},
+        {
+          fetchImpl: vi
+            .fn()
+            .mockResolvedValue(
+              jsonResponse({ succeeded: false, error: "Nope" }),
+            ) as unknown as typeof fetch,
+          timeoutMs: 1000,
+        },
+      ),
     ).rejects.toMatchObject({ code: "bad_response", message: "Nope" });
 
     await expect(
-      getVermontContributionDetails({}, {
-        fetchImpl: vi.fn().mockResolvedValue(new Response("not-json", { status: 200 })) as unknown as typeof fetch,
-        timeoutMs: 1000,
-      })
+      getVermontContributionDetails(
+        {},
+        {
+          fetchImpl: vi
+            .fn()
+            .mockResolvedValue(
+              new Response("not-json", { status: 200 }),
+            ) as unknown as typeof fetch,
+          timeoutMs: 1000,
+        },
+      ),
     ).rejects.toMatchObject({ code: "bad_response" });
   });
 
@@ -436,10 +657,12 @@ describe("vermontCampaignFinanceClient", () => {
       getVermontContributionDetails(
         {},
         {
-          fetchImpl: vi.fn().mockRejectedValue(abortError) as unknown as typeof fetch,
+          fetchImpl: vi
+            .fn()
+            .mockRejectedValue(abortError) as unknown as typeof fetch,
           timeoutMs: 25,
-        }
-      )
+        },
+      ),
     ).rejects.toMatchObject({
       code: "network_error",
       message: expect.stringContaining("timed out after 25ms"),

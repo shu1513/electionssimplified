@@ -25,7 +25,7 @@ export type VermontCampaignFinanceClientOptions = {
   timeoutMs?: number;
 };
 
-export type VermontTransactionSortType = "ASC" | "DESC";
+export type VermontTransactionSortType = "asc" | "desc" | "ASC" | "DESC";
 
 export type VermontTransactionSearchInput = {
   pageNumber?: number;
@@ -153,6 +153,11 @@ export type VermontOfficeSoughtLookupItem = {
   code: string | null;
 };
 
+export type VermontElectionLookupItem = {
+  electionId: number;
+  name: string;
+};
+
 type VermontApiEnvelope = {
   data?: unknown;
   succeeded?: unknown;
@@ -218,8 +223,17 @@ function normalizeOptionalText(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-function normalizeSortType(value: VermontTransactionSortType | undefined): VermontTransactionSortType {
-  return value ?? "DESC";
+function normalizeSortType(
+  value: VermontTransactionSortType | undefined,
+): "asc" | "desc" {
+  const normalized = (value ?? "desc").toLowerCase();
+  if (normalized !== "asc" && normalized !== "desc") {
+    throw new VermontCampaignFinanceClientError(
+      "invalid_request",
+      "Invalid Vermont transaction sortType",
+    );
+  }
+  return normalized;
 }
 
 function assertEndpointTransactionType(input: {
@@ -237,14 +251,21 @@ function assertEndpointTransactionType(input: {
   );
 }
 
-export function buildVermontTransactionSearchPayload(input: VermontTransactionSearchInput): Record<string, unknown> {
+export function buildVermontTransactionSearchPayload(
+  input: VermontTransactionSearchInput,
+): Record<string, unknown> {
   const payload: Record<string, unknown> = {
-    pageNumber: normalizePositiveInteger(input.pageNumber, 1, "Vermont campaign finance pageNumber", 100_000),
+    pageNumber: normalizePositiveInteger(
+      input.pageNumber,
+      1,
+      "Vermont campaign finance pageNumber",
+      100_000,
+    ),
     pageSize: normalizePositiveInteger(
       input.pageSize,
       VERMONT_CAMPAIGN_FINANCE_DEFAULT_PAGE_SIZE,
       "Vermont campaign finance pageSize",
-      VERMONT_CAMPAIGN_FINANCE_MAX_PAGE_SIZE
+      VERMONT_CAMPAIGN_FINANCE_MAX_PAGE_SIZE,
     ),
     sortBy: normalizeOptionalText(input.sortBy) ?? "TransactionDate",
     sortType: normalizeSortType(input.sortType),
@@ -255,7 +276,9 @@ export function buildVermontTransactionSearchPayload(input: VermontTransactionSe
     payload.transactionTypeCode = transactionTypeCode;
   }
 
-  const filerRegistrationGuid = normalizeOptionalText(input.filerRegistrationGuid);
+  const filerRegistrationGuid = normalizeOptionalText(
+    input.filerRegistrationGuid,
+  );
   if (filerRegistrationGuid) {
     payload.filerRegistrationGuid = filerRegistrationGuid;
   }
@@ -265,19 +288,26 @@ export function buildVermontTransactionSearchPayload(input: VermontTransactionSe
     payload.filerName = filerName;
   }
 
-  const electionYear = normalizeOptionalInteger(input.electionYear, "Vermont campaign finance electionYear");
+  const electionYear = normalizeOptionalInteger(
+    input.electionYear,
+    "Vermont campaign finance electionYear",
+  );
   if (electionYear !== undefined) {
     payload.electionYear = electionYear;
   }
 
-  const electionId = normalizeOptionalInteger(input.electionId, "Vermont campaign finance electionId");
+  const electionId = normalizeOptionalInteger(
+    input.electionId,
+    "Vermont campaign finance electionId",
+  );
   if (electionId !== undefined) {
-    payload.electionId = electionId;
+    // The public UI/API uses electionID. electionId is silently ignored.
+    payload.electionID = electionId;
   }
 
   const transactionAmountMin = normalizeOptionalAmount(
     input.transactionAmountMin,
-    "Vermont campaign finance transactionAmountMin"
+    "Vermont campaign finance transactionAmountMin",
   );
   if (transactionAmountMin !== undefined) {
     payload.transactionAmountMin = transactionAmountMin;
@@ -285,7 +315,7 @@ export function buildVermontTransactionSearchPayload(input: VermontTransactionSe
 
   const transactionAmountMax = normalizeOptionalAmount(
     input.transactionAmountMax,
-    "Vermont campaign finance transactionAmountMax"
+    "Vermont campaign finance transactionAmountMax",
   );
   if (transactionAmountMax !== undefined) {
     payload.transactionAmountMax = transactionAmountMax;
@@ -323,9 +353,43 @@ function getNumber(row: Record<string, unknown>, ...keys: string[]): number | nu
   return null;
 }
 
-function getInteger(row: Record<string, unknown>, ...keys: string[]): number | null {
-  const value = getNumber(row, ...keys);
-  return value !== null && Number.isSafeInteger(value) ? value : null;
+function getInteger(
+  row: Record<string, unknown>,
+  ...keys: string[]
+): number | null {
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === "number" && Number.isSafeInteger(value)) return value;
+    if (typeof value === "string" && /^-?\d+$/.test(value.trim())) {
+      const parsed = Number(value.trim());
+      if (Number.isSafeInteger(parsed)) return parsed;
+    }
+  }
+  return null;
+}
+
+function requireTransactionAmount(row: Record<string, unknown>): number {
+  const value = row.transactionAmount;
+  const amount =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^-?\d+(?:\.\d{1,2})?$/.test(value.trim())
+        ? Number(value.trim())
+        : NaN;
+  const cents = Math.round(amount * 100);
+  // Permit binary floating-point representation of cents, never fractional cents.
+  if (
+    !Number.isFinite(amount) ||
+    !Number.isSafeInteger(cents) ||
+    Math.abs(amount * 100 - cents) >
+      Math.min(0.0001, Number.EPSILON * Math.max(1, Math.abs(amount * 100)) * 2)
+  ) {
+    throw new VermontCampaignFinanceClientError(
+      "bad_response",
+      "Invalid Vermont campaign finance transactionAmount",
+    );
+  }
+  return cents / 100;
 }
 
 function getBoolean(row: Record<string, unknown>, ...keys: string[]): boolean | null {
@@ -377,17 +441,37 @@ function parseEnvelope(payload: unknown, context: string): VermontApiEnvelope {
 function parsePagedData<T>(
   payload: unknown,
   context: string,
-  parseRow: (row: Record<string, unknown>) => T | null
+  parseRow: (row: Record<string, unknown>) => T | null,
 ): VermontPagedResult<T> {
   const envelope = parseEnvelope(payload, context);
   if (!isRecord(envelope.data) || !Array.isArray(envelope.data.items)) {
-    throw new VermontCampaignFinanceClientError("bad_response", `Vermont ${context} response did not include data.items`);
+    throw new VermontCampaignFinanceClientError(
+      "bad_response",
+      `Vermont ${context} response did not include data.items`,
+    );
   }
-  const totalItems = getInteger(envelope.data, "totalItems") ?? envelope.data.items.length;
+  const totalItems = getInteger(envelope.data, "totalItems");
+  if (
+    envelope.succeeded !== true ||
+    totalItems === null ||
+    totalItems < 0 ||
+    totalItems < envelope.data.items.length
+  ) {
+    throw new VermontCampaignFinanceClientError(
+      "bad_response",
+      `Invalid Vermont ${context} declared row count or success`,
+    );
+  }
   return {
-    items: envelope.data.items.filter(isRecord).flatMap((row) => {
-      const parsed = parseRow(row);
-      return parsed ? [parsed] : [];
+    items: envelope.data.items.map((row, index) => {
+      const parsed = isRecord(row) ? parseRow(row) : null;
+      if (!parsed) {
+        throw new VermontCampaignFinanceClientError(
+          "bad_response",
+          `Invalid Vermont ${context} physical row ${index + 1}`,
+        );
+      }
+      return parsed;
     }),
     totalItems,
   };
@@ -496,19 +580,31 @@ async function fetchVermontCampaignFinanceJson(
   }
 }
 
-function parseContributionRow(row: Record<string, unknown>): VermontContributionRow | null {
+function parseContributionRow(
+  row: Record<string, unknown>,
+): VermontContributionRow | null {
   const transactionId = getInteger(row, "transactionID", "transactionId");
   const guid = getString(row, "guid");
   const filerRegistrationGuid = getString(row, "filerRegistrationGuid");
   const filerName = getString(row, "filerName");
-  const transactionAmount = getNumber(row, "transactionAmount");
-  if (transactionId === null || !guid || !filerRegistrationGuid || !filerName || transactionAmount === null) {
+  const transactionAmount = requireTransactionAmount(row);
+  if (
+    transactionId === null ||
+    transactionId <= 0 ||
+    !guid ||
+    !filerRegistrationGuid ||
+    !filerName
+  ) {
     return null;
   }
 
   return {
     transactionId,
-    transactionVersionId: getInteger(row, "transactionVersionID", "transactionVersionId"),
+    transactionVersionId: getInteger(
+      row,
+      "transactionVersionID",
+      "transactionVersionId",
+    ),
     guid,
     filerRegistrationGuid,
     filerName,
@@ -521,7 +617,10 @@ function parseContributionRow(row: Record<string, unknown>): VermontContribution
     transactionSource: getString(row, "transactionSource"),
     transactionSourceTypeCode: getString(row, "transactionSourceTypeCode"),
     transactionSubTypeCode: getString(row, "transactionSubTypeCode"),
-    transactionSubTypeDescription: getString(row, "transactionSubTypeDescription"),
+    transactionSubTypeDescription: getString(
+      row,
+      "transactionSubTypeDescription",
+    ),
     filerTypeCode: getString(row, "filerTypeCode"),
     filerTypeDescription: getString(row, "filerTypeDescription"),
     electionYear: getInteger(row, "electionYear"),
@@ -534,7 +633,12 @@ function parseContributionRow(row: Record<string, unknown>): VermontContribution
     candidateFirstName: getString(row, "candidateFirstName"),
     candidateLastName: getString(row, "candidateLastName"),
     candidateMiddleName: getString(row, "candidateMiddleName"),
-    occupation: getString(row, "occupation", "occupationCode", "sourceOccupation"),
+    occupation: getString(
+      row,
+      "occupation",
+      "occupationCode",
+      "sourceOccupation",
+    ),
     employer: getString(row, "employer", "sourceEmployer"),
     filingYear: getInteger(row, "filingYear"),
     addressLine1: getString(row, "addressLine1"),
@@ -545,26 +649,41 @@ function parseContributionRow(row: Record<string, unknown>): VermontContribution
   };
 }
 
-function parseExpenditureRow(row: Record<string, unknown>): VermontExpenditureRow | null {
+function parseExpenditureRow(
+  row: Record<string, unknown>,
+): VermontExpenditureRow | null {
   const transactionId = getInteger(row, "transactionID", "transactionId");
   const guid = getString(row, "guid");
   const filerRegistrationGuid = getString(row, "filerRegistrationGuid");
   const filerName = getString(row, "filerName");
-  const transactionAmount = getNumber(row, "transactionAmount");
-  if (transactionId === null || !guid || !filerRegistrationGuid || !filerName || transactionAmount === null) {
+  const transactionAmount = requireTransactionAmount(row);
+  if (
+    transactionId === null ||
+    transactionId <= 0 ||
+    !guid ||
+    !filerRegistrationGuid ||
+    !filerName
+  ) {
     return null;
   }
 
   return {
     transactionId,
-    transactionVersionId: getInteger(row, "transactionVersionID", "transactionVersionId"),
+    transactionVersionId: getInteger(
+      row,
+      "transactionVersionID",
+      "transactionVersionId",
+    ),
     guid,
     filerRegistrationGuid,
     filerName,
     transactionAmount,
     transactionDate: getString(row, "transactionDate", "sortTransactionDate"),
     transactionCategoryCode: getString(row, "transactionCategoryCode"),
-    transactionCategoryDescription: getString(row, "transactionCategoryDescription"),
+    transactionCategoryDescription: getString(
+      row,
+      "transactionCategoryDescription",
+    ),
     expenditurePurpose: getString(row, "expenditurePurpose"),
     description: getString(row, "description"),
     isStanceSupport: getBoolean(row, "isStanceSupport"),
@@ -712,4 +831,82 @@ export async function getVermontOfficeSoughtLookup(
 ): Promise<VermontOfficeSoughtLookupItem[]> {
   const response = await getVermontCampaignFinanceJson("PublicLookup/GetOfficeSoughtLookup", options);
   return parseArrayData(response, "office sought lookup", parseOfficeSoughtLookupItem);
+}
+
+export async function getVermontElectionLookup(
+  options?: VermontCampaignFinanceClientOptions,
+): Promise<VermontElectionLookupItem[]> {
+  const response = await getVermontCampaignFinanceJson(
+    "PublicLookup/GetElectionLookup?key=&fromReadonly=true",
+    options,
+  );
+  const envelope = parseEnvelope(response, "election lookup");
+  if (envelope.succeeded !== true || !Array.isArray(envelope.data)) {
+    throw new VermontCampaignFinanceClientError(
+      "bad_response",
+      "Invalid Vermont election lookup",
+    );
+  }
+  const ids = new Set<number>();
+  return envelope.data.map((row) => {
+    if (!isRecord(row))
+      throw new VermontCampaignFinanceClientError(
+        "bad_response",
+        "Invalid Vermont election lookup row",
+      );
+    const electionId = requireInteger(row, "election lookup ID", "value");
+    const name = requireString(row, "election lookup name", "name");
+    if (electionId <= 0 || ids.has(electionId)) {
+      throw new VermontCampaignFinanceClientError(
+        "bad_response",
+        "Duplicate or invalid Vermont election lookup ID",
+      );
+    }
+    ids.add(electionId);
+    return { electionId, name };
+  });
+}
+
+/** Resolves the published election context, not a transaction/report date window. */
+export function resolveVermontElectionLookup(
+  items: readonly VermontElectionLookupItem[],
+  input: { electionDate: string; electionType: "general" | "primary" },
+): VermontElectionLookupItem {
+  const date = new Date(`${input.electionDate}T00:00:00Z`);
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(input.electionDate) ||
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== input.electionDate ||
+    !["general", "primary"].includes(input.electionType)
+  ) {
+    throw new VermontCampaignFinanceClientError(
+      "invalid_request",
+      "Invalid Vermont election date/type context",
+    );
+  }
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const expected = `${date.getUTCFullYear()} ${monthNames[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2, "0")} - ${input.electionType === "general" ? "General" : "Primary"} Election`;
+  const matches = items.filter(
+    (item) => item.name.replace(/\s+/g, " ").trim() === expected,
+  );
+  if (matches.length !== 1) {
+    throw new VermontCampaignFinanceClientError(
+      "bad_response",
+      `Vermont election lookup has ${matches.length} exact date/type matches`,
+    );
+  }
+  return matches[0]!;
 }
