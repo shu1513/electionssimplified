@@ -483,6 +483,7 @@ describe("ordinary restricted ballot acquisition", () => {
       fetchImpl: network(),
     });
     const pointer = await readFile(join(cacheDir, "current-2026.json"), "utf8");
+    const oldFiles = (await readdir(cacheDir)).sort();
     const fetchImpl = network({
       override: (url, index) => {
         if (failure === "changed-book" && index === 4)
@@ -520,6 +521,7 @@ describe("ordinary restricted ballot acquisition", () => {
     expect(await readFile(join(cacheDir, "current-2026.json"), "utf8")).toBe(
       pointer,
     );
+    expect((await readdir(cacheDir)).sort()).toEqual(oldFiles);
   });
   it("never fetches wrong-host source links or signed/unsafe redirects", async () => {
     const cacheDir = await temp();

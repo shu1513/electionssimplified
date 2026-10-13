@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { isIP } from "node:net";
 import { join } from "node:path";
 
@@ -190,9 +190,16 @@ export async function captureMaineMapLightDatasets(input: {
     else parseMaineMapLightIndependentExpenditureCsv(text(body));
   };
   try {
-    const pointer = JSON.parse(
-      await readFile(join(cacheDir, "current.json"), "utf8"),
-    );
+    // Keep existing saved captures usable until their year receives a fresh pointer.
+    // A corrupt year-specific pointer must not silently fall back to older evidence.
+    const pointerBytes = await readFile(
+      join(cacheDir, `current-${year}.json`),
+      "utf8",
+    ).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== "ENOENT") throw error;
+      return readFile(join(cacheDir, "current.json"), "utf8");
+    });
+    const pointer = JSON.parse(pointerBytes);
     if (
       !pointer ||
       pointer.version !== 1 ||
@@ -273,9 +280,12 @@ export async function captureMaineMapLightDatasets(input: {
 
   const generation = randomUUID();
   const directory = join(cacheDir, generation);
+  const pointerFile = join(cacheDir, `${generation}.pointer.json`);
+  let createdDirectory = false;
   try {
     await mkdir(cacheDir, { recursive: true, mode: 0o700 });
     await mkdir(directory, { mode: 0o700 });
+    createdDirectory = true;
     const request = async (
       url: string,
       file: string,
@@ -437,7 +447,6 @@ export async function captureMaineMapLightDatasets(input: {
       mode: 0o600,
       flag: "wx",
     });
-    const pointerFile = join(cacheDir, `${generation}.pointer.json`);
     await writeFile(
       pointerFile,
       JSON.stringify({
@@ -447,7 +456,9 @@ export async function captureMaineMapLightDatasets(input: {
       }) + "\n",
       { mode: 0o600, flag: "wx" },
     );
-    await rename(pointerFile, join(cacheDir, "current.json"));
+    await rename(pointerFile, join(cacheDir, `current-${year}.json`));
+    // Returned paths and stored capture digests can still refer to saved generations.
+    // Retiring those originals requires reader coordination and an audit retention policy.
     return {
       status: "captured",
       capture: {
@@ -467,6 +478,10 @@ export async function captureMaineMapLightDatasets(input: {
       },
     };
   } catch {
+    if (createdDirectory) {
+      await rm(pointerFile, { force: true }).catch(() => {});
+      await rm(directory, { recursive: true, force: true }).catch(() => {});
+    }
     return {
       status: "unavailable",
       previousCacheVerified: saved !== undefined,

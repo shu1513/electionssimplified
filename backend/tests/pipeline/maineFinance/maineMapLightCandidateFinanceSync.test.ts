@@ -1,5 +1,9 @@
 import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  reportFixture,
+  reportUrl as ordinaryReportUrl,
+} from "../../helpers/maineMapLightReportFixture.js";
 const mocks = vi.hoisted(() => ({
   capture: vi.fn(),
   ballot: vi.fn(),
@@ -39,7 +43,12 @@ vi.mock(
 );
 vi.mock(
   "../../../src/pipeline/maineFinance/maineMapLightReportClient.js",
-  () => ({ captureMaineMapLightReport: mocks.report }),
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("../../../src/pipeline/maineFinance/maineMapLightReportClient.js")
+    >()),
+    captureMaineMapLightReport: mocks.report,
+  }),
 );
 import {
   resolveMaineMapLightCandidateSource,
@@ -52,6 +61,7 @@ const filerId = `f_${"a".repeat(26)}`;
 const payerId = `f_${"b".repeat(26)}`;
 const cashId = `a_${"c".repeat(26)}`;
 const ieId = `a_${"d".repeat(26)}`;
+const reportUrl = `https://www.mainecampaignfinancedisclosure.com/public/filers/${payerId}/filings/d_${"e".repeat(26)}`;
 const own: MaineMapLightAllFilerTransaction = {
   occurrence: 1,
   transactionId: cashId,
@@ -183,9 +193,146 @@ beforeEach(() => {
     diagnostics: [],
   });
   mocks.writer.mockResolvedValue({ linkId: due.id });
+  mocks.report.mockResolvedValue({ status: "unavailable" });
+  vi.stubEnv("MAINE_MAPLIGHT_RETURN_REPORT_URLS", "");
 });
 afterEach(() => vi.unstubAllEnvs());
 describe("ordinary Maine MapLight batch", () => {
+  it("trims, drops empty environment entries and deduplicates report URLs before acquisition", async () => {
+    vi.stubEnv(
+      "MAINE_MAPLIGHT_RETURN_REPORT_URLS",
+      ` , ${reportUrl}, ,${reportUrl}, `,
+    );
+    expect((await run().promise).syncedCandidateCount).toBe(1);
+    expect(mocks.report).toHaveBeenCalledTimes(1);
+    expect(mocks.report).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceUrl: reportUrl }),
+    );
+  });
+  it.each(["environment", "explicit"])(
+    "rejects invalid %s report URLs before DB or source access",
+    async (source) => {
+      vi.stubEnv(
+        "MAINE_MAPLIGHT_RETURN_REPORT_URLS",
+        "https://wrong.example/report",
+      );
+      const { db, promise } = run(
+        source === "explicit"
+          ? { mapLightReportUrls: ["https://wrong.example/report"] }
+          : {},
+      );
+      await expect(promise).rejects.toThrow(
+        "Invalid Maine public financial report URL",
+      );
+      expect(db.query).not.toHaveBeenCalled();
+      expect(mocks.capture).not.toHaveBeenCalled();
+    },
+  );
+  it("lets explicit empty report URLs override invalid environment configuration", async () => {
+    vi.stubEnv("MAINE_MAPLIGHT_RETURN_REPORT_URLS", "invalid");
+    expect(
+      (await run({ mapLightReportUrls: [] }).promise).syncedCandidateCount,
+    ).toBe(1);
+    expect(mocks.report).not.toHaveBeenCalled();
+  });
+  it.each(["2026-10-12T20:00:00Z", "2026-10-12T21:40:00Z"])(
+    "keeps source identity stable when optional reports observed at %s are added, lost or removed",
+    async (completedAt) => {
+      await run().promise;
+      const original = mocks.writer.mock.calls[0][0].mapLightSource;
+      mocks.report.mockResolvedValue({
+        status: "captured",
+        report: {
+          sourceUrl: reportUrl,
+          html: "irrelevant to this payer's return-free rows",
+          completedAt,
+          sha256: "c".repeat(64),
+        },
+      });
+      await run({ resync: true, mapLightReportUrls: [reportUrl] }).promise;
+      mocks.report.mockResolvedValue({ status: "unavailable" });
+      await run({ resync: true, mapLightReportUrls: [reportUrl] }).promise;
+      await run({ resync: true, mapLightReportUrls: [] }).promise;
+      expect(mocks.writer).toHaveBeenCalledTimes(4);
+      for (const [write] of mocks.writer.mock.calls) {
+        expect(write.mapLightSource).toEqual(original);
+        expect(write.mapLightCommitteeDonors).toHaveLength(1);
+        expect(write.mapLightOutsideAllocations).toHaveLength(1);
+      }
+    },
+  );
+  it("adds saved report evidence on resync to recover omitted IE without changing donor source identity", async () => {
+    const payer = `f_${"p".repeat(26)}`;
+    const independent = {
+      ...expenditure,
+      filerId: payer,
+      filerName: "EXAMPLE PAYER",
+      transactionId: `a_${"i".repeat(26)}`,
+      transactionDate: "2026-09-18",
+      amount: "$100.00",
+      amountCents: 10000,
+    };
+    mocks.all.mockReturnValue([
+      own,
+      independent,
+      {
+        ...independent,
+        transactionId: `a_${"e".repeat(26)}`,
+        sourceRole: "expenditure - expenditure",
+        amount: "$1,000.00",
+        amountCents: 100000,
+      },
+      {
+        ...independent,
+        transactionId: `a_${"r".repeat(26)}`,
+        sourceRole: "returned - returned_expenditure",
+        amount: "$200.00",
+        amountCents: 20000,
+      },
+    ]);
+    mocks.ie.mockReturnValue([
+      {
+        ...allocation,
+        filerId: payer,
+        filerName: independent.filerName,
+        transactionId: independent.transactionId,
+        transactionDate: independent.transactionDate,
+        totalTransactionAmount: "$100.00",
+        totalTransactionAmountCents: 10000,
+        amountSpentOnCandidate: "$100.00",
+        amountSpentOnCandidateCents: 10000,
+      },
+    ]);
+    const options = { resync: true, mapLightReportUrls: [ordinaryReportUrl] };
+    expect((await run(options).promise).syncedCandidateCount).toBe(1);
+    const first = mocks.writer.mock.calls[0][0];
+    expect(first.mapLightOutsideAllocations).toBeUndefined();
+    const html = reportFixture();
+    mocks.report.mockResolvedValue({
+      status: "captured",
+      report: {
+        html,
+        sourceUrl: ordinaryReportUrl,
+        completedAt: "2026-10-12T20:00:00Z",
+        sha256: createHash("sha256").update(html).digest("hex"),
+      },
+    });
+    expect((await run(options).promise).results[0].mapLight).toMatchObject({
+      knownSupportAmount: 100,
+      omittedPayerCount: 0,
+    });
+    const recovered = mocks.writer.mock.calls[1][0];
+    expect(recovered.mapLightSource).toEqual(first.mapLightSource);
+    expect(recovered.mapLightCommitteeDonors).toEqual(
+      first.mapLightCommitteeDonors,
+    );
+    expect(recovered.mapLightOutsideAllocations).toHaveLength(1);
+    mocks.report.mockResolvedValue({ status: "unavailable" });
+    expect((await run(options).promise).syncedCandidateCount).toBe(1);
+    const lost = mocks.writer.mock.calls[2][0];
+    expect(lost.mapLightSource).toEqual(first.mapLightSource);
+    expect(lost.mapLightOutsideAllocations).toBeUndefined();
+  });
   it("writes independent components through the normal writer without reading legacy CON or changing direct freshness", async () => {
     const { db, promise } = run({ candidateId, electionYear: 2026 });
     const result = await promise;

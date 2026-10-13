@@ -74,6 +74,7 @@ describe("Maine published MapLight reader overlay", () => {
       outside_spending: { support_total: null, oppose_total: null },
     });
     expect(hasFinanceContent(summary)).toBe(true);
+    expect(summary.outside_spending).not.toHaveProperty("outside_coverage_note");
   });
   it("publishes outside-only evidence without requiring legacy cash totals", async () => {
     const { summary } = await load({ summary: null, markers: [marker("independent_expenditures")], allocations: [allocation({ amount: "6000.00", whole_amount: "6000.00" })] });
@@ -118,11 +119,22 @@ describe("Maine published MapLight reader overlay", () => {
     expect(summary.outside_spending).toMatchObject({ support_total: null, oppose_total: null });
     expect(summary.outside_spending.top_supporting_groups[0].amount).toBe(900);
     expect(summary.direct_campaign.direct_coverage_note).toMatch(/2026 itemized cash.*2025 coverage is unknown/);
-    expect(summary.outside_spending.outside_coverage_note).toMatch(/totals are unavailable, not zero/);
+    expect(summary.outside_spending).not.toHaveProperty("outside_coverage_note");
     expect(summary.direct_campaign.direct_coverage_note).toContain("Published source cutoff: 2026-10-11");
     expect(summary.direct_campaign.direct_coverage_note).toContain("All-filer publication: 10/11/2026 09:59 ET");
     expect(summary.direct_campaign.direct_coverage_note).toContain("Source observed: 2026-10-12T20:00:00Z");
     expect(summary.direct_campaign.pac_money_by_interest?.[0]).toMatchObject({ interest: "unclassified", interest_name: "Not yet sorted", amount: 500, pac_count: 1 });
+  });
+  it("uses only outside markers for outside coverage dates regardless of marker order", async () => {
+    const outside = marker("independent_expenditures");
+    const direct = { ...marker("committee_donors"), period_end: "2026-10-01", observed_at: "2026-10-02T20:00:00Z" };
+    for (const markers of [[direct, outside], [outside, direct]]) {
+      const { summary } = await load({ markers });
+      expect(summary.outside_spending.outside_coverage_note).toContain("Published source cutoff: 2026-10-11");
+      expect(summary.outside_spending.outside_coverage_note).toContain("totals are unavailable, not zero");
+      expect(summary.outside_spending.outside_coverage_note).not.toContain("2026-10-01");
+      expect(summary.outside_spending.outside_coverage_note).not.toContain("2026-10-02");
+    }
   });
   it("nets signed donor positions before filtering and does not count sibling source receivers twice", async () => {
     const positive = donor({ amount: "600.00" });
@@ -205,12 +217,13 @@ describe("Maine published MapLight reader overlay", () => {
     }
   });
   it("renders the actual same-calendar-year scope instead of hardcoding 2026", async () => {
-    const { summary, db } = await load({ summary: { election_year: 2028, last_synced_at: "2028-07-14T00:00:00Z" }, markers: [{ ...marker("committee_donors"), election_year: 2028, source_calendar_year: 2028, period_end: "2028-10-11", observed_at: "2028-10-12T20:00:00Z", published_source_times: null }], donors: [donor({ source_calendar_year: 2028 })] });
+    const { summary, db } = await load({ summary: { election_year: 2028, last_synced_at: "2028-07-14T00:00:00Z" }, markers: ["committee_donors", "independent_expenditures"].map(component => ({ ...marker(component), election_year: 2028, source_calendar_year: 2028, period_end: "2028-10-11", observed_at: "2028-10-12T20:00:00Z", published_source_times: null })), donors: [donor({ source_calendar_year: 2028 })] });
     expect(summary.direct_campaign.direct_coverage_note).toContain("published 2028 itemized cash");
     expect(summary.direct_campaign.direct_coverage_note).toContain("2027 coverage is unknown");
     expect(summary.direct_campaign.direct_coverage_note).toContain("Published source cutoff: 2028-10-11");
     expect(summary.last_synced_at).toBe("2028-07-14T00:00:00Z");
     expect(summary.outside_spending.outside_coverage_note).not.toContain("2026");
+    expect(summary.outside_spending.outside_coverage_note).toContain("published 2028 itemized dataset");
     expect(db.query.mock.calls.map(call => call[0]).join("\n")).toContain("marker.source_calendar_year = link.election_year");
   });
   it("ignores mismatched calendar/election markers rather than claiming a scope", async () => {

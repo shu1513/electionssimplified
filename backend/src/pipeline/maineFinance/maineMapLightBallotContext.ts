@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import XLSX from "xlsx";
 
@@ -566,9 +566,12 @@ export async function acquireMaineMapLightBallot(input: {
     );
   const generation = randomUUID(),
     directory = join(cacheDir, generation);
+  const tmp = join(cacheDir, `${generation}.pointer.json`);
+  let createdDirectory = false;
   try {
     await mkdir(cacheDir, { recursive: true, mode: 0o700 });
     await mkdir(directory, { mode: 0o700 });
+    createdDirectory = true;
     async function request(
       url: string,
       file: string,
@@ -658,7 +661,6 @@ export async function acquireMaineMapLightBallot(input: {
       mode: 0o600,
       flag: "wx",
     });
-    const tmp = join(cacheDir, `${generation}.pointer.json`);
     await writeFile(
       tmp,
       JSON.stringify({ version: 1, generation, sha256: captureDigest }) + "\n",
@@ -675,6 +677,10 @@ export async function acquireMaineMapLightBallot(input: {
       source,
     };
   } catch {
+    if (createdDirectory) {
+      await rm(tmp, { force: true }).catch(() => {});
+      await rm(directory, { recursive: true, force: true }).catch(() => {});
+    }
     return {
       status: "unavailable",
       previousCacheVerified: saved !== undefined,

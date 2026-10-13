@@ -107,6 +107,21 @@ saved source registration requires its original SHA/bytes/observation interval,
 canonical public binding and successful financial-section parsing. Browser
 sources are labeled explicitly and have no invented HTTP method/status.
 
+Dataset pointers are scoped by calendar year. A verified legacy `current.json`
+remains readable for its manifest year until a year-specific pointer exists.
+Failed captures remove their unpublished generation and temporary pointer on a
+best-effort basis. Successful originals remain available for in-flight readers
+and source-digest audits; pruning them requires a coordinated retention policy.
+
+Source-marker freshness and identity bind the dataset and ballot captures.
+Optional reports only qualify returns already present in those datasets; their
+original bodies, hashes and observation intervals remain in the report cache.
+Adding, removing or losing a report cannot retime an unchanged donor component.
+A saved report can complete an omitted outside component on `--resync`; losing
+it preserves that component. Markers written by the earlier report-inclusive
+digest logic may require one genuine refresh to pass the existing stale-write
+guard; the guard is not relaxed for legacy identities.
+
 ## Verification and remaining scope
 
 - Independently acquire current IE and donor source components through the

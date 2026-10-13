@@ -4,6 +4,7 @@ import {
   mkdtemp,
   readFile,
   readdir,
+  rename,
   rm,
   stat,
   writeFile,
@@ -98,6 +99,7 @@ function catalog(ieBody = ie, cashBody = cash) {
 }
 function network(
   options: {
+    year?: number;
     ieBody?: Buffer;
     cashBody?: Buffer;
     override?: (url: string, phase: number) => Response | undefined;
@@ -109,14 +111,25 @@ function network(
     if (url === GUIDE) guideCount++;
     const override = options.override?.(url, guideCount);
     if (override) return override;
-    if (url === GUIDE) return new Response(guide);
+    const forYear = (body: string) =>
+      body.replaceAll("2026", String(options.year ?? 2026));
+    if (url === GUIDE) return new Response(forYear(guide));
     if (url === CATALOG)
       return new Response(
-        JSON.stringify(catalog(options.ieBody, options.cashBody)),
+        forYear(JSON.stringify(catalog(options.ieBody, options.cashBody))),
       );
-    if (url === ORIGIN + iePath) return new Response(options.ieBody ?? ie);
+    if (url === ORIGIN + iePath)
+      return new Response(
+        options.year
+          ? forYear((options.ieBody ?? ie).toString())
+          : (options.ieBody ?? ie),
+      );
     if (url === ORIGIN + cashPath)
-      return new Response(options.cashBody ?? cash);
+      return new Response(
+        options.year
+          ? forYear((options.cashBody ?? cash).toString())
+          : (options.cashBody ?? cash),
+      );
     throw new Error("Unexpected request SECRET");
   }) as ReturnType<typeof vi.fn> & typeof fetch;
 }
@@ -137,8 +150,8 @@ function accepted(result: MaineMapLightDatasetCaptureResult) {
   if (result.status !== "captured") throw new Error("Test capture failed");
   return result.capture;
 }
-async function pointer(dir: string) {
-  return readFile(join(dir, "current.json"), "utf8");
+async function pointer(dir: string, year = 2026) {
+  return readFile(join(dir, `current-${year}.json`), "utf8");
 }
 async function alterManifest(dir: string, alter: (manifest: any) => void) {
   const p = JSON.parse(await pointer(dir));
@@ -148,10 +161,79 @@ async function alterManifest(dir: string, alter: (manifest: any) => void) {
   const raw = JSON.stringify(m);
   await writeFile(mp, raw);
   p.manifestSha256 = sha(raw);
-  await writeFile(join(dir, "current.json"), JSON.stringify(p));
+  await writeFile(join(dir, "current-2026.json"), JSON.stringify(p));
 }
 
 describe("Maine MapLight ordinary dataset capture", () => {
+  it("keeps each year's saved capture available after another year is refreshed", async () => {
+    const cacheDir = await temp();
+    const first = accepted(
+      await capture({ cacheDir, year: 2026, fetchImpl: network() }),
+    );
+    const second = accepted(
+      await capture({
+        cacheDir,
+        year: 2024,
+        fetchImpl: network({ year: 2024 }),
+      }),
+    );
+    const fetchImpl = network();
+    expect(
+      accepted(
+        await capture({ cacheDir, year: 2026, cacheOnly: true, fetchImpl }),
+      ),
+    ).toEqual(first);
+    expect(
+      accepted(
+        await capture({ cacheDir, year: 2024, cacheOnly: true, fetchImpl }),
+      ),
+    ).toEqual(second);
+    expect(fetchImpl).not.toHaveBeenCalled();
+    accepted(await capture({ cacheDir, year: 2026, fetchImpl }));
+    expect(fetchImpl).toHaveBeenCalledTimes(4);
+  });
+  it("reuses a verified legacy pointer only for its manifest year without changing source times", async () => {
+    const cacheDir = await temp();
+    const original = accepted(
+      await capture({ cacheDir, year: 2026, fetchImpl: network() }),
+    );
+    await rename(
+      join(cacheDir, "current-2026.json"),
+      join(cacheDir, "current.json"),
+    );
+    const fetchImpl = network();
+    expect(
+      accepted(
+        await capture({ cacheDir, year: 2026, cacheOnly: true, fetchImpl }),
+      ),
+    ).toEqual(original);
+    expect(
+      await capture({ cacheDir, year: 2024, cacheOnly: true, fetchImpl }),
+    ).toMatchObject({ status: "unavailable" });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    accepted(
+      await capture({
+        cacheDir,
+        year: 2024,
+        fetchImpl: network({ year: 2024 }),
+      }),
+    );
+    expect(
+      accepted(await capture({ cacheDir, year: 2026, cacheOnly: true })),
+    ).toEqual(original);
+    accepted(await capture({ cacheDir, year: 2026, fetchImpl }));
+    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    expect(await pointer(cacheDir)).toBeTruthy();
+  });
+  it("does not fall back to a legacy pointer when a year-specific pointer is corrupt", async () => {
+    const cacheDir = await temp();
+    accepted(await capture({ cacheDir, year: 2026, fetchImpl: network() }));
+    await writeFile(join(cacheDir, "current.json"), await pointer(cacheDir));
+    await writeFile(join(cacheDir, "current-2026.json"), "corrupt");
+    expect(
+      await capture({ cacheDir, year: 2026, cacheOnly: true }),
+    ).toMatchObject({ status: "unavailable" });
+  });
   it("captures both physical CSVs, exact source requests, original SHA/bytes and genuine intervals", async () => {
     const cacheDir = await temp(),
       fetchImpl = network(),
@@ -277,7 +359,7 @@ describe("Maine MapLight ordinary dataset capture", () => {
     await capture({ cacheDir, year: 2026, fetchImpl: network() });
     const fetchImpl = vi.fn(async () => {
       await writeFile(
-        join(cacheDir, "current.json"),
+        join(cacheDir, "current-2026.json"),
         "broken after saved read",
       );
       return new Response("blocked", { status: 503 });
@@ -337,6 +419,7 @@ describe("Maine MapLight ordinary dataset capture", () => {
         await capture({ cacheDir, year: 2026, fetchImpl: network() }),
       );
       const oldPointer = await pointer(cacheDir);
+      const oldFiles = (await readdir(cacheDir)).sort();
       const bad = Buffer.from(
         cash.toString().replace("Amount,", "WrongHeader,"),
       );
@@ -375,6 +458,7 @@ describe("Maine MapLight ordinary dataset capture", () => {
       });
       expect(JSON.stringify(r)).not.toContain("SECRET");
       expect(await pointer(cacheDir)).toBe(oldPointer);
+      expect((await readdir(cacheDir)).sort()).toEqual(oldFiles);
       expect(
         await readFile(old.datasets.independent_expenditures.path),
       ).toEqual(ie);
@@ -393,6 +477,7 @@ describe("Maine MapLight ordinary dataset capture", () => {
       ).status,
     ).toBe("unavailable");
     await expect(pointer(cacheDir)).rejects.toThrow();
+    expect(await readdir(cacheDir)).toEqual([]);
   });
   it("bounds declared and streamed sizes without changing a good pointer", async () => {
     const cacheDir = await temp();

@@ -16,7 +16,10 @@ import {
 } from "./maineMapLightAllFilerCsv.js";
 import { parseMaineMapLightIndependentExpenditureCsv } from "./maineMapLightIndependentExpenditureCsv.js";
 import { produceMaineMapLightFinancialFacts } from "./maineMapLightFinancialFacts.js";
-import { captureMaineMapLightReport } from "./maineMapLightReportClient.js";
+import {
+  captureMaineMapLightReport,
+  validateMaineMapLightReportUrl,
+} from "./maineMapLightReportClient.js";
 import {
   acquireMaineMapLightBallot,
   qualifyMaineMapLightBallotContext,
@@ -147,11 +150,13 @@ export async function syncDueMaineMapLightFinance(
       DEFAULT_MAINE_CFIS_CACHE_DIR);
   const reportUrls = [
     ...new Set(
-      input.mapLightReportUrls ??
-        process.env.MAINE_MAPLIGHT_RETURN_REPORT_URLS?.split(",").filter(
-          Boolean,
-        ) ??
-        [],
+      (
+        input.mapLightReportUrls ??
+        process.env.MAINE_MAPLIGHT_RETURN_REPORT_URLS?.split(",")
+          .map((value) => value.trim())
+          .filter(Boolean) ??
+        []
+      ).map(validateMaineMapLightReportUrl),
     ),
   ];
   // Candidate/year and every canonical eligibility predicate precede LIMIT.
@@ -255,11 +260,13 @@ export async function syncDueMaineMapLightFinance(
         capture.capture.selections.independent_expenditures.descriptor
           .lastUpdatedDate,
       ].sort()[0];
+      // Reports qualify returns within these datasets; they cannot refresh the
+      // dataset/ballot observation or invalidate an unchanged donor replay.
+      // Their original bodies, hashes and observation times stay in the report cache.
       const observedAt = new Date(
         Math.max(
           Date.parse(capture.capture.capturedAt),
           Date.parse(ballot.observedAt),
-          ...reports.map((report) => Date.parse(report.completedAt)),
         ),
       );
       const captureDigest = createHash("sha256")
@@ -267,13 +274,8 @@ export async function syncDueMaineMapLightFinance(
           JSON.stringify([
             capture.capture.captureDigest,
             ballot.captureDigest,
-            reports
-              .map((report) => [
-                report.sourceUrl,
-                report.sha256,
-                report.completedAt,
-              ])
-              .sort(),
+            // Preserve the identity of captures first written without reports.
+            [],
           ]),
         )
         .digest("hex");
@@ -370,7 +372,8 @@ export async function syncDueMaineMapLightFinance(
                 electionDate: row.election_date,
                 sourceCalendarYear: year,
                 periodStart: `${year}-01-01`,
-                periodEnd: through < `${year}-12-31` ? through : `${year}-12-31`,
+                periodEnd:
+                  through < `${year}-12-31` ? through : `${year}-12-31`,
                 qualifiedBallotContext: qualification.context,
                 observedAt,
                 captureDigest,

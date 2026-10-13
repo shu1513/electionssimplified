@@ -231,7 +231,8 @@ export async function loadMaineCandidateFinanceSummariesByCandidateElection(
     const key = candidateElectionKey(row.candidate_id, row.election_id), summary = summaries.get(key)!;
     // A published-year marker cannot turn a legacy stored zero into candidate-wide authority.
     summary.outside_spending.support_total = null; summary.outside_spending.oppose_total = null;
-    summary.outside_spending.outside_coverage_note = outsideNote(summary.cycle, scoped.filter(item => candidateElectionKey(item.candidate_id, item.election_id) === key));
+    if (row.component === 'independent_expenditures')
+      summary.outside_spending.outside_coverage_note = outsideNote(summary.cycle, scoped.filter(item => item.component === 'independent_expenditures' && candidateElectionKey(item.candidate_id, item.election_id) === key));
     if (row.component === 'committee_donors') pacKeys.add(key);
     if (row.component === 'independent_expenditures') outsideKeys.add(key);
   }
