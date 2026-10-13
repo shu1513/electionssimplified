@@ -54,3 +54,34 @@ Sources: [public system](https://campaignfinance.vermont.gov/),
 [§2964](https://legislature.vermont.gov/statutes/section/17/061/02964),
 [§2965](https://legislature.vermont.gov/statutes/section/17/061/02965),
 [§2971](https://legislature.vermont.gov/statutes/section/17/061/02971).
+
+## Actual acquisition proof, before financial writes
+
+The production client resolved live General45 by November3/date/type. The first
+name-scoped census returned867 contributions and271 expenses. All contributions
+belonged to receiver33545; two same-name expenses belonged to a different account.
+That receiver-uniqueness guard failed and its original source generation remains
+unchanged. The corrected public query with the exact observed receiver GUID
+returned269 expenses and zero foreign receiver rows. Names are discovery hints,
+not financial ownership authority.
+
+The public profile action returned15 physical/declared reports. Its exact stored
+document action acquired all six regular PDFs:10 actual HTTP200 requests totaling
+3,041,865 bytes including lookup, transactions and reports. Every original length
+and SHA256 was replayed; all six PDF hashes matched the separate opening/closing
+source research generation. Receipt controls total$414,475.24 across the six actual
+periods December13/2024–September28/2026. Scott's one explicit TPAC/ITMY receipt is
+$5,180. These are acquisition/control facts; production qualification and money
+storage are still pending.
+
+The separate public mass-media PDF names Scott and Amanda Janoo for Governor;
+four payments total$252,826.90 and reconcile to its notice control. It prints no
+stance or per-candidate allocation. No portion is assigned to either candidate.
+Ordinary expense/control residual$400 remains separate from PAC cash authority.
+
+Current checks:88 Vermont tests and backend typecheck pass. The exact-cent parser
+rejects subcent money and unsafe decimal/number roundtrips in receipts, transaction
+details and category totals. No Vermont migration, money write, frontend proof or
+PR has been completed. The read-only baseline has22 links/22 summaries/157 direct
+breakdowns/zero outside groups; preserve all unrelated components during the
+eventual normal write.
