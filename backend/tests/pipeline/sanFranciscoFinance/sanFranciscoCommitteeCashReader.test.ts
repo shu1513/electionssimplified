@@ -1,3 +1,4 @@
+import { meetsSmallAmountThreshold } from "../../../../packages/api-client/src/finance.js";
 import { describe, expect, it } from "vitest";
 import { groupSanFranciscoCommitteeCashByInterest } from "../../../src/pipeline/sanFranciscoFinance/sanFranciscoCommitteeCashReader.js";
 
@@ -58,6 +59,22 @@ describe("San Francisco committee cash reader", () => {
     expect(groups[0]!.pacs.map((p) => p.amount)).toEqual([
       800, 700, 600, 500, 400,
     ]);
+  });
+
+  it("keeps all six interests when their combined amount clears the shared display threshold", () => {
+    const groups = groupSanFranciscoCommitteeCashByInterest(
+      [
+        "MICROSOFT",
+        "ENERGY TRANSFER",
+        "KAISER",
+        "PFIZER",
+        "SEIU",
+        "SIERRA CLUB",
+      ].map((name, n) => row(String(n), name, "900")),
+    ).get("c\u0000e")!;
+    expect(groups).toHaveLength(6);
+    expect(groups.reduce((sum, group) => sum + group.amount, 0)).toBe(5400);
+    expect(meetsSmallAmountThreshold(groups)).toBe(true);
   });
 
   it("keeps candidate-election scopes independent", () => {

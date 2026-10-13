@@ -92,8 +92,7 @@ export function groupSanFranciscoCommitteeCashByInterest(
         }))
         .sort(
           (a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest),
-        )
-        .slice(0, 5),
+        ),
     ]),
   );
 }
