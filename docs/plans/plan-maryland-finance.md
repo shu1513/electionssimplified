@@ -73,6 +73,52 @@ write, migration, card proof or PR yet.
 
 ## Small steps and verification
 
+The normal registration client now captures complete numeric and literal-name
+queries with actual all-status/type/year scope. Numeric mode records its chosen
+positive-integer selector variant; name mode omits that numeric field. All unused
+filters stay null and undefined amount bounds stay omitted. Older research POST
+journals lacked bodies/EOF, so their structural decoder replay cannot establish
+a new complete source context or be retagged as a fresh capture.
+
+Closed official GETs capture the exact 2026 General statewide roster and the
+separate [official election-date page](https://elections.maryland.gov/candidacy/ballot.html).
+The roster parser binds each heading's following candidate block, party and
+Committee Name field, keeping related Lt.Governor blocks separate. Comments,
+script and style text cannot supply an authority. The date parser reads the
+actual General Election/Election Day definition-list role; the roster itself has
+no election-date literal. Native November 8 remains unchanged, while canonical
+November 3 is independently verified. Existing POST captures preserve their
+method/body behavior; fixed GETs have null capture bodies and no network body.
+
+The finite source-context binder reopens captured originals and checks scope,
+count, EOF/errors/times/SHA/bytes, complete numeric/name intersection, the exact
+registered owner/class/office/party/year, and the already accepted full committee
+display pair. It snapshots caller inputs before asynchronous reads. Physical
+local canonical Governor context, district/state/geoid, General date/stage,
+declared status, candidate deletion/merge and unique active receiving link must
+agree. Elections have no invented deletion/merge columns; actual physical
+canonical relations supply eligibility. The future writer still must recheck
+those actual relations under lock. No personal-name alias or financial flag is
+introduced.
+
+Real normal official captures occurred October 13, 21:52:21.709–21:52:23.841 UTC:
+17,836-byte dates HTML, 426,192-byte roster and current two-cycle lookup. Fresh
+normal numeric and name queries at 22:06:20.394–22:06:21.746 UTC independently
+return one physical/declared account each (2,232 bytes), and the normal binder
+agrees with the actual read-only local canonical context. All five source
+observations retain actual scopes/hashes/times. This is receiving-account
+association only, not expense target/report-currentness or money acceptance.
+All 60 registration/context tests, 41 shared capture tests and independent review
+pass; the final full Maryland suite has 615 passing tests and backend types pass.
+
+Whole native outside replay confirms only one exact receiving-account/literal
+label association: reported support of $75,000 on December 21, 2022, with source
+election-year field 2023. It is not a 2026 eligible positive. Source-year semantics,
+current expense report/period/offsets and target association still need explicit
+qualification; three parent cohorts also over-allocate against their parent
+amounts. No proportional allocation, parent-amount duplication, candidate-wide
+zero or financial/card/PR result follows from these observations.
+
 The normal saved full-partition reader now reconstructs the actual producer's
 split tree from verified opening ascending/descending observations and exact
 sibling counts, deriving every disjoint leaf and unbounded outer tail. It reads

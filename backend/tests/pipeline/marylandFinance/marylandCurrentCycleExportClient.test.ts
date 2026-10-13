@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildMarylandCurrentCycleExportRequest,
+  captureMarylandPublishedGovernorContextGet,
   decodeMarylandPublishedFilingCycles,
   downloadMarylandCurrentCycleExport,
   getMarylandCurrentFilingCycles,
@@ -34,6 +35,62 @@ const cycles = () => ({
     { value: "12023", name: "2023-2026", isDefault: true, code: null },
     { value: "12019", name: "2019-2022", isDefault: false, code: null },
   ],
+});
+
+describe("Maryland closed official Governor context capture", () => {
+  it.each([
+    ["general_roster", "https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_statewide_candidatelist.html"],
+    ["election_dates", "https://elections.maryland.gov/candidacy/ballot.html"],
+  ] as const)("captures %s as a private GET original without a form body", async (kind, url) => {
+    const outputPath = await path();
+    const bytes = Buffer.from("<html>original authority bytes</html>");
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response(bytes, {
+      headers: {"set-cookie": "private header is discarded"},
+    }));
+    const capture = await captureMarylandPublishedGovernorContextGet(kind, {outputPath, fetchImpl});
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(fetchImpl.mock.calls[0]![0]).toBe(url);
+    expect(fetchImpl.mock.calls[0]![1]).toMatchObject({method: "GET", redirect: "manual"});
+    expect(fetchImpl.mock.calls[0]![1]).not.toHaveProperty("body");
+    expect(capture).toMatchObject({url, method: "GET", requestBody: null, httpStatus: 200,
+      bodyComplete: true, errorCode: null, byteCount: bytes.length, sha256: sha(bytes)});
+    expect(capture).not.toHaveProperty("headers");
+    expect(capture).not.toHaveProperty("qualified");
+    expect(await readFile(outputPath)).toEqual(bytes);
+    expect((await stat(outputPath)).mode & 0o777).toBe(0o600);
+  });
+  it.each(["__proto__", "https://example.invalid", new String("general_roster")])(
+    "rejects unclosed context kind before a request", async kind => {
+      const fetchImpl = vi.fn<typeof fetch>();
+      await expect(captureMarylandPublishedGovernorContextGet(kind as never, {outputPath: await path(), fetchImpl}))
+        .rejects.toMatchObject({code: "invalid_request"});
+      expect(fetchImpl).not.toHaveBeenCalled();
+    },
+  );
+  it("rejects excessive lookup budgets before opening a source", async () => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    for (const budget of [{timeoutMs: 30001}, {maxBytes: 4 * 1024 * 1024 + 1}]) {
+      await expect(captureMarylandPublishedGovernorContextGet("general_roster", {outputPath: await path(), fetchImpl, ...budget}))
+        .rejects.toMatchObject({code: "invalid_request"});
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+  it("retains an official error/redirect original rather than following or claiming context", async () => {
+    const outputPath = await path();
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response("original redirect", {status: 302,
+      headers: {location: "https://example.invalid"}}));
+    const error = await failure(captureMarylandPublishedGovernorContextGet("election_dates", {outputPath, fetchImpl}), "http_status");
+    expect(error.capture).toMatchObject({method: "GET", requestBody: null, httpStatus: 302, bodyComplete: true});
+    expect(await readFile(outputPath, "utf8")).toBe("original redirect");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+  it("retains bounded partial GET bytes and withholds context", async () => {
+    const outputPath = await path();
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response("123456"));
+    const error = await failure(captureMarylandPublishedGovernorContextGet("general_roster", {outputPath, fetchImpl, maxBytes: 3}), "body_limit");
+    expect(error.capture).toMatchObject({method: "GET", byteCount: 3, bodyComplete: false});
+    expect(await readFile(outputPath, "utf8")).toBe("123");
+  });
 });
 async function failure(p: Promise<unknown>, code: string) {
   try {

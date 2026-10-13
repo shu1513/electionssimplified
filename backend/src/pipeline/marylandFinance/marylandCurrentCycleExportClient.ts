@@ -1,3 +1,4 @@
+import { validateMarylandPublicCommitteeRequest, type MarylandPublicCommitteeRequest } from "./marylandPublicCommitteeClient.js";
 import {
   buildMarylandPublicIndependentExpenditureRequest,
   type MarylandPublicIndependentExpenditureRequest,
@@ -44,6 +45,7 @@ export type MarylandCurrentCycleExportErrorCode =
   | "body_read_failed"
   | "capture_callback_failed"
   | "invalid_cycle_lookup"
+  | "invalid_committee_page"
   | "invalid_independent_expenditure_page"
   | "invalid_contribution_page"
   | "invalid_contribution_detail"
@@ -51,9 +53,10 @@ export type MarylandCurrentCycleExportErrorCode =
   | "invalid_report_document";
 export type MarylandCurrentCycleCapture<
   T = MarylandCurrentCycleExportRequest | null,
+  M extends "POST" | "GET" = "POST",
 > = Readonly<{
   url: string;
-  method: "POST";
+  method: M;
   requestBody: T;
   outputPath: string;
   startedAt: string;
@@ -67,18 +70,18 @@ export type MarylandCurrentCycleCapture<
 export class MarylandCurrentCycleExportError extends Error {
   constructor(
     public readonly code: MarylandCurrentCycleExportErrorCode,
-    public readonly capture?: MarylandCurrentCycleCapture<unknown>,
+    public readonly capture?: MarylandCurrentCycleCapture<unknown, "POST" | "GET">,
   ) {
     super(`Maryland current-cycle source: ${code}`);
     this.name = "MarylandCurrentCycleExportError";
   }
 }
-type Options<T = MarylandCurrentCycleExportRequest | null> = {
+type Options<T = MarylandCurrentCycleExportRequest | null, M extends "POST" | "GET" = "POST"> = {
   outputPath: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   maxBytes?: number;
-  onCapture?: (capture: MarylandCurrentCycleCapture<T>) => void | Promise<void>;
+  onCapture?: (capture: MarylandCurrentCycleCapture<T, M>) => void | Promise<void>;
 };
 
 /** Exact observed Angular filename format, in this client's local timezone.
@@ -108,13 +111,14 @@ export function buildMarylandCurrentCycleExportRequest(
 
 /** Writes a new private original, including partial/error bodies. It never
  * activates a cache, deletes a failed original, or overwrites an existing path. */
-async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
+async function captureRequest<T extends Readonly<Record<string, unknown>> | null, M extends "POST" | "GET">(
+  method: M,
   url: string,
   requestBody: T,
-  options: Options<T>,
+  options: Options<T, M>,
   defaultBytes: number,
   maximum: number,
-): Promise<MarylandCurrentCycleCapture<T>> {
+): Promise<MarylandCurrentCycleCapture<T, M>> {
   const maxBytes = options.maxBytes ?? defaultBytes,
     timeoutMs = options.timeoutMs ?? TIMEOUT_MS,
     fetchImpl = options.fetchImpl ?? fetch,
@@ -167,7 +171,7 @@ async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
   try {
     const response = await Promise.race([
       fetchImpl(url, {
-        method: "POST",
+        method,
         redirect: "manual",
         signal: controller.signal,
         headers: {
@@ -175,7 +179,7 @@ async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
           accept: "text/csv,application/json,*/*;q=0.1",
           "user-agent": "Mozilla/5.0",
         },
-        body: JSON.stringify(requestBody),
+        ...(method === "POST" ? { body: JSON.stringify(requestBody) } : {}),
       }),
       deadline,
     ]);
@@ -247,7 +251,7 @@ async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
   }
   const captured = Object.freeze({
     url,
-    method: "POST" as const,
+    method,
     requestBody,
     outputPath,
     startedAt,
@@ -268,6 +272,27 @@ async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
   }
   if (errorCode) throw new MarylandCurrentCycleExportError(errorCode, captured);
   return captured;
+}
+
+function capturePost<T extends Readonly<Record<string, unknown>> | null>(
+  url: string, requestBody: T, options: Options<T>, defaultBytes: number, maximum: number,
+): Promise<MarylandCurrentCycleCapture<T>> {
+  return captureRequest("POST", url, requestBody, options, defaultBytes, maximum);
+}
+
+/** Closed official authorities; no arbitrary URL, account selector or form body. */
+export async function captureMarylandPublishedGovernorContextGet(
+  kind: "general_roster" | "election_dates",
+  options: Options<null, "GET">,
+): Promise<MarylandCurrentCycleCapture<null, "GET">> {
+  const urls = {
+    general_roster: "https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_statewide_candidatelist.html",
+    election_dates: "https://elections.maryland.gov/candidacy/ballot.html",
+  } as const;
+  if (typeof kind !== "string" || !Object.hasOwn(urls, kind) || (options.timeoutMs ?? 30_000) > 30_000)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return captureRequest("GET", urls[kind], null, { ...options, timeoutMs: options.timeoutMs ?? 30_000 },
+    MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
 }
 
 export function downloadMarylandCurrentCycleExport(
@@ -471,4 +496,11 @@ export function captureMarylandPublicIndependentExpenditurePost(
     MAX_LOOKUP_BYTES,
     MAX_LOOKUP_BYTES,
   );
+}
+
+/** Exact all-status numeric or literal-name public registration route. */
+export function captureMarylandPublicCommitteePost(request: MarylandPublicCommitteeRequest, options: Options<MarylandPublicCommitteeRequest>) {
+  const detached = validateMarylandPublicCommitteeRequest(request);
+  if ((options.timeoutMs ?? 30_000) > 30_000) throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(`${API}PublicGrid/GetCommitteeList`, detached, { ...options, timeoutMs: options.timeoutMs ?? 30_000 }, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
 }
