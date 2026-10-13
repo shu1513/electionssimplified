@@ -275,6 +275,44 @@ describe("Phoenix complete published named committee cash qualification", () => 
     expect(result.reportedThrough).toBe("2026-06-30");
     expect(result.reportPeriods).toHaveLength(2);
   });
+  it.each(["CAN-07-01", "CAN-09-06"])(
+    "qualifies current-cycle reports for an exact zero-padded receiving COPID %s",
+    (receiver) => {
+      const input = fixture();
+      input.copId = receiver;
+      editBoth(input, (observation) => {
+        observation.grids.contributors = observation.grids.contributors.map(
+          (row) => ({ ...row, COPID: receiver }),
+        );
+        for (const report of observation.reports) {
+          for (const page of report.pages) {
+            page.lines[0]!.cells[0]!.text = receiver;
+            page.lines[0]!.text = receiver;
+          }
+        }
+      });
+      expect(qualifyPhoenixCommitteeCash(input).positions[0]!.netCents).toBe(
+        15000,
+      );
+      input.after.grids.contributors = input.after.grids.contributors.map(
+        (row) => ({
+          ...row,
+          COPID: receiver.replace(/-0(?=[1-9]\d*$)/, "-"),
+        }),
+      );
+      expect(() => qualifyPhoenixCommitteeCash(input)).toThrow(/COPID/);
+    },
+  );
+  it.each(["CAN-07-0", "CAN-07-00", "CAN-07-01x", "CAN-7-01", "PAC-04-01"])(
+    "rejects invalid candidate receiving context %s",
+    (receiver) => {
+      const input = fixture();
+      input.copId = receiver;
+      expect(() => qualifyPhoenixCommitteeCash(input)).toThrow(
+        /invalid receiving context/,
+      );
+    },
+  );
   it("nets an exact printed PAC return without choosing a gift or registry ID", () => {
     const input = fixture();
     editBoth(input, (o) =>

@@ -32,6 +32,10 @@
 
 export const PHOENIX_PORTAL_BASE_URL = "https://apps-secure.phoenix.gov";
 
+// Older official registrations retain zero-padded sequence numbers (CAN-07-01,
+// PAC-04-01). Preserve their literal IDs; padding does not create an alias.
+export const PHOENIX_COMMITTEE_COP_ID_PATTERN = /^(?:CAN|PAC)-\d{2}-0*[1-9]\d*$/;
+
 const BROWSER_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 const MAX_GRID_PAGES = 200;
@@ -482,7 +486,7 @@ function collectPhoenixReportRefs(
       typeof row !== "object" ||
       Array.isArray(row) ||
       typeof row.COPID !== "string" ||
-      !/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(row.COPID.trim().toUpperCase()) ||
+      !PHOENIX_COMMITTEE_COP_ID_PATTERN.test(row.COPID.trim().toUpperCase()) ||
       !row.COPID.trim().toUpperCase().startsWith(copId)
     )
       throw new Error(
@@ -576,7 +580,7 @@ export async function discoverPhoenixReportObservation(input: {
   fetchImpl?: FetchLike;
 }): Promise<PhoenixReportObservation> {
   const copId = input.copId.trim().toUpperCase();
-  if (!/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(copId))
+  if (!PHOENIX_COMMITTEE_COP_ID_PATTERN.test(copId))
     throw new Error("Phoenix report discovery requires valid receiving COPID");
   const scopes = [
     ["contributors", "/CampaignFinance/Search/_SearchContributors", false],

@@ -110,14 +110,14 @@ function row(id = first, overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
-function transport(rows: Record<string, unknown>[]) {
+function transport(rows: Record<string, unknown>[], registeredCopId = copId) {
   return vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
     const text = String(url);
     if (text.includes("PrintReport")) {
       const id = text.split("/").at(-1)!;
       return new Response(`%PDF ${id}`, { status: 200 });
     }
-    const data = text.endsWith("_SearchCommittees") ? [registration] : rows;
+    const data = text.endsWith("_SearchCommittees") ? [{ ...registration, COPID: registeredCopId }] : rows;
     return new Response(JSON.stringify({ Data: data, Total: data.length }), {
       status: 200,
     });
@@ -130,6 +130,20 @@ beforeEach(() => {
   extracted.set(`%PDF ${second}`, pages("April 01, 2026", "June 30, 2026"));
 });
 describe("Phoenix city IE run context", () => {
+  it("accepts a literal padded PAC identity in both expense grid and PDF headers", async () => {
+    const legacyCopId = "PAC-04-01";
+    extracted.set(
+      `%PDF ${first}`,
+      pages("January 01, 2026", "March 31, 2026", legacyCopId),
+    );
+    const result = await loadPhoenixFinanceRunContext({
+      cache,
+      fetchImpl: transport([row(first, { COPID: legacyCopId })], legacyCopId),
+    });
+    expect(result.outsidePool[0]?.spenderCopId).toBe(legacyCopId);
+    expect(result.outsidePool).toHaveLength(1);
+  });
+
   it("retains equal report names across disjoint covers without timestamp edition ranking", async () => {
     const result = await loadPhoenixFinanceRunContext({
       cache,
@@ -302,6 +316,19 @@ function officePage(id: string, from: string, to: string, office: string) {
   extracted.set(`%PDF ${id}`, value);
 }
 describe("Phoenix office cover index", () => {
+  it("keeps the literal padded candidate identity when corroborating office", async () => {
+    const legacyCopId = "CAN-07-01";
+    const cover = pages("January 01, 2026", "March 31, 2026", legacyCopId);
+    cover[0]!.lines.push(line("Office Sought: City Office: Mayor", 675));
+    extracted.set(`%PDF ${first}`, cover);
+    const index = await buildPhoenixCoverOfficeSoughtIndex({
+      copIds: [legacyCopId],
+      seams: { cache, fetchImpl: transport([row(first, { COPID: legacyCopId })]) },
+    });
+    expect(index.get(legacyCopId)).toEqual(["Mayor"]);
+    expect(index.has("CAN-07-1")).toBe(false);
+  });
+
   it("selects latest actual cover end rather than GUID or row timestamp", async () => {
     officePage(
       first,

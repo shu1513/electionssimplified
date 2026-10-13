@@ -1,3 +1,4 @@
+import { PHOENIX_COMMITTEE_COP_ID_PATTERN } from "./phoenixEfilingClient.js";
 import {
   phoenixMoneyTokenToCents,
   type PhoenixPdfLine,
@@ -76,7 +77,7 @@ function copId(page: PhoenixPdfPage): string {
   const ids = page.lines
     .filter((line) => line.y > 700)
     .flatMap((line) => line.cells.map((cell) => cell.text))
-    .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+    .filter((text) => PHOENIX_COMMITTEE_COP_ID_PATTERN.test(text));
   if (ids.length !== 1) return fail("missing or ambiguous receiving COPID");
   return ids[0]!;
 }

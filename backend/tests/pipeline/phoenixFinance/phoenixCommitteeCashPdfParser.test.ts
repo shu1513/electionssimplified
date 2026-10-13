@@ -147,6 +147,26 @@ describe("Phoenix source-only committee cash positioned parser", () => {
     });
     expect(result.returns[0]).not.toHaveProperty("committeeType");
   });
+  it.each(["CAN-07-01", "CAN-09-06", "PAC-04-01"])(
+    "retains the exact published zero-padded receiving COPID %s",
+    (copId) => {
+      const pages = fixture();
+      for (const page of pages) page.lines[0]!.cells[0]!.text = copId;
+      expect(
+        parsePhoenixCommitteeCashReport(refresh(pages)).receivingCopId,
+      ).toBe(copId);
+    },
+  );
+  it.each(["CAN-07-0", "CAN-07-00", "PAC-04-000", "CAN-07-01x", "CAN-7-01"])(
+    "rejects malformed or zero receiving COPID %s",
+    (copId) => {
+      const pages = fixture();
+      for (const page of pages) page.lines[0]!.cells[0]!.text = copId;
+      expect(() => parsePhoenixCommitteeCashReport(refresh(pages))).toThrow(
+        /COPID/,
+      );
+    },
+  );
   it("retains identical gifts as separate physical occurrences", () => {
     const rows = [
       { name: "Example PAC", cents: 10000 },

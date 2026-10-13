@@ -362,6 +362,27 @@ describe("report discovery + PDF fetch", () => {
     expect(legacy).toEqual({ refs: observation.refs, supersededDropped: 0 });
   });
 
+  it.each(["CAN-07-01", "PAC-04-01"])("preserves source-published padded committee identity %s", async (copId) => {
+    const own = { ...reportRow(), COPID: copId };
+    const foreign = { ...reportRow(guid("bb")), COPID: copId + "0" };
+    const fetchImpl = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      const fields = new URLSearchParams(String(init?.body));
+      const data = /Contributors/.test(url) && !fields.has("ISNOACTIVITY")
+        ? [own, foreign] : [];
+      return Promise.resolve(jsonResponse({ Data: data, Total: data.length }));
+    });
+    const result = await discoverPhoenixReportObservation({ copId, fetchImpl });
+    expect(result.refs.map((ref) => ref.reportPackageId)).toEqual([guid("aa")]);
+    expect(result.grids.contributors).toEqual([own, foreign]);
+    expect(new URLSearchParams(String(fetchImpl.mock.calls[0]?.[1]?.body)).get("COPID")).toBe(copId);
+  });
+
+  it.each(["CAN-25-0", "CAN-25-00", "CAN-25--01", "CAN-25-01x"])("refuses invalid receiving committee identity %s", async (copId) => {
+    const fetchImpl = vi.fn();
+    await expect(discoverPhoenixReportObservation({ copId, fetchImpl })).rejects.toThrow(/valid receiving COPID/);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it("retains distinct equal-valued physical rows while collapsing only their package ref", async () => {
     const rows = [
       reportRow(),

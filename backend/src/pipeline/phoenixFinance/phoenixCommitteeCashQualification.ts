@@ -1,5 +1,6 @@
 import {
   PHOENIX_PORTAL_BASE_URL,
+  PHOENIX_COMMITTEE_COP_ID_PATTERN,
   PHOENIX_REPORT_PACKAGE_GUID,
   phoenixCandidateCycleForDate,
 } from "./phoenixEfilingClient.js";
@@ -101,7 +102,7 @@ function multiset(rows: readonly Record<string, unknown>[]): string {
 function sourceCop(row: Record<string, unknown>): string {
   if (typeof row.COPID !== "string") return fail("missing source COPID");
   const value = row.COPID.trim().toUpperCase();
-  if (!/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(value))
+  if (!PHOENIX_COMMITTEE_COP_ID_PATTERN.test(value))
     return fail("malformed source COPID");
   return value;
 }
@@ -156,7 +157,7 @@ function headerId(pages: readonly PhoenixPdfPage[], copId: string) {
     const values = page.lines
       .filter((line) => line.y > 700)
       .flatMap((line) => line.cells.map((cell) => cell.text))
-      .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+      .filter((text) => PHOENIX_COMMITTEE_COP_ID_PATTERN.test(text));
     if (values.length !== 1 || values[0] !== copId)
       return fail("PDF receiving COPID mismatch");
   }
@@ -315,7 +316,8 @@ export function qualifyPhoenixCommitteeCash(
   input: PhoenixCommitteeCashQualificationInput,
 ) {
   if (
-    !/^CAN-\d{2}-[1-9]\d*$/.test(input.copId) ||
+    !PHOENIX_COMMITTEE_COP_ID_PATTERN.test(input.copId) ||
+    !input.copId.startsWith("CAN-") ||
     !name(input.committeeName) ||
     !name(input.officeSought)
   )

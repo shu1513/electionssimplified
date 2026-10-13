@@ -68,6 +68,7 @@ import {
   toPhoenixRegistrationRow,
   PHOENIX_CANDIDATE_IE_FUNCTION_ID,
   PHOENIX_REPORT_PACKAGE_GUID,
+  PHOENIX_COMMITTEE_COP_ID_PATTERN,
   PHOENIX_TEST_COMMITTEE_PATTERN,
   type PhoenixPdfCache,
   type PhoenixRegistrationRow,
@@ -251,7 +252,7 @@ export async function loadPhoenixFinanceRunContext(
     for (const row of expenditureRows) {
       if (
         typeof row.COPID !== "string" ||
-        !/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(row.COPID.trim().toUpperCase()) ||
+        !PHOENIX_COMMITTEE_COP_ID_PATTERN.test(row.COPID.trim().toUpperCase()) ||
         !row.COPID.trim().toUpperCase().startsWith(pac.copId)
       ) {
         throw new Error("Phoenix IE expense grid receiving COPID mismatch");
@@ -323,7 +324,7 @@ export async function loadPhoenixFinanceRunContext(
         const ids = page.lines
           .filter((line) => line.y > 700)
           .flatMap((line) => line.cells.map((cell) => cell.text))
-          .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+          .filter((text) => PHOENIX_COMMITTEE_COP_ID_PATTERN.test(text));
         if (ids.length !== 1 || ids[0] !== pac.copId) {
           throw new Error("Phoenix IE PDF receiving COPID mismatch");
         }
@@ -500,7 +501,7 @@ export async function buildPhoenixCoverOfficeSoughtIndex(input: {
       const ids = coverPage.lines
         .filter((line) => line.y > 700)
         .flatMap((line) => line.cells.map((cell) => cell.text))
-        .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+        .filter((text) => PHOENIX_COMMITTEE_COP_ID_PATTERN.test(text));
       if (ids.length !== 1 || ids[0] !== copId.trim().toUpperCase()) continue;
       const cover = parsePhoenixReportCover(coverPage);
       if (cover.periodFrom > cover.periodTo) continue;
