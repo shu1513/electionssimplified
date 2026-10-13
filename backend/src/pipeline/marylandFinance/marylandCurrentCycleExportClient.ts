@@ -34,7 +34,8 @@ export type MarylandCurrentCycleExportErrorCode =
   | "body_read_failed"
   | "capture_callback_failed"
   | "invalid_cycle_lookup"
-  | "invalid_contribution_page";
+  | "invalid_contribution_page"
+  | "invalid_contribution_detail";
 export type MarylandCurrentCycleCapture<
   T = MarylandCurrentCycleExportRequest | null,
 > = Readonly<{
@@ -300,6 +301,32 @@ export function captureMarylandPublicContributionPost(
     MAX_LOOKUP_BYTES,
     MAX_LOOKUP_BYTES,
   );
+}
+
+export function buildMarylandPublicContributionDetailRequest(transactionGuid: string) {
+  if (typeof transactionGuid !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(transactionGuid) ||
+    transactionGuid === "00000000-0000-0000-0000-000000000000")
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return Object.freeze({transactionGuid, transactionTypeCode: "TCON" as const});
+}
+export type MarylandPublicContributionDetailRequest = ReturnType<typeof buildMarylandPublicContributionDetailRequest>;
+/** Exact published contribution popup request. A numeric parent ID is never
+ * converted to a GUID or transmitted under a guessed alternate endpoint. */
+export function captureMarylandPublicContributionDetailPost(
+  request: MarylandPublicContributionDetailRequest,
+  options: Options<MarylandPublicContributionDetailRequest>,
+) {
+  if (!request || typeof request !== "object" || Array.isArray(request))
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const keys = Reflect.ownKeys(request), snapshot = {...request};
+  const detached = buildMarylandPublicContributionDetailRequest(snapshot.transactionGuid);
+  if (keys.length !== 2 || keys.some(key => typeof key !== "string" ||
+    !Object.hasOwn(detached, key) || snapshot[key as keyof typeof snapshot] !== detached[key as keyof typeof detached]) ||
+    (options.timeoutMs ?? 30_000) > 30_000)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(`${API}PublicTransactionDetails/GetTransactionDetailsByGuid`, detached,
+    {...options, timeoutMs: options.timeoutMs ?? 30_000}, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
 }
 
 export type MarylandPublishedFilingCycle = Readonly<{
