@@ -54,7 +54,7 @@ export type MarylandPublishedReport = Readonly<{
   childResults: readonly MarylandPublishedReportChild[] | null;
 }>;
 
-function decodeParent(raw: unknown, request: MarylandPublicReportInventoryRequest): MarylandPublishedReport {
+export function decodeMarylandPublishedReport(raw: unknown, request: MarylandPublicReportInventoryRequest): MarylandPublishedReport {
   if (!record(raw)) return fail();
   const r = raw;
   if (!guid(r.reportGuid) || !positiveInteger(r.reportVersionId) || !text(r.reportName) ||
@@ -122,7 +122,7 @@ export function decodeMarylandPublicReportInventory(value: unknown, request: Mar
   if (!Number.isSafeInteger(data.totalItems) || (data.totalItems as number) < 0 || !Array.isArray(data.items)) return fail();
   const offset = (request.pageNumber - 1) * request.pageSize;
   if (!Number.isSafeInteger(offset) || data.items.length !== Math.min(request.pageSize, Math.max(0, (data.totalItems as number) - offset))) return fail();
-  const reports = Object.freeze(data.items.map(raw => decodeParent(raw, request)));
+  const reports = Object.freeze(data.items.map(raw => decodeMarylandPublishedReport(raw, request)));
   if (new Set(reports.map(r => r.reportGuid.toLowerCase())).size !== reports.length) return fail();
   return Object.freeze({ reports, totalItems: data.totalItems as number });
 }
@@ -134,7 +134,7 @@ export function buildMarylandPublishedReportPdfRequest(report: MarylandPublished
   if (!record(report)) return fail();
   const request = buildMarylandPublicReportInventoryRequest({ filerRegistrationGuid: report.filerRegistrationGuid,
     electionCycleId: String(report.reportingCycleId), pageNumber: 1 });
-  const parent = decodeParent(report, request);
+  const parent = decodeMarylandPublishedReport(report, request);
   const child = parent.childResults?.find(c => c.filerReportGuid.toLowerCase() === parent.reportGuid.toLowerCase() &&
     c.filerReportVersionID === parent.reportVersionId);
   // The observed Original parent lacks filerReportVersionID; its literal public

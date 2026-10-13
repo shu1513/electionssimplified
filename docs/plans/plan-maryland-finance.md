@@ -97,6 +97,25 @@ Three legacy continuation-field detail lookups remain held for specific user
 approval after automatic review rejected their selector transmissions; the prior
 approved first-page lookup has already been completed.
 
+The separate native report-binding primitive keeps historical GUID/version
+pointers and requires each occurrence's date to fit both its exact published
+edition and the paired current report. It preserves equal distinct gifts,
+refund return dates, inactive facts and empty report buckets; none establishes
+financial absence. Duplicate/ambiguous lineage, unresolved editions and dates
+outside either period hold. Normal offline replay rechecks all 1,063 native
+originals and binds every one of the 105,360 rows to seven reports: 64,993 retain
+historical edition pointers, 40,367 point to current editions. No occurrence is
+unresolved or outside its published periods. This grants no source freshness.
+
+The receiving identity policy accepts only the complete observed committee pair
+`Wes Moore For Maryland` / `Moore, Wes For Maryland`, scoped to the unique
+official General Governor context and independently bound source Candidate/CC,
+Governor/Lieutenant Governor, Democrat and 2026 membership. Native Westley W.
+and decorated inventory committee text remain literal. Actual source owner keys
+bind inventory/native rows; no personal nickname or parenthetical rule is added.
+Fresh scope/bracket evidence and canonical ownership checks under the eventual
+writer lock remain required before money can be published.
+
 - Preserve unresolved outside groups, funder details and scalar values while
   direct processing can proceed. A successful request is not complete target
   coverage or a proven empty component.
