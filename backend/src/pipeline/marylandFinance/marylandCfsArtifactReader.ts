@@ -1,5 +1,27 @@
 import { createReadStream } from "node:fs";
-import { StringDecoder } from "node:string_decoder";
+
+export type MarylandCfsReadEncoding = "utf8" | "windows-1252";
+// Explicit byte-codepage selection only; never an automatic UTF-8 fallback.
+const WINDOWS_1252_C1 =
+  "€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ";
+function westernBytes(bytes: Buffer): string {
+  return bytes
+    .toString("latin1")
+    .replace(
+      /[\u0080-\u009f]/g,
+      (c) => WINDOWS_1252_C1[c.charCodeAt(0) - 128]!,
+    );
+}
+function requireWidth(
+  cells: readonly string[],
+  expected: number,
+  ordinal: number,
+): void {
+  if (cells.length !== expected)
+    throw new Error(
+      `Maryland CFS CSV row ${ordinal} width ${cells.length}; expected ${expected}`,
+    );
+}
 
 export const MARYLAND_CFS_CONTRIBUTION_COLUMNS = [
   "Filing Entity Id",
@@ -239,10 +261,17 @@ function indexesForColumns<TColumns extends readonly string[]>(
   label: string
 ): Record<TColumns[number], number> {
   const headerIndex = buildHeaderIndex(header);
-  return Object.fromEntries(columns.map((column) => [column, requireColumn(headerIndex, column, label)])) as Record<
-    TColumns[number],
-    number
-  >;
+  const entries = columns.map((column) => [
+    column,
+    requireColumn(headerIndex, column, label),
+  ]);
+  if (
+    header.length !== columns.length ||
+    header.some((name) => !columns.includes(name))
+  ) {
+    throw new Error(`Unsupported Maryland CFS ${label} CSV header shape`);
+  }
+  return Object.fromEntries(entries) as Record<TColumns[number], number>;
 }
 
 function rowObjectFromCells<TColumns extends readonly string[]>(
@@ -346,7 +375,10 @@ function parseRowsForColumns<TColumns extends readonly string[]>(input: {
     throw new Error(`Missing Maryland CFS ${input.label} CSV header row`);
   }
   const indexes = indexesForColumns(buildHeader(headerCells), input.columns, input.label);
-  return rows.slice(1).map((cells) => rowObjectFromCells(cells, input.columns, indexes));
+  return rows.slice(1).map((cells, index) => {
+    requireWidth(cells, headerCells.length, index + 1);
+    return rowObjectFromCells(cells, input.columns, indexes);
+  });
 }
 
 export function parseMarylandCfsContributionCsvRows(csv: string): MarylandCfsContributionRow[] {
@@ -379,14 +411,28 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
   label: string;
   predicate?: (row: MarylandCfsRowForColumns<TColumns>) => boolean;
   maxRows?: number;
+  encoding?: MarylandCfsReadEncoding;
 }): Promise<MarylandCfsRowForColumns<TColumns>[]> {
   const maxRows = normalizePositiveInteger(input.maxRows, "maxRows");
+  const encoding = input.encoding ?? "utf8";
+  if (encoding !== "utf8" && encoding !== "windows-1252")
+    throw new Error("Invalid Maryland CFS read encoding");
   const source = createReadStream(input.filePath);
-  const decoder = new StringDecoder("utf8");
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  function decode(bytes?: Buffer): string {
+    if (encoding === "windows-1252") return bytes ? westernBytes(bytes) : "";
+    try {
+      return bytes ? decoder.decode(bytes, { stream: true }) : decoder.decode();
+    } catch {
+      throw new Error("Maryland CFS CSV has invalid UTF-8 bytes");
+    }
+  }
 
   return await new Promise((resolve, reject) => {
     const rows: MarylandCfsRowForColumns<TColumns>[] = [];
     let indexes: Record<TColumns[number], number> | null = null;
+    let headerWidth = 0;
+    let dataOrdinal = 0;
     let row: string[] = [];
     let field = "";
     let inQuotes = false;
@@ -417,8 +463,10 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
       }
       if (!indexes) {
         indexes = indexesForColumns(buildHeader(cells), input.columns, input.label);
+        headerWidth = cells.length;
         return;
       }
+      requireWidth(cells, headerWidth, ++dataOrdinal);
       if (maxRows !== undefined && rows.length >= maxRows) {
         return;
       }
@@ -494,7 +542,7 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
       }
       try {
         const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-        processText(decoder.write(buffer));
+        processText(decode(buffer));
       } catch (error) {
         rejectOnce(error as Error);
         source.destroy(error as Error);
@@ -506,7 +554,7 @@ async function readMarylandCfsRows<TColumns extends readonly string[]>(input: {
         return;
       }
       try {
-        processText(decoder.end(), true);
+        processText(decode(), true);
         if (inQuotes) {
           rejectOnce(new Error("Maryland CFS CSV has an unterminated quoted field"));
           return;
@@ -532,6 +580,7 @@ export async function readMarylandCfsContributionRows(input: {
   filePath: string;
   predicate?: MarylandCfsContributionRowPredicate;
   maxRows?: number;
+  encoding?: MarylandCfsReadEncoding;
 }): Promise<MarylandCfsContributionRow[]> {
   return await readMarylandCfsRows({
     filePath: input.filePath,
@@ -539,6 +588,7 @@ export async function readMarylandCfsContributionRows(input: {
     label: "contribution",
     predicate: input.predicate,
     maxRows: input.maxRows,
+    encoding: input.encoding,
   });
 }
 
@@ -546,6 +596,7 @@ export async function readMarylandCfsExpenditureRows(input: {
   filePath: string;
   predicate?: MarylandCfsExpenditureRowPredicate;
   maxRows?: number;
+  encoding?: MarylandCfsReadEncoding;
 }): Promise<MarylandCfsExpenditureRow[]> {
   return await readMarylandCfsRows({
     filePath: input.filePath,
@@ -553,6 +604,7 @@ export async function readMarylandCfsExpenditureRows(input: {
     label: "expenditure",
     predicate: input.predicate,
     maxRows: input.maxRows,
+    encoding: input.encoding,
   });
 }
 
@@ -560,6 +612,7 @@ export async function readMarylandCfsCommitteeRows(input: {
   filePath: string;
   predicate?: MarylandCfsCommitteeRowPredicate;
   maxRows?: number;
+  encoding?: MarylandCfsReadEncoding;
 }): Promise<MarylandCfsCommitteeRow[]> {
   return await readMarylandCfsRows({
     filePath: input.filePath,
@@ -567,5 +620,6 @@ export async function readMarylandCfsCommitteeRows(input: {
     label: "committee",
     predicate: input.predicate,
     maxRows: input.maxRows,
+    encoding: input.encoding,
   });
 }

@@ -63,3 +63,30 @@ Primary sources: [public downloads](https://campaignfinance.maryland.gov/public/
 
 No Maryland money, migration, card proof or PR has been completed at this first
 preservation step. Existing direct totals are not newly certified by this plan.
+
+## Observed native protocol and parser proof
+
+The actual current-cycle download handler sends lowercase fields with
+`filingYear: "0"`: `TCOC` for receipts, `TEXC` for expenses and `TCMC` for
+registrations. `TCON`/`TEXP` with an actual filing year are separate report-year
+exports. The live POST-null filing-cycle lookup names the default 2023–2026
+cycle; its source ID must remain dynamic. The active-committee download is not
+an all-status registry universe.
+
+One exact public Moore account search returned one physical/declared result.
+Its current profile returned all seven declared parent reports, ending August18,
+with six amended parents and complete child-edition arrays. Financial controls
+were absent from the inventory. Source registration lists 2026/2022, but a
+concatenated election label incorrectly says November8/2026; that label cannot
+replace the official November3 canonical date. Legal-name/ballot-name linkage
+and current report controls remain explicit prerequisites, not fuzzy aliases.
+
+Strict parser replay of the untouched 32,382,403-byte report-year expense export
+rejects logical row2319 (65 fields, expected37). Independent inspection finds
+75 malformed logical records and22 valid multiline records. Width checks run
+after the published quote grammar and before projection or predicates; bad rows
+cannot be skipped into a complete ledger. Default UTF-8 decoding is fatal and
+Windows-1252 is an explicit byte-codepage selection, never an automatic fallback.
+All101 Maryland tests and backend typecheck pass after these two small steps.
+The current-cycle client and complete native source acquisition are next; no
+financial acceptance follows from the parser or seven-report inventory.
