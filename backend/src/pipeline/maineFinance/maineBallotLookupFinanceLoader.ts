@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isMaineCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
+  buildStateFinanceSummaryRequests,
   officeInputFromElectionRow,
   candidateElectionKey,
   firstNonEmptySourceUrl,
@@ -22,7 +23,7 @@ const GENERIC_MAINE_CFIS_SOURCE_URL = "https://mainecampaignfinance.com/";
 const MAPLIGHT_SOURCE_URL = "https://www.mainecampaignfinancedisclosure.com/public";
 
 type MarkerRow = {
-  candidate_id: string; election_id: string; election_year: number;
+  candidate_id: string; election_id: string; election_year: number; committee_id: string | null;
   component: "committee_donors" | "independent_expenditures";
   source_calendar_year: number;
   period_end: string; observed_at: string; published_source_times: unknown;
@@ -76,8 +77,24 @@ function outsideNote(year: number, rows: readonly MarkerRow[]): string {
 function appendNote(existing: string | null | undefined, note: string): string {
   return existing ? `${existing} ${note}` : note;
 }
-function requestedKeys(summaries: Map<string, BallotLookupFinanceSummary>) {
-  return [...summaries.keys()].map(key => { const [candidate_id, election_id] = key.split("\u0000"); return { candidate_id, election_id }; });
+function sourceOnlySummary(row: MarkerRow): BallotLookupFinanceSummary {
+  return {
+    source: "MAINE_CFIS",
+    cycle: Number(row.election_year),
+    fec_candidate_id: null,
+    controlled_committee_id: row.committee_id ?? null,
+    last_synced_at: row.observed_at,
+    direct_campaign: {
+      total_raised: null, total_spent: null, cash_on_hand: null, debts_owed: null,
+      top_occupations: [], top_employers: [], top_industries: [], contribution_size_buckets: [],
+    },
+    outside_spending: {
+      support_total: null, oppose_total: null,
+      top_supporting_groups: [], top_opposing_groups: [],
+      top_supporting_industries: [], top_opposing_industries: [],
+    },
+    backing_summary: { top_direct_donor_occupations: [], top_outside_supporting_industries: [] },
+  };
 }
 function pacInterests(rows: readonly DonorRow[]): Map<string, BallotLookupFinancePacInterest[]> {
   const positions = new Map<string, Map<string, { row: DonorRow; cents: number; fingerprint: string }>>();
@@ -174,21 +191,41 @@ export async function loadMaineCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "me_candidate_finance_outside_group_breakdowns",
     },
   });
-  if (!summaries.size) return summaries;
-  const selected = requestedKeys(summaries);
+  if (!isMaineCampaignFinanceEnabled()) return summaries;
+  const selected = buildStateFinanceSummaryRequests("ME", candidateRows, electionRows,
+    row => isMaineFinanceEligibleOffice(officeInputFromElectionRow(row)));
+  if (!selected.length) return summaries;
   const markers = await db.query<MarkerRow>(`
     WITH selected AS (
       SELECT candidate_id::uuid AS candidate_id, election_id::uuid AS election_id
       FROM jsonb_to_recordset($1::jsonb) AS x(candidate_id text, election_id text)
     ) SELECT DISTINCT selected.candidate_id::text AS candidate_id, selected.election_id::text AS election_id,
-      marker.election_year, marker.component, marker.source_calendar_year, marker.period_end::text AS period_end,
+      link.committee_id, marker.election_year, marker.component, marker.source_calendar_year, marker.period_end::text AS period_end,
       marker.observed_at::text AS observed_at, marker.published_source_times
     FROM selected JOIN public.me_candidate_finance_links link
       ON link.candidate_id = selected.candidate_id AND link.election_id = selected.election_id AND link.link_status = 'active'
     JOIN public.me_candidate_finance_source_markers marker
       ON marker.link_id = link.id AND marker.election_year = link.election_year
     WHERE marker.component IN ('committee_donors', 'independent_expenditures') AND marker.source_calendar_year = link.election_year`, [JSON.stringify(selected)]);
-  const scoped = markers.rows.filter(row => summaries.get(candidateElectionKey(row.candidate_id, row.election_id))?.cycle === Number(row.election_year) && Number(row.source_calendar_year) === Number(row.election_year));
+  const selectedKeys = new Set(selected.map(row => candidateElectionKey(row.candidate_id, row.election_id)));
+  const scoped = markers.rows.filter(row => {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const summary = summaries.get(key);
+    return selectedKeys.has(key) && (!summary || summary.cycle === Number(row.election_year))
+      && Number(row.source_calendar_year) === Number(row.election_year);
+  });
+  const sourceOnlyKeys = new Set<string>();
+  for (const row of scoped) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    if (!summaries.has(key)) {
+      summaries.set(key, sourceOnlySummary(row));
+      sourceOnlyKeys.add(key);
+    } else if (sourceOnlyKeys.has(key)) {
+      // The card is only as fresh as its oldest retained source component.
+      const summary = summaries.get(key)!;
+      if (Date.parse(row.observed_at) < Date.parse(summary.last_synced_at)) summary.last_synced_at = row.observed_at;
+    }
+  }
   const pacKeys = new Set<string>(), outsideKeys = new Set<string>();
   for (const row of scoped) {
     const key = candidateElectionKey(row.candidate_id, row.election_id), summary = summaries.get(key)!;

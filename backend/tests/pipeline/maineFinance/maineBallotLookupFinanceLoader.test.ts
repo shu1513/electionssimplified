@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { loadMaineCandidateFinanceSummariesByCandidateElection } from "../../../src/pipeline/maineFinance/maineBallotLookupFinanceLoader.js";
 import { runStateFinanceLoaderCharacterization } from "../../helpers/stateFinanceLoaderCharacterization.js";
+import { hasFinanceContent } from "../../../../packages/api-client/src/finance.js";
 import { migrationTableColumns } from "../../helpers/migrationTableColumns.js";
 
 afterEach(() => {
@@ -43,12 +44,12 @@ function allocation(overrides: Record<string, unknown> = {}) {
     payer_id: sourceId("p"), payer_name: "Example Reported Payer", support_oppose: "support", transaction_date: "2026-09-29",
     amount: "50.00", whole_amount: "200.00", source_url: "https://www.mainecampaignfinancedisclosure.com/public", ...overrides };
 }
-function database(options: { markers?: Record<string, unknown>[]; donors?: Record<string, unknown>[]; allocations?: Record<string, unknown>[]; legacy?: Record<string, unknown>[]; summary?: Record<string, unknown> } = {}) {
+function database(options: { markers?: Record<string, unknown>[]; donors?: Record<string, unknown>[]; allocations?: Record<string, unknown>[]; legacy?: Record<string, unknown>[]; summary?: Record<string, unknown> | null } = {}) {
   return { query: vi.fn(async (sql: string) => {
     if (sql.includes("me_candidate_finance_pac_donors")) return { rows: options.donors ?? [] };
     if (sql.includes("me_candidate_finance_maplight_allocations")) return { rows: options.allocations ?? [] };
     if (sql.includes("me_candidate_finance_source_markers")) return { rows: options.markers ?? [] };
-    if (sql.includes("me_candidate_finance_summaries")) return { rows: [{ candidate_id: CANDIDATE, election_id: ELECTION, election_year: 2026,
+    if (sql.includes("me_candidate_finance_summaries")) return { rows: options.summary === null ? [] : [{ candidate_id: CANDIDATE, election_id: ELECTION, election_year: 2026,
       committee_id: "LEGACY_RECEIVER", total_receipts: "4000", direct_contribution_total: "3500", total_disbursements: "1000",
       cash_on_hand: "200", outside_support_total: "0", outside_oppose_total: "125", source_url: "https://mainecampaignfinance.com/",
       last_synced_at: "2026-09-22T00:00:00Z", ...options.summary }] };
@@ -64,6 +65,39 @@ async function load(options: Parameters<typeof database>[0] = {}) {
 }
 
 describe("Maine published MapLight reader overlay", () => {
+  it("publishes donor-only evidence with unknown direct totals and its own observation date", async () => {
+    const { summary } = await load({ summary: null, markers: [marker("committee_donors")], donors: [donor({ amount: "6000.00" })] });
+    expect(summary).toMatchObject({
+      source: "MAINE_CFIS", cycle: 2026, last_synced_at: "2026-10-12T20:00:00Z",
+      direct_campaign: { total_raised: null, total_spent: null, cash_on_hand: null, debts_owed: null,
+        pac_money_by_interest: [{ amount: 6000 }] },
+      outside_spending: { support_total: null, oppose_total: null },
+    });
+    expect(hasFinanceContent(summary)).toBe(true);
+  });
+  it("publishes outside-only evidence without requiring legacy cash totals", async () => {
+    const { summary } = await load({ summary: null, markers: [marker("independent_expenditures")], allocations: [allocation({ amount: "6000.00", whole_amount: "6000.00" })] });
+    expect(summary?.direct_campaign.total_raised).toBeNull();
+    expect(summary?.outside_spending).toMatchObject({ support_total: null, oppose_total: null, top_supporting_groups: [{ amount: 6000 }] });
+    expect(hasFinanceContent(summary)).toBe(true);
+  });
+  it("loads a source-only candidate alongside a candidate with a legacy summary", async () => {
+    vi.stubEnv("MAINE_CAMPAIGN_FINANCE_ENABLED", "true");
+    const other = "33333333-3333-4333-8333-333333333333";
+    const db = database({ markers: [{ ...marker("committee_donors"), candidate_id: other }], donors: [donor({ candidate_id: other, amount: "6000.00" })] });
+    const results = await loadMaineCandidateFinanceSummariesByCandidateElection(db, [...candidates, { candidate_id: other, election_id: ELECTION }], elections);
+    expect(results.get(key)?.direct_campaign.total_raised).toBe(3500);
+    expect(results.get(key)?.last_synced_at).toBe("2026-09-22T00:00:00Z");
+    expect(results.get(`${other}\u0000${ELECTION}`)?.direct_campaign.pac_money_by_interest?.[0].amount).toBe(6000);
+  });
+  it("does not manufacture source-only cards without matching calendar evidence", async () => {
+    expect((await load({ summary: null })).summary).toBeUndefined();
+    expect((await load({ summary: null, markers: [{ ...marker("committee_donors"), source_calendar_year: 2025 }] })).summary).toBeUndefined();
+  });
+  it("uses the oldest component observation only for a new source-only card", async () => {
+    const { summary } = await load({ summary: null, markers: [marker("committee_donors"), { ...marker("independent_expenditures"), observed_at: "2026-10-10T20:00:00Z" }], donors: [donor({ amount: "6000.00" })] });
+    expect(summary?.last_synced_at).toBe("2026-10-10T20:00:00Z");
+  });
   it("leaves legacy direct scalars, timestamp, outside values and groups untouched without a marker", async () => {
     const legacy = { candidate_id: CANDIDATE, election_id: ELECTION, committee_id: "LEGACY-PAYER", committee_name: "Existing Payer", support_oppose: "support", amount: "900", source_url: null };
     const { summary, db } = await load({ legacy: [legacy] });
