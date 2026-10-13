@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { captureMarylandPublicContributionPost } from "../../../src/pipeline/marylandFinance/marylandCurrentCycleExportClient.js";
 import {
   buildMarylandPublicContributionRequest,
   decodeMarylandPublicContributionPage,
@@ -24,6 +25,7 @@ afterEach(async () => {
 function row(id = 1, overrides: Record<string, unknown> = {}) {
   return {
     filerRegistrationGuid: OWNER,
+    electionCycleId: 12023,
     transactionGuid: `${String(id).padStart(8, "0")}-1111-4111-8111-111111111111`,
     transactionId: id,
     transactionVersionID: 1,
@@ -93,9 +95,32 @@ describe("Maryland observed public receipt page", () => {
     {filerRegistrationGuid: REPORT}, {transactionGuid: ""}, {reportGuid: ""},
     {transactionId: "1"}, {transactionVersionID: 0}, {reportId: null}, {reportVersionId: 1.5},
     {isReturn: "false"}, {isActive: null}, {isAmended: 0}, {hasChild: undefined},
+    {transactionTypeCode: "TEXP"}, {electionCycleId: 12019}, {electionCycleId: "12023"},
   ])("rejects malformed identity/flags without dropping the row %j", override => {
     expect(() => decodeMarylandPublicContributionPage(envelope([row(1, override)]), buildMarylandPublicContributionRequest(scope)))
       .toThrow("invalid_contribution_page");
+  });
+  it("rejects rows outside an explicit published return filter", () => {
+    const request = buildMarylandPublicContributionRequest({...scope, isReturn: true});
+    expect(() => decodeMarylandPublicContributionPage(envelope([row()]), request)).toThrow("invalid_contribution_page");
+    expect(decodeMarylandPublicContributionPage(envelope([row(1, {isReturn: true})]), request).rows).toHaveLength(1);
+  });
+  it("runtime-closes the raw wrapper before any fetch or capture", async () => {
+    const request = buildMarylandPublicContributionRequest(scope);
+    const fetchImpl = vi.fn<typeof fetch>();
+    for (const mutation of [{...request, privateFilter: "private input"}, {...request, sortType: "asc"}]) {
+      expect(() => captureMarylandPublicContributionPost(mutation as never, {outputPath: "unused", fetchImpl}))
+        .toThrow("invalid_request");
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+    const mutable = {...request};
+    fetchImpl.mockResolvedValue(new Response("source"));
+    const pending = captureMarylandPublicContributionPost(mutable, {outputPath: await outputPath(), fetchImpl});
+    mutable.filerRegistrationGuid = REPORT;
+    const captured = await pending;
+    expect(captured.requestBody.filerRegistrationGuid).toBe(OWNER);
+    expect(Object.isFrozen(captured.requestBody)).toBe(true);
+    expect(JSON.parse(fetchImpl.mock.calls[0]?.[1]?.body as string).filerRegistrationGuid).toBe(OWNER);
   });
   it("retains distinct equal gifts, inactive records and separate editions without financial selection", () => {
     const rows = [row(), row(2), row(1, {transactionVersionID: 2, reportVersionId: 2,

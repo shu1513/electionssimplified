@@ -169,3 +169,9 @@ qualification comes from replay. All 192 Maryland tests/backend types pass.
 The separate published receipt popup makes unconditional child-return requests,
 so false hasChild cannot prove no returns. Grid/child overlap, amendments and
 net monetary roles remain gates before the complete census can become money.
+
+Independent page review tightened runtime request closure and detached scope
+before any await. Responses must match TCON, the exact observed integer cycle
+and any explicit return selector; source filters are not silently ignored.
+All 197 Maryland tests and backend types pass after these narrow fixes, and
+the untouched original still replays all 100 rows with matching SHA/length.

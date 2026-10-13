@@ -79,14 +79,17 @@ export function decodeMarylandPublicContributionPage(
     if (
       !record(row) || typeof row.filerRegistrationGuid !== "string" ||
       row.filerRegistrationGuid.toLowerCase() !== request.filerRegistrationGuid.toLowerCase() ||
+      !Number.isSafeInteger(row.electionCycleId) || String(row.electionCycleId) !== request.electionCycle ||
       typeof row.transactionGuid !== "string" || !GUID.test(row.transactionGuid) ||
       typeof row.reportGuid !== "string" || !GUID.test(row.reportGuid) ||
       !Number.isSafeInteger(row.transactionId) || (row.transactionId as number) < 1 ||
       !Number.isSafeInteger(row.transactionVersionID) || (row.transactionVersionID as number) < 1 ||
       !Number.isSafeInteger(row.reportId) || (row.reportId as number) < 1 ||
       !Number.isSafeInteger(row.reportVersionId) || (row.reportVersionId as number) < 1 ||
+      row.transactionTypeCode !== "TCON" ||
       typeof row.isReturn !== "boolean" || typeof row.isActive !== "boolean" ||
-      typeof row.isAmended !== "boolean" || typeof row.hasChild !== "boolean"
+      typeof row.isAmended !== "boolean" || typeof row.hasChild !== "boolean" ||
+      (request.isReturn !== null && row.isReturn !== request.isReturn)
     ) return fail();
     // Keep distinct equal gifts and editions. Never deduplicate a repeated
     // occurrence into a claimed complete collection.
