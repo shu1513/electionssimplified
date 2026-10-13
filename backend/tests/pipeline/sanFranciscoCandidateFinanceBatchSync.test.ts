@@ -79,9 +79,11 @@ beforeEach(() => {
   vi.mocked(checkSanFranciscoSourceFreshness)
     .mockReset()
     .mockResolvedValue(FRESHNESS);
-  vi.mocked(syncSanFranciscoCandidateFinance).mockReset().mockResolvedValue({
-    linkWritten: true,
-  } as never);
+  vi.mocked(syncSanFranciscoCandidateFinance)
+    .mockReset()
+    .mockResolvedValue({
+      linkWritten: true,
+    } as never);
   vi.mocked(getSanFranciscoContestManifest)
     .mockReset()
     .mockResolvedValue(MANIFEST as never);
@@ -100,6 +102,9 @@ describe("syncDueSanFranciscoCandidateFinance", () => {
       reconciliationDifferenceCents: 25500000,
       form460Filings: 3,
       reportedThrough: "2026-09-19",
+      committeeCashStatus: "unavailable" as const,
+      committeeCashPositionCount: 0,
+      committeeCashTotalCents: null,
     };
     vi.mocked(syncSanFranciscoCandidateFinance).mockResolvedValue(diagnostics);
     const db = fakeDb({ dueRows: [dueRow("1")] });
@@ -108,12 +113,14 @@ describe("syncDueSanFranciscoCandidateFinance", () => {
       now: NOW,
       dryRun: true,
     });
-    expect(result.results).toEqual([{
-      candidateId: "cand-1",
-      electionId: "elec-bos04",
-      ok: true,
-      result: diagnostics,
-    }]);
+    expect(result.results).toEqual([
+      {
+        candidateId: "cand-1",
+        electionId: "elec-bos04",
+        ok: true,
+        result: diagnostics,
+      },
+    ]);
     expect(result.syncedCandidateCount).toBe(1);
   });
 

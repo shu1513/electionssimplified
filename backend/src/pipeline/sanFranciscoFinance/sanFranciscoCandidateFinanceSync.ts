@@ -1,3 +1,4 @@
+import { getSanFranciscoCommitteePublicFunds } from "./sanFranciscoCommitteePublicFundsClient.js";
 // Phase 6 per-candidate sync: manifest fetch, DataSF fetches, aggregation,
 // deterministic + cached-manual industry classification (NO classifier is
 // ever injected — SF finance sync performs zero AI calls; unresolved labels
@@ -45,6 +46,8 @@ import {
 } from "./sanFranciscoDirectContributionAggregator.js";
 import { aggregateSanFranciscoBalances } from "./sanFranciscoBalanceAggregator.js";
 import { aggregateSanFranciscoHeadlineTotals } from "./sanFranciscoHeadlineTotals.js";
+import { acquireSanFranciscoCommitteeCash } from "./sanFranciscoCommitteeCashAcquisition.js";
+import type { SanFranciscoQualifiedCommitteeCash } from "./sanFranciscoCommitteeCashQualification.js";
 import {
   matchSanFranciscoPublicFunds,
   sanFranciscoPublicFundsDistrictForContest,
@@ -163,6 +166,10 @@ export type SanFranciscoCandidateFinanceSyncResult = {
   reconciliationDifferenceCents: number;
   form460Filings: number;
   reportedThrough: string | null;
+  committeeCashStatus: "qualified" | "unavailable";
+  committeeCashPositionCount: number;
+  committeeCashTotalCents: number | null;
+  committeeCashError?: string;
 };
 
 export async function syncSanFranciscoCandidateFinance(input: {
@@ -308,31 +315,76 @@ export async function syncSanFranciscoCandidateFinance(input: {
           },
           input.openDataClientOptions,
         );
-  const direct = aggregateSanFranciscoDirectContributions({
+  let direct = aggregateSanFranciscoDirectContributions({
     rows: transactionRows,
     publicFundsApprovalCents,
   });
 
-  // Donor money only (the read path prefers this for total_raised): the
-  // manifest funds figure includes public-financing disbursements, so
-  // subtracting the matched approvals leaves contributions.
-  const directContributionCents =
-    manifestCandidate.fundsCents - (publicFundsCents ?? 0);
-  if (directContributionCents < 0)
-    throw new Error(
-      `San Francisco public funds exceed manifest funds for committee ${input.fppcId}: ${publicFundsCents} > ${manifestCandidate.fundsCents}`,
-    );
   const line2Cents = summaryRows.reduce(
     (sum, row) => sum + (row.line2Cents ?? 0),
     0,
   );
+  const contributionReconstruction = () =>
+    direct.itemizedCents +
+    direct.unitemizedCents +
+    direct.unitemizedNonmonetaryCents +
+    line2Cents;
+  // An unmatched city disbursement can itself make the donor reconstruction
+  // equal manifest funds. Equality is not proof that public financing is zero.
+  const hasUnqualifiedCityLate = transactionRows.some(
+    (row) =>
+      row.formType === "F497P1" &&
+      row.memoCode !== true &&
+      (row.contributorLastName ?? "").toUpperCase().includes("CITY AND COUN"),
+  );
+  if (
+    publicFundsStatus === "none" &&
+    (manifestCandidate.fundsCents !== contributionReconstruction() ||
+      hasUnqualifiedCityLate)
+  ) {
+    // The public approvals name can differ from the manifest person (actual Manny/Emanuel).
+    // The official exact account publication binds public funds without guessing a nickname.
+    const publication = await getSanFranciscoCommitteePublicFunds(
+      {
+        electionDate: input.electionDate,
+        contestCode: input.contestCode,
+        candidate: manifestCandidate,
+      },
+      input.manifestClientOptions,
+    );
+    const qualifiedDirect = aggregateSanFranciscoDirectContributions({
+      rows: transactionRows,
+      publicFundsApprovalCents: [publication.publicFundsCents],
+    });
+    const qualifiedContributions =
+      qualifiedDirect.itemizedCents +
+      qualifiedDirect.unitemizedCents +
+      qualifiedDirect.unitemizedNonmonetaryCents +
+      line2Cents;
+    if (
+      publication.contributionCents !== qualifiedContributions ||
+      publication.expenditureCents !== manifestCandidate.expensesCents ||
+      manifestCandidate.fundsCents !==
+        publication.contributionCents + publication.publicFundsCents
+    )
+      throw new Error(
+        "San Francisco exact-account public-funds publication does not reconcile with source contributions and manifest",
+      );
+    direct = qualifiedDirect;
+    publicFundsStatus = "matched";
+    publicFundsCents = publication.publicFundsCents;
+    publicFundsApprovalCents = [publication.publicFundsCents];
+  }
+  // Donor money excludes exact source-qualified public funding; never infer a name alias.
+  const directContributionCents =
+    manifestCandidate.fundsCents - (publicFundsCents ?? 0);
+  if (directContributionCents < 0)
+    throw new Error(
+      `San Francisco public funds exceed manifest funds for committee ${input.fppcId}`,
+    );
   const reconciliationDifferenceCents =
     manifestCandidate.fundsCents -
-    (direct.itemizedCents +
-      direct.unitemizedCents +
-      direct.unitemizedNonmonetaryCents +
-      line2Cents +
-      (publicFundsCents ?? 0));
+    (contributionReconstruction() + (publicFundsCents ?? 0));
   const reportedThrough = balances.latestFilingPeriodEnd?.slice(0, 10) ?? null;
 
   // --- Previous-vs-new anomaly bounds. ---
@@ -395,7 +447,10 @@ export async function syncSanFranciscoCandidateFinance(input: {
   for (const row of employerRows)
     mergeFinanceLabelClassification(
       classifications,
-      classifyFinanceLabel({ rawLabel: row.categoryName, labelType: "employer" }),
+      classifyFinanceLabel({
+        rawLabel: row.categoryName,
+        labelType: "employer",
+      }),
     );
   // Amounts stay integer cents through the unit-agnostic service; the AI
   // threshold is irrelevant with no classifier.
@@ -436,9 +491,7 @@ export async function syncSanFranciscoCandidateFinance(input: {
       contributorCount: row.contributorCount,
     })),
     ...[...industryCents]
-      .sort(
-        (a, b) => b[1].cents - a[1].cents || a[0].localeCompare(b[0]),
-      )
+      .sort((a, b) => b[1].cents - a[1].cents || a[0].localeCompare(b[0]))
       .map(([categoryName, value]) => ({
         categoryType: "industry" as const,
         categoryName,
@@ -446,6 +499,24 @@ export async function syncSanFranciscoCandidateFinance(input: {
         contributorCount: value.count,
       })),
   ];
+
+  // Named cash qualification is independent of the established headline/IE
+  // path. Unavailable or ambiguous named evidence preserves prior positions.
+  let committeeCash: SanFranciscoQualifiedCommitteeCash | undefined;
+  let committeeCashError: string | undefined;
+  try {
+    committeeCash = await acquireSanFranciscoCommitteeCash({
+      fppcId: input.fppcId,
+      electionYear: input.electionYear,
+      expectedSummaryRows: summaryRows,
+      options: input.openDataClientOptions,
+    });
+  } catch (error) {
+    committeeCashError =
+      error instanceof Error
+        ? error.message
+        : "SF committee cash acquisition failed";
+  }
 
   if (!input.dryRun)
     await replaceSanFranciscoCandidateFinanceSnapshot({
@@ -489,6 +560,15 @@ export async function syncSanFranciscoCandidateFinance(input: {
         sourceUrl: group.sourceUrl,
       })),
       classifications: [...classifications.values()],
+      ...(committeeCash
+        ? {
+            committeeCash: {
+              positions: committeeCash.positions,
+              reportedThrough: committeeCash.windowEnd,
+              sourceUrl: "https://data.sfgov.org/d/pitq-e56w",
+            },
+          }
+        : {}),
       syncedAt: now,
     });
 
@@ -500,6 +580,10 @@ export async function syncSanFranciscoCandidateFinance(input: {
     directContributionCents,
     publicFundsStatus,
     publicFundsCents,
+    committeeCashStatus: committeeCash ? "qualified" : "unavailable",
+    committeeCashPositionCount: committeeCash?.positions.length ?? 0,
+    committeeCashTotalCents: committeeCash?.totalAmountCents ?? null,
+    ...(committeeCashError ? { committeeCashError } : {}),
     reconciliationDifferenceCents,
     form460Filings: balances.form460Filings,
     reportedThrough,

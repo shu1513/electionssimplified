@@ -110,7 +110,10 @@ function optionalId(row: Record<string, unknown>, key: string): string | null {
       : typeof value === "number"
         ? String(value)
         : "";
-  return /^\d{4,12}$/.test(result) ? result : null;
+  if (value === undefined || value === null || value === "") return null;
+  if (!/^\d{4,12}$/.test(result))
+    throw new Error(`San Francisco dashboard manifest has an invalid ${key}`);
+  return result;
 }
 
 // Manifest money values are decimal dollars written by SFEC's own pipeline.
@@ -126,7 +129,12 @@ function requiredCents(
     throw new Error(
       `San Francisco dashboard manifest ${context} has a non-money ${key}: ${String(value)}`,
     );
-  return Math.round(value * 100);
+  const cents = Math.round(value * 100);
+  if (!Number.isSafeInteger(cents) || Math.abs(value * 100 - cents) > 1e-6)
+    throw new Error(
+      `San Francisco dashboard manifest ${context} has a non-money ${key}`,
+    );
+  return cents;
 }
 
 export function parseSanFranciscoContestManifest(input: {
@@ -154,13 +162,19 @@ export function parseSanFranciscoContestManifest(input: {
     throw new Error(
       "San Francisco dashboard manifest frontmatter is not a mapping",
     );
-  const title = typeof frontmatter.title === "string" ? frontmatter.title.trim() : "";
+  if (frontmatter.election !== input.electionDate)
+    throw new Error(
+      "San Francisco dashboard manifest election does not match request",
+    );
+  const title =
+    typeof frontmatter.title === "string" ? frontmatter.title.trim() : "";
   if (!title)
     throw new Error("San Francisco dashboard manifest is missing title");
-  if (!Array.isArray(frontmatter.candidates) || frontmatter.candidates.length === 0)
-    throw new Error(
-      "San Francisco dashboard manifest contains no candidates",
-    );
+  if (
+    !Array.isArray(frontmatter.candidates) ||
+    frontmatter.candidates.length === 0
+  )
+    throw new Error("San Francisco dashboard manifest contains no candidates");
   const candidates: SanFranciscoManifestCandidate[] = [];
   for (const raw of frontmatter.candidates) {
     if (!isPlainObject(raw))
@@ -180,12 +194,17 @@ export function parseSanFranciscoContestManifest(input: {
       committeeName: requiredString(raw, "committee_name", "candidate"),
       candidateName,
       fundsCents: requiredCents(raw, "funds", `candidate ${candidateName}`),
-      expensesCents: requiredCents(raw, "expenses", `candidate ${candidateName}`),
+      expensesCents: requiredCents(
+        raw,
+        "expenses",
+        `candidate ${candidateName}`,
+      ),
     });
   }
-  // ie_candidates is absent in contests without any outside spending.
+  // An absent/null field cannot distinguish no spending from an incomplete
+  // publication. Only an explicit list (including []) establishes this scope.
   const outsideRelations: SanFranciscoManifestOutsideRelation[] = [];
-  const ieCandidates = frontmatter.ie_candidates ?? [];
+  const ieCandidates = frontmatter.ie_candidates;
   if (!Array.isArray(ieCandidates))
     throw new Error(
       "San Francisco dashboard manifest ie_candidates is not a list",
@@ -195,7 +214,11 @@ export function parseSanFranciscoContestManifest(input: {
       throw new Error(
         "San Francisco dashboard manifest ie_candidates entry is not a mapping",
       );
-    const candidateName = requiredString(raw, "candidate_name", "ie_candidates");
+    const candidateName = requiredString(
+      raw,
+      "candidate_name",
+      "ie_candidates",
+    );
     const candidateFppcId = optionalId(raw, "filer_id");
     if (!Array.isArray(raw.committees))
       throw new Error(
@@ -206,8 +229,11 @@ export function parseSanFranciscoContestManifest(input: {
         throw new Error(
           "San Francisco dashboard manifest outside committee entry is not a mapping",
         );
-      const positionRaw = requiredString(committee, "position", "outside committee")
-        .toLowerCase();
+      const positionRaw = requiredString(
+        committee,
+        "position",
+        "outside committee",
+      ).toLowerCase();
       if (positionRaw !== "support" && positionRaw !== "oppose")
         throw new Error(
           `San Francisco dashboard manifest outside committee has unknown position: ${positionRaw}`,
@@ -221,8 +247,8 @@ export function parseSanFranciscoContestManifest(input: {
         candidateName,
         candidateFppcId,
         position: positionRaw,
-        // Some official entries carry no usable committee id; keep the row
-        // (the money is real) and let callers derive a synthetic identity.
+        // An absent committee id is supported; callers derive a synthetic
+        // reported-name identity. A malformed supplied id is rejected above.
         spenderFppcId: optionalId(committee, "filer_id"),
         spenderName,
         amountCents: requiredCents(

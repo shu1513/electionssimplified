@@ -17,6 +17,8 @@ export type SanFranciscoOpenDataClientOptions = {
   pageLimit?: number;
   maxPages?: number;
   retryCount?: number;
+  /** Qualified cash calls reject malformed physical elements rather than skip them. */
+  strictRows?: boolean;
 };
 
 export function defaultSanFranciscoOpenDataClientOptions(): SanFranciscoOpenDataClientOptions {
@@ -45,6 +47,21 @@ export function moneyStringToCents(value: unknown): number | null {
   const roundUp = Number(fractionText[2] ?? "0") >= 5 ? 1 : 0;
   if (!Number.isSafeInteger(whole)) return null;
   return sign * (whole * 100 + cents + roundUp);
+}
+
+export function exactSanFranciscoCashCents(value: unknown): number {
+  const text =
+    typeof value === "string"
+      ? value.trim()
+      : typeof value === "number"
+        ? String(value)
+        : "";
+  if (!/^-?\d+(?:\.\d{1,2})?$/.test(text))
+    throw new Error("SF qualified cash requires exact cents");
+  const cents = moneyStringToCents(text);
+  if (cents === null || !Number.isSafeInteger(cents))
+    throw new Error("SF qualified cash requires safe cents");
+  return cents;
 }
 
 function soqlString(value: string): string {
@@ -145,6 +162,16 @@ async function fetchRows(
       const payload: unknown = await response.json();
       if (!Array.isArray(payload))
         throw new Error("San Francisco Open Data response is not an array");
+      if (
+        options.strictRows &&
+        payload.some(
+          (row) =>
+            typeof row !== "object" || row === null || Array.isArray(row),
+        )
+      )
+        throw new Error(
+          "SF qualified cash response has a malformed physical row",
+        );
       // rawCount (pre-filter) is what pagination must compare against the
       // page limit: dropping a malformed element from a full page must not
       // end pagination early and silently lose the remaining pages.
@@ -187,7 +214,9 @@ async function fetchAllPages(
     throw new Error(`Invalid San Francisco Open Data maxPages: ${maxPages}`);
   const results: Record<string, unknown>[] = [];
   for (let page = 0; page < maxPages; page += 1) {
-    const url = new URL(`${SAN_FRANCISCO_OPEN_DATA_BASE_URL}/${datasetId}.json`);
+    const url = new URL(
+      `${SAN_FRANCISCO_OPEN_DATA_BASE_URL}/${datasetId}.json`,
+    );
     for (const [key, value] of Object.entries(params))
       url.searchParams.set(key, value);
     url.searchParams.set("$limit", String(pageLimit));
@@ -202,6 +231,10 @@ async function fetchAllPages(
 }
 
 export type SanFranciscoSummaryRow = {
+  filingActivityNid?: string;
+  fppcId?: string;
+  scheduleAItemizedCents?: number;
+  scheduleEItemizedCents?: number;
   filingNid: string;
   filingIdNumber: string;
   filingType: string;
@@ -253,7 +286,7 @@ export type SanFranciscoSummaryRow = {
  * so silent duplicates can never inflate a reconciliation.
  */
 export async function getSanFranciscoCommitteeSummaryRows(
-  input: { fppcId: string },
+  input: { fppcId: string; strictCommitteeCash?: boolean },
   options: SanFranciscoOpenDataClientOptions = {},
 ): Promise<SanFranciscoSummaryRow[]> {
   const fppcId = input.fppcId.trim();
@@ -262,10 +295,12 @@ export async function getSanFranciscoCommitteeSummaryRows(
   const rows = await fetchAllPages(
     SAN_FRANCISCO_SUMMARY_TOTALS_DATASET_ID,
     {
-      $where: `fppc_id=${soqlString(fppcId)}`,
+      $where:
+        `fppc_id=${soqlString(fppcId)}` +
+        (input.strictCommitteeCash ? " AND form_type='FPPC460'" : ""),
       $order: "start_date,filing_id_number,:id",
     },
-    options,
+    input.strictCommitteeCash ? { ...options, strictRows: true } : options,
   );
   const seenFilingNids = new Set<string>();
   const results: SanFranciscoSummaryRow[] = [];
@@ -280,7 +315,27 @@ export async function getSanFranciscoCommitteeSummaryRows(
         `San Francisco summary rows for committee ${fppcId} contain duplicate filing_nid ${filingNid}; the current-version-only source guarantee is broken`,
       );
     seenFilingNids.add(filingNid);
+    if (
+      input.strictCommitteeCash &&
+      (!stringValue(row, "filing_activity_nid") ||
+        stringValue(row, "fppc_id") !== fppcId)
+    )
+      throw new Error(
+        "SF qualified cash summary edition/receiver is unavailable",
+      );
     results.push({
+      ...(input.strictCommitteeCash
+        ? {
+            filingActivityNid: stringValue(row, "filing_activity_nid"),
+            fppcId,
+            scheduleAItemizedCents: exactSanFranciscoCashCents(
+              row["schedulea_line_1"],
+            ),
+            scheduleEItemizedCents: exactSanFranciscoCashCents(
+              row["schedulee_line_1"],
+            ),
+          }
+        : {}),
       filingNid,
       filingIdNumber: stringValue(row, "filing_id_number"),
       filingType: stringValue(row, "filing_type"),
@@ -337,6 +392,13 @@ export async function getSanFranciscoDatasetFreshness(
 }
 
 export type SanFranciscoFilingIndexRow = {
+  filingActivityNid?: string;
+  fppcId?: string;
+  periodStart?: string;
+  periodEnd?: string;
+  currentStatus?: string;
+  hasEfileContent?: boolean;
+  rejected?: boolean;
   filingNid: string;
   /** Raw filing_date timestamp string ("2024-08-01T00:00:00.000"). */
   filingDate: string | null;
@@ -353,7 +415,7 @@ export type SanFranciscoFilingIndexRow = {
  * check relies on.
  */
 export async function getSanFranciscoCommitteeCurrentForm460Filings(
-  input: { fppcId: string },
+  input: { fppcId: string; strictCommitteeCash?: boolean },
   options: SanFranciscoOpenDataClientOptions = {},
 ): Promise<SanFranciscoFilingIndexRow[]> {
   const fppcId = input.fppcId.trim();
@@ -362,25 +424,54 @@ export async function getSanFranciscoCommitteeCurrentForm460Filings(
   const rows = await fetchAllPages(
     SAN_FRANCISCO_FILINGS_DATASET_ID,
     {
-      $select: "filing_nid,filing_date",
+      $select: input.strictCommitteeCash
+        ? "filing_nid,filing_date,filing_activity_nid,fppc_id,start_date,end_date,current_status,has_efile_content,rejected"
+        : "filing_nid,filing_date",
       $where: [
         `fppc_id=${soqlString(fppcId)}`,
         `form_type='FPPC460'`,
         `current_status like 'Most Recent%'`,
-        `rejected=false`,
-        `has_efile_content=true`,
+        // Strict replacement must see paper/unknown/rejected current
+        // versions and refuse incomplete authority rather than hiding them.
+        ...(input.strictCommitteeCash
+          ? []
+          : [`rejected=false`, `has_efile_content=true`]),
       ].join(" AND "),
       $order: "filing_nid,:id",
     },
-    options,
+    input.strictCommitteeCash ? { ...options, strictRows: true } : options,
   );
   // Defensive dedupe: one chain should have exactly one Most Recent version,
   // but a duplicate here must not double-report a missing-coverage nid.
   const byNid = new Map<string, SanFranciscoFilingIndexRow>();
   for (const row of rows) {
     const filingNid = stringValue(row, "filing_nid");
+    if (
+      input.strictCommitteeCash &&
+      (!filingNid ||
+        byNid.has(filingNid) ||
+        !stringValue(row, "filing_activity_nid") ||
+        stringValue(row, "fppc_id") !== fppcId ||
+        row["has_efile_content"] !== true ||
+        row["rejected"] !== false ||
+        !stringValue(row, "current_status").startsWith("Most Recent"))
+    )
+      throw new Error(
+        "SF qualified cash current filing identity is unavailable or ambiguous",
+      );
     if (!filingNid || byNid.has(filingNid)) continue;
     byNid.set(filingNid, {
+      ...(input.strictCommitteeCash
+        ? {
+            filingActivityNid: stringValue(row, "filing_activity_nid"),
+            fppcId,
+            periodStart: stringValue(row, "start_date"),
+            periodEnd: stringValue(row, "end_date"),
+            currentStatus: stringValue(row, "current_status"),
+            hasEfileContent: true,
+            rejected: false,
+          }
+        : {}),
       filingNid,
       filingDate: stringValue(row, "filing_date") || null,
     });
@@ -587,6 +678,11 @@ export async function getSanFranciscoFilers(
 }
 
 export type SanFranciscoItemizedTransactionRow = {
+  elementNid?: string;
+  filingActivityNid?: string;
+  fppcId?: string;
+  reportedCommitteeId?: string | null;
+  transactionDescription?: string | null;
   filingNid: string;
   /** Filer-assigned id ("INC139"); unique within a filing, not globally. */
   transactionId: string | null;
@@ -665,6 +761,7 @@ export async function getSanFranciscoCommitteeItemizedTransactions(
      * undated rows inside one contest.
      */
     includeUndatedTransactions?: boolean;
+    strictCommitteeCash?: boolean;
   },
   options: SanFranciscoOpenDataClientOptions = {},
 ): Promise<SanFranciscoItemizedTransactionRow[]> {
@@ -692,26 +789,75 @@ export async function getSanFranciscoCommitteeItemizedTransactions(
   const conditions = [
     `fppc_id=${soqlString(fppcId)}`,
     `form_type in (${formTypes.map(soqlString).join(",")})`,
-    input.includeUndatedTransactions
-      ? `(transaction_date IS NULL OR (${dateConditions.join(" AND ")}))`
-      : dateConditions.join(" AND "),
+    ...(!input.strictCommitteeCash
+      ? [
+          input.includeUndatedTransactions
+            ? `(transaction_date IS NULL OR (${dateConditions.join(" AND ")}))`
+            : dateConditions.join(" AND "),
+        ]
+      : []),
   ];
   const rows = await fetchAllPages(
     SAN_FRANCISCO_TRANSACTIONS_DATASET_ID,
     {
-      $select: ITEMIZED_TRANSACTION_SELECT,
+      $select:
+        ITEMIZED_TRANSACTION_SELECT +
+        (input.strictCommitteeCash
+          ? ",element_nid,filing_activity_nid,fppc_id,committee_id,transaction_description"
+          : ""),
       $where: conditions.join(" AND "),
-      $order: "transaction_date,transaction_id,:id",
+      $order: input.strictCommitteeCash
+        ? "element_nid,:id"
+        : "transaction_date,transaction_id,:id",
     },
-    options,
+    input.strictCommitteeCash ? { ...options, strictRows: true } : options,
   );
   const results: SanFranciscoItemizedTransactionRow[] = [];
+  const seenElements = new Set<string>();
   for (const row of rows) {
     const filingNid = stringValue(row, "filing_nid");
     const formType = stringValue(row, "form_type");
-    const calculatedAmountCents = moneyStringToCents(row["calculated_amount"]);
+    const calculatedAmountCents = input.strictCommitteeCash
+      ? exactSanFranciscoCashCents(row["calculated_amount"])
+      : moneyStringToCents(row["calculated_amount"]);
+    if (input.strictCommitteeCash) {
+      const element = stringValue(row, "element_nid");
+      if (
+        !filingNid ||
+        !formTypes.includes(formType) ||
+        !element ||
+        seenElements.has(element) ||
+        !stringValue(row, "filing_activity_nid") ||
+        stringValue(row, "fppc_id") !== fppcId
+      )
+        throw new Error(
+          "SF qualified cash transaction identity is unavailable or ambiguous",
+        );
+      seenElements.add(element);
+    }
     if (!filingNid || !formType || calculatedAmountCents === null) continue;
     results.push({
+      ...(input.strictCommitteeCash
+        ? {
+            elementNid: stringValue(row, "element_nid"),
+            filingActivityNid: stringValue(row, "filing_activity_nid"),
+            fppcId,
+            reportedCommitteeId:
+              row["committee_id"] == null
+                ? null
+                : typeof row["committee_id"] === "string"
+                  ? row["committee_id"]
+                  : (() => {
+                      throw new Error(
+                        "SF qualified cash reported committee ID has unsupported source type",
+                      );
+                    })(),
+            transactionDescription: nullableString(
+              row,
+              "transaction_description",
+            ),
+          }
+        : {}),
       filingNid,
       transactionId: nullableString(row, "transaction_id"),
       formType,
@@ -741,4 +887,29 @@ export async function getSanFranciscoCommitteeItemizedTransactions(
     });
   }
   return results;
+}
+
+/**
+ * Full receiving-FPPC current-published financial scope. Strict mode does not
+ * filter dates: the qualifier must see offsetting outside-window facts and
+ * reject them, rather than accept a falsely matching aggregate control.
+ * The supplied window is still validated; legacy getter filtering is unchanged.
+ */
+export function getSanFranciscoCommitteeCashTransactions(
+  input: {
+    fppcId: string;
+    transactionDateFrom: string;
+    transactionDateTo: string;
+  },
+  options: SanFranciscoOpenDataClientOptions = {},
+): Promise<SanFranciscoItemizedTransactionRow[]> {
+  return getSanFranciscoCommitteeItemizedTransactions(
+    {
+      ...input,
+      formTypes: ["A", "E", "B1", "F497P1"],
+      includeUndatedTransactions: true,
+      strictCommitteeCash: true,
+    },
+    options,
+  );
 }

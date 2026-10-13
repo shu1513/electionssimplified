@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getSanFranciscoCandidateTargetedSpending,
+  getSanFranciscoCommitteeCashTransactions,
   getSanFranciscoCommitteeCurrentForm460Filings,
   getSanFranciscoCommitteeItemizedTransactions,
   getSanFranciscoCommitteeSummaryRows,
@@ -90,10 +91,7 @@ describe("getSanFranciscoCommitteeSummaryRows", () => {
       getSanFranciscoCommitteeSummaryRows(
         { fppcId: "1463099" },
         {
-          fetchImpl: jsonFetch([
-            row({}),
-            row({ filing_id_number: "101" }),
-          ]),
+          fetchImpl: jsonFetch([row({}), row({ filing_id_number: "101" })]),
         },
       ),
     ).rejects.toThrow(/duplicate filing_nid 1/);
@@ -118,9 +116,12 @@ describe("Open Data request retry", () => {
       const headers = new Headers(init?.headers);
       if (headers.get("connection") !== "close")
         return new Response(null, { status: 428 });
-      return new Response(requests.length === 1 ? '[{"filing_nid":"1"}]' : '[]', {
-        status: 200,
-      });
+      return new Response(
+        requests.length === 1 ? '[{"filing_nid":"1"}]' : "[]",
+        {
+          status: 200,
+        },
+      );
     };
     await getSanFranciscoCommitteeSummaryRows(
       { fppcId: "1463099" },
@@ -630,4 +631,217 @@ describe("getSanFranciscoPublicFundsApproved", () => {
       "election_date='2024-11-05T00:00:00.000' AND district='Mayor'",
     );
   });
+});
+
+describe("strict SF committee cash source fields", () => {
+  const sourceRow = () => ({
+    element_nid: "element1",
+    filing_nid: "chain",
+    filing_activity_nid: "edition",
+    fppc_id: "1483804",
+    form_type: "A",
+    transaction_date: "2026-03-01T00:00:00.000",
+    transaction_last_name: "Example Committee",
+    entity_code: "COM",
+    committee_id: "reported1",
+    calculated_amount: "500.0",
+    memo_code: false,
+    is_itemized: true,
+  });
+  const scope = {
+    fppcId: "1483804",
+    transactionDateFrom: "2025-01-01",
+    transactionDateTo: "2027-01-01",
+  };
+  it("retains raw reported ID spelling without treating it as legal identity", async () => {
+    const rows = await getSanFranciscoCommitteeCashTransactions(scope, {
+      fetchImpl: jsonFetch([{ ...sourceRow(), committee_id: " reported1 " }]),
+    });
+    expect(rows[0]!.reportedCommitteeId).toBe(" reported1 ");
+    await expect(
+      getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl: jsonFetch([{ ...sourceRow(), committee_id: {} }]),
+      }),
+    ).rejects.toThrow(/unsupported source type/);
+  });
+  it("retains actual element/current edition/reported committee fields and full schedule scope", async () => {
+    let requested = "";
+    const rows = await getSanFranciscoCommitteeCashTransactions(scope, {
+      fetchImpl: async (url) => {
+        requested = String(url);
+        return jsonFetch([sourceRow()])(url);
+      },
+    });
+    expect(rows[0]).toMatchObject({
+      elementNid: "element1",
+      filingActivityNid: "edition",
+      fppcId: "1483804",
+      reportedCommitteeId: "reported1",
+      calculatedAmountCents: 50000,
+    });
+    const query = new URL(requested).searchParams;
+    expect(query.get("$select")).toContain(
+      "element_nid,filing_activity_nid,fppc_id,committee_id",
+    );
+    expect(query.get("$where")).toContain("'A','E','B1','F497P1'");
+    expect(query.get("$order")).toBe("element_nid,:id");
+    expect(query.get("$where")).not.toContain("transaction_date");
+  });
+  it.each([
+    "element_nid",
+    "filing_activity_nid",
+    "fppc_id",
+    "calculated_amount",
+  ])("refuses missing %s rather than partial rows", async (key) => {
+    const r: Record<string, unknown> = sourceRow();
+    delete r[key];
+    await expect(
+      getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl: jsonFetch([r]),
+      }),
+    ).rejects.toThrow();
+  });
+  it.each(["1.001", "9007199254740992", "bad"])(
+    "refuses non-exact/unsafe money %s",
+    async (calculated_amount) => {
+      await expect(
+        getSanFranciscoCommitteeCashTransactions(scope, {
+          fetchImpl: jsonFetch([{ ...sourceRow(), calculated_amount }]),
+        }),
+      ).rejects.toThrow();
+    },
+  );
+  it("refuses duplicate elements and malformed physical rows", async () => {
+    await expect(
+      getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl: jsonFetch([sourceRow(), sourceRow()]),
+      }),
+    ).rejects.toThrow(/ambiguous/);
+    await expect(
+      getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl: jsonFetch([sourceRow(), null]),
+      }),
+    ).rejects.toThrow(/malformed physical/);
+  });
+  it("exhausts all pages and refuses caps", async () => {
+    let calls = 0;
+    const fetchImpl: typeof fetch = async () => {
+      const data = calls++ === 0 ? [sourceRow()] : [];
+      return new Response(JSON.stringify(data), { status: 200 });
+    };
+    expect(
+      await getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl,
+        pageLimit: 1,
+        maxPages: 2,
+      }),
+    ).toHaveLength(1);
+    expect(calls).toBe(2);
+    await expect(
+      getSanFranciscoCommitteeCashTransactions(scope, {
+        fetchImpl: jsonFetch([sourceRow()]),
+        pageLimit: 1,
+        maxPages: 1,
+      }),
+    ).rejects.toThrow(/exceeded/);
+  });
+  it("retains strict summary itemized controls and receiver/edition", async () => {
+    const s = {
+      filing_nid: "chain",
+      filing_activity_nid: "edition",
+      fppc_id: "1483804",
+      form_type: "FPPC460",
+      schedulea_line_1: "500.0",
+      schedulee_line_1: "20.0",
+    };
+    expect(
+      (
+        await getSanFranciscoCommitteeSummaryRows(
+          { fppcId: "1483804", strictCommitteeCash: true },
+          { fetchImpl: jsonFetch([s]) },
+        )
+      )[0],
+    ).toMatchObject({
+      filingActivityNid: "edition",
+      fppcId: "1483804",
+      scheduleAItemizedCents: 50000,
+      scheduleEItemizedCents: 2000,
+    });
+    await expect(
+      getSanFranciscoCommitteeSummaryRows(
+        { fppcId: "1483804", strictCommitteeCash: true },
+        { fetchImpl: jsonFetch([{ ...s, schedulee_line_1: null }]) },
+      ),
+    ).rejects.toThrow(/exact cents/);
+  });
+  it("retains only explicit current electronic edition and refuses duplicated chains", async () => {
+    const f = {
+      filing_nid: "chain",
+      filing_activity_nid: "edition",
+      fppc_id: "1483804",
+      current_status: "Most Recent Amendment",
+      has_efile_content: true,
+      rejected: false,
+      start_date: "2026-01-01",
+      end_date: "2026-06-30",
+    };
+    expect(
+      (
+        await getSanFranciscoCommitteeCurrentForm460Filings(
+          { fppcId: "1483804", strictCommitteeCash: true },
+          { fetchImpl: jsonFetch([f]) },
+        )
+      )[0],
+    ).toMatchObject({
+      filingActivityNid: "edition",
+      periodStart: "2026-01-01",
+      periodEnd: "2026-06-30",
+    });
+    await expect(
+      getSanFranciscoCommitteeCurrentForm460Filings(
+        { fppcId: "1483804", strictCommitteeCash: true },
+        { fetchImpl: jsonFetch([f, f]) },
+      ),
+    ).rejects.toThrow(/ambiguous/);
+    await expect(
+      getSanFranciscoCommitteeCurrentForm460Filings(
+        { fppcId: "1483804", strictCommitteeCash: true },
+        { fetchImpl: jsonFetch([{ ...f, rejected: true }]) },
+      ),
+    ).rejects.toThrow(/unavailable/);
+  });
+
+  it.each([false, null])(
+    "sees paper or unknown current versions and refuses incomplete cash replacement: %s",
+    async (hasEfileContent) => {
+      let where = "";
+      await expect(
+        getSanFranciscoCommitteeCurrentForm460Filings(
+          { fppcId: "1483804", strictCommitteeCash: true },
+          {
+            fetchImpl: async (url) => {
+              where = new URL(String(url)).searchParams.get("$where")!;
+              return new Response(
+                JSON.stringify([
+                  {
+                    filing_nid: "chain",
+                    filing_activity_nid: "current-paper",
+                    fppc_id: "1483804",
+                    current_status: "Most Recent Amendment",
+                    has_efile_content: hasEfileContent,
+                    rejected: false,
+                    start_date: "2026-01-01",
+                    end_date: "2026-06-30",
+                  },
+                ]),
+              );
+            },
+          },
+        ),
+      ).rejects.toThrow(/current filing identity is unavailable/);
+      expect(where).toContain("Most Recent");
+      expect(where).not.toContain("has_efile_content");
+      expect(where).not.toContain("rejected=false");
+    },
+  );
 });

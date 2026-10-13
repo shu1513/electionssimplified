@@ -22,9 +22,14 @@ requests with fresh connections. Adding `Connection: close` to the existing
 client then passed the ordinary four-candidate District8 dry-run: four
 successes, zero failures, two candidates with outside groups, through
 September19. Batch results now retain the financial diagnostics instead of
-discarding them. Three candidates reconcile to the cent; one has a $255,000
-raw-versus-dashboard residual that requires investigation before accepting
-new direct detail. HTTP428 still fails acquisition and preserves stored money;
+discarding them. Three candidates initially reconciled to the cent; the fourth
+had a $255,000 residual because approvals use Manny while the manifest uses
+Emanuel Yekutiel. The official account publication binds the exact FPPC ID,
+filer ID, election, candidate and committee to $522,957.99 contributions and
+$255,000 public funds. A narrow fallback requires those identities, raw
+contribution reconciliation, matching expenditures and the manifest's funds
+identity; unavailable or mismatched publication preserves the prior snapshot.
+No nickname match is inferred. HTTP428 still fails acquisition and preserves stored money;
 this transport observation does not establish an upstream root cause.
 
 Named committee cash requires nonmemoA and verified unpaired monetaryF497,
@@ -37,6 +42,47 @@ promote businesses from a name, missing registry match or bad reported ID.
 Source/return ownership and current occurrence multiplicity need proof before
 the optional donor store/card increment. Known candidate/leadership interests
 retain the shared display exclusions; true unknowns remain Not yet sorted.
+
+The named-cash increment acquires the full receiving-account A/E/B1/F497
+scope with strict source element, edition, receiving ID and exact money
+decoding. Current Form460 authority and complete A/E itemized controls must
+reconcile; fresh opening/closing context must match each other and the staged
+core summary. Published report periods define the account scope, including
+preparation before January1. Potential COM/SCC late occurrences without exact
+independent association, ambiguous returns or changed editions omit the named
+component and preserve stored positions while the independent IE path can
+continue. Signed refunds remain stored until candidate-election netting.
+Explicit campaign labels are excluded from the existing interest card; source
+COM/SCC is disclosed as broad reported committee cash rather than legal PAC
+status. Yekutiel's source witness is16 positions/$7,300, but campaign exclusions
+leave8/$3,550, below the shared $5,000 display threshold. Do not force a panel.
+Migration340 is append-only; no existing applied migration is changed.
+
+### Real local validation, October12
+
+The final ordinary CLI run freshly acquired the official sources and wrote
+all four District8 contexts: four successes, zero failures and zero
+reconciliation residuals, throughSeptember19. It persisted five outside
+groups across two candidates and24 reported committee positions/$11,300.
+Yekutiel: Raised$522,957.99, publicfunds$255,000, outside support$153,283.69,
+oppose$59,495.84,16 committee positions/$7,300; campaign exclusions leave
+$3,550 in the production DTO. McCoy: Raised$123,450, publicfunds$217,524,
+outside support$288,568.77, oppose$23,010.83,8 positions/$4,000; exclusions
+leave$3,000. The actual frontend FinanceSummaryCard renders both IE/public
+funds cases and correctly omits their below-threshold committee panels.
+Patel's named component remains unavailable for an unresolved possible
+return; Nguyen's complete qualified component is empty. Neither is presented
+as a fabricated named-donor success. All nine unrelated SF links/summaries
+and389 direct detail rows have identical before/after hashes. This validates
+District8, not the full eligible cohort or paper/late completeness.
+
+307 focused SF tests and backend typecheck pass. Full frontend1223 tests,
+frontend/mobile typecheck and lint, and98 worker tests pass. The full local
+backend run passed15435 tests, skipped163, and failed24 tests in five mocked
+suites because the DB URL was intentionally empty; those suites pass40/40
+with a syntactically valid unreachable inline URL. The unchanged historical
+import entrypoint also produced its known unhandled startup error. CI still
+must pass before review; this increment does not deploy or merge.
 
 The official candidate pre-election deadline is **October22**, covering
 through **October17**: genuinely fresh **October23/26** reruns. Candidate third

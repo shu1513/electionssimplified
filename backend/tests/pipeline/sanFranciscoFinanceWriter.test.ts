@@ -21,11 +21,9 @@ const LINK = {
 describe("upsertSanFranciscoFinanceLink", () => {
   it("reuses a protected manual link with the same committee", async () => {
     const db = {
-      query: vi
-        .fn()
-        .mockResolvedValueOnce({
-          rows: [{ id: "manual-1", fppc_id: "1489126", link_status: "active" }],
-        }),
+      query: vi.fn().mockResolvedValueOnce({
+        rows: [{ id: "manual-1", fppc_id: "1489126", link_status: "active" }],
+      }),
     };
     const result = await upsertSanFranciscoFinanceLink({ db, link: LINK });
     expect(result.linkId).toBe("manual-1");
@@ -73,11 +71,9 @@ describe("upsertSanFranciscoFinanceLink", () => {
 
   it("refuses to override a manual link with a different committee", async () => {
     const db = {
-      query: vi
-        .fn()
-        .mockResolvedValueOnce({
-          rows: [{ id: "manual-1", fppc_id: "9999999", link_status: "active" }],
-        }),
+      query: vi.fn().mockResolvedValueOnce({
+        rows: [{ id: "manual-1", fppc_id: "9999999", link_status: "active" }],
+      }),
     };
     await expect(
       upsertSanFranciscoFinanceLink({ db, link: LINK }),
@@ -98,7 +94,9 @@ describe("upsertSanFranciscoFinanceLink", () => {
     expect(deactivateSql).toContain("link_status='inactive'");
     expect(deactivateSql).toContain("link_source<>'manual'");
     const [insertSql, insertParams] = db.query.mock.calls[2]!;
-    expect(insertSql).toContain("ON CONFLICT (candidate_id,election_id,fppc_id)");
+    expect(insertSql).toContain(
+      "ON CONFLICT (candidate_id,election_id,fppc_id)",
+    );
     // The in-statement race backstop: a row concurrently flipped to manual
     // must block the update instead of being rewritten.
     expect(insertSql).toContain(
@@ -140,11 +138,9 @@ describe("upsertSanFranciscoFinanceLink", () => {
     // Without status-independent protection, this upsert would hit
     // ON CONFLICT on the manual row and rewrite it to sfec_dashboard.
     const db = {
-      query: vi
-        .fn()
-        .mockResolvedValueOnce({
-          rows: [{ id: "manual-1", fppc_id: "1489126", link_status: "active" }],
-        }),
+      query: vi.fn().mockResolvedValueOnce({
+        rows: [{ id: "manual-1", fppc_id: "1489126", link_status: "active" }],
+      }),
     };
     const result = await upsertSanFranciscoFinanceLink({
       db,
@@ -301,17 +297,13 @@ const SUMMARY = {
   reportedThrough: "2026-06-30",
 };
 
-// query-call layout for a snapshot with an sfec_dashboard active link:
-// BEGIN, manual-link probe, deactivation, link insert (returns the id),
-// then the snapshot statements.
-function snapshotDb() {
-  const query = vi
-    .fn()
-    .mockResolvedValueOnce({ rows: [] }) // BEGIN
-    .mockResolvedValueOnce({ rows: [] }) // manual-link probe
-    .mockResolvedValueOnce({ rows: [] }) // deactivation
-    .mockResolvedValueOnce({ rows: [{ id: "link-1" }] })
-    .mockResolvedValue({ rows: [] });
+function snapshotDb(previous: unknown[] = []) {
+  const query = vi.fn(async (sql: string) => {
+    if (sql.startsWith("INSERT INTO public.sfc_candidate_finance_links"))
+      return { rows: [{ id: "link-1" }] };
+    if (sql.startsWith("SELECT s.last_synced_at")) return { rows: previous };
+    return { rows: [] };
+  });
   const release = vi.fn();
   return {
     query,
@@ -321,6 +313,148 @@ function snapshotDb() {
 }
 
 describe("replaceSanFranciscoCandidateFinanceSnapshot", () => {
+  it.each([
+    { last_synced_at: "2026-10-13T00:00:00Z", reported_through: "2026-06-30" },
+    { last_synced_at: "2026-10-11T00:00:00Z", reported_through: "2026-09-19" },
+  ])(
+    "preserves a newer snapshot observed during acquisition: %j",
+    async (previous) => {
+      const { query, db } = snapshotDb([previous]);
+      await expect(
+        replaceSanFranciscoCandidateFinanceSnapshot({
+          db: db as never,
+          link: LINK,
+          summary: SUMMARY,
+          directBreakdowns: [],
+          outsideGroups: [],
+          syncedAt: new Date("2026-10-12T00:00:00Z"),
+        }),
+      ).rejects.toThrow(/newer stored coverage/);
+      expect(query.mock.calls.at(-1)![0]).toBe("ROLLBACK");
+      expect(
+        query.mock.calls.some(
+          ([sql]) =>
+            String(sql).startsWith("INSERT") ||
+            String(sql).startsWith("DELETE"),
+        ),
+      ).toBe(false);
+    },
+  );
+
+  const cashPosition = {
+    committeeId: "reported:com:example committee",
+    committeeName: "Example Committee",
+    sourceReportedClass: "COM" as const,
+    amountCents: -12500,
+    contributionCount: 0,
+    giftOccurrenceIds: [],
+    returnOccurrenceIds: ["return-1"],
+    reportedCommitteeIds: ["1234567"],
+  };
+
+  it("preserves signed return-only positions and source evidence in the snapshot transaction", async () => {
+    const { query, db } = snapshotDb();
+    await replaceSanFranciscoCandidateFinanceSnapshot({
+      db: db as never,
+      link: LINK,
+      summary: SUMMARY,
+      directBreakdowns: [],
+      outsideGroups: [],
+      committeeCash: {
+        positions: [cashPosition],
+        reportedThrough: "2026-09-19",
+        sourceUrl: "https://data.sfgov.org/d/pitq-e56w",
+      },
+      syncedAt: new Date("2026-10-12T00:00:00Z"),
+    });
+    const inserts = query.mock.calls.filter(([sql]) =>
+      String(sql).startsWith(
+        "INSERT INTO public.sfc_candidate_finance_pac_donors",
+      ),
+    );
+    expect(inserts).toHaveLength(1);
+    expect(inserts[0]![1]).toEqual([
+      "link-1",
+      2026,
+      cashPosition.committeeId,
+      cashPosition.committeeName,
+      "COM",
+      '["1234567"]',
+      "-125.00",
+      0,
+      "https://data.sfgov.org/d/pitq-e56w",
+      "2026-09-19",
+      "2026-10-12T00:00:00.000Z",
+    ]);
+    expect(query.mock.calls.at(-1)![0]).toBe("COMMIT");
+  });
+
+  it("leaves prior committee rows untouched when acquisition was omitted", async () => {
+    const { query, db } = snapshotDb();
+    await replaceSanFranciscoCandidateFinanceSnapshot({
+      db: db as never,
+      link: LINK,
+      summary: SUMMARY,
+      directBreakdowns: [],
+      outsideGroups: [],
+    });
+    expect(
+      query.mock.calls.some(([sql]) =>
+        String(sql).includes("sfc_candidate_finance_pac_donors"),
+      ),
+    ).toBe(false);
+  });
+
+  it("clears prior committee positions only for an explicitly qualified empty component", async () => {
+    const { query, db } = snapshotDb();
+    await replaceSanFranciscoCandidateFinanceSnapshot({
+      db: db as never,
+      link: LINK,
+      summary: SUMMARY,
+      directBreakdowns: [],
+      outsideGroups: [],
+      committeeCash: {
+        positions: [],
+        reportedThrough: "2026-09-19",
+        sourceUrl: "https://data.sfgov.org/d/pitq-e56w",
+      },
+    });
+    expect(
+      query.mock.calls.filter(([sql]) =>
+        String(sql).includes(
+          "DELETE FROM public.sfc_candidate_finance_pac_donors",
+        ),
+      ),
+    ).toHaveLength(1);
+    expect(
+      query.mock.calls.some(([sql]) =>
+        String(sql).startsWith(
+          "INSERT INTO public.sfc_candidate_finance_pac_donors",
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it("rolls back every financial component when committee evidence is invalid", async () => {
+    const { query, db } = snapshotDb();
+    await expect(
+      replaceSanFranciscoCandidateFinanceSnapshot({
+        db: db as never,
+        link: LINK,
+        summary: SUMMARY,
+        directBreakdowns: [],
+        outsideGroups: [],
+        committeeCash: {
+          positions: [{ ...cashPosition, contributionCount: -1 }],
+          reportedThrough: "2026-09-19",
+          sourceUrl: "https://data.sfgov.org/d/pitq-e56w",
+        },
+      }),
+    ).rejects.toThrow(/committee cash evidence/);
+    expect(query.mock.calls.at(-1)![0]).toBe("ROLLBACK");
+    expect(query.mock.calls.some(([sql]) => sql === "COMMIT")).toBe(false);
+  });
+
   it("writes link, summary, breakdowns, and outside groups in one transaction", async () => {
     const { query, release, db } = snapshotDb();
     const result = await replaceSanFranciscoCandidateFinanceSnapshot({
@@ -352,7 +486,9 @@ describe("replaceSanFranciscoCandidateFinanceSnapshot", () => {
     expect(sql.at(-1)).toBe("COMMIT");
     expect(release).toHaveBeenCalled();
     const summaryCall = query.mock.calls.find((call) =>
-      String(call[0]).includes("sfc_candidate_finance_summaries"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.sfc_candidate_finance_summaries",
+      ),
     )!;
     // Cents converted to exact dollar strings; nulls preserved.
     expect(summaryCall[1]).toEqual([
@@ -427,7 +563,13 @@ describe("replaceSanFranciscoCandidateFinanceSnapshot", () => {
     expect(
       sql.filter((statement) => statement.startsWith("DELETE FROM")),
     ).toHaveLength(2);
-    expect(sql.some((statement) => statement.startsWith("INSERT INTO public.sfc_candidate_finance_direct_breakdowns"))).toBe(false);
+    expect(
+      sql.some((statement) =>
+        statement.startsWith(
+          "INSERT INTO public.sfc_candidate_finance_direct_breakdowns",
+        ),
+      ),
+    ).toBe(false);
     expect(sql.at(-1)).toBe("COMMIT");
   });
 

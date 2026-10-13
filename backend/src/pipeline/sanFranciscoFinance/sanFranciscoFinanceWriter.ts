@@ -16,6 +16,7 @@
 import type { Pool, PoolClient } from "pg";
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
+import type { SanFranciscoCommitteeCashPosition } from "./sanFranciscoCommitteeCashAggregator.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type PoolLike = Queryable & { connect: () => Promise<PoolClient> };
@@ -96,16 +97,20 @@ const optional = (value: string | null | undefined): string | null =>
 // Negative amounts throw: every stored figure is a nonnegative total (refunds
 // are already netted inside the aggregates), and throwing aborts the snapshot
 // transaction so the prior snapshot survives.
-const centsToDollars = (
-  cents: number | null,
-  label: string,
-): string | null => {
+const centsToDollars = (cents: number | null, label: string): string | null => {
   if (cents === null) return null;
   if (!Number.isSafeInteger(cents))
     throw new Error(`${label} must be integer cents`);
   if (cents < 0) throw new Error(`${label} must be nonnegative`);
   return `${Math.trunc(cents / 100)}.${String(cents % 100).padStart(2, "0")}`;
 };
+
+function signedCentsToDollars(cents: number): string {
+  if (!Number.isSafeInteger(cents))
+    throw new Error("committee cash must be integer cents");
+  const magnitude = Math.abs(cents);
+  return `${cents < 0 ? "-" : ""}${Math.trunc(magnitude / 100)}.${String(magnitude % 100).padStart(2, "0")}`;
+}
 
 export async function upsertSanFranciscoFinanceLink(input: {
   db: Queryable;
@@ -258,6 +263,12 @@ export async function replaceSanFranciscoCandidateFinanceSnapshot(input: {
   summary: SanFranciscoFinanceSummaryInput;
   directBreakdowns: readonly SanFranciscoDirectBreakdownInput[];
   outsideGroups: readonly SanFranciscoOutsideGroupInput[];
+  /** Omitted when acquisition/qualification failed; preserve previous rows. */
+  committeeCash?: {
+    positions: readonly SanFranciscoCommitteeCashPosition[];
+    reportedThrough: string;
+    sourceUrl: string;
+  };
   classifications?: readonly FinanceLabelClassification[];
   syncedAt?: Date;
 }): Promise<{ linkId: string }> {
@@ -267,6 +278,35 @@ export async function replaceSanFranciscoCandidateFinanceSnapshot(input: {
   const client = await input.db.connect();
   try {
     await client.query("BEGIN");
+    // Serialize this candidate-election's snapshots before identity and
+    // component replacement. A slower earlier fetch must not replace a
+    // snapshot accepted by a newer run while acquisition was in progress.
+    await client.query(`SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, [
+      `sfc-finance:${input.link.candidateId}:${input.link.electionId}`,
+    ]);
+    const previous = await client.query<{
+      last_synced_at: string;
+      reported_through: string | null;
+    }>(
+      `SELECT s.last_synced_at::text,s.reported_through::text FROM public.sfc_candidate_finance_summaries s JOIN public.sfc_candidate_finance_links l ON l.id=s.link_id WHERE l.candidate_id=$1::uuid AND l.election_id=$2::uuid AND l.fppc_id=$3 AND l.link_status='active' AND s.election_year=$4`,
+      [
+        input.link.candidateId,
+        input.link.electionId,
+        input.link.fppcId.trim(),
+        input.link.electionYear,
+      ],
+    );
+    for (const row of previous.rows) {
+      if (
+        Date.parse(row.last_synced_at) > Date.parse(syncedAt) ||
+        (row.reported_through !== null &&
+          (input.summary.reportedThrough === null ||
+            row.reported_through > input.summary.reportedThrough))
+      )
+        throw new Error(
+          "San Francisco finance snapshot would replace newer stored coverage",
+        );
+    }
     const { linkId } = await upsertSanFranciscoFinanceLink({
       db: client,
       link: input.link,
@@ -334,6 +374,50 @@ export async function replaceSanFranciscoCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
+    if (input.committeeCash !== undefined) {
+      const cash = input.committeeCash;
+      if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(cash.reportedThrough) ||
+        new Date(`${cash.reportedThrough}T00:00:00Z`)
+          .toISOString()
+          .slice(0, 10) !== cash.reportedThrough
+      )
+        throw new Error(
+          "Invalid San Francisco committee cash reported-through date",
+        );
+      const sourceUrl = text(cash.sourceUrl, "committee cash source URL");
+      await client.query(
+        `DELETE FROM public.sfc_candidate_finance_pac_donors WHERE link_id=$1::uuid AND election_year=$2`,
+        [linkId, year],
+      );
+      for (const position of cash.positions) {
+        if (
+          !["COM", "SCC"].includes(position.sourceReportedClass) ||
+          !Number.isSafeInteger(position.contributionCount) ||
+          position.contributionCount < 0 ||
+          position.reportedCommitteeIds.some(
+            (id) => typeof id !== "string" || !id.trim(),
+          )
+        )
+          throw new Error("Invalid San Francisco committee cash evidence");
+        await client.query(
+          `INSERT INTO public.sfc_candidate_finance_pac_donors (link_id,election_year,committee_id,committee_name,source_reported_class,reported_committee_ids,amount,contribution_count,source_url,reported_through,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10::date,$11::timestamptz)`,
+          [
+            linkId,
+            year,
+            text(position.committeeId, "committee cash key"),
+            text(position.committeeName, "committee cash name"),
+            position.sourceReportedClass,
+            JSON.stringify(position.reportedCommitteeIds),
+            signedCentsToDollars(position.amountCents),
+            position.contributionCount,
+            sourceUrl,
+            cash.reportedThrough,
+            syncedAt,
+          ],
+        );
+      }
+    }
     for (const classification of input.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");
