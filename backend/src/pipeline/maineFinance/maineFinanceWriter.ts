@@ -13,6 +13,7 @@ import {
   type StandardStateFinanceSummaryInput,
   type StandardStateFinanceSupportOppose,
 } from "../finance/standardStateFinanceSnapshotWriter.js";
+import { qualifyMaineMapLightBallotContext } from "./maineMapLightBallotContext.js";
 import type { MaineMapLightCommitteeDonorPosition } from "./maineMapLightFinancialFacts.js";
 import type { MaineMapLightIndependentExpenditureAllocation } from "./maineMapLightIndependentExpenditureCsv.js";
 import {
@@ -65,6 +66,10 @@ export interface MaineMapLightFinanceSourceInput {
   sourceOffice: "Senator" | "Representative" | "Governor";
   sourceDistrict: string | null;
   publishedSourceTimes?: { allFiler: string; independentExpenditures: string };
+  /** Retains the unique official ballot qualification made during source acquisition. */
+  qualifiedBallotContext?: NonNullable<
+    ReturnType<typeof qualifyMaineMapLightBallotContext>["context"]
+  >;
 }
 
 export type MaineFinanceSnapshotInput = {
@@ -342,8 +347,30 @@ function prepareMapLight(input: MaineFinanceSnapshotInput) {
     mapLightError("original active link fields required");
   if (original.publishedSourceTimes)
     validatePublisherTimes(original.publishedSourceTimes);
+  let qualifiedBallotContext: MaineMapLightFinanceSourceInput["qualifiedBallotContext"];
+  if (original.qualifiedBallotContext !== undefined) {
+    const context = original.qualifiedBallotContext;
+    if (!context || context.version !== 1 || !context.ballot)
+      mapLightError("invalid official ballot qualification");
+    qualifiedBallotContext = qualifyMaineMapLightBallotContext({
+      rows: [context.ballot],
+      candidate: context.candidate,
+      source: context.source,
+    }).context;
+    if (
+      !qualifiedBallotContext ||
+      qualifiedBallotContext.source.filerId !== original.sourceFilerId ||
+      qualifiedBallotContext.source.filerName !== original.sourceFilerName ||
+      qualifiedBallotContext.source.office !== original.sourceOffice ||
+      qualifiedBallotContext.source.district !== original.sourceDistrict ||
+      qualifiedBallotContext.candidate.electionYear !== input.link.electionYear ||
+      qualifiedBallotContext.candidate.electionDate !== original.electionDate
+    )
+      mapLightError("official ballot qualification does not match source");
+  }
   const source = {
     ...original,
+    qualifiedBallotContext,
     observedAt: new Date(original.observedAt),
     publishedSourceTimes: original.publishedSourceTimes
       ? { ...original.publishedSourceTimes }
@@ -460,6 +487,9 @@ type LockedMapLightOwner = {
   source_url: string | null;
   last_verified_at: Date | string | null;
   candidate_name: string;
+  candidate_first_name: string;
+  candidate_last_name: string;
+  candidate_party: string | null;
   candidate_state: string;
   candidate_deleted: boolean;
   candidate_merged: boolean;
@@ -501,6 +531,7 @@ async function lockMapLightOwner(
       link.candidate_name_normalized,link.office_name,link.district,link.committee_id,link.committee_name,
       link.link_status,link.link_source,link.source_url,link.last_verified_at,
       COALESCE(NULLIF(btrim(candidate.display_name),''),NULLIF(btrim(concat_ws(' ',candidate.first_name,candidate.last_name)),'')) AS candidate_name,
+      candidate.first_name AS candidate_first_name,candidate.last_name AS candidate_last_name,candidate.party AS candidate_party,
       candidate.state AS candidate_state,candidate.deleted_at IS NOT NULL AS candidate_deleted,
       candidate.merged_into_candidate_id IS NOT NULL AS candidate_merged,
       candidate_election.status AS candidate_election_status,election.election_stage,election.race_type,
@@ -540,10 +571,31 @@ async function lockMapLightOwner(
     }) ||
     reportedNameKey(row.candidate_name ?? "") !==
       reportedNameKey(link.candidateNameNormalized) ||
-    reportedNameKey(row.candidate_name ?? "") !==
-      reportedNameKey(source.sourceFilerName)
+    (source.qualifiedBallotContext === undefined &&
+      reportedNameKey(row.candidate_name ?? "") !==
+        reportedNameKey(source.sourceFilerName))
   )
     mapLightError("canonical source owner unavailable or ambiguous");
+  const qualified = source.qualifiedBallotContext?.candidate;
+  if (qualified) {
+    const qualifiedName = [
+      qualified.firstName,
+      qualified.middleName,
+      qualified.lastName,
+      qualified.suffix,
+    ].filter(Boolean).join(" ");
+    if (
+      row.candidate_first_name !== qualified.firstName ||
+      row.candidate_last_name !== qualified.lastName ||
+      row.candidate_party !== (qualified.party ?? null) ||
+      reportedNameKey(row.candidate_name ?? "") !==
+        reportedNameKey(qualifiedName) ||
+      row.office_scope !== qualified.officeScope ||
+      row.office_canonical_name !== qualified.officeName ||
+      numericSeat(row.district) !== numericSeat(qualified.district)
+    )
+      mapLightError("qualified candidate changed before write");
+  }
   const office =
     row.office_scope === "state_upper"
       ? "Senator"

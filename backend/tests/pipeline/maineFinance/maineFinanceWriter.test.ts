@@ -7,6 +7,8 @@ import {
   type MaineMapLightFinanceSourceInput,
 } from "../../../src/pipeline/maineFinance/maineFinanceWriter.js";
 
+import { qualifyMaineMapLightBallotContext } from "../../../src/pipeline/maineFinance/maineMapLightBallotContext.js";
+
 const CANDIDATE_ID = "11111111-1111-1111-1111-111111111111";
 const ELECTION_ID = "22222222-2222-2222-2222-222222222222";
 const LINK_ID = "33333333-3333-3333-3333-333333333333";
@@ -476,6 +478,9 @@ function owner(overrides: Record<string, unknown> = {}) {
     source_url: input.link.sourceUrl,
     last_verified_at: input.link.lastVerifiedAt,
     candidate_name: "Alex Example",
+    candidate_first_name: "Alex",
+    candidate_last_name: "Example",
+    candidate_party: "Democratic",
     candidate_state: "ME",
     candidate_deleted: false,
     candidate_merged: false,
@@ -536,7 +541,157 @@ function modernDb(
   };
 }
 
+function qualifiedModernInput(middleName = "Marie") {
+  const input = modernInput();
+  input.link.candidateNameNormalized = `Alex ${middleName} Example`
+    .replace(/ +/g, " ")
+    .toUpperCase();
+  input.mapLightSource!.qualifiedBallotContext =
+    qualifyMaineMapLightBallotContext({
+      candidate: {
+        firstName: "Alex",
+        middleName,
+        lastName: "Example",
+        party: "Democratic",
+        officeScope: "state_upper",
+        officeName: "State Senator",
+        district: "14",
+        electionYear: 2026,
+        electionDate: "2026-11-03",
+      },
+      source: {
+        filerId: mapId("f", "c"),
+        filerName: "Alex Example",
+        firstName: "Alex",
+        lastName: "Example",
+        office: "Senator",
+        district: "14",
+      },
+      rows: [
+        {
+          rowNumber: 2,
+          year: 2026,
+          electionDate: "2026-11-03",
+          officeCode: "SS",
+          district: "14",
+          county: "",
+          party: "D",
+          dateFiledRaw: "",
+          firstName: "Alex",
+          middleName,
+          lastName: "Example",
+          suffix: "",
+        },
+      ],
+    }).context!;
+  return input;
+}
 describe("Maine source-scoped MapLight storage", () => {
+  it("retains official structured middle-name qualification through the locked writer", async () => {
+    const input = qualifiedModernInput();
+    const { db, client } = modernDb({
+      owners: [
+        owner({
+          candidate_name: "Alex Marie Example",
+          candidate_name_normalized: input.link.candidateNameNormalized,
+        }),
+      ],
+    });
+    await expect(
+      replaceMaineCandidateFinanceSnapshot({ db, ...input }),
+    ).resolves.toMatchObject({
+      mapLightCommitteeDonorsWritten: 1,
+      mapLightOutsideAllocationsWritten: 1,
+    });
+    expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+  });
+  it("still requires ballot qualification when only the middle name differs", async () => {
+    const input = qualifiedModernInput();
+    input.mapLightSource!.qualifiedBallotContext = undefined;
+    const { db, client } = modernDb({
+      owners: [
+        owner({
+          candidate_name: "Alex Marie Example",
+          candidate_name_normalized: input.link.candidateNameNormalized,
+        }),
+      ],
+    });
+    await expect(
+      replaceMaineCandidateFinanceSnapshot({ db, ...input }),
+    ).rejects.toThrow("canonical source owner");
+    expect(
+      client.query.mock.calls.some(([sql]) => /INSERT|DELETE/.test(sql)),
+    ).toBe(false);
+  });
+  it("accepts a year-end period observed and published the following January", async () => {
+    const input = modernInput();
+    input.mapLightSource!.periodEnd = "2026-12-31";
+    input.mapLightSource!.observedAt = new Date("2027-01-12T20:00:00Z");
+    input.mapLightSource!.publishedSourceTimes = {
+      allFiler: "2027-01-11 09:59 ET",
+      independentExpenditures: "2027-01-10 09:55 ET",
+    };
+    const { db, client } = modernDb();
+    await expect(
+      replaceMaineCandidateFinanceSnapshot({ db, ...input }),
+    ).resolves.toMatchObject({
+      mapLightCommitteeDonorsWritten: 1,
+    });
+    const write = client.query.mock.calls.find(([sql]) =>
+      sql.includes("INSERT INTO public.me_candidate_finance_source_markers"),
+    )!;
+    expect(write[1]![5]).toBe("2026-12-31");
+    expect(write[1]![14]).toBe(
+      JSON.stringify(input.mapLightSource!.publishedSourceTimes),
+    );
+  });
+  it.each([
+    { candidate_first_name: "Another" },
+    { candidate_last_name: "Person" },
+    { candidate_name: "Alex Other Example" },
+    { candidate_party: "Republican" },
+    { candidate_party: null },
+  ])(
+    "refuses a qualified owner changed before the lock: %j",
+    async (overrides) => {
+      const input = qualifiedModernInput();
+      const { db, client } = modernDb({
+        owners: [
+          owner({
+            candidate_name: "Alex Marie Example",
+            candidate_name_normalized: input.link.candidateNameNormalized,
+            ...overrides,
+          }),
+        ],
+      });
+      await expect(
+        replaceMaineCandidateFinanceSnapshot({ db, ...input }),
+      ).rejects.toThrow("Maine MapLight write:");
+      expect(client.query.mock.calls.at(-1)?.[0]).toBe("ROLLBACK");
+      expect(
+        client.query.mock.calls.some(([sql]) => /INSERT|DELETE/.test(sql)),
+      ).toBe(false);
+    },
+  );
+  it.each(["middle", "source", "date", "malformed"])(
+    "refuses conflicting %s qualification even with exact display names",
+    async (which) => {
+      const input = qualifiedModernInput("");
+      const context = input.mapLightSource!.qualifiedBallotContext!;
+      if (which === "middle") context.source.middleName = "Other";
+      if (which === "source") context.source.filerId = mapId("f", "z");
+      if (which === "date") context.candidate.electionDate = "2026-11-04";
+      if (which === "malformed")
+        input.mapLightSource!.qualifiedBallotContext = {} as typeof context;
+      const { db, client } = modernDb();
+      await expect(
+        replaceMaineCandidateFinanceSnapshot({ db, ...input }),
+      ).rejects.toThrow();
+      expect(
+        client.query.mock.calls.some(([sql]) => /INSERT|DELETE/.test(sql)),
+      ).toBe(false);
+    },
+  );
   it("writes only source scopes atomically, keeping the old receiving ID/fields/verification stamp", async () => {
     const { db, client } = modernDb();
     const result = await replaceMaineCandidateFinanceSnapshot({

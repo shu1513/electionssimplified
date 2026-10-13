@@ -218,6 +218,7 @@ describe("ordinary Maine MapLight batch", () => {
           linkId: due.id,
           sourceFilerId: filerId,
           sourceOffice: "Senator",
+          qualifiedBallotContext: { qualified: true },
         }),
       }),
     );
@@ -239,6 +240,31 @@ describe("ordinary Maine MapLight batch", () => {
     );
     expect(sql).toContain("ce.status='declared'");
     expect(sql).toContain("candidate.deleted_at IS NULL");
+  });
+  it("caps the source period at year end while preserving next-year publication times", async () => {
+    const captured = await mocks.capture();
+    captured.capture.capturedAt = "2027-01-12T21:20:21Z";
+    captured.capture.selections.all_filers.descriptor = {
+      lastUpdatedDate: "2027-01-11",
+      lastUpdatedTime: "09:59",
+    };
+    captured.capture.selections.independent_expenditures.descriptor = {
+      lastUpdatedDate: "2027-01-10",
+      lastUpdatedTime: "09:55",
+    };
+    const result = await run({ now: new Date("2027-01-12T22:00:00Z") }).promise;
+    expect(result.syncedCandidateCount).toBe(1);
+    expect(mocks.writer.mock.calls[0][0].mapLightSource).toMatchObject({
+      sourceCalendarYear: 2026,
+      periodStart: "2026-01-01",
+      periodEnd: "2026-12-31",
+      observedAt: new Date("2027-01-12T21:20:21Z"),
+      publishedSourceTimes: {
+        allFiler: "2027-01-11 09:59 ET",
+        independentExpenditures: "2027-01-10 09:55 ET",
+      },
+    });
+    expect(result.results[0].mapLight?.sourceThrough).toBe("2027-01-10");
   });
   it("requires the raw flag for genuine refresh and keeps force separate", async () => {
     await expect(run({ refresh: true }).promise).rejects.toThrow(
