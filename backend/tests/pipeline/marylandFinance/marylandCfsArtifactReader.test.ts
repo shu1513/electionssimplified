@@ -121,6 +121,18 @@ describe("Maryland CFS artifact reader", () => {
     expect(parseMarylandCfsMoney("not-money")).toBeNull();
   });
 
+  it.each(["1e3", "0x10", "$1,23.00", "$1 000.00", "($-25.00)", "(-$25.00)",
+    "$1.001", "$1.00)", "($1.00", "$$1.00", "90071992547409.92"])(
+    "rejects malformed or unsafe financial lexeme %s",
+    (value) => expect(parseMarylandCfsMoney(value)).toBeNull(),
+  );
+
+  it.each([["-$25.50", -25.5], ["$-25.50", -25.5], ["(25.50)", -25.5],
+    ["$0.00", 0], ["250", 250], ["1,250.5", 1250.5]] as const)(
+    "preserves signed source cash %s",
+    (value, expected) => expect(parseMarylandCfsMoney(value)).toBe(expected),
+  );
+
   it("parses contribution rows after the Maryland metadata row", () => {
     const rows = parseMarylandCfsContributionCsvRows(
       contributionCsv([

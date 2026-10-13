@@ -183,15 +183,18 @@ export function parseMarylandCfsMoney(value: string): number | null {
     return null;
   }
   const isParenthesized = normalized.startsWith("(") && normalized.endsWith(")");
-  const withoutAdornment = normalized.replace(/[$,()\s]/g, "");
-  if (!withoutAdornment) {
-    return null;
-  }
-  const parsed = Number(withoutAdornment);
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-  return isParenthesized ? -parsed : parsed;
+  const body = isParenthesized ? normalized.slice(1, -1) : normalized;
+  // Validate the whole financial lexeme before removing formatting. Stripping
+  // arbitrary adornment accepted malformed grouping, exponents and double
+  // negatives that could turn a returned contribution into a positive gift.
+  const match = /^(?:([+-])\$?|\$([+-])?)?(\d+|\d{1,3}(?:,\d{3})+)(?:\.(\d{1,2}))?$/.exec(body);
+  if (!match || (isParenthesized && (match[1] || match[2]))) return null;
+  const whole = Number(match[3]!.replace(/,/g, ""));
+  const cents = whole * 100 + Number((match[4] ?? "").padEnd(2, "0"));
+  if (!Number.isSafeInteger(cents)) return null;
+  const dollars = cents / 100;
+  if (Math.round(dollars * 100) !== cents) return null;
+  return isParenthesized || match[1] === "-" || match[2] === "-" ? -dollars : dollars;
 }
 
 export function normalizeMarylandCfsExcelString(value: string): string {
