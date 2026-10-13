@@ -1,5 +1,25 @@
 # Phoenix City Campaign Finance Plan
 
+## Finance-gap continuation — 2026-10-12
+
+The refreshed source/code audit and ranked work order are recorded in `~/.claude/tmp/voteapp-finance-gaps-2026-10/phoenix-finance-gap-source-code-audit-2026-10-12.md`, `phoenix-finance-gap-next-step-2026-10-12.md`, and `plan.md`. The local cohort has 16 active linked council candidates across four November 3 contests; stored summaries date from August 13. City Schedule B(6) acquisition already runs through the normal batch context. Standing-PAC state filings, noncommittee IE, and expenditure-funded communications remain separate acquisition gaps; an unavailable channel must not establish zero outside spending.
+
+The first increment adds a pure parser for literal monetary PAC contributions (A1e) and returned contributions (A1l), checking receiving COPID, physical row multiplicity, civil dates, safe integer cents, schedule pagination and cash controls. It does not infer the donor class of a return, combine donor aliases, select current amendments, or publish money. Batch results retain the candidate sync diagnostics so a real normal CLI run can be assessed. The unchanged District 4 CLI dry-run completed 8/8 candidates; its shared context discovered 15 city-filing IE PACs, 13 standing IE PACs and four B(6) packages. Those counts do not prove exhaustive outside coverage or new eligible spending.
+
+Fresh opening and closing Hermes grids contain 710 contribution rows, 111 expenditure rows and zero loans; both report PDFs were fetched in both phases and are byte-identical. Annual 2026 covers April 1, 2025–March 31, 2026; Q1 covers April 1–June 30, 2026. The Q1 PDF reports three PAC cash gifts totaling $19,500 and a separate $1,000 return. Row `SubmittedDate` varies within each package and must not select filing editions. Current publication authority, complete cycle coverage, return ownership and native-channel acquisition must be qualified before adding storage. A real local write, production reader and actual candidate card remain required before opening the Phoenix PR.
+
+### Fresh reruns after filing deadlines
+
+The [official city candidate calendar](https://www.phoenix.gov/content/dam/phoenix/cityclerksite/documents/campaign-finance/Campaign_Finance_Reporting_Schedule_2026%20CANs_EVEN.pdf) and [city PAC calendar](https://www.phoenix.gov/content/dam/phoenix/cityclerksite/documents/campaign-finance/Campaign_Finance_Reporting_Schedule_2026_PACs_.pdf) distinguish these reporting roles:
+
+- Candidate and city PAC quarterly reports: October 15, through September 30; acquire fresh October 16 and retry October 19.
+- City PAC pre-election reports: October 19, through October 17; acquire fresh October 20 and retry October 22.
+- Candidate first-election reports: November 18, through November 3; acquire fresh November 19 and retry November 23.
+- Candidate/city PAC year-end reports: January 15, 2027; acquire fresh January 16 and retry January 19, after reviewing the new window/status.
+- Check amendments and applicable IE/EFD filings during October 18–November 5. Standing PACs follow the separately verified Arizona SOS calendar, not the city candidate calendar.
+
+The city calls November 3 its first election and March 9, 2027 its second election; preserve that terminology separately from local election labels. A fresh fetch timestamp does not advance the publisher's reporting date. No scheduled automation is created by this plan.
+
 Written 2026-08-12 after live probing of the City of Phoenix Campaign Finance eFiling system (search grids exercised in a real browser, JSON responses captured, a 2026 candidate report PDF downloaded and text-extracted, codebase and local DB audited). Revised the same day after an external review round; every correction below was re-verified against live data or code before adoption. Verdict: **GO — Phase 0 first.** Schema and any published numbers wait until the Phase 0 gates reconcile to the cent.
 
 The standard new-module launch checklist is inlined in full under "Flags & labels" below — this plan is self-contained; no external checklist is required.
