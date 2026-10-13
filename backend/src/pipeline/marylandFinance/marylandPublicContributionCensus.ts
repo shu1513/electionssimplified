@@ -82,7 +82,8 @@ export async function acquireMarylandPublicContributionCensus(input:
     const request = Object.freeze({...scope, pageNumber});
     const result = await fetchMarylandPublicContributionPage({
       ...request, outputPath: join(directory, `page-${String(pageNumber).padStart(4, "0")}.original.json`),
-      timeoutMs, maxBytes, fetchImpl: boundedFetch,
+      timeoutMs: Math.min(timeoutMs, Math.max(1, Math.floor(deadlineAt - performance.now()))),
+      maxBytes, fetchImpl: boundedFetch,
       onCapture: capture => {
         capturedBytes += capture.byteCount;
         journalQueue = journalQueue.then(() => journal.appendFile(`${JSON.stringify(capture)}\n`));
