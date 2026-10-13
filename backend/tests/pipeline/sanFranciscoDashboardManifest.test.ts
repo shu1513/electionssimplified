@@ -106,11 +106,12 @@ describe("parseSanFranciscoContestManifest", () => {
     const growSf = manifest.outsideRelations.filter(
       (relation) => relation.spenderFppcId === "1488188",
     );
-    expect(growSf.map((relation) => [relation.candidateName, relation.position]))
-      .toEqual([
-        ["ALAN WONG", "support"],
-        ["NATALIE GEE", "oppose"],
-      ]);
+    expect(
+      growSf.map((relation) => [relation.candidateName, relation.position]),
+    ).toEqual([
+      ["ALAN WONG", "support"],
+      ["NATALIE GEE", "oppose"],
+    ]);
   });
 
   it("keeps an outside relation whose committee id is missing", () => {
@@ -129,15 +130,100 @@ describe("parseSanFranciscoContestManifest", () => {
     expect(relation?.amountCents).toBe(20922170);
   });
 
-  it("tolerates a contest without ie_candidates", () => {
-    const markdown = BOS04_FIXTURE.replace(/ie_candidates:[\s\S]*?contributors:/, "contributors:");
-    const manifest = parseSanFranciscoContestManifest({
+  it("rejects absent IE scope instead of claiming zero spending", () => {
+    const markdown = BOS04_FIXTURE.replace(
+      /ie_candidates:[\s\S]*?contributors:/,
+      "contributors:",
+    );
+    expect(() =>
+      parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+    ).toThrow(/ie_candidates is not a list/);
+  });
+
+  it.each(["null", "{}", "false", "unknown"])(
+    "rejects malformed IE scope %s instead of claiming zero spending",
+    (value) => {
+      const markdown = BOS04_FIXTURE.replace(
+        /ie_candidates:[\s\S]*?contributors:/,
+        `ie_candidates: ${value}\ncontributors:`,
+      );
+      expect(() =>
+        parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+      ).toThrow(/ie_candidates is not a list/);
+    },
+  );
+
+  it("accepts an explicit empty IE list only within the valid manifest schema", () => {
+    const markdown = BOS04_FIXTURE.replace(
+      /ie_candidates:[\s\S]*?contributors:/,
+      "ie_candidates: []\ncontributors:",
+    );
+    const result = parseSanFranciscoContestManifest({
       ...PARSE_INPUT,
       markdown,
     });
-    expect(manifest.outsideRelations).toEqual([]);
-    expect(manifest.candidates).toHaveLength(2);
+    expect(result.outsideRelations).toEqual([]);
+    expect(result.candidates).toHaveLength(2);
+    expect(result.schemaFingerprint).toContain("ie_candidates");
+    expect(() =>
+      parseSanFranciscoContestManifest({
+        ...PARSE_INPUT,
+        markdown: markdown.replace("funds: 412371.0", "funds: unavailable"),
+      }),
+    ).toThrow(/non-money funds/);
   });
+
+  it.each(["[null]", "[{}]", "[{candidate_name: ALAN WONG}]"])(
+    "rejects malformed IE entries %s",
+    (value) => {
+      const markdown = BOS04_FIXTURE.replace(
+        /ie_candidates:[\s\S]*?contributors:/,
+        `ie_candidates: ${value}\ncontributors:`,
+      );
+      expect(() =>
+        parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+      ).toThrow(/ie_candidates/);
+    },
+  );
+
+  it("does not turn a malformed target ID into name-only matching", () => {
+    const markdown = BOS04_FIXTURE.replace(
+      "- candidate_name: ALAN WONG\n  filer_id: '1485709'",
+      "- candidate_name: ALAN WONG\n  filer_id: wrong-id",
+    );
+    expect(() =>
+      parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+    ).toThrow(/invalid filer_id/);
+  });
+
+  it.each(["null", "-1", "0.001", "90071992547410"])(
+    "rejects unavailable or inexact outside money %s",
+    (value) => {
+      const markdown = BOS04_FIXTURE.replace(
+        "expenses: 24753.92",
+        `expenses: ${value}`,
+      );
+      expect(() =>
+        parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+      ).toThrow(/non-money expenses/);
+    },
+  );
+
+  it.each([undefined, "2024-11-05"])(
+    "rejects explicit empty IE scope with missing or wrong source election %s",
+    (election) => {
+      const markdown = BOS04_FIXTURE.replace(
+        /ie_candidates:[\s\S]*?contributors:/,
+        "ie_candidates: []\ncontributors:",
+      ).replace(
+        "election: '2026-06-02'\n",
+        election ? `election: '${election}'\n` : "",
+      );
+      expect(() =>
+        parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
+      ).toThrow(/election does not match request/);
+    },
+  );
 
   it("rejects a candidate entry missing committee identity", () => {
     const markdown = BOS04_FIXTURE.replace("  filer_id: '1485709'\n", "");
@@ -154,7 +240,10 @@ describe("parseSanFranciscoContestManifest", () => {
   });
 
   it("rejects an unknown position", () => {
-    const markdown = BOS04_FIXTURE.replace("position: OPPOSE", "position: ASSIST");
+    const markdown = BOS04_FIXTURE.replace(
+      "position: OPPOSE",
+      "position: ASSIST",
+    );
     expect(() =>
       parseSanFranciscoContestManifest({ ...PARSE_INPUT, markdown }),
     ).toThrow(/unknown position: assist/);

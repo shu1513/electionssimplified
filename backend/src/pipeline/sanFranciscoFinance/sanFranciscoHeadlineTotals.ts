@@ -31,10 +31,44 @@ export type SanFranciscoHeadlineTotals = {
   groups: SanFranciscoOutsideGroup[];
 };
 
+function checkedCents(value: number): number {
+  if (!Number.isSafeInteger(value) || value < 0)
+    throw new Error("San Francisco dashboard headline has invalid money");
+  return value;
+}
+
+function addCents(left: number, right: number): number {
+  return checkedCents(checkedCents(left) + checkedCents(right));
+}
+
 export function aggregateSanFranciscoHeadlineTotals(input: {
   manifest: SanFranciscoContestManifest;
   candidate: SanFranciscoManifestCandidate;
 }): SanFranciscoHeadlineTotals {
+  // Revalidate cached/runtime input before filtering. A malformed relation
+  // must not silently disappear from the direction totals or become zero.
+  if (!Array.isArray(input.manifest.outsideRelations))
+    throw new Error(
+      "San Francisco dashboard headline has no outside relations list",
+    );
+  for (const relation of input.manifest.outsideRelations) {
+    if (
+      !relation ||
+      (relation.position !== "support" && relation.position !== "oppose") ||
+      typeof relation.candidateName !== "string" ||
+      !relation.candidateName.trim() ||
+      typeof relation.spenderName !== "string" ||
+      !relation.spenderName.trim() ||
+      (relation.candidateFppcId !== null &&
+        !/^\d{4,12}$/.test(relation.candidateFppcId)) ||
+      (relation.spenderFppcId !== null &&
+        !/^\d{4,12}$/.test(relation.spenderFppcId))
+    )
+      throw new Error(
+        "San Francisco dashboard headline has an invalid outside relation",
+      );
+    checkedCents(relation.amountCents);
+  }
   // A relation targets this candidate by controlled-committee FPPC id when
   // the manifest carries one, by name otherwise — the same order the Phase 3
   // auto-link uses. An id that names a DIFFERENT committee is decisive; the
@@ -63,7 +97,7 @@ export function aggregateSanFranciscoHeadlineTotals(input: {
       amountCents: 0,
       sourceUrl: input.manifest.sourceUrl,
     };
-    current.amountCents += relation.amountCents;
+    current.amountCents = addCents(current.amountCents, relation.amountCents);
     groups.set(key, current);
   }
   const sorted = [...groups.values()].sort(
@@ -72,14 +106,14 @@ export function aggregateSanFranciscoHeadlineTotals(input: {
       a.spenderName.localeCompare(b.spenderName),
   );
   return {
-    totalRaisedCents: input.candidate.fundsCents,
-    totalSpentCents: input.candidate.expensesCents,
+    totalRaisedCents: checkedCents(input.candidate.fundsCents),
+    totalSpentCents: checkedCents(input.candidate.expensesCents),
     outsideSupportCents: sorted
       .filter((group) => group.supportOppose === "support")
-      .reduce((sum, group) => sum + group.amountCents, 0),
+      .reduce((sum, group) => addCents(sum, group.amountCents), 0),
     outsideOpposeCents: sorted
       .filter((group) => group.supportOppose === "oppose")
-      .reduce((sum, group) => sum + group.amountCents, 0),
+      .reduce((sum, group) => addCents(sum, group.amountCents), 0),
     groups: sorted,
   };
 }
