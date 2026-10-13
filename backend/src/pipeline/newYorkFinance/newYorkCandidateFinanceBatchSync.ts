@@ -36,6 +36,10 @@ export type NewYorkCandidateFinanceBatchSyncInput = {
   db: ConnectableQueryable;
   now?: Date;
   dryRun?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  /** Re-query the source even when this linked candidate was recently synced. */
+  refresh?: boolean;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -84,7 +88,11 @@ function assertValidDate(date: Date, label: string): void {
   }
 }
 
-function normalizePositiveInteger(value: number | undefined, fallback: number, label: string): number {
+function normalizePositiveInteger(
+  value: number | undefined,
+  fallback: number,
+  label: string,
+): number {
   const normalized = value ?? fallback;
   if (!Number.isInteger(normalized) || normalized <= 0) {
     throw new Error(`Invalid New York finance batch sync ${label}: ${value}`);
@@ -92,53 +100,70 @@ function normalizePositiveInteger(value: number | undefined, fallback: number, l
   return normalized;
 }
 
-export const listDueNewYorkCandidateFinanceSyncRows = createStandardStateFinanceDueListQuery({
-  state: "NY",
-  tables: {
-    links: "ny_candidate_finance_links",
-    summaries: "ny_candidate_finance_summaries",
-  },
-  eligibleOfficeKeys: NEW_YORK_FINANCE_ELIGIBLE_OFFICE_KEYS,
-  linkColumns: ["filer_id", "filer_name"],
-  mapRow: (row): NewYorkCandidateFinanceDueRow => ({
-    candidateId: row.candidate_id,
-    electionId: row.election_id,
-    candidateName: row.candidate_name,
-    electionYear: row.election_year,
-    officeScope: row.office_scope,
-    officeName: row.office_name,
-    district: row.district,
-    filerId: row.filer_id as string,
-    filerName: row.filer_name as string,
-    sourceUrl: row.source_url,
-    lastSyncedAt: row.last_synced_at,
-  }),
-});
+export const listDueNewYorkCandidateFinanceSyncRows =
+  createStandardStateFinanceDueListQuery({
+    state: "NY",
+    tables: {
+      links: "ny_candidate_finance_links",
+      summaries: "ny_candidate_finance_summaries",
+    },
+    eligibleOfficeKeys: NEW_YORK_FINANCE_ELIGIBLE_OFFICE_KEYS,
+    linkColumns: ["filer_id", "filer_name"],
+    mapRow: (row): NewYorkCandidateFinanceDueRow => ({
+      candidateId: row.candidate_id,
+      electionId: row.election_id,
+      candidateName: row.candidate_name,
+      electionYear: row.election_year,
+      officeScope: row.office_scope,
+      officeName: row.office_name,
+      district: row.district,
+      filerId: row.filer_id as string,
+      filerName: row.filer_name as string,
+      sourceUrl: row.source_url,
+      lastSyncedAt: row.last_synced_at,
+    }),
+  });
 
 export async function syncDueNewYorkCandidateFinance(
-  input: NewYorkCandidateFinanceBatchSyncInput
+  input: NewYorkCandidateFinanceBatchSyncInput,
 ): Promise<NewYorkCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
 
-  const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
-  const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
+  const maxCandidates = normalizePositiveInteger(
+    input.maxCandidates,
+    DEFAULT_MAX_CANDIDATES,
+    "maxCandidates",
+  );
+  const staleAfterDays = normalizePositiveInteger(
+    input.staleAfterDays,
+    DEFAULT_STALE_AFTER_DAYS,
+    "staleAfterDays",
+  );
   const electionLookbackDays = normalizePositiveInteger(
     input.electionLookbackDays,
     DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS,
-    "electionLookbackDays"
+    "electionLookbackDays",
   );
   const electionLookaheadDays = normalizePositiveInteger(
     input.electionLookaheadDays,
     DEFAULT_ELECTION_LOOKAHEAD_DAYS,
-    "electionLookaheadDays"
+    "electionLookaheadDays",
   );
   const dryRun = input.dryRun === true;
-  const syncFn = input.syncNewYorkCandidateFinanceFn ?? syncNewYorkCandidateFinance;
+  const syncFn =
+    input.syncNewYorkCandidateFinanceFn ?? syncNewYorkCandidateFinance;
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
 
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  // Explicit scope refreshes existing links only; never auto-link unrelated
+  // candidates before a targeted proof or post-deadline rerun.
+  if (
+    !dryRun &&
+    input.autoLinkMissingLinks !== false &&
+    input.candidateId === undefined &&
+    input.electionYear === undefined
+  ) {
     try {
       const missingLinkCandidates: NewYorkFinanceAutoLinkCandidateElection[] =
         await listNewYorkCandidateElectionsMissingFinanceLinks(input.db, {
@@ -148,26 +173,33 @@ export async function syncDueNewYorkCandidateFinance(
           electionLookaheadDays,
         });
       autoLinkAttemptedCount = missingLinkCandidates.length;
-      const autoLinkResults = await autoLinkMissingNewYorkCandidateFinanceLinks({
-        db: input.db,
-        now,
-        maxCandidates,
-        electionLookbackDays,
-        electionLookaheadDays,
-        candidateElections: missingLinkCandidates,
-        sodaClientOptions: input.sodaClientOptions,
-        resolveCandidateCommittee: input.resolveCandidateCommittee,
-      });
-      autoLinkLinkedCount = autoLinkResults.filter((result) => result.status === "linked").length;
+      const autoLinkResults = await autoLinkMissingNewYorkCandidateFinanceLinks(
+        {
+          db: input.db,
+          now,
+          maxCandidates,
+          electionLookbackDays,
+          electionLookaheadDays,
+          candidateElections: missingLinkCandidates,
+          sodaClientOptions: input.sodaClientOptions,
+          resolveCandidateCommittee: input.resolveCandidateCommittee,
+        },
+      );
+      autoLinkLinkedCount = autoLinkResults.filter(
+        (result) => result.status === "linked",
+      ).length;
       for (const result of autoLinkResults) {
         if (result.status !== "linked") {
-          console.warn("New York finance auto-link did not link candidate election:", result);
+          console.warn(
+            "New York finance auto-link did not link candidate election:",
+            result,
+          );
         }
       }
     } catch (error) {
       console.warn(
         "New York finance auto-link skipped; continuing with already-linked candidate sync:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
     }
   }
@@ -178,6 +210,9 @@ export async function syncDueNewYorkCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    candidateId: input.candidateId,
+    electionYear: input.electionYear,
+    refresh: input.refresh,
   });
 
   const results: NewYorkCandidateFinanceBatchSyncItemResult[] = [];

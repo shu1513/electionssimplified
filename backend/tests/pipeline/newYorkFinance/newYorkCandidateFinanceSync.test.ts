@@ -59,6 +59,33 @@ function baseSyncInput(db: ReturnType<typeof createMockDb>) {
 }
 
 describe("syncNewYorkCandidateFinance", () => {
+  it("preserves prior outside components when no positive source allocations resolve", async () => {
+    const db = createMockDb();
+    const result = await syncNewYorkCandidateFinance({
+      ...baseSyncInput(db), sodaClientOptions: {}, trustedCommittee: { filerId: "16851", filerName: "Friends for Kathy Hochul" },
+      nyClient: {
+        collectOutsideSpending: async () => ({ groups: [], supportTotal: 0, opposeTotal: 0, counters: { ...OUTSIDE_COUNTERS, acceptedRowCount: 0 } }),
+        collectDirectCampaign: async () => ({ directContributionTotal: 100, totalDisbursements: null, breakdowns: [], pacDonors: [], receiptRowCount: 1, lumpRowCount: 0 }),
+      },
+    });
+    expect(result).toMatchObject({ outsideSupportTotal: null, outsideOpposeTotal: null, knownOutsideSupportTotal: null, outsideGroupsWritten: 0 });
+    const statements = db.client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some(sql => /DELETE FROM public\.ny_candidate_finance_outside/.test(sql))).toBe(false);
+    const summary = db.client.query.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO public.ny_candidate_finance_summaries"));
+    expect(summary?.[1]?.slice(6, 8)).toEqual([null, null]);
+  });
+
+  it("leaves all stored components untouched when a source fetch fails after IE acquisition", async () => {
+    const db = createMockDb();
+    await expect(syncNewYorkCandidateFinance({
+      ...baseSyncInput(db), sodaClientOptions: {}, trustedCommittee: { filerId: "16851", filerName: "Friends for Kathy Hochul" },
+      nyClient: {
+        collectOutsideSpending: async () => ({ groups: [], supportTotal: 0, opposeTotal: 0, counters: OUTSIDE_COUNTERS }),
+        collectDirectCampaign: async () => { throw new Error("Source paging failed"); },
+      },
+    })).rejects.toThrow("Source paging failed");
+    expect(db.connect).not.toHaveBeenCalled();
+  });
   it("writes a full snapshot with direct campaign data and rule-classified industries", async () => {
     const db = createMockDb();
     const nyClient = {
@@ -84,6 +111,7 @@ describe("syncNewYorkCandidateFinance", () => {
         skippedIndividualRowCount: 0,
       })),
       collectDirectCampaign: vi.fn(async () => ({
+        pacDonors: [{ committeeId: "reported:EXAMPLE PAC", committeeName: "Example PAC", sourceReportedClass: "Political Action Committee (PAC)" as const, amount: 5_000, contributionCount: 1, sourceUrl: "https://data.ny.gov/d/e9ss-239a" }],
         directContributionTotal: 5_454_286.73,
         totalDisbursements: 3_706_000.56,
         breakdowns: [
@@ -129,10 +157,14 @@ describe("syncNewYorkCandidateFinance", () => {
       directContributionTotal: 5_454_286.73,
       totalDisbursements: 3_706_000.56,
       directReceiptRowCount: 8_442,
+      pacDonorsWritten: 1,
+      pacReceiptTotal: 5_000,
       outsideGroupsWritten: 1,
       outsideGroupBreakdownsWritten: 2,
-      outsideSupportTotal: 12_320_650.23,
-      outsideOpposeTotal: 0,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
+      knownOutsideSupportTotal: 12_320_650.23,
+      knownOutsideOpposeTotal: null,
       outsideGroupCount: 1,
       outsideFunderRowCount: 28,
       outsideCounters: OUTSIDE_COUNTERS,
@@ -140,12 +172,14 @@ describe("syncNewYorkCandidateFinance", () => {
 
     const statements = db.client.query.mock.calls.map((call) => [String(call[0]), call[1]] as const);
     const linkInsert = statements.find(([sql]) => sql.includes("INSERT INTO public.ny_candidate_finance_links"));
+    const donorInsert = statements.find(([sql]) => sql.includes("INSERT INTO public.ny_candidate_finance_pac_donors"));
+    expect(donorInsert?.[1]).toContain("reported:EXAMPLE PAC");
     expect(linkInsert?.[1]).toContain("16851");
 
     const summaryInsert = statements.find(([sql]) => sql.includes("INSERT INTO public.ny_candidate_finance_summaries"));
     // Phase 2: direct totals fill in; cash_on_hand stays null (no opening balances).
     expect(summaryInsert?.[1]?.slice(2, 6)).toEqual([5_454_286.73, 5_454_286.73, 3_706_000.56, null]);
-    expect(summaryInsert?.[1]).toContain(12_320_650.23);
+    expect(summaryInsert?.[1]?.slice(6, 8)).toEqual([null, null]);
 
     const directInserts = statements.filter(([sql]) =>
       sql.includes("INSERT INTO public.ny_candidate_finance_direct_breakdowns")
@@ -206,6 +240,7 @@ describe("syncNewYorkCandidateFinance", () => {
         skippedIndividualRowCount: 0,
       })),
       collectDirectCampaign: vi.fn(async () => ({
+        pacDonors: [],
         directContributionTotal: 0,
         totalDisbursements: null,
         breakdowns: [],
@@ -236,8 +271,10 @@ describe("syncNewYorkCandidateFinance", () => {
       dryRun: true,
       linkWritten: false,
       outsideGroupsWritten: 0,
-      outsideSupportTotal: 12_320_650.23,
-      outsideOpposeTotal: 10,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
+      knownOutsideSupportTotal: 12_320_650.23,
+      knownOutsideOpposeTotal: 10,
     });
     expect(db.connect).not.toHaveBeenCalled();
   });

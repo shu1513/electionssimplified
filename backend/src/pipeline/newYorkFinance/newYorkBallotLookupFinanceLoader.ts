@@ -11,6 +11,7 @@ import {
   parseFinanceAmount,
   parseFinanceCount,
   type BallotLookupFinanceBreakdown,
+  type BallotLookupFinancePacInterest,
   type BallotLookupFinanceOutsideGroup,
   type BallotLookupFinanceOutsideIndustrySupportEvidence,
   type BallotLookupFinanceOutsideIndustrySupportSummary,
@@ -24,20 +25,126 @@ import {
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 
+import { classifyFinanceLabel } from "../finance/financeLabelClassifier.js";
+import {
+  PAC_INTERESTS_NOT_LISTED,
+  pacInterestDisplayName,
+  UNCLASSIFIED_PAC_INTEREST,
+} from "../finance/pacInterestClassifier.js";
+
 type Queryable = Pick<Pool | PoolClient, "query">;
 
 const GENERIC_NEW_YORK_SODA_SOURCE_URL = "https://data.ny.gov/d/e9ss-239a";
 
+export const NEW_YORK_PAC_COVERAGE_NOTE =
+  "Reported PAC monetary receipts are gross cash receipts; refunds and in-kind are excluded. This is a source snapshot, not net support or complete rapid-filings coverage. Publisher updates can lag filings. Reported names identify donor groups rather than legal PAC accounts; these amounts are already part of Raised.";
+export const NEW_YORK_OUTSIDE_COVERAGE_NOTE =
+  "Known itemized allocations from published Schedule R are shown. Unresolved parent rows and rapid reports are excluded; overall outside totals are unknown. Retained group amounts may come from earlier successful source syncs.";
+type NewYorkPacDonorRow = {
+  candidate_id: string;
+  election_id: string;
+  committee_id: string;
+  committee_name: string;
+  source_reported_class: string;
+  amount: string | number;
+  source_url: string | null;
+  industry_slug: string | null;
+  classification_source: string | null;
+  confidence: string | null;
+};
+function groupPacDonors(
+  rows: readonly NewYorkPacDonorRow[],
+): Map<string, BallotLookupFinancePacInterest[]> {
+  const candidates = new Map<
+    string,
+    Map<string, BallotLookupFinancePacInterest>
+  >();
+  for (const row of rows) {
+    if (row.source_reported_class !== "Political Action Committee (PAC)")
+      continue;
+    const amount = parseFinanceAmount(row.amount);
+    if (amount === null || amount <= 0) continue;
+    const rule = classifyFinanceLabel({
+      rawLabel: row.committee_name,
+      labelType: "committee",
+    });
+    const stored =
+      row.industry_slug &&
+      (row.classification_source === "manual" ||
+        (row.confidence === "high" &&
+          ["rule", "ai"].includes(row.classification_source ?? "")))
+        ? row.industry_slug
+        : null;
+    const ruleInterest =
+      rule.classificationSource === "rule" && rule.confidence === "high"
+        ? rule.industrySlug
+        : null;
+    const classified = stored ?? ruleInterest ?? UNCLASSIFIED_PAC_INTEREST;
+    // Existing PAC interest display excludes known other-politician/candidate groups.
+    // Unknown classifications remain visible as Not yet sorted.
+    if ((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(classified))
+      continue;
+    const interest = classified;
+    const key = candidateElectionKey(row.candidate_id, row.election_id),
+      interests =
+        candidates.get(key) ??
+        new Map<string, BallotLookupFinancePacInterest>();
+    const entry = interests.get(interest) ?? {
+      interest,
+      interest_name: pacInterestDisplayName(interest),
+      amount: 0,
+      pac_count: 0,
+      pacs: [],
+    };
+    entry.amount = Math.round((entry.amount + amount) * 100) / 100;
+    entry.pac_count++;
+    entry.pacs.push({
+      committee_id: row.committee_id,
+      committee_name: row.committee_name,
+      amount,
+      source_url: firstNonEmptySourceUrl(
+        row.source_url,
+        GENERIC_NEW_YORK_SODA_SOURCE_URL,
+      ),
+    });
+    interests.set(interest, entry);
+    candidates.set(key, interests);
+  }
+  return new Map(
+    [...candidates].map(([key, interests]) => [
+      key,
+      [...interests.values()]
+        .map((entry) => ({
+          ...entry,
+          pacs: entry.pacs
+            .sort(
+              (a, b) =>
+                b.amount - a.amount ||
+                a.committee_name.localeCompare(b.committee_name),
+            )
+            .slice(0, 5),
+        }))
+        .sort(
+          (a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest),
+        ),
+    ]),
+  );
+}
+
 export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly StateFinanceRequestCandidateRow[],
-  electionRows: readonly StateFinanceRequestElectionRow[]
+  electionRows: readonly StateFinanceRequestElectionRow[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
   if (!isNewYorkCampaignFinanceEnabled()) {
     return new Map();
   }
 
-  const requests = buildStateFinanceSummaryRequests("NY", candidateRows, electionRows);
+  const requests = buildStateFinanceSummaryRequests(
+    "NY",
+    candidateRows,
+    electionRows,
+  );
   if (requests.length === 0) {
     return new Map();
   }
@@ -82,7 +189,7 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
        AND summary.election_year = link.election_year
       GROUP BY requested.candidate_id, requested.election_id
     `,
-    [JSON.stringify(requests)]
+    [JSON.stringify(requests)],
   );
 
   if (summaryResult.rows.length === 0) {
@@ -145,7 +252,7 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, category_type, amount DESC, category_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
+    [JSON.stringify(selectedRequests)],
   );
 
   const outsideGroupResult = await db.query<StateFinanceOutsideGroupRow>(
@@ -192,7 +299,7 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, support_oppose, amount DESC, committee_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
+    [JSON.stringify(selectedRequests)],
   );
 
   const outsideIndustryResult = await db.query<StateFinanceOutsideIndustryRow>(
@@ -264,11 +371,12 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, support_oppose, amount DESC, category_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
+    [JSON.stringify(selectedRequests)],
   );
 
-  const outsideDonorEvidenceResult = await db.query<StateFinanceOutsideDonorEvidenceRow>(
-    `
+  const outsideDonorEvidenceResult =
+    await db.query<StateFinanceOutsideDonorEvidenceRow>(
+      `
       WITH selected AS (
         SELECT
           candidate_id::uuid AS candidate_id,
@@ -368,54 +476,124 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
       WHERE rn <= 3
       ORDER BY candidate_id, election_id, industry_name, amount DESC, organization_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
-  );
+      [JSON.stringify(selectedRequests)],
+    );
 
-  const contributionSizeBucketsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
-  const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
+  // Full candidate/election donor positions across every active receiving link are summed
+  // before positive display and five-name caps. Exact source class is never inferred by name.
+  const pacDonorResult = await db.query<NewYorkPacDonorRow>(
+    `
+    WITH selected AS (
+      SELECT candidate_id::uuid AS candidate_id,election_id::uuid AS election_id
+      FROM jsonb_to_recordset($1::jsonb) AS x(candidate_id text,election_id text)
+    ), grouped AS (
+      SELECT selected.candidate_id::text AS candidate_id,selected.election_id::text AS election_id,
+        donor.committee_id,min(donor.committee_name) AS committee_name,
+        min(donor.source_reported_class) AS source_reported_class,sum(donor.amount) AS amount,
+        min(donor.source_url) FILTER (WHERE donor.source_url IS NOT NULL) AS source_url
+      FROM selected JOIN public.ny_candidate_finance_links AS link
+        ON link.candidate_id=selected.candidate_id AND link.election_id=selected.election_id AND link.link_status='active'
+      JOIN public.ny_candidate_finance_pac_donors AS donor
+        ON donor.link_id=link.id AND donor.election_year=link.election_year
+      WHERE donor.source_reported_class='Political Action Committee (PAC)'
+      GROUP BY selected.candidate_id,selected.election_id,donor.committee_id
+    )
+    SELECT grouped.*,classification.industry_slug,classification.classification_source,classification.confidence
+    FROM grouped LEFT JOIN public.finance_label_classifications AS classification
+      ON classification.label_type='committee'
+     AND classification.normalized_label=public.normalize_finance_label(grouped.committee_name)
+    ORDER BY candidate_id,election_id,amount DESC,committee_name ASC`,
+    [JSON.stringify(selectedRequests)],
+  );
+  const pacInterestsByCandidateElection = groupPacDonors(pacDonorResult.rows);
+
+  const contributionSizeBucketsByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
+  const directIndustriesByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
   const summaryByCandidateElection = new Map(
-    summaryResult.rows.map((row) => [candidateElectionKey(row.candidate_id, row.election_id), row])
+    summaryResult.rows.map((row) => [
+      candidateElectionKey(row.candidate_id, row.election_id),
+      row,
+    ]),
   );
   for (const row of directBreakdownResult.rows) {
-    const summary = summaryByCandidateElection.get(candidateElectionKey(row.candidate_id, row.election_id));
+    const summary = summaryByCandidateElection.get(
+      candidateElectionKey(row.candidate_id, row.election_id),
+    );
     const targetMap =
-      row.category_type === "industry" ? directIndustriesByCandidateElection : contributionSizeBucketsByCandidateElection;
+      row.category_type === "industry"
+        ? directIndustriesByCandidateElection
+        : contributionSizeBucketsByCandidateElection;
     addFinanceBreakdown(
       targetMap,
       row.candidate_id,
       row.election_id,
-      mapFinanceBreakdown(row, summary?.source_url ?? GENERIC_NEW_YORK_SODA_SOURCE_URL)
+      mapFinanceBreakdown(
+        row,
+        summary?.source_url ?? GENERIC_NEW_YORK_SODA_SOURCE_URL,
+      ),
     );
   }
 
-  const supportingGroupsByCandidateElection = new Map<string, BallotLookupFinanceOutsideGroup[]>();
-  const opposingGroupsByCandidateElection = new Map<string, BallotLookupFinanceOutsideGroup[]>();
-  const outsideGroupNameByCandidateElectionCommittee = new Map<string, string>();
+  const supportingGroupsByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceOutsideGroup[]
+  >();
+  const opposingGroupsByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceOutsideGroup[]
+  >();
+  const outsideGroupNameByCandidateElectionCommittee = new Map<
+    string,
+    string
+  >();
   for (const row of outsideGroupResult.rows) {
     const key = candidateElectionKey(row.candidate_id, row.election_id);
-    const map = row.support_oppose === "support" ? supportingGroupsByCandidateElection : opposingGroupsByCandidateElection;
+    const map =
+      row.support_oppose === "support"
+        ? supportingGroupsByCandidateElection
+        : opposingGroupsByCandidateElection;
     const list = map.get(key) ?? [];
     list.push({
       committee_id: row.committee_id,
       committee_name: row.committee_name,
       support_oppose: row.support_oppose,
       amount: parseFinanceAmount(row.amount) ?? 0,
-      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_NEW_YORK_SODA_SOURCE_URL),
+      source_url: firstNonEmptySourceUrl(
+        row.source_url,
+        GENERIC_NEW_YORK_SODA_SOURCE_URL,
+      ),
     });
     map.set(key, list);
-    outsideGroupNameByCandidateElectionCommittee.set(`${key}\u0000${row.committee_id}\u0000${row.support_oppose}`, row.committee_name);
+    outsideGroupNameByCandidateElectionCommittee.set(
+      `${key}\u0000${row.committee_id}\u0000${row.support_oppose}`,
+      row.committee_name,
+    );
   }
 
-  const supportingIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
-  const opposingIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
+  const supportingIndustriesByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
+  const opposingIndustriesByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
   for (const row of outsideIndustryResult.rows) {
     const map =
-      row.support_oppose === "support" ? supportingIndustriesByCandidateElection : opposingIndustriesByCandidateElection;
+      row.support_oppose === "support"
+        ? supportingIndustriesByCandidateElection
+        : opposingIndustriesByCandidateElection;
     addFinanceBreakdown(
       map,
       row.candidate_id,
       row.election_id,
-      mapFinanceBreakdown(row, GENERIC_NEW_YORK_SODA_SOURCE_URL)
+      mapFinanceBreakdown(row, GENERIC_NEW_YORK_SODA_SOURCE_URL),
     );
   }
 
@@ -424,9 +602,14 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
     BallotLookupFinanceOutsideIndustrySupportEvidence[]
   >();
   for (const row of outsideDonorEvidenceResult.rows) {
-    const candidateKey = candidateElectionKey(row.candidate_id, row.election_id);
+    const candidateKey = candidateElectionKey(
+      row.candidate_id,
+      row.election_id,
+    );
     const evidenceKey = `${candidateKey}\u0000${row.industry_name}`;
-    const list = outsideIndustryEvidenceByCandidateElectionAndIndustry.get(evidenceKey) ?? [];
+    const list =
+      outsideIndustryEvidenceByCandidateElectionAndIndustry.get(evidenceKey) ??
+      [];
     list.push({
       organization_name: row.organization_name,
       organization_type: row.organization_type ?? "donor",
@@ -434,31 +617,48 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
       contributor_count: parseFinanceCount(row.contributor_count),
       committee_id: row.committee_id,
       committee_name:
-        outsideGroupNameByCandidateElectionCommittee.get(`${candidateKey}\u0000${row.committee_id}\u0000${row.support_oppose}`) ??
-        row.committee_name,
-      source_url: firstNonEmptySourceUrl(row.source_url, GENERIC_NEW_YORK_SODA_SOURCE_URL),
+        outsideGroupNameByCandidateElectionCommittee.get(
+          `${candidateKey}\u0000${row.committee_id}\u0000${row.support_oppose}`,
+        ) ?? row.committee_name,
+      source_url: firstNonEmptySourceUrl(
+        row.source_url,
+        GENERIC_NEW_YORK_SODA_SOURCE_URL,
+      ),
     });
     outsideIndustryEvidenceByCandidateElectionAndIndustry.set(
       evidenceKey,
-      list.sort((left, right) => right.amount - left.amount || left.organization_name.localeCompare(right.organization_name)).slice(0, 5)
+      list
+        .sort(
+          (left, right) =>
+            right.amount - left.amount ||
+            left.organization_name.localeCompare(right.organization_name),
+        )
+        .slice(0, 5),
     );
   }
 
   return new Map(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
-      const contributionSizeBuckets = contributionSizeBucketsByCandidateElection.get(key) ?? [];
-      const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
-        (industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
-          const evidenceKey = `${key}\u0000${industry.category_name}`;
-          const supportingOrganizations = outsideIndustryEvidenceByCandidateElectionAndIndustry.get(evidenceKey) ?? [];
-          return {
-            ...industry,
-            explanation: buildOutsideIndustrySupportExplanation(industry.category_name, supportingOrganizations),
-            supporting_organizations: supportingOrganizations,
-          };
-        }
-      );
+      const contributionSizeBuckets =
+        contributionSizeBucketsByCandidateElection.get(key) ?? [];
+      const topOutsideSupportingIndustries = (
+        supportingIndustriesByCandidateElection.get(key) ?? []
+      ).map((industry): BallotLookupFinanceOutsideIndustrySupportSummary => {
+        const evidenceKey = `${key}\u0000${industry.category_name}`;
+        const supportingOrganizations =
+          outsideIndustryEvidenceByCandidateElectionAndIndustry.get(
+            evidenceKey,
+          ) ?? [];
+        return {
+          ...industry,
+          explanation: buildOutsideIndustrySupportExplanation(
+            industry.category_name,
+            supportingOrganizations,
+          ),
+          supporting_organizations: supportingOrganizations,
+        };
+      });
       return [
         key,
         {
@@ -468,7 +668,9 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
           controlled_committee_id: row.committee_id,
           last_synced_at: row.last_synced_at,
           direct_campaign: {
-            total_raised: parseFinanceAmount(row.direct_contribution_total) ?? parseFinanceAmount(row.total_receipts),
+            total_raised:
+              parseFinanceAmount(row.direct_contribution_total) ??
+              parseFinanceAmount(row.total_receipts),
             total_spent: parseFinanceAmount(row.total_disbursements),
             cash_on_hand: parseFinanceAmount(row.cash_on_hand),
             debts_owed: null,
@@ -477,14 +679,26 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
             top_employers: [],
             top_industries: directIndustriesByCandidateElection.get(key) ?? [],
             contribution_size_buckets: contributionSizeBuckets,
+            ...(pacInterestsByCandidateElection.has(key)
+              ? {
+                  pac_money_by_interest:
+                    pacInterestsByCandidateElection.get(key),
+                  direct_coverage_note: NEW_YORK_PAC_COVERAGE_NOTE,
+                }
+              : {}),
           },
           outside_spending: {
-            support_total: parseFinanceAmount(row.outside_support_total),
-            oppose_total: parseFinanceAmount(row.outside_oppose_total),
-            top_supporting_groups: supportingGroupsByCandidateElection.get(key) ?? [],
-            top_opposing_groups: opposingGroupsByCandidateElection.get(key) ?? [],
-            top_supporting_industries: supportingIndustriesByCandidateElection.get(key) ?? [],
-            top_opposing_industries: opposingIndustriesByCandidateElection.get(key) ?? [],
+            support_total: null,
+            oppose_total: null,
+            outside_coverage_note: NEW_YORK_OUTSIDE_COVERAGE_NOTE,
+            top_supporting_groups:
+              supportingGroupsByCandidateElection.get(key) ?? [],
+            top_opposing_groups:
+              opposingGroupsByCandidateElection.get(key) ?? [],
+            top_supporting_industries:
+              supportingIndustriesByCandidateElection.get(key) ?? [],
+            top_opposing_industries:
+              opposingIndustriesByCandidateElection.get(key) ?? [],
           },
           backing_summary: {
             top_direct_donor_occupations: [],
@@ -492,6 +706,6 @@ export async function loadNewYorkCandidateFinanceSummariesByCandidateElection(
           },
         } satisfies BallotLookupFinanceSummary,
       ];
-    })
+    }),
   );
 }

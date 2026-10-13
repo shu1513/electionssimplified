@@ -21,6 +21,10 @@ export const NEW_YORK_PUBLIC_CAMPAIGN_FINANCE_COMMITTEE_TYPE = "Public Campaign 
 const FILER_ID_CHUNK_SIZE = 50;
 const TRANS_NUMBER_CHUNK_SIZE = 50;
 const RECEIPT_SCHEDULE_ABBREVS = ["A", "B", "C", "D"] as const;
+// A single statewide fundraising cycle can exceed 25,000 receipts (Hochul:
+// 48,691 source rows on 2026-10-12). Larger bounded pages avoid aborting after
+// successful IE acquisition; the existing max-page guard still applies.
+const DEFAULT_RECEIPT_PAGE_LIMIT = 5_000;
 
 export type NewYorkSodaClientErrorCode = "invalid_request" | "network_error" | "http_error" | "bad_response";
 
@@ -85,6 +89,9 @@ export type NewYorkParentExpenditureRow = {
 };
 
 export type NewYorkCommitteeReceiptRow = {
+  /** Public source occurrence keys, required on live named PAC cash receipts. */
+  filingTransId?: string;
+  transNumber?: string;
   entityName: string;
   entityFirstName: string;
   entityLastName: string;
@@ -298,7 +305,10 @@ async function fetchNewYorkSodaRows(
   if (!Array.isArray(payload)) {
     throw new NewYorkSodaClientError("bad_response", "New York SODA response is missing the result array");
   }
-  return payload.filter(isRecord);
+  if (!payload.every(isRecord)) {
+    throw new NewYorkSodaClientError("bad_response", "New York SODA response contains a malformed row");
+  }
+  return payload;
 }
 
 // Socrata paging requires a stable $order; callers must pass one.
@@ -316,6 +326,9 @@ async function fetchNewYorkSodaPagedRows(
       { ...params, $limit: limit, $offset: pageIndex * limit },
       options
     );
+    if (page.length > limit) {
+      throw new NewYorkSodaClientError("bad_response", "New York SODA response exceeds the requested page limit");
+    }
     rows.push(...page);
     if (page.length < limit) {
       return rows;
@@ -555,14 +568,26 @@ export async function getNewYorkParentExpenditures(
 function committeeReceiptFromRow(row: Record<string, unknown>): NewYorkCommitteeReceiptRow | null {
   const amount = getAmount(row, "org_amt");
   const scheduleAbbrev = getString(row, "filing_sched_abbrev");
+  if (amount === null || !RECEIPT_SCHEDULE_ABBREVS.includes(scheduleAbbrev as typeof RECEIPT_SCHEDULE_ABBREVS[number])) {
+    throw new NewYorkSodaClientError("bad_response", "Incomplete New York monetary receipt source row");
+  }
+  const contributorType = getNullableString(row, "cntrbr_type_desc");
+  const filingTransId = getString(row, "filing_trans_id");
+  const transNumber = getString(row, "trans_number");
+  if (["A", "B", "C"].includes(scheduleAbbrev) && contributorType?.toUpperCase().replace(/\s+/g, " ") === "POLITICAL ACTION COMMITTEE (PAC)" &&
+      (amount === null || amount < 0 || !filingTransId || !transNumber || !getString(row, "flng_ent_name") || getString(row, "flng_ent_first_name") || getString(row, "flng_ent_last_name"))) {
+    throw new NewYorkSodaClientError("bad_response", "Incomplete or ambiguous New York reported PAC monetary receipt");
+  }
   if (amount === null || amount <= 0 || !scheduleAbbrev) {
     return null;
   }
   return {
+    filingTransId,
+    transNumber,
     entityName: getString(row, "flng_ent_name"),
     entityFirstName: getString(row, "flng_ent_first_name"),
     entityLastName: getString(row, "flng_ent_last_name"),
-    contributorType: getNullableString(row, "cntrbr_type_desc"),
+    contributorType,
     scheduleAbbrev,
     amount,
   };
@@ -577,7 +602,7 @@ export async function getNewYorkCommitteeItemizedReceipts(
   const rows = await fetchNewYorkSodaPagedRows(
     NEW_YORK_SODA_DISCLOSURES_DATASET,
     {
-      $select: "flng_ent_name,flng_ent_first_name,flng_ent_last_name,cntrbr_type_desc,filing_sched_abbrev,org_amt",
+      $select: "filing_trans_id,trans_number,flng_ent_name,flng_ent_first_name,flng_ent_last_name,cntrbr_type_desc,filing_sched_abbrev,org_amt",
       $where: [
         `filer_id=${soqlString(filerId)}`,
         `filing_sched_abbrev IN ${soqlInList([...RECEIPT_SCHEDULE_ABBREVS])}`,
@@ -587,7 +612,7 @@ export async function getNewYorkCommitteeItemizedReceipts(
       ].join(" AND "),
       $order: "filing_trans_id",
     },
-    options
+    { pageLimit: DEFAULT_RECEIPT_PAGE_LIMIT, ...options }
   );
   return rows.map(committeeReceiptFromRow).filter((row): row is NewYorkCommitteeReceiptRow => row !== null);
 }
