@@ -23,6 +23,34 @@ The 312 unlinked eligible contexts do not inflate this denominator. The full
    must qualify before any named-money write. Other source classes and legal
    registry identity remain separate from reported names.
 
+## Normal PDF geometry step — October 13, 2026
+
+The backend now extracts untouched PDFs with the existing Node `pdfjs-dist`
+runtime, one page at a time. Actual painted table borders, exact receipt headers
+and the nearest preceding header bind each row, including mid-page in-kind
+transitions. The receipt amount remains distinct from Aggregate; returns use
+Return Amount rather than the original contribution value. Split vector-path
+chunks retain their current point. Fill-only zero-area paths, off-page dates,
+missing borders, ambiguous values and unknown headers cannot establish a row.
+Cover/summary heights vary; receipt schedules require their observed 595×842
+page geometry. No donor-text derivative is persisted.
+
+Genuine offline replay verifies all 1,063 native originals and 105,360 current
+rows, then reads every page of four current modern PDFs. Pre-Primary 2 has
+8,100 gifts/34 returns, Pre-General 1 has 18,096/83, and Pre-Primary 1 has
+7,859/101: all three match complete date, cents and literal name/full-address
+occurrence multisets, with no missing or extra occurrence. Equal gifts remain
+distinct. Terminal ZIP+4 wrapping preserves all nine digits and the hyphen;
+native address assembly requires exact agreement with its separate raw ZIP.
+
+Annual 2026 has 48,629 gifts/274 returns with exact monetary multiplicity, but
+one gift identity remains unmatched. Both independent physical parsing and the
+normal Node parser observe that same residual. The full report remains held
+while its original physical page is inspected. Anonymous receipts are a separate
+published aggregate, not fabricated itemized rows. These are parser facts, not
+current-report or financial acceptance. All 296 Maryland pipeline tests and
+backend types pass. No Maryland money write, migration, card proof or PR yet.
+
 ## Small steps and verification
 
 - Preserve unresolved outside groups, funder details and scalar values while
