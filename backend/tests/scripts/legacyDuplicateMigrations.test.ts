@@ -44,6 +44,13 @@ describe("legacy duplicate migration allowlist", () => {
           filename.startsWith(`${prefix}_`),
           `${filename} does not carry prefix ${prefix}`
         ).toBe(true);
+        // #1575 is still a separate open PR. Predeclare its already-applied
+        // filename so #1578 can merge first without importing Kansas code.
+        // Every other allowlisted file, including #1578's own, must exist.
+        if (filename === "336_add_kansas_independent_expenditure_evidence.sql" && !onDisk.has(filename)) {
+          expect(onDisk.has("336_add_limit_foreign_influence_research_area.sql")).toBe(true);
+          continue;
+        }
         // A stale entry means an allowlisted migration was renamed — the one
         // thing this list exists to prevent.
         expect(onDisk.has(filename), `${filename} is allowlisted but not in db/migrations`).toBe(
@@ -72,6 +79,19 @@ describe("legacy duplicate migration allowlist", () => {
       unallowed,
       "new duplicate prefixes must be allowlisted (never renumber an applied migration)"
     ).toEqual([]);
+  });
+
+  it("accepts the applied 336 pair in either order but rejects new collisions", () => {
+    const pair = [
+      "336_add_kansas_independent_expenditure_evidence.sql",
+      "336_add_limit_foreign_influence_research_area.sql",
+    ];
+    expect(isLegacyDuplicateMigrationSet("336", pair)).toBe(true);
+    expect(isLegacyDuplicateMigrationSet("336", [...pair].reverse())).toBe(true);
+    expect(isLegacyDuplicateMigrationSet("336", [pair[0]!])).toBe(false);
+    expect(isLegacyDuplicateMigrationSet("336", [pair[1]!])).toBe(false);
+    expect(isLegacyDuplicateMigrationSet("336", [...pair, "336_unreviewed.sql"])).toBe(false);
+    expect(isLegacyDuplicateMigrationSet("336", [pair[0]!, "336_unreviewed.sql"])).toBe(false);
   });
 
   it("matches only the exact allowlisted filename set", () => {

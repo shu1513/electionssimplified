@@ -3595,3 +3595,59 @@ JOIN public.research_areas ra
 ON CONFLICT (office_id, research_area_id) DO NOTHING;
 
 DROP TABLE curated_office_core_areas;
+
+-- Keep these links after the office-specific reconciliation above.
+DO $$
+DECLARE
+  expected_pair_count integer;
+  inserted_or_existing_count integer;
+BEGIN
+  CREATE TEMP TABLE desired_limit_foreign_influence_offices (scope text, canonical_name text)
+  ON COMMIT DROP;
+
+  INSERT INTO desired_limit_foreign_influence_offices (scope, canonical_name) VALUES
+    ('presidential', 'President of the United States'),
+    ('presidential', 'Vice President of the United States'),
+    ('statewide', 'United States Senator'),
+    ('us_house', 'United States Representative'),
+    ('statewide', 'Governor'),
+    ('statewide', 'Lieutenant Governor'),
+    ('statewide', 'Attorney General'),
+    ('statewide', 'Secretary of State'),
+    ('statewide', 'Commissioner of Agriculture'),
+    ('statewide', 'Land Commissioner'),
+    ('state_upper', 'State Senator'),
+    ('state_lower', 'State Lower Chamber Legislator');
+
+  SELECT COUNT(*) INTO expected_pair_count FROM desired_limit_foreign_influence_offices;
+
+  INSERT INTO public.office_research_areas (office_id, research_area_id)
+  SELECT office.id, area.id
+  FROM desired_limit_foreign_influence_offices desired
+  JOIN public.offices office
+    ON office.scope = desired.scope
+   AND office.canonical_name = desired.canonical_name
+  JOIN public.research_areas area
+    ON area.slug = 'limit_foreign_influence'
+  ON CONFLICT (office_id, research_area_id) DO NOTHING;
+
+  SELECT COUNT(*)
+  INTO inserted_or_existing_count
+  FROM desired_limit_foreign_influence_offices desired
+  JOIN public.offices office
+    ON office.scope = desired.scope
+   AND office.canonical_name = desired.canonical_name
+  JOIN public.research_areas area
+    ON area.slug = 'limit_foreign_influence'
+  JOIN public.office_research_areas link
+    ON link.office_id = office.id
+   AND link.research_area_id = area.id;
+
+  IF inserted_or_existing_count <> expected_pair_count THEN
+    RAISE EXCEPTION
+      'office seed: expected % limit_foreign_influence office links, found %',
+      expected_pair_count,
+      inserted_or_existing_count;
+  END IF;
+END
+$$;

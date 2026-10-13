@@ -22,6 +22,7 @@ const RESEARCH_AREA_PRIORITY: readonly string[] = [
   "gun_control",
   "womens_reproductive_rights",
   "election_integrity",
+  "limit_foreign_influence",
   "national_defense",
   "personal_income_tax_reduction",
   "foreign_trade",
