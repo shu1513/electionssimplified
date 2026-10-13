@@ -565,3 +565,32 @@ October 13 21:32:04.179–21:32:08.187 UTC source times. All 70 IE client/reader
 tests pass, including 24 new saved-reader guards; isolated module types and
 independent review pass. No financial zero, currentness or target authority
 follows from this observation.
+
+The ordinary due-sync batch now invokes the native observation loader once for
+the actual compatible source cycle before loading legacy receipts. Saved input
+is reopened through the normal reader, then paired with a genuinely fresh
+complete closing observation and dynamic cycle lookup. One source change can
+restart once using that actual closing as the next opening. Invalid chronology,
+scope, originals, budgets or failed refresh hold the observation and preserve
+the prior cache pointer. Complete changed closings can seed a future opening;
+they do not qualify current money. Source-option inputs are retained before DB
+awaits. Results expose only counts, paths, cycle labels and diagnostic codes.
+No outside arrays, money, classifications or finance timestamps reach a writer.
+
+Two genuine ordinary local batch dry-runs on October 13 prove that separation.
+Each selected both actual due contexts and acquired all 1,066 allocations even
+though both legacy direct loads failed. The first run made 24 public source
+requests (4,346,680 bytes), closing at 22:46:10.373 UTC. The second reused the
+actual first closing as its saved opening and made 13 fresh requests (2,173,605
+bytes), closing at 22:46:16.435 UTC. No source rows or accepted verdicts were
+supplied by a fixture. The local connection's default read-only setting was
+verified; all five Maryland finance tables' complete values, including times,
+were compared only in memory and remained unchanged. Counts stayed 2 links,
+2 summaries, 12 direct details, zero outside groups and zero outside details.
+Aggregate proof is retained privately under
+`maryland-ordinary-native-outside-proof-725056f9-8649-4401-a68b-d78e4791f79d`.
+This proves acquisition, not the required financial write/card milestone.
+All 659 Maryland tests, 13 affected scheduler/CLI tests, the full backend
+typecheck, isolated loader/batch types and independent review pass. The initial
+full typecheck started before the disabled-scheduler result compatibility fix
+and reported that missing field; the final full run passes with it included.

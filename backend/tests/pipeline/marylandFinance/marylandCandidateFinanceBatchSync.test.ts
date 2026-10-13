@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  syncDueMarylandCandidateFinance,
+  syncDueMarylandCandidateFinance as syncDueMarylandCandidateFinanceImpl,
   type MarylandCandidateFinanceDueRow,
 } from "../../../src/pipeline/marylandFinance/marylandCandidateFinanceBatchSync.js";
 import type { MarylandCandidateFinanceSyncResult } from "../../../src/pipeline/marylandFinance/marylandCandidateFinanceSync.js";
@@ -18,6 +18,7 @@ import {
   MARYLAND_CFS_COMMITTEE_COLUMNS,
   MARYLAND_CFS_CONTRIBUTION_COLUMNS,
 } from "../../../src/pipeline/marylandFinance/marylandCfsArtifactReader.js";
+import { loadMarylandNativeOutsideObservation } from "../../../src/pipeline/marylandFinance/marylandNativeOutsideObservationLoader.js";
 import { getMarylandCfsArtifactCachePaths } from "../../../src/pipeline/marylandFinance/marylandCfsArtifactCache.js";
 
 const SOURCE_URL = "https://campaignfinance.maryland.gov/public/cf/downloads";
@@ -26,6 +27,21 @@ const tempDirs: string[] = [];
 afterEach(async () => {
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
+
+async function syncDueMarylandCandidateFinance(
+  input: Parameters<typeof syncDueMarylandCandidateFinanceImpl>[0],
+) {
+  const cache = await mkdtemp(join(tmpdir(), "md-batch-native-"));
+  tempDirs.push(cache);
+  return syncDueMarylandCandidateFinanceImpl({
+    ...input,
+    nativeOutsideSource: input.nativeOutsideSource ?? {
+      rawCacheDir: cache,
+      fetchImpl: async () =>
+        new Response("unavailable in legacy fixture", { status: 503 }),
+    },
+  });
+}
 
 function csvForRows<Row extends Record<string, string>>(columns: readonly string[], rows: readonly Row[]): string {
   const escape = (value: string): string => (/[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
@@ -425,3 +441,217 @@ describe("marylandCandidateFinanceBatchSync", () => {
     );
   });
 });
+
+describe(
+  "independent native outside observation hook",
+  { timeout: 30_000 },
+  () => {
+    async function source() {
+      const cache = await mkdtemp(join(tmpdir(), "md-batch-outside-"));
+      tempDirs.push(cache);
+      const fetchImpl = vi.fn<typeof fetch>(
+        async (url) =>
+          new Response(
+            JSON.stringify(
+              String(url).endsWith("GetAllFilingCycleList")
+                ? {
+                    succeeded: true,
+                    error: null,
+                    data: [
+                      { value: "12023", name: "2023-2026", isDefault: true },
+                    ],
+                  }
+                : {
+                    succeeded: true,
+                    error: null,
+                    data: {
+                      items: [],
+                      totalItems: 0,
+                      pageNumber: 0,
+                      pageSize: 0,
+                    },
+                  },
+            ),
+          ),
+      );
+      return { rawCacheDir: cache, fetchImpl };
+    }
+    it("runs complete native observation even when receipt artifacts fail, without calling finance sync", async () => {
+      const row = dueRow(),
+        db = createMockDb([row]),
+        syncFn = vi.fn();
+      const nativeOutsideSource = await source();
+      const result = await syncDueMarylandCandidateFinance({
+        db,
+        dryRun: true,
+        autoLinkMissingLinks: false,
+        rawDataCacheDir: nativeOutsideSource.rawCacheDir,
+        nativeOutsideSource,
+        syncMarylandCandidateFinanceFn: syncFn,
+        expenditureDataByYear: new Map([
+          [
+            2026,
+            { year: 2026, filePath: "unused", sourceUrl: SOURCE_URL, rows: [] },
+          ],
+        ]),
+      });
+      expect(result.failedCandidateCount).toBe(1);
+      expect(result.nativeOutsideObservation.status).toBe("observed");
+      expect(nativeOutsideSource.fetchImpl).toHaveBeenCalledTimes(4);
+      expect(syncFn).not.toHaveBeenCalled();
+      expect(db.connect).not.toHaveBeenCalled();
+      expect(result.nativeOutsideObservation).not.toHaveProperty(
+        "outsideSupportTotal",
+      );
+    });
+    it("acquires once across due years and keeps incompatible-year diagnostic independent of direct sync", async () => {
+      const rows = [
+          dueRow(),
+          dueRow({
+            electionYear: 2027,
+            candidateId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          }),
+        ],
+        db = createMockDb(rows),
+        syncFn = vi.fn().mockResolvedValue(syncResult(rows[0]!)),
+        nativeOutsideSource = await source();
+      const result = await syncDueMarylandCandidateFinance({
+        db,
+        dryRun: true,
+        autoLinkMissingLinks: false,
+        nativeOutsideSource,
+        syncMarylandCandidateFinanceFn: syncFn,
+        contributionDataByYear: new Map(
+          [2026, 2027].map((year) => [
+            year,
+            {
+              year,
+              filePath: "unused",
+              sourceUrl: SOURCE_URL,
+              rowsByCommitteeId: new Map(),
+            },
+          ]),
+        ),
+        expenditureDataByYear: new Map(
+          [2026, 2027].map((year) => [
+            year,
+            { year, filePath: "unused", sourceUrl: SOURCE_URL, rows: [] },
+          ]),
+        ),
+      });
+      expect(nativeOutsideSource.fetchImpl).toHaveBeenCalledTimes(4);
+      expect(syncFn).toHaveBeenCalledTimes(2);
+      expect(
+        result.nativeOutsideObservation.observation!.compatibleElectionYears,
+      ).toEqual([2026]);
+      expect(result.nativeOutsideObservation.diagnostics).toContain(
+        "some_due_elections_outside_default_cycle",
+      );
+    });
+    it("no due rows means no source request or financial connection", async () => {
+      const nativeOutsideSource = await source(),
+        db = createMockDb([]);
+      const result = await syncDueMarylandCandidateFinance({
+        db,
+        autoLinkMissingLinks: false,
+        nativeOutsideSource,
+      });
+      expect(nativeOutsideSource.fetchImpl).not.toHaveBeenCalled();
+      expect(db.connect).not.toHaveBeenCalled();
+      expect(result.nativeOutsideObservation.diagnostics).toEqual([
+        "no_due_elections",
+      ]);
+    });
+    it("source failure preserves independent direct sync and does not pass outside financial collections", async () => {
+      const row = dueRow(),
+        db = createMockDb([row]),
+        syncFn = vi.fn().mockResolvedValue(syncResult(row)),
+        nativeOutsideSource = await source();
+      nativeOutsideSource.fetchImpl = vi.fn<typeof fetch>(
+        async () => new Response("source failure", { status: 503 }),
+      );
+      const result = await syncDueMarylandCandidateFinance({
+        db,
+        dryRun: true,
+        autoLinkMissingLinks: false,
+        nativeOutsideSource,
+        syncMarylandCandidateFinanceFn: syncFn,
+        contributionDataByYear: new Map([
+          [
+            2026,
+            {
+              year: 2026,
+              filePath: "unused",
+              sourceUrl: SOURCE_URL,
+              rowsByCommitteeId: new Map(),
+            },
+          ],
+        ]),
+        expenditureDataByYear: new Map([
+          [
+            2026,
+            { year: 2026, filePath: "unused", sourceUrl: SOURCE_URL, rows: [] },
+          ],
+        ]),
+      });
+      expect(result.syncedCandidateCount).toBe(1);
+      expect(result.nativeOutsideObservation.status).toBe("preserve");
+      expect(syncFn.mock.calls[0]![0]).not.toHaveProperty("outsideGroups");
+      expect(db.connect).not.toHaveBeenCalled();
+    });
+    it("retains nested source refresh/cache/fetch options before the due query awaits", async () => {
+      const options = await source();
+      await loadMarylandNativeOutsideObservation({
+        electionYears: [2026],
+        ...options,
+      });
+      options.fetchImpl.mockClear();
+      const originalCache = options.rawCacheDir,
+        originalFetch = options.fetchImpl;
+      const badFetch = vi.fn<typeof fetch>(
+        async () => new Response("wrong generation", { status: 503 }),
+      );
+      const row = dueRow(),
+        db = createMockDb([row]),
+        pending = db.query.getMockImplementation()!;
+      db.query.mockImplementation(async (...args: any[]) => {
+        options.rawCacheDir = "/unapproved-mutated-path";
+        Object.assign(options, { refresh: true, fetchImpl: badFetch });
+        return pending(...args);
+      });
+      const syncFn = vi.fn().mockResolvedValue(syncResult(row));
+      const result = await syncDueMarylandCandidateFinanceImpl({
+        db,
+        dryRun: true,
+        autoLinkMissingLinks: false,
+        nativeOutsideSource: options,
+        syncMarylandCandidateFinanceFn: syncFn,
+        contributionDataByYear: new Map([
+          [
+            2026,
+            {
+              year: 2026,
+              filePath: "unused",
+              sourceUrl: SOURCE_URL,
+              rowsByCommitteeId: new Map(),
+            },
+          ],
+        ]),
+        expenditureDataByYear: new Map([
+          [
+            2026,
+            { year: 2026, filePath: "unused", sourceUrl: SOURCE_URL, rows: [] },
+          ],
+        ]),
+      });
+      expect(result.nativeOutsideObservation.status).toBe("observed");
+      expect(originalFetch).toHaveBeenCalledTimes(3);
+      expect(badFetch).not.toHaveBeenCalled();
+      expect(
+        result.nativeOutsideObservation.observation!.closingDirectory.startsWith(
+          originalCache,
+        ),
+      ).toBe(true);
+    });
+  },
+);
