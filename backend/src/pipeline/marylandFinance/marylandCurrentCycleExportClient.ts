@@ -2,6 +2,12 @@ import { createHash } from "node:crypto";
 import { open, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { buildMarylandPublicContributionRequest, type MarylandPublicContributionRequest } from "./marylandPublicContributionClient.js";
+import {
+  buildMarylandPublicReportInventoryRequest,
+  validateMarylandPublishedReportPdfRequest,
+  type MarylandPublicReportInventoryRequest,
+  type MarylandPublishedReportPdfRequest,
+} from "./marylandPublicReportClient.js";
 
 const API = "https://api-campaignfinance.maryland.gov/api/";
 const EXPORT_URL = `${API}ExportPublicData/GetExportPublicDownloadData`;
@@ -35,7 +41,9 @@ export type MarylandCurrentCycleExportErrorCode =
   | "capture_callback_failed"
   | "invalid_cycle_lookup"
   | "invalid_contribution_page"
-  | "invalid_contribution_detail";
+  | "invalid_contribution_detail"
+  | "invalid_report_inventory"
+  | "invalid_report_document";
 export type MarylandCurrentCycleCapture<
   T = MarylandCurrentCycleExportRequest | null,
 > = Readonly<{
@@ -327,6 +335,30 @@ export function captureMarylandPublicContributionDetailPost(
     throw new MarylandCurrentCycleExportError("invalid_request");
   return capturePost(`${API}PublicTransactionDetails/GetTransactionDetailsByGuid`, detached,
     {...options, timeoutMs: options.timeoutMs ?? 30_000}, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
+}
+
+export function captureMarylandPublicReportInventoryPost(
+  request: MarylandPublicReportInventoryRequest,
+  options: Options<MarylandPublicReportInventoryRequest>,
+) {
+  if (!request || typeof request !== "object" || Array.isArray(request))
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const keys = Reflect.ownKeys(request), snapshot = { ...request };
+  const detached = buildMarylandPublicReportInventoryRequest(snapshot);
+  if (keys.length !== Object.keys(detached).length || keys.some(key => typeof key !== "string" ||
+    !Object.hasOwn(detached, key) || snapshot[key as keyof typeof snapshot] !== detached[key as keyof typeof detached]) ||
+    (options.timeoutMs ?? 30_000) > 30_000)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(`${API}PublicFilerDetails/GetCfPublicProfileFiling`, detached,
+    { ...options, timeoutMs: options.timeoutMs ?? 30_000 }, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
+}
+
+export function captureMarylandPublishedReportPdfPost(
+  request: MarylandPublishedReportPdfRequest,
+  options: Options<MarylandPublishedReportPdfRequest>,
+) {
+  return capturePost(`${API}PublicFiledReportAndDownload/DownloadDocument`,
+    validateMarylandPublishedReportPdfRequest(request), { ...options }, 64 * 1024 * 1024, 64 * 1024 * 1024);
 }
 
 export type MarylandPublishedFilingCycle = Readonly<{

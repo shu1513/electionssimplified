@@ -73,6 +73,30 @@ write, migration, card proof or PR yet.
 
 ## Small steps and verification
 
+The normal public report client now rebuilds the exact unrestricted profile
+request, validates requested page/count closure and retains every complete child
+history. Duplicate parent or cross-parent edition identities, missing/ambiguous
+current children, changed current periods, failed bodies and incomplete histories
+hold acquisition. Parent/child type labels remain separate published facts.
+The current child follows exact parent GUID/version equality; higher historical
+versions, array order, generation status and file paths do not select it. Original
+reports preserve the source handler's literal `Vundefined` filename without an
+added extension. Downloads use the closed public three-field body and bounded
+private original-byte capture; HTML/error bodies cannot become PDFs.
+
+Offline normal replay verifies the retained 15,239-byte inventory SHA, seven
+parents and 15 historical children. All six generated remaining-document bodies
+equal the exact published private catalog, including the incomplete-generation
+current child. Original source times are preserved. All 365 Maryland tests pass
+with one worker, including the held legacy primitive; backend types pass.
+The initial parallel run exceeded two existing capture-test deadlines; the
+serial rerun passes without changing those deadlines. Independent review found
+no actionable blocker.
+This is acquisition protocol proof, with no currentness or financial authority.
+Three legacy continuation-field detail lookups remain held for specific user
+approval after automatic review rejected their selector transmissions; the prior
+approved first-page lookup has already been completed.
+
 - Preserve unresolved outside groups, funder details and scalar values while
   direct processing can proceed. A successful request is not complete target
   coverage or a proven empty component.
