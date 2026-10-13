@@ -88,5 +88,24 @@ after the published quote grammar and before projection or predicates; bad rows
 cannot be skipped into a complete ledger. Default UTF-8 decoding is fatal and
 Windows-1252 is an explicit byte-codepage selection, never an automatic fallback.
 All101 Maryland tests and backend typecheck pass after these two small steps.
-The current-cycle client and complete native source acquisition are next; no
-financial acceptance follows from the parser or seven-report inventory.
+The bounded current-cycle client now retains exclusive private originals and
+truthful HTTP status, byte count, SHA-256 and actual EOF completion times. No
+financial acceptance follows from that transport or seven-report inventory.
+
+## Genuine current-cycle acquisition — October 13 UTC
+
+Before/after native cycle lookups agree on default 2023–2026. The normal source
+client reached HTTP 200 and EOF for 1,699,322 bytes of registrations, 57,899,607
+bytes of expenses and 493,266,801 bytes of receipts. The initial receipt attempt
+hit its 384 MiB cap and remains explicitly incomplete; a separate untouched
+original reached EOF under the 1 GiB ceiling. Neither transport success nor a
+stable default cycle proves whole financial authority or reconciled controls.
+
+Two independent all-status searches returned exactly one Moore account: numeric
+ID and literal registered committee name. Current amended parents each associate
+one child by the same published document identity and version. The current
+Pre-Primary 1 v3 child itself is marked In-Progress for document generation;
+its controls cannot be presumed ready. Other five current amended children are
+marked Completed. The registered and ballot committee names differ only in
+candidate-name order, but their independently reviewed formatting association
+and full monetary reconciliation still precede any financial write.
