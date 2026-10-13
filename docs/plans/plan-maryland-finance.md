@@ -175,3 +175,20 @@ before any await. Responses must match TCON, the exact observed integer cycle
 and any explicit return selector; source filters are not silently ignored.
 All 197 Maryland tests and backend types pass after these narrow fixes, and
 the untouched original still replays all 100 rows with matching SHA/length.
+
+The separate genuine return-filter page reached HTTP 200/EOF, 183,740 bytes,
+100 of 656 declared rows. Every row is TRCON/true with a positive amount and
+parent link. That observed role extends the TCON grid domain; refunds cannot
+be interpreted by sign. Of these, 83 report/version associations match the
+current Pre-General 1 parent, and 17 match disclosed Pre-Primary 2 history v1.
+Neither activity flags nor historical references alone resolve current money.
+
+The normal census collector now acquires all requested pages/remainders with
+at most four concurrent requests, 1,500 pages, 4 MiB/30 seconds per page and a
+60-minute total deadline. It rejects count drift/repeated occurrences, retains
+all settled private originals and serializes actual capture journals. Total
+bytes above its 512 MiB default threshold hold the collection; in-flight
+originals still settle and remain counted. Deadline also bounds progress and
+final sync, with monotonic checks. All 212 Maryland tests/backend types pass;
+independent review confirms these acquisition guards. Complete acquisition
+still does not grant report/currentness, parent-join or financial authority.

@@ -103,7 +103,8 @@ describe("Maryland observed public receipt page", () => {
   it("rejects rows outside an explicit published return filter", () => {
     const request = buildMarylandPublicContributionRequest({...scope, isReturn: true});
     expect(() => decodeMarylandPublicContributionPage(envelope([row()]), request)).toThrow("invalid_contribution_page");
-    expect(decodeMarylandPublicContributionPage(envelope([row(1, {isReturn: true})]), request).rows).toHaveLength(1);
+    expect(decodeMarylandPublicContributionPage(envelope([row(1, {isReturn: true, transactionTypeCode: "TRCON"})]), request).rows).toHaveLength(1);
+    expect(() => decodeMarylandPublicContributionPage(envelope([row(1, {isReturn: true})]), request)).toThrow("invalid_contribution_page");
   });
   it("runtime-closes the raw wrapper before any fetch or capture", async () => {
     const request = buildMarylandPublicContributionRequest(scope);
@@ -124,7 +125,7 @@ describe("Maryland observed public receipt page", () => {
   });
   it("retains distinct equal gifts, inactive records and separate editions without financial selection", () => {
     const rows = [row(), row(2), row(1, {transactionVersionID: 2, reportVersionId: 2,
-      isActive: false, isAmended: true, isReturn: true, transactionAmount: -25})];
+      isActive: false, isAmended: true, isReturn: true, transactionTypeCode: "TRCON", transactionAmount: -25})];
     expect(decodeMarylandPublicContributionPage(envelope(rows), buildMarylandPublicContributionRequest(scope)).rows).toEqual(rows);
     expect(() => decodeMarylandPublicContributionPage(envelope([row(), row()]), buildMarylandPublicContributionRequest(scope)))
       .toThrow("invalid_contribution_page");

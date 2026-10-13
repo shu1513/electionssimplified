@@ -61,6 +61,11 @@ const fail = (): never => {
   throw new MarylandCurrentCycleExportError("invalid_contribution_page");
 };
 
+export function marylandPublicContributionOccurrenceKey(row: Readonly<Row>): string {
+  return JSON.stringify([(row.transactionGuid as string).toLowerCase(), row.transactionVersionID,
+    (row.reportGuid as string).toLowerCase(), row.reportVersionId, row.isReturn]);
+}
+
 /** Acquisition validation only. It neither selects editions nor nets money. */
 export function decodeMarylandPublicContributionPage(
   value: unknown,
@@ -86,15 +91,16 @@ export function decodeMarylandPublicContributionPage(
       !Number.isSafeInteger(row.transactionVersionID) || (row.transactionVersionID as number) < 1 ||
       !Number.isSafeInteger(row.reportId) || (row.reportId as number) < 1 ||
       !Number.isSafeInteger(row.reportVersionId) || (row.reportVersionId as number) < 1 ||
-      row.transactionTypeCode !== "TCON" ||
       typeof row.isReturn !== "boolean" || typeof row.isActive !== "boolean" ||
       typeof row.isAmended !== "boolean" || typeof row.hasChild !== "boolean" ||
+      // The genuine return-filter response is TRCON/true. The parent receipt
+      // response is TCON/false; both belong to the observed TCON grid domain.
+      (row.transactionTypeCode !== (row.isReturn ? "TRCON" : "TCON")) ||
       (request.isReturn !== null && row.isReturn !== request.isReturn)
     ) return fail();
     // Keep distinct equal gifts and editions. Never deduplicate a repeated
     // occurrence into a claimed complete collection.
-    const identity = JSON.stringify([row.transactionGuid.toLowerCase(), row.transactionVersionID,
-      row.reportGuid.toLowerCase(), row.reportVersionId, row.isReturn]);
+    const identity = marylandPublicContributionOccurrenceKey(row);
     if (identities.has(identity)) return fail();
     identities.add(identity);
   }
