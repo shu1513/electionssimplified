@@ -9,7 +9,10 @@ import {
   listMaineCandidateElectionsMissingFinanceLinks,
   type MaineFinanceAutoLinkCandidateElection,
 } from "./maineCandidateFinanceAutoLink.js";
-import { syncMaineCandidateFinance, type MaineCandidateFinanceSyncResult } from "./maineCandidateFinanceSync.js";
+import {
+  syncMaineCandidateFinance,
+  type MaineCandidateFinanceSyncResult,
+} from "./maineCandidateFinanceSync.js";
 import { normalizeMaineCandidateNameKeys } from "./maineCandidateCommitteeResolver.js";
 import {
   DEFAULT_MAINE_CFIS_CACHE_DIR,
@@ -28,6 +31,7 @@ import {
   type StandardStateFinanceDueRow,
 } from "../finance/standardStateFinanceDueListQuery.js";
 import { MAINE_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./maineFinanceEligibleOffices.js";
+import { syncDueMaineMapLightFinance } from "./maineMapLightCandidateFinanceSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & {
@@ -65,6 +69,14 @@ export type MaineCandidateFinanceBatchSyncInput = {
   financeIndustryClassifier?: FinanceIndustryClassifier;
   aiClassificationMinAmount?: number;
   syncMaineCandidateFinanceFn?: typeof syncMaineCandidateFinance;
+  /** Legacy replay is explicit; ordinary production runs use the current publisher. */
+  sourceMode?: "maplight" | "legacy";
+  candidateId?: string;
+  electionYear?: number;
+  refresh?: boolean;
+  /** Reprocess due scope with verified saved-first acquisition, without forcing new bodies. */
+  resync?: boolean;
+  mapLightReportUrls?: readonly string[];
 };
 
 export type MaineCandidateFinanceBatchSyncItemResult = {
@@ -74,6 +86,17 @@ export type MaineCandidateFinanceBatchSyncItemResult = {
   committeeId: string;
   ok: boolean;
   result?: MaineCandidateFinanceSyncResult;
+  mapLight?: {
+    sourceFilerId: string;
+    committeeDonorCount: number;
+    committeeDonorAmount: number | null;
+    outsideAllocationCount: number;
+    knownSupportAmount: number | null;
+    knownOpposeAmount: number | null;
+    sourceThrough: string;
+    omittedPayerCount: number;
+    written: boolean;
+  };
   error?: string;
 };
 
@@ -100,7 +123,11 @@ function assertValidDate(date: Date, label: string): void {
   }
 }
 
-function normalizePositiveInteger(value: number | undefined, fallback: number, label: string): number {
+function normalizePositiveInteger(
+  value: number | undefined,
+  fallback: number,
+  label: string,
+): number {
   const normalized = value ?? fallback;
   if (!Number.isInteger(normalized) || normalized <= 0) {
     throw new Error(`Invalid Maine finance batch sync ${label}: ${value}`);
@@ -124,7 +151,9 @@ async function fileExists(path: string): Promise<boolean> {
   }
 }
 
-function groupDueRowsByYear(rows: readonly MaineCandidateFinanceDueRow[]): Map<number, MaineCandidateFinanceDueRow[]> {
+function groupDueRowsByYear(
+  rows: readonly MaineCandidateFinanceDueRow[],
+): Map<number, MaineCandidateFinanceDueRow[]> {
   const byYear = new Map<number, MaineCandidateFinanceDueRow[]>();
   for (const row of rows) {
     const yearRows = byYear.get(row.electionYear) ?? [];
@@ -135,7 +164,7 @@ function groupDueRowsByYear(rows: readonly MaineCandidateFinanceDueRow[]): Map<n
 }
 
 function groupAutoLinkCandidatesByYear(
-  rows: readonly MaineFinanceAutoLinkCandidateElection[]
+  rows: readonly MaineFinanceAutoLinkCandidateElection[],
 ): Map<number, MaineFinanceAutoLinkCandidateElection[]> {
   const byYear = new Map<number, MaineFinanceAutoLinkCandidateElection[]>();
   for (const row of rows) {
@@ -146,7 +175,9 @@ function groupAutoLinkCandidatesByYear(
   return byYear;
 }
 
-function groupContributionRowsByCommittee(rows: readonly MaineCfisContributionRow[]): Map<string, MaineCfisContributionRow[]> {
+function groupContributionRowsByCommittee(
+  rows: readonly MaineCfisContributionRow[],
+): Map<string, MaineCfisContributionRow[]> {
   const byCommittee = new Map<string, MaineCfisContributionRow[]>();
   for (const row of rows) {
     const committeeId = normalizeCommitteeId(row.OrgID);
@@ -160,10 +191,14 @@ function groupContributionRowsByCommittee(rows: readonly MaineCfisContributionRo
   return byCommittee;
 }
 
-function buildMaineExpenditureCandidatePredicate(rows: readonly MaineCandidateFinanceDueRow[]): (row: MaineCfisExpenditureRow) => boolean {
+function buildMaineExpenditureCandidatePredicate(
+  rows: readonly MaineCandidateFinanceDueRow[],
+): (row: MaineCfisExpenditureRow) => boolean {
   const candidateNameKeys = new Set<string>();
   for (const candidate of rows) {
-    for (const key of normalizeMaineCandidateNameKeys(candidate.candidateName)) {
+    for (const key of normalizeMaineCandidateNameKeys(
+      candidate.candidateName,
+    )) {
       candidateNameKeys.add(key);
     }
   }
@@ -198,12 +233,20 @@ function collectCommitteeIdsForContributionLoad(input: {
   return [...committeeIds];
 }
 
-function flattenContributionDataRows(contributionData: MaineContributionDataForYear | undefined): MaineCfisContributionRow[] {
-  return contributionData ? [...contributionData.rowsByCommitteeId.values()].flat() : [];
+function flattenContributionDataRows(
+  contributionData: MaineContributionDataForYear | undefined,
+): MaineCfisContributionRow[] {
+  return contributionData
+    ? [...contributionData.rowsByCommitteeId.values()].flat()
+    : [];
 }
 
 function rawDataCacheDir(inputCacheDir?: string): string {
-  return inputCacheDir ?? (process.env.MAINE_CFIS_RAW_DATA_CACHE_DIR?.trim() || DEFAULT_MAINE_CFIS_CACHE_DIR);
+  return (
+    inputCacheDir ??
+    (process.env.MAINE_CFIS_RAW_DATA_CACHE_DIR?.trim() ||
+      DEFAULT_MAINE_CFIS_CACHE_DIR)
+  );
 }
 
 function sourceUrlFromMetadata(input: { metadataUrl?: string | null }): string {
@@ -225,12 +268,14 @@ async function readValidCacheMetadata(input: {
     metadata.metadataPath !== input.metadataPath
   ) {
     throw new Error(
-      `Maine CFIS ${input.artifactKind} artifact metadata missing or invalid for ${input.year}: ${input.metadataPath}`
+      `Maine CFIS ${input.artifactKind} artifact metadata missing or invalid for ${input.year}: ${input.metadataPath}`,
     );
   }
   const fileStat = await stat(input.filePath);
   if (!fileStat.isFile() || fileStat.size !== metadata.bytesWritten) {
-    throw new Error(`Maine CFIS ${input.artifactKind} artifact does not match metadata for ${input.year}: ${input.filePath}`);
+    throw new Error(
+      `Maine CFIS ${input.artifactKind} artifact does not match metadata for ${input.year}: ${input.filePath}`,
+    );
   }
   return metadata;
 }
@@ -244,12 +289,16 @@ function maineCycleFilingYears(electionYear: number): number[] {
 
 function maineContributionRowIdentity(row: MaineCfisContributionRow): string {
   const receiptId = row["Receipt ID"].trim().toUpperCase();
-  return receiptId ? `${normalizeCommitteeId(row.OrgID)}\u0000${receiptId}` : "";
+  return receiptId
+    ? `${normalizeCommitteeId(row.OrgID)}\u0000${receiptId}`
+    : "";
 }
 
 function maineExpenditureRowIdentity(row: MaineCfisExpenditureRow): string {
   const expenditureId = row["Expenditure ID"].trim().toUpperCase();
-  return expenditureId ? `${normalizeCommitteeId(row.OrgID)}\u0000${expenditureId}` : "";
+  return expenditureId
+    ? `${normalizeCommitteeId(row.OrgID)}\u0000${expenditureId}`
+    : "";
 }
 
 async function readCycleArtifactData<Row>(input: {
@@ -259,7 +308,8 @@ async function readCycleArtifactData<Row>(input: {
   readRows: (filePath: string) => Promise<Row[]>;
   rowIdentity: (row: Row) => string;
 }): Promise<{ rows: Row[]; filePath: string; sourceUrl: string }> {
-  const kindLabel = input.artifactKind === "contributions" ? "contribution" : "expenditure";
+  const kindLabel =
+    input.artifactKind === "contributions" ? "contribution" : "expenditure";
   const artifactRowsByYear: Row[][] = [];
   let filePath = "";
   let sourceUrl = MAINE_CFIS_CSV_DOWNLOAD_API_URL;
@@ -270,15 +320,24 @@ async function readCycleArtifactData<Row>(input: {
       artifactKind: input.artifactKind,
     });
     if (!(await fileExists(paths.filePath))) {
-      throw new Error(`Maine CFIS ${kindLabel} artifact not found for ${filingYear}: ${paths.filePath}`);
+      throw new Error(
+        `Maine CFIS ${kindLabel} artifact not found for ${filingYear}: ${paths.filePath}`,
+      );
     }
-    const metadata = await readValidCacheMetadata({ year: filingYear, artifactKind: input.artifactKind, ...paths });
+    const metadata = await readValidCacheMetadata({
+      year: filingYear,
+      artifactKind: input.artifactKind,
+      ...paths,
+    });
     artifactRowsByYear.push(await input.readRows(paths.filePath));
     filePath = paths.filePath;
     sourceUrl = sourceUrlFromMetadata({ metadataUrl: metadata?.remote.url });
   }
   return {
-    rows: mergeCycleArtifactRows({ artifacts: artifactRowsByYear, rowIdentity: input.rowIdentity }),
+    rows: mergeCycleArtifactRows({
+      artifacts: artifactRowsByYear,
+      rowIdentity: input.rowIdentity,
+    }),
     filePath,
     sourceUrl,
   };
@@ -289,7 +348,9 @@ async function loadContributionDataForYear(input: {
   committeeIds: readonly string[];
   rawDataCacheDir?: string;
 }): Promise<MaineContributionDataForYear> {
-  const normalizedCommitteeIds = new Set(input.committeeIds.map(normalizeCommitteeId).filter(Boolean));
+  const normalizedCommitteeIds = new Set(
+    input.committeeIds.map(normalizeCommitteeId).filter(Boolean),
+  );
   const data = await readCycleArtifactData({
     electionYear: input.year,
     artifactKind: "contributions",
@@ -298,7 +359,8 @@ async function loadContributionDataForYear(input: {
     readRows: (filePath) =>
       readMaineCfisContributionRows({
         filePath,
-        predicate: (row) => normalizedCommitteeIds.has(normalizeCommitteeId(row.OrgID)),
+        predicate: (row) =>
+          normalizedCommitteeIds.has(normalizeCommitteeId(row.OrgID)),
       }),
   });
 
@@ -362,48 +424,64 @@ async function loadExpenditureDataForYear(input: {
   };
 }
 
-export const listDueMaineCandidateFinanceSyncRows = createStandardStateFinanceDueListQuery({
-  state: "ME",
-  tables: {
-    links: "me_candidate_finance_links",
-    summaries: "me_candidate_finance_summaries",
-  },
-  eligibleOfficeKeys: MAINE_FINANCE_ELIGIBLE_OFFICE_KEYS,
-});
+export const listDueMaineCandidateFinanceSyncRows =
+  createStandardStateFinanceDueListQuery({
+    state: "ME",
+    tables: {
+      links: "me_candidate_finance_links",
+      summaries: "me_candidate_finance_summaries",
+    },
+    eligibleOfficeKeys: MAINE_FINANCE_ELIGIBLE_OFFICE_KEYS,
+  });
 
 export async function syncDueMaineCandidateFinance(
-  input: MaineCandidateFinanceBatchSyncInput
+  input: MaineCandidateFinanceBatchSyncInput,
 ): Promise<MaineCandidateFinanceBatchSyncResult> {
+  if (input.sourceMode !== "legacy") return syncDueMaineMapLightFinance(input);
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
 
-  const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
-  const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
+  const maxCandidates = normalizePositiveInteger(
+    input.maxCandidates,
+    DEFAULT_MAX_CANDIDATES,
+    "maxCandidates",
+  );
+  const staleAfterDays = normalizePositiveInteger(
+    input.staleAfterDays,
+    DEFAULT_STALE_AFTER_DAYS,
+    "staleAfterDays",
+  );
   const electionLookbackDays = normalizePositiveInteger(
     input.electionLookbackDays,
     DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS,
-    "electionLookbackDays"
+    "electionLookbackDays",
   );
   const electionLookaheadDays = normalizePositiveInteger(
     input.electionLookaheadDays,
     DEFAULT_ELECTION_LOOKAHEAD_DAYS,
-    "electionLookaheadDays"
+    "electionLookaheadDays",
   );
   const dryRun = input.dryRun === true;
   const syncFn = input.syncMaineCandidateFinanceFn ?? syncMaineCandidateFinance;
 
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
-      const missingLinkCandidates = await listMaineCandidateElectionsMissingFinanceLinks(input.db, {
-        now,
-        maxCandidates,
-        electionLookbackDays,
-        electionLookaheadDays,
-      });
-      const contributionRowsByYear = new Map<number, readonly MaineCfisContributionRow[]>();
+      const missingLinkCandidates =
+        await listMaineCandidateElectionsMissingFinanceLinks(input.db, {
+          now,
+          maxCandidates,
+          electionLookbackDays,
+          electionLookaheadDays,
+        });
+      const contributionRowsByYear = new Map<
+        number,
+        readonly MaineCfisContributionRow[]
+      >();
       const sourceUrlByYear = new Map<number, string>();
       const skippedAutoLinkYears = new Map<number, string>();
-      for (const [year, candidates] of groupAutoLinkCandidatesByYear(missingLinkCandidates).entries()) {
+      for (const [year, candidates] of groupAutoLinkCandidatesByYear(
+        missingLinkCandidates,
+      ).entries()) {
         try {
           const data = await loadAutoLinkContributionRowsForYear({
             year,
@@ -414,11 +492,14 @@ export async function syncDueMaineCandidateFinance(
           contributionRowsByYear.set(year, data.rows);
           sourceUrlByYear.set(year, data.sourceUrl);
         } catch (error) {
-          skippedAutoLinkYears.set(year, error instanceof Error ? error.message : String(error));
+          skippedAutoLinkYears.set(
+            year,
+            error instanceof Error ? error.message : String(error),
+          );
         }
       }
       const autoLinkCandidates = missingLinkCandidates.filter((candidate) =>
-        contributionRowsByYear.has(candidate.electionYear)
+        contributionRowsByYear.has(candidate.electionYear),
       );
       const autoLinkResults = await autoLinkMissingMaineCandidateFinanceLinks({
         db: input.db,
@@ -432,7 +513,10 @@ export async function syncDueMaineCandidateFinance(
       });
       for (const result of autoLinkResults) {
         if (result.status !== "linked") {
-          console.warn("Maine finance auto-link did not link candidate election:", result);
+          console.warn(
+            "Maine finance auto-link did not link candidate election:",
+            result,
+          );
         }
       }
       for (const [year, message] of skippedAutoLinkYears) {
@@ -441,7 +525,7 @@ export async function syncDueMaineCandidateFinance(
     } catch (error) {
       console.warn(
         "Maine finance auto-link skipped; continuing with already-linked candidate sync:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
     }
   }
@@ -452,9 +536,14 @@ export async function syncDueMaineCandidateFinance(
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    candidateId: input.candidateId,
+    electionYear: input.electionYear,
+    refresh: input.refresh === true || input.resync === true,
   });
   const expenditureDataByYear = new Map<number, MaineExpenditureDataForYear>(
-    input.expenditureDataByYear ? [...input.expenditureDataByYear.entries()] : []
+    input.expenditureDataByYear
+      ? [...input.expenditureDataByYear.entries()]
+      : [],
   );
   const expenditureDataLoadErrorsByYear = new Map<number, string>();
   for (const [year, rows] of groupDueRowsByYear(due.rows).entries()) {
@@ -466,20 +555,25 @@ export async function syncDueMaineCandidateFinance(
             year,
             dueRows: rows,
             rawDataCacheDir: input.rawDataCacheDir,
-          })
+          }),
         );
       } catch (error) {
-        expenditureDataLoadErrorsByYear.set(year, error instanceof Error ? error.message : String(error));
+        expenditureDataLoadErrorsByYear.set(
+          year,
+          error instanceof Error ? error.message : String(error),
+        );
         console.warn(
           "Maine CFIS expenditure artifact unavailable; syncing direct finance without outside spending:",
-          error instanceof Error ? error.message : error
+          error instanceof Error ? error.message : error,
         );
       }
     }
   }
 
   const contributionDataByYear = new Map<number, MaineContributionDataForYear>(
-    input.contributionDataByYear ? [...input.contributionDataByYear.entries()] : []
+    input.contributionDataByYear
+      ? [...input.contributionDataByYear.entries()]
+      : [],
   );
   const contributionDataLoadErrorsByYear = new Map<number, string>();
   for (const [year, rows] of groupDueRowsByYear(due.rows).entries()) {
@@ -494,17 +588,22 @@ export async function syncDueMaineCandidateFinance(
               expenditureRows: expenditureDataByYear.get(year)?.rows,
             }),
             rawDataCacheDir: input.rawDataCacheDir,
-          })
+          }),
         );
       } catch (error) {
-        contributionDataLoadErrorsByYear.set(year, error instanceof Error ? error.message : String(error));
+        contributionDataLoadErrorsByYear.set(
+          year,
+          error instanceof Error ? error.message : String(error),
+        );
       }
     }
   }
 
   const results: MaineCandidateFinanceBatchSyncItemResult[] = [];
   for (const row of due.rows) {
-    const contributionDataLoadError = contributionDataLoadErrorsByYear.get(row.electionYear);
+    const contributionDataLoadError = contributionDataLoadErrorsByYear.get(
+      row.electionYear,
+    );
     if (contributionDataLoadError) {
       results.push({
         candidateId: row.candidateId,
@@ -532,7 +631,9 @@ export async function syncDueMaineCandidateFinance(
         sourceUrl: row.sourceUrl,
         contributionRows: flattenContributionDataRows(contributionData),
         contributionSourceUrl: contributionData?.sourceUrl,
-        expenditureRows: expenditureDataLoadErrorsByYear.has(row.electionYear) ? undefined : expenditureData?.rows ?? [],
+        expenditureRows: expenditureDataLoadErrorsByYear.has(row.electionYear)
+          ? undefined
+          : (expenditureData?.rows ?? []),
         expenditureSourceUrl: expenditureData?.sourceUrl,
         trustedCommittee: {
           committeeId: row.committeeId,
