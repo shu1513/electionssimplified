@@ -73,6 +73,27 @@ write, migration, card proof or PR yet.
 
 ## Small steps and verification
 
+The normal saved full-partition reader now reconstructs the actual producer's
+split tree from verified opening ascending/descending observations and exact
+sibling counts, deriving every disjoint leaf and unbounded outer tail. It reads
+all leaf originals through the normal leaf reader, verifies every split/closing
+probe and whole-row observation against the global occurrence union, and requires
+unchanged opening/closing ascending and descending pages. Expected source-file
+inventory, original capture chronology and total byte/request bounds must close.
+Advisory progress/facts files never select a scope or grant success.
+
+Both acquirer and reader project only explicit owner/cycle/page 1/100 into the
+unrestricted base request. Untyped caller return/date/sort/page-size fields cannot
+narrow acquisition or reinterpret a saved whole collection; derived source probe
+bounds remain exact. All 28 partition tests and isolated strict types pass, with
+independent review of the complete reader and the final scope correction.
+
+Final genuine offline normal replay verifies all 1,103 current captures across
+19 leaves (105,360 rows, 194,066,250 bytes) and all 409 prior captures across six
+leaves (39,208 rows, 72,151,973 bytes), including all opening/split/closing probes.
+Original source times remain unchanged and no source request is made. This closes
+full acquisition provenance, not report-currentness or financial authority.
+
 The separate legacy control parser now binds the first two 612×792 pages of the
 three older Annual reports. It extracts 36 source control positions and 34
 printed control amounts, preserving two genuinely blank Electoral loan/bill
