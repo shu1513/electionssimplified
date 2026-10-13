@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inspectMarylandPdfBorders, parseMarylandModernReceiptPage,
+import { inspectMarylandPdfBorders, parseMarylandModernReceiptPage, createMarylandModernReceiptParser,
   type MarylandPdfPage, type MarylandPdfCell } from "../../../src/pipeline/marylandFinance/marylandReportPdfGeometry.js";
 
 const cell = (text: string, left: number, baselineTop: number, width=35): MarylandPdfCell =>
@@ -21,6 +21,7 @@ function table(kind: "money" | "in_kind" | "return" | "return_in_kind"="money", 
     cell("12 Example St",donorLeft,143,85),cell("City, MD 12345 -",donorLeft,154,100),
     cell("6789",donorLeft,165,25),cell("$500.00",amountLeft,151,46),
     cell(kind.startsWith("return") ? "$900.00" : "$9,000.00",kind.startsWith("return")?405:515,151,55)];
+  if (kind.startsWith("return")) cells.push({...cell(kind==="return"?"Returned Monetary Contributions":"Returned In-Kind Contributions",22,80,200),height:11});
   const borders=columns.map(x=>({x1:x,y1:120,x2:x,y2:180}));
   borders.push({x1:20,y1:120,x2:575,y2:120},{x1:20,y1:180,x2:575,y2:180});
   return {pageNumber:4,width:595,height:842,cells:cells.map(c=>({...c,baselineTop:c.baselineTop+offset})),
@@ -51,6 +52,50 @@ describe("Maryland physical receipt page parsing", () => {
   it("holds a valid positive row beside a changed header",()=>{
     const a=table(), b=table("money",300);b.cells=b.cells.map(c=>c.text==="Amount"?{...c,text:"Total"}:c);
     expect(()=>parseMarylandModernReceiptPage({...a,cells:[...a.cells,...b.cells],borders:[...a.borders,...b.borders]})).toThrow("header");
+  });
+  it("binds reused Fair Market Value to the exact transfer section",()=>{
+    const p=table("return_in_kind");p.cells=p.cells.map(c=>c.text==="Returned In-Kind Contributions"?
+      {...c,text:"Returned Transfer Contributions"}:c);
+    expect(parseMarylandModernReceiptPage(p)[0]!.schedule).toBe("return_transfer");
+    p.cells=p.cells.filter(c=>!c.text.startsWith("Returned "));
+    expect(()=>parseMarylandModernReceiptPage(p)).toThrow("header");
+  });
+  it("carries printed section context across consecutive pages and rejects gaps",()=>{
+    const parser=createMarylandModernReceiptParser(),p=table("return_in_kind");
+    expect(parser.parsePage(p)).toHaveLength(1);
+    const continuation={...p,pageNumber:5,cells:p.cells.filter(c=>!c.text.startsWith("Returned "))};
+    expect(parser.parsePage(continuation)[0]!.schedule).toBe("return_in_kind");
+    expect(()=>parser.parsePage({...continuation,pageNumber:7})).toThrow("invalid_page");
+  });
+  it.each(["gift","empty"])("clears return context on an intervening %s page",kind=>{
+    const parser=createMarylandModernReceiptParser(),p=table("return_in_kind");parser.parsePage(p);
+    parser.parsePage(kind==="gift"?{...table(),pageNumber:5}:{...p,pageNumber:5,cells:[cell("Total",24,100)]});
+    const orphan={...p,pageNumber:6,cells:p.cells.filter(c=>!c.text.startsWith("Returned "))};
+    expect(()=>parser.parsePage(orphan)).toThrow("header");
+  });
+  it("holds changed section-title geometry instead of inheriting an earlier family",()=>{
+    const parser=createMarylandModernReceiptParser(),p=table("return_in_kind");parser.parsePage(p);
+    const changed={...p,pageNumber:5,cells:p.cells.map(c=>c.text==="Returned In-Kind Contributions"?
+      {...c,text:"Returned Transfer Contributions",height:12}:c)};
+    expect(()=>parser.parsePage(changed)).toThrow("header");
+  });
+  it("clears inherited return context at a same-page gift header until an exact return heading restores it",()=>{
+    const first=table("return_in_kind"),gift=table(),ret=table("return_in_kind",300);
+    const orphan={...gift,pageNumber:5,cells:[...gift.cells,...ret.cells.filter(c=>!c.text.startsWith("Returned "))],
+      borders:[...gift.borders,...ret.borders]};
+    const held=createMarylandModernReceiptParser();held.parsePage(first);
+    expect(()=>held.parsePage(orphan)).toThrow("header");
+    const restored=createMarylandModernReceiptParser();restored.parsePage(first);
+    expect(restored.parsePage({...orphan,cells:[...gift.cells,...ret.cells]}).map(r=>r.schedule))
+      .toEqual(["gift_monetary","return_in_kind"]);
+  });
+  it("does not guess an unknown printed return section",()=>{
+    const p=table("return_in_kind");p.cells=p.cells.map(c=>c.text==="Returned In-Kind Contributions"?
+      {...c,text:"Returned Unknown Contributions"}:c);
+    expect(()=>parseMarylandModernReceiptPage(p)).toThrow("header");
+  });
+  it("does not accept the legacy Letter form as a modern receipt schedule",()=>{
+    expect(()=>parseMarylandModernReceiptPage({...table(),width:612,height:792})).toThrow("invalid_page");
   });
   it("does not substitute monetary columns when wrapped Fair Market Value is absent",()=>{
     const p=table("in_kind");p.cells=p.cells.filter(c=>c.text!=="Value");

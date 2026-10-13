@@ -43,13 +43,33 @@ occurrence multisets, with no missing or extra occurrence. Equal gifts remain
 distinct. Terminal ZIP+4 wrapping preserves all nine digits and the hyphen;
 native address assembly requires exact agreement with its separate raw ZIP.
 
-Annual 2026 has 48,629 gifts/274 returns with exact monetary multiplicity, but
-one gift identity remains unmatched. Both independent physical parsing and the
-normal Node parser observe that same residual. The full report remains held
-while its original physical page is inspected. Anonymous receipts are a separate
-published aggregate, not fabricated itemized rows. These are parser facts, not
-current-report or financial acceptance. All 296 Maryland pipeline tests and
-backend types pass. No Maryland money write, migration, card proof or PR yet.
+Annual 2026 now closes all 48,629 receipts/274 returns, including full identity
+and monetary multiplicity. Its sole initial address residual was PDF whitespace
+after a terminal postal-field hyphen. The complete assembled token equals the
+independently published raw postal field; every literal character remains.
+The nonstandard suffix is not asserted to be a valid numeric ZIP+4. Confirmation
+multiplicity is preserved: one confirmed source occurrence cannot authorize two
+wrapped equal PDF occurrences. Anonymous $368 is its separately published
+aggregate display descriptor, not a fabricated itemized named donor.
+
+The normal whole-occurrence comparator distinguishes receipt families and
+returns. Three transfers use the reused Fair Market Value column under exact
+Returned Transfer Contributions headings; that value-column label cannot turn
+them into in-kind returns. The parser carries only observed headings across
+consecutive return pages, clears context on intervening gift/empty pages and
+gift headers on the same page, and holds changed or unknown heading geometry.
+Normal source-aware replay reads every page of the four modern originals and
+decodes every retained leaf page with the normal public page decoder. All 83,176
+itemized occurrences match, with zero missing/extra identity or amount. Original
+source acquisition times remain unchanged; offline replay grants no freshness.
+The reviewed modern parser/comparison tests and backend types pass.
+
+All three older Annual originals also close geometry-only extraction at their
+separate 612×792 form: 1,127/1,039/283 pages. Whole legacy receipt parsing is in
+progress; leading undated cross-page continuations and separate source table
+roles must qualify before any full-cycle money write. These are complete modern
+parser facts, not current-report or financial acceptance. No Maryland money
+write, migration, card proof or PR yet.
 
 ## Small steps and verification
 

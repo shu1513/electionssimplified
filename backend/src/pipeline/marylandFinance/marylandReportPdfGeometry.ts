@@ -131,12 +131,15 @@ export async function readMarylandReportPdfGeometry(bytes: Uint8Array,
     for (let pageNumber=1; pageNumber<=pdf.numPages; pageNumber++) {
       const page = await pdf.getPage(pageNumber);
       try {
-        // The native cover/controls have variable heights (737/994/853 pt in
-        // the observed PP2 report). Schedule recognition remains separate and
-        // requires its exact 595x842 geometry in the receipt page parser.
+        // Modern cover/controls have variable heights (737/994/853 pt in
+        // the observed PP2 report); the observed legacy Annual form is Letter.
+        // Schedule recognition remains separate: the modern receipt page
+        // parser still requires its exact 595x842 geometry.
+        const modern=Math.abs(page.view[2]!-595)<.01 && Number.isFinite(page.view[3]) &&
+          page.view[3]!>=500 && page.view[3]!<=2000;
+        const legacy=Math.abs(page.view[2]!-612)<.01 && Math.abs(page.view[3]!-792)<.01;
         if (page.rotate !== 0 || page.userUnit !== 1 || page.view.length !== 4 || page.view[0] !== 0 || page.view[1] !== 0 ||
-          Math.abs(page.view[2]!-595) > .01 || !Number.isFinite(page.view[3]) ||
-          page.view[3]! < 500 || page.view[3]! > 2000) fail("unsupported_geometry");
+          (!modern && !legacy)) fail("unsupported_geometry");
         const content = await page.getTextContent({disableNormalization: true});
         const cells: MarylandPdfCell[] = [];
         for (const item of content.items) {
@@ -160,7 +163,7 @@ export async function readMarylandReportPdfGeometry(bytes: Uint8Array,
 
 export type MarylandPdfReceiptOccurrence = {
   pageNumber: number; ordinal: number; role: "gift" | "return";
-  schedule: "gift_monetary" | "gift_in_kind" | "return_monetary" | "return_in_kind";
+  schedule: "gift_monetary" | "gift_in_kind" | "return_monetary" | "return_transfer" | "return_in_kind";
   date: string; amountCents: number; nameAddress: string;
 };
 const clean = (value: string) => value.trim().replace(/\s+/g," ");
@@ -174,38 +177,59 @@ function date(value: string) {
   if (year! < 1900 || year! > 2100 || !Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0,10) !== iso) fail("date");
   return iso;
 }
+type MarylandReturnSection = "monetary" | "transfer" | "in_kind";
+function returnSections(page: MarylandPdfPage) {
+  const known = new Map<string,MarylandReturnSection>([["Returned Monetary Contributions","monetary"],
+    ["Returned Transfer Contributions","transfer"],["Returned In-Kind Contributions","in_kind"]]);
+  return page.cells.filter(c=>/^Returned .+ Contributions$/.test(clean(c.text))).map(c=>{
+      if (Math.abs(c.left-22)>=.01 || Math.abs(c.height-11)>=.01) fail("header");
+      const section=known.get(clean(c.text));if (!section) fail("header");
+      return {baseline:c.baselineTop,section};
+    }).sort((a,b)=>a.baseline-b.baseline);
+}
 /** Exact observed modern receipt headers and physical row/cell boundaries.
  * This page primitive does not select a report, discard historical versions,
  * classify donors or qualify an entire schedule. Empty pages cannot establish
  * an empty report. Aggregate and original-gift amounts are never substituted. */
-export function parseMarylandModernReceiptPage(page: MarylandPdfPage): MarylandPdfReceiptOccurrence[] {
+export function parseMarylandModernReceiptPage(page: MarylandPdfPage,
+  previousReturnSection: MarylandReturnSection|null = null): MarylandPdfReceiptOccurrence[] {
   if (!Number.isInteger(page.pageNumber) || page.pageNumber < 1 ||
     page.width !== 595 || page.height !== 842 || page.cells.length > 40_000 ||
     page.borders.length > 200_000 || page.cells.some(c=>!c.text.trim() ||
       ![c.left,c.right,c.baselineTop,c.height].every(Number.isFinite) || c.right<=c.left || c.height<=0 ||
       c.left<0 || c.right>page.width+1 || center(c)<0 || center(c)>page.height) ||
     page.borders.some(b=>!Object.values(b).every(Number.isFinite))) fail("invalid_page");
+  const sections=returnSections(page);
   const headers: {baseline: number; bottom: number; contributorLeft: number;
     anchor: MarylandPdfCell; schedule: MarylandPdfReceiptOccurrence["schedule"]}[] = [];
-  for (const contributor of page.cells.filter(c=>clean(c.text)==="Contributor Details")) {
+  let activeReturnSection=previousReturnSection,lastHeaderBaseline=-Infinity;
+  for (const contributor of page.cells.filter(c=>clean(c.text)==="Contributor Details")
+    .sort((a,b)=>a.baselineTop-b.baselineTop)) {
     const line = page.cells.filter(c=>Math.abs(c.baselineTop-contributor.baselineTop)<1)
       .sort((a,b)=>a.left-b.left);
     const tokens = line.map(c=>clean(c.text)).join("|");
+    const introduced=sections.filter(s=>s.baseline>lastHeaderBaseline && s.baseline<contributor.baselineTop).at(-1);
+    if (introduced) activeReturnSection=introduced.section;
     let schedule: MarylandPdfReceiptOccurrence["schedule"], anchor: MarylandPdfCell;
     let lower = Math.max(...line.map(c=>c.baselineTop));
     if (tokens === "Date|Payment Method|Fund Type|Contributor Details|Amount|Aggregate") {
+      activeReturnSection=null;
       schedule = "gift_monetary"; anchor = line.find(c=>clean(c.text)==="Amount")!;
     } else if (tokens === "Date|Fund Type|Contributor Details|Aggregate") {
+      activeReturnSection=null;
       const value = page.cells.filter(c=>c.left>435 && c.right<=505+1 &&
         Math.abs(c.baselineTop-contributor.baselineTop)<=6).sort((a,b)=>a.baselineTop-b.baselineTop||a.left-b.left);
       if (value.map(c=>clean(c.text)).join("|") !== "Fair Market|Value") fail("header");
       schedule = "gift_in_kind"; anchor = value.at(-1)!; lower = Math.max(lower,...value.map(c=>c.baselineTop));
     } else if (tokens === "Return Date|Contribution Date|Contributor Details|Contribution Amount|Return Amount") {
+      if (activeReturnSection!=="monetary") fail("header");
       schedule = "return_monetary"; anchor = line.at(-1)!;
     } else if (tokens === "Return Date|Contribution Date|Contributor Details|Fair Market Value|Return Amount") {
-      schedule = "return_in_kind"; anchor = line.at(-1)!;
+      if (activeReturnSection!=="transfer" && activeReturnSection!=="in_kind") fail("header");
+      schedule = activeReturnSection==="transfer"?"return_transfer":"return_in_kind"; anchor = line.at(-1)!;
     } else fail("header");
     headers.push({baseline: contributor.baselineTop, bottom: lower, contributorLeft: contributor.left-4, anchor, schedule});
+    lastHeaderBaseline=contributor.baselineTop;
   }
   const horizontal = [...new Set(page.borders.filter(b=>Math.abs(b.y1-b.y2)<.001 &&
     Math.min(b.x1,b.x2)<=20 && Math.max(b.x1,b.x2)>=80).map(b=>Number(b.y1.toFixed(3))))];
@@ -247,4 +271,20 @@ export function parseMarylandModernReceiptPage(page: MarylandPdfPage): MarylandP
       date: date(clean(dateCell.text)), amountCents, nameAddress});
   }
   return result;
+}
+
+/** Carries only an exact observed return section across consecutive schedule
+ * pages. Fair Market Value is reused by transfers and in-kind returns; the
+ * value-column wording alone cannot establish a return's financial family. */
+export function createMarylandModernReceiptParser() {
+  let previousReturnSection: MarylandReturnSection|null=null,lastPage: number|null=null;
+  return {parsePage(page: MarylandPdfPage) {
+    if (lastPage!==null && page.pageNumber!==lastPage+1) fail("invalid_page");
+    const rows=parseMarylandModernReceiptPage(page,previousReturnSection);
+    const last=rows.at(-1);
+    const lastSection=last?.schedule==="return_transfer"?"transfer":last?.schedule==="return_in_kind"?"in_kind":"monetary";
+    const printed=returnSections(page).at(-1)?.section;
+    previousReturnSection=last?.role==="return" && (!printed || printed===lastSection)?lastSection:null;
+    lastPage=page.pageNumber;return rows;
+  }};
 }
