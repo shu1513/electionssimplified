@@ -23,6 +23,7 @@ export const BALLOT_MEASURE_RESEARCH_AREA_SLUGS = [
   "public_education_quality",
   "gun_control",
   "ai_regulation",
+  "limit_foreign_influence",
   "labor_rights",
 ] as const;
 
