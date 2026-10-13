@@ -62,13 +62,17 @@ export function parseSanFranciscoCommitteePublicFunds(input: {
     !Array.isArray(raw.totals) ||
     raw.totals.length !== 2 ||
     !object(raw.pubfi) ||
-    raw.pubfi.participant !== "True"
+    (raw.pubfi.participant !== "True" && raw.pubfi.participant !== "False")
   )
     throw new Error(
-      "Missing participating San Francisco committee public-funds metadata",
+      "Missing San Francisco committee public-funds participation metadata",
     );
   const publicFundsCents = cents(raw.pubfi.total);
-  if (publicFundsCents <= 0)
+  if (raw.pubfi.participant === "False" && publicFundsCents !== 0)
+    throw new Error(
+      "Contradictory San Francisco committee public-funds participation metadata",
+    );
+  if (raw.pubfi.participant === "True" && publicFundsCents <= 0)
     throw new Error(
       "San Francisco committee public-funds fallback requires a positive amount",
     );

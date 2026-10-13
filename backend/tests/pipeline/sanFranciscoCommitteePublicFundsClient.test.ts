@@ -90,6 +90,31 @@ describe("exact-account SF public financing publication", () => {
       ).toThrow(/metadata/);
     },
   );
+  it("accepts explicit nonparticipation only with a zero public-funds total", () => {
+    expect(
+      parseSanFranciscoCommitteePublicFunds({
+        ...input,
+        markdown: markdown
+          .replace("'True'", "'False'")
+          .replace("255000.0", "0.0"),
+        sourceUrl: url,
+      }).publicFundsCents,
+    ).toBe(0);
+  });
+  it.each([
+    markdown.replace("255000.0", "0.0"),
+    markdown.replace("pubfi:\n  participant: 'True'\n  total: 255000.0\n", ""),
+    markdown.replace("  total: 255000.0\n", ""),
+    markdown.replace("  participant: 'True'\n", ""),
+  ])("rejects missing metadata or a participating zero", (source) => {
+    expect(() =>
+      parseSanFranciscoCommitteePublicFunds({
+        ...input,
+        markdown: source,
+        sourceUrl: url,
+      }),
+    ).toThrow();
+  });
   it("requests only the exact public account and retains caller identity across await", async () => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {

@@ -362,7 +362,9 @@ export async function syncSanFranciscoCandidateFinance(input: {
       qualifiedDirect.unitemizedNonmonetaryCents +
       line2Cents;
     if (
-      publication.contributionCents !== qualifiedContributions ||
+      (publication.publicFundsCents === 0
+        ? hasUnqualifiedCityLate
+        : publication.contributionCents !== qualifiedContributions) ||
       publication.expenditureCents !== manifestCandidate.expensesCents ||
       manifestCandidate.fundsCents !==
         publication.contributionCents + publication.publicFundsCents
@@ -371,9 +373,14 @@ export async function syncSanFranciscoCandidateFinance(input: {
         "San Francisco exact-account public-funds publication does not reconcile with source contributions and manifest",
       );
     direct = qualifiedDirect;
-    publicFundsStatus = "matched";
-    publicFundsCents = publication.publicFundsCents;
-    publicFundsApprovalCents = [publication.publicFundsCents];
+    // Explicit nonparticipation permits the documented timing/return residuals.
+    // A zero is returned only for participant: 'False' with a zero source total;
+    // missing metadata and unexplained city late payments still fail closed.
+    if (publication.publicFundsCents > 0) {
+      publicFundsStatus = "matched";
+      publicFundsCents = publication.publicFundsCents;
+      publicFundsApprovalCents = [publication.publicFundsCents];
+    }
   }
   // Donor money excludes exact source-qualified public funding; never infer a name alias.
   const directContributionCents =

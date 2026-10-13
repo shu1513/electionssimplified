@@ -714,6 +714,68 @@ describe("source-bound public funds fallback", () => {
     ).rejects.toThrow("Missing account metadata");
     expect(replaceSanFranciscoCandidateFinanceSnapshot).not.toHaveBeenCalled();
   });
+  it.each([1, -2938, -62086, -73300000])(
+    "retains an authoritative nonparticipant's %s-cent reconciliation residual",
+    async (difference) => {
+      const published = missingNameSource();
+      vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue({
+        ...published,
+        contributionCents: 15000000,
+        publicFundsCents: 0,
+      });
+      vi.mocked(getSanFranciscoCommitteeItemizedTransactions).mockResolvedValue(
+        [transactionRow({ calculatedAmountCents: 15000000 - difference })],
+      );
+      const result = await syncSanFranciscoCandidateFinance(
+        baseInput(fakeDb()),
+      );
+      expect(result).toMatchObject({
+        totalRaisedCents: 15000000,
+        directContributionCents: 15000000,
+        publicFundsStatus: "none",
+        publicFundsCents: 0,
+        reconciliationDifferenceCents: difference,
+      });
+      expect(replaceSanFranciscoCandidateFinanceSnapshot).toHaveBeenCalledTimes(
+        1,
+      );
+    },
+  );
+  it.each(["contributionCents", "expenditureCents", "cityLate"])(
+    "rejects contradictory nonparticipation evidence: %s",
+    async (field) => {
+      const published = {
+        ...missingNameSource(),
+        contributionCents: 15000000,
+        publicFundsCents: 0,
+      };
+      if (field === "contributionCents") published.contributionCents += 1;
+      if (field === "expenditureCents") published.expenditureCents += 1;
+      if (field === "cityLate") {
+        vi.mocked(
+          getSanFranciscoCommitteeItemizedTransactions,
+        ).mockResolvedValue([
+          ...TRANSACTION_ROWS,
+          transactionRow({
+            transactionId: "CITY-LATE",
+            formType: "F497P1",
+            entityCode: "OTH",
+            contributorLastName: "CITY AND COUNTY OF SAN FRANCISCO",
+            calculatedAmountCents: 4950000,
+          }),
+        ]);
+      }
+      vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue(
+        published,
+      );
+      await expect(
+        syncSanFranciscoCandidateFinance(baseInput(fakeDb())),
+      ).rejects.toThrow(/does not reconcile/);
+      expect(
+        replaceSanFranciscoCandidateFinanceSnapshot,
+      ).not.toHaveBeenCalled();
+    },
+  );
   it("does not fetch an account fallback for an existing exact match or infer zero from an empty approval lookup", async () => {
     await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
     expect(getSanFranciscoCommitteePublicFunds).not.toHaveBeenCalled();
