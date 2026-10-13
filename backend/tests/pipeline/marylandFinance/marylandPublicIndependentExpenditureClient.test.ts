@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -9,6 +9,7 @@ import {
   buildMarylandPublicIndependentExpenditureRequest,
   decodeMarylandPublicIndependentExpenditurePage,
   fetchMarylandPublicIndependentExpenditurePage,
+  readMarylandPublicIndependentExpenditureCensus,
 } from "../../../src/pipeline/marylandFinance/marylandPublicIndependentExpenditureClient.js";
 const id = (n: number) =>
   `${String(n).padStart(8, "0")}-1111-4111-8111-111111111111`;
@@ -93,6 +94,96 @@ async function census(
     }),
   };
 }
+describe("Maryland saved allocation census", () => {
+  async function saved(total = 101) {
+    const input = await census(total);
+    await acquireMarylandPublicIndependentExpenditureCensus(input);
+    const scope = {outputDirectory: input.outputDirectory, electionCycle: input.electionCycle};
+    const journalPath = join(input.outputDirectory, "captures.private.jsonl");
+    const captures = (await readFile(journalPath, "utf8")).trimEnd().split("\n").map(line => JSON.parse(line));
+    return {scope, journalPath, captures};
+  }
+  async function journal(state: Awaited<ReturnType<typeof saved>>) {
+    await writeFile(state.journalPath, state.captures.map(c => JSON.stringify(c)).join("\n") + "\n");
+  }
+  type Saved = Awaited<ReturnType<typeof saved>>;
+  it("reopens actual producer originals, preserving parent repeats, editions and original times", async () => {
+    const s = await saved();
+    const result = await readMarylandPublicIndependentExpenditureCensus(s.scope);
+    expect(result).toMatchObject({physicalRows: 101, declaredRows: 101,
+      startedAt: s.captures[0].startedAt, completedAt: s.captures[1].completedAt});
+    expect(result.captures).toHaveLength(2);
+    expect(result.rows).toHaveLength(101);
+    expect(result.rows[0]).toMatchObject({unknownField: {literal: "retained"}});
+    expect(result).not.toHaveProperty("qualified");
+  });
+  it("accepts one genuine empty page without granting financial zero", async () => {
+    const s = await saved(0);
+    const result = await readMarylandPublicIndependentExpenditureCensus(s.scope);
+    expect(result).toMatchObject({physicalRows: 0, declaredRows: 0});
+    expect(result).not.toHaveProperty("outsideSupportTotal");
+  });
+  it.each([
+    (s: Saved) => {s.captures[0].requestBody.stance = "STSUPP";},
+    (s: Saved) => {s.captures[0].requestBody.electionCycle = "12019";},
+    (s: Saved) => {s.captures[0].requestBody.extra = true;},
+    (s: Saved) => {s.captures[0].requestBody.pageNumber = 2;},
+    (s: Saved) => {s.captures[0].url += "?filter=1";},
+    (s: Saved) => {s.captures[0].method = "GET";},
+    (s: Saved) => {s.captures[0].httpStatus = 403;},
+    (s: Saved) => {s.captures[0].bodyComplete = false;},
+    (s: Saved) => {s.captures[0].errorCode = "timeout";},
+    (s: Saved) => {s.captures[0].outputPath += ".other";},
+    (s: Saved) => {s.captures[0].sha256 = "unknown";},
+    (s: Saved) => {s.captures[0].byteCount = 4 * 1024 * 1024 + 1;},
+    (s: Saved) => {s.captures[0].startedAt = "2026-02-30T00:00:00.000Z";},
+    (s: Saved) => {s.captures[0].completedAt = "2020-01-01T00:00:00.000Z";},
+    (s: Saved) => {s.captures[1].startedAt = "2020-01-01T00:00:00.000Z";},
+    (s: Saved) => {s.captures.reverse();},
+  ])("holds incompatible, failed or reordered capture metadata %#", async mutate => {
+    const s = await saved(); mutate(s); await journal(s);
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("invalid_capture");
+  });
+  it("rejects truncated journals and omitted physical pages", async () => {
+    const s = await saved();
+    await writeFile(s.journalPath, JSON.stringify(s.captures[0]));
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("invalid_capture");
+    s.captures.pop(); await journal(s);
+    await rm(join(s.scope.outputDirectory, "page-0002.original.json"));
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("count_drift");
+  });
+  it("refuses unrecorded source pages and public-readable originals", async () => {
+    const s = await saved();
+    const extra = join(s.scope.outputDirectory, "page-0003.original.json");
+    await writeFile(extra, "{}");
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("invalid_capture");
+    await rm(extra);
+    await chmod(s.captures[0].outputPath, 0o644);
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("changed_original");
+  });
+  it("rejects changed originals despite an advisory success proof", async () => {
+    const s = await saved();
+    await writeFile(join(s.scope.outputDirectory, "safe-whole-source-proof.json"), '{"complete":true}');
+    await writeFile(s.captures[0].outputPath, "{}");
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow("changed_original");
+  });
+  it.each(["duplicate", "conflict", "count"])("checks complete union %s independently of per-page validity", async kind => {
+    const s = await saved();
+    const capture = s.captures[1];
+    const value = JSON.parse(await readFile(capture.outputPath, "utf8"));
+    if (kind === "count") value.data.totalItems = 102;
+    else {
+      value.data.items[0].candidateMeasureGuid = id(101);
+      if (kind === "conflict") value.data.items[0].candidateGuid = id(99);
+    }
+    const raw = JSON.stringify(value);
+    await writeFile(capture.outputPath, raw);
+    capture.byteCount = Buffer.byteLength(raw); capture.sha256 = createHash("sha256").update(raw).digest("hex");
+    await journal(s);
+    await expect(readMarylandPublicIndependentExpenditureCensus(s.scope)).rejects.toThrow(
+      kind === "duplicate" ? "duplicate_occurrence" : kind === "conflict" ? "conflicting_allocation" : "invalid_independent_expenditure_page");
+  });
+});
 describe("Maryland allocation facts only", () => {
   it("builds exact20 fields, absent amount/type selectors and no owner", () => {
     expect(Object.keys(req())).toHaveLength(20);

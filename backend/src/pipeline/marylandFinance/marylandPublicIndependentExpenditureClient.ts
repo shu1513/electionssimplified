@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, open, readFile } from "node:fs/promises";
+import { lstat, mkdir, open, readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import {
   captureMarylandPublicIndependentExpenditurePost,
@@ -300,10 +300,106 @@ export class MarylandPublicIndependentExpenditureCensusError extends Error {
       | "duplicate_occurrence"
       | "conflicting_allocation"
       | "total_byte_limit"
-      | "census_timeout",
+      | "census_timeout"
+      | "invalid_capture"
+      | "changed_original",
   ) {
     super(`Maryland native allocation census: ${code}`);
   }
+}
+/** Reopens the normal producer's private originals, never a success manifest.
+ * Returned rows are transient source facts, not target/report or financial
+ * authority. Do not log them or persist identity derivatives. */
+export async function readMarylandPublicIndependentExpenditureCensus(input: {
+  outputDirectory: string;
+  electionCycle: string;
+}) {
+  const scope = buildMarylandPublicIndependentExpenditureRequest({
+    electionCycle: input.electionCycle, pageNumber: 1,
+  });
+  function bad(code: "invalid_capture" | "changed_original" | "count_drift" |
+    "duplicate_occurrence" | "conflicting_allocation" | "total_byte_limit"): never {
+    throw new MarylandPublicIndependentExpenditureCensusError(code);
+  }
+  if (typeof input.outputDirectory !== "string" || !input.outputDirectory.trim())
+    throw new MarylandPublicIndependentExpenditureCensusError("invalid_request");
+  const directory = resolve(input.outputDirectory);
+  const journalPath = join(directory, "captures.private.jsonl");
+  let journal: string;
+  try {
+    const [dir, file] = await Promise.all([lstat(directory), lstat(journalPath)]);
+    if (!dir.isDirectory() || (dir.mode & 0o777) !== 0o700 || !file.isFile() ||
+      (file.mode & 0o777) !== 0o600 || file.size < 1 || file.size > 16 * 1024 * 1024) bad("invalid_capture");
+    const bytes = await readFile(journalPath);
+    if (bytes.length !== file.size) bad("invalid_capture");
+    journal = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch { bad("invalid_capture"); }
+  if (!journal.endsWith("\n")) bad("invalid_capture");
+  const lines = journal.slice(0, -1).split("\n");
+  if (!lines.length || lines.length > 1500 || lines.some(line => !line)) bad("invalid_capture");
+  const instant = (v: unknown): v is string => typeof v === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(v) && !v.startsWith("0000") &&
+    Number.isFinite(Date.parse(v)) && new Date(v).toISOString() === v;
+  const captures: MarylandPublicIndependentExpenditureCapture[] = [];
+  let capturedBytes = 0;
+  for (const [index, line] of lines.entries()) {
+    let raw: unknown;
+    try { raw = JSON.parse(line); } catch { bad("invalid_capture"); }
+    if (!record(raw) || !record(raw.requestBody)) bad("invalid_capture");
+    const expected = { ...scope, pageNumber: index + 1 };
+    const body = raw.requestBody;
+    try { checkedRequest(body as MarylandPublicIndependentExpenditureRequest); }
+    catch { bad("invalid_capture"); }
+    if (Object.keys(body).some(k => body[k] !== expected[k as keyof typeof expected]) ||
+      raw.url !== "https://api-campaignfinance.maryland.gov/api/PublicGrid/GetIndependentExpenditureList" ||
+      raw.method !== "POST" || raw.outputPath !== join(directory, `page-${String(index + 1).padStart(4, "0")}.original.json`) ||
+      raw.httpStatus !== 200 || raw.bodyComplete !== true || raw.errorCode !== null ||
+      !positiveInteger(raw.byteCount) || (raw.byteCount as number) > 4 * 1024 * 1024 ||
+      typeof raw.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(raw.sha256) ||
+      !instant(raw.startedAt) || !instant(raw.completedAt) || raw.startedAt > raw.completedAt ||
+      Date.parse(raw.completedAt) - Date.parse(raw.startedAt) > 30_000 ||
+      (index > 0 && captures[index - 1]!.completedAt > raw.startedAt)) bad("invalid_capture");
+    capturedBytes += raw.byteCount as number;
+    if (capturedBytes > 1024 * 1024 * 1024) bad("total_byte_limit");
+    captures.push(Object.freeze({url: raw.url, method: "POST", requestBody: Object.freeze(expected),
+      outputPath: raw.outputPath as string, httpStatus: 200, bodyComplete: true, errorCode: null,
+      byteCount: raw.byteCount as number, sha256: raw.sha256,
+      startedAt: raw.startedAt, completedAt: raw.completedAt}));
+  }
+  if (Date.parse(captures.at(-1)!.completedAt) - Date.parse(captures[0]!.startedAt) > 60 * 60 * 1000)
+    bad("invalid_capture");
+  const expectedFiles = new Set(["captures.private.jsonl", ...captures.map(c => c.outputPath.slice(directory.length + 1))]);
+  // The acquisition proof contains aggregate facts only and is never authority.
+  const allowedAdvisoryFiles = new Set(["safe-whole-source-proof.json"]);
+  try {
+    for (const file of await readdir(directory)) {
+      if (!expectedFiles.delete(file) && !allowedAdvisoryFiles.has(file)) bad("invalid_capture");
+    }
+    if (expectedFiles.size) bad("invalid_capture");
+  } catch { bad("invalid_capture"); }
+  const rows: Row[] = [], identities = new Set<string>(), editions = new Map<string, string>();
+  let declaredRows: number | undefined;
+  for (const capture of captures) {
+    try {
+      const file = await lstat(capture.outputPath);
+      if (!file.isFile() || (file.mode & 0o777) !== 0o600 || file.size !== capture.byteCount) bad("changed_original");
+    } catch { bad("changed_original"); }
+    const page = await readPage(capture);
+    if (declaredRows === undefined) {
+      declaredRows = page.totalItems;
+      if (Math.max(1, Math.ceil(declaredRows / 100)) !== captures.length) bad("count_drift");
+    } else if (page.totalItems !== declaredRows) bad("count_drift");
+    for (const row of page.rows) {
+      const key = marylandPublicIndependentExpenditureOccurrenceKey(row), edition = allocationEditionKey(row);
+      if (identities.has(key)) bad("duplicate_occurrence");
+      if (editions.has(edition) && editions.get(edition) !== key) bad("conflicting_allocation");
+      identities.add(key); editions.set(edition, key); rows.push(row);
+    }
+  }
+  if (rows.length !== declaredRows) bad("count_drift");
+  return Object.freeze({ rows: Object.freeze(rows), captures: Object.freeze(captures),
+    declaredRows: declaredRows!, physicalRows: rows.length, capturedBytes,
+    startedAt: captures[0]!.startedAt, completedAt: captures.at(-1)!.completedAt });
 }
 /** Sequential complete observed census. No cache activation or financial verdict. */
 export async function acquireMarylandPublicIndependentExpenditureCensus(

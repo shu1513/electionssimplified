@@ -527,3 +527,41 @@ codes observed only in the prior cycle remain distinct from reported PACs.
 All 270 Maryland tests and backend types pass, and the full normal arithmetic
 agrees with the earlier independent aggregate diagnostic. Current report
 identity/publication authority still precedes any money writer or card proof.
+
+The October 13 complete two-generation class audit identifies a scope gap in
+that TPAC-only diagnostic. The Pennsylvania pattern recognizes committee
+donors generally; Maryland's native source also explicitly distinguishes
+candidate, federal, party central, participating organization, registered and
+unregistered non-federal, and slate committees, plus political clubs. A broader
+committee-coded diagnostic including candidate committees is 256 cash gifts,
+$487,160.44 gross, nine resolved cash refunds totaling $19,500, and $467,660.44
+net. Excluding candidate committees gives 217 gifts and $411,510.44 net. Neither
+figure is accepted or stored. Exact class policy, source label pairs and self
+exclusions must close before replacing the narrower arithmetic. Spouse or
+dependent (`TSPDC`), business, labor union and nonprofit classes remain distinct;
+`TPOC` means Participating Organization Committee. The whole 105,360 current
+and 39,208 prior rows were reopened through the normal partition reader (1,512
+original captures); all 656 current refunds resolve without parent identity
+conflicts. The sole cumulative over-refund belongs to an individual gift and
+still cannot qualify an overall cash summary. Full-source identity, controls
+and fresh publication closure remain required before financial publication.
+
+The broader diagnostic also exposes one negative federal-committee period
+position and one cash-labelled $665 refund tied to an in-kind original gift.
+The arithmetic above excludes that mixed-family return; it is not accepted net
+cash. Actual report return-family authority must settle that boundary. A signed
+period position cannot be clamped or dropped to fit Pennsylvania's positive-only
+table. One reported-name cohort contains both business and PAC gift classes;
+its business amounts cannot become committee money through name grouping.
+
+The normal saved IE census reader now verifies the complete producer journal,
+exact unrestricted 20-field source scopes, private originals and SHA/length,
+HTTP/EOF/error state, actual ordered acquisition times, exact physical page
+inventory, declared counts and global allocation identities. Same allocation
+editions with conflicting targets hold; repeated parents remain distinct
+allocations. Advisory success files grant no authority. Genuine offline replay
+reopens all 11 originals and 1,066 allocations (2,173,075 bytes), preserving the
+October 13 21:32:04.179–21:32:08.187 UTC source times. All 70 IE client/reader
+tests pass, including 24 new saved-reader guards; isolated module types and
+independent review pass. No financial zero, currentness or target authority
+follows from this observation.
