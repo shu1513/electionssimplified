@@ -73,6 +73,43 @@ write, migration, card proof or PR yet.
 
 ## Small steps and verification
 
+The retained public UI exposes a separate native outside-allocation route,
+`PublicGrid/GetIndependentExpenditureList`, alongside payer expenses and receiver
+profile discovery. The exact unrestricted global builder has no account selector;
+unset amount and expenditure-type controls remain omitted. A genuine bounded
+page 1/100 request for the published 2023–2026 cycle returned HTTP 200/complete,
+1,066 declared rows and 100 physical rows, with advisory server paging echoes
+0/0. Its untouched 204,954-byte original was captured October 13,
+21:17:24.079–21:17:25.063 UTC. This is actual schema discovery, not a complete
+ledger or accepted outside amount.
+
+Native allocations expose source target/measure GUIDs, stance and applied amount
+separately from payer transaction amount, report GUID/version and transaction
+GUID/version. Static subtype enums distinguish independent expenditure TIEXP
+from electioneering TECOM; the parent role TIECOM combines both. Source target
+accounts require independent office/election/receiving identity qualification.
+Normal native acquisition, whole physical paging/occurrence closure and current
+report/target/role authority precede any outside replacement or candidate zero.
+
+The normal saved leaf reader now reads the original capture journal rather than
+accepting a caller's success manifest. It rebuilds the closed unrestricted
+receipt request for each requested page, validates owner/cycle/date/return scope,
+original status/EOF/error/timestamps/path and exact SHA/length, and requires every
+sequential page, stable total and distinct occurrence. Unknown capture extras
+never enter projected capture references; malformed JSON/UTF-8 errors remain
+static safe codes. Returned source rows remain transient private facts.
+
+Genuine offline replay closes all 19 retained current leaves (1,063 original
+pages, 105,360 rows, 187,177,908 leaf bytes) and six prior leaves (395 originals,
+39,208 rows, 69,659,391 leaf bytes). Actual current leaf acquisition was
+06:42:55.435–06:44:37.277 UTC and prior leaf acquisition
+17:15:46.257–17:16:13.060 UTC on October 13. These exclude the separate partition
+probe captures. No source request or source timestamp changed. Focused census
+tests pass (48), including scope/path/metadata tampering, missing/extra pages,
+changed originals, count drift and cross-page duplicates; isolated strict module
+types pass. This is leaf acquisition proof only: parent-tree/closing observations,
+report currentness and financial acceptance remain separate required gates.
+
 The normal public report client now rebuilds the exact unrestricted profile
 request, validates requested page/count closure and retains every complete child
 history. Duplicate parent or cross-parent edition identities, missing/ambiguous

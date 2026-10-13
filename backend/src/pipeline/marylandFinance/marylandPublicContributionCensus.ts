@@ -1,20 +1,108 @@
 import { createHash } from "node:crypto";
-import { mkdir, open, readFile } from "node:fs/promises";
+import { mkdir, open, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import {
   buildMarylandPublicContributionRequest,
   decodeMarylandPublicContributionPage,
   fetchMarylandPublicContributionPage,
   marylandPublicContributionOccurrenceKey,
+  type MarylandPublicContributionCapture,
 } from "./marylandPublicContributionClient.js";
 
 type PageInput = Parameters<typeof fetchMarylandPublicContributionPage>[0];
 export class MarylandPublicContributionCensusError extends Error {
   constructor(public readonly code: "invalid_request" | "page_limit" | "count_drift" |
-    "duplicate_occurrence" | "total_byte_limit" | "census_timeout" | "changed_original") {
+    "duplicate_occurrence" | "total_byte_limit" | "census_timeout" | "changed_original" | "invalid_capture") {
     super(`Maryland native receipt census: ${code}`);
     this.name = "MarylandPublicContributionCensusError";
   }
+}
+
+/** Reads an ordinary saved leaf census, not a caller's success manifest. Every
+ * original must match its closed scope and sequential requested page. Rows are
+ * transient private source facts; never log or persist their derivatives. This
+ * grants no report-currentness, full-partition or financial authority. */
+export async function readMarylandPublicContributionCensus(input:
+  Pick<PageInput, "filerRegistrationGuid" | "electionCycle" | "fromDate" | "toDate" | "isReturn" | "sortType"> &
+  { outputDirectory: string },
+) {
+  const scope = buildMarylandPublicContributionRequest({ ...input, pageNumber: 1, pageSize: 100 });
+  if (typeof input.outputDirectory !== "string" || !input.outputDirectory.trim())
+    throw new MarylandPublicContributionCensusError("invalid_request");
+  const directory = resolve(input.outputDirectory), journalPath = join(directory, "captures.private.jsonl");
+  let journalText: string;
+  try {
+    const journalStat = await stat(journalPath);
+    if (!journalStat.isFile() || journalStat.size < 1 || journalStat.size > 16 * 1024 * 1024)
+      throw new Error();
+    const bytes = await readFile(journalPath);
+    if (bytes.length !== journalStat.size) throw new Error();
+    journalText = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch { throw new MarylandPublicContributionCensusError("invalid_capture"); }
+  if (!journalText.endsWith("\n")) throw new MarylandPublicContributionCensusError("invalid_capture");
+  const lines = journalText.slice(0, -1).split("\n");
+  if (!lines.length || lines.length > 1500 || lines.some(line => !line))
+    throw new MarylandPublicContributionCensusError("invalid_capture");
+  const captures: MarylandPublicContributionCapture[] = [];
+  const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+  const instant = (v: unknown): v is string => typeof v === "string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(v) && !v.startsWith("0000") &&
+    Number.isFinite(Date.parse(v)) && new Date(v).toISOString() === v;
+  for (const line of lines) {
+    let raw: unknown;
+    try { raw = JSON.parse(line); } catch { throw new MarylandPublicContributionCensusError("invalid_capture"); }
+    if (!object(raw) || !object(raw.requestBody)) throw new MarylandPublicContributionCensusError("invalid_capture");
+    const body = raw.requestBody;
+    if (!Number.isSafeInteger(body.pageNumber) || (body.pageNumber as number) < 1 ||
+      (body.pageNumber as number) > 1500) throw new MarylandPublicContributionCensusError("invalid_capture");
+    const expected = { ...scope, pageNumber: body.pageNumber };
+    if (Object.keys(body).length !== Object.keys(expected).length || Object.keys(body).some(key =>
+      !Object.hasOwn(expected, key) || body[key] !== expected[key as keyof typeof expected]) ||
+      raw.url !== "https://api-campaignfinance.maryland.gov/api/PublicGrid/GetContributionList" || raw.method !== "POST" ||
+      raw.outputPath !== join(directory, `page-${String(body.pageNumber).padStart(4, "0")}.original.json`) ||
+      raw.httpStatus !== 200 || raw.bodyComplete !== true || raw.errorCode !== null ||
+      !Number.isSafeInteger(raw.byteCount) || (raw.byteCount as number) < 1 || (raw.byteCount as number) > 4 * 1024 * 1024 ||
+      typeof raw.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(raw.sha256) ||
+      !instant(raw.startedAt) || !instant(raw.completedAt) || raw.startedAt > raw.completedAt)
+      throw new MarylandPublicContributionCensusError("invalid_capture");
+    // Unknown capture extras (including headers) do not enter projected refs.
+    captures.push(Object.freeze({ url: raw.url, method: "POST", requestBody: Object.freeze(expected) as typeof scope,
+      outputPath: raw.outputPath as string, httpStatus: 200, bodyComplete: true, errorCode: null,
+      byteCount: raw.byteCount as number, sha256: raw.sha256, startedAt: raw.startedAt, completedAt: raw.completedAt }));
+  }
+  captures.sort((a, b) => a.requestBody.pageNumber - b.requestBody.pageNumber);
+  const rows: Readonly<Record<string, unknown>>[] = [], identities = new Set<string>();
+  let declaredRows: number | undefined, capturedBytes = 0;
+  for (const [index, capture] of captures.entries()) {
+    if (capture.requestBody.pageNumber !== index + 1) throw new MarylandPublicContributionCensusError("invalid_capture");
+    capturedBytes += capture.byteCount;
+    if (capturedBytes > 1024 * 1024 * 1024) throw new MarylandPublicContributionCensusError("total_byte_limit");
+    let raw: Buffer;
+    try {
+      const originalStat = await stat(capture.outputPath);
+      if (!originalStat.isFile() || originalStat.size !== capture.byteCount) throw new Error();
+      raw = await readFile(capture.outputPath);
+    } catch { throw new MarylandPublicContributionCensusError("changed_original"); }
+    if (raw.length !== capture.byteCount || createHash("sha256").update(raw).digest("hex") !== capture.sha256)
+      throw new MarylandPublicContributionCensusError("changed_original");
+    let value: unknown;
+    try { value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(raw)); }
+    catch { throw new MarylandPublicContributionCensusError("invalid_capture"); }
+    const page = decodeMarylandPublicContributionPage(value, capture.requestBody);
+    if (declaredRows === undefined) {
+      declaredRows = page.totalItems;
+      if (Math.max(1, Math.ceil(declaredRows / 100)) !== captures.length)
+        throw new MarylandPublicContributionCensusError("count_drift");
+    } else if (declaredRows !== page.totalItems) throw new MarylandPublicContributionCensusError("count_drift");
+    for (const row of page.rows) {
+      const key = marylandPublicContributionOccurrenceKey(row);
+      if (identities.has(key)) throw new MarylandPublicContributionCensusError("duplicate_occurrence");
+      identities.add(key); rows.push(row);
+    }
+  }
+  if (rows.length !== declaredRows) throw new MarylandPublicContributionCensusError("count_drift");
+  return Object.freeze({ rows: Object.freeze(rows), captures: Object.freeze(captures), declaredRows: declaredRows!,
+    physicalRows: rows.length, capturedBytes });
 }
 const fail = (code: ConstructorParameters<typeof MarylandPublicContributionCensusError>[0]): never => {
   throw new MarylandPublicContributionCensusError(code);
