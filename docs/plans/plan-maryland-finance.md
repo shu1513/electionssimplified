@@ -208,3 +208,21 @@ scope's dates/count and the global occurrence union, and closing the unrestricte
 ascending/descending observations. Single-day overflow, omitted dates, count
 drift and duplicates hold the collection. Current report editions, complete
 monetary schedules/returns and PAC role remain separate qualification gates.
+
+The genuine normal partition collector now closes 105,360 physical and unique
+occurrences across 19 disjoint scopes: 1,103 requests and 194,066,250 captured
+bytes, observed October 13, 2026 06:42:53.901–06:44:38.130 UTC. All original
+hashes/lengths/EOF/status and closing unrestricted ascending/descending pages
+independently agree; the default cycle remains 2023–2026. All seven current
+PDF cash, return and available in-kind controls agree with the native lineage.
+These are complete acquisition/control facts, not financial acceptance.
+
+Historical pointers cannot be discarded: 48,900 Annual 2026 occurrences point
+to disclosed history while only four point to its current parent. Current
+PDF schedule occurrence identity must reconcile independently. Thirty-one
+refunds reference gifts outside the cycle. A further $1,000 refund reports a
+different committee class from its linked PAC gift; an actual public detail
+confirms that original gift's PAC/transfer role. Refund attribution follows
+the resolved original gift, not the refund's class or sign. Whole current
+schedule identity, all parent ownership and fresh publication closure remain
+necessary before the PAC writer/reader/card proof and Maryland PR.
