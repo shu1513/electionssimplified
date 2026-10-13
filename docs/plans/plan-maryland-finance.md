@@ -144,3 +144,12 @@ A full census would require 1,054 pages at the observed public limit of 100.
 The next client must retain every source occurrence and fail on paging, count,
 identity or generation drift. Financial role/control qualification stays
 separate, including whether the TCON collection covers loan mechanisms.
+
+Legacy export arrays also lack whole-current publication authority even when
+every selected positive row is valid. Their normal sync now writes only its
+direct component: outside groups, funder details and classifications are
+omitted, outside scalar inputs remain null under the existing preserve policy.
+Aggregation diagnostics remain available. This prevents stale-group deletion,
+truncated replacement and opposite-stance zero from an unqualified positive
+subset. It does not complete independent-expenditure acquisition; that still
+requires the genuine qualified source path and real local proof before the PR.

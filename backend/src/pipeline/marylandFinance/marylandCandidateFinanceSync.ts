@@ -1,12 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
-import {
-  buildFinanceIndustryBreakdownsFromClassifications,
-  mergeFinanceLabelClassification,
-  resolveFinanceIndustryClassifications,
-  type FinanceIndustryClassifier,
-} from "../finance/financeIndustryClassificationService.js";
-import { classifyFinanceLabel, type FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
+import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
 import {
   normalizeMarylandCandidateNameForStorage,
   resolveMarylandCandidateCommittee,
@@ -29,8 +23,6 @@ import {
 import {
   replaceMarylandCandidateFinanceSnapshot,
   type MarylandFinanceLinkInput,
-  type MarylandFinanceOutsideGroupBreakdownInput,
-  type MarylandFinanceOutsideGroupInput,
   type MarylandFinanceSummaryInput,
 } from "./marylandFinanceWriter.js";
 
@@ -59,8 +51,8 @@ export type MarylandCandidateFinanceSyncInput = {
   dryRun?: boolean;
   directMaxBreakdownsPerCategory?: number;
   outsideMaxGroups?: number;
-  // Display cap on persisted donor rows per (committee, direction);
-  // classification always sees every donor.
+  // Retained for compatibility; legacy outside rows are diagnostic-only
+  // and cannot authorize persisted donor breakdowns or classifications.
   outsideMaxDonorBreakdownsPerGroup?: number;
   outsideMinIndustryAmount?: number;
   financeIndustryClassifier?: FinanceIndustryClassifier;
@@ -100,10 +92,6 @@ export type MarylandCandidateFinanceSyncResult = {
 
 const DEFAULT_AI_CLASSIFICATION_MIN_AMOUNT = 25_000;
 const STATE_MIN_OUTSIDE_INDUSTRY_AMOUNT = 0;
-// Display cap on PERSISTED donor rows per (committee, direction), applied
-// AFTER classification so a >cap-donor group still gets industry totals
-// built from every donor. Industry rows are naturally bounded by the slug
-// set and are never capped.
 const DEFAULT_MAX_DONOR_BREAKDOWNS_PER_GROUP = 50;
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -143,31 +131,6 @@ function normalizeMaxDonorBreakdowns(value: number | undefined): number {
     throw new Error(`Invalid Maryland finance outsideMaxDonorBreakdownsPerGroup: ${value}`);
   }
   return normalized;
-}
-
-function capDonorBreakdowns(
-  breakdowns: readonly MarylandFinanceOutsideGroupBreakdownInput[],
-  maxDonorsPerGroup: number
-): MarylandFinanceOutsideGroupBreakdownInput[] {
-  const donorsByGroup = new Map<string, MarylandFinanceOutsideGroupBreakdownInput[]>();
-  for (const breakdown of breakdowns) {
-    if (breakdown.categoryType !== "donor") {
-      continue;
-    }
-    const key = [breakdown.committeeId.trim().toUpperCase(), breakdown.supportOppose].join("\u0000");
-    const list = donorsByGroup.get(key) ?? [];
-    list.push(breakdown);
-    donorsByGroup.set(key, list);
-  }
-  const kept = new Set<MarylandFinanceOutsideGroupBreakdownInput>();
-  for (const list of donorsByGroup.values()) {
-    for (const donor of list
-      .sort((left, right) => right.amount - left.amount || left.categoryName.localeCompare(right.categoryName))
-      .slice(0, maxDonorsPerGroup)) {
-      kept.add(donor);
-    }
-  }
-  return breakdowns.filter((breakdown) => breakdown.categoryType !== "donor" || kept.has(breakdown));
 }
 
 function toFinanceLink(input: {
@@ -232,128 +195,16 @@ function aggregateOutside(input: {
   });
 }
 
-function outsideBreakdownKey(breakdown: MarylandFinanceOutsideGroupBreakdownInput): string {
-  return [
-    breakdown.committeeId.trim().toUpperCase(),
-    breakdown.supportOppose,
-    breakdown.categoryType,
-    breakdown.categoryName.trim().toUpperCase(),
-  ].join("\u0000");
-}
-
-function toOutsideBreakdownMap(
-  breakdowns: readonly MarylandFinanceOutsideGroupBreakdownInput[] | undefined
-): Map<string, MarylandFinanceOutsideGroupBreakdownInput> {
-  const mapped = new Map<string, MarylandFinanceOutsideGroupBreakdownInput>();
-  for (const breakdown of breakdowns ?? []) {
-    if (breakdown.categoryType === "industry") {
-      continue;
-    }
-    mapped.set(outsideBreakdownKey(breakdown), breakdown);
-  }
-  return mapped;
-}
-
-function collectOutsideClassifications(
-  breakdowns: Iterable<MarylandFinanceOutsideGroupBreakdownInput>,
-  minIndustryAmount: number
-): Map<string, FinanceLabelClassification> {
-  const classifications = new Map<string, FinanceLabelClassification>();
-  for (const breakdown of breakdowns) {
-    if (breakdown.categoryType !== "donor" || breakdown.amount < minIndustryAmount) {
-      continue;
-    }
-    mergeFinanceLabelClassification(
-      classifications,
-      classifyFinanceLabel({
-        rawLabel: breakdown.categoryName,
-        labelType: "donor",
-      })
-    );
-  }
-  return classifications;
-}
-
-function addOutsideBreakdown(
-  breakdowns: Map<string, MarylandFinanceOutsideGroupBreakdownInput>,
-  breakdown: MarylandFinanceOutsideGroupBreakdownInput
-): void {
-  const key = outsideBreakdownKey(breakdown);
-  const existing = breakdowns.get(key);
-  if (!existing) {
-    breakdowns.set(key, breakdown);
-    return;
-  }
-  breakdowns.set(key, {
-    ...existing,
-    amount: Math.round((existing.amount + breakdown.amount) * 100) / 100,
-    contributorCount:
-      existing.contributorCount === null ||
-      existing.contributorCount === undefined ||
-      breakdown.contributorCount === null ||
-      breakdown.contributorCount === undefined
-        ? null
-        : existing.contributorCount + breakdown.contributorCount,
-    sourceUrl: existing.sourceUrl ?? breakdown.sourceUrl,
-  });
-}
-
-async function enrichOutsideGroupIndustryBreakdowns(input: {
-  db: Queryable;
-  outsideGroupBreakdowns: readonly MarylandFinanceOutsideGroupBreakdownInput[] | undefined;
-  classifier: FinanceIndustryClassifier | undefined;
-  aiClassificationMinAmount: number;
-  minIndustryAmount: number;
-  maxDonorBreakdownsPerGroup: number;
-  dryRun: boolean;
-}): Promise<{
-  outsideGroupBreakdowns: MarylandFinanceOutsideGroupBreakdownInput[] | undefined;
-  classifications: FinanceLabelClassification[];
-}> {
-  if (!input.outsideGroupBreakdowns) {
-    return { outsideGroupBreakdowns: undefined, classifications: [] };
-  }
-
-  const breakdowns = toOutsideBreakdownMap(input.outsideGroupBreakdowns);
-  const classifications = collectOutsideClassifications(breakdowns.values(), input.minIndustryAmount);
-  await resolveFinanceIndustryClassifications({
-    db: input.db,
-    directBreakdowns: [],
-    outsideBreakdowns: breakdowns.values(),
-    classifications,
-    classifier: input.classifier,
-    minAmount: input.aiClassificationMinAmount,
-    dryRun: input.dryRun,
-  });
-
-  const industryBreakdowns = buildFinanceIndustryBreakdownsFromClassifications({
-    directBreakdowns: [],
-    outsideBreakdowns: breakdowns.values(),
-    classifications,
-  });
-  for (const breakdown of industryBreakdowns.outsideIndustryBreakdowns) {
-    addOutsideBreakdown(breakdowns, breakdown);
-  }
-
-  return {
-    // Capped only HERE, after every donor fed the classifications and the
-    // rebuilt industry rows above.
-    outsideGroupBreakdowns: capDonorBreakdowns([...breakdowns.values()], input.maxDonorBreakdownsPerGroup),
-    classifications: [...classifications.values()],
-  };
-}
-
 function toSummary(input: {
   directFinance: MarylandDirectContributionAggregationResult;
   outsideFinance: MarylandOutsideSpendingAggregationResult;
-  outsideDataAvailable: boolean;
   fallbackSourceUrl?: string | null;
 }): MarylandFinanceSummaryInput {
   return {
     totalReceipts: input.directFinance.summary.totalReceipts,
     directContributionTotal: input.directFinance.summary.directContributionTotal,
-    outsideSupportTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.supportTotal ?? null : null,
-    outsideOpposeTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.opposeTotal ?? null : null,
+    outsideSupportTotal: null,
+    outsideOpposeTotal: null,
     sourceUrl:
       input.directFinance.summary.sourceUrl ??
       input.outsideFinance.summary?.sourceUrl ??
@@ -397,7 +248,7 @@ export async function syncMarylandCandidateFinance(
   const officeName = requireNonEmpty(input.officeName, "office name");
   const electionYear = normalizeElectionYear(input.electionYear);
   const syncedAt = normalizeTimestamp(input.now);
-  const aiClassificationMinAmount = normalizeAiClassificationMinAmount(input.aiClassificationMinAmount);
+  normalizeAiClassificationMinAmount(input.aiClassificationMinAmount);
   const resolution = input.trustedCommittee
     ? resolveTrustedCommittee(input.trustedCommittee)
     : resolveMarylandCandidateCommittee({
@@ -456,16 +307,15 @@ export async function syncMarylandCandidateFinance(
           maxGroups: input.outsideMaxGroups,
         })
       : emptyOutsideResult();
-  // A supplied export is not proof of candidate coverage: rejected identities,
-  // missing offices and malformed allocations must not clear accepted groups.
-  const outsideDataAvailable = input.expenditureRows !== undefined && outsideFinance.summary !== null;
-  const outsideGroups: MarylandFinanceOutsideGroupInput[] | undefined =
-    outsideDataAvailable ? outsideFinance.summary?.groups : undefined;
+  normalizeMaxDonorBreakdowns(input.outsideMaxDonorBreakdownsPerGroup);
+  // Legacy export arrays have no independently qualified whole-current
+  // outside authority. Keep aggregation diagnostics, but omit every outside
+  // write and classification so direct refreshes preserve accepted evidence.
   const outsideGroupContributionFinance =
-    outsideGroups !== undefined
+    outsideFinance.summary !== null
       ? aggregateMarylandOutsideGroupContributions({
           electionYear,
-          outsideGroups,
+          outsideGroups: outsideFinance.summary.groups,
           contributionRows: input.contributionRows,
           sourceUrl: input.contributionSourceUrl ?? null,
           minIndustryAmount: input.outsideMinIndustryAmount ?? STATE_MIN_OUTSIDE_INDUSTRY_AMOUNT,
@@ -476,15 +326,6 @@ export async function syncMarylandCandidateFinance(
           includedContributionRowCount: 0,
           skippedContributionRowCount: 0,
         };
-  const outsideIndustryFinance = await enrichOutsideGroupIndustryBreakdowns({
-    db: input.db,
-    outsideGroupBreakdowns: outsideGroupContributionFinance.outsideGroupBreakdowns,
-    classifier: input.financeIndustryClassifier,
-    aiClassificationMinAmount,
-    minIndustryAmount: input.outsideMinIndustryAmount ?? STATE_MIN_OUTSIDE_INDUSTRY_AMOUNT,
-    maxDonorBreakdownsPerGroup: normalizeMaxDonorBreakdowns(input.outsideMaxDonorBreakdownsPerGroup),
-    dryRun: input.dryRun === true,
-  });
   const link = toFinanceLink({
     candidateId,
     electionId,
@@ -500,7 +341,6 @@ export async function syncMarylandCandidateFinance(
   const summary = toSummary({
     directFinance,
     outsideFinance,
-    outsideDataAvailable,
     fallbackSourceUrl: input.sourceUrl ?? input.contributionSourceUrl ?? input.expenditureSourceUrl ?? null,
   });
 
@@ -511,9 +351,6 @@ export async function syncMarylandCandidateFinance(
       syncedAt,
       summary,
       directBreakdowns: directFinance.directBreakdowns,
-      outsideGroups,
-      outsideGroupBreakdowns: outsideIndustryFinance.outsideGroupBreakdowns,
-      classifications: outsideIndustryFinance.classifications,
     });
   }
 
@@ -526,12 +363,12 @@ export async function syncMarylandCandidateFinance(
     linkWritten: !input.dryRun,
     summaryWritten: !input.dryRun,
     directBreakdownsWritten: input.dryRun ? 0 : directFinance.directBreakdowns.length,
-    outsideGroupsWritten: input.dryRun ? 0 : outsideGroups?.length ?? 0,
-    outsideGroupBreakdownsWritten: input.dryRun ? 0 : outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0,
+    outsideGroupsWritten: 0,
+    outsideGroupBreakdownsWritten: 0,
     totalReceipts: directFinance.summary.totalReceipts,
     directContributionTotal: directFinance.summary.directContributionTotal,
-    outsideSupportTotal: outsideDataAvailable ? outsideFinance.summary?.supportTotal ?? null : null,
-    outsideOpposeTotal: outsideDataAvailable ? outsideFinance.summary?.opposeTotal ?? null : null,
+    outsideSupportTotal: null,
+    outsideOpposeTotal: null,
     matchedContributionRowCount: directFinance.matchedContributionRowCount,
     includedContributionRowCount: directFinance.includedContributionRowCount,
     skippedContributionRowCount: directFinance.skippedContributionRowCount,
