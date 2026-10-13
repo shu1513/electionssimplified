@@ -57,6 +57,31 @@ Sources: [public system](https://campaignfinance.vermont.gov/),
 
 ## Actual acquisition proof, before financial writes
 
+The complete normal paired acquisition subsequently passed on bundled Node
+24.19.0: 22 original HTTP responses including canonical lookups, 15 report
+records, 867 receipts, 269 exact-receiver expenses and six regular PDFs in each
+phase. All original lengths and hashes matched the accepted PDF payloads. The
+pure qualifier accepted one reported TPAC position, $5,180, with $414,475.24
+cash controls and 480 untyped receipts totaling $31,875.24 excluded from PACs.
+Its actual report coverage is December13/2024–September28/2026, not the full
+election. A prior paired attempt failed its PDF guard; its original captures are
+retained and the cause remains unproved. The local path named node@22 resolves
+to Node23.9.0; it must not be described as a Node22 validation run.
+
+The next isolated cash-only sync advances a retained donor-generation pointer,
+with exact accepted receiving context. Competing General owners, retargeted
+links, older or shortened periods, source failure and control mismatches hold
+the component. It does not rewrite direct totals, stored outside groups or their
+freshness. Reader totals for overall IE remain unknown. Independent public
+parent-detail investigation requires an exact lookup approval after automatic
+approval review rejected selector transmission; no request was made by that
+rejected action. Earlier public child-detail HTTP401 is a separate failure.
+
+Migration342 is new and unapplied at this checkpoint. Writer, normal CLI,
+production reader, real local write and actual card validation are pending.
+Main now includes merged Phoenix1582, NewYork339 and SanFrancisco340; Vermont
+acquisition and qualification are committed and current main merged locally.
+
 The production client resolved live General45 by November3/date/type. The first
 name-scoped census returned867 contributions and271 expenses. All contributions
 belonged to receiver33545; two same-name expenses belonged to a different account.
@@ -79,7 +104,7 @@ four payments total$252,826.90 and reconcile to its notice control. It prints no
 stance or per-candidate allocation. No portion is assigned to either candidate.
 Ordinary expense/control residual$400 remains separate from PAC cash authority.
 
-Current checks:88 Vermont tests and backend typecheck pass. The exact-cent parser
+Earlier checks:88 Vermont tests and backend typecheck passed. The exact-cent parser
 rejects subcent money and unsafe decimal/number roundtrips in receipts, transaction
 details and category totals. No Vermont migration, money write, frontend proof or
 PR has been completed. The read-only baseline has22 links/22 summaries/157 direct

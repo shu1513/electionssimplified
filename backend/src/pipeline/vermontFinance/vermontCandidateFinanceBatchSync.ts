@@ -9,6 +9,12 @@ import { VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./vermontFinanceEligibleOf
 import type { VermontCampaignFinanceClientOptions } from "./vermontCampaignFinanceClient.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
+import {
+  syncVermontCommitteeCash,
+  type VermontCommitteeCashSyncResult,
+} from "./vermontCommitteeCashSync.js";
+import type { VermontCommitteeCashResponseCapture } from "./vermontCommitteeCashAcquisition.js";
+
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
 
 export type VermontCandidateFinanceDueRow = {
@@ -36,6 +42,13 @@ export type VermontCandidateFinanceBatchSyncInput = {
   electionLookaheadDays?: number;
   vermontClientOptions?: VermontCampaignFinanceClientOptions;
   autoLinkMissingLinks?: boolean;
+  committeeCashOnly?: boolean;
+  candidateId?: string;
+  refresh?: boolean;
+  committeeCashOnCapture?: (
+    capture: VermontCommitteeCashResponseCapture,
+  ) => void | Promise<void>;
+  syncVermontCommitteeCashFn?: typeof syncVermontCommitteeCash;
   syncVermontCandidateFinanceFn?: typeof syncVermontCandidateFinance;
 };
 
@@ -46,6 +59,7 @@ export type VermontCandidateFinanceBatchSyncItemResult = {
   filerRegistrationGuid: string;
   ok: boolean;
   result?: VermontCandidateFinanceSyncResult;
+  committeeCashResult?: VermontCommitteeCashSyncResult;
   error?: string;
 };
 
@@ -80,7 +94,11 @@ function assertValidDate(date: Date, label: string): void {
   }
 }
 
-function normalizePositiveInteger(value: number | undefined, fallback: number, label: string): number {
+function normalizePositiveInteger(
+  value: number | undefined,
+  fallback: number,
+  label: string,
+): number {
   const normalized = value ?? fallback;
   if (!Number.isInteger(normalized) || normalized <= 0) {
     throw new Error(`Invalid Vermont finance batch sync ${label}: ${value}`);
@@ -90,29 +108,110 @@ function normalizePositiveInteger(value: number | undefined, fallback: number, l
 
 // Vermont links identify filers by registration GUID plus the numeric
 // entity_id its auto-link path resolves.
-export const listDueVermontCandidateFinanceSyncRows = createStandardStateFinanceDueListQuery({
-  state: "VT",
-  tables: {
-    links: "vt_candidate_finance_links",
-    summaries: "vt_candidate_finance_summaries",
+export const listDueVermontCandidateFinanceSyncRows =
+  createStandardStateFinanceDueListQuery({
+    state: "VT",
+    tables: {
+      links: "vt_candidate_finance_links",
+      summaries: "vt_candidate_finance_summaries",
+    },
+    eligibleOfficeKeys: VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS,
+    linkColumns: ["filer_registration_guid", "entity_id", "filer_name"],
+    mapRow: (row): VermontCandidateFinanceDueRow => ({
+      candidateId: row.candidate_id,
+      electionId: row.election_id,
+      candidateName: row.candidate_name,
+      electionYear: row.election_year,
+      officeScope: row.office_scope,
+      officeName: row.office_name,
+      district: row.district,
+      filerRegistrationGuid: row.filer_registration_guid as string,
+      entityId: row.entity_id as number | null,
+      filerName: row.filer_name as string,
+      sourceUrl: row.source_url,
+      lastSyncedAt: row.last_synced_at,
+    }),
+  });
+
+/** Cash freshness is independent of the legacy direct-summary timestamp. */
+export async function listDueVermontCommitteeCashRows(
+  db: Queryable,
+  input: {
+    now: Date;
+    staleAfterDays: number;
+    maxCandidates: number;
+    electionLookbackDays: number;
+    electionLookaheadDays: number;
+    candidateId?: string;
+    refresh?: boolean;
   },
-  eligibleOfficeKeys: VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS,
-  linkColumns: ["filer_registration_guid", "entity_id", "filer_name"],
-  mapRow: (row): VermontCandidateFinanceDueRow => ({
-    candidateId: row.candidate_id,
-    electionId: row.election_id,
-    candidateName: row.candidate_name,
-    electionYear: row.election_year,
-    officeScope: row.office_scope,
-    officeName: row.office_name,
-    district: row.district,
-    filerRegistrationGuid: row.filer_registration_guid as string,
-    entityId: row.entity_id as number | null,
-    filerName: row.filer_name as string,
-    sourceUrl: row.source_url,
-    lastSyncedAt: row.last_synced_at,
-  }),
-});
+): Promise<{ rows: VermontCandidateFinanceDueRow[]; totalDueRows: number }> {
+  if (
+    input.candidateId !== undefined &&
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      input.candidateId,
+    )
+  ) {
+    throw new Error("Invalid Vermont cash candidateId");
+  }
+  const result = await db.query<Record<string, unknown>>(
+    `
+    SELECT link.candidate_id::text AS candidate_id,link.election_id::text AS election_id,
+      COALESCE(NULLIF(trim(candidate.display_name),''),NULLIF(trim(candidate.first_name || ' ' || candidate.last_name),'')) AS candidate_name,
+      link.election_year,office.scope AS office_scope,link.office_name,link.district,
+      link.filer_registration_guid,link.entity_id,link.filer_name,link.source_url,
+      source.observed_at::text AS last_synced_at,COUNT(*) OVER () AS total_due_rows
+    FROM public.vt_candidate_finance_links link
+    JOIN public.candidates candidate ON candidate.id=link.candidate_id
+    JOIN public.candidate_elections ce ON ce.candidate_id=link.candidate_id AND ce.election_id=link.election_id
+    JOIN public.elections election ON election.id=link.election_id
+    JOIN public.offices office ON office.id=election.office_id
+    JOIN public.districts district ON district.id=election.district_id
+    LEFT JOIN public.vt_candidate_finance_pac_sources source ON source.link_id=link.id AND source.election_year=link.election_year
+    WHERE link.link_status='active' AND candidate.deleted_at IS NULL AND candidate.merged_into_candidate_id IS NULL
+      AND ce.status='declared' AND district.state='VT' AND district.district_type='statewide' AND district.geoid_compact='50'
+      AND election.race_type='office' AND election.election_stage='general' AND office.scope='statewide'
+      AND (office.scope || '::' || office.canonical_name)=ANY($6::text[])
+      AND EXTRACT(YEAR FROM election.election_date)::integer=link.election_year
+      AND election.election_date >= (($1::timestamptz AT TIME ZONE 'UTC')::date - make_interval(days=>$4::integer))
+      AND election.election_date <= (($1::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days=>$5::integer))
+      AND ($7::uuid IS NULL OR link.candidate_id=$7::uuid)
+      AND ($8::boolean OR source.observed_at IS NULL OR source.observed_at < ($1::timestamptz - make_interval(days=>$2::integer)))
+    ORDER BY source.observed_at ASC NULLS FIRST,election.election_date,link.id LIMIT $3::integer`,
+    [
+      input.now.toISOString(),
+      input.staleAfterDays,
+      input.maxCandidates,
+      input.electionLookbackDays,
+      input.electionLookaheadDays,
+      VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS.filter((k) =>
+        k.startsWith("statewide::"),
+      ),
+      input.candidateId ?? null,
+      input.refresh === true,
+    ],
+  );
+  const count = result.rows.length ? Number(result.rows[0]!.total_due_rows) : 0;
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new Error("Invalid Vermont cash due count");
+  return {
+    rows: result.rows.map((row) => ({
+      candidateId: row.candidate_id as string,
+      electionId: row.election_id as string,
+      candidateName: row.candidate_name as string,
+      electionYear: row.election_year as number,
+      officeScope: row.office_scope as string,
+      officeName: row.office_name as string,
+      district: row.district as string | null,
+      filerRegistrationGuid: row.filer_registration_guid as string,
+      entityId: row.entity_id as number | null,
+      filerName: row.filer_name as string,
+      sourceUrl: row.source_url as string | null,
+      lastSyncedAt: row.last_synced_at as string | null,
+    })),
+    totalDueRows: count,
+  };
+}
 
 export type VermontFinanceAutoLinkCandidateElection = {
   candidateId: string;
@@ -140,9 +239,10 @@ type VermontMissingFinanceLinkQueryRow = {
 // candidates in different districts cannot be told apart — auto-linking them
 // risks attaching another candidate's money. Legislative links need a
 // district-aware source (or manual links) before they can be automated.
-const VERMONT_AUTO_LINK_OFFICE_KEYS = VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS.filter((key) =>
-  key.startsWith("statewide::")
-);
+const VERMONT_AUTO_LINK_OFFICE_KEYS =
+  VERMONT_FINANCE_ELIGIBLE_OFFICE_KEYS.filter((key) =>
+    key.startsWith("statewide::"),
+  );
 
 // Deliberately uncapped: unmatched candidates never get a link, so a stable
 // ORDER BY + LIMIT would retry the same unmatched prefix every run and starve
@@ -154,7 +254,7 @@ export async function listVermontCandidateElectionsMissingFinanceLinks(
     now: Date;
     electionLookbackDays: number;
     electionLookaheadDays: number;
-  }
+  },
 ): Promise<VermontFinanceAutoLinkCandidateElection[]> {
   const result = await db.query<VermontMissingFinanceLinkQueryRow>(
     `
@@ -208,7 +308,7 @@ export async function listVermontCandidateElectionsMissingFinanceLinks(
       input.electionLookbackDays,
       input.electionLookaheadDays,
       [...VERMONT_AUTO_LINK_OFFICE_KEYS],
-    ]
+    ],
   );
 
   return result.rows.map((row) => ({
@@ -223,25 +323,42 @@ export async function listVermontCandidateElectionsMissingFinanceLinks(
 }
 
 export async function syncDueVermontCandidateFinance(
-  input: VermontCandidateFinanceBatchSyncInput
+  input: VermontCandidateFinanceBatchSyncInput,
 ): Promise<VermontCandidateFinanceBatchSyncResult> {
-  const now = input.now ?? new Date();
-  assertValidDate(now, "now");
+  const originalNow = input.now ?? new Date();
+  assertValidDate(originalNow, "now");
+  const options = {
+    ...input,
+    now: new Date(originalNow.getTime()),
+    vermontClientOptions: input.vermontClientOptions
+      ? { ...input.vermontClientOptions }
+      : undefined,
+  };
+  const now = options.now;
 
-  const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
-  const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
+  const maxCandidates = normalizePositiveInteger(
+    options.maxCandidates,
+    DEFAULT_MAX_CANDIDATES,
+    "maxCandidates",
+  );
+  const staleAfterDays = normalizePositiveInteger(
+    options.staleAfterDays,
+    DEFAULT_STALE_AFTER_DAYS,
+    "staleAfterDays",
+  );
   const electionLookbackDays = normalizePositiveInteger(
-    input.electionLookbackDays,
+    options.electionLookbackDays,
     DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS,
-    "electionLookbackDays"
+    "electionLookbackDays",
   );
   const electionLookaheadDays = normalizePositiveInteger(
-    input.electionLookaheadDays,
+    options.electionLookaheadDays,
     DEFAULT_ELECTION_LOOKAHEAD_DAYS,
-    "electionLookaheadDays"
+    "electionLookaheadDays",
   );
-  const dryRun = input.dryRun === true;
-  const syncFn = input.syncVermontCandidateFinanceFn ?? syncVermontCandidateFinance;
+  const dryRun = options.dryRun === true;
+  const syncFn =
+    options.syncVermontCandidateFinanceFn ?? syncVermontCandidateFinance;
   const autoLinkResults: VermontCandidateFinanceBatchSyncItemResult[] = [];
 
   // Auto-link: the per-candidate sync self-resolves against the live Vermont
@@ -252,18 +369,23 @@ export async function syncDueVermontCandidateFinance(
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
   let autoLinkFailedCount = 0;
-  if (!dryRun && input.autoLinkMissingLinks !== false) {
+  if (
+    !options.committeeCashOnly &&
+    !dryRun &&
+    options.autoLinkMissingLinks !== false
+  ) {
     try {
-      const missingLinkCandidates = await listVermontCandidateElectionsMissingFinanceLinks(input.db, {
-        now,
-        electionLookbackDays,
-        electionLookaheadDays,
-      });
+      const missingLinkCandidates =
+        await listVermontCandidateElectionsMissingFinanceLinks(options.db, {
+          now,
+          electionLookbackDays,
+          electionLookaheadDays,
+        });
       autoLinkAttemptedCount = missingLinkCandidates.length;
       for (const candidate of missingLinkCandidates) {
         try {
           const result = await syncFn({
-            db: input.db,
+            db: options.db,
             candidateId: candidate.candidateId,
             electionId: candidate.electionId,
             candidateName: candidate.candidateName,
@@ -271,7 +393,7 @@ export async function syncDueVermontCandidateFinance(
             officeScope: candidate.officeScope,
             officeName: candidate.officeName,
             district: candidate.district,
-            vermontClientOptions: input.vermontClientOptions,
+            vermontClientOptions: options.vermontClientOptions,
             dryRun,
             now,
           });
@@ -286,11 +408,14 @@ export async function syncDueVermontCandidateFinance(
               result,
             });
           } else {
-            console.warn("Vermont finance auto-link did not link candidate election:", {
-              candidateId: candidate.candidateId,
-              electionId: candidate.electionId,
-              status: result.resolution.status,
-            });
+            console.warn(
+              "Vermont finance auto-link did not link candidate election:",
+              {
+                candidateId: candidate.candidateId,
+                electionId: candidate.electionId,
+                status: result.resolution.status,
+              },
+            );
           }
         } catch (error) {
           autoLinkFailedCount += 1;
@@ -302,35 +427,68 @@ export async function syncDueVermontCandidateFinance(
             ok: false,
             error: error instanceof Error ? error.message : String(error),
           });
-          console.warn("Vermont finance auto-link failed for candidate election; continuing:", {
-            candidateId: candidate.candidateId,
-            electionId: candidate.electionId,
-            electionYear: candidate.electionYear,
-            error: error instanceof Error ? error.message : String(error),
-          });
+          console.warn(
+            "Vermont finance auto-link failed for candidate election; continuing:",
+            {
+              candidateId: candidate.candidateId,
+              electionId: candidate.electionId,
+              electionYear: candidate.electionYear,
+              error: error instanceof Error ? error.message : String(error),
+            },
+          );
         }
       }
     } catch (error) {
       console.warn(
         "Vermont finance auto-link skipped; continuing with already-linked candidate sync:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
     }
   }
 
-  const due = await listDueVermontCandidateFinanceSyncRows(input.db, {
+  const listDue = options.committeeCashOnly
+    ? listDueVermontCommitteeCashRows
+    : listDueVermontCandidateFinanceSyncRows;
+  const due = await listDue(options.db, {
     now,
     staleAfterDays,
     maxCandidates,
     electionLookbackDays,
     electionLookaheadDays,
+    ...(options.committeeCashOnly
+      ? { candidateId: options.candidateId, refresh: options.refresh }
+      : {}),
   });
 
   const results: VermontCandidateFinanceBatchSyncItemResult[] = [];
   for (const row of due.rows) {
     try {
+      if (options.committeeCashOnly) {
+        const cash = await (
+          options.syncVermontCommitteeCashFn ?? syncVermontCommitteeCash
+        )({
+          db: options.db,
+          candidateId: row.candidateId,
+          electionId: row.electionId,
+          dryRun,
+          clientOptions: options.vermontClientOptions,
+          onCapture: options.committeeCashOnCapture,
+        });
+        results.push({
+          candidateId: row.candidateId,
+          electionId: row.electionId,
+          electionYear: row.electionYear,
+          filerRegistrationGuid: row.filerRegistrationGuid,
+          ok: cash.status === "qualified",
+          committeeCashResult: cash,
+          ...(cash.status === "qualified"
+            ? {}
+            : { error: cash.diagnostics.join("; ") }),
+        });
+        continue;
+      }
       const result = await syncFn({
-        db: input.db,
+        db: options.db,
         candidateId: row.candidateId,
         electionId: row.electionId,
         candidateName: row.candidateName,
@@ -345,7 +503,7 @@ export async function syncDueVermontCandidateFinance(
           entityId: row.entityId,
           sourceUrl: row.sourceUrl,
         },
-        vermontClientOptions: input.vermontClientOptions,
+        vermontClientOptions: options.vermontClientOptions,
         dryRun,
         now,
       });

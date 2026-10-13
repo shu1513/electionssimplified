@@ -3,12 +3,14 @@ import type { Pool, PoolClient } from "pg";
 import { isVermontCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isVermontFinanceEligibleOffice } from "./vermontFinanceEligibleOffices.js";
+import { addVermontCommitteeCashToSummaries } from "./vermontCommitteeCashReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -25,7 +27,8 @@ export async function loadVermontCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly VermontBallotLookupCandidateRow[],
   electionRows: readonly VermontBallotLookupElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  if (!isVermontCampaignFinanceEnabled()) return new Map();
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -54,4 +57,7 @@ export async function loadVermontCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "vt_candidate_finance_outside_group_breakdowns",
     },
   });
+  const requests = buildStateFinanceSummaryRequests("VT", candidateRows, electionRows,
+    row => isVermontFinanceEligibleOffice(officeInputFromElectionRow(row)));
+  return addVermontCommitteeCashToSummaries(db, requests, summaries);
 }

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { VERMONT_OUTSIDE_COVERAGE_NOTE } from "../../../src/pipeline/vermontFinance/vermontCommitteeCashReader.js";
 
 import {
   BALLOT_PAST_ELECTION_VISIBILITY_DAYS,
@@ -6297,8 +6298,9 @@ describe("lookupElectionDetailById", () => {
         ],
       },
       outside_spending: {
-        support_total: 70000,
-        oppose_total: 3000,
+        support_total: null,
+        oppose_total: null,
+        outside_coverage_note: VERMONT_OUTSIDE_COVERAGE_NOTE,
         top_supporting_groups: [
           {
             committee_id: "pac-guid",
