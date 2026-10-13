@@ -122,22 +122,17 @@ export function validatePhoenixOutsideSupplements(
 }
 
 /**
- * No curated filings. Re-swept for the 2025–2027 cycle on 2026-08-13 (plan
- * Phase 4), channel by channel:
+ * No accepted curated filings. The October 12, 2026 bounded source audit
+ * queried all 13 city-listed standing IE-authorized PAC names: 31 native
+ * expenditure occurrences, without a proved current council allocation.
+ * Spotlight counterparty names and search-filter stance are not financial
+ * beneficiary authority. These name queries do not establish all-channel zero.
  *
- *   standing_pac — reverse Spotlight probe against all 16 certified
- *     candidates returned 0 rows, and the 13 standing IE-authorized PACs
- *     filed exactly ONE 2026 IE row between them (Rock PAC, $2,500,
- *     2026-06-22) whose name field is the vendor and whose memo names only
- *     legislative candidates. Nothing targets a Phoenix city race.
- *   ie_entity — the Clerk publishes NO list of filed IE-entity reports; the
- *     campaign-finance page offers only a blank fillable form and an email
- *     address, so this channel cannot be swept remotely at all.
- *   efd — the Clerk's published Election Funding Disclosure list ends at
- *     11/5/2024, i.e. zero filings in this cycle.
- *
- * Re-run the sweep before each election; the outside coverage note tells
- * readers these channels are not automatically included either way.
+ * The inspected city page exposes noncommittee IE forms but no linked filed
+ * inventory. Its public EFD list ends November 5, 2024; missing current rows
+ * mean unavailable coverage, not no filings. Fresh official reports and
+ * complete current allocation evidence are required before adding supplements.
+ * Preserve earlier known groups while these channels remain unavailable.
  */
 export const PHOENIX_OUTSIDE_SUPPLEMENTS: readonly PhoenixOutsideSupplement[] = [];
 

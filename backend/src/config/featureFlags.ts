@@ -302,6 +302,7 @@ export const isLosAngelesCityCampaignFinanceSyncEnabled = losAngelesCityFinance.
 const phoenixFinance = defineStateFinanceFlagPair("PHOENIX_CAMPAIGN_FINANCE");
 export const isPhoenixCampaignFinanceEnabled = phoenixFinance.isEnabled;
 export const isPhoenixCampaignFinanceSyncEnabled = phoenixFinance.isSyncEnabled;
+export const isPhoenixCommitteeCashSyncEnabled = phoenixFinance.gate("PHOENIX_COMMITTEE_CASH_SYNC_ENABLED");
 
 const sanFranciscoFinance = defineStateFinanceFlagPair("SAN_FRANCISCO_CAMPAIGN_FINANCE");
 export const isSanFranciscoCampaignFinanceEnabled = sanFranciscoFinance.isEnabled;
