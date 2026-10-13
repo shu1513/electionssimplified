@@ -12,14 +12,14 @@
 //   PACs' parsed Schedule B(6) pool) is loaded once per batch run and
 //   threaded to every candidate; per-candidate discovery reads the three
 //   transaction grids for the linked COP ID and parses each canonical
-//   report PDF (immutable per package id, so the artifact cache never
-//   revalidates).
+//   report PDF. Successful syncs refresh published PDFs; cached bodies do
+//   not establish the current accessible publication census.
 // - BOTH coverage notes are always-on. Direct: the totals basis plus the
 //   occupation/employer itemization threshold (A(1)(a) is cumulative >$100
 //   in-state; A(1)(c) is all out-of-state). Outside: the city-portal basis
-//   plus the three channels that are curated-only (standing PACs' Spotlight
-//   filings do not machine-readably name city candidates — verified
-//   2026-08-12), plus per-candidate exclusions.
+//   plus the three channels requiring separately qualified financial
+//   allocations. The October 12 scout proved no current eligible allocation
+//   from those channels; missing coverage remains unknown.
 //
 // Fail-closed contract (the SF pattern): every health-check failure THROWS
 // before replacePhoenixCandidateFinanceSnapshot is called, so the prior
@@ -45,6 +45,8 @@
 // sums period (b)/(c) values — the same call San José and San Diego make.
 
 import type { Pool, PoolClient } from "pg";
+import { isPhoenixCommitteeCashSyncEnabled } from "../../config/featureFlags.js";
+import { syncPhoenixCommitteeCash } from "./phoenixCommitteeCashSync.js";
 import {
   classifyFinanceLabel,
   type FinanceLabelClassification,
@@ -118,13 +120,14 @@ export const DEFAULT_PHOENIX_FINANCE_CACHE_DIR =
 const ANOMALY_MIN_STORED_CENTS = 100_000;
 const ANOMALY_DROP_FACTOR = 10;
 
-const BLOCKING_VIOLATION_TYPES: ReadonlySet<PhoenixDirectViolationType> = new Set([
-  "cover_arithmetic",
-  "schedule_reconciliation",
-  "period_overlap",
-  "coverage_hole",
-  "negative_cycle_total",
-]);
+const BLOCKING_VIOLATION_TYPES: ReadonlySet<PhoenixDirectViolationType> =
+  new Set([
+    "cover_arithmetic",
+    "schedule_reconciliation",
+    "period_overlap",
+    "coverage_hole",
+    "negative_cycle_total",
+  ]);
 
 // Always-on baselines. Direct discloses the occupation/employer itemization
 // threshold (plan "Requirement mapping"); outside discloses the measured
@@ -164,9 +167,12 @@ function gridAmountToCents(raw: unknown, context: string): number {
   if (typeof raw === "number" && Number.isFinite(raw)) {
     return Math.round(raw * 100);
   }
-  const text = String(raw ?? "").replace(/[$,]/g, "").trim();
+  const text = String(raw ?? "")
+    .replace(/[$,]/g, "")
+    .trim();
   const match = /^-?\d+(?:\.\d{1,2})?$/.exec(text);
-  if (!match) throw new Error(`Unparseable grid amount "${String(raw)}" for ${context}`);
+  if (!match)
+    throw new Error(`Unparseable grid amount "${String(raw)}" for ${context}`);
   const value = Number(text);
   return Math.round(value * 100);
 }
@@ -182,7 +188,8 @@ function gridAmountToCents(raw: unknown, context: string): number {
 export async function loadPhoenixFinanceRunContext(
   seams: FetchSeams = {},
 ): Promise<PhoenixFinanceRunContext> {
-  const cache = seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
+  const cache =
+    seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
   const registrations = await fetchPhoenixCanonicalRegistrations({
     timeoutMs: seams.timeoutMs,
     fetchImpl: seams.fetchImpl,
@@ -239,58 +246,123 @@ export async function loadPhoenixFinanceRunContext(
       timeoutMs: seams.timeoutMs,
       fetchImpl: seams.fetchImpl,
     });
+    // Validate every physical row before selecting the B(6) component.
+    // No timestamp or equal report name establishes amendment lineage.
+    for (const row of expenditureRows) {
+      if (
+        typeof row.COPID !== "string" ||
+        !/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(row.COPID.trim().toUpperCase()) ||
+        !row.COPID.trim().toUpperCase().startsWith(pac.copId)
+      ) {
+        throw new Error("Phoenix IE expense grid receiving COPID mismatch");
+      }
+      // Exact receiver selection follows full physical prefix-search closure.
+      if (row.COPID.trim().toUpperCase() !== pac.copId) continue;
+      if (
+        row.RecentReport !== undefined &&
+        row.RecentReport !== null &&
+        row.RecentReport !== "" &&
+        row.RecentReport !== "00000000-0000-0000-0000-000000000000"
+      ) {
+        throw new Error(
+          "Phoenix IE expense grid has an unexplained RecentReport pointer",
+        );
+      }
+      if (
+        typeof row.ReportPackageId !== "string" ||
+        !PHOENIX_REPORT_PACKAGE_GUID.test(row.ReportPackageId) ||
+        row.ReportPackageId === "00000000-0000-0000-0000-000000000000" ||
+        typeof row.ReportName !== "string" ||
+        !row.ReportName.trim()
+      ) {
+        throw new Error(
+          "Phoenix IE expense grid has invalid package/name metadata",
+        );
+      }
+    }
     const b6Rows = expenditureRows.filter((row) =>
+      typeof row.COPID === "string" &&
+      row.COPID.trim().toUpperCase() === pac.copId &&
       /B\(6\)/.test(String(row.ReportScheduleName ?? "")),
     );
     if (b6Rows.length === 0) continue;
-    // Amendment canonicalization over the B(6)-bearing packages: duplicate
-    // report names are superseded versions, latest SubmittedDate wins
-    // (canonicalPhoenixReportRefs — the same rule report discovery uses).
-    // Unlike discovery, a row WITHOUT a package id throws here: the pool
-    // reconciles grid rows against parsed schedules, so an unfetchable row
-    // makes every candidate's outside totals suspect.
-    const refsByPackage = new Map<string, PhoenixReportRef>();
+    const refs: PhoenixReportRef[] = [];
     const gridByPackage = new Map<string, { count: number; cents: number }>();
     for (const row of b6Rows) {
-      const id = String(row.ReportPackageId ?? "");
-      if (!PHOENIX_REPORT_PACKAGE_GUID.test(id)) {
-        throw new Error(
-          `Phoenix IE PAC ${pac.copId} has a B(6) grid row without a report package id`,
-        );
-      }
-      refsByPackage.set(id, {
+      const id = row.ReportPackageId as string;
+      refs.push({
         reportPackageId: id,
-        reportName: String(row.ReportName ?? ""),
+        reportName: row.ReportName as string,
         submittedDateMs: phoenixSubmittedDateMs(
           row.SubmittedDate,
-          `${pac.copId} package ${id}`,
+          "IE report row metadata",
         ),
       });
       const tally = gridByPackage.get(id) ?? { count: 0, cents: 0 };
       tally.count += 1;
-      tally.cents += gridAmountToCents(row.Amount, `${pac.copId} package ${id}`);
+      tally.cents += gridAmountToCents(
+        row.Amount,
+        `${pac.copId} package ${id}`,
+      );
       gridByPackage.set(id, tally);
     }
-    const { refs: canonicalRefs } = canonicalPhoenixReportRefs([
-      ...refsByPackage.values(),
-    ]);
+    const { refs: canonicalRefs } = canonicalPhoenixReportRefs(refs);
+    const periods: { from: string; to: string }[] = [];
     for (const winner of canonicalRefs) {
       b6Packages += 1;
       const bytes = await fetchPhoenixReportPdf({
         reportPackageId: winner.reportPackageId,
         cache,
+        refresh: true,
         timeoutMs: seams.timeoutMs,
         fetchImpl: seams.fetchImpl,
       });
       const pages = await extractPhoenixPdfPages(bytes);
+      for (const page of pages) {
+        const ids = page.lines
+          .filter((line) => line.y > 700)
+          .flatMap((line) => line.cells.map((cell) => cell.text))
+          .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+        if (ids.length !== 1 || ids[0] !== pac.copId) {
+          throw new Error("Phoenix IE PDF receiving COPID mismatch");
+        }
+      }
+      const coverPages = pages.filter((page) =>
+        page.lines.some((line) =>
+          /FINANCIAL SUMMARY \(required\)/.test(line.text),
+        ),
+      );
+      if (coverPages.length !== 1)
+        throw new Error("Phoenix IE PDF has no unique financial cover");
+      const cover = parsePhoenixReportCover(coverPages[0]!);
+      if (cover.periodFrom > cover.periodTo)
+        throw new Error("Phoenix IE PDF has reversed cover period");
+      if (
+        periods.some(
+          (period) =>
+            cover.periodFrom <= period.to && period.from <= cover.periodTo,
+        )
+      ) {
+        throw new Error(
+          "Phoenix IE PAC has overlapping B(6) report periods; published edition authority is unresolved",
+        );
+      }
+      periods.push({ from: cover.periodFrom, to: cover.periodTo });
+
       const entries = pages
         .filter((page) => isPhoenixB6Page(page))
         .flatMap((page) => parsePhoenixB6Entries(page));
       // Grid-vs-schedule reconciliation for the canonical package: the grid
       // exposes one row per B(6) expenditure, so count and cents must agree.
       const gridTally = gridByPackage.get(winner.reportPackageId)!;
-      const parsedCents = entries.reduce((sum, entry) => sum + entry.amountCents, 0);
-      if (entries.length !== gridTally.count || parsedCents !== gridTally.cents) {
+      const parsedCents = entries.reduce(
+        (sum, entry) => sum + entry.amountCents,
+        0,
+      );
+      if (
+        entries.length !== gridTally.count ||
+        parsedCents !== gridTally.cents
+      ) {
         throw new Error(
           `Phoenix IE PAC ${pac.copId} package ${winner.reportPackageId}: parsed ${entries.length} B(6) entries totaling ${parsedCents} cents but the grid shows ${gridTally.count} rows totaling ${gridTally.cents} cents`,
         );
@@ -330,7 +402,8 @@ export async function buildPhoenixCoverOfficeSoughtIndex(input: {
   seams?: FetchSeams;
 }): Promise<Map<string, readonly string[]>> {
   const seams = input.seams ?? {};
-  const cache = seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
+  const cache =
+    seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
   const covers = new Map<string, readonly string[]>();
   for (const copId of new Set(input.copIds)) {
     const { refs } = await discoverPhoenixCanonicalReportRefs({
@@ -338,23 +411,49 @@ export async function buildPhoenixCoverOfficeSoughtIndex(input: {
       timeoutMs: seams.timeoutMs,
       fetchImpl: seams.fetchImpl,
     });
-    const latest = refs[refs.length - 1];
-    if (latest === undefined) continue;
-    const bytes = await fetchPhoenixReportPdf({
-      reportPackageId: latest.reportPackageId,
-      cache,
-      timeoutMs: seams.timeoutMs,
-      fetchImpl: seams.fetchImpl,
-    });
-    const pages = await extractPhoenixPdfPages(bytes);
-    const coverPage = pages.find((page) =>
-      page.lines.some((line) => /FINANCIAL SUMMARY \(required\)/.test(line.text)),
-    );
-    if (coverPage === undefined) continue;
-    const cover = parsePhoenixReportCover(coverPage);
-    if (cover.officeSought !== null) {
-      covers.set(copId, [cover.officeSought]);
+    const observed: { periodTo: string; officeSought: string | null }[] = [];
+    for (const ref of refs) {
+      const bytes = await fetchPhoenixReportPdf({
+        reportPackageId: ref.reportPackageId,
+        cache,
+        refresh: true,
+        timeoutMs: seams.timeoutMs,
+        fetchImpl: seams.fetchImpl,
+      });
+      const pages = await extractPhoenixPdfPages(bytes);
+      const coverPages = pages.filter((page) =>
+        page.lines.some((line) =>
+          /FINANCIAL SUMMARY \(required\)/.test(line.text),
+        ),
+      );
+      if (coverPages.length !== 1) continue;
+      const coverPage = coverPages[0]!;
+      const ids = coverPage.lines
+        .filter((line) => line.y > 700)
+        .flatMap((line) => line.cells.map((cell) => cell.text))
+        .filter((text) => /^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(text));
+      if (ids.length !== 1 || ids[0] !== copId.trim().toUpperCase()) continue;
+      const cover = parsePhoenixReportCover(coverPage);
+      if (cover.periodFrom > cover.periodTo) continue;
+      observed.push({
+        periodTo: cover.periodTo,
+        officeSought: cover.officeSought,
+      });
     }
+    // An unavailable cover could be the latest one; do not select an older
+    // office from the remaining packages. GUID and row-time order are irrelevant.
+    if (!observed.length || observed.length !== refs.length) continue;
+    const latestEnd = observed.reduce(
+      (latest, cover) => (cover.periodTo > latest ? cover.periodTo : latest),
+      "",
+    );
+    const latestOffices = new Set(
+      observed
+        .filter((cover) => cover.periodTo === latestEnd)
+        .map((cover) => cover.officeSought),
+    );
+    if (latestOffices.size !== 1 || latestOffices.has(null)) continue;
+    covers.set(copId, [latestOffices.values().next().value!]);
   }
   return covers;
 }
@@ -365,7 +464,9 @@ function dollarsTextToCents(value: string | null): number | null {
   const match = /^(-?)(\d+)(?:\.(\d{1,2}))?$/.exec(value.trim());
   if (!match) throw new Error(`Unparseable stored dollar amount: ${value}`);
   const sign = match[1] === "-" ? -1 : 1;
-  return sign * (Number(match[2]) * 100 + Number((match[3] ?? "0").padEnd(2, "0")));
+  return (
+    sign * (Number(match[2]) * 100 + Number((match[3] ?? "0").padEnd(2, "0")))
+  );
 }
 
 function usd(cents: number): string {
@@ -390,6 +491,9 @@ export type PhoenixCandidateFinanceSyncResult = {
   /** Full violation list — blocking ones never reach here (they throw). */
   violations: PhoenixDirectViolation[];
   canonicalReportCount: number;
+  committeeCash?:
+    | { ok: true; result: Awaited<ReturnType<typeof syncPhoenixCommitteeCash>> }
+    | { ok: false; error: string };
 };
 
 export async function syncPhoenixCandidateFinance(input: {
@@ -414,6 +518,7 @@ export async function syncPhoenixCandidateFinance(input: {
   bypassAnomalyCheck?: boolean;
   /** Test seam; defaults to grid discovery + PDF fetch + parse. */
   loadCommitteeReports?: (copId: string) => Promise<PhoenixCanonicalReport[]>;
+  syncCommitteeCashFn?: typeof syncPhoenixCommitteeCash;
   /** Test seam; defaults to the shipped curated list. */
   supplements?: readonly PhoenixOutsideSupplement[];
   seams?: FetchSeams;
@@ -426,7 +531,8 @@ export async function syncPhoenixCandidateFinance(input: {
   }
   const copId = input.copId.trim().toUpperCase();
   const seams = input.seams ?? {};
-  const cache = seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
+  const cache =
+    seams.cache ?? phoenixFilesystemPdfCache(DEFAULT_PHOENIX_FINANCE_CACHE_DIR);
 
   // --- Committee presence: a linked COP ID missing from the canonical
   // registration index means the portal lost it (or the index fetch is
@@ -455,6 +561,7 @@ export async function syncPhoenixCandidateFinance(input: {
         const bytes = await fetchPhoenixReportPdf({
           reportPackageId: ref.reportPackageId,
           cache,
+          refresh: true,
           timeoutMs: seams.timeoutMs,
           fetchImpl: seams.fetchImpl,
         });
@@ -549,12 +656,17 @@ export async function syncPhoenixCandidateFinance(input: {
     // Filing history never shrinks: a snapshot reported through a LATER
     // date than today's latest report means discovery lost reports — abort.
     // Deliberately NOT overridable by bypassAnomalyCheck.
-    if (direct.reportedThrough === null || direct.reportedThrough < storedReportedThrough) {
+    if (
+      direct.reportedThrough === null ||
+      direct.reportedThrough < storedReportedThrough
+    ) {
       throw new Error(
         `Phoenix filing history went backwards for committee ${copId}: stored through ${storedReportedThrough}, now ${direct.reportedThrough ?? "no reports"}`,
       );
     }
-    const storedRaisedCents = dollarsTextToCents(storedRow?.total_raised ?? null);
+    const storedRaisedCents = dollarsTextToCents(
+      storedRow?.total_raised ?? null,
+    );
     if (
       !input.bypassAnomalyCheck &&
       storedRaisedCents !== null &&
@@ -579,7 +691,10 @@ export async function syncPhoenixCandidateFinance(input: {
   for (const row of employerRows) {
     mergeFinanceLabelClassification(
       classifications,
-      classifyFinanceLabel({ rawLabel: row.categoryName, labelType: "employer" }),
+      classifyFinanceLabel({
+        rawLabel: row.categoryName,
+        labelType: "employer",
+      }),
     );
   }
   const classifiableEmployerRows = employerRows.map((row) => ({
@@ -603,7 +718,10 @@ export async function syncPhoenixCandidateFinance(input: {
     outsideBreakdowns: [],
     classifications,
   }).directIndustryBreakdowns) {
-    const current = industryCents.get(row.categoryName) ?? { cents: 0, count: 0 };
+    const current = industryCents.get(row.categoryName) ?? {
+      cents: 0,
+      count: 0,
+    };
     current.cents += row.amount;
     current.count += row.contributorCount ?? 0;
     industryCents.set(row.categoryName, current);
@@ -625,6 +743,37 @@ export async function syncPhoenixCandidateFinance(input: {
       })),
   ];
 
+  let committeeCash: PhoenixCandidateFinanceSyncResult["committeeCash"];
+  if (isPhoenixCommitteeCashSyncEnabled()) {
+    try {
+      const result = await (
+        input.syncCommitteeCashFn ?? syncPhoenixCommitteeCash
+      )({
+        db: input.db,
+        candidateId: input.candidateId,
+        electionId: input.electionId,
+        electionYear: input.electionYear,
+        copId,
+        committeeName: registration.committeeName,
+        officeSought:
+          input.officeName === "Mayor"
+            ? "Mayor"
+            : `Council Member District ${input.districtNumber}`,
+        portalCycleStart: input.portalCycleStart,
+        portalCycleEnd: input.portalCycleEnd,
+        dryRun: input.dryRun,
+        timeoutMs: seams.timeoutMs,
+        fetchImpl: seams.fetchImpl,
+      });
+      committeeCash = { ok: true, result };
+    } catch (error) {
+      committeeCash = {
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
   if (!input.dryRun) {
     await replacePhoenixCandidateFinanceSnapshot({
       db: input.db,
@@ -632,7 +781,9 @@ export async function syncPhoenixCandidateFinance(input: {
         candidateId: input.candidateId,
         electionId: input.electionId,
         electionYear: input.electionYear,
-        candidateNameNormalized: normalizePhoenixTextKey(input.candidateDisplayName),
+        candidateNameNormalized: normalizePhoenixTextKey(
+          input.candidateDisplayName,
+        ),
         copId,
         // The registration is the current authority on the committee's name
         // and portal cycle string; the upsert refreshes both on the link.
@@ -652,8 +803,9 @@ export async function syncPhoenixCandidateFinance(input: {
         // Not parsed in v1 (disbursements line 12 semantics unverified).
         debtsOwedCents: null,
         loansReceivedCents: direct.loansReceivedCents,
-        outsideSupportCents: outside.supportTotalCents,
-        outsideOpposeCents: outside.opposeTotalCents,
+        // Missing standing/noncommittee/EFD channels cannot replace overall totals.
+        outsideSupportCents: undefined,
+        outsideOpposeCents: undefined,
         directCoverageNote,
         outsideCoverageNote,
         methodologyVersion: PHOENIX_FINANCE_METHODOLOGY_VERSION,
@@ -689,5 +841,6 @@ export async function syncPhoenixCandidateFinance(input: {
     outsideCoverageNote,
     violations: direct.violations,
     canonicalReportCount: direct.reports.length,
+    ...(committeeCash ? { committeeCash } : {}),
   };
 }

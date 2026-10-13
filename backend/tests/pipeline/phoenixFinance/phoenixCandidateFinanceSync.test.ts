@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   syncPhoenixCandidateFinance,
   type PhoenixFinanceRunContext,
@@ -6,6 +6,8 @@ import {
 import type { PhoenixCanonicalReport } from "../../../src/pipeline/phoenixFinance/phoenixDirectFinanceAggregator.js";
 import type { PhoenixRegistrationRow } from "../../../src/pipeline/phoenixFinance/phoenixEfilingClient.js";
 import type { PhoenixOutsidePoolEntry } from "../../../src/pipeline/phoenixFinance/phoenixOutsideSpendingAggregator.js";
+
+afterEach(() => vi.unstubAllEnvs());
 
 const registration: PhoenixRegistrationRow = {
   copId: "CAN-25-4",
@@ -20,12 +22,19 @@ const registration: PhoenixRegistrationRow = {
   isStandingCommittee: false,
 };
 
-function context(over: Partial<PhoenixFinanceRunContext> = {}): PhoenixFinanceRunContext {
+function context(
+  over: Partial<PhoenixFinanceRunContext> = {},
+): PhoenixFinanceRunContext {
   return {
     registrations: [registration],
     registrationsByCopId: new Map([[registration.copId, registration]]),
     outsidePool: [],
-    diagnostics: { ieRegistrations: 0, cityFilingIePacs: 0, standingIePacs: 0, b6Packages: 0 },
+    diagnostics: {
+      ieRegistrations: 0,
+      cityFilingIePacs: 0,
+      standingIePacs: 0,
+      b6Packages: 0,
+    },
     ...over,
   };
 }
@@ -59,7 +68,21 @@ function healthyReports(): PhoenixCanonicalReport[] {
           closeCents: m + loans - spent,
         },
         receipts: {
-          line1: { a, b, c: 0, d: 0, e: 0, f: 0, g: 0, h: 0, i: 0, j: 0, k, l: refunds, m },
+          line1: {
+            a,
+            b,
+            c: 0,
+            d: 0,
+            e: 0,
+            f: 0,
+            g: 0,
+            h: 0,
+            i: 0,
+            j: 0,
+            k,
+            l: refunds,
+            m,
+          },
           line2eCents: loans,
           otherCashCents: 0,
           line13CashCents: m + loans,
@@ -102,7 +125,10 @@ function poolEntry(): PhoenixOutsidePoolEntry {
 // db.query answers the anomaly SELECT (override) and the classification
 // reads/writes with empty rows; the transaction client answers the link
 // INSERT with an id.
-function makeDb(storedSummary?: { total_raised: string | null; reported_through: string | null }) {
+function makeDb(storedSummary?: {
+  total_raised: string | null;
+  reported_through: string | null;
+}) {
   const clientQuery = vi.fn().mockImplementation((sql: unknown) => {
     const s = String(sql);
     if (s.startsWith("INSERT INTO public.phx_candidate_finance_links"))
@@ -135,6 +161,82 @@ const syncInput = {
 };
 
 describe("Phoenix candidate finance sync", () => {
+  it("keeps acquired city IE when optional named cash is unavailable", async () => {
+    vi.stubEnv("PHOENIX_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("PHOENIX_COMMITTEE_CASH_SYNC_ENABLED", "true");
+    const { db, clientQuery } = makeDb();
+    const syncCommitteeCashFn = vi
+      .fn()
+      .mockRejectedValue(new Error("ambiguous return owner"));
+    const result = await syncPhoenixCandidateFinance({
+      db: db as never,
+      ...syncInput,
+      context: context({ outsidePool: [poolEntry()] }),
+      loadCommitteeReports: async () => healthyReports(),
+      supplements: [],
+      syncCommitteeCashFn,
+    });
+    expect(syncCommitteeCashFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        copId: "CAN-25-4",
+        officeSought: "Council Member District 4",
+      }),
+    );
+    expect(result.committeeCash).toEqual({
+      ok: false,
+      error: "ambiguous return owner",
+    });
+    expect(result.outsideGroupCount).toBe(1);
+    expect(
+      clientQuery.mock.calls.some(([sql]) =>
+        String(sql).startsWith(
+          "INSERT INTO public.phx_candidate_finance_outside_groups",
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      clientQuery.mock.calls.some(([sql]) =>
+        String(sql).startsWith(
+          "DELETE FROM public.phx_candidate_finance_outside_groups",
+        ),
+      ),
+    ).toBe(false);
+    const summary = clientQuery.mock.calls.find(([sql]) =>
+      String(sql).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
+    );
+    expect(summary?.[1]?.slice(-2)).toEqual([true, true]);
+  });
+
+  it("acquires the optional component in dry-run without enabling ordinary writes", async () => {
+    vi.stubEnv("PHOENIX_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("PHOENIX_COMMITTEE_CASH_SYNC_ENABLED", "true");
+    const { db, connect } = makeDb();
+    const syncCommitteeCashFn = vi
+      .fn()
+      .mockResolvedValue({
+        donorCount: 0,
+        contributionCount: 0,
+        netCents: 0,
+        reportedThrough: "2026-03-31",
+        written: false,
+      });
+    const result = await syncPhoenixCandidateFinance({
+      db: db as never,
+      ...syncInput,
+      context: context(),
+      loadCommitteeReports: async () => healthyReports(),
+      dryRun: true,
+      syncCommitteeCashFn,
+    });
+    expect(syncCommitteeCashFn).toHaveBeenCalledWith(
+      expect.objectContaining({ dryRun: true }),
+    );
+    expect(result.committeeCash?.ok).toBe(true);
+    expect(connect).not.toHaveBeenCalled();
+  });
+
   it("writes one full snapshot with exact dollar totals, notes, and outside groups", async () => {
     const { db, clientQuery, connect } = makeDb();
     const result = await syncPhoenixCandidateFinance({
@@ -149,12 +251,15 @@ describe("Phoenix candidate finance sync", () => {
     expect(sql[0]).toBe("BEGIN");
     expect(sql.at(-1)).toBe("COMMIT");
     const summaryCall = clientQuery.mock.calls.find((call) =>
-      String(call[0]).includes("phx_candidate_finance_summaries"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
     );
     // raised 500.00 (net of refunds), spent 200.00, cash 325.00, loans
-    // 25.00, outside support 6500.00 — exact strings; BOTH always-on notes.
+    // 25.00 — exact strings; BOTH always-on notes. Outside amounts stay
+    // in their known group; unavailable channels preserve overall scalars.
     expect(summaryCall?.[1]).toEqual(
-      expect.arrayContaining(["500.00", "200.00", "325.00", "25.00", "6500.00"]),
+      expect.arrayContaining(["500.00", "200.00", "325.00", "25.00"]),
     );
     expect(summaryCall?.[1]).toEqual(
       expect.arrayContaining([
@@ -163,7 +268,9 @@ describe("Phoenix candidate finance sync", () => {
       ]),
     );
     const linkCall = clientQuery.mock.calls.find((call) =>
-      String(call[0]).startsWith("INSERT INTO public.phx_candidate_finance_links"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.phx_candidate_finance_links",
+      ),
     );
     expect(linkCall?.[1]).toEqual(
       expect.arrayContaining([
@@ -179,7 +286,13 @@ describe("Phoenix candidate finance sync", () => {
       String(call[0]).includes("phx_candidate_finance_outside_groups (link_id"),
     );
     expect(outsideCall?.[1]).toEqual(
-      expect.arrayContaining(["PAC-22-14", "Some IE PAC", "support", "6500.00", 1]),
+      expect.arrayContaining([
+        "PAC-22-14",
+        "Some IE PAC",
+        "support",
+        "6500.00",
+        1,
+      ]),
     );
     expect(result).toMatchObject({
       linkWritten: true,
@@ -240,7 +353,9 @@ describe("Phoenix candidate finance sync", () => {
       "has not filed a campaign finance report for this election cycle yet",
     );
     const summaryCall = clientQuery.mock.calls.find((call) =>
-      String(call[0]).includes("phx_candidate_finance_summaries"),
+      String(call[0]).startsWith(
+        "INSERT INTO public.phx_candidate_finance_summaries",
+      ),
     );
     expect(summaryCall?.[1]).toEqual(expect.arrayContaining(["0.00"]));
   });
@@ -269,7 +384,10 @@ describe("Phoenix candidate finance sync", () => {
   });
 
   it("aborts when filing history goes backwards (never bypassable)", async () => {
-    const { db } = makeDb({ total_raised: "500.00", reported_through: "2026-06-30" });
+    const { db } = makeDb({
+      total_raised: "500.00",
+      reported_through: "2026-06-30",
+    });
     await expect(
       syncPhoenixCandidateFinance({
         db: db as never,

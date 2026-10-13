@@ -69,10 +69,17 @@ export function parsePhoenixGridEnvelope(
     throw new Error(`Phoenix grid returned a ${label} for ${context}`);
   }
   const parsed = JSON.parse(trimmed) as Partial<PhoenixGridEnvelope>;
-  if (!Array.isArray(parsed.Data) || typeof parsed.Total !== "number") {
+  if (
+    !Array.isArray(parsed.Data) ||
+    !Number.isSafeInteger(parsed.Total) ||
+    (parsed.Total ?? -1) < 0 ||
+    parsed.Data.some(
+      (row) => !row || typeof row !== "object" || Array.isArray(row),
+    )
+  ) {
     throw new Error(`Phoenix grid envelope missing Data/Total for ${context}`);
   }
-  return { Data: parsed.Data, Total: parsed.Total };
+  return { Data: parsed.Data, Total: parsed.Total! };
 }
 
 function isAbortError(error: unknown): boolean {
@@ -166,17 +173,25 @@ export async function phoenixGridAll(input: {
   fetchImpl?: FetchLike;
 }): Promise<Record<string, unknown>[]> {
   const rows: Record<string, unknown>[] = [];
+  let total: number | undefined;
   for (let page = 1; page <= MAX_GRID_PAGES; page += 1) {
     const envelope = await phoenixGridPage({ ...input, page });
+    if (total !== undefined && total !== envelope.Total)
+      throw new Error("Phoenix grid total changed during pagination");
+    total = envelope.Total;
     rows.push(...envelope.Data);
-    if (rows.length >= envelope.Total) return rows;
+    if (rows.length > total)
+      throw new Error("Phoenix grid returned more physical rows than Total");
+    if (rows.length === total) return rows;
     if (envelope.Data.length === 0) {
       throw new Error(
         `Phoenix grid ${input.path} exhausted at ${rows.length}/${envelope.Total} rows — incomplete pagination`,
       );
     }
   }
-  throw new Error(`Phoenix grid ${input.path} exceeded ${MAX_GRID_PAGES} pages`);
+  throw new Error(
+    `Phoenix grid ${input.path} exceeded ${MAX_GRID_PAGES} pages`,
+  );
 }
 
 /** One registration document version as returned by _SearchCommittees. */
@@ -200,10 +215,14 @@ export function toPhoenixRegistrationRow(
   raw: Record<string, unknown>,
 ): PhoenixRegistrationRow {
   // "AppovedTimestamp" is the portal's own field spelling.
-  const timestamp = /\/Date\((\d+)\)\//.exec(String(raw.AppovedTimestamp ?? ""));
+  const timestamp = /\/Date\((\d+)\)\//.exec(
+    String(raw.AppovedTimestamp ?? ""),
+  );
   const officeSought = String(raw.OfficeSoughtElectionCycle ?? "").trim();
   return {
-    copId: String(raw.COPID ?? "").trim().toUpperCase(),
+    copId: String(raw.COPID ?? "")
+      .trim()
+      .toUpperCase(),
     committeeName: String(raw.CommitteeName ?? "").trim(),
     committeeType: String(raw.CommitteeType ?? "").trim(),
     candidateName: raw.CandidateName
@@ -300,18 +319,24 @@ export function phoenixFilesystemPdfCache(cacheDir: string): PhoenixPdfCache {
           return null;
         }
         // pdfjs rejects Node Buffers — hand back a plain Uint8Array view.
-        return new Uint8Array(cached.buffer, cached.byteOffset, cached.byteLength);
+        return new Uint8Array(
+          cached.buffer,
+          cached.byteOffset,
+          cached.byteLength,
+        );
       } catch {
         return null;
       }
     },
     write: async (reportPackageId, bytes) => {
-      const { mkdir, rename, writeFile } = await import("node:fs/promises");
+      const { chmod, mkdir, rename, writeFile } =
+        await import("node:fs/promises");
       const { join } = await import("node:path");
-      await mkdir(cacheDir, { recursive: true });
+      await mkdir(cacheDir, { recursive: true, mode: 0o700 });
+      await chmod(cacheDir, 0o700);
       const target = join(cacheDir, `${reportPackageId}.pdf`);
       const temporary = `${target}.${process.pid}.tmp`;
-      await writeFile(temporary, bytes);
+      await writeFile(temporary, bytes, { mode: 0o600 });
       await rename(temporary, target);
     },
   };
@@ -320,22 +345,25 @@ export function phoenixFilesystemPdfCache(cacheDir: string): PhoenixPdfCache {
 /**
  * Fetches one report PDF (`/CampaignFinance/Reports/PrintReport/<guid>`),
  * validating the %PDF signature — the WAF maintenance page comes back HTML
- * with HTTP 200 here too. Reports are immutable per package id (amendments
- * get NEW ids), so a cache hit never refetches; the cache itself rejects
- * bytes without the %PDF signature (truncated write) as a miss.
+ * with HTTP 200 here too. Ordinary reads use the cache; refresh bypasses it
+ * and never falls back to cached bytes after a source failure. Successful
+ * source bytes replace the cache. Package immutability is not assumed.
  */
 export async function fetchPhoenixReportPdf(input: {
   reportPackageId: string;
   cache?: PhoenixPdfCache;
+  refresh?: boolean;
   timeoutMs?: number;
   fetchImpl?: PdfFetchLike;
 }): Promise<Uint8Array> {
   const id = input.reportPackageId;
-  if (!PHOENIX_REPORT_PACKAGE_GUID.test(id)) {
+  if (!PHOENIX_REPORT_PACKAGE_GUID.test(id) || id === ZERO_REPORT_GUID) {
     throw new Error(`Not a report package GUID: "${id}"`);
   }
-  const cached = await input.cache?.read(id);
-  if (cached) return cached;
+  if (!input.refresh) {
+    const cached = await input.cache?.read(id);
+    if (cached) return cached;
+  }
   const timeoutMs = input.timeoutMs ?? PHOENIX_PORTAL_DEFAULT_TIMEOUT_MS;
   const fetchImpl = input.fetchImpl ?? (fetch as PdfFetchLike);
   const controller = new AbortController();
@@ -359,7 +387,9 @@ export async function fetchPhoenixReportPdf(input: {
       throw error;
     }
     if (response.status < 200 || response.status >= 300) {
-      throw new Error(`Phoenix report PDF fetch failed for ${id}: HTTP ${response.status}`);
+      throw new Error(
+        `Phoenix report PDF fetch failed for ${id}: HTTP ${response.status}`,
+      );
     }
     let bytes: Uint8Array;
     try {
@@ -377,7 +407,10 @@ export async function fetchPhoenixReportPdf(input: {
         `Phoenix report PDF ${id} is ${bytes.length} bytes, over the ${MAX_RESPONSE_BYTES} cap`,
       );
     }
-    if (bytes.length < 4 || String.fromCharCode(...bytes.slice(0, 4)) !== "%PDF") {
+    if (
+      bytes.length < 4 ||
+      String.fromCharCode(...bytes.slice(0, 4)) !== "%PDF"
+    ) {
       throw new Error(`Phoenix report ${id} is not a PDF`);
     }
     await input.cache?.write(id, bytes);
@@ -390,7 +423,22 @@ export async function fetchPhoenixReportPdf(input: {
 export type PhoenixReportRef = {
   reportPackageId: string;
   reportName: string;
+  /** One observed row timestamp for backward compatibility, not a filing date. */
   submittedDateMs: number;
+  /** Distinct row metadata values; never used to select financial editions. */
+  submittedDateValuesMs?: readonly number[];
+};
+
+export type PhoenixReportObservation = {
+  grids: {
+    contributors: Record<string, unknown>[];
+    expenditures: Record<string, unknown>[];
+    loans: Record<string, unknown>[];
+    noActivityContributors: Record<string, unknown>[];
+    noActivityExpenditures: Record<string, unknown>[];
+  };
+  refs: PhoenixReportRef[];
+  supersededDropped: 0;
 };
 
 /** Strict 8-4-4-4-12 form — the loose `[0-9a-f-]{36}` it replaces accepted
@@ -402,93 +450,176 @@ export const PHOENIX_REPORT_PACKAGE_GUID =
  * ASP.NET AJAX `SubmittedDate` → epoch ms. The pinned live form is
  * `/Date(1755000000000)/`; the serializer can also emit a signed zone offset
  * (`/Date(1755000000000-0700)/`), which is display metadata — the number is
- * already UTC ms. Amendment canonicalization picks winners by this value, so
- * a non-empty value that fails to parse THROWS rather than falling back to 0
- * (a 0 would silently let an older amendment stay canonical). Empty/absent
- * stays 0: no date disclosed at all is missing information, not garbage.
+ * already UTC ms. This is row metadata, not report-currentness authority.
+ * Malformed non-empty values throw; empty/absent stays 0, representing no
+ * disclosed timestamp. Public grids contain many values within one package.
  */
 export function phoenixSubmittedDateMs(raw: unknown, context: string): number {
   const text = String(raw ?? "").trim();
   if (text === "") return 0;
   const match = /^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/.exec(text);
   if (!match) {
-    throw new Error(`Unparseable Phoenix SubmittedDate "${text}" for ${context}`);
+    throw new Error(
+      `Unparseable Phoenix SubmittedDate "${text}" for ${context}`,
+    );
   }
-  return Number(match[1]);
+  const value = Number(match[1]);
+  if (!Number.isSafeInteger(value))
+    throw new Error("Phoenix SubmittedDate exceeds safe timestamp range");
+  return value;
 }
 
+const ZERO_REPORT_GUID = "00000000-0000-0000-0000-000000000000";
+
 function collectPhoenixReportRefs(
-  refs: Map<string, PhoenixReportRef>,
+  refs: PhoenixReportRef[],
   rows: readonly Record<string, unknown>[],
+  copId: string,
 ): void {
   for (const row of rows) {
-    const id = String(row.ReportPackageId ?? "");
-    if (!PHOENIX_REPORT_PACKAGE_GUID.test(id)) continue;
-    refs.set(id, {
+    if (
+      !row ||
+      typeof row !== "object" ||
+      Array.isArray(row) ||
+      typeof row.COPID !== "string" ||
+      !/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(row.COPID.trim().toUpperCase()) ||
+      !row.COPID.trim().toUpperCase().startsWith(copId)
+    )
+      throw new Error(
+        "Phoenix report discovery has a mismatched receiving COPID",
+      );
+    // The observed public COP search includes valid longer prefix matches.
+    // Retain those physical rows, but never discover their report packages.
+    if (row.COPID.trim().toUpperCase() !== copId) continue;
+    const pointer = row.RecentReport;
+    if (
+      pointer !== undefined &&
+      pointer !== null &&
+      pointer !== "" &&
+      pointer !== ZERO_REPORT_GUID
+    )
+      throw new Error(
+        "Phoenix report discovery has an unexplained RecentReport pointer",
+      );
+    const id = row.ReportPackageId;
+    if (
+      typeof id !== "string" ||
+      !PHOENIX_REPORT_PACKAGE_GUID.test(id) ||
+      id === ZERO_REPORT_GUID
+    )
+      throw new Error(
+        "Phoenix report discovery has a missing or invalid report package ID",
+      );
+    if (typeof row.ReportName !== "string" || !row.ReportName.trim())
+      throw new Error("Phoenix report discovery has no report name");
+    refs.push({
       reportPackageId: id,
-      reportName: String(row.ReportName ?? ""),
-      submittedDateMs: phoenixSubmittedDateMs(row.SubmittedDate, `report package ${id}`),
+      reportName: row.ReportName.trim(),
+      submittedDateMs: phoenixSubmittedDateMs(
+        row.SubmittedDate,
+        "report row metadata",
+      ),
     });
   }
 }
 
-/** Amendment canonicalization (Phase 0 gate 4): duplicate (report name)
- * packages are superseded versions; the latest SubmittedDate wins and losers
- * are dropped. Grids expose one package per period AFTER amendment, so the
- * parsed periods must come out disjoint — the aggregator asserts that. */
-export function canonicalPhoenixReportRefs(
-  refs: readonly PhoenixReportRef[],
-): { refs: PhoenixReportRef[]; supersededDropped: number } {
-  const byName = new Map<string, PhoenixReportRef[]>();
+/** Retains every exact published package. Equal report names do not establish
+ * amendment lineage; ambiguous cover periods are evaluated downstream. */
+export function canonicalPhoenixReportRefs(refs: readonly PhoenixReportRef[]): {
+  refs: PhoenixReportRef[];
+  supersededDropped: number;
+} {
+  const byId = new Map<string, PhoenixReportRef>();
   for (const ref of refs) {
-    const bucket = byName.get(ref.reportName) ?? [];
-    bucket.push(ref);
-    byName.set(ref.reportName, bucket);
+    if (
+      !PHOENIX_REPORT_PACKAGE_GUID.test(ref.reportPackageId) ||
+      ref.reportPackageId === ZERO_REPORT_GUID ||
+      !ref.reportName.trim()
+    )
+      throw new Error(
+        "Phoenix report reference has invalid package/name metadata",
+      );
+    const current = byId.get(ref.reportPackageId);
+    const reportName = ref.reportName.trim();
+    if (current && current.reportName !== reportName)
+      throw new Error("Phoenix report package has conflicting report names");
+    const values = [
+      ...(current?.submittedDateValuesMs ?? []),
+      ...(ref.submittedDateValuesMs ?? [ref.submittedDateMs]),
+    ];
+    if (values.some((value) => !Number.isSafeInteger(value)))
+      throw new Error(
+        "Phoenix report reference has invalid timestamp metadata",
+      );
+    const submittedDateValuesMs = [...new Set(values)].sort((a, b) => a - b);
+    byId.set(ref.reportPackageId, {
+      reportPackageId: ref.reportPackageId,
+      reportName,
+      submittedDateMs: submittedDateValuesMs[0] ?? 0,
+      submittedDateValuesMs,
+    });
   }
-  const canonical: PhoenixReportRef[] = [];
-  let supersededDropped = 0;
-  for (const bucket of byName.values()) {
-    const winner = bucket.reduce((best, ref) =>
-      ref.submittedDateMs > best.submittedDateMs ? ref : best,
-    );
-    canonical.push(winner);
-    supersededDropped += bucket.length - 1;
-  }
-  canonical.sort((a, b) => a.submittedDateMs - b.submittedDateMs);
-  return { refs: canonical, supersededDropped };
+  return {
+    refs: [...byId.values()].sort((a, b) =>
+      a.reportPackageId.localeCompare(b.reportPackageId),
+    ),
+    supersededDropped: 0,
+  };
 }
 
-/**
- * Discovers a committee's filed report packages via the three transaction
- * grids. Contribution rows alone miss expenditure-only and loan-only
- * reports, so all three are read. No-activity filings DO surface (verified
- * live: CAN-22-10's cover-only post-election reports come back through the
- * contributors grid, which carries an ISNOACTIVITY marker), so a report
- * invisible to all three grids is an anomaly — the aggregator's
- * coverage_hole check is what catches one that actually moved money.
- */
+/** Full public transaction and explicitly selected no-activity observations.
+ * The source UI sends ISNOACTIVITY only when the checkbox is checked. No
+ * currentness/financial completeness flag is inferred from this transport. */
+export async function discoverPhoenixReportObservation(input: {
+  copId: string;
+  timeoutMs?: number;
+  fetchImpl?: FetchLike;
+}): Promise<PhoenixReportObservation> {
+  const copId = input.copId.trim().toUpperCase();
+  if (!/^(?:CAN|PAC)-\d{2}-[1-9]\d*$/.test(copId))
+    throw new Error("Phoenix report discovery requires valid receiving COPID");
+  const scopes = [
+    ["contributors", "/CampaignFinance/Search/_SearchContributors", false],
+    ["expenditures", "/CampaignFinance/Search/_SearchExpenditures", false],
+    ["loans", "/CampaignFinance/Search/_SearchLoans", false],
+    [
+      "noActivityContributors",
+      "/CampaignFinance/Search/_SearchContributors",
+      true,
+    ],
+    [
+      "noActivityExpenditures",
+      "/CampaignFinance/Search/_SearchExpenditures",
+      true,
+    ],
+  ] as const;
+  const grids = {} as PhoenixReportObservation["grids"];
+  const refs: PhoenixReportRef[] = [];
+  for (const [name, path, noActivity] of scopes) {
+    const rows = await phoenixGridAll({
+      path,
+      filters: {
+        COPID: copId,
+        ...(noActivity ? { ISNOACTIVITY: "true" } : {}),
+      },
+      timeoutMs: input.timeoutMs,
+      fetchImpl: input.fetchImpl,
+    });
+    collectPhoenixReportRefs(refs, rows, copId);
+    grids[name] = rows;
+  }
+  return { grids, ...canonicalPhoenixReportRefs(refs), supersededDropped: 0 };
+}
+
+/** Legacy API shape, now without unsupported timestamp edition ranking. */
 export async function discoverPhoenixCanonicalReportRefs(input: {
   copId: string;
   timeoutMs?: number;
   fetchImpl?: FetchLike;
 }): Promise<{ refs: PhoenixReportRef[]; supersededDropped: number }> {
-  const refs = new Map<string, PhoenixReportRef>();
-  for (const path of [
-    "/CampaignFinance/Search/_SearchContributors",
-    "/CampaignFinance/Search/_SearchExpenditures",
-    "/CampaignFinance/Search/_SearchLoans",
-  ]) {
-    collectPhoenixReportRefs(
-      refs,
-      await phoenixGridAll({
-        path,
-        filters: { COPID: input.copId },
-        timeoutMs: input.timeoutMs,
-        fetchImpl: input.fetchImpl,
-      }),
-    );
-  }
-  return canonicalPhoenixReportRefs([...refs.values()]);
+  const { refs, supersededDropped } =
+    await discoverPhoenixReportObservation(input);
+  return { refs, supersededDropped };
 }
 
 /** Phoenix candidate election cycles run April 1 of an odd year through
@@ -509,8 +640,7 @@ export function phoenixCandidateCycleForDate(isoDate: string): {
   }
   const year = parsed.getUTCFullYear();
   const odd = year % 2 === 1 ? year : year - 1;
-  const startYear =
-    parsed.getTime() >= Date.UTC(odd, 3, 1) ? odd : odd - 2;
+  const startYear = parsed.getTime() >= Date.UTC(odd, 3, 1) ? odd : odd - 2;
   return {
     startYear,
     cycleStart: `${startYear}-04-01`,
