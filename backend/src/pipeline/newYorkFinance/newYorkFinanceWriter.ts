@@ -96,7 +96,7 @@ export type NewYorkFinanceSnapshotInput = {
   directBreakdowns?: readonly NewYorkFinanceDirectBreakdownInput[];
   outsideGroups?: readonly NewYorkFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly NewYorkFinanceOutsideGroupBreakdownInput[];
-  /** upsert retains absent groups/breakdowns from earlier source observations. */
+  /** upsert retains absent groups; supplied breakdowns replace those of refreshed groups. */
   outsideWriteMode?: "replace" | "upsert";
   classifications?: readonly FinanceLabelClassification[];
   /** undefined preserves; [] is an explicit caller-qualified complete component replacement. */
@@ -638,6 +638,7 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
   linkId: string;
   electionYear: number;
   breakdowns: readonly NewYorkFinanceOutsideGroupBreakdownInput[];
+  refreshedGroups?: readonly NewYorkFinanceOutsideGroupInput[];
 }): Promise<void> {
   const keys = input.breakdowns.map((breakdown) => ({
     filer_id: requireNonEmpty(
@@ -657,6 +658,17 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
       DELETE FROM public.ny_candidate_finance_outside_group_breakdowns
       WHERE link_id = $1::uuid
         AND election_year = $2
+        AND (
+          $4::jsonb IS NULL OR EXISTS (
+            SELECT 1
+            FROM jsonb_to_recordset($4::jsonb) AS refreshed(
+              filer_id text,
+              support_oppose text
+            )
+            WHERE refreshed.filer_id = ny_candidate_finance_outside_group_breakdowns.filer_id
+              AND refreshed.support_oppose = ny_candidate_finance_outside_group_breakdowns.support_oppose
+          )
+        )
         AND NOT EXISTS (
           SELECT 1
           FROM jsonb_to_recordset($3::jsonb) AS keep(
@@ -675,6 +687,12 @@ async function deleteStaleOutsideGroupBreakdowns(input: {
       requireNonEmpty(input.linkId, "New York finance link id"),
       normalizeElectionYear(input.electionYear),
       JSON.stringify(keys),
+      input.refreshedGroups === undefined
+        ? null
+        : JSON.stringify(input.refreshedGroups.map((group) => ({
+            filer_id: requireNonEmpty(group.filerId, "New York outside group filer id"),
+            support_oppose: group.supportOppose,
+          }))),
     ],
   );
 }
@@ -809,12 +827,18 @@ export async function replaceNewYorkCandidateFinanceSnapshot(
         syncedAt,
       });
     }
-    if (input.outsideGroupBreakdowns && input.outsideWriteMode !== "upsert") {
+    if (
+      input.outsideGroupBreakdowns &&
+      (input.outsideWriteMode !== "upsert" || input.outsideGroups?.length)
+    ) {
+      // Donors and their derived industries describe one refreshed payer snapshot.
+      // Partial outside coverage preserves omitted payers, not stale categories.
       await deleteStaleOutsideGroupBreakdowns({
         db,
         linkId,
         electionYear,
         breakdowns: input.outsideGroupBreakdowns,
+        refreshedGroups: input.outsideWriteMode === "upsert" ? input.outsideGroups : undefined,
       });
     }
     if (input.outsideGroups && input.outsideWriteMode !== "upsert") {

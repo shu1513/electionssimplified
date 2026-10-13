@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   replaceNewYorkCandidateFinanceSnapshot,
   upsertNewYorkFinanceLink,
+  type NewYorkFinanceOutsideGroupBreakdownInput,
 } from "../../../src/pipeline/newYorkFinance/newYorkFinanceWriter.js";
 
 const CANDIDATE_ID = "11111111-1111-1111-1111-111111111111";
@@ -504,60 +505,106 @@ describe("New York typed reported PAC snapshot", () => {
 });
 
 describe("New York partial outside updates", () => {
-  it("upserts a known payer A without pruning retained payer B or its breakdowns", async () => {
+  it.each(["healthcare", null] as const)(
+    "refreshes payer A's donor and industry snapshot (%s), retaining omitted payer/stance pairs",
+    async (industry) => {
+      const groups = new Map<string, number>();
+      const breakdowns = new Map<string, NewYorkFinanceOutsideGroupBreakdownInput>();
+      const groupKey = (filerId: string, stance: string) => `${filerId}:${stance}`;
+      const breakdownKey = (row: NewYorkFinanceOutsideGroupBreakdownInput) =>
+        `${groupKey(row.filerId, row.supportOppose)}:${row.categoryType}:${row.categoryName}`;
+      const client = {
+        release: vi.fn(),
+        query: vi.fn(async (sql: string, params: unknown[] = []) => {
+          if (sql.includes("INSERT INTO public.ny_candidate_finance_outside_groups")) {
+            groups.set(groupKey(String(params[2]), String(params[4])), Number(params[5]));
+          } else if (sql.includes("INSERT INTO public.ny_candidate_finance_outside_group_breakdowns")) {
+            const row: NewYorkFinanceOutsideGroupBreakdownInput = {
+              filerId: String(params[2]),
+              supportOppose: params[3] as "support" | "oppose",
+              categoryType: params[4] as "donor" | "industry",
+              categoryName: String(params[5]),
+              amount: Number(params[6]),
+            };
+            breakdowns.set(breakdownKey(row), row);
+          } else if (sql.includes("DELETE FROM public.ny_candidate_finance_outside_group_breakdowns")) {
+            const keep = JSON.parse(String(params[2])) as {
+              filer_id: string; support_oppose: string; category_type: string; category_name: string;
+            }[];
+            const refreshed = params[3] == null ? null : JSON.parse(String(params[3])) as {
+              filer_id: string; support_oppose: string;
+            }[];
+            if (refreshed) {
+              expect(sql).toContain("FROM jsonb_to_recordset($4::jsonb) AS refreshed");
+              expect(sql).toContain("refreshed.filer_id = ny_candidate_finance_outside_group_breakdowns.filer_id");
+              expect(sql).toContain("refreshed.support_oppose = ny_candidate_finance_outside_group_breakdowns.support_oppose");
+            }
+            for (const [key, row] of breakdowns) {
+              const inScope = refreshed === null || refreshed.some((group) =>
+                group.filer_id === row.filerId && group.support_oppose === row.supportOppose);
+              const retained = keep.some((entry) =>
+                entry.filer_id === row.filerId && entry.support_oppose === row.supportOppose &&
+                entry.category_type === row.categoryType && entry.category_name === row.categoryName);
+              if (inScope && !retained) breakdowns.delete(key);
+            }
+          } else if (sql.includes("DELETE FROM public.ny_candidate_finance_outside_groups")) {
+            throw new Error("Partial snapshots must retain omitted payer groups");
+          }
+          return { rows: [{ id: LINK_ID }], rowCount: 1 };
+        }),
+      };
+      const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+      const payerA = { filerId: "payer-A", filerName: "Payer A", supportOppose: "support" as const, amount: 200 };
+      const donor = {
+        filerId: "payer-A", supportOppose: "support" as const,
+        categoryType: "donor" as const, categoryName: "Current donor", amount: 200,
+      };
+      const unrelated = [
+        { ...donor, filerId: "payer-B", categoryType: "industry" as const, categoryName: "labor", amount: 900 },
+        { ...donor, supportOppose: "oppose" as const, categoryType: "industry" as const, categoryName: "energy", amount: 300 },
+      ];
+      await replaceNewYorkCandidateFinanceSnapshot({
+        db, link: baseLink(), outsideWriteMode: "upsert",
+        outsideGroups: [
+          payerA,
+          { ...payerA, filerId: "payer-B", filerName: "Payer B", amount: 900 },
+          { ...payerA, supportOppose: "oppose", amount: 300 },
+        ],
+        outsideGroupBreakdowns: [
+          donor,
+          { ...donor, categoryName: "Removed donor", amount: 50 },
+          { ...donor, categoryType: "industry", categoryName: "technology" },
+          { ...donor, categoryType: "industry", categoryName: "real_estate", amount: 50 },
+          ...unrelated,
+        ],
+      });
+      const refreshed: NewYorkFinanceOutsideGroupBreakdownInput[] = industry
+        ? [donor, { ...donor, categoryType: "industry", categoryName: industry }]
+        : [];
+      await replaceNewYorkCandidateFinanceSnapshot({
+        db, link: baseLink(), outsideWriteMode: "upsert",
+        outsideGroups: [payerA], outsideGroupBreakdowns: refreshed,
+      });
+
+      expect([...groups.entries()]).toEqual([
+        ["payer-A:support", 200], ["payer-B:support", 900], ["payer-A:oppose", 300],
+      ]);
+      expect([...breakdowns.values()]).toEqual(expect.arrayContaining([...unrelated, ...refreshed]));
+      expect(breakdowns.size).toBe(unrelated.length + refreshed.length);
+      const payerIndustries = [...breakdowns.values()].filter((row) =>
+        row.filerId === "payer-A" && row.supportOppose === "support" && row.categoryType === "industry");
+      expect(payerIndustries.reduce((total, row) => total + row.amount, 0)).toBe(industry ? 200 : 0);
+      expect(client.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+    },
+  );
+  it("omitted breakdowns preserve a refreshed payer's prior breakdowns", async () => {
     const { db, client } = transactionalDb();
-    const retained = new Map([["payer-B", 900]]);
-    client.query.mockImplementation(async (sql: string) => {
-      if (sql.includes("DELETE FROM public.ny_candidate_finance_outside"))
-        retained.delete("payer-B");
-      return { rows: [{ id: LINK_ID }], rowCount: 1 };
+    await replaceNewYorkCandidateFinanceSnapshot({
+      db, link: baseLink(), outsideWriteMode: "upsert",
+      outsideGroups: [{ filerId: "payer-A", filerName: "Payer A", supportOppose: "support", amount: 200 }],
     });
-    const result = await replaceNewYorkCandidateFinanceSnapshot({
-      db,
-      link: baseLink(),
-      outsideWriteMode: "upsert",
-      outsideGroups: [
-        {
-          filerId: "payer-A",
-          filerName: "Known payer A",
-          supportOppose: "support",
-          amount: 200,
-        },
-      ],
-      outsideGroupBreakdowns: [
-        {
-          filerId: "payer-A",
-          supportOppose: "support",
-          categoryType: "donor",
-          categoryName: "Known donor",
-          amount: 200,
-        },
-      ],
-    });
-    expect(result).toMatchObject({
-      outsideGroupsWritten: 1,
-      outsideGroupBreakdownsWritten: 1,
-    });
-    const statements = client.query.mock.calls.map((c) => String(c[0]));
-    expect(
-      statements.some((s) =>
-        s.includes("INSERT INTO public.ny_candidate_finance_outside_groups"),
-      ),
-    ).toBe(true);
-    expect(
-      statements.some((s) =>
-        s.includes(
-          "INSERT INTO public.ny_candidate_finance_outside_group_breakdowns",
-        ),
-      ),
-    ).toBe(true);
-    expect(
-      statements.some((s) =>
-        s.includes("DELETE FROM public.ny_candidate_finance_outside"),
-      ),
-    ).toBe(false);
-    expect(retained.get("payer-B")).toBe(900);
-    expect(statements.at(-1)).toBe("COMMIT");
+    expect(client.query.mock.calls.some(([sql]) =>
+      sql.includes("DELETE FROM public.ny_candidate_finance_outside"))).toBe(false);
   });
   it("empty upsert arrays preserve outside rows while explicit PAC replacement remains independent", async () => {
     const { db, client } = transactionalDb();
