@@ -352,8 +352,8 @@ function toSummary(input: {
   return {
     totalReceipts: input.directFinance.summary.totalReceipts,
     directContributionTotal: input.directFinance.summary.directContributionTotal,
-    outsideSupportTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.supportTotal ?? 0 : null,
-    outsideOpposeTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.opposeTotal ?? 0 : null,
+    outsideSupportTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.supportTotal ?? null : null,
+    outsideOpposeTotal: input.outsideDataAvailable ? input.outsideFinance.summary?.opposeTotal ?? null : null,
     sourceUrl:
       input.directFinance.summary.sourceUrl ??
       input.outsideFinance.summary?.sourceUrl ??
@@ -456,9 +456,11 @@ export async function syncMarylandCandidateFinance(
           maxGroups: input.outsideMaxGroups,
         })
       : emptyOutsideResult();
-  const outsideDataAvailable = input.expenditureRows !== undefined;
+  // A supplied export is not proof of candidate coverage: rejected identities,
+  // missing offices and malformed allocations must not clear accepted groups.
+  const outsideDataAvailable = input.expenditureRows !== undefined && outsideFinance.summary !== null;
   const outsideGroups: MarylandFinanceOutsideGroupInput[] | undefined =
-    input.expenditureRows !== undefined ? outsideFinance.summary?.groups ?? [] : undefined;
+    outsideDataAvailable ? outsideFinance.summary?.groups : undefined;
   const outsideGroupContributionFinance =
     outsideGroups !== undefined
       ? aggregateMarylandOutsideGroupContributions({
@@ -528,8 +530,8 @@ export async function syncMarylandCandidateFinance(
     outsideGroupBreakdownsWritten: input.dryRun ? 0 : outsideIndustryFinance.outsideGroupBreakdowns?.length ?? 0,
     totalReceipts: directFinance.summary.totalReceipts,
     directContributionTotal: directFinance.summary.directContributionTotal,
-    outsideSupportTotal: outsideDataAvailable ? outsideFinance.summary?.supportTotal ?? 0 : null,
-    outsideOpposeTotal: outsideDataAvailable ? outsideFinance.summary?.opposeTotal ?? 0 : null,
+    outsideSupportTotal: outsideDataAvailable ? outsideFinance.summary?.supportTotal ?? null : null,
+    outsideOpposeTotal: outsideDataAvailable ? outsideFinance.summary?.opposeTotal ?? null : null,
     matchedContributionRowCount: directFinance.matchedContributionRowCount,
     includedContributionRowCount: directFinance.includedContributionRowCount,
     skippedContributionRowCount: directFinance.skippedContributionRowCount,

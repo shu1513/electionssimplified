@@ -171,6 +171,38 @@ function expenditure(overrides: Partial<MarylandCfsExpenditureRow> = {}): Maryla
 }
 
 describe("marylandCandidateFinanceSync", () => {
+  it.each([
+    { reason: "empty source", rows: [] },
+    { reason: "unresolved committee target", rows: [expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Friends of" })] },
+    { reason: "missing target office", rows: [expenditure({ "Office Sought": "" })] },
+    { reason: "rejected stance", rows: [expenditure({ Position: "unknown" })] },
+  ])("preserves outside evidence for $reason while direct processing proceeds", async ({ rows }) => {
+    const db = createMockDb();
+    const result = await syncMarylandCandidateFinance({
+      db,
+      candidateId: CANDIDATE_ID,
+      electionId: ELECTION_ID,
+      candidateName: "Justin Gallucci",
+      electionYear: 2026,
+      officeScope: "state_upper",
+      officeName: "State Senator",
+      sourceUrl: SOURCE_URL,
+      trustedCommittee: { committeeId: "16018290", committeeName: "Gallucci, Justin Friends of" },
+      committeeRows: [],
+      contributionRows: [contribution()],
+      expenditureRows: rows,
+      now: new Date("2026-07-08T09:10:11.000Z"),
+    });
+    expect(result).toMatchObject({ directContributionTotal: 250, summaryWritten: true,
+      outsideSupportTotal: null, outsideOpposeTotal: null, outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0 });
+    const outsideMutations = db.query.mock.calls.filter(call =>
+      /(?:DELETE FROM|INSERT INTO) public\.md_candidate_finance_outside/.test(String(call[0])));
+    expect(outsideMutations).toHaveLength(0);
+    const summaryCall = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.md_candidate_finance_summaries"));
+    expect(summaryCall?.[1]?.slice(6,8)).toEqual([null,null]);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("INSERT INTO public.md_candidate_finance_direct_breakdowns"))).toBe(true);
+  });
+
   it("resolves a candidate committee, aggregates direct and outside data, and writes a snapshot", async () => {
     const db = createMockDb();
 

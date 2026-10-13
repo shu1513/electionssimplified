@@ -165,6 +165,12 @@ function targetMatchesCandidate(input: {
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
 }): boolean {
+  // Registry-name normalization is useful for discovering a receiver, but a
+  // committee label is not independent evidence of its candidate's identity.
+  // Keep these targets unresolved until an exact source-account bridge exists.
+  if (/\b(?:COMMITTEE|FRIENDS|CITIZENS|FOR|ELECT|PAC)\b/.test(normalizePositionKey(input.candidateBallotIssue))) {
+    return false;
+  }
   const targetKeys = normalizeMarylandCandidateNameKeys(input.candidateBallotIssue);
   if (targetKeys.size === 0) {
     return false;

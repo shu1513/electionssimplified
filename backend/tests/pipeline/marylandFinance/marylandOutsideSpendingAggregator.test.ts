@@ -47,6 +47,22 @@ function expenditure(overrides: Partial<MarylandCfsExpenditureRow> = {}): Maryla
 }
 
 describe("marylandOutsideSpendingAggregator", () => {
+  it("keeps committee-labelled targets unresolved even with a supplied matching office", () => {
+    const result = aggregateMarylandOutsideSpending({
+      candidateName: "Justin Gallucci",
+      officeName: "State Senator",
+      electionYear: 2026,
+      expenditureRows: [
+        expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Friends of" }),
+        expenditure({ "Candidate/Ballot Issue": "Friends of Justin Gallucci" }),
+        expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Committee for" }),
+      ],
+    });
+    expect(result.summary).toBeNull();
+    expect(result.matchedExpenditureRowCount).toBe(0);
+    expect(result.includedExpenditureRowCount).toBe(0);
+  });
+
   it("aggregates outside support and opposition groups by candidate, office, and position", () => {
     const sourceUrl = "https://campaignfinance.maryland.gov/public/cf/downloads";
     const result = aggregateMarylandOutsideSpending({
