@@ -243,6 +243,50 @@ describe("runUnlinkCandidateElection", () => {
     expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
   });
 
+  describe("composite (candidate_id, election_id) FKs", () => {
+    const ksPairFk = (column: string) => ({
+      constraint_name: "ks_independent_expenditure_eviden_candidate_id_election_id_fkey",
+      table_name: "public.ks_independent_expenditure_evidence",
+      column_name: column,
+      referenced_column: column,
+      column_count: 2,
+    });
+
+    it("unlinks when no rows reference the candidacy pair", async () => {
+      const { query, calls } = buildClient(
+        happyResponses({
+          "confrelid = 'public.candidate_elections'::regclass": [
+            { rows: [ksPairFk("candidate_id"), ksPairFk("election_id")] },
+          ],
+          "count(*)::text AS n FROM public.ks_independent_expenditure_evidence": [{ rows: [{ n: "0" }] }],
+        })
+      );
+
+      await runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false });
+      const count = calls.find((call) =>
+        call.text.includes("count(*)::text AS n FROM public.ks_independent_expenditure_evidence")
+      );
+      expect(count?.values).toEqual([CANDIDATE_ID, ELECTION_ID]);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(true);
+    });
+
+    it("refuses when rows reference the candidacy pair", async () => {
+      const { query, calls } = buildClient(
+        happyResponses({
+          "confrelid = 'public.candidate_elections'::regclass": [
+            { rows: [ksPairFk("candidate_id"), ksPairFk("election_id")] },
+          ],
+          "count(*)::text AS n FROM public.ks_independent_expenditure_evidence": [{ rows: [{ n: "4" }] }],
+        })
+      );
+
+      await expect(
+        runUnlinkCandidateElection({ query }, { candidateId: CANDIDATE_ID, electionId: ELECTION_ID, dryRun: false })
+      ).rejects.toThrow(/cascade or orphan: public.ks_independent_expenditure_evidence \(4\)/);
+      expect(calls.some((call) => call.text.includes("DELETE FROM public.candidate_elections"))).toBe(false);
+    });
+  });
+
   it("does not let the follow-notification events table trip the conflict scan", async () => {
     // The events table matches the scan's shape (FK to elections +
     // candidate_id column), but the wrapper handles it explicitly: unsent
