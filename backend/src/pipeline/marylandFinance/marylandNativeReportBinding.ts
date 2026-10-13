@@ -14,9 +14,9 @@ export class MarylandNativeReportBindingError extends Error {
     super(`Maryland native report binding: ${code}`);
   }
 }
-const fail = (code: ConstructorParameters<typeof MarylandNativeReportBindingError>[0]): never => {
+function fail(code: ConstructorParameters<typeof MarylandNativeReportBindingError>[0]): never {
   throw new MarylandNativeReportBindingError(code);
-};
+}
 
 /** Transient structural grouping, not collection/currentness/financial authority.
  * Keep unchanged economic occurrences that still point to a historical edition.
