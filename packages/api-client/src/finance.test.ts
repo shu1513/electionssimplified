@@ -76,6 +76,25 @@ describe("NYC finance shared fields", () => {
   });
 });
 
+describe("PAC-only finance content", () => {
+  it.each([4999, 5000, 9000])("applies the displayed PAC threshold to $%s without direct totals", (amount) => {
+    const summary = emptySummary();
+    summary.source = "NEVADA_AURORA";
+    summary.direct_campaign.pac_money_by_interest = [{
+      interest: "unclassified", interest_name: "Not yet sorted", amount,
+      pac_count: 1, pacs: [{ committee_id: "reported:EXAMPLE PAC", committee_name: "Example PAC", amount, source_url: null }],
+    }];
+    expect(hasFinanceContent(summary)).toBe(amount >= FINANCE_SMALL_AMOUNT_THRESHOLD);
+  });
+
+  it("distinguishes a loaded empty PAC component from unavailable evidence", () => {
+    const summary = emptySummary();
+    expect(hasFinanceContent(summary)).toBe(false);
+    summary.direct_campaign.pac_money_by_interest = [];
+    expect(hasFinanceContent(summary)).toBe(true);
+  });
+});
+
 describe("finance source provenance and coverage notes", () => {
   it("falls back to the Missouri disclosure portal when a zero snapshot has no breakdown URLs", () => {
     const summary = emptySummary();

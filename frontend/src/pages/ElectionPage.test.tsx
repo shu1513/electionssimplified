@@ -2317,6 +2317,8 @@ describe("ElectionPage ballot pager", () => {
     await user.click(await screen.findByRole("link", { name: "Next: Mayor" }));
     // The forwarded state re-renders the pager on the next page.
     await user.click(await screen.findByRole("link", { name: "Next: Sheriff" }));
+    // Router state can advance before React commits the destination pager.
+    await screen.findByRole("link", { name: "Previous: Mayor" });
 
     expect(router.state.location.pathname).toBe("/elections/e-3");
     expect(router.state.location.state).toEqual(ARRIVAL);

@@ -1,5 +1,69 @@
 # South Carolina Campaign Finance Plan
 
+## October 12, 2026 finance-gap continuation
+
+The candidate-only sync acquires no outside evidence, so omitted outside totals
+and groups now preserve previously stored values independently of direct cash.
+The reader describes incomplete coverage without treating missing values as zero.
+This foundation does not implement PAC donors or allocate vendor-only IE payments.
+Committee donors will follow Pennsylvania's reported-name fallback, adapted to
+SC's actual fields: `Group=Yes`, blank published occupation, and standalone
+PAC/Political/Committee or dotted P.A.C. evidence. SC publishes no employer field.
+Names are reported identities, not verified legal committee IDs or explicit PAC
+source types; generic Association/Union/League/Council and acronym suffixes alone
+are excluded. Distinct full names remain distinct. Prospective Guffey evidence:
+24 receipt occurrences, 22 reported-name groups, $13,999.26; these are source
+calculations, not canonical DB proof. Before writing, verify current report
+versions, complete cash/expense/return controls, exact organization occurrences,
+and unchanged independent financial observations. Net explicit returns by unique
+reported owner before recognition; never select a particular gift without a
+source reference. Unexplained returns preserve the entire donor component.
+Use the existing atomic snapshot hook, a small per-link donor table, and the
+existing interest card with unclassified names under Not yet sorted. Saved raw
+JSON precedes fresh acquisition; raw capture failure or inconsistent observations
+preserve donor rows independently of direct totals. No generic new framework.
+Outside allocation still needs an actual published candidate/stance allocation.
+Generic `Group=Yes` is not a PAC type; reported names and distinct source IDs must
+remain intact. No Original-only amendment policy or inferred return ownership.
+
+[Official election guidance](https://ethics.sc.gov/campaigns/election-material):
+combined quarterly/pre-election due October 19, covering through October 14.
+Mandatory fresh source rerun October 20; posting retry October 23. Nominal Q4
+deadline January 10, 2027 falls Sunday: Commission regulation 52-208(A) supports
+January 11; House/Senate applicability remains unverified. Refresh January 12,
+posting retry January 15, after checking separately issued legislative guidance.
+[Commission computation rule](https://www.scstatehouse.gov/query.php?category=CODEOFREGS&conid=7768413&keyval=99429&numrows=10&result_pos=50&search=DOC&searchtext=Regulations)
+and [appropriate supervisory office](https://www.scstatehouse.gov/code/t08c013.php)
+must not be conflated. `--refresh` bypasses staleness before LIMIT; candidate/year
+scopes also precede LIMIT. `--force` only overrides the sync feature flag.
+First/changed financial observation preserves donors and indexes the new closing;
+rerun the same scoped fresh command to obtain a second complete observation.
+Flags stay inline, AI false; no production or automatic reminders.
+The historical v1 outside-null/deletion contract below is superseded by these
+omission/preservation semantics. Source feature completion still requires ordinary
+local sync, real row counts and the production card reader before a state-only PR.
+
+Ordinary local sync proof (October 12 UTC): Brandon Guffey, filer 44315, 2026
+House District 48: 22 stored reported-name donor rows, 24 receipt occurrences,
+$13,999.26 net. Production reader returns the complete amount and 22-donor count
+under Not yet sorted, displaying five names. Raised remains $39,124.26; reported
+receipts $39,310.46, spent $26,875.15, cash $18,416.52. Outside totals remain NULL;
+vendor-only payments are not allocated. Migration 335 was applied normally to
+local Postgres and is immutable. No canonical money was manually injected.
+
+Fresh pre-election command (run again if donor diagnostics report a changed or
+missing opening; omit candidate scope for a full linked-candidate pass):
+
+```sh
+AI_API_CALLS_ALLOWED=false SOUTH_CAROLINA_CAMPAIGN_FINANCE_SYNC_ENABLED=true \
+  npm run south-carolina-candidates:finance:sync-due -- --refresh --no-auto-link \
+  --election-year 2026 --max-candidates 1000 --lookback-days 100
+```
+
+Use the configured local database and an ignored or external `--source-cache-dir`.
+Review per-candidate diagnostics and failed counts; an attempted pass is not proof
+of complete outside coverage. Later filings and amendments still require refresh.
+
 Written 2026-08-26 after a live feasibility probe of both South Carolina disclosure systems; revised same day after a design review was itself verified point-by-point with further live probes (ID-space check, McMaster 2022 cycle-reset evidence, shared writer/loader code reads). Source findings, verified numbers, endpoint shapes, and statute cites live in `backend/docs/south-carolina-campaign-finance.md`; this plan is the implementation contract. The module must stay isolated, flag-gated, conservative about identity, and reuse the shared standard-state finance infrastructure (`standardStateFinanceSnapshotWriter.ts`, `standardStateFinanceBallotLookupLoader.ts`, `standardStateFinanceDueListQuery.ts`).
 
 ## Verdict and v1 scope

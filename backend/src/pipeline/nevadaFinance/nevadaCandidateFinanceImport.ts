@@ -9,11 +9,15 @@ import {
   nevadaSlugForFilerName,
 } from "./nevadaAuroraArtifacts.js";
 import { nevadaFilerKey } from "./nevadaAuroraCsv.js";
+import { readNevadaCommitteeDonorObservation } from "./nevadaCommitteeDonorObservation.js";
 import { aggregateNevadaDirectContributions } from "./nevadaDirectContributionAggregator.js";
 import {
   resolveNevadaCandidateFilers,
   type NevadaResolverCandidate,
   type NevadaRosterEntry,
+  nevadaCandidateNamesMatch,
+  nevadaDistrictNumberFromName,
+  parseNevadaAuroraOffice,
 } from "./nevadaCandidateFilerResolver.js";
 import { NEVADA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./nevadaFinanceEligibleOffices.js";
 import { replaceNevadaCandidateFinanceSnapshot } from "./nevadaFinanceWriter.js";
@@ -26,14 +30,19 @@ import {
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
-function candidateDetailsUrl(detailToken: string, electionYear: number): string {
+function candidateDetailsUrl(
+  detailToken: string,
+  electionYear: number,
+): string {
   return `https://www.nvsos.gov/SOSCandidateServices/AnonymousAccess/CEFDSearchUU/CandidateDetails.aspx?o=${detailToken}&y=${electionYear}`;
 }
 
 function electionYearFromDate(electionDate: string): number {
   const match = electionDate.match(/^(\d{4})-\d{2}-\d{2}$/);
   if (!match) {
-    throw new Error(`Invalid election date ${JSON.stringify(electionDate)} (expected yyyy-mm-dd)`);
+    throw new Error(
+      `Invalid election date ${JSON.stringify(electionDate)} (expected yyyy-mm-dd)`,
+    );
   }
   return Number(match[1]);
 }
@@ -60,7 +69,11 @@ ORDER BY c.last_name, c.first_name
 export type NevadaAutoLinkResult = {
   electionYear: number;
   candidateCount: number;
-  matched: { candidateName: string; filerName: string; confirmedOffice: string }[];
+  matched: {
+    candidateName: string;
+    filerName: string;
+    confirmedOffice: string;
+  }[];
   skipped: { candidateName: string; reason: string; detail: string }[];
   linksWritten: number;
 };
@@ -96,11 +109,18 @@ export async function autoLinkNevadaCandidateFinance(input: {
   }));
 
   const rosterEntries: NevadaRosterEntry[] = [];
-  for (const entry of await readNevadaRosterArtifact(input.artifactDir, electionYear)) {
+  for (const entry of await readNevadaRosterArtifact(
+    input.artifactDir,
+    electionYear,
+  )) {
     let reportRows: NevadaRosterEntry["reportRows"] = [];
     try {
       reportRows = (
-        await readNevadaCandidateReportsArtifact(input.artifactDir, electionYear, entry.slug)
+        await readNevadaCandidateReportsArtifact(
+          input.artifactDir,
+          electionYear,
+          entry.slug,
+        )
       ).reportRows;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
@@ -113,7 +133,10 @@ export async function autoLinkNevadaCandidateFinance(input: {
     });
   }
 
-  const resolution = resolveNevadaCandidateFilers({ candidates, rosterEntries });
+  const resolution = resolveNevadaCandidateFilers({
+    candidates,
+    rosterEntries,
+  });
   let linksWritten = 0;
   if (input.write) {
     for (const match of resolution.matches) {
@@ -127,12 +150,17 @@ export async function autoLinkNevadaCandidateFinance(input: {
           candidateId: match.candidate.candidateId,
           electionId: match.candidate.electionId,
           electionYear,
-          candidateNameNormalized: match.candidate.candidateName.trim().replace(/\s+/g, " "),
+          candidateNameNormalized: match.candidate.candidateName
+            .trim()
+            .replace(/\s+/g, " "),
           officeName: match.candidate.officeCanonicalName,
           district: match.candidate.districtName,
           filerName: match.roster.name,
           linkSource: "aurora_search",
-          sourceUrl: candidateDetailsUrl(match.roster.detailToken, electionYear),
+          sourceUrl: candidateDetailsUrl(
+            match.roster.detailToken,
+            electionYear,
+          ),
           lastVerifiedAt: new Date(),
         },
       });
@@ -181,6 +209,9 @@ export type NevadaImportCandidateResult = {
   breakdownCount?: number;
   warnings: string[];
   reason?: string;
+  pacDonorCount?: number;
+  pacDonorAmount?: number;
+  sourcePeriodEnd?: string;
 };
 
 export type NevadaImportResult = {
@@ -199,15 +230,129 @@ export async function importNevadaCandidateFinance(input: {
   write: boolean;
   /** Optional filer-name filter (normalized comparison). */
   onlyFiler?: string | null;
+  /** Complete browser financial observation; imports only the donor component. */
+  committeeDonorArtifactPath?: string;
 }): Promise<NevadaImportResult> {
   const electionYear = electionYearFromDate(input.electionDate);
+  if (input.committeeDonorArtifactPath !== undefined) {
+    const source = await readNevadaCommitteeDonorObservation(
+      input.committeeDonorArtifactPath,
+    );
+    if (
+      source.electionYear !== electionYear ||
+      (input.onlyFiler &&
+        nevadaFilerKey(input.onlyFiler) !== nevadaFilerKey(source.filerName))
+    ) {
+      throw new Error(
+        "Nevada donor observation does not match requested filer/year",
+      );
+    }
+    const { rows: sourceLinks } = await input.db.query(
+      `SELECT link.*, (candidate.first_name || ' ' || candidate.last_name) AS canonical_candidate_name,
+        office.scope AS office_scope, office.canonical_name AS office_canonical_name,
+        district.name AS district_name, district.state AS canonical_state,
+        roster.status AS canonical_status, candidate.deleted_at AS candidate_deleted_at,
+        candidate.merged_into_candidate_id AS candidate_merged_into,
+        election.election_stage AS canonical_stage
+       FROM public.nv_candidate_finance_links AS link
+       JOIN public.candidates AS candidate ON candidate.id = link.candidate_id
+       JOIN public.elections AS election ON election.id = link.election_id
+       JOIN public.offices AS office ON office.id = election.office_id
+       JOIN public.districts AS district ON district.id = election.district_id
+       JOIN public.candidate_elections AS roster
+         ON roster.candidate_id = candidate.id AND roster.election_id = election.id
+       WHERE link.election_year = $1 AND link.filer_key = $2
+         AND link.link_status = 'active' AND election.election_date = $3::date`,
+      [electionYear, nevadaFilerKey(source.filerName), input.electionDate],
+    );
+    if (sourceLinks.length !== 1)
+      throw new Error(
+        "Nevada donor source requires one existing active receiving link",
+      );
+    const link = sourceLinks[0] as NevadaLinkRow & {
+      link_source: "manual" | "aurora_search";
+      canonical_candidate_name: string;
+      office_scope: string;
+      office_canonical_name: string;
+      district_name: string;
+      canonical_state: string;
+      canonical_status: string;
+      canonical_stage: string;
+      candidate_deleted_at: Date | null;
+      candidate_merged_into: string | null;
+      last_verified_at: Date | null;
+    };
+    const office = parseNevadaAuroraOffice(source.sourceOffice);
+    if (
+      link.canonical_state !== "NV" ||
+      link.canonical_status !== "declared" ||
+      link.canonical_stage !== "general" ||
+      link.candidate_deleted_at !== null ||
+      link.candidate_merged_into !== null ||
+      !nevadaCandidateNamesMatch(
+        link.canonical_candidate_name,
+        source.filerName,
+      ) ||
+      !office ||
+      office.officeScope !== link.office_scope ||
+      office.officeCanonicalName !== link.office_canonical_name ||
+      (office.officeScope !== "statewide" &&
+        office.districtNumber !==
+          nevadaDistrictNumberFromName(link.district_name))
+    ) {
+      throw new Error(
+        "Nevada donor source candidate/office/seat does not match canonical link",
+      );
+    }
+    const result: NevadaImportCandidateResult = {
+      filerName: source.filerName,
+      status: input.write ? "imported" : "dry_run_ok",
+      reportCount: source.reportCount,
+      itemizedContributionTotal: source.cashCents / 100,
+      pacDonorCount: source.pacDonors.length,
+      pacDonorAmount:
+        source.pacDonors.reduce(
+          (sum, donor) => sum + Math.round(donor.totalAmount * 100),
+          0,
+        ) / 100,
+      sourcePeriodEnd: source.pacDonorSource.periodEnd,
+      warnings: source.warnings,
+    };
+    if (input.write) {
+      await replaceNevadaCandidateFinanceSnapshot({
+        db: input.db,
+        link: {
+          candidateId: link.candidate_id,
+          electionId: link.election_id,
+          electionYear,
+          candidateNameNormalized: link.candidate_name_normalized,
+          officeName: link.office_name,
+          district: link.district,
+          filerName: link.filer_name,
+          linkSource: link.link_source,
+          sourceUrl: link.source_url,
+          lastVerifiedAt: link.last_verified_at,
+        },
+        pacDonors: source.pacDonors,
+        pacDonorSource: source.pacDonorSource,
+      });
+    }
+    return {
+      electionYear,
+      linkCount: 1,
+      monthsLoaded: [],
+      results: [result],
+      importedCount: input.write ? 1 : 0,
+      quarantinedCount: 0,
+    };
+  }
   const { rows } = await input.db.query(
     `SELECT candidate_id, election_id, election_year, candidate_name_normalized,
             office_name, district, filer_key, filer_name, source_url
      FROM nv_candidate_finance_links
      WHERE election_year = $1 AND link_status = 'active'
      ORDER BY filer_name`,
-    [electionYear]
+    [electionYear],
   );
   let links = rows as NevadaLinkRow[];
   if (input.onlyFiler) {
@@ -226,13 +371,20 @@ export async function importNevadaCandidateFinance(input: {
   for (const link of links) {
     const slug = nevadaSlugForFilerName(link.filer_name);
     try {
-      const reports = await readNevadaCandidateReportsArtifact(input.artifactDir, electionYear, slug);
+      const reports = await readNevadaCandidateReportsArtifact(
+        input.artifactDir,
+        electionYear,
+        slug,
+      );
       if (nevadaFilerKey(reports.name) !== link.filer_key) {
         throw new Error(
-          `reports.json filer ${JSON.stringify(reports.name)} does not match link ${JSON.stringify(link.filer_name)}`
+          `reports.json filer ${JSON.stringify(reports.name)} does not match link ${JSON.stringify(link.filer_name)}`,
         );
       }
-      const selection = selectNevadaCycleReports({ rows: reports.reportRows, electionYear });
+      const selection = selectNevadaCycleReports({
+        rows: reports.reportRows,
+        electionYear,
+      });
       if (selection.selected.length === 0) {
         results.push({
           filerName: link.filer_name,
@@ -277,7 +429,7 @@ export async function importNevadaCandidateFinance(input: {
     try {
       if (plan.selection.unrecognizedReportNames.length > 0) {
         warnings.push(
-          `unrecognized report names ignored: ${plan.selection.unrecognizedReportNames.join(" | ")}`
+          `unrecognized report names ignored: ${plan.selection.unrecognizedReportNames.join(" | ")}`,
         );
       }
       const parsedReports = [];
@@ -286,11 +438,14 @@ export async function importNevadaCandidateFinance(input: {
           input.artifactDir,
           electionYear,
           plan.slug,
-          report.syn
+          report.syn,
         );
         parsedReports.push({
           report,
-          summary: parseNevadaCandidateReportSummary(html, `${plan.link.filer_name} ${report.reportName}`),
+          summary: parseNevadaCandidateReportSummary(
+            html,
+            `${plan.link.filer_name} ${report.reportName}`,
+          ),
         });
       }
       const cycle = buildNevadaCycleSummary(parsedReports);
@@ -311,7 +466,7 @@ export async function importNevadaCandidateFinance(input: {
         throw new Error(
           `${aggregation.foreignReportYearRowCount} in-window contribution row(s) cite report years ` +
             `outside ${electionYear - 1}-${electionYear + 1}; likely a same-name filer collision ` +
-            `(the filer display name is the only CSV join key)`
+            `(the filer display name is the only CSV join key)`,
         );
       }
       const contributionSumCents = aggregation.directContributionTotalCents;
@@ -323,34 +478,41 @@ export async function importNevadaCandidateFinance(input: {
       const tolerance = (cents: number) => Math.ceil(Math.max(0, cents) * 0.01);
       if (
         contributionSumCents <
-          cycle.itemizedContributionFloorCents - tolerance(cycle.itemizedContributionFloorCents) ||
+          cycle.itemizedContributionFloorCents -
+            tolerance(cycle.itemizedContributionFloorCents) ||
         contributionSumCents >
-          cycle.itemizedContributionCeilingCents + tolerance(cycle.itemizedContributionCeilingCents)
+          cycle.itemizedContributionCeilingCents +
+            tolerance(cycle.itemizedContributionCeilingCents)
       ) {
         throw new Error(
           `contribution reconciliation failed: CSV sum ${contributionSumCents} outside ` +
-            `[${cycle.itemizedContributionFloorCents}, ${cycle.itemizedContributionCeilingCents}] cents (1% tolerance)`
+            `[${cycle.itemizedContributionFloorCents}, ${cycle.itemizedContributionCeilingCents}] cents (1% tolerance)`,
         );
       }
       let expenditureSumCents = 0;
       for (const row of expenditures.rows) {
-        if (row.filerKey !== plan.link.filer_key || row.isLegalDefenseFund) continue;
+        if (row.filerKey !== plan.link.filer_key || row.isLegalDefenseFund)
+          continue;
         if (row.date < periodStart || row.date > periodEnd) continue;
         expenditureSumCents += row.amountCents;
       }
       if (
         expenditureSumCents <
-          cycle.itemizedExpenseFloorCents - tolerance(cycle.itemizedExpenseFloorCents) ||
+          cycle.itemizedExpenseFloorCents -
+            tolerance(cycle.itemizedExpenseFloorCents) ||
         expenditureSumCents >
-          cycle.itemizedExpenseCeilingCents + tolerance(cycle.itemizedExpenseCeilingCents)
+          cycle.itemizedExpenseCeilingCents +
+            tolerance(cycle.itemizedExpenseCeilingCents)
       ) {
         throw new Error(
           `expenditure reconciliation failed: CSV sum ${expenditureSumCents} outside ` +
-            `[${cycle.itemizedExpenseFloorCents}, ${cycle.itemizedExpenseCeilingCents}] cents (1% tolerance)`
+            `[${cycle.itemizedExpenseFloorCents}, ${cycle.itemizedExpenseCeilingCents}] cents (1% tolerance)`,
         );
       }
       if (cycle.cashOnHandCents < 0) {
-        throw new Error(`negative ending fund balance ${cycle.cashOnHandCents} cents is not storable`);
+        throw new Error(
+          `negative ending fund balance ${cycle.cashOnHandCents} cents is not storable`,
+        );
       }
 
       // Loan rows carry no marker in the itemized CSV, so when the cycle has
@@ -360,7 +522,7 @@ export async function importNevadaCandidateFinance(input: {
       if (suppressBreakdowns) {
         warnings.push(
           `loan lines 2/3 total ${cycle.loanContributionCents} cents; ` +
-            `breakdowns suppressed (loan rows are unflagged in the CSV)`
+            `breakdowns suppressed (loan rows are unflagged in the CSV)`,
         );
       }
       const candidateResult: NevadaImportCandidateResult = {
@@ -370,8 +532,11 @@ export async function importNevadaCandidateFinance(input: {
         totalReceipts: cycle.totalReceiptsCents / 100,
         totalDisbursements: cycle.totalDisbursementsCents / 100,
         cashOnHand: cycle.cashOnHandCents / 100,
-        itemizedContributionTotal: aggregation.directContributionTotalCents / 100,
-        breakdownCount: suppressBreakdowns ? 0 : aggregation.directBreakdowns.length,
+        itemizedContributionTotal:
+          aggregation.directContributionTotalCents / 100,
+        breakdownCount: suppressBreakdowns
+          ? 0
+          : aggregation.directBreakdowns.length,
         warnings,
       };
       if (input.write) {
@@ -429,6 +594,8 @@ export async function importNevadaCandidateFinance(input: {
     monthsLoaded: contributions.monthsLoaded,
     results,
     importedCount,
-    quarantinedCount: results.filter((result) => result.status === "quarantined").length,
+    quarantinedCount: results.filter(
+      (result) => result.status === "quarantined",
+    ).length,
   };
 }
