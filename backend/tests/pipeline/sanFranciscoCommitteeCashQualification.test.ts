@@ -251,6 +251,52 @@ describe("qualifySanFranciscoCommitteeCash synthetic current source controls", (
       /late occurrence needs/,
     );
   });
+  it.each([null, "", "ORG", "PAC", "unknown"])(
+    "rejects a late contribution with unavailable donor class %s even with zero A/E controls",
+    (entityCode) => {
+      const x = input();
+      x.summaryRows[0]!.scheduleAItemizedCents = 0;
+      x.summaryRows[0]!.scheduleEItemizedCents = 0;
+      x.transactions = [row({ formType: "F497P1", entityCode })];
+      expect(() => qualifySanFranciscoCommitteeCash(x)).toThrow(
+        /class unavailable/,
+      );
+    },
+  );
+  it.each(["IND", "OTH", "PTY", "COM", "SCC"])(
+    "rejects an unknown late memo role for class %s",
+    (entityCode) => {
+      const x = input();
+      x.transactions.push(
+        row({
+          elementNid: "late",
+          formType: "F497P1",
+          entityCode,
+          memoCode: null,
+        }),
+      );
+      expect(() => qualifySanFranciscoCommitteeCash(x)).toThrow(
+        /memo role unavailable/,
+      );
+    },
+  );
+  it.each(["IND", "OTH", "PTY"])(
+    "excludes a known noncommittee late contribution: %s",
+    (entityCode) => {
+      const x = input();
+      x.transactions.push(
+        row({ elementNid: "late", formType: "F497P1", entityCode }),
+      );
+      expect(qualifySanFranciscoCommitteeCash(x).totalAmountCents).toBe(8000);
+    },
+  );
+  it("excludes a confirmed committee late memo occurrence", () => {
+    const x = input();
+    x.transactions.push(
+      row({ elementNid: "late", formType: "F497P1", memoCode: true }),
+    );
+    expect(qualifySanFranciscoCommitteeCash(x).totalAmountCents).toBe(8000);
+  });
   it("refuses possible untyped returns and ambiguous exact donor ownership", () => {
     const x = input();
     x.transactions[2]!.transactionCode = "OTHER";

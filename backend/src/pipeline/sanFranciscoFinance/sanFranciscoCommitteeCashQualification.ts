@@ -149,6 +149,10 @@ export function qualifySanFranciscoCommitteeCash(input: {
       );
     seen.add(row.elementNid);
     if (row.formType === "F497P1") {
+      if (row.memoCode !== true && row.memoCode !== false)
+        throw new Error("SF committee cash memo role unavailable");
+      if (!row.entityCode || !KNOWN_ENTITY_CODES.has(row.entityCode))
+        throw new Error("SF committee cash donor/return class unavailable");
       if (
         row.memoCode !== true &&
         (row.entityCode === "COM" || row.entityCode === "SCC")
