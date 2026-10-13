@@ -226,3 +226,27 @@ confirms that original gift's PAC/transfer role. Refund attribution follows
 the resolved original gift, not the refund's class or sign. Whole current
 schedule identity, all parent ownership and fresh publication closure remain
 necessary before the PAC writer/reader/card proof and Maryland PR.
+
+Parent ownership now closes independently. Thirty-one genuine public detail
+responses match their exact gift GUID, receiving name, giver, date and amount;
+the new normal detail client replays those unchanged originals and rejects
+missing/malformed selectors before any request. A source-null parent GUID was
+initially converted to an empty research selector and rejected by the API;
+that failed generation remains retained. The complete published prior cycle
+now supplies its exact numeric parent identity without guessing a GUID.
+
+The prior-cycle collection closes 39,208 rows across six scopes, 409 requests
+and 72,151,973 bytes, observed October 13 17:15:45.119–17:16:13.478 UTC.
+Independent checks resolve every missing current-cycle parent to a unique prior
+gift with the same owner/giver and ordered date/amount bounds. All 656 current
+refunds now join their original gifts across the two complete collections.
+Two reported TPOC refunds actually reference PAC transfer gifts: $1,000 and
+$6,000. Filtering solely by the refund's reported PAC class would miss $7,000.
+
+The unaccepted full-source diagnostic is 103 reported PAC transfer gifts,
+$146,410.44 gross, five resolved cash refunds totaling $11,500, and $134,910.44
+net across 51 positive and three zero positions. It is not a stored/card result.
+Current PDF occurrence identity, fresh closing publication and the ordinary
+writer/production reader/frontend proof still precede the Maryland PR. All
+243 Maryland tests and backend types pass; local finance hashes/cards remain
+identical to the pre-research baseline.
