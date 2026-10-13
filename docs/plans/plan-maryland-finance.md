@@ -153,3 +153,19 @@ Aggregation diagnostics remain available. This prevents stale-group deletion,
 truncated replacement and opposite-stance zero from an unqualified positive
 subset. It does not complete independent-expenditure acquisition; that still
 requires the genuine qualified source path and real local proof before the PR.
+
+## Native page primitive
+
+The normal public receipt client now uses the exact observed TCON builder,
+bounded private byte capture and strict declared/physical count, receiving,
+transaction/report identity/version and boolean checks. Distinct equal gifts
+and inactive/amended records stay distinct; repeated occurrences fail rather
+than being deduplicated. Its ordinary result omits source selectors and rows.
+Original callbacks retain private scope metadata; no headers/auth are stored.
+
+Offline replay verifies exact equality with the approved request and all 100
+original rows, SHA and original source times. No new source call or financial
+qualification comes from replay. All 192 Maryland tests/backend types pass.
+The separate published receipt popup makes unconditional child-return requests,
+so false hasChild cannot prove no returns. Grid/child overlap, amendments and
+net monetary roles remain gates before the complete census can become money.

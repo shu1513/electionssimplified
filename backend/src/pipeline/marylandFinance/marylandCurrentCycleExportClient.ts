@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { open, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import type { MarylandPublicContributionRequest } from "./marylandPublicContributionClient.js";
 
 const API = "https://api-campaignfinance.maryland.gov/api/";
 const EXPORT_URL = `${API}ExportPublicData/GetExportPublicDownloadData`;
@@ -32,7 +33,8 @@ export type MarylandCurrentCycleExportErrorCode =
   | "http_status"
   | "body_read_failed"
   | "capture_callback_failed"
-  | "invalid_cycle_lookup";
+  | "invalid_cycle_lookup"
+  | "invalid_contribution_page";
 export type MarylandCurrentCycleCapture<
   T = MarylandCurrentCycleExportRequest | null,
 > = Readonly<{
@@ -51,18 +53,18 @@ export type MarylandCurrentCycleCapture<
 export class MarylandCurrentCycleExportError extends Error {
   constructor(
     public readonly code: MarylandCurrentCycleExportErrorCode,
-    public readonly capture?: MarylandCurrentCycleCapture,
+    public readonly capture?: MarylandCurrentCycleCapture<unknown>,
   ) {
     super(`Maryland current-cycle source: ${code}`);
     this.name = "MarylandCurrentCycleExportError";
   }
 }
-type Options = {
+type Options<T = MarylandCurrentCycleExportRequest | null> = {
   outputPath: string;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   maxBytes?: number;
-  onCapture?: (capture: MarylandCurrentCycleCapture) => void | Promise<void>;
+  onCapture?: (capture: MarylandCurrentCycleCapture<T>) => void | Promise<void>;
 };
 
 /** Exact observed Angular filename format, in this client's local timezone.
@@ -92,10 +94,10 @@ export function buildMarylandCurrentCycleExportRequest(
 
 /** Writes a new private original, including partial/error bodies. It never
  * activates a cache, deletes a failed original, or overwrites an existing path. */
-async function capturePost<T extends MarylandCurrentCycleExportRequest | null>(
+async function capturePost<T extends Readonly<Record<string, unknown>> | null>(
   url: string,
   requestBody: T,
-  options: Options,
+  options: Options<T>,
   defaultBytes: number,
   maximum: number,
 ): Promise<MarylandCurrentCycleCapture<T>> {
@@ -263,6 +265,22 @@ export function downloadMarylandCurrentCycleExport(
     input,
     DEFAULT_EXPORT_BYTES,
     MAX_EXPORT_BYTES,
+  );
+}
+
+/** Closed public endpoint; shared original-byte transport, no arbitrary URL. */
+export function captureMarylandPublicContributionPost(
+  request: MarylandPublicContributionRequest,
+  options: Options<MarylandPublicContributionRequest>,
+): Promise<MarylandCurrentCycleCapture<MarylandPublicContributionRequest>> {
+  if ((options.timeoutMs ?? 30_000) > 30_000)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(
+    `${API}PublicGrid/GetContributionList`,
+    request,
+    { ...options, timeoutMs: options.timeoutMs ?? 30_000 },
+    MAX_LOOKUP_BYTES,
+    MAX_LOOKUP_BYTES,
   );
 }
 
