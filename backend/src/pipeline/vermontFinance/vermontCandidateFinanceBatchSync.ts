@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { isVermontCommitteeCashSyncEnabled } from "../../config/featureFlags.js";
 
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
 import {
@@ -329,6 +330,7 @@ export async function syncDueVermontCandidateFinance(
   assertValidDate(originalNow, "now");
   const options = {
     ...input,
+    committeeCashOnly: input.committeeCashOnly ?? isVermontCommitteeCashSyncEnabled(),
     now: new Date(originalNow.getTime()),
     vermontClientOptions: input.vermontClientOptions
       ? { ...input.vermontClientOptions }

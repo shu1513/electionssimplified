@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+afterEach(() => vi.unstubAllEnvs());
 
 import {
   listDueVermontCandidateFinanceSyncRows,
@@ -537,6 +538,20 @@ describe("Vermont opt-in committee cash batch", () => {
     });
     expect(legacy).not.toHaveBeenCalled();
     expect(result.results[0]?.error).toBe("Unknown report");
+  });
+  it("routes ordinary batch calls through cash-only when its rollout flag is enabled", async () => {
+    vi.stubEnv("VERMONT_CAMPAIGN_FINANCE_ENABLED","true");
+    vi.stubEnv("VERMONT_COMMITTEE_CASH_SYNC_ENABLED","true");
+    const query = vi.fn(async () => ({ rows: [dueRow()] }));
+    const legacy = vi.fn();
+    const cash = vi.fn(async () => ({ candidateId: CANDIDATE_ID,electionId: ELECTION_ID,
+      dryRun: false,written: false,status: "held" as const,diagnostics: ["Source coverage held"] }));
+    const result = await syncDueVermontCandidateFinance({ db: { query,connect: vi.fn() } as never,
+      now: NOW,syncVermontCandidateFinanceFn: legacy,syncVermontCommitteeCashFn: cash });
+    expect(cash).toHaveBeenCalledOnce();
+    expect(legacy).not.toHaveBeenCalled();
+    expect(result.autoLinkAttemptedCount).toBe(0);
+    expect(result.failedCandidateCount).toBe(1);
   });
   it("cash dry run uses the same isolated acquisition path", async () => {
     const query = vi.fn(async () => ({ rows: [dueRow()] }));

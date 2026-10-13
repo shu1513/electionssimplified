@@ -55,7 +55,55 @@ Sources: [public system](https://campaignfinance.vermont.gov/),
 [§2965](https://legislature.vermont.gov/statutes/section/17/061/02965),
 [§2971](https://legislature.vermont.gov/statutes/section/17/061/02971).
 
-## Actual acquisition proof, before financial writes
+## Actual local sync and remaining source limits
+
+The normal CLI completed a fresh cash-only sync for Phil Scott on October12
+local time (October13 UTC). It wrote one current reported-name TPAC position,
+one positive gift, $5,180. The production reader agrees and the actual
+FinanceSummaryCard renders $5,180 under “Not yet sorted.” The existing direct
+Raised figure remains $187,442.24 with its older observation. All 22 link hashes,
+22 direct summaries, 157 direct breakdowns and stored outside components match
+the prewrite baseline, including their timestamps.
+
+The normal source generation contains 20 untouched HTTP200 responses totaling
+6,083,730 bytes; every stored original hash and length was verified. Opening and
+closing regular-report inventories, cash rows, exact-receiver expenses and all
+six PDFs qualified independently. The accepted cash controls are $414,475.24;
+480 untyped receipts/$31,875.24 are excluded from PAC attribution. Coverage is
+December13/2024–September28/2026, not complete election-cycle activity.
+
+Actual local SQL with rollback-only receiver retargeting, duplicate receiving
+links and withdrawn status omitted PAC evidence; each rollback restored the
+real $5,180. No money fixtures were used. Overall candidate IE remains unknown;
+stored legacy transfer groups are preserved. The frontend's existing gate makes
+no outside-spending claim when every amount is unknown and groups are absent.
+Static rendering passed; browser file preview was blocked by its URL policy.
+
+Migration342 was applied by the normal local migrator and is now immutable:
+SHA256 `6c06798997785032148919805794cc0cf816c5da2164865295ec8d0a3b41c034`.
+353 focused backend checks including Vermont, CLI, scheduler and flags passed,
+along with 83 ballot-lookup tests, backend/frontend/mobile typechecks and
+migration-file checks. All 1,229 frontend/shared tests passed on actual Node23.9.0
+and frontend lint passed with existing warnings. The focused71 card/shared tests
+also passed on Node24.19.0. The full Node24 run hits an independently reproduced
+jsdom/Undici AbortSignal realm mismatch in unchanged router tests; it is not a
+finance regression. A small shared predicate shows PAC coverage notes even when
+no legacy direct summary exists, with an under-threshold regression check.
+
+The explicitly approved one public parent-detail lookup returned HTTP200/855
+bytes and confirmed the October11 $141,845 expenditure. Candidate, office,
+stance, allocated amount, independence and cycle fields were absent. This is
+not an acquired empty allocation table or a zero. No portion of the separate
+$252,826.90 two-candidate mass-media notice is assigned to Scott or Janoo.
+
+For release rollout, `VERMONT_COMMITTEE_CASH_SYNC_ENABLED=true` under the existing
+Vermont master/sync gates selects this isolated component in ordinary batch and
+worker calls. It skips legacy direct and transfer aggregation. The explicit CLI
+`--committee-cash-only` chooses the same path for local proof. Flags are passed
+inline; no `.env` editing or scheduling is part of this change. Planned late
+post-election reruns need `--lookback-days` sufficient to include their elections.
+
+## Earlier source-only evidence
 
 The complete normal paired acquisition subsequently passed on bundled Node
 24.19.0: 22 original HTTP responses including canonical lookups, 15 report
@@ -68,17 +116,18 @@ election. A prior paired attempt failed its PDF guard; its original captures are
 retained and the cause remains unproved. The local path named node@22 resolves
 to Node23.9.0; it must not be described as a Node22 validation run.
 
-The next isolated cash-only sync advances a retained donor-generation pointer,
+The isolated cash-only sync advances a retained donor-generation pointer,
 with exact accepted receiving context. Competing General owners, retargeted
 links, older or shortened periods, source failure and control mismatches hold
 the component. It does not rewrite direct totals, stored outside groups or their
 freshness. Reader totals for overall IE remain unknown. Independent public
-parent-detail investigation requires an exact lookup approval after automatic
-approval review rejected selector transmission; no request was made by that
-rejected action. Earlier public child-detail HTTP401 is a separate failure.
+parent-detail investigation received exact human approval after automatic
+approval review initially rejected selector transmission. The approved request
+completed once; the rejected attempt did not execute. Earlier public child-detail
+HTTP401 is a separate failure.
 
-Migration342 is new and unapplied at this checkpoint. Writer, normal CLI,
-production reader, real local write and actual card validation are pending.
+At that earlier checkpoint migration342, the real write and actual card were
+pending; the local proof above supersedes that status.
 Main now includes merged Phoenix1582, NewYork339 and SanFrancisco340; Vermont
 acquisition and qualification are committed and current main merged locally.
 
@@ -107,6 +156,6 @@ Ordinary expense/control residual$400 remains separate from PAC cash authority.
 Earlier checks:88 Vermont tests and backend typecheck passed. The exact-cent parser
 rejects subcent money and unsafe decimal/number roundtrips in receipts, transaction
 details and category totals. No Vermont migration, money write, frontend proof or
-PR has been completed. The read-only baseline has22 links/22 summaries/157 direct
+PR had been completed at that source-only stage. The read-only baseline has22 links/22 summaries/157 direct
 breakdowns/zero outside groups; preserve all unrelated components during the
 eventual normal write.
