@@ -257,6 +257,8 @@ describe("vermontCampaignFinanceClient", () => {
       { transactionAmount: "" },
       { transactionAmount: true },
       { transactionAmount: Number.MAX_SAFE_INTEGER },
+      { transactionAmount: "90071992547409.90" },
+      { transactionAmount: "90071992547409.91" },
     ]) {
       const fetchImpl = vi
         .fn()
@@ -547,7 +549,6 @@ describe("vermontCampaignFinanceClient", () => {
             transactionSourceTypeCode: "TBSN",
             transactionSourceType: "Business/Group/Organization",
           },
-          { amount: "bad" },
         ],
         succeeded: true,
         error: null,
