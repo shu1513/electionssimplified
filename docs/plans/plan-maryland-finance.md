@@ -83,6 +83,32 @@ page 1/100 request for the published 2023–2026 cycle returned HTTP 200/complet
 21:17:24.079–21:17:25.063 UTC. This is actual schema discovery, not a complete
 ledger or accepted outside amount.
 
+The reviewed normal native allocation client now acquires every requested page
+independently of receipt acquisition. Its closed global body has no account or
+additional search filters. Private original captures are bounded by per-page and
+whole-census deadlines/bytes/pages; observer and progress callbacks cannot stall
+past that deadline. Exact totals, every physical page and global allocation
+identity must close. Multiple targets sharing a parent remain distinct; a reused
+allocation identity changing target within one parent/report edition holds.
+Failure retains originals and grants no cache activation or financial verdict.
+
+The genuine full normal collection on October 13, 21:32:04.179–21:32:08.187 UTC,
+closes 1,066 declared/physical/unique allocations in 11 pages (2,173,075 bytes),
+515 parent editions and 154 target accounts. Explicit source subtype counts are
+1,061 independent expenditures and five electioneering communications; stance
+counts are 838 support and 228 oppose. There are 1,018 candidate-activity and 48
+noncandidate rows; the latter have no candidate GUID. Every office string is
+blank. Source election-year fields span 2023–2026 and cannot supply a canonical
+target office/election. All originals were rehashed and decoded through the
+normal client after acquisition. These are complete acquisition facts only:
+source target association, actual current report, return/offset and financial
+qualification still precede a candidate amount or replacement.
+
+All 46 focused native allocation tests and isolated strict module/test types
+pass. Independent review verified the two deadline/identity fixes and genuine
+first-page replay. No Maryland money write, candidate card or PR is claimed by
+this acquisition step.
+
 Native allocations expose source target/measure GUIDs, stance and applied amount
 separately from payer transaction amount, report GUID/version and transaction
 GUID/version. Static subtype enums distinguish independent expenditure TIEXP

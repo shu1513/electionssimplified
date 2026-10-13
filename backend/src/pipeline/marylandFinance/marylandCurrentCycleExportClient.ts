@@ -1,3 +1,7 @@
+import {
+  buildMarylandPublicIndependentExpenditureRequest,
+  type MarylandPublicIndependentExpenditureRequest,
+} from "./marylandPublicIndependentExpenditureClient.js";
 import { createHash } from "node:crypto";
 import { open, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -40,6 +44,7 @@ export type MarylandCurrentCycleExportErrorCode =
   | "body_read_failed"
   | "capture_callback_failed"
   | "invalid_cycle_lookup"
+  | "invalid_independent_expenditure_page"
   | "invalid_contribution_page"
   | "invalid_contribution_detail"
   | "invalid_report_inventory"
@@ -439,4 +444,31 @@ export async function getMarylandCurrentFilingCycles(input: Options): Promise<{
   } catch {
     throw new MarylandCurrentCycleExportError("invalid_cycle_lookup", capture);
   }
+}
+
+/** Closed exact statewide allocation route; no owner or additional filters. */
+export function captureMarylandPublicIndependentExpenditurePost(
+  request: MarylandPublicIndependentExpenditureRequest,
+  options: Options<MarylandPublicIndependentExpenditureRequest>,
+) {
+  if (!request || typeof request !== "object" || Array.isArray(request))
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const keys = Reflect.ownKeys(request), snapshot = { ...request };
+  const detached = buildMarylandPublicIndependentExpenditureRequest({
+    electionCycle: snapshot.electionCycle,
+    pageNumber: snapshot.pageNumber,
+  });
+  if (
+    keys.length !== Object.keys(detached).length ||
+    keys.some(key => typeof key !== "string" || !Object.hasOwn(detached, key) ||
+      snapshot[key as keyof typeof snapshot] !== detached[key as keyof typeof detached]) ||
+    (options.timeoutMs ?? 30_000) > 30_000
+  ) throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(
+    `${API}PublicGrid/GetIndependentExpenditureList`,
+    detached,
+    { ...options, timeoutMs: options.timeoutMs ?? 30_000 },
+    MAX_LOOKUP_BYTES,
+    MAX_LOOKUP_BYTES,
+  );
 }
