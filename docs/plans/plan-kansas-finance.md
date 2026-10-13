@@ -1,5 +1,87 @@
 # Kansas Campaign Finance Plan
 
+## October 12, 2026 independent IE acquisition
+
+The batch now acquires IndividualEntity independent-expenditure statements before
+the direct due list. Direct failures, an empty direct cohort and missing receiving
+finance links therefore do not suppress IE evidence. A genuine saved browser
+observation is used first; otherwise the native WebForms client searches and
+walks the actual result grid. Saved observations retain their actual timestamps
+and expire after 36 hours. Every accepted PDF is freshly fetched, restricted,
+cached immutably and matched to its reviewed original SHA and complete financial
+control. New/changed unreviewed documents preserve prior evidence and are reported
+pending. Browser observations are rendered source facts, never invented HTTP
+responses or source retrieval timestamps.
+
+Migration 336 adds independently stored literal IE rows with nullable qualified
+candidate/election references. No receiving-filer link or direct snapshot is
+created. Exact source name, Kansas House district and election context qualify
+targets; aliases, shared targets and unresolved names remain unmapped. The reader
+can show these itemized groups when the candidate has no direct-finance summary,
+and preserves existing direct amounts and freshness. Overall outside totals remain
+unknown, with the coverage gap stated beside the groups. Legacy transcriptions
+are not added again to the independent evidence view. New contributor-name output
+remains unpublished pending the existing review; group payer names are expenditure
+source roles, and the groups' funders are not published.
+
+Ordinary local source acquisition of six American Conservative Fund PDF records
+covered 14 complete financial pages, 61 printed rows and $802,098.06. Twenty-three
+rows resolve to four existing candidate/election contexts. Kyler Sweely, House 102,
+has seven itemized support rows/$78,683.40 across four PDFs, despite zero active
+direct-finance links. The production reader and actual frontend card expose that
+group while Raised and overall outside totals remain unknown. The direct cohort's
+125 summaries, amounts and September 6 timestamps are unchanged. This proves the
+independent bridge and the reviewed document coverage; it does not certify all
+188 native filings, every payer or every spending channel.
+
+Pre-general report due October 26, through October 22: obtain a genuinely new
+inventory and fresh PDFs October 27, retry October 30; catch up daily October 31–
+November 3 and retry November 6 for late posting. Reusing the old saved inventory
+does not satisfy these checks. New PDFs/changed originals require source-backed
+financial review before acceptance. January weekend treatment remains to verify.
+
+## October 12, 2026 outside-preservation foundation
+
+The candidate-only direct ledger remains unchanged. Accepted complete transcribed
+outside rows still replace their exact groups and numeric amounts. `none_found`,
+quarantined/checksum-rejected, shared/unallocated and unavailable outside outcomes
+now omit the outside component, preserving existing totals and rows. A failed
+outside loader is reported as `unavailable` without blocking valid direct totals;
+a direct ledger failure still preserves the whole snapshot at this baby step.
+No shared amount is split and no convenient subset of Masterson's statements is
+published as a complete candidate total. Explicit source-backed numeric zero and
+direct filed-zero handling retain their existing meaning. Atomic SQL failures
+still roll back all writes.
+
+This is a preservation fix only: no new live IE acquisition, donor recognition,
+PAC storage/reader, PDF currentness or complete-zero authority. It is insufficient
+for a state PR on its own. Named contributor publication remains the existing
+review question in the statutory section below; this foundation authorizes no
+new name-bearing product surface. Source availability and deadlines require
+fresh primary-source confirmation before any later acquisition rollout.
+
+The retained official [2026 calendar](https://kpdc.kansas.gov/wp-content/uploads/2025/07/CFAReportDueDates.pdf)
+lists pre-general due **October 26**, coverage **July 24–October 22**. Mandatory
+fresh source acquisition **October 27**, initial late-notice catch-up **October 30**,
+daily **October 31–November 3**, and publication-lag retry **November 6**.
+Last-minute notices can repeat regular report occurrences; do not double count.
+`--stale-after-days 0` already selects fresh linked snapshots, but cannot refresh
+government IE statements absent a live source path. `--force` bypasses only the
+sync subgate. `--refresh`, candidate UUID and election-year scopes now apply
+before the due-list LIMIT; they do not create new government source evidence.
+The live IndividualEntity paper grid uses `lblPaperDate_N`, now retained as a
+filed-date fallback after the existing candidate date fields. This does not
+establish an Original/current/amendment flag. Browser source research observed
+188 filings over ten pages, materially more than the 27-link archive, and only
+page one plus one actual paper opener were observed. The full current inventory
+and financial documents remain required before any complete-total authority.
+Never treat a reread of old transcriptions as genuine source
+refresh. January 10, 2027 weekend treatment remains unresolved; verify before
+January checks. No source calls, canonical money writes, migration or automation
+are part of this foundation. The historical outside-null clearing behavior below
+is superseded by these omission/preservation semantics.
+
+
 Written 2026-08-26, revised same day after adversarial review. Based on a live probe of the Kansas SOS CFR viewer and the KPDC scanned archive, with every load-bearing claim verified against primary sources (statute text, filed PDFs, live systems, VoteApp's own ballot data). Companion facts doc: `backend/docs/kansas-finance-feasibility.md`.
 
 Verdict: buildable. Viewer-first architecture — NOT PDF-first. The "last updated March 15, 2022" search on the KPDC site is a legacy app (`kansas.gov/ethics/EthicsSite/`); the live source is the SOS CFR viewer, which is public and current (contribution rows verified through 7/23/2026, IE filings listed through 8/20/2026).

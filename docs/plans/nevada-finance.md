@@ -28,13 +28,15 @@ legislature, state judicial — **195 filers for election year 2026**):
   fixture — not a statewide coverage estimate), via the existing donor/industry
   classifier
 
-Structural non-goals (Nevada does not disclose them — never synthesize):
+Source coverage limits (never synthesize missing fields):
 
 - donor occupation/employer: NRS 294A collects name + address only
-- candidate-level outside spending and support/oppose: the C&E expense
-  schedule has no target-candidate or stance field (verified on 2 IE filers +
-  1 PAC + the expenditure search schema). UI shows "not available in Nevada SOS report data".
-  Federal NV races keep the FEC path.
+- candidate-level outside spending and support/oppose: reviewed C&E expense
+  schedules identify vendors and amounts but do not establish allocated
+  candidates and stance. This is an integration coverage gap, not proof that
+  Nevada never publishes those details. Outside totals remain unknown until
+  target, direction and allocated amount are verified. Federal NV races keep
+  the FEC path. See `plan-nevada-finance-gaps.md` for the current donor-only seam.
 - county/city-jurisdiction filers (values 1–35 in the jurisdiction dropdown):
   deferable; same system if wanted later.
 

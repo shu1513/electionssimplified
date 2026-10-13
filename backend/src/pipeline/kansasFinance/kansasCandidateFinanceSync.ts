@@ -22,13 +22,10 @@
 // list), never $0. In-kind is a contribution but not a receipt, so the
 // direct total can exceed total receipts.
 //
-// Outside leg (Phase 5): the transcribed IE rows naming this link's recipe
-// (kansasOutsideSpendingAggregator.ts) become outside_support_total /
-// outside_oppose_total and one outside group per filer and direction. It
-// is isolated from the direct gate the North Dakota way — a filer period
-// failing its checksum writes null totals and no groups and is reported in
-// the result, never thrown — but it rides on the direct write, so a
-// candidate whose direct leg fails closed gets no outside figures either.
+// Outside leg (Phase 5): only accepted transcribed rows replace outside
+// figures/groups. Missing, quarantined, shared or unavailable evidence preserves
+// the prior component. A loader failure does not block valid direct totals.
+// The existing direct ownership/completeness gate still runs first.
 
 import type { Pool, PoolClient } from "pg";
 
@@ -48,6 +45,7 @@ import {
   replaceKansasCandidateFinanceSnapshot,
   type KansasFinanceLinkSource,
   type KansasFinanceSnapshotWriteResult,
+  type KansasFinanceSnapshotInput,
 } from "./kansasFinanceWriter.js";
 import {
   aggregateKansasOutsideSpending,
@@ -104,6 +102,7 @@ export type KansasCandidateFinanceSyncInput = {
 };
 
 export type KansasOutsideSpendingSummary =
+  | { status: "unavailable"; reasons: string[] }
   | { status: "none_found" }
   | { status: "unpublishable"; reasons: string[] }
   | { status: "partial_unallocated"; reasons: string[] }
@@ -255,15 +254,14 @@ export async function syncKansasCandidateFinance(input: KansasCandidateFinanceSy
   }
   const sourceUrl = input.link.sourceUrl?.trim() || KANSAS_CFR_LINK_SOURCE_URL;
 
-  // Outside leg: read after the direct gate passed, so a candidate that
-  // fails closed never touches the rows table. Totals are null unless the
-  // leg is "ok" (a candidate named by unallocated spending is "partial"
-  // and publishes nothing); the group list is always passed so stale
-  // groups clear.
+  // Direct ownership/completeness remains the gate at this foundation step.
+  // A failure in the independent outside leg cannot erase its last-good data.
   const loadOutsideRows = input.loadOutsideRows ?? createKansasOutsideRowLoader(input.db);
-  const outside = aggregateKansasOutsideSpending({ rows: await loadOutsideRows(input.electionYear), targetCommitteeId: recipe });
-  const outsideSummary: KansasOutsideSpendingSummary =
-    outside.status === "ok"
+  let outsideSummary: KansasOutsideSpendingSummary;
+  let outsideGroups: KansasFinanceSnapshotInput["outsideGroups"];
+  try {
+    const outside = aggregateKansasOutsideSpending({ rows: await loadOutsideRows(input.electionYear), targetCommitteeId: recipe });
+    outsideSummary = outside.status === "ok"
       ? {
           status: "ok",
           supportTotal: dollars(outside.supportCents, "outside support total"),
@@ -272,8 +270,7 @@ export async function syncKansasCandidateFinance(input: KansasCandidateFinanceSy
           statementCount: outside.statementCount,
         }
       : outside;
-  const outsideGroups =
-    outside.status === "ok"
+    outsideGroups = outside.status === "ok"
       ? outside.groups.map((group) => ({
           committeeId: group.committeeId,
           committeeName: group.committeeName,
@@ -281,7 +278,12 @@ export async function syncKansasCandidateFinance(input: KansasCandidateFinanceSy
           amount: dollars(group.amountCents, `outside group ${group.committeeName}`),
           sourceUrl: group.sourceUrl,
         }))
-      : [];
+      : undefined;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : "Unknown outside source failure";
+    outsideSummary = { status: "unavailable", reasons: [reason] };
+    figures.diagnostics.push(`outside unavailable: ${reason}`);
+  }
 
   let write: KansasFinanceSnapshotWriteResult | null = null;
   if (!dryRun) {
@@ -304,11 +306,12 @@ export async function syncKansasCandidateFinance(input: KansasCandidateFinanceSy
       syncedAt: now,
       summary: {
         ...figures.summary,
-        outsideSupportTotal: outsideSummary.status === "ok" ? outsideSummary.supportTotal : null,
-        outsideOpposeTotal: outsideSummary.status === "ok" ? outsideSummary.opposeTotal : null,
+        ...(outsideSummary.status === "ok"
+          ? { outsideSupportTotal: outsideSummary.supportTotal, outsideOpposeTotal: outsideSummary.opposeTotal }
+          : {}),
         sourceUrl,
       },
-      // [] clears stale rows when this run has none (both lists).
+      // Direct breakdowns keep their existing filed-data/zero semantics.
       directBreakdowns: figures.breakdowns.map((breakdown) => ({
         categoryType: breakdown.categoryType,
         categoryName: breakdown.categoryName,

@@ -610,6 +610,24 @@ describe("checkKansasScheduleB", () => {
 });
 
 describe("parseKansasCfrGridRows", () => {
+  it("retains the IndividualEntity paper filed date without inventing currentness or a durable ID", () => {
+    const html = `
+      <span id="gvIndividualEntity_lblPaperDate_0">10/08/2026</span>
+      <a id="gvIndividualEntity_lnkbtnName_0" href="javascript:__doPostBack(&#39;gvIndividualEntity$ctl02$lnkbtnName&#39;,&#39;&#39;)">EXAMPLE SPENDER</a>
+      <img id="gvIndividualEntity_paper_0" title="Paper Filing" src="../../images/pdficon_small.gif" />
+      <span id="gvIndividualEntity_labelOfficeSought_0">INDIVIDUAL ENTITY</span>
+      <span id="gvIndividualEntity_lblDistrictNumber_0"></span>`;
+    expect(parseKansasCfrGridRows(html, "gvIndividualEntity")).toEqual([{
+      index: 0, fileDate: "10/08/2026", amendmentDate: "", amendmentNo: "",
+      name: "EXAMPLE SPENDER", officeSought: "INDIVIDUAL ENTITY", district: "",
+      channel: "paper", postbackTarget: "gvIndividualEntity$ctl02$lnkbtnName",
+    }]);
+    // The fallback must not displace the existing Candidate source date fields.
+    const oldFields = `<span id="gvIndividualEntity_lblOriginalDate_0">08/19/2026</span>` + html;
+    expect(parseKansasCfrGridRows(oldFields, "gvIndividualEntity")[0]?.fileDate).toBe("08/19/2026");
+    const efileField = `<span id="gvIndividualEntity_lblDate_0">07/27/2026</span>` + oldFields;
+    expect(parseKansasCfrGridRows(efileField, "gvIndividualEntity")[0]?.fileDate).toBe("07/27/2026");
+  });
   it("classifies e-filed and paper rows (live grid shapes)", () => {
     const html = `
       <span id="grdviewCfrResults_lblDate_0">07/27/2026</span>
