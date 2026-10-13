@@ -250,6 +250,7 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
   )
     throw new Error("Phoenix outside write mode is invalid");
   const outsideKeys = new Set<string>();
+  const registeredPayers = new Set<string>();
   for (const group of snapshot.outsideGroups ?? []) {
     const key = JSON.stringify([
       text(group.spenderFilerId, "spender filer id"),
@@ -272,6 +273,17 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
     if (outsideKeys.has(key))
       throw new Error("Phoenix outside group key is repeated");
     outsideKeys.add(key);
+    if (/^PAC-\d{2}-0*[1-9]\d*$/.test(group.spenderFilerId.trim())) {
+      const payerKey = JSON.stringify([
+        group.spenderFilerId.trim(),
+        group.supportOppose,
+      ]);
+      if (registeredPayers.has(payerKey))
+        throw new Error(
+          "Phoenix registered outside payer direction is repeated",
+        );
+      registeredPayers.add(payerKey);
+    }
   }
   for (const [value, label] of [
     [snapshot.summary.outsideSupportCents, "outside support"],
@@ -363,9 +375,24 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
         `DELETE FROM public.phx_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2`,
         [linkId, year],
       );
-    // Positive known allocations refresh their exact stored group key;
-    // absent payers or directions survive a partial observation.
-    for (const group of snapshot.outsideGroups ?? [])
+    // Registered PAC identity survives a display-name correction. Remove
+    // only its obsolete names in the refreshed direction; absent payers,
+    // other directions, and id-less curated identities remain untouched.
+    for (const group of snapshot.outsideGroups ?? []) {
+      if (
+        snapshot.outsideWriteMode === "upsert" &&
+        /^PAC-\d{2}-0*[1-9]\d*$/.test(group.spenderFilerId.trim())
+      )
+        await client.query(
+          `DELETE FROM public.phx_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2 AND spender_filer_id=$3 AND support_oppose=$4 AND spender_name<>$5`,
+          [
+            linkId,
+            year,
+            group.spenderFilerId.trim(),
+            group.supportOppose,
+            group.spenderName.trim(),
+          ],
+        );
       await client.query(
         `INSERT INTO public.phx_candidate_finance_outside_groups (link_id,election_year,spender_filer_id,spender_name,support_oppose,amount,expenditure_count,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9::timestamptz) ON CONFLICT (link_id,election_year,spender_filer_id,spender_name,support_oppose) DO UPDATE SET amount=EXCLUDED.amount,expenditure_count=EXCLUDED.expenditure_count,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
         [
@@ -380,6 +407,7 @@ export async function replacePhoenixCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
+    }
     for (const classification of snapshot.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");

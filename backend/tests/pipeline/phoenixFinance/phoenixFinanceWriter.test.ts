@@ -189,13 +189,19 @@ describe("Phoenix finance writer", () => {
         },
       ],
     });
-    expect(
-      query.mock.calls.some(([sql]) =>
-        String(sql).startsWith(
-          "DELETE FROM public.phx_candidate_finance_outside_groups",
-        ),
+    const cleanup = query.mock.calls.find(([sql]) =>
+      String(sql).startsWith(
+        "DELETE FROM public.phx_candidate_finance_outside_groups",
       ),
-    ).toBe(false);
+    );
+    expect(cleanup?.[1]).toEqual([
+      "link-1",
+      2026,
+      "PAC-25-9",
+      "support",
+      "KNOWN PAYER",
+    ]);
+    expect(String(cleanup?.[0])).toContain("spender_name<>$5");
     const group = query.mock.calls.find(([sql]) =>
       String(sql).startsWith(
         "INSERT INTO public.phx_candidate_finance_outside_groups",
@@ -212,6 +218,95 @@ describe("Phoenix finance writer", () => {
       1,
     ]);
   });
+
+  it.each(["PAC-25-9", "PAC-04-01"])(
+    "refreshes renamed registered PAC %s without duplicating its allocation",
+    async (payerId) => {
+      const stored = new Map<string, unknown[]>();
+      const query = queryMock();
+      const base = query.getMockImplementation()!;
+      query.mockImplementation((sql: string, values: unknown[] = []) => {
+        if (
+          sql.startsWith(
+            "DELETE FROM public.phx_candidate_finance_outside_groups",
+          )
+        ) {
+          // Model the scoped cleanup: link, year, registered payer, direction,
+          // and an obsolete display name. Other payers/directions must survive.
+          expect(sql).toContain("spender_filer_id=$3");
+          expect(sql).toContain("support_oppose=$4");
+          expect(sql).toContain("spender_name<>$5");
+          for (const [key, row] of stored) {
+            if (
+              row[0] === values[0] &&
+              row[1] === values[1] &&
+              row[2] === values[2] &&
+              row[4] === values[3] &&
+              row[3] !== values[4]
+            )
+              stored.delete(key);
+          }
+        }
+        if (
+          sql.startsWith(
+            "INSERT INTO public.phx_candidate_finance_outside_groups",
+          )
+        ) {
+          stored.set(JSON.stringify(values.slice(0, 5)), [...values]);
+        }
+        return base(sql, values);
+      });
+      const db = {
+        connect: vi.fn().mockResolvedValue({ query, release: vi.fn() }),
+      };
+      const payer = {
+        spenderFilerId: payerId,
+        spenderName: "OLD PAC NAME",
+        supportOppose: "support" as const,
+        amountCents: 200000,
+        expenditureCount: 2,
+      };
+      await replacePhoenixCandidateFinanceSnapshot({
+        db: db as never,
+        link,
+        summary,
+        directBreakdowns: [],
+        outsideGroups: [
+          payer,
+          { ...payer, supportOppose: "oppose", amountCents: 50000 },
+          { ...payer, spenderFilerId: "PAC-25-10", amountCents: 30000 },
+          {
+            ...payer,
+            spenderFilerId: "filing-ref",
+            spenderName: "CURATED A",
+            amountCents: 10000,
+          },
+        ],
+      });
+      await replacePhoenixCandidateFinanceSnapshot({
+        db: db as never,
+        link,
+        summary,
+        directBreakdowns: [],
+        outsideGroups: [
+          { ...payer, spenderName: "CORRECTED PAC NAME", amountCents: 150000 },
+          {
+            ...payer,
+            spenderFilerId: "filing-ref",
+            spenderName: "CURATED B",
+            amountCents: 20000,
+          },
+        ],
+      });
+      expect([...stored.values()].map((row) => row.slice(2, 6))).toEqual([
+        [payerId, "OLD PAC NAME", "oppose", "500.00"],
+        ["PAC-25-10", "OLD PAC NAME", "support", "300.00"],
+        ["filing-ref", "CURATED A", "support", "100.00"],
+        [payerId, "CORRECTED PAC NAME", "support", "1500.00"],
+        ["filing-ref", "CURATED B", "support", "200.00"],
+      ]);
+    },
+  );
 
   it("clears groups only for explicit complete empty replacement", async () => {
     const query = queryMock();
@@ -275,6 +370,7 @@ describe("Phoenix finance writer", () => {
       [{ ...valid, expenditureCount: 1.5 }],
       [{ ...valid, supportOppose: "unknown" }],
       [valid, { ...valid }],
+      [valid, { ...valid, spenderName: "OTHER NAME FOR SAME PAC" }],
     ]) {
       const connect = vi.fn();
       await expect(

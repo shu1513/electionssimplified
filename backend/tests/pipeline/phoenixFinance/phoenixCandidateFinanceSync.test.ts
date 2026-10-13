@@ -194,13 +194,16 @@ describe("Phoenix candidate finance sync", () => {
         ),
       ),
     ).toBe(true);
-    expect(
-      clientQuery.mock.calls.some(([sql]) =>
-        String(sql).startsWith(
-          "DELETE FROM public.phx_candidate_finance_outside_groups",
-        ),
-      ),
-    ).toBe(false);
+    const outsideDeletes = clientQuery.mock.calls.filter(([sql]) =>
+      String(sql).startsWith("DELETE FROM public.phx_candidate_finance_outside_groups"),
+    );
+    expect(outsideDeletes).toHaveLength(1);
+    expect(String(outsideDeletes[0]?.[0])).toContain(
+      "AND spender_filer_id=$3 AND support_oppose=$4 AND spender_name<>$5",
+    );
+    expect(outsideDeletes[0]?.[1]).toEqual([
+      "link-1", 2026, "PAC-22-14", "support", "Some IE PAC",
+    ]);
     const summary = clientQuery.mock.calls.find(([sql]) =>
       String(sql).startsWith(
         "INSERT INTO public.phx_candidate_finance_summaries",
