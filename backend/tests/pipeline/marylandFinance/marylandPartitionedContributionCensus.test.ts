@@ -1,7 +1,7 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { acquireMarylandPartitionedContributionCensus } from "../../../src/pipeline/marylandFinance/marylandPartitionedContributionCensus.js";
 
 const OWNER = "11111111-1111-4111-8111-111111111111";
@@ -11,7 +11,7 @@ async function directory() {
   const parent = await mkdtemp(join(tmpdir(), "md-partitions-")); directories.push(parent);
   return join(parent, "originals");
 }
-afterEach(async () => {await Promise.all(directories.splice(0).map(path => rm(path, {recursive: true, force: true})));});
+afterEach(async () => {vi.useRealTimers(); await Promise.all(directories.splice(0).map(path => rm(path, {recursive: true, force: true})));});
 function row(id: number, date: string) {
   return {filerRegistrationGuid: OWNER, electionCycleId: 12023,
     transactionGuid: `${String(id).padStart(8, "0")}-1111-4111-8111-111111111111`,
@@ -68,9 +68,17 @@ describe("Maryland complete disjoint receipt acquisition", () => {
   });
   it("bounds stalled progress after retaining genuine complete originals", async () => {
     const path = await directory();
-    await expect(acquireMarylandPartitionedContributionCensus({...scope, outputDirectory: path,
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout", "performance"]});
+    let progressEntered!: () => void;
+    const entered = new Promise<void>(resolve => {progressEntered = resolve;});
+    const held = expect(acquireMarylandPartitionedContributionCensus({...scope, outputDirectory: path,
       fetchImpl: source([row(1, "2026-08-18")]) as typeof fetch, totalTimeoutMs: 100,
-      onProgress: () => new Promise(() => {})})).rejects.toMatchObject({code: "timeout"});
+      onProgress: () => {progressEntered(); return new Promise(() => {});}})).rejects.toMatchObject({code: "timeout"});
+    // Advance the unchanged deadline only after this observer is actually stalled;
+    // local filesystem/CPU contention cannot turn this into a pre-capture test.
+    await entered;
+    await vi.advanceTimersByTimeAsync(100);
+    await held;
     expect(JSON.parse(await readFile(join(path, "scope-001", "page-0001.original.json"), "utf8")).data.totalItems).toBe(1);
   });
   it("reports request-budget exhaustion after preserving originals without sending another request", async () => {
