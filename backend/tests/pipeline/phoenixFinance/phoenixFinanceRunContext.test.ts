@@ -181,6 +181,65 @@ describe("Phoenix city IE run context", () => {
       ).rejects.toThrow(/expense grid/);
     },
   );
+  it("separates a merged report-period row from its adjacent filing-window cells", async () => {
+    const source = pages("February 26, 2023", "March 31, 2023");
+    const period = source[0]!.lines.find((line) =>
+      line.text.startsWith("Quarterly Report:"),
+    )!;
+    period.cells = [
+      {
+        text: "2023 1st Quarter, Post-Election Report: February 26, 2023 to March 31, 2023",
+        x: 72,
+      },
+      { text: "April 01, 2023 to April 17, 2023", x: 375.052 },
+    ];
+    period.text = period.cells.map((cell) => cell.text).join(" ");
+    extracted.set(`%PDF ${first}`, source);
+    extracted.set(`%PDF ${second}`, pages("April 01, 2023", "June 30, 2023"));
+    expect(
+      (
+        await loadPhoenixFinanceRunContext({
+          cache,
+          fetchImpl: transport([row(), row(second)]),
+        })
+      ).outsidePool,
+    ).toHaveLength(2);
+  });
+
+  it("reads the witnessed legacy wrapped PAC period without booking the adjacent filing window", async () => {
+    const legacy = pages("January 01, 2021", "February 20, 2021");
+    const period = legacy[0]!.lines.find((line) =>
+      line.text.startsWith("Quarterly Report:"),
+    )!;
+    period.text =
+      "2021 1st Quarter, Pre-Election Report (PAC): January 01, 2021 to February 20,";
+    period.cells = [{ text: period.text, x: 72 }];
+    period.y = 531.2;
+    legacy[0]!.lines.push(
+      line("February 21, 2021 to March 01, 2021", 526.6, [
+        { text: "February 21, 2021 to March 01, 2021", x: 375 },
+      ]),
+      line("2021", 522, [{ text: "2021", x: 72 }]),
+    );
+    extracted.set(`%PDF ${first}`, legacy);
+    extracted.set(
+      `%PDF ${second}`,
+      pages("February 21, 2021", "March 31, 2021"),
+    );
+    expect(
+      (
+        await loadPhoenixFinanceRunContext({
+          cache,
+          fetchImpl: transport([row(), row(second)]),
+        })
+      ).outsidePool,
+    ).toHaveLength(2);
+    legacy[0]!.lines = legacy[0]!.lines.filter((line) => line.text !== "2021");
+    await expect(
+      loadPhoenixFinanceRunContext({ cache, fetchImpl: transport([row()]) }),
+    ).rejects.toThrow(/legacy reporting-period year/);
+  });
+
   it("retains full prefix query closure but never fetches or books foreign packages", async () => {
     const fetchImpl = transport([
       row(),

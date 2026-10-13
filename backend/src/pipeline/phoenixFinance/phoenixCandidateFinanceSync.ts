@@ -280,10 +280,11 @@ export async function loadPhoenixFinanceRunContext(
         );
       }
     }
-    const b6Rows = expenditureRows.filter((row) =>
-      typeof row.COPID === "string" &&
-      row.COPID.trim().toUpperCase() === pac.copId &&
-      /B\(6\)/.test(String(row.ReportScheduleName ?? "")),
+    const b6Rows = expenditureRows.filter(
+      (row) =>
+        typeof row.COPID === "string" &&
+        row.COPID.trim().toUpperCase() === pac.copId &&
+        /B\(6\)/.test(String(row.ReportScheduleName ?? "")),
     );
     if (b6Rows.length === 0) continue;
     const refs: PhoenixReportRef[] = [];
@@ -334,21 +335,89 @@ export async function loadPhoenixFinanceRunContext(
       );
       if (coverPages.length !== 1)
         throw new Error("Phoenix IE PDF has no unique financial cover");
-      const cover = parsePhoenixReportCover(coverPages[0]!);
-      if (cover.periodFrom > cover.periodTo)
+      const coverPage = coverPages[0]!;
+      const datePattern =
+        "(January|February|March|April|May|June|July|August|September|October|November|December) ";
+      const periodRows = coverPage.lines.filter((line) =>
+        /Report[^:]*:\s+\w+ \d{2}, \d{4} to /.test(line.text),
+      );
+      if (periodRows.length !== 1)
+        throw new Error("Phoenix IE PDF has no unique reporting-period field");
+      const periodRow = periodRows[0]!;
+      // The observed cover table places the filing-window cell at x≈375.
+      // Positioned extraction can merge both cells onto one line; only the
+      // left report-period cell supplies these dates.
+      let periodText = periodRow.cells
+        .filter((cell) => cell.x < 375)
+        .map((cell) => cell.text)
+        .join(" ");
+      // Observed legacy PAC cover: the left report cell wraps only the end
+      // year. The adjacent right cell is a filing window, not a report period.
+      if (/Report \(PAC\):.* to \w+ \d{2},$/.test(periodText)) {
+        const leftX = periodRow.cells[0]?.x;
+        const years = coverPage.lines
+          .filter((line) => periodRow.y > line.y && periodRow.y - line.y <= 12)
+          .flatMap((line) => line.cells)
+          .filter(
+            (cell) =>
+              leftX !== undefined &&
+              cell.x <= leftX + 2 &&
+              /^\d{4}$/.test(cell.text),
+          );
+        if (years.length !== 1)
+          throw new Error(
+            "Phoenix IE legacy reporting-period year is unavailable or ambiguous",
+          );
+        periodText += ` ${years[0]!.text}`;
+      }
+      const dates = new RegExp(
+        `Report[^:]*:\\s+(${datePattern}\\d{2}, \\d{4}) to (${datePattern}\\d{2}, \\d{4})$`,
+      ).exec(periodText);
+      if (!dates)
+        throw new Error(
+          "Phoenix IE PDF reporting-period grammar is unavailable",
+        );
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const date = (text: string): string => {
+        const parts = /^(\w+) (\d{2}), (\d{4})$/.exec(text)!;
+        const iso = `${parts[3]}-${String(months.indexOf(parts[1]!) + 1).padStart(2, "0")}-${parts[2]}`;
+        const value = new Date(`${iso}T00:00:00Z`);
+        if (
+          !Number.isFinite(value.getTime()) ||
+          value.toISOString().slice(0, 10) !== iso
+        )
+          throw new Error(
+            "Phoenix IE PDF reporting period has invalid civil date",
+          );
+        return iso;
+      };
+      const periodFrom = date(dates[1]!);
+      const periodTo = date(dates[3]!);
+      if (periodFrom > periodTo)
         throw new Error("Phoenix IE PDF has reversed cover period");
       if (
         periods.some(
-          (period) =>
-            cover.periodFrom <= period.to && period.from <= cover.periodTo,
+          (period) => periodFrom <= period.to && period.from <= periodTo,
         )
       ) {
         throw new Error(
           "Phoenix IE PAC has overlapping B(6) report periods; published edition authority is unresolved",
         );
       }
-      periods.push({ from: cover.periodFrom, to: cover.periodTo });
-
+      periods.push({ from: periodFrom, to: periodTo });
       const entries = pages
         .filter((page) => isPhoenixB6Page(page))
         .flatMap((page) => parsePhoenixB6Entries(page));
