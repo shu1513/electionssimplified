@@ -13,6 +13,62 @@ const SF_COUNTY_ELECTION = {
 };
 
 describe("San Francisco ballot finance loader", () => {
+  it("reads all signed committee positions before display grouping and preserves their own observation date", async () => {
+    vi.stubEnv("SAN_FRANCISCO_CAMPAIGN_FINANCE_ENABLED", "true");
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes("summary.total_receipts"))
+        return {
+          rows: [
+            {
+              candidate_id: "c",
+              election_id: "e",
+              fppc_id: "1499514",
+              election_year: 2026,
+              direct_contribution_total: "104832",
+              total_receipts: "260136",
+              last_synced_at: "2026-10-12",
+              source_url: "https://sfethics.org",
+            },
+          ],
+        };
+      if (sql.includes("sfc_candidate_finance_pac_donors"))
+        return {
+          rows: [
+            {
+              candidate_id: "c",
+              election_id: "e",
+              committee_id: "reported:COM:COMMUNITY ALLIANCE",
+              committee_name: "Community Alliance",
+              amount: "750",
+              source_url: "https://data.sfgov.org/d/pitq-e56w",
+              reported_through: "2026-09-19",
+              last_synced_at: "2026-10-10T12:00:00Z",
+            },
+          ],
+        };
+      return { rows: [] };
+    });
+    const map =
+      await loadSanFranciscoCandidateFinanceSummariesByCandidateElection(
+        { query } as never,
+        [{ candidate_id: "c", election_id: "e" }],
+        [SF_COUNTY_ELECTION],
+      );
+    expect(map.get("c\u0000e")?.direct_campaign).toMatchObject({
+      total_raised: 104832,
+      pac_money_by_interest: [
+        { interest: "unclassified", amount: 750, pac_count: 1 },
+      ],
+      direct_coverage_note: expect.stringContaining("last checked 2026-10-10"),
+    });
+    const sql = query.mock.calls.find(([sql]) =>
+      sql.includes("sfc_candidate_finance_pac_donors"),
+    )![0];
+    expect(sql).toContain("sum(d.amount)");
+    expect(sql).not.toMatch(/(?:WHERE|AND)\s+d.amount\s*>/i);
+    expect(sql).not.toContain("LIMIT");
+  });
+
   it("maps a DB snapshot and prefers donor money for total_raised", async () => {
     vi.stubEnv("SAN_FRANCISCO_CAMPAIGN_FINANCE_ENABLED", "true");
     const query = vi
@@ -68,7 +124,8 @@ describe("San Francisco ballot finance loader", () => {
             source_url: null,
           },
         ],
-      });
+      })
+      .mockResolvedValue({ rows: [] });
     const result =
       await loadSanFranciscoCandidateFinanceSummariesByCandidateElection(
         { query } as never,

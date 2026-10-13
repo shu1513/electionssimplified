@@ -207,6 +207,30 @@ describe("newYorkSodaClient", () => {
     expect(parents.get("M-2")).toHaveLength(2);
   });
 
+  it("rejects incomplete typed PAC monetary receipts instead of publishing a partial donor snapshot", async () => {
+    const source = { cntrbr_type_desc: "Political Action Committee (PAC)", filing_sched_abbrev: "C", org_amt: "5000", flng_ent_name: "Example PAC", filing_trans_id: "f-1", trans_number: "t-1" };
+    for (const patch of [{ filing_trans_id: "" }, { trans_number: "" }, { org_amt: "-1" }, { flng_ent_name: "" }, { flng_ent_first_name: "Jane" }]) {
+      const fetchImpl = vi.fn(async () => new Response(JSON.stringify([{ ...source, ...patch }]), { status: 200 }));
+      await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl })).rejects.toThrow("Incomplete or ambiguous New York reported PAC monetary receipt");
+    }
+  });
+
+  it.each([{ rows: [null] }, { rows: [{ filing_sched_abbrev: "A", org_amt: "1" }, null] }])("rejects malformed page elements without treating the page as exhausted", async ({ rows }) => {
+    const fetchImpl = vi.fn(async () => jsonResponse(rows));
+    await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl, pageLimit: 2 })).rejects.toThrow("malformed row");
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects a page exceeding the requested bound", async () => {
+    const fetchImpl = vi.fn(async () => jsonResponse([{ org_amt: "1" }, { org_amt: "1" }]));
+    await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl, pageLimit: 1 })).rejects.toThrow("exceeds the requested page limit");
+  });
+
+  it.each([{ row: {} }, { row: { filing_sched_abbrev: "C", org_amt: "bad" } }])("rejects incomplete receipt facts before an empty replacement is possible", async ({row}) => {
+    const fetchImpl = vi.fn(async () => jsonResponse([row]));
+    await expect(getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl })).rejects.toThrow("Incomplete New York monetary receipt source row");
+  });
+
   it("fetches cycle-scoped itemized IE committee receipts and pages with a stable order", async () => {
     const pageOne = Array.from({ length: 3 }, (_unused, index) => ({
       flng_ent_name: `Org ${index}`,
@@ -232,6 +256,19 @@ describe("newYorkSodaClient", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(2);
     expect(new URL(String(fetchImpl.mock.calls[1][0])).searchParams.get("$offset")).toBe("3");
     expect(receipts).toHaveLength(4);
+  });
+
+  it("acquires a real-sized statewide cycle above the former 25,000-row ceiling", async () => {
+    const fetchImpl = vi.fn(async (input: string | URL | Request) => {
+      const url = new URL(String(input));
+      const offset = Number(url.searchParams.get("$offset"));
+      const limit = Number(url.searchParams.get("$limit"));
+      return jsonResponse(Array.from({ length: Math.min(limit, 48_691 - offset) }, () => ({ filing_sched_abbrev: "A", org_amt: "1" })));
+    });
+    const rows = await getNewYorkCommitteeItemizedReceipts({ filerId: "16851", electionYear: 2026, cycleYears: 4 }, { fetchImpl });
+    expect(rows).toHaveLength(48_691);
+    expect(fetchImpl).toHaveBeenCalledTimes(10);
+    expect(new URL(String(fetchImpl.mock.calls[0]![0])).searchParams.get("$limit")).toBe("5000");
   });
 
   it("applies the timeout to body reads, not just response headers", async () => {

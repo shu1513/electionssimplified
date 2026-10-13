@@ -63,6 +63,37 @@ function makeDb(input: {
 }
 
 describe("syncDuePhoenixCandidateFinance", () => {
+  it("retains candidate diagnostics in a real-shaped dry-run result", async () => {
+    const { db, query } = makeDb({ due: [dueRow] });
+    const candidateResult = {
+      linkWritten: false,
+      totalRaisedCents: 31613910,
+      totalSpentCents: 8504359,
+      loansReceivedCents: 0,
+      cashOnHandCents: 23109551,
+      outsideSupportCents: 0,
+      outsideOpposeCents: 0,
+      directBreakdownCount: 5,
+      outsideGroupCount: 0,
+      reportedThrough: "2026-06-30",
+      directCoverageNote: "Published reports through June 30",
+      outsideCoverageNote: "Standing PAC coverage incomplete",
+      violations: [],
+      canonicalReportCount: 2,
+    };
+    const result = await syncDuePhoenixCandidateFinance({
+      db: db as never,
+      dryRun: true,
+      loadRunContext: async () => runContext(),
+      syncCandidateFn: vi.fn().mockResolvedValue(candidateResult),
+    });
+    expect(result.results).toEqual([
+      { candidateId: "c1", electionId: "e1", ok: true, result: candidateResult },
+    ]);
+    expect(result.autoLinkAttemptedCount).toBe(0);
+    expect(query.mock.calls.every(([sql]) => !String(sql).startsWith("INSERT"))).toBe(true);
+  });
+
   it("selects due links Phoenix-scoped and syncs with a parsed district", async () => {
     const { db, query } = makeDb({ due: [dueRow] });
     const syncCandidateFn = vi.fn().mockResolvedValue({});

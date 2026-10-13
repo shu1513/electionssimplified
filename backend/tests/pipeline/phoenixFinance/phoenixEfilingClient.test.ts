@@ -3,6 +3,7 @@ import {
   canonicalPhoenixRegistration,
   canonicalPhoenixReportRefs,
   discoverPhoenixCanonicalReportRefs,
+  discoverPhoenixReportObservation,
   fetchPhoenixCanonicalRegistrations,
   fetchPhoenixReportPdf,
   parsePhoenixGridEnvelope,
@@ -38,7 +39,9 @@ describe("phoenixGridAll", () => {
   it("pages until Total rows are collected", async () => {
     const fetchImpl = vi
       .fn()
-      .mockResolvedValueOnce(jsonResponse({ Data: [{ n: 1 }, { n: 2 }], Total: 3 }))
+      .mockResolvedValueOnce(
+        jsonResponse({ Data: [{ n: 1 }, { n: 2 }], Total: 3 }),
+      )
       .mockResolvedValueOnce(jsonResponse({ Data: [{ n: 3 }], Total: 3 }));
     const rows = await phoenixGridAll({
       path: "/CampaignFinance/Search/_SearchCommittees",
@@ -54,9 +57,37 @@ describe("phoenixGridAll", () => {
     );
     expect(String(init?.body)).toContain("COPID=CAN-25-4");
     expect(String(init?.body)).toContain("page=1");
-    expect(
-      (init?.headers as Record<string, string>)["X-Requested-With"],
-    ).toBe("XMLHttpRequest");
+    expect((init?.headers as Record<string, string>)["X-Requested-With"]).toBe(
+      "XMLHttpRequest",
+    );
+  });
+
+  it("refuses a changing declared Total instead of ending a partial observation", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ Data: [{ n: 1 }], Total: 3 }))
+      .mockResolvedValueOnce(jsonResponse({ Data: [{ n: 2 }], Total: 2 }));
+    await expect(
+      phoenixGridAll({
+        path: "/CampaignFinance/Search/_SearchContributors",
+        filters: {},
+        fetchImpl,
+      }),
+    ).rejects.toThrow(/total changed/);
+  });
+  it("refuses extra physical rows beyond the declared Total", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ Data: [{ n: 1 }, { n: 2 }], Total: 1 }),
+      );
+    await expect(
+      phoenixGridAll({
+        path: "/CampaignFinance/Search/_SearchContributors",
+        filters: {},
+        fetchImpl,
+      }),
+    ).rejects.toThrow(/more physical rows/);
   });
 
   it("rejects a non-2xx status before parsing the body", async () => {
@@ -192,7 +223,9 @@ describe("toPhoenixRegistrationRow / canonicalPhoenixRegistration", () => {
     );
     const canonical = await fetchPhoenixCanonicalRegistrations({ fetchImpl });
     expect(canonical).toHaveLength(2);
-    expect(canonical.map((row) => [row.copId, row.officeSoughtElectionCycle])).toEqual([
+    expect(
+      canonical.map((row) => [row.copId, row.officeSoughtElectionCycle]),
+    ).toEqual([
       ["CAN-21-16", "2026"],
       ["CAN-25-4", "2026"],
     ]);
@@ -201,9 +234,15 @@ describe("toPhoenixRegistrationRow / canonicalPhoenixRegistration", () => {
 
 describe("phoenixSubmittedDateMs", () => {
   it("parses the pinned live form and the signed-offset form", () => {
-    expect(phoenixSubmittedDateMs("/Date(1755000000000)/", "t")).toBe(1_755_000_000_000);
-    expect(phoenixSubmittedDateMs("/Date(1755000000000-0700)/", "t")).toBe(1_755_000_000_000);
-    expect(phoenixSubmittedDateMs("/Date(1755000000000+0100)/", "t")).toBe(1_755_000_000_000);
+    expect(phoenixSubmittedDateMs("/Date(1755000000000)/", "t")).toBe(
+      1_755_000_000_000,
+    );
+    expect(phoenixSubmittedDateMs("/Date(1755000000000-0700)/", "t")).toBe(
+      1_755_000_000_000,
+    );
+    expect(phoenixSubmittedDateMs("/Date(1755000000000+0100)/", "t")).toBe(
+      1_755_000_000_000,
+    );
   });
 
   it("keeps the empty fallback but throws on garbage — 0 would let an older amendment win", () => {
@@ -216,41 +255,219 @@ describe("phoenixSubmittedDateMs", () => {
 });
 
 describe("report discovery + PDF fetch", () => {
-  it("canonicalPhoenixReportRefs keeps the latest-submitted package per report name", () => {
-    const { refs, supersededDropped } = canonicalPhoenixReportRefs([
-      { reportPackageId: "a".repeat(36), reportName: "Q1", submittedDateMs: 100 },
-      { reportPackageId: "b".repeat(36), reportName: "Q1", submittedDateMs: 200 },
-      { reportPackageId: "c".repeat(36), reportName: "Annual", submittedDateMs: 50 },
-    ]);
-    expect(refs.map((ref) => ref.reportPackageId[0])).toEqual(["c", "b"]);
-    expect(supersededDropped).toBe(1);
+  const guid = (prefix: string) =>
+    `${prefix}${"0".repeat(8 - prefix.length)}-0000-0000-0000-000000000000`;
+  const reportRow = (id = guid("aa"), name = "Q1") => ({
+    COPID: "CAN-25-4",
+    ReportPackageId: id,
+    RecentReport: "00000000-0000-0000-0000-000000000000",
+    ReportName: name,
+    SubmittedDate: "/Date(1000)/",
+    Amount: 100,
   });
 
-  it("discoverPhoenixCanonicalReportRefs reads all three transaction grids", async () => {
-    const guid = (prefix: string) =>
-      `${prefix}${"0".repeat(8 - prefix.length)}-0000-0000-0000-000000000000`;
-    const fetchImpl = vi.fn().mockImplementation((url: string) => {
-      const row = (id: string, name: string) => ({
-        ReportPackageId: id,
-        ReportName: name,
-        SubmittedDate: "/Date(1000)/",
+  it("retains every edition with equal report names instead of choosing a row timestamp", () => {
+    const input = [
+      { reportPackageId: guid("aa"), reportName: "Q1", submittedDateMs: 200 },
+      { reportPackageId: guid("bb"), reportName: "Q1", submittedDateMs: 100 },
+      {
+        reportPackageId: guid("cc"),
+        reportName: "Annual",
+        submittedDateMs: 50,
+      },
+    ];
+    const result = canonicalPhoenixReportRefs(input);
+    expect(result.refs.map((ref) => ref.reportPackageId)).toEqual(
+      input.map((r) => r.reportPackageId),
+    );
+    expect(result.supersededDropped).toBe(0);
+    expect(canonicalPhoenixReportRefs([...input].reverse())).toEqual(result);
+  });
+
+  it("collapses repeated package references only and retains all row timestamp metadata", () => {
+    const result = canonicalPhoenixReportRefs([
+      { reportPackageId: guid("aa"), reportName: "Q1", submittedDateMs: 300 },
+      { reportPackageId: guid("aa"), reportName: "Q1", submittedDateMs: 100 },
+    ]);
+    expect(result.refs).toEqual([
+      {
+        reportPackageId: guid("aa"),
+        reportName: "Q1",
+        submittedDateMs: 100,
+        submittedDateValuesMs: [100, 300],
+      },
+    ]);
+    expect(result.supersededDropped).toBe(0);
+  });
+
+  it("refuses conflicting names for the same exact package", () => {
+    expect(() =>
+      canonicalPhoenixReportRefs([
+        { reportPackageId: guid("aa"), reportName: "Q1", submittedDateMs: 100 },
+        { reportPackageId: guid("aa"), reportName: "Q2", submittedDateMs: 200 },
+      ]),
+    ).toThrow(/conflicting report names/);
+  });
+
+  it("discovers all three financial grids and two explicit no-activity scopes", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockImplementation((url: string, init?: RequestInit) => {
+        const fields = new URLSearchParams(String(init?.body));
+        const noActivity = fields.get("ISNOACTIVITY") === "true";
+        const data = noActivity
+          ? /Contributors/.test(url)
+            ? [reportRow(guid("dd"), "No Activity")]
+            : []
+          : /Contributors/.test(url)
+            ? [reportRow(guid("aa"), "Q1")]
+            : /Expenditures/.test(url)
+              ? [reportRow(guid("bb"), "Q2")]
+              : [reportRow(guid("cc"), "Q3")];
+        return Promise.resolve(
+          jsonResponse({ Data: data, Total: data.length }),
+        );
       });
-      const data = /Contributors/.test(url)
-        ? [row(guid("aa"), "Q1")]
-        : /Expenditures/.test(url)
-          ? [row(guid("bb"), "Q2")]
-          : [row(guid("cc"), "Q3")];
-      return Promise.resolve(jsonResponse({ Data: data, Total: data.length }));
-    });
-    const { refs } = await discoverPhoenixCanonicalReportRefs({
+    const observation = await discoverPhoenixReportObservation({
       copId: "CAN-25-4",
       fetchImpl,
     });
-    expect(fetchImpl).toHaveBeenCalledTimes(3);
-    expect(refs.map((ref) => ref.reportName).sort()).toEqual(["Q1", "Q2", "Q3"]);
-    for (const call of fetchImpl.mock.calls) {
-      expect(String(call[1]?.body)).toContain("COPID=CAN-25-4");
-    }
+    expect(fetchImpl).toHaveBeenCalledTimes(5);
+    expect(observation.refs.map((r) => r.reportName)).toEqual([
+      "Q1",
+      "Q2",
+      "Q3",
+      "No Activity",
+    ]);
+    expect(observation.grids.noActivityContributors).toEqual([
+      reportRow(guid("dd"), "No Activity"),
+    ]);
+    expect(observation.grids.noActivityExpenditures).toEqual([]);
+    expect(observation.supersededDropped).toBe(0);
+    for (const call of fetchImpl.mock.calls)
+      expect(new URLSearchParams(String(call[1]?.body)).get("COPID")).toBe(
+        "CAN-25-4",
+      );
+    expect(
+      fetchImpl.mock.calls.filter(
+        (c) =>
+          new URLSearchParams(String(c[1]?.body)).get("ISNOACTIVITY") ===
+          "true",
+      ),
+    ).toHaveLength(2);
+    const legacy = await discoverPhoenixCanonicalReportRefs({
+      copId: "CAN-25-4",
+      fetchImpl,
+    });
+    expect(legacy).toEqual({ refs: observation.refs, supersededDropped: 0 });
+  });
+
+  it.each(["CAN-07-01", "PAC-04-01"])("preserves source-published padded committee identity %s", async (copId) => {
+    const own = { ...reportRow(), COPID: copId };
+    const foreign = { ...reportRow(guid("bb")), COPID: copId + "0" };
+    const fetchImpl = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
+      const fields = new URLSearchParams(String(init?.body));
+      const data = /Contributors/.test(url) && !fields.has("ISNOACTIVITY")
+        ? [own, foreign] : [];
+      return Promise.resolve(jsonResponse({ Data: data, Total: data.length }));
+    });
+    const result = await discoverPhoenixReportObservation({ copId, fetchImpl });
+    expect(result.refs.map((ref) => ref.reportPackageId)).toEqual([guid("aa")]);
+    expect(result.grids.contributors).toEqual([own, foreign]);
+    expect(new URLSearchParams(String(fetchImpl.mock.calls[0]?.[1]?.body)).get("COPID")).toBe(copId);
+  });
+
+  it.each(["CAN-25-0", "CAN-25-00", "CAN-25--01", "CAN-25-01x"])("refuses invalid receiving committee identity %s", async (copId) => {
+    const fetchImpl = vi.fn();
+    await expect(discoverPhoenixReportObservation({ copId, fetchImpl })).rejects.toThrow(/valid receiving COPID/);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("retains distinct equal-valued physical rows while collapsing only their package ref", async () => {
+    const rows = [
+      reportRow(),
+      { ...reportRow(), SubmittedDate: "/Date(2000)/" },
+    ];
+    const fetchImpl = vi
+      .fn()
+      .mockImplementation((url: string, init?: RequestInit) => {
+        const fields = new URLSearchParams(String(init?.body));
+        const data =
+          /Contributors/.test(url) && !fields.has("ISNOACTIVITY") ? rows : [];
+        return Promise.resolve(
+          jsonResponse({ Data: data, Total: data.length }),
+        );
+      });
+    const observation = await discoverPhoenixReportObservation({
+      copId: "CAN-25-4",
+      fetchImpl,
+    });
+    expect(observation.grids.contributors).toEqual(rows);
+    expect(observation.refs).toHaveLength(1);
+    expect(observation.refs[0]!.submittedDateValuesMs).toEqual([1000, 2000]);
+  });
+
+  it("retains valid prefix-matched foreign raw rows but discovers only exact receiving packages", async () => {
+    const own = reportRow();
+    const foreign = {
+      ...reportRow(guid("bb")),
+      COPID: " CAN-25-40 ",
+      RecentReport: "unresolved-foreign-pointer",
+      ReportPackageId: null,
+    };
+    const fetchImpl = vi
+      .fn()
+      .mockImplementation((url: string, init?: RequestInit) => {
+        const fields = new URLSearchParams(String(init?.body));
+        const rows =
+          /Contributors/.test(url) && !fields.has("ISNOACTIVITY")
+            ? [own, foreign]
+            : [];
+        return Promise.resolve(
+          jsonResponse({ Data: rows, Total: rows.length }),
+        );
+      });
+    const result = await discoverPhoenixReportObservation({
+      copId: "CAN-25-4",
+      fetchImpl,
+    });
+    expect(result.grids.contributors).toEqual([own, foreign]);
+    expect(result.refs.map((ref) => ref.reportPackageId)).toEqual([guid("aa")]);
+  });
+
+  it.each([
+    { COPID: "CAN-25-5" },
+    { COPID: "CAN-25-04" },
+    { COPID: null },
+    { ReportPackageId: "not-a-package" },
+    { ReportPackageId: "" },
+    { ReportPackageId: "00000000-0000-0000-0000-000000000000" },
+    { RecentReport: guid("bb") },
+    { RecentReport: "unknown" },
+    { ReportName: "" },
+  ])("refuses invalid physical report authority: %j", async (invalid) => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse({ Data: [{ ...reportRow(), ...invalid }], Total: 1 }),
+      );
+    await expect(
+      discoverPhoenixReportObservation({ copId: "CAN-25-4", fetchImpl }),
+    ).rejects.toThrow(/Phoenix report discovery/);
+  });
+
+  it("refuses conflicting physical names across the grids", async () => {
+    const fetchImpl = vi.fn().mockImplementation((url: string) =>
+      Promise.resolve(
+        jsonResponse({
+          Data: [reportRow(guid("aa"), /Contributors/.test(url) ? "Q1" : "Q2")],
+          Total: 1,
+        }),
+      ),
+    );
+    await expect(
+      discoverPhoenixReportObservation({ copId: "CAN-25-4", fetchImpl }),
+    ).rejects.toThrow(/conflicting report names/);
   });
 
   it("fetchPhoenixReportPdf validates the %PDF signature and uses the cache", async () => {
@@ -265,7 +482,11 @@ describe("report discovery + PDF fetch", () => {
       read: async (id: string) => store.get(id) ?? null,
       write: async (id: string, bytes: Uint8Array) => void store.set(id, bytes),
     };
-    const first = await fetchPhoenixReportPdf({ reportPackageId: guid, cache, fetchImpl });
+    const first = await fetchPhoenixReportPdf({
+      reportPackageId: guid,
+      cache,
+      fetchImpl,
+    });
     expect(new TextDecoder().decode(first)).toContain("%PDF");
     await fetchPhoenixReportPdf({ reportPackageId: guid, cache, fetchImpl });
     expect(fetchImpl).toHaveBeenCalledTimes(1); // second call served from cache
@@ -273,10 +494,15 @@ describe("report discovery + PDF fetch", () => {
     const htmlImpl = vi.fn().mockResolvedValue({
       status: 200,
       arrayBuffer: () =>
-        Promise.resolve(new TextEncoder().encode("<html>maintenance</html>").buffer.slice(0)),
+        Promise.resolve(
+          new TextEncoder().encode("<html>maintenance</html>").buffer.slice(0),
+        ),
     });
     await expect(
-      fetchPhoenixReportPdf({ reportPackageId: guid.replace("1", "2"), fetchImpl: htmlImpl }),
+      fetchPhoenixReportPdf({
+        reportPackageId: guid.replace("1", "2"),
+        fetchImpl: htmlImpl,
+      }),
     ).rejects.toThrow(/not a PDF/);
     await expect(
       fetchPhoenixReportPdf({ reportPackageId: "not-a-guid", fetchImpl }),
@@ -286,7 +512,10 @@ describe("report discovery + PDF fetch", () => {
       arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
     });
     await expect(
-      fetchPhoenixReportPdf({ reportPackageId: guid.replace("1", "3"), fetchImpl: failImpl }),
+      fetchPhoenixReportPdf({
+        reportPackageId: guid.replace("1", "3"),
+        fetchImpl: failImpl,
+      }),
     ).rejects.toThrow(/HTTP 500/);
     // Strict 8-4-4-4-12: the loose 36-char class accepted a run of dashes.
     await expect(
@@ -294,11 +523,73 @@ describe("report discovery + PDF fetch", () => {
     ).rejects.toThrow(/Not a report package GUID/);
   });
 
+  it("refresh bypasses cached PDFs and replaces only successful source bytes", async () => {
+    const id = "12345678-1234-1234-1234-123456789abc";
+    const oldBytes = new TextEncoder().encode("%PDF-1.7 prior");
+    const freshBytes = new TextEncoder().encode("%PDF-1.7 fresh");
+    let stored = oldBytes;
+    const cache = {
+      read: vi.fn(async () => stored),
+      write: vi.fn(async (_id: string, bytes: Uint8Array) => {
+        stored = bytes;
+      }),
+    };
+    const fetchImpl = vi.fn().mockResolvedValue({
+      status: 200,
+      arrayBuffer: async () => freshBytes.buffer.slice(0),
+    });
+    expect(
+      await fetchPhoenixReportPdf({
+        reportPackageId: id,
+        cache,
+        refresh: true,
+        fetchImpl,
+      }),
+    ).toEqual(freshBytes);
+    expect(cache.read).not.toHaveBeenCalled();
+    expect(cache.write).toHaveBeenCalledWith(id, freshBytes);
+    expect(stored).toEqual(freshBytes);
+
+    fetchImpl.mockResolvedValue({
+      status: 503,
+      arrayBuffer: async () => new ArrayBuffer(0),
+    });
+    await expect(
+      fetchPhoenixReportPdf({
+        reportPackageId: id,
+        cache,
+        refresh: true,
+        fetchImpl,
+      }),
+    ).rejects.toThrow(/HTTP 503/);
+    expect(cache.read).not.toHaveBeenCalled();
+    expect(cache.write).toHaveBeenCalledTimes(1);
+    expect(stored).toEqual(freshBytes);
+
+    fetchImpl.mockResolvedValue({
+      status: 200,
+      arrayBuffer: async () =>
+        new TextEncoder().encode("<html>maintenance</html>").buffer.slice(0),
+    });
+    await expect(
+      fetchPhoenixReportPdf({
+        reportPackageId: id,
+        cache,
+        refresh: true,
+        fetchImpl,
+      }),
+    ).rejects.toThrow(/not a PDF/);
+    expect(cache.write).toHaveBeenCalledTimes(1);
+    expect(stored).toEqual(freshBytes);
+  });
+
   it("phoenixFilesystemPdfCache survives a truncated file and writes atomically", async () => {
-    const { mkdtemp, readdir, writeFile } = await import("node:fs/promises");
+    const { chmod, mkdtemp, readdir, stat, writeFile } =
+      await import("node:fs/promises");
     const { tmpdir } = await import("node:os");
     const { join } = await import("node:path");
     const dir = await mkdtemp(join(tmpdir(), "phx-pdf-cache-"));
+    await chmod(dir, 0o755);
     const cache = phoenixFilesystemPdfCache(dir);
     const id = "12345678-1234-1234-1234-123456789abc";
 
@@ -311,6 +602,8 @@ describe("report discovery + PDF fetch", () => {
     expect(new TextDecoder().decode((await cache.read(id))!)).toContain("%PDF");
     // The temp file never survives a completed write.
     expect(await readdir(dir)).toEqual([`${id}.pdf`]);
+    expect((await stat(dir)).mode & 0o777).toBe(0o700);
+    expect((await stat(join(dir, `${id}.pdf`))).mode & 0o777).toBe(0o600);
   });
 });
 

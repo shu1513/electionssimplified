@@ -88,10 +88,14 @@ export type NewYorkCandidateFinanceSyncResult = {
   directContributionTotal: number | null;
   totalDisbursements: number | null;
   directReceiptRowCount: number;
+  pacDonorsWritten: number;
+  pacReceiptTotal: number | null;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
   outsideSupportTotal: number | null;
   outsideOpposeTotal: number | null;
+  knownOutsideSupportTotal: number | null;
+  knownOutsideOpposeTotal: number | null;
   outsideGroupCount: number;
   outsideFunderRowCount: number;
   outsideCounters: NewYorkOutsideSpendingCounters | null;
@@ -369,8 +373,8 @@ async function enrichIndustryBreakdowns(input: {
 function toSummary(input: {
   // Uncapped totals from the aggregator: the groups array may be capped at
   // maxGroups, and a field named "total" must cover every accepted group.
-  supportTotal: number;
-  opposeTotal: number;
+  supportTotal: number | null;
+  opposeTotal: number | null;
   directContributionTotal: number;
   totalDisbursements: number | null;
   sourceUrl?: string | null;
@@ -407,10 +411,14 @@ function emptyResult(input: {
     directContributionTotal: null,
     totalDisbursements: null,
     directReceiptRowCount: 0,
+    pacDonorsWritten: 0,
+    pacReceiptTotal: null,
     outsideGroupsWritten: 0,
     outsideGroupBreakdownsWritten: 0,
     outsideSupportTotal: null,
     outsideOpposeTotal: null,
+    knownOutsideSupportTotal: null,
+    knownOutsideOpposeTotal: null,
     outsideGroupCount: 0,
     outsideFunderRowCount: 0,
     outsideCounters: null,
@@ -521,8 +529,10 @@ export async function syncNewYorkCandidateFinance(
     dryRun,
   });
   const summary = toSummary({
-    supportTotal: outside.supportTotal,
-    opposeTotal: outside.opposeTotal,
+    // Regular Schedule R's accepted allocations are a known subset, not
+    // complete overall outside spending (unresolved parents/rapid reports).
+    supportTotal: null,
+    opposeTotal: null,
     directContributionTotal: direct.directContributionTotal,
     totalDisbursements: direct.totalDisbursements,
     sourceUrl: input.sourceUrl ?? resolution.sourceUrl,
@@ -547,8 +557,10 @@ export async function syncNewYorkCandidateFinance(
       syncedAt,
       summary,
       directBreakdowns: industryFinance.directBreakdowns,
-      outsideGroups: writerOutsideGroups,
-      outsideGroupBreakdowns: industryFinance.outsideGroupBreakdowns,
+      pacDonors: direct.pacDonors,
+      outsideGroups: writerOutsideGroups.length > 0 ? writerOutsideGroups : undefined,
+      outsideGroupBreakdowns: writerOutsideGroups.length > 0 ? industryFinance.outsideGroupBreakdowns : undefined,
+      outsideWriteMode: "upsert",
       classifications: industryFinance.classifications,
     });
   }
@@ -565,10 +577,14 @@ export async function syncNewYorkCandidateFinance(
     directContributionTotal: direct.directContributionTotal,
     totalDisbursements: direct.totalDisbursements,
     directReceiptRowCount: direct.receiptRowCount,
+    pacDonorsWritten: dryRun ? 0 : direct.pacDonors.length,
+    pacReceiptTotal: Math.round(direct.pacDonors.reduce((sum, donor) => sum + Math.round(donor.amount * 100), 0)) / 100,
     outsideGroupsWritten: dryRun ? 0 : writerOutsideGroups.length,
     outsideGroupBreakdownsWritten: dryRun ? 0 : industryFinance.outsideGroupBreakdowns.length,
     outsideSupportTotal: summary.outsideSupportTotal ?? null,
     outsideOpposeTotal: summary.outsideOpposeTotal ?? null,
+    knownOutsideSupportTotal: outside.supportTotal > 0 ? outside.supportTotal : null,
+    knownOutsideOpposeTotal: outside.opposeTotal > 0 ? outside.opposeTotal : null,
     outsideGroupCount: outside.groups.length,
     outsideFunderRowCount,
     outsideCounters: outside.counters,

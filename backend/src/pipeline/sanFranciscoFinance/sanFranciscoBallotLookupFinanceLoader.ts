@@ -16,6 +16,10 @@ import {
   type BallotLookupFinanceSummary,
 } from "../address/ballotLookupFinanceShared.js";
 import { isSanFranciscoFinanceEligibleElection } from "./sanFranciscoFinanceEligibleOffices.js";
+import {
+  groupSanFranciscoCommitteeCashByInterest,
+  type SanFranciscoCommitteeCashReaderRow,
+} from "./sanFranciscoCommitteeCashReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type Candidate = { candidate_id: string; election_id: string };
@@ -52,15 +56,19 @@ export async function loadSanFranciscoCandidateFinanceSummariesByCandidateElecti
   electionRows: readonly Election[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
   if (!isSanFranciscoCampaignFinanceEnabled()) return new Map();
-  const requests = buildStateFinanceSummaryRequests("CA", candidateRows, electionRows, (row) =>
-    isSanFranciscoFinanceEligibleElection({
-      state: row.state,
-      districtType: row.district_type,
-      geoidCompact: row.geoid_compact,
-      officeScope: row.office_scope,
-      officeCanonicalName: row.office_canonical_name,
-      officialBallotTitle: row.official_ballot_title,
-    }),
+  const requests = buildStateFinanceSummaryRequests(
+    "CA",
+    candidateRows,
+    electionRows,
+    (row) =>
+      isSanFranciscoFinanceEligibleElection({
+        state: row.state,
+        districtType: row.district_type,
+        geoidCompact: row.geoid_compact,
+        officeScope: row.office_scope,
+        officeCanonicalName: row.office_canonical_name,
+        officialBallotTitle: row.official_ballot_title,
+      }),
   );
   if (!requests.length) return new Map();
   const summaries = await db.query<SummaryRow>(
@@ -179,6 +187,34 @@ export async function loadSanFranciscoCandidateFinanceSummariesByCandidateElecti
     `,
     [JSON.stringify(selected)],
   );
+  const committeeCash = await db.query<SanFranciscoCommitteeCashReaderRow>(
+    `WITH selected AS (
+       SELECT candidate_id::uuid candidate_id,election_id::uuid election_id
+       FROM jsonb_to_recordset($1::jsonb)x(candidate_id text,election_id text)
+     )
+     SELECT selected.candidate_id::text candidate_id,selected.election_id::text election_id,
+       d.committee_id,min(d.committee_name) committee_name,sum(d.amount) amount,
+       min(d.source_url) source_url,min(d.reported_through)::text reported_through,
+       min(d.last_synced_at)::text last_synced_at
+     FROM selected JOIN public.sfc_candidate_finance_links l
+       ON l.candidate_id=selected.candidate_id AND l.election_id=selected.election_id
+       AND l.link_status='active'
+     JOIN public.sfc_candidate_finance_pac_donors d
+       ON d.link_id=l.id AND d.election_year=l.election_year
+     GROUP BY selected.candidate_id,selected.election_id,d.committee_id
+     ORDER BY selected.candidate_id,selected.election_id,sum(d.amount) DESC,d.committee_id`,
+    [JSON.stringify(selected)],
+  );
+  const cashByInterest = groupSanFranciscoCommitteeCashByInterest(
+    committeeCash.rows,
+  );
+  const cashObservationByKey = new Map<string, string>();
+  for (const row of committeeCash.rows) {
+    const key = candidateElectionKey(row.candidate_id, row.election_id);
+    const date = row.last_synced_at.slice(0, 10);
+    const previous = cashObservationByKey.get(key);
+    if (!previous || date < previous) cashObservationByKey.set(key, date);
+  }
   // SF stores the source URL on the summary row only (the breakdown rows are
   // derived aggregates with no per-row URL, unlike LA's), and the card's
   // footer link is built exclusively from breakdown/group rows — without this
@@ -240,11 +276,19 @@ export async function loadSanFranciscoCandidateFinanceSummariesByCandidateElecti
             cash_on_hand: parseFinanceAmount(row.cash_on_hand),
             debts_owed: parseFinanceAmount(row.debts_owed),
             loans_received: parseFinanceAmount(row.loans_received),
-            public_funds_received: parseFinanceAmount(row.public_funds_received),
+            public_funds_received: parseFinanceAmount(
+              row.public_funds_received,
+            ),
             top_occupations: occupations,
             top_employers: byType.get("employer") ?? [],
             top_industries: byType.get("industry") ?? [],
             contribution_size_buckets: byType.get("contribution_size") ?? [],
+            ...(cashByInterest.has(key)
+              ? {
+                  pac_money_by_interest: cashByInterest.get(key),
+                  direct_coverage_note: `Committee amounts are net reported cash from recipient and small-contributor committees, already included in Raised. They exclude loans and nonmonetary gifts; candidate campaign donors are omitted. Committee cash last checked ${cashObservationByKey.get(key)}.`,
+                }
+              : {}),
           },
           // No membership totals: SF does not disclose member communications
           // separately (unlike LA Ethics).

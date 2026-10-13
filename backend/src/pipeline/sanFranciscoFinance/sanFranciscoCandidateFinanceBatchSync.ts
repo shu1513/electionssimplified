@@ -22,6 +22,7 @@ import {
   checkSanFranciscoSourceFreshness,
   syncSanFranciscoCandidateFinance,
   type SanFranciscoSourceFreshness,
+  type SanFranciscoCandidateFinanceSyncResult,
 } from "./sanFranciscoCandidateFinanceSync.js";
 import {
   getSanFranciscoContestManifest,
@@ -71,6 +72,7 @@ export type SanFranciscoCandidateFinanceBatchSyncResult = {
     electionId: string;
     ok: boolean;
     error?: string;
+    result?: SanFranciscoCandidateFinanceSyncResult;
   }>;
 };
 
@@ -308,7 +310,7 @@ export async function syncDueSanFranciscoCandidateFinance(input: {
         );
         manifestCache.set(manifestKey, manifest);
       }
-      await syncSanFranciscoCandidateFinance({
+      const result = await syncSanFranciscoCandidateFinance({
         db: input.db,
         candidateId: row.candidate_id,
         electionId: row.election_id,
@@ -328,6 +330,7 @@ export async function syncDueSanFranciscoCandidateFinance(input: {
         candidateId: row.candidate_id,
         electionId: row.election_id,
         ok: true,
+        ...(result ? { result } : {}),
       });
     } catch (error) {
       results.push({

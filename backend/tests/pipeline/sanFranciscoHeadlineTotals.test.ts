@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { parseSanFranciscoContestManifest } from "../../src/pipeline/sanFranciscoFinance/sanFranciscoDashboardManifestClient.js";
 import { aggregateSanFranciscoHeadlineTotals } from "../../src/pipeline/sanFranciscoFinance/sanFranciscoHeadlineTotals.js";
 import type {
   SanFranciscoContestManifest,
@@ -160,4 +161,102 @@ describe("aggregateSanFranciscoHeadlineTotals", () => {
     expect(result.groups.length).toBe(1);
     expect(result.groups[0]!.amountCents).toBe(3_000_000);
   });
+  it("returns zero outside totals for a source-validated explicit empty IE list", () => {
+    const parsed = parseSanFranciscoContestManifest({
+      markdown: `---
+ election: '2026-06-02'
+ title: Board of Supervisors D04
+ candidates:
+ - filer_nid: '215112140'
+   filer_id: '1481230'
+   committee_name: Alan Wong for Supervisor 2026
+   candidate_name: ALAN WONG
+   funds: 100
+   expenses: 50
+ ie_candidates: []
+---
+`,
+      electionDate: "2026-06-02",
+      contestCode: "bos04",
+      sourceUrl: "https://example.test/bos04.md",
+    });
+    expect(
+      aggregateSanFranciscoHeadlineTotals({
+        manifest: parsed,
+        candidate: parsed.candidates[0]!,
+      }),
+    ).toEqual({
+      totalRaisedCents: 10_000,
+      totalSpentCents: 5_000,
+      outsideSupportCents: 0,
+      outsideOpposeCents: 0,
+      groups: [],
+    });
+  });
+
+  it.each([undefined, null, {}, [null]])(
+    "rejects missing or malformed cached relation scope %s",
+    (outsideRelations) => {
+      const cached = {
+        ...manifest([]),
+        outsideRelations,
+      } as unknown as SanFranciscoContestManifest;
+      expect(() =>
+        aggregateSanFranciscoHeadlineTotals({
+          manifest: cached,
+          candidate: wong,
+        }),
+      ).toThrow(/outside relation/);
+    },
+  );
+
+  it.each([
+    { position: "assist" },
+    { amountCents: Number.NaN },
+    { amountCents: 100.5 },
+    { amountCents: -100 },
+    { candidateFppcId: undefined },
+    { spenderName: "" },
+  ])(
+    "rejects malformed cached rows even for another candidate: %s",
+    (invalid) => {
+      const relation = {
+        candidateName: "DAVID LEE",
+        candidateFppcId: "1482000",
+        position: "support",
+        spenderFppcId: "1490001",
+        spenderName: "GROWSF",
+        amountCents: 100,
+        ...invalid,
+      } as unknown as SanFranciscoManifestOutsideRelation;
+      expect(() =>
+        aggregateSanFranciscoHeadlineTotals({
+          manifest: manifest([relation]),
+          candidate: wong,
+        }),
+      ).toThrow(/invalid/);
+    },
+  );
+
+  it.each([true, false])(
+    "rejects overflow across %s same-spender rows",
+    (sameSpender) => {
+      const relations = ["1490001", sameSpender ? "1490001" : "1490002"].map(
+        (spenderFppcId) => ({
+          candidateName: "ALAN WONG",
+          candidateFppcId: wong.fppcId,
+          position: "support" as const,
+          spenderFppcId,
+          spenderName: "GROWSF",
+          amountCents: Number.MAX_SAFE_INTEGER,
+        }),
+      );
+      expect(() =>
+        aggregateSanFranciscoHeadlineTotals({
+          manifest: manifest(relations),
+          candidate: wong,
+        }),
+      ).toThrow(/invalid money/);
+    },
+  );
 });

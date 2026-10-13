@@ -25,6 +25,7 @@ import {
   buildPhoenixCoverOfficeSoughtIndex,
   loadPhoenixFinanceRunContext,
   syncPhoenixCandidateFinance,
+  type PhoenixCandidateFinanceSyncResult,
   type PhoenixFinanceRunContext,
 } from "./phoenixCandidateFinanceSync.js";
 import {
@@ -70,6 +71,7 @@ export type PhoenixCandidateFinanceBatchSyncResult = {
     electionId: string;
     ok: boolean;
     error?: string;
+    result?: PhoenixCandidateFinanceSyncResult;
   }>;
 };
 
@@ -283,7 +285,7 @@ export async function syncDuePhoenixCandidateFinance(input: {
         throw new Error(
           `Cannot parse a council district from ballot title "${row.official_ballot_title}"`,
         );
-      await syncCandidateFn({
+      const result = await syncCandidateFn({
         db: input.db,
         candidateId: row.candidate_id,
         electionId: row.election_id,
@@ -305,6 +307,7 @@ export async function syncDuePhoenixCandidateFinance(input: {
         candidateId: row.candidate_id,
         electionId: row.election_id,
         ok: true,
+        result,
       });
     } catch (error) {
       results.push({

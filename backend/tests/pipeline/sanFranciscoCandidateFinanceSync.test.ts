@@ -1,3 +1,5 @@
+import { getSanFranciscoCommitteePublicFunds } from "../../src/pipeline/sanFranciscoFinance/sanFranciscoCommitteePublicFundsClient.js";
+import { acquireSanFranciscoCommitteeCash } from "../../src/pipeline/sanFranciscoFinance/sanFranciscoCommitteeCashAcquisition.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   checkSanFranciscoSourceFreshness,
@@ -51,6 +53,15 @@ vi.mock(
     ...(await importOriginal<object>()),
     resolveFinanceIndustryClassifications: vi.fn().mockResolvedValue(undefined),
   }),
+);
+
+vi.mock(
+  "../../src/pipeline/sanFranciscoFinance/sanFranciscoCommitteePublicFundsClient.js",
+  () => ({ getSanFranciscoCommitteePublicFunds: vi.fn() }),
+);
+vi.mock(
+  "../../src/pipeline/sanFranciscoFinance/sanFranciscoCommitteeCashAcquisition.js",
+  () => ({ acquireSanFranciscoCommitteeCash: vi.fn() }),
 );
 
 const NOW = new Date("2026-08-09T12:00:00.000Z");
@@ -211,6 +222,10 @@ function baseInput(db: ReturnType<typeof fakeDb>) {
 }
 
 beforeEach(() => {
+  vi.mocked(acquireSanFranciscoCommitteeCash)
+    .mockReset()
+    .mockRejectedValue(new Error("source unavailable"));
+  vi.mocked(getSanFranciscoCommitteePublicFunds).mockReset();
   vi.mocked(getSanFranciscoCommitteeSummaryRows).mockResolvedValue(
     SUMMARY_ROWS.map((row) => ({ ...row })),
   );
@@ -234,6 +249,54 @@ beforeEach(() => {
 });
 
 describe("syncSanFranciscoCandidateFinance", () => {
+  it("accepts qualified named cash without adding it to Raised", async () => {
+    vi.mocked(acquireSanFranciscoCommitteeCash).mockResolvedValue({
+      positions: [
+        {
+          committeeId: "reported:COM:EXAMPLE",
+          committeeName: "Example",
+          sourceReportedClass: "COM",
+          amountCents: 30000,
+          contributionCount: 1,
+          giftOccurrenceIds: ["1"],
+          returnOccurrenceIds: [],
+          reportedCommitteeIds: ["1234567"],
+        },
+      ],
+      totalAmountCents: 30000,
+      windowEnd: "2026-09-30",
+    } as never);
+    const result = await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
+    expect(result).toMatchObject({
+      directContributionCents: 12500000,
+      committeeCashStatus: "qualified",
+      committeeCashPositionCount: 1,
+      committeeCashTotalCents: 30000,
+    });
+    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot).mock
+      .calls[0]![0];
+    expect(snapshot.committeeCash).toMatchObject({
+      reportedThrough: "2026-09-30",
+      positions: [{ amountCents: 30000 }],
+    });
+    expect(snapshot.summary.directContributionCents).toBe(12500000);
+  });
+
+  it("preserves named cash on qualification failure while still writing independent IE", async () => {
+    const result = await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
+    expect(result).toMatchObject({
+      committeeCashStatus: "unavailable",
+      committeeCashTotalCents: null,
+      committeeCashError: "source unavailable",
+      outsideGroupCount: 2,
+    });
+    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot).mock
+      .calls[0]![0];
+    expect(snapshot).not.toHaveProperty("committeeCash");
+    expect(snapshot.outsideGroups).toHaveLength(2);
+    expect(snapshot.summary.outsideSupportCents).toBe(4000000);
+  });
+
   it("writes a full snapshot with manifest headline and donor-only direct total", async () => {
     const db = fakeDb();
     const result = await syncSanFranciscoCandidateFinance(baseInput(db));
@@ -249,8 +312,8 @@ describe("syncSanFranciscoCandidateFinance", () => {
     });
     // funds - (itemized 100k + unitemized 500 + line2 0 + public 25k)
     expect(result.reconciliationDifferenceCents).toBe(24_500_00);
-    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot)
-      .mock.calls[0]![0];
+    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot).mock
+      .calls[0]![0];
     expect(snapshot.summary).toEqual({
       totalRaisedCents: 150_000_00,
       directContributionCents: 125_000_00,
@@ -392,14 +455,17 @@ describe("syncSanFranciscoCandidateFinance", () => {
     expect(result.publicFundsStatus).toBe("no_program");
     expect(result.publicFundsCents).toBeNull();
     expect(result.directContributionCents).toBe(150_000_00);
-    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot)
-      .mock.calls[0]![0];
+    const snapshot = vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot).mock
+      .calls[0]![0];
     expect(snapshot.summary.publicFundsReceivedCents).toBeNull();
   });
 
   it("aborts when the direct total collapses on an unchanged filing set", async () => {
     const db = fakeDb([
-      { direct_contribution_total: "1300000.00", reported_through: "2026-09-30" },
+      {
+        direct_contribution_total: "1300000.00",
+        reported_through: "2026-09-30",
+      },
     ]);
     await expect(
       syncSanFranciscoCandidateFinance(baseInput(db)),
@@ -412,7 +478,10 @@ describe("syncSanFranciscoCandidateFinance", () => {
     expect(anomalySql).toContain("link.fppc_id=$4");
     expect(anomalyParams).toEqual(["cand-1", "elec-1", 2026, "1490199"]);
     const bypassDb = fakeDb([
-      { direct_contribution_total: "1300000.00", reported_through: "2026-09-30" },
+      {
+        direct_contribution_total: "1300000.00",
+        reported_through: "2026-09-30",
+      },
     ]);
     const result = await syncSanFranciscoCandidateFinance({
       ...baseInput(bypassDb),
@@ -423,7 +492,10 @@ describe("syncSanFranciscoCandidateFinance", () => {
 
   it("allows a large drop when a newer filing explains it", async () => {
     const db = fakeDb([
-      { direct_contribution_total: "1300000.00", reported_through: "2026-06-30" },
+      {
+        direct_contribution_total: "1300000.00",
+        reported_through: "2026-06-30",
+      },
     ]);
     const result = await syncSanFranciscoCandidateFinance(baseInput(db));
     expect(result.linkWritten).toBe(true);
@@ -474,7 +546,7 @@ describe("syncSanFranciscoCandidateFinance", () => {
 });
 
 describe("checkSanFranciscoSourceFreshness", () => {
-  it("returns freshness when both datasets are current and coherent", async () => {
+  it("returns observed record timestamps when both datasets are recent", async () => {
     vi.mocked(getSanFranciscoDatasetFreshness)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.summary)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.transactions);
@@ -495,16 +567,37 @@ describe("checkSanFranciscoSourceFreshness", () => {
     ).rejects.toThrow(/summary-totals dataset is stale/);
   });
 
-  it("throws when the datasets disagree on data_as_of", async () => {
+  it("accepts the witnessed October 7/11 record-added maxima without inferring a shared generation", async () => {
+    const observed = {
+      summary: {
+        dataAsOf: "2026-10-07T00:00:00.000",
+        dataLoadedAt: "2026-10-08T00:00:00.000",
+      },
+      transactions: {
+        dataAsOf: "2026-10-11T00:00:00.000",
+        dataLoadedAt: "2026-10-12T00:00:00.000",
+      },
+    };
+    vi.mocked(getSanFranciscoDatasetFreshness)
+      .mockResolvedValueOnce(observed.summary)
+      .mockResolvedValueOnce(observed.transactions);
+    await expect(
+      checkSanFranciscoSourceFreshness({
+        now: new Date("2026-10-12T22:00:00Z"),
+      }),
+    ).resolves.toEqual(observed);
+  });
+
+  it("still refuses stale transaction uploads when record-added dates differ", async () => {
     vi.mocked(getSanFranciscoDatasetFreshness)
       .mockResolvedValueOnce(HEALTHY_FRESHNESS.summary)
       .mockResolvedValueOnce({
-        dataAsOf: "2026-08-05T00:00:00.000",
-        dataLoadedAt: "2026-08-09T00:00:00.000",
+        dataAsOf: "2026-07-20T00:00:00.000",
+        dataLoadedAt: "2026-07-21T00:00:00.000",
       });
     await expect(
       checkSanFranciscoSourceFreshness({ now: NOW }),
-    ).rejects.toThrow(/disagree on data_as_of/);
+    ).rejects.toThrow(/transactions dataset is stale/);
   });
 
   it("throws when freshness metadata is missing", async () => {
@@ -514,5 +607,186 @@ describe("checkSanFranciscoSourceFreshness", () => {
     await expect(
       checkSanFranciscoSourceFreshness({ now: NOW }),
     ).rejects.toThrow(/reports no freshness metadata/);
+  });
+});
+
+describe("source-bound public funds fallback", () => {
+  function missingNameSource() {
+    vi.mocked(getSanFranciscoPublicFundsApproved).mockResolvedValue([
+      {
+        candidateName: "Test, Different",
+        district: "4",
+        pendingCompleted: null,
+        fundsApprovedCents: 4950000,
+      },
+    ]);
+    return {
+      fppcId: "1490199",
+      filerNid: "200001",
+      electionDate: "2026-11-03",
+      candidateName: "Jane Test",
+      committeeName: MANIFEST.candidates[0]!.committeeName,
+      contributionCents: 10050000,
+      expenditureCents: 9000000,
+      publicFundsCents: 4950000,
+      sourceUrl: "https://raw.example/CA1490199.md",
+      sha256: "a".repeat(64),
+    };
+  }
+  it("uses exact-account published public funding rather than misclassifying the missed name as contributions", async () => {
+    vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue(
+      missingNameSource(),
+    );
+    const result = await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
+    expect(result).toMatchObject({
+      totalRaisedCents: 15000000,
+      directContributionCents: 10050000,
+      publicFundsStatus: "matched",
+      publicFundsCents: 4950000,
+      reconciliationDifferenceCents: 0,
+    });
+    expect(
+      vi.mocked(replaceSanFranciscoCandidateFinanceSnapshot).mock.calls[0]![0]
+        .summary,
+    ).toMatchObject({
+      directContributionCents: 10050000,
+      publicFundsReceivedCents: 4950000,
+    });
+    expect(getSanFranciscoCommitteePublicFunds).toHaveBeenCalledWith(
+      {
+        electionDate: "2026-11-03",
+        contestCode: "bos04",
+        candidate: MANIFEST.candidates[0],
+      },
+      undefined,
+    );
+  });
+  it("still binds missed city late financing when counting it as donor money would falsely reconcile", async () => {
+    vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue(
+      missingNameSource(),
+    );
+    vi.mocked(getSanFranciscoCommitteeItemizedTransactions).mockResolvedValue([
+      ...TRANSACTION_ROWS,
+      transactionRow({
+        transactionId: "CITY-LATE",
+        formType: "F497P1",
+        entityCode: "OTH",
+        contributorLastName: "CITY AND COUNTY OF SAN FRANCISCO",
+        calculatedAmountCents: 4950000,
+      }),
+    ]);
+    const result = await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
+    expect(getSanFranciscoCommitteePublicFunds).toHaveBeenCalledTimes(1);
+    expect(result).toMatchObject({
+      directContributionCents: 10050000,
+      publicFundsCents: 4950000,
+      reconciliationDifferenceCents: 0,
+    });
+  });
+  it.each([
+    "contributionCents",
+    "publicFundsCents",
+    "expenditureCents",
+  ] as const)(
+    "preserves rather than accepting changed publication %s",
+    (field) => {
+      const published = missingNameSource();
+      vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue({
+        ...published,
+        [field]: published[field] + 1,
+      });
+      return expect(syncSanFranciscoCandidateFinance(baseInput(fakeDb())))
+        .rejects.toThrow(/does not reconcile/)
+        .then(() =>
+          expect(
+            replaceSanFranciscoCandidateFinanceSnapshot,
+          ).not.toHaveBeenCalled(),
+        );
+    },
+  );
+  it("preserves when unmatched public funds cannot be bound to an available account publication", async () => {
+    missingNameSource();
+    vi.mocked(getSanFranciscoCommitteePublicFunds).mockRejectedValue(
+      new Error("Missing account metadata"),
+    );
+    await expect(
+      syncSanFranciscoCandidateFinance(baseInput(fakeDb())),
+    ).rejects.toThrow("Missing account metadata");
+    expect(replaceSanFranciscoCandidateFinanceSnapshot).not.toHaveBeenCalled();
+  });
+  it.each([1, -2938, -62086, -73300000])(
+    "retains an authoritative nonparticipant's %s-cent reconciliation residual",
+    async (difference) => {
+      const published = missingNameSource();
+      vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue({
+        ...published,
+        contributionCents: 15000000,
+        publicFundsCents: 0,
+      });
+      vi.mocked(getSanFranciscoCommitteeItemizedTransactions).mockResolvedValue(
+        [transactionRow({ calculatedAmountCents: 15000000 - difference })],
+      );
+      const result = await syncSanFranciscoCandidateFinance(
+        baseInput(fakeDb()),
+      );
+      expect(result).toMatchObject({
+        totalRaisedCents: 15000000,
+        directContributionCents: 15000000,
+        publicFundsStatus: "none",
+        publicFundsCents: 0,
+        reconciliationDifferenceCents: difference,
+      });
+      expect(replaceSanFranciscoCandidateFinanceSnapshot).toHaveBeenCalledTimes(
+        1,
+      );
+    },
+  );
+  it.each(["contributionCents", "expenditureCents", "cityLate"])(
+    "rejects contradictory nonparticipation evidence: %s",
+    async (field) => {
+      const published = {
+        ...missingNameSource(),
+        contributionCents: 15000000,
+        publicFundsCents: 0,
+      };
+      if (field === "contributionCents") published.contributionCents += 1;
+      if (field === "expenditureCents") published.expenditureCents += 1;
+      if (field === "cityLate") {
+        vi.mocked(
+          getSanFranciscoCommitteeItemizedTransactions,
+        ).mockResolvedValue([
+          ...TRANSACTION_ROWS,
+          transactionRow({
+            transactionId: "CITY-LATE",
+            formType: "F497P1",
+            entityCode: "OTH",
+            contributorLastName: "CITY AND COUNTY OF SAN FRANCISCO",
+            calculatedAmountCents: 4950000,
+          }),
+        ]);
+      }
+      vi.mocked(getSanFranciscoCommitteePublicFunds).mockResolvedValue(
+        published,
+      );
+      await expect(
+        syncSanFranciscoCandidateFinance(baseInput(fakeDb())),
+      ).rejects.toThrow(/does not reconcile/);
+      expect(
+        replaceSanFranciscoCandidateFinanceSnapshot,
+      ).not.toHaveBeenCalled();
+    },
+  );
+  it("does not fetch an account fallback for an existing exact match or infer zero from an empty approval lookup", async () => {
+    await syncSanFranciscoCandidateFinance(baseInput(fakeDb()));
+    expect(getSanFranciscoCommitteePublicFunds).not.toHaveBeenCalled();
+    vi.mocked(getSanFranciscoPublicFundsApproved).mockResolvedValue([]);
+    const manifest = structuredClone(MANIFEST);
+    manifest.candidates[0]!.fundsCents = 10050000;
+    const result = await syncSanFranciscoCandidateFinance({
+      ...baseInput(fakeDb()),
+      manifest,
+    });
+    expect(result.directContributionCents).toBe(10050000);
+    expect(getSanFranciscoCommitteePublicFunds).not.toHaveBeenCalled();
   });
 });
