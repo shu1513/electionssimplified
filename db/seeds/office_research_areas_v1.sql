@@ -3636,13 +3636,18 @@ BEGIN
   FROM desired_limit_foreign_influence_offices desired
   JOIN public.offices office
     ON office.scope = desired.scope
-   AND office.canonical_name = desired.canonical_name;
+   AND office.canonical_name = desired.canonical_name
+  JOIN public.research_areas area
+    ON area.slug = 'limit_foreign_influence'
+  JOIN public.office_research_areas link
+    ON link.office_id = office.id
+   AND link.research_area_id = area.id;
 
   IF inserted_or_existing_count <> expected_pair_count THEN
-    RAISE NOTICE
-      'office seed: % of % limit_foreign_influence office links resolved; the rest are created by the seed layer (fresh install path)',
-      inserted_or_existing_count,
-      expected_pair_count;
+    RAISE EXCEPTION
+      'office seed: expected % limit_foreign_influence office links, found %',
+      expected_pair_count,
+      inserted_or_existing_count;
   END IF;
 END
 $$;
