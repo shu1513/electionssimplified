@@ -116,6 +116,21 @@ bind inventory/native rows; no personal nickname or parenthetical rule is added.
 Fresh scope/bracket evidence and canonical ownership checks under the eventual
 writer lock remain required before money can be published.
 
+The modern control parser binds all 26 printed ordinals, captions, operators
+and amounts to painted cells on the actual summary page. It rejects additional
+or malformed numeric controls, missing borders, changed captions and failed
+integer equations. Control 18 has an exact wrapped caption for loan/obligation
+amount due at period end; the initial baseline-only audit incorrectly called
+it blank, and that assumption is superseded. Nonzero loans and signed net
+controls remain source facts. All six equations pass for each of four genuine
+originals after checking their original journals, hashes, lengths, HTTP status,
+completion and times. This replay reads only three control pages per original;
+the earlier whole receipt-occurrence proof remains separate. Its 23 focused
+tests, current-file strict types and independent review pass. The final complete
+Maryland suite passes all 398 tests with one worker. Legacy controls,
+whole legacy identities and a genuinely fresh acquisition bracket remain gates
+before any financial write or Maryland PR.
+
 - Preserve unresolved outside groups, funder details and scalar values while
   direct processing can proceed. A successful request is not complete target
   coverage or a proven empty component.
