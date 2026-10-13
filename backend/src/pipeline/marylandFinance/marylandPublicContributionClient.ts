@@ -13,24 +13,41 @@ type Scope = {
   pageNumber: number;
   pageSize?: 10 | 25 | 50 | 100;
   isReturn?: boolean | null;
+  sortType?: "asc" | "desc";
+  fromDate?: string | null;
+  toDate?: string | null;
 };
+
+function calendarDate(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    value.slice(0, 4) !== "0000" &&
+    Number.isFinite(Date.parse(`${value}T00:00:00Z`)) &&
+    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+}
 
 /** Literal observed public builder. Omitted undefined filters stay omitted. */
 export function buildMarylandPublicContributionRequest(input: Scope) {
   const pageSize = input.pageSize ?? 100;
   const isReturn = input.isReturn ?? null;
+  const sortType = input.sortType ?? "desc";
+  const fromDate = input.fromDate ?? null;
+  const toDate = input.toDate ?? null;
   if (
     typeof input.filerRegistrationGuid !== "string" || !GUID.test(input.filerRegistrationGuid) ||
     typeof input.electionCycle !== "string" || !/^[1-9]\d*$/.test(input.electionCycle) ||
     !Number.isSafeInteger(input.pageNumber) || input.pageNumber < 1 ||
     ![10, 25, 50, 100].includes(pageSize) ||
-    (isReturn !== null && typeof isReturn !== "boolean")
+    (isReturn !== null && typeof isReturn !== "boolean") ||
+    !["asc", "desc"].includes(sortType) ||
+    (fromDate !== null && !calendarDate(fromDate)) ||
+    (toDate !== null && !calendarDate(toDate)) ||
+    (fromDate !== null && toDate !== null && fromDate > toDate)
   ) throw new MarylandCurrentCycleExportError("invalid_request");
   return Object.freeze({
     pageNumber: input.pageNumber,
     pageSize,
     sortBy: "TransactionDate",
-    sortType: "desc",
+    sortType,
     transactionTypeCode: "TCON" as const,
     contributorName: null,
     contributorTypeCode: null,
@@ -44,8 +61,8 @@ export function buildMarylandPublicContributionRequest(input: Scope) {
     reportName: null,
     officeSought: null,
     officeType: null,
-    toDate: null,
-    fromDate: null,
+    toDate,
+    fromDate,
     filerRegistrationGuid: input.filerRegistrationGuid,
     isPublicFundingRequested: null,
   });
@@ -98,6 +115,15 @@ export function decodeMarylandPublicContributionPage(
       (row.transactionTypeCode !== (row.isReturn ? "TRCON" : "TCON")) ||
       (request.isReturn !== null && row.isReturn !== request.isReturn)
     ) return fail();
+    if (request.fromDate !== null || request.toDate !== null) {
+      // Genuine date probes use inclusive source-local calendar bounds. A
+      // missing/malformed date or ignored filter cannot qualify a partition.
+      if (typeof row.transactionDate !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T00:00:00$/.test(row.transactionDate)) return fail();
+      const day = row.transactionDate.slice(0, 10);
+      if (!calendarDate(day) || (request.fromDate !== null && day < request.fromDate) ||
+        (request.toDate !== null && day > request.toDate)) return fail();
+    }
     // Keep distinct equal gifts and editions. Never deduplicate a repeated
     // occurrence into a claimed complete collection.
     const identity = marylandPublicContributionOccurrenceKey(row);

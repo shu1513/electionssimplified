@@ -192,3 +192,19 @@ originals still settle and remain counted. Deadline also bounds progress and
 final sync, with monotonic checks. All 212 Maryland tests/backend types pass;
 independent review confirms these acquisition guards. Complete acquisition
 still does not grant report/currentness, parent-join or financial authority.
+
+The real unrestricted native census subsequently held after 10,000 accepted
+rows: complete HTTP 200 pages 101 and 102 contain no items while still declaring
+105,360. Originals remain private; no partial financial ledger is accepted.
+Four fresh bounded date probes confirm the published YYYY-MM-DD filters and
+ascending sort. The unbounded ascending page begins November 16, 2022, so a
+January 2023 lower bound would omit source occurrences. Inclusive scopes through
+July 14, 2026 (95,535) and from July 15 (9,825) sum to the unrestricted 105,360;
+the July 14-only scope declares 237. These are scope facts, not money proof.
+
+The next collector recursively acquires complete disjoint date scopes below
+the observed paging window, retaining unbounded outer tails, validating each
+scope's dates/count and the global occurrence union, and closing the unrestricted
+ascending/descending observations. Single-day overflow, omitted dates, count
+drift and duplicates hold the collection. Current report editions, complete
+monetary schedules/returns and PAC role remain separate qualification gates.

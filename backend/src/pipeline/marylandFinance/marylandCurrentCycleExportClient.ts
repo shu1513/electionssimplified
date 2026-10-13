@@ -283,6 +283,9 @@ export function captureMarylandPublicContributionPost(
     pageNumber: snapshot.pageNumber,
     pageSize: snapshot.pageSize,
     isReturn: snapshot.isReturn,
+    sortType: snapshot.sortType,
+    fromDate: snapshot.fromDate,
+    toDate: snapshot.toDate,
   });
   if (keys.length !== Object.keys(detached).length || keys.some(key =>
     typeof key !== "string" || !Object.hasOwn(detached, key) ||

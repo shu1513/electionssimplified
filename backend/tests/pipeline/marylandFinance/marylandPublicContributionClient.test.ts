@@ -109,7 +109,7 @@ describe("Maryland observed public receipt page", () => {
   it("runtime-closes the raw wrapper before any fetch or capture", async () => {
     const request = buildMarylandPublicContributionRequest(scope);
     const fetchImpl = vi.fn<typeof fetch>();
-    for (const mutation of [{...request, privateFilter: "private input"}, {...request, sortType: "asc"}]) {
+    for (const mutation of [{...request, privateFilter: "private input"}, {...request, sortType: "ASC"}]) {
       expect(() => captureMarylandPublicContributionPost(mutation as never, {outputPath: "unused", fetchImpl}))
         .toThrow("invalid_request");
     }
@@ -122,6 +122,28 @@ describe("Maryland observed public receipt page", () => {
     expect(captured.requestBody.filerRegistrationGuid).toBe(OWNER);
     expect(Object.isFrozen(captured.requestBody)).toBe(true);
     expect(JSON.parse(fetchImpl.mock.calls[0]?.[1]?.body as string).filerRegistrationGuid).toBe(OWNER);
+  });
+  it("uses published date formatting and ascending sort without adding other filters", () => {
+    const request = buildMarylandPublicContributionRequest({...scope, sortType: "asc",
+      fromDate: "2024-02-29", toDate: "2026-08-18"});
+    expect(request).toMatchObject({sortType: "asc", fromDate: "2024-02-29", toDate: "2026-08-18",
+      contributorTypeCode: null, contributionTypeCode: null, isReturn: null});
+  });
+  it("holds ignored date filters and malformed source days without dropping rows", () => {
+    const request = buildMarylandPublicContributionRequest({...scope, fromDate: "2026-07-14", toDate: "2026-07-14"});
+    expect(decodeMarylandPublicContributionPage(envelope([row(1, {transactionDate: "2026-07-14T00:00:00"})]), request).rows).toHaveLength(1);
+    for (const transactionDate of [undefined, "2026-07-13T00:00:00", "2026-07-15T00:00:00", "2026-02-30T00:00:00", "2026-07-14T01:00:00"])
+      expect(() => decodeMarylandPublicContributionPage(envelope([row(1, {transactionDate})]), request)).toThrow("invalid_contribution_page");
+  });
+  it.each([
+    {sortType: "ASC"}, {fromDate: "2023-02-29"}, {toDate: "2026-04-31"},
+    {fromDate: "2026-08-18T00:00:00"}, {toDate: "08/18/2026"}, {fromDate: "0000-01-01"},
+    {fromDate: "2026-08-19", toDate: "2026-08-18"},
+  ])("rejects unsupported date/sort scope before source work %j", async override => {
+    const fetchImpl = vi.fn<typeof fetch>();
+    await expect(fetchMarylandPublicContributionPage({...scope, ...override,
+      outputPath: await outputPath(), fetchImpl} as never)).rejects.toMatchObject({code: "invalid_request"});
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
   it("retains distinct equal gifts, inactive records and separate editions without financial selection", () => {
     const rows = [row(), row(2), row(1, {transactionVersionID: 2, reportVersionId: 2,
