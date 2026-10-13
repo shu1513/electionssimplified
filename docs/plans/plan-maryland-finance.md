@@ -73,6 +73,32 @@ write, migration, card proof or PR yet.
 
 ## Small steps and verification
 
+The separate legacy control parser now binds the first two 612×792 pages of the
+three older Annual reports. It extracts 36 source control positions and 34
+printed control amounts, preserving two genuinely blank Electoral loan/bill
+components as null. Anonymous and returned-in-kind controls are absent and stay
+unknown. Complete wrapped receipt labels, actual painted cash U-edges/enclosing
+block/operators and distinct Administrative/Electoral debt blocks must bind.
+Receipt, expense, cash and Administrative debt equations close in integer cents;
+Electoral debt arithmetic remains not evaluable for the observed blanks.
+
+The painted Part 2 Total is retained separately with its exact temporal caption,
+`*As of the report transaction ending date.`, without an inferred role/equation.
+Two other currency cells belong to itemized Contributions amount and Aggregate,
+bound by exact section/column headers and painted monetary cells. They never
+become controls or accepted receipts. Every other unused apparent-dollar field,
+including malformed `$ 1.00` and `$1e3`, holds; accepted currency syntax remains
+strict. The initial whole-page guard genuinely held these three originals until
+those extra source roles were resolved.
+
+Final offline implementation replay verifies the original journal paths,
+SHA/bytes/HTTP 200/EOF/errors/actual times before reading exactly two pages per
+report; all three close without a source request or rewritten acquisition time.
+All 50 focused control tests and isolated strict module types pass. Independent
+review verified the final extra-dollar correction and the controls-only boundary.
+This grants no whole legacy receipt identity, edition/currentness or financial
+authority; the separate held legacy receipt parser remains uncommitted.
+
 The retained public UI exposes a separate native outside-allocation route,
 `PublicGrid/GetIndependentExpenditureList`, alongside payer expenses and receiver
 profile discovery. The exact unrestricted global builder has no account selector;
