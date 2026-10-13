@@ -250,3 +250,18 @@ Current PDF occurrence identity, fresh closing publication and the ordinary
 writer/production reader/frontend proof still precede the Maryland PR. All
 243 Maryland tests and backend types pass; local finance hashes/cards remain
 identical to the pre-research baseline.
+
+The normal pure native PAC aggregator now replays every complete current and
+prior row, preserving all 656 refund associations, the five PAC cash refunds
+and all 54 positions (51 positive, three zero). It rejects incomplete arrays,
+duplicate identities, unknown roles/classes, bad cents, wrong receiving/cycle
+scope, inconsistent parents, PAC over-refunds and negative positions. It never
+grants currentness, writes money, or produces an overall Raised total.
+
+The real source also has one explicitly individual $1 gift with two distinct
+$1 refunds. That discrepancy remains a diagnostic; it does not enter a PAC
+position or qualify an overall cash summary. Political Club and Slate Committee
+codes observed only in the prior cycle remain distinct from reported PACs.
+All 270 Maryland tests and backend types pass, and the full normal arithmetic
+agrees with the earlier independent aggregate diagnostic. Current report
+identity/publication authority still precedes any money writer or card proof.
