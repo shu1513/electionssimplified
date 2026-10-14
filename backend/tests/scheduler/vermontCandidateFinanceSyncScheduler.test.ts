@@ -9,6 +9,7 @@ describe("vermontCandidateFinanceSyncScheduler", () => {
     process.env = { ...originalEnv };
     delete process.env.VERMONT_CAMPAIGN_FINANCE_ENABLED;
     delete process.env.VERMONT_CAMPAIGN_FINANCE_SYNC_ENABLED;
+    delete process.env.VERMONT_COMMITTEE_CASH_SYNC_ENABLED;
   });
 
   afterEach(() => {
@@ -32,11 +33,12 @@ describe("vermontCandidateFinanceSyncScheduler", () => {
     }));
   }
 
-  it("returns a disabled no-op result when the sync flag is off and not forced", async () => {
+  it.each([true, false])("returns a disabled no-op result with the configured cash mode (%s)", async (committeeCashOnly) => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-01T00:00:00.000Z"));
     process.env.VERMONT_CAMPAIGN_FINANCE_ENABLED = "true";
     process.env.VERMONT_CAMPAIGN_FINANCE_SYNC_ENABLED = "false";
+    process.env.VERMONT_COMMITTEE_CASH_SYNC_ENABLED = String(committeeCashOnly);
     const Pool = vi.fn();
     vi.doMock("pg", () => ({ Pool }));
 
@@ -55,6 +57,7 @@ describe("vermontCandidateFinanceSyncScheduler", () => {
       force: false,
       triggeredBy: "daily",
       dryRun: false,
+      committeeCashOnly,
       now: "2026-06-01T00:00:00.000Z",
       staleAfterDays: 7,
       maxCandidates: 10,
@@ -110,6 +113,7 @@ describe("vermontCandidateFinanceSyncScheduler", () => {
     const pool = { query: vi.fn(), connect: vi.fn(), end };
     const syncDueVermontCandidateFinance = vi.fn().mockResolvedValue({
       dryRun: true,
+      committeeCashOnly: true,
       now: "2026-06-01T00:00:00.000Z",
       staleAfterDays: 3,
       maxCandidates: 2,
@@ -148,6 +152,7 @@ describe("vermontCandidateFinanceSyncScheduler", () => {
       triggeredBy: "manual",
       dryRun: true,
       selectedCandidateCount: 2,
+      committeeCashOnly: true,
     });
     expect(syncDueVermontCandidateFinance).toHaveBeenCalledWith(
       expect.objectContaining({

@@ -22,6 +22,10 @@ import {
 } from "./vermontOutsideGroupContributionAggregator.js";
 import { aggregateVermontOutsideSpending } from "./vermontOutsideSpendingAggregator.js";
 import {
+  fetchAllVermontTransactionRows as fetchAllTransactionRows,
+  VermontCensusMovedError,
+} from "./vermontTransactionPaging.js";
+import {
   replaceVermontCandidateFinanceSnapshot,
   type VermontFinanceDirectBreakdownInput,
   type VermontFinanceLinkInput,
@@ -178,25 +182,17 @@ function mergeVermontClient(client: Partial<VermontCampaignFinanceDataClient> | 
   return { ...DEFAULT_VERMONT_CLIENT, ...(client ?? {}) };
 }
 
-async function fetchAllTransactionRows<T>(input: {
-  fetchPage: (pageNumber: number) => Promise<VermontPagedResult<T>>;
-  pageSize: number;
-  maxPages: number;
-}): Promise<T[]> {
-  const rows: T[] = [];
-  for (let pageNumber = 1; pageNumber <= input.maxPages; pageNumber += 1) {
-    const page = await input.fetchPage(pageNumber);
-    rows.push(...page.items);
-    if (page.items.length < input.pageSize || pageNumber * input.pageSize >= page.totalItems) {
-      break;
-    }
-    if (pageNumber === input.maxPages) {
-      throw new Error(
-        `Vermont finance transaction fetch reached maxPages=${input.maxPages} before all ${page.totalItems} rows were loaded`
-      );
+/** Restart the statewide query when filings change its count; never combine attempts. */
+async function fetchStableExpenditureRows(
+  fetchCensus: () => Promise<VermontExpenditureRow[]>
+): Promise<VermontExpenditureRow[]> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetchCensus();
+    } catch (error) {
+      if (!(error instanceof VermontCensusMovedError) || attempt >= 3) throw error;
     }
   }
-  return rows;
 }
 
 function toMatchedTrustedCommittee(
@@ -378,20 +374,22 @@ export async function syncVermontCandidateFinance(
         input.vermontClientOptions
       ),
   });
-  const expenditureRows = await fetchAllTransactionRows({
-    pageSize,
-    maxPages,
-    fetchPage: (pageNumber) =>
-      client.getExpenditureDetails(
-        {
-          pageNumber,
-          pageSize,
-          electionYear,
-          transactionTypeCode: "TEXP",
-        },
-        input.vermontClientOptions
-      ),
-  });
+  const expenditureRows = await fetchStableExpenditureRows(() =>
+    fetchAllTransactionRows({
+      pageSize,
+      maxPages,
+      fetchPage: (pageNumber) =>
+        client.getExpenditureDetails(
+          {
+            pageNumber,
+            pageSize,
+            electionYear,
+            transactionTypeCode: "TEXP",
+          },
+          input.vermontClientOptions
+        ),
+    })
+  );
 
   const directFinance = aggregateVermontDirectContributions({
     filerRegistrationGuid: resolution.filerRegistrationGuid,

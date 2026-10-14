@@ -6,6 +6,7 @@ import { getPipelineEnv } from "../config/env.js";
 import {
   isVermontCampaignFinanceEnabled,
   isVermontCampaignFinanceSyncEnabled,
+  isVermontCommitteeCashSyncEnabled,
 } from "../config/featureFlags.js";
 import {
   syncDueVermontCandidateFinance,
@@ -254,6 +255,7 @@ export async function runVermontCandidateFinanceSyncJob(
       force,
       triggeredBy,
       dryRun,
+      committeeCashOnly: isVermontCommitteeCashSyncEnabled(),
       now: now.toISOString(),
       staleAfterDays: data.staleAfterDays ?? DISABLED_RESULT_DEFAULT_STALE_AFTER_DAYS,
       maxCandidates: data.maxCandidates ?? DISABLED_RESULT_DEFAULT_MAX_CANDIDATES,

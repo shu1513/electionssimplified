@@ -5,6 +5,7 @@ import type { VermontCandidateCommitteeResolution } from "../../../src/pipeline/
 import type {
   VermontContributionRow,
   VermontExpenditureRow,
+  VermontTransactionSearchInput,
 } from "../../../src/pipeline/vermontFinance/vermontCampaignFinanceClient.js";
 
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
@@ -160,7 +161,7 @@ function createVermontClient(input: { resolution?: VermontCandidateCommitteeReso
         }),
       ],
     })),
-    getExpenditureDetails: vi.fn(async () => ({
+    getExpenditureDetails: vi.fn(async (_input?: VermontTransactionSearchInput) => ({
       totalItems: 1,
       items: [expenditure()],
     })),
@@ -205,6 +206,85 @@ function createVermontClient(input: { resolution?: VermontCandidateCommitteeReso
 }
 
 describe("vermontCandidateFinanceSync", () => {
+  it("restarts a moving statewide census and discards the abandoned rows", async () => {
+    const db = createMockDb();
+    const vermontClient = createVermontClient();
+    vermontClient.getExpenditureDetails
+      .mockResolvedValueOnce({ totalItems: 3, items: [
+        expenditure({ transactionId: 90, transactionAmount: 9000 }),
+        expenditure({ transactionId: 91, transactionAmount: 9000 }),
+      ] })
+      .mockResolvedValueOnce({ totalItems: 4, items: [] })
+      .mockResolvedValueOnce({ totalItems: 3, items: [
+        expenditure({ transactionId: 1, guid: "fresh-1", transactionAmount: 100 }),
+        expenditure({ transactionId: 2, guid: "fresh-2", transactionAmount: 200 }),
+      ] })
+      .mockResolvedValueOnce({ totalItems: 3, items: [
+        expenditure({ transactionId: 3, guid: "fresh-3", transactionAmount: 300 }),
+      ] });
+
+    const result = await syncVermontCandidateFinance({
+      db, ...baseInput(), pageSize: 2, vermontClient,
+    });
+    expect(result).toMatchObject({
+      fetchedExpenditureRowCount: 3, outsideSupportTotal: 600, summaryWritten: true,
+    });
+    expect(vermontClient.getExpenditureDetails.mock.calls.map(
+      (call) => call[0]?.pageNumber,
+    )).toEqual([1, 2, 1, 2]);
+    expect(vermontClient.getContributionDetails).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops after three moving statewide censuses without writing", async () => {
+    const db = createMockDb();
+    const vermontClient = createVermontClient();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      vermontClient.getExpenditureDetails
+        .mockResolvedValueOnce({ totalItems: 3, items: [
+          expenditure({ transactionId: 1 }), expenditure({ transactionId: 2 }),
+        ] })
+        .mockResolvedValueOnce({ totalItems: 4, items: [] });
+    }
+    await expect(syncVermontCandidateFinance({
+      db, ...baseInput(), pageSize: 2, vermontClient,
+    })).rejects.toMatchObject({ name: "VermontCensusMovedError" });
+    expect(vermontClient.getExpenditureDetails).toHaveBeenCalledTimes(6);
+    expect(db.connect).not.toHaveBeenCalled();
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    { totalItems: -1, items: [] },
+    { totalItems: 1.5, items: [] },
+    { totalItems: 3, items: [] },
+    { totalItems: 3, items: [expenditure()] },
+  ])("does not retry malformed or repeated statewide rows ($totalItems)", async (secondPage) => {
+    const db = createMockDb();
+    const vermontClient = createVermontClient();
+    vermontClient.getExpenditureDetails
+      .mockResolvedValueOnce({ totalItems: 3, items: [
+        expenditure(), expenditure({ transactionId: 11 }),
+      ] })
+      .mockResolvedValueOnce(secondPage);
+    await expect(syncVermontCandidateFinance({
+      db, ...baseInput(), pageSize: 2, vermontClient,
+    })).rejects.toThrow();
+    expect(vermontClient.getExpenditureDetails).toHaveBeenCalledTimes(2);
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
+  it("propagates statewide transport errors unchanged without retrying", async () => {
+    const db = createMockDb();
+    const vermontClient = createVermontClient();
+    const failure = new Error("source unavailable");
+    vermontClient.getExpenditureDetails.mockRejectedValueOnce(failure);
+    await expect(syncVermontCandidateFinance({
+      db, ...baseInput(), vermontClient,
+    })).rejects.toBe(failure);
+    expect(vermontClient.getExpenditureDetails).toHaveBeenCalledTimes(1);
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
   it("resolves, fetches Vermont rows, aggregates direct/PAC support finance, and writes a snapshot", async () => {
     const db = createMockDb();
     const vermontClient = createVermontClient();

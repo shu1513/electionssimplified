@@ -357,6 +357,7 @@ export const isMassachusettsCampaignFinanceSyncEnabled = massachusettsFinance.is
 const vermontFinance = defineStateFinanceFlagPair("VERMONT_CAMPAIGN_FINANCE");
 export const isVermontCampaignFinanceEnabled = vermontFinance.isEnabled;
 export const isVermontCampaignFinanceSyncEnabled = vermontFinance.isSyncEnabled;
+export const isVermontCommitteeCashSyncEnabled = vermontFinance.gate("VERMONT_COMMITTEE_CASH_SYNC_ENABLED");
 
 const louisianaFinance = defineStateFinanceFlagPair("LOUISIANA_CAMPAIGN_FINANCE");
 export const isLouisianaCampaignFinanceEnabled = louisianaFinance.isEnabled;

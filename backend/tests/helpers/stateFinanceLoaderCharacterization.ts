@@ -56,6 +56,7 @@ export type StateFinanceLoaderCharacterizationSpec = {
    * such caveat — those payloads must not gain the field at all.
    */
   outsideCoverageNote?: string;
+  outsideTotalsUnknown?: boolean;
   directCoverageNote?: string;
   /**
    * Set when the loader opts into the public_funds_received funding column.
@@ -301,7 +302,7 @@ function buildExpected(spec: StateFinanceLoaderCharacterizationSpec): Map<string
             : { direct_coverage_note: spec.directCoverageNote }),
         },
         outside_spending: {
-          support_total: 900,
+          support_total: spec.outsideTotalsUnknown ? null : 900,
           oppose_total: null,
           // Absent (not null) for states with no disclosed gap, so this pins
           // both that Ohio sends it and that nobody else gained the field.
