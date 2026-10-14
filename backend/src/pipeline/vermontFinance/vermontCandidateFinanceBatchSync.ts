@@ -66,6 +66,7 @@ export type VermontCandidateFinanceBatchSyncItemResult = {
 
 export type VermontCandidateFinanceBatchSyncResult = {
   dryRun: boolean;
+  committeeCashOnly: boolean;
   now: string;
   staleAfterDays: number;
   maxCandidates: number;
@@ -532,6 +533,7 @@ export async function syncDueVermontCandidateFinance(
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
     dryRun,
+    committeeCashOnly: options.committeeCashOnly,
     now: now.toISOString(),
     staleAfterDays,
     maxCandidates,

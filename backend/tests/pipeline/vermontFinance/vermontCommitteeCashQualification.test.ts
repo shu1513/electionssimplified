@@ -524,6 +524,22 @@ describe("Vermont source-typed committee cash qualification", () => {
     y.after.reports[0]!.capture.completedAt = "2026-10-10T00:00:01Z";
     held(y, /independently ordered/);
   });
+  it("holds future report coverage before a dry run can call it qualified", () => {
+    const x = fixture();
+    each(x, (p) => {
+      inventory(p)[0]!.endDate = "2026-10-20T00:00:00";
+      p.reports[0]!.facts.periodEnd = "2026-10-20";
+    });
+    held(x, /report period.*observation/i);
+  });
+  it("accepts coverage ending on the closing observation date", () => {
+    const x = fixture();
+    each(x, (p) => {
+      inventory(p)[0]!.endDate = "2026-10-12T00:00:00";
+      p.reports[0]!.facts.periodEnd = "2026-10-12";
+    });
+    expect(qualifyVermontCommitteeCash(x).status).toBe("qualified");
+  });
   it.each(["8.005", "90071992547409.92"])(
     "rejects unsafe exact source cents %s",
     (amount) => {

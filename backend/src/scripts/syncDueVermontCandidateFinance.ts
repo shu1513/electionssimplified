@@ -151,7 +151,7 @@ export function toSyncDueVermontCandidateFinanceScriptOutput(input: {
     ts: new Date().toISOString(),
     started_at: input.startedAt.toISOString(),
     dry_run: input.options.dryRun,
-    committee_cash_only: input.options.committeeCashOnly === true,
+    committee_cash_only: input.result.committeeCashOnly,
     result: input.result,
   };
 }

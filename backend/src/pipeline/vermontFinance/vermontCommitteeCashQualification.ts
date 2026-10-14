@@ -513,6 +513,13 @@ export function qualifyVermontCommitteeCash(
       hold("Financial capture phases not independently ordered");
     const before = phaseFacts(input.before, context),
       after = phaseFacts(input.after, context);
+    const observedDay = new Date(
+      Math.max(...afterCaptures.map((c) => Date.parse(c.completedAt))),
+    )
+      .toISOString()
+      .slice(0, 10);
+    if (after.bound.at(-1)!.end > observedDay)
+      hold("Report period extends beyond the closing source observation");
     for (const key of ["inventory", "receipts", "expenses"] as const)
       if (multiset(before[key]) !== multiset(after[key]))
         hold("Changed full published financial source");

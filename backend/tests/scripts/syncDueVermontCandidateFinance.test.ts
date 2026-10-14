@@ -2,13 +2,15 @@ import { mkdtemp, readdir, readFile, stat, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { describe, expect, it } from "vitest";
-
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { syncDueVermontCandidateFinance } from "../../src/pipeline/vermontFinance/vermontCandidateFinanceBatchSync.js";
 import {
   parseSyncDueVermontCandidateFinanceScriptArgs,
   createVermontCommitteeCashCaptureSink,
   toSyncDueVermontCandidateFinanceScriptOutput,
 } from "../../src/scripts/syncDueVermontCandidateFinance.js";
+
+afterEach(() => vi.unstubAllEnvs());
 
 describe("syncDueVermontCandidateFinance script", () => {
   it("parses due-sync flags", () => {
@@ -62,6 +64,7 @@ describe("syncDueVermontCandidateFinance script", () => {
       options: { dryRun: true, force: false },
       result: {
         dryRun: true,
+        committeeCashOnly: false,
         now: "2026-06-01T00:00:00.000Z",
         staleAfterDays: 7,
         maxCandidates: 25,
@@ -85,6 +88,28 @@ describe("syncDueVermontCandidateFinance script", () => {
 });
 
 describe("Vermont isolated cash CLI", () => {
+  it.each([true, false])(
+    "reports the actual mode for an empty environment-selected batch (%s)",
+    async (enabled) => {
+      vi.stubEnv("VERMONT_CAMPAIGN_FINANCE_ENABLED", "true");
+      vi.stubEnv("VERMONT_COMMITTEE_CASH_SYNC_ENABLED", String(enabled));
+      const options = parseSyncDueVermontCandidateFinanceScriptArgs(["--dry-run"]);
+      const query = vi.fn().mockResolvedValue({ rows: [] });
+      const result = await syncDueVermontCandidateFinance({
+        db: { query, connect: vi.fn() } as never,
+        ...options,
+      });
+      // Output reflects the mode used, even if environment changes after the batch.
+      vi.stubEnv("VERMONT_COMMITTEE_CASH_SYNC_ENABLED", String(!enabled));
+      expect(
+        toSyncDueVermontCandidateFinanceScriptOutput({
+          startedAt: new Date(),
+          options,
+          result,
+        }).committee_cash_only,
+      ).toBe(enabled);
+    },
+  );
   it("accepts bounded opted-in source flags", () => {
     expect(
       parseSyncDueVermontCandidateFinanceScriptArgs([
