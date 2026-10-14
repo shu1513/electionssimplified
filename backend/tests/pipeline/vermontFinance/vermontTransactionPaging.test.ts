@@ -54,7 +54,7 @@ describe("Vermont physical transaction census", () => {
       .mockResolvedValueOnce({ items: [row(3), row(4)], totalItems: 4 });
     await expect(
       fetchAllVermontTransactionRows({ fetchPage, pageSize: 2 }),
-    ).rejects.toThrow("changed during paging");
+    ).rejects.toMatchObject({ name: "VermontCensusMovedError" });
   });
 
   it("rejects repeated IDs/versions and repeated pages", async () => {

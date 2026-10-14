@@ -263,6 +263,24 @@ describe("fresh Vermont committee cash acquisition", () => {
       }),
     ).rejects.toThrow(/changed/);
   });
+  it("holds a moving cash census without retrying or fetching PDFs", async () => {
+    let contributionRequests = 0;
+    const fetchImpl = protocol({
+      mutate: (path, fields, data) => {
+        if (path.endsWith("GetContributionsDetails")) {
+          contributionRequests++;
+          if (fields.pageNumber === 2)
+            return { succeeded: true, data: { items: [], totalItems: 3 }, error: null };
+        }
+        return data;
+      },
+    });
+    await expect(
+      acquireVermontCommitteeCash({ context, fetchImpl, pageSize: 1 }),
+    ).rejects.toMatchObject({ name: "VermontCensusMovedError" });
+    expect(contributionRequests).toBe(2);
+    expect(vi.mocked(readVermontReportControlPdf)).not.toHaveBeenCalled();
+  });
   it("fails incomplete cash pagination without a partial result or fabricated closing", async () => {
     const fetchImpl = protocol({
       mutate: (path, fields, data) =>

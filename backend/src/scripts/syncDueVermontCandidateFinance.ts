@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, chmod, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { VermontCommitteeCashResponseCapture } from "../pipeline/vermontFinance/vermontCommitteeCashAcquisition.js";
 import { pathToFileURL } from "node:url";
@@ -100,7 +100,6 @@ export async function createVermontCommitteeCashCaptureSink(
   rawCacheDir: string,
 ): Promise<(capture: VermontCommitteeCashResponseCapture) => Promise<void>> {
   await mkdir(rawCacheDir, { recursive: true, mode: 0o700 });
-  await chmod(rawCacheDir, 0o700);
   const generationDir = join(rawCacheDir, `vermont-${randomUUID()}`);
   await mkdir(generationDir, { mode: 0o700 });
   let index = 0;

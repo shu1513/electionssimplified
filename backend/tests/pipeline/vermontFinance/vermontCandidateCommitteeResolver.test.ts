@@ -516,21 +516,23 @@ describe("vermontCandidateCommitteeResolver", () => {
     ).toThrow("Invalid Vermont candidate committee election year");
   });
 
-  it("can search Vermont transactions and resolve through the async wrapper", async () => {
+  it("resolves a candidate beyond 2,500 rows in a broad last-name search", async () => {
     const fetchImpl = vi.fn().mockImplementation((_url: URL | RequestInfo, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body ?? "{}")) as {
         filerName?: string;
         transactionTypeCode?: string;
         pageNumber?: number;
+        pageSize: number;
       };
-      if (body.filerName === "SCOTT" && body.transactionTypeCode === "TCON" && body.pageNumber === 1) {
+      const offset = ((body.pageNumber ?? 1) - 1) * body.pageSize;
+      if (body.filerName === "SCOTT" && body.transactionTypeCode === "TCON" && offset < 3000) {
         return Promise.resolve(
           jsonResponse({
             data: {
-              items: Array.from({ length: 100 }, (_value, index) => ({
-                  transactionID: 91000 + index,
-                  guid: `non-match-page-1-${index + 1}`,
-                  filerRegistrationGuid: `other-guid-${index + 1}`,
+              items: Array.from({ length: body.pageSize }, (_value, index) => ({
+                  transactionID: 91000 + offset + index,
+                  guid: `non-match-${offset + index + 1}`,
+                  filerRegistrationGuid: `other-guid-${offset + index + 1}`,
                   filerName: "SCOTT, OTHER",
                   transactionAmount: 1000,
                   filerTypeCode: "CAN",
@@ -542,7 +544,7 @@ describe("vermontCandidateCommitteeResolver", () => {
                   candidateFirstName: "OTHER",
                   candidateLastName: "SCOTT",
                 })),
-              totalItems: 101,
+              totalItems: 3001,
             },
             succeeded: true,
             error: null,
@@ -572,7 +574,7 @@ describe("vermontCandidateCommitteeResolver", () => {
                   candidateLastName: "SCOTT",
                 },
               ],
-              totalItems: 101,
+              totalItems: 3001,
             },
             succeeded: true,
             error: null,
@@ -606,7 +608,7 @@ describe("vermontCandidateCommitteeResolver", () => {
       expect.arrayContaining([
         expect.objectContaining({ filerName: "Phil Scott", transactionTypeCode: "TCON", electionYear: 2024 }),
         expect.objectContaining({ filerName: "SCOTT", transactionTypeCode: "TCON", electionYear: 2024, pageNumber: 1 }),
-        expect.objectContaining({ filerName: "SCOTT", transactionTypeCode: "TCON", electionYear: 2024, pageNumber: 2 }),
+        expect.objectContaining({ filerName: "SCOTT", transactionTypeCode: "TCON", electionYear: 2024, pageNumber: 4 }),
         expect.objectContaining({ filerName: "SCOTT, PHIL", transactionTypeCode: "TEXP", electionYear: 2024 }),
       ])
     );

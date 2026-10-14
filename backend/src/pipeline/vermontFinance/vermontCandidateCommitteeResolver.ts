@@ -89,7 +89,7 @@ type CandidateCommitteeAccumulator = {
 };
 
 const VERMONT_CAMPAIGN_FINANCE_SOURCE_URL = "https://campaignfinance.vermont.gov/";
-const VERMONT_CANDIDATE_COMMITTEE_SEARCH_PAGE_SIZE = 100;
+const VERMONT_CANDIDATE_COMMITTEE_SEARCH_PAGE_SIZE = 1_000;
 
 function normalizeElectionYear(value: number): number {
   if (!Number.isInteger(value) || value < 2000 || value > 2100) {

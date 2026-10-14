@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, stat, rm } from "node:fs/promises";
+import { chmod, mkdtemp, readdir, readFile, stat, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
@@ -152,7 +152,9 @@ describe("Vermont isolated cash CLI", () => {
   it("saves original bodies and genuine source times privately while ignoring extra headers", async () => {
     const dir = await mkdtemp(join(tmpdir(), "vt-cash-cli-"));
     try {
+      await chmod(dir, 0o755);
       const sink = await createVermontCommitteeCashCaptureSink(dir);
+      expect((await stat(dir)).mode & 0o777).toBe(0o755);
       const body = new TextEncoder().encode('{"items":[],"totalItems":0}');
       const capture = {
         url: "https://api.campaignfinance.vermont.gov/api/PublicTransactionDetails/GetContributionsDetails",

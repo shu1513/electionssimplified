@@ -21,7 +21,10 @@ import {
   type VermontOutsideGroupContributionFetchAndAggregationResult,
 } from "./vermontOutsideGroupContributionAggregator.js";
 import { aggregateVermontOutsideSpending } from "./vermontOutsideSpendingAggregator.js";
-import { fetchAllVermontTransactionRows as fetchAllTransactionRows } from "./vermontTransactionPaging.js";
+import {
+  fetchAllVermontTransactionRows as fetchAllTransactionRows,
+  VermontCensusMovedError,
+} from "./vermontTransactionPaging.js";
 import {
   replaceVermontCandidateFinanceSnapshot,
   type VermontFinanceDirectBreakdownInput,
@@ -177,6 +180,19 @@ function normalizeCandidateNameForStorage(value: string): string {
 
 function mergeVermontClient(client: Partial<VermontCampaignFinanceDataClient> | undefined): VermontCampaignFinanceDataClient {
   return { ...DEFAULT_VERMONT_CLIENT, ...(client ?? {}) };
+}
+
+/** Restart the statewide query when filings change its count; never combine attempts. */
+async function fetchStableExpenditureRows(
+  fetchCensus: () => Promise<VermontExpenditureRow[]>
+): Promise<VermontExpenditureRow[]> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetchCensus();
+    } catch (error) {
+      if (!(error instanceof VermontCensusMovedError) || attempt >= 3) throw error;
+    }
+  }
 }
 
 function toMatchedTrustedCommittee(
@@ -358,20 +374,22 @@ export async function syncVermontCandidateFinance(
         input.vermontClientOptions
       ),
   });
-  const expenditureRows = await fetchAllTransactionRows({
-    pageSize,
-    maxPages,
-    fetchPage: (pageNumber) =>
-      client.getExpenditureDetails(
-        {
-          pageNumber,
-          pageSize,
-          electionYear,
-          transactionTypeCode: "TEXP",
-        },
-        input.vermontClientOptions
-      ),
-  });
+  const expenditureRows = await fetchStableExpenditureRows(() =>
+    fetchAllTransactionRows({
+      pageSize,
+      maxPages,
+      fetchPage: (pageNumber) =>
+        client.getExpenditureDetails(
+          {
+            pageNumber,
+            pageSize,
+            electionYear,
+            transactionTypeCode: "TEXP",
+          },
+          input.vermontClientOptions
+        ),
+    })
+  );
 
   const directFinance = aggregateVermontDirectContributions({
     filerRegistrationGuid: resolution.filerRegistrationGuid,

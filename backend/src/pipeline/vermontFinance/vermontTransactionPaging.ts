@@ -1,5 +1,13 @@
 import type { VermontPagedResult } from "./vermontCampaignFinanceClient.js";
 
+/** A valid declared count changed between pages; callers may restart the census. */
+export class VermontCensusMovedError extends Error {
+  constructor() {
+    super("Vermont transaction declared total changed during paging");
+    this.name = "VermontCensusMovedError";
+  }
+}
+
 /** A complete physical query census; this does not certify report versions or dates. */
 export async function fetchAllVermontTransactionRows<
   T extends {
@@ -29,12 +37,14 @@ export async function fetchAllVermontTransactionRows<
     const page = await input.fetchPage(pageNumber);
     if (
       !Number.isSafeInteger(page.totalItems) ||
-      page.totalItems < 0 ||
-      (declaredTotal !== undefined && page.totalItems !== declaredTotal)
+      page.totalItems < 0
     ) {
       throw new Error(
-        "Vermont transaction declared total is invalid or changed during paging",
+        "Vermont transaction declared total is invalid",
       );
+    }
+    if (declaredTotal !== undefined && page.totalItems !== declaredTotal) {
+      throw new VermontCensusMovedError();
     }
     declaredTotal = page.totalItems;
     const expected = Math.min(input.pageSize, declaredTotal - rows.length);
