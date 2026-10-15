@@ -5641,7 +5641,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(15);
+    expect(query).toHaveBeenCalledTimes(16);
     expect(query.mock.calls[7]?.[0]).toContain("public.mn_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.mn_candidate_finance_outside_groups");
     expect(query.mock.calls[9]?.[0]).toContain("public.mn_candidate_finance_outside_group_breakdowns");
@@ -5649,6 +5649,7 @@ describe("lookupElectionDetailById", () => {
     expect(query.mock.calls[10]?.[0]).toContain("top_industries_per_group");
     expect(query.mock.calls[10]?.[0]).toContain("public.finance_label_classifications");
     expect(query.mock.calls[10]?.[0]).toContain("classification.normalized_label");
+    expect(query.mock.calls[11]?.[0]).toContain("public.mn_candidate_finance_pac_sources");
   });
 
   it("includes Minnesota finance summaries for legislative races whose election rows carry no district", async () => {
@@ -5743,7 +5744,7 @@ describe("lookupElectionDetailById", () => {
         cash_on_hand: 25000,
       },
     });
-    expect(query).toHaveBeenCalledTimes(13);
+    expect(query).toHaveBeenCalledTimes(14);
     expect(query.mock.calls[7]?.[0]).toContain("public.mn_candidate_finance_summaries");
   });
 

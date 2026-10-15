@@ -87,17 +87,20 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
  * interest, each row opening to the PACs behind it. `rows` is undefined when
  * the list was not loaded and empty when no PAC gave.
  */
-function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
+function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] | undefined;
+  basis?: FinanceSummary["direct_campaign"]["pac_money_basis"]; note?: string }) {
   const [openInterest, setOpenInterest] = useState<string | null>(null);
   // Not loaded, or under the small-amount threshold: render nothing.
   if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
+  const committees = basis === "reported_itemized_committee_cash_contributions";
   return (
     <View className="mt-3">
-      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</Text>
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee cash by interest" : "PAC money by interest"}</Text>
+      {note ? <Text className="mt-1 text-xs text-ink-soft">{note}</Text> : null}
       {rows.length === 0 ? (
-        <Text className="mt-1 text-sm text-ink-soft">No PAC donations reported.</Text>
+        <Text className="mt-1 text-sm text-ink-soft">{committees ? "No itemized committee cash contributions reported." : "No PAC donations reported."}</Text>
       ) : (
         <View className="mt-1 gap-0.5">
           {rows.map((row) => (
@@ -110,14 +113,14 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
               >
                 <Text className="flex-1 text-sm text-ink">
                   {row.interest_name}
-                  <Text className="text-xs text-ink-soft"> · {formatPacCount(row.pac_count)}</Text>
+                  <Text className="text-xs text-ink-soft"> · {committees ? `${row.pac_count} reported ${row.pac_count === 1 ? "group" : "groups"}` : formatPacCount(row.pac_count)}</Text>
                 </Text>
                 <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
               </Pressable>
               {openInterest === row.interest ? (
                 <View className="mb-2 ml-3 mt-1 gap-0.5 border-l border-line pl-3">
                   {row.pacs.map((pac) => (
-                    <View key={pac.committee_id}>
+                    <View key={JSON.stringify([pac.committee_id, pac.committee_name])}>
                       <View className="flex-row justify-between gap-3">
                         <Text
                           className="flex-1 text-xs text-ink-mid"
@@ -487,7 +490,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
         </>
       ) : null}
 
-      <PacMoneyByInterest rows={direct.pac_money_by_interest} />
+      <PacMoneyByInterest rows={direct.pac_money_by_interest} basis={direct.pac_money_basis} note={direct.pac_money_coverage_note} />
       <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (

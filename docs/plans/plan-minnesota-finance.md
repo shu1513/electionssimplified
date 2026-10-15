@@ -61,15 +61,50 @@ Private originals and aggregate diagnostics remain outside Git. No environment
 file is read, loaded, recopied or modified. State flags stay inline; AI calls
 remain disabled. No production operation, deployment, merge or automation.
 
-## Filing deadlines and fresh reruns
-
 ## Implementation checkpoint
 
-The first amount-format correction passes all 109 existing Minnesota pipeline,
-CLI and scheduler tests, including three ordinary sync cases for `.25`, `$.25`
-and `0.25`. Independent manual review found no other accepted-format change.
-This is parser verification; no new committee storage, money sync or card proof
-has occurred yet.
+The first amount-format correction passed all 109 Minnesota pipeline, CLI and
+scheduler tests, including ordinary sync cases for `.25`, `$.25` and `0.25`.
+Independent manual review found no other accepted-format change.
+
+The ordinary producer now publishes three verified immutable originals through
+one atomic manifest. Ordinary batches pin it once and read every byte through
+EOF, checking UTF-8, native schema, widths, money/allocation fields for IE, bytes
+and hashes before using filtered rows. V1 originals remain readable after full
+qualification. Failed acquisition keeps the prior manifest/files; component
+failure independently preserves stored cash, IE or IE-funder evidence.
+
+Applied local migration 344 only after the normal runner verified it was the
+sole pending file. Migration 343 remains reserved/applied for Maryland. Cash
+groups and actual acquisition provenance are written in the existing protected
+link transaction; omitted or held cash leaves all stored cash values/times alone.
+Native blank/Unknown/Null contributor classes are counted as omitted, not
+guessed into committees or used to suppress separately explicit committee gifts.
+
+A second genuine ordinary refresh acquired four HTTP-200 responses October 15,
+20:13:05–20:15:02 UTC, with 97,382,060 bulk bytes and the same whole-source row
+counts. No fixture or edited acceptance manifest supplied the financial proof.
+The ordinary 25-candidate due batch then dry-ran with all existing DB values and
+times unchanged, followed by the real local writer: 25 source components and
+186 donor groups, 204 gift occurrences totaling $314,790; three otherwise
+eligible unknown-class rows omitted. Both runs made 50 normal official summary
+requests with no warnings or candidate failures. This proves one ordinary batch
+of 373 due candidates, not completion of every linked candidate's initial fill.
+
+Amy Klobuchar's 2026 Governor/Lieutenant Governor component has 90 reported
+groups, 100 occurrences and $264,290. The production reader and real Chrome
+candidate page show that exact amount under “Committee cash by interest,” with
+the named donor list collapsed. Raised remains the separate official-summary
+$4,850,027.11; native outside totals are $82,203.25 support/$2,719,137.72 oppose.
+No annual-summary equality is asserted: the official candidate form includes
+cash, in-kind and nonitemized amounts in its broader committee/fund category.
+Sources are acquisition observations, not certified report-through dates.
+
+Validation before final review: all 16,741 backend tests passed (163 skipped),
+all 1,230 frontend/shared tests passed, and backend/frontend/mobile TypeScript
+checks passed. Focused tests also cover missing and corrupt sources, publication
+failure retention, pinned generations, exact cents and occurrence multiplicity,
+transaction rollback, source-only readers and honest card labels/empty states.
 
 ## Filing deadlines and fresh reruns
 

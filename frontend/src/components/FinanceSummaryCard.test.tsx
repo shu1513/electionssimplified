@@ -41,6 +41,27 @@ describe("hasFinanceContent", () => {
 });
 
 describe("FinanceSummaryCard", () => {
+  it("labels Minnesota's reported cash scope and group counts without asserting PAC registration or net gifts", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "MINNESOTA_CFB";
+    summary.direct_campaign.pac_money_basis = "reported_itemized_committee_cash_contributions";
+    summary.direct_campaign.pac_money_coverage_note = "Itemized committee cash; later separately reported returns are outside this scope.";
+    summary.direct_campaign.pac_money_by_interest = [{ interest: "unclassified", interest_name: "Not yet sorted",
+      amount: 6000, pac_count: 2, pacs: [
+        { committee_id: "3001", committee_name: "Example Committee", amount: 5000, source_url: null },
+        { committee_id: "3001", committee_name: "EXAMPLE COMMITTEE", amount: 1000, source_url: null },
+      ] }];
+    const { rerender } = render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("Committee cash by interest")).toBeInTheDocument();
+    expect(screen.getByText(/2 reported groups/)).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.pac_money_coverage_note)).toBeInTheDocument();
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+    expect(screen.queryByText("Raised")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest = [];
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("No itemized committee cash contributions reported.")).toBeInTheDocument();
+  });
+
   it("shows accepted PAC coverage without a legacy direct summary", () => {
     const summary = emptyFinanceSummary();
     summary.source = "VERMONT_CFD";

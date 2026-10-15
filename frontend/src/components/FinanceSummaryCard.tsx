@@ -114,15 +114,18 @@ function BreakdownList({
  * not loaded (render nothing) and empty when no PAC gave. A list under the
  * small-amount threshold renders nothing either.
  */
-function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
+function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] | undefined;
+  basis?: FinanceSummary["direct_campaign"]["pac_money_basis"]; note?: string }) {
   if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
     return null;
   }
+  const committees = basis === "reported_itemized_committee_cash_contributions";
   return (
     <div className="mt-3">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</h4>
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee cash by interest" : "PAC money by interest"}</h4>
+      {note ? <p className="mt-1 text-xs text-ink-soft">{note}</p> : null}
       {rows.length === 0 ? (
-        <p className="mt-1 text-sm text-ink-soft">No PAC donations reported.</p>
+        <p className="mt-1 text-sm text-ink-soft">{committees ? "No itemized committee cash contributions reported." : "No PAC donations reported."}</p>
       ) : (
         <ul className="mt-1 space-y-0.5">
           {rows.map((row) => (
@@ -131,13 +134,13 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
                 <summary className="flex cursor-pointer select-none justify-between gap-3 hover:underline">
                   <span className="text-ink">
                     {row.interest_name}
-                    <span className="text-xs text-ink-soft"> · {formatPacCount(row.pac_count)}</span>
+                    <span className="text-xs text-ink-soft"> · {committees ? `${row.pac_count} reported ${row.pac_count === 1 ? "group" : "groups"}` : formatPacCount(row.pac_count)}</span>
                   </span>
                   <span className="shrink-0 text-ink-soft">{formatMoney(row.amount)}</span>
                 </summary>
                 <ul className="mb-2 ml-3 mt-1 space-y-0.5 border-l border-line pl-3">
                   {row.pacs.map((pac) => (
-                    <li key={pac.committee_id} className="text-xs">
+                    <li key={JSON.stringify([pac.committee_id, pac.committee_name])} className="text-xs">
                       <div className="flex justify-between gap-3">
                         <span className="text-ink-mid">
                           {pac.source_url ? (
@@ -549,7 +552,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
         </>
       ) : null}
 
-      <PacMoneyByInterest rows={direct.pac_money_by_interest} />
+      <PacMoneyByInterest rows={direct.pac_money_by_interest} basis={direct.pac_money_basis} note={direct.pac_money_coverage_note} />
       <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (

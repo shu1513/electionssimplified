@@ -202,6 +202,8 @@ export type BallotLookupFinanceSummary = {
      * only). Absent until the PAC list was loaded for this cycle.
      */
     pac_money_by_interest?: BallotLookupFinancePacInterest[];
+    pac_money_basis?: "reported_itemized_committee_cash_contributions";
+    pac_money_coverage_note?: string;
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders
