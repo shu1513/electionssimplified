@@ -12,6 +12,8 @@ import {
 } from "./minnesotaFinanceWriter.js";
 import type { MinnesotaCandidateFinancialSummary } from "./minnesotaCandidateFinancialSummaryClient.js";
 import type { MinnesotaCampaignFinanceCsvRow } from "./minnesotaCampaignFinanceArtifactReader.js";
+import { aggregateMinnesotaReportedCommitteeCash, MinnesotaReportedCommitteeCashHoldError } from "./minnesotaReportedCommitteeCashAggregator.js";
+import type { MinnesotaCommitteeCashSnapshot } from "./minnesotaCommitteeCashWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -29,6 +31,7 @@ export type MinnesotaCandidateFinanceSyncInput = {
   outsideContributionRows?: readonly MinnesotaCampaignFinanceCsvRow[];
   sourceUrl?: string | null;
   contributionSourceUrl?: string | null;
+  reportedCommitteeCashSource?: MinnesotaCommitteeCashSnapshot["source"];
   expenditureSourceUrl?: string | null;
   outsideSourceUrl?: string | null;
   financialSummary?: MinnesotaCandidateFinancialSummary;
@@ -78,6 +81,10 @@ export type MinnesotaCandidateFinanceSyncResult = {
   matchedOutsideContributionRowCount: number;
   includedOutsideContributionRowCount: number;
   skippedOutsideContributionRowCount: number;
+  reportedCommitteeCashStatus: "unavailable" | "held" | "ready";
+  reportedCommitteeCashDonorsWritten: number;
+  reportedCommitteeCashTotal: number | null;
+  excludedUnknownClassRowCount: number;
 };
 
 function requireNonEmpty(value: string, fieldName: string): string {
@@ -352,6 +359,10 @@ export async function syncMinnesotaCandidateFinance(
       matchedOutsideContributionRowCount: 0,
       includedOutsideContributionRowCount: 0,
       skippedOutsideContributionRowCount: 0,
+      reportedCommitteeCashStatus: "unavailable",
+      reportedCommitteeCashDonorsWritten: 0,
+      reportedCommitteeCashTotal: null,
+      excludedUnknownClassRowCount: 0,
     };
   }
 
@@ -432,6 +443,24 @@ export async function syncMinnesotaCandidateFinance(
       null,
   };
 
+  let reportedCommitteeCash: MinnesotaCommitteeCashSnapshot | undefined;
+  let reportedCommitteeCashStatus: MinnesotaCandidateFinanceSyncResult["reportedCommitteeCashStatus"] = "unavailable";
+  if (input.reportedCommitteeCashSource) {
+    try {
+      reportedCommitteeCash = {
+        aggregate: aggregateMinnesotaReportedCommitteeCash({
+          rows: input.contributionRows, committeeId: resolution.committeeId, electionYear,
+        }),
+        source: input.reportedCommitteeCashSource,
+      };
+      reportedCommitteeCashStatus = "ready";
+    } catch (error) {
+      if (!(error instanceof MinnesotaReportedCommitteeCashHoldError)) throw error;
+      reportedCommitteeCashStatus = "held";
+      console.warn(error.message);
+    }
+  }
+
   if (!input.dryRun) {
     await replaceMinnesotaCandidateFinanceSnapshot({
       db: input.db,
@@ -451,6 +480,7 @@ export async function syncMinnesotaCandidateFinance(
       summary,
       outsideGroups,
       outsideGroupBreakdowns,
+      reportedCommitteeCash,
     });
   }
 
@@ -470,14 +500,18 @@ export async function syncMinnesotaCandidateFinance(
     totalDisbursements: summary.totalDisbursements ?? null,
     outsideSupportTotal,
     outsideOpposeTotal,
-    matchedContributionRowCount: 0,
-    includedContributionRowCount: 0,
-    skippedContributionRowCount: 0,
+    matchedContributionRowCount: reportedCommitteeCash?.aggregate.matchedContributionRowCount ?? 0,
+    includedContributionRowCount: reportedCommitteeCash?.aggregate.includedContributionRowCount ?? 0,
+    skippedContributionRowCount: reportedCommitteeCash?.aggregate.excludedContributionRowCount ?? 0,
     matchedOutsideExpenditureRowCount: outsideGroupCandidateData.matchedOutsideExpenditureRowCount,
     includedOutsideExpenditureRowCount: outsideGroupCandidateData.includedOutsideExpenditureRowCount,
     skippedOutsideExpenditureRowCount: outsideGroupCandidateData.skippedOutsideExpenditureRowCount,
     matchedOutsideContributionRowCount: outsideFinance.matchedContributionRowCount,
     includedOutsideContributionRowCount: outsideFinance.includedContributionRowCount,
     skippedOutsideContributionRowCount: outsideFinance.skippedContributionRowCount,
+    reportedCommitteeCashStatus,
+    reportedCommitteeCashDonorsWritten: input.dryRun ? 0 : reportedCommitteeCash?.aggregate.donors.length ?? 0,
+    reportedCommitteeCashTotal: reportedCommitteeCash ? reportedCommitteeCash.aggregate.totalAmountCents / 100 : null,
+    excludedUnknownClassRowCount: reportedCommitteeCash?.aggregate.excludedUnknownClassRowCount ?? 0,
   };
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { syncMinnesotaCandidateFinance } from "../../../src/pipeline/minnesotaFinance/minnesotaCandidateFinanceSync.js";
 import type { MinnesotaCampaignFinanceCsvRow } from "../../../src/pipeline/minnesotaFinance/minnesotaCampaignFinanceArtifactReader.js";
@@ -47,6 +47,47 @@ function outsideContributionRow(overrides: Partial<MinnesotaCampaignFinanceCsvRo
 }
 
 describe("Minnesota candidate finance sync", () => {
+  const nativeReceipt = {
+    "Recipient reg num": "1001", "Recipient type": "PCC", Year: "2026",
+    "Contrib type": "Political Committee/Fund", "Contrib Reg Num": "3001", Contributor: "Example Committee",
+    "Receipt type": "Contribution", "In kind?": "No", "Receipt date": "2026-01-01", Amount: "100.25",
+  };
+  const cashSource = { observedAt: "2026-05-01T00:00:00.000Z", sha256: "a".repeat(64),
+    byteCount: 1000, rowCount: 3, url: "https://register.cfb.mn.gov/downloads/receipts.csv" };
+  function cashSyncInput(rows = [nativeReceipt]) {
+    const queries: { text: string; values: readonly unknown[] }[] = [];
+    return { queries, input: {
+      db: { query: async (text: string, values: readonly unknown[] = []) => {
+        queries.push({ text, values }); return { rows: text.includes("INSERT INTO public.mn_candidate_finance_links") ? [{ id: "link-1" }] : [] };
+      } }, candidateId: "11111111-1111-4111-8111-111111111111", electionId: "22222222-2222-4222-8222-222222222222",
+      candidateName: "Jane Doe", electionYear: 2026, officeScope: "statewide", officeName: "Governor",
+      contributionRows: rows, reportedCommitteeCashSource: cashSource,
+      trustedCommittee: { committeeId: "1001", committeeName: "Friends of Jane Doe" }, now: new Date("2026-06-01T00:00:00.000Z"),
+    } };
+  }
+
+  it("writes classified cash independently of unavailable direct totals and outside sources", async () => {
+    const { input, queries } = cashSyncInput();
+    const result = await syncMinnesotaCandidateFinance(input);
+    expect(result).toMatchObject({ reportedCommitteeCashStatus: "ready", reportedCommitteeCashTotal: 100.25,
+      reportedCommitteeCashDonorsWritten: 1, includedContributionRowCount: 1, totalReceipts: null, outsideSupportTotal: null });
+    expect(queries.some((query) => query.text.includes("INSERT INTO public.mn_candidate_finance_pac_donors"))).toBe(true);
+    expect(queries.find((query) => query.text.includes("INSERT INTO public.mn_candidate_finance_pac_sources"))?.values)
+      .toContain(cashSource.observedAt);
+  });
+
+  it("preserves cash on a component hold while independent IE still writes", async () => {
+    const { input, queries } = cashSyncInput([{ ...nativeReceipt, Amount: "not money" }]);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const result = await syncMinnesotaCandidateFinance({ ...input, expenditureRows: [outsideExpenditureRow()] });
+      expect(result).toMatchObject({ reportedCommitteeCashStatus: "held", reportedCommitteeCashTotal: null,
+        reportedCommitteeCashDonorsWritten: 0, outsideSupportTotal: 70000 });
+      expect(queries.some((query) => /mn_candidate_finance_pac_/.test(query.text))).toBe(false);
+      expect(queries.some((query) => query.text.includes("INSERT INTO public.mn_candidate_finance_outside_groups"))).toBe(true);
+    } finally { warn.mockRestore(); }
+  });
+
   it.each([".25", "$.25", "0.25"])("includes source decimal amount %s in allocated IE", async (amount) => {
     const result = await syncMinnesotaCandidateFinance({
       db: { query: async () => ({ rows: [] }) },

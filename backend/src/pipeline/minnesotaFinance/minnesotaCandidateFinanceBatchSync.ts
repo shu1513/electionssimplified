@@ -1,4 +1,3 @@
-import { stat } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 
 import {
@@ -11,11 +10,13 @@ import {
   DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR,
   getMinnesotaCampaignFinanceArtifactCachePaths,
   readMinnesotaCampaignFinanceArtifactCacheMetadata,
+  resolveMinnesotaCampaignFinanceCachedDownload,
+  type MinnesotaCampaignFinanceArtifactCacheMetadata,
+  type MinnesotaCampaignFinanceDownloadKey,
 } from "./minnesotaCampaignFinanceArtifactCache.js";
 import {
-  readMinnesotaCampaignFinanceContributionRows,
-  readMinnesotaCampaignFinanceIndependentExpenditureContributionRows,
-  readMinnesotaCampaignFinanceIndependentExpenditureRows,
+  readMinnesotaCampaignFinanceNativeRows,
+  type MinnesotaCampaignFinanceSourceFacts,
   type MinnesotaCampaignFinanceCsvRow,
 } from "./minnesotaCampaignFinanceArtifactReader.js";
 import {
@@ -104,18 +105,6 @@ function normalizeCommitteeId(value: string): string {
   return value.trim().toUpperCase();
 }
 
-async function fileExists(path: string): Promise<boolean> {
-  try {
-    const fileStat = await stat(path);
-    return fileStat.isFile();
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return false;
-    }
-    throw error;
-  }
-}
-
 function groupDueRowsByElectionYear(rows: readonly MinnesotaCandidateFinanceDueRow[]): Map<number, MinnesotaCandidateFinanceDueRow[]> {
   const byYear = new Map<number, MinnesotaCandidateFinanceDueRow[]>();
   for (const row of rows) {
@@ -150,103 +139,33 @@ function collectOutsideSpenderCommitteeIds(rows: readonly MinnesotaCampaignFinan
   return [...committeeIds];
 }
 
-function contributionSourceUrlFromMetadata(
-  metadata: Awaited<ReturnType<typeof readMinnesotaCampaignFinanceArtifactCacheMetadata>>,
-  fallback: string
-): string {
-  return metadata?.downloads.contributions_received.remote.url ?? fallback;
-}
+type PinnedMinnesotaCache = {
+  cacheDir: string;
+  metadata: MinnesotaCampaignFinanceArtifactCacheMetadata | null;
+};
 
-function expenditureSourceUrlFromMetadata(
-  metadata: Awaited<ReturnType<typeof readMinnesotaCampaignFinanceArtifactCacheMetadata>>,
-  fallback: string
-): string {
-  return metadata?.downloads.independent_expenditures.remote.url ?? fallback;
-}
+type LoadedMinnesotaRows = {
+  rows: readonly MinnesotaCampaignFinanceCsvRow[];
+  sourceUrl: string;
+  observedAt: string;
+  sourceFacts: MinnesotaCampaignFinanceSourceFacts;
+};
 
-function outsideContributionSourceUrlFromMetadata(
-  metadata: Awaited<ReturnType<typeof readMinnesotaCampaignFinanceArtifactCacheMetadata>>,
-  fallback: string
-): string {
-  return metadata?.downloads.independent_expenditure_contributions.remote.url ?? fallback;
-}
-
-async function loadMinnesotaContributionRowsForCandidates(input: {
-  candidates: readonly MinnesotaFinanceAutoLinkCandidateElection[];
-  rawDataCacheDir?: string;
-}): Promise<{ rows: readonly MinnesotaCampaignFinanceCsvRow[]; sourceUrl: string }> {
-  const paths = getMinnesotaCampaignFinanceArtifactCachePaths(
-    input.rawDataCacheDir ??
-      (process.env.MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR?.trim() || DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR)
-  );
-  if (!(await fileExists(paths.downloads.contributions_received))) {
-    throw new Error(`Minnesota campaign finance contribution artifact not found: ${paths.downloads.contributions_received}`);
-  }
-  const metadata = await readMinnesotaCampaignFinanceArtifactCacheMetadata(paths.metadataPath);
-  return {
-    rows: await readMinnesotaCampaignFinanceContributionRows({
-      filePath: paths.downloads.contributions_received,
-      predicate: buildMinnesotaCandidateNamePredicate(input.candidates),
-    }),
-    sourceUrl: contributionSourceUrlFromMetadata(metadata, paths.downloads.contributions_received),
-  };
-}
-
-async function loadMinnesotaExpenditureRowsForCommittees(input: {
-  committeeIds: readonly string[];
-  rawDataCacheDir?: string;
-}): Promise<{ rows: readonly MinnesotaCampaignFinanceCsvRow[]; sourceUrl: string }> {
-  const normalizedCommitteeIds = new Set(input.committeeIds.map(normalizeCommitteeId).filter(Boolean));
-  const paths = getMinnesotaCampaignFinanceArtifactCachePaths(
-    input.rawDataCacheDir ??
-      (process.env.MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR?.trim() || DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR)
-  );
-  if (!(await fileExists(paths.downloads.independent_expenditures))) {
-    throw new Error(`Minnesota campaign finance independent expenditure artifact not found: ${paths.downloads.independent_expenditures}`);
-  }
-  const metadata = await readMinnesotaCampaignFinanceArtifactCacheMetadata(paths.metadataPath);
-  return {
-    rows: await readMinnesotaCampaignFinanceIndependentExpenditureRows({
-      filePath: paths.downloads.independent_expenditures,
-      predicate: (row) => {
-        const committeeId = normalizeCommitteeId(
-          row["Affected Cmte Reg Num"] ?? row["Affected Committee Reg Num"] ?? row["Affected Cmte ID"] ?? ""
-        );
-        return normalizedCommitteeIds.has(committeeId);
-      },
-    }),
-    sourceUrl: expenditureSourceUrlFromMetadata(metadata, paths.downloads.independent_expenditures),
-  };
-}
-
-async function loadMinnesotaOutsideContributionRowsForCommittees(input: {
-  committeeIds: readonly string[];
-  rawDataCacheDir?: string;
-}): Promise<{ rows: readonly MinnesotaCampaignFinanceCsvRow[]; sourceUrl: string }> {
-  const normalizedCommitteeIds = new Set(input.committeeIds.map(normalizeCommitteeId).filter(Boolean));
-  const paths = getMinnesotaCampaignFinanceArtifactCachePaths(
-    input.rawDataCacheDir ??
-      (process.env.MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR?.trim() || DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR)
-  );
-  if (!(await fileExists(paths.downloads.independent_expenditure_contributions))) {
-    throw new Error(
-      `Minnesota campaign finance IE contribution artifact not found: ${paths.downloads.independent_expenditure_contributions}`
-    );
-  }
-  const metadata = await readMinnesotaCampaignFinanceArtifactCacheMetadata(paths.metadataPath);
-  return {
-    rows: await readMinnesotaCampaignFinanceIndependentExpenditureContributionRows({
-      filePath: paths.downloads.independent_expenditure_contributions,
-      predicate: (row) =>
-        normalizedCommitteeIds.has(
-          normalizeCommitteeId(row["Recipient reg num"] ?? row["Recipient Reg Num"] ?? row["Recipient ID"] ?? "")
-        ),
-    }),
-    sourceUrl: outsideContributionSourceUrlFromMetadata(
-      metadata,
-      paths.downloads.independent_expenditure_contributions
-    ),
-  };
+async function loadMinnesotaNativeRows(input: {
+  cache: PinnedMinnesotaCache;
+  key: MinnesotaCampaignFinanceDownloadKey;
+  predicate: (row: MinnesotaCampaignFinanceCsvRow) => boolean;
+}): Promise<LoadedMinnesotaRows> {
+  if (!input.cache.metadata) throw new Error("Minnesota campaign finance cache metadata unavailable");
+  const entry = resolveMinnesotaCampaignFinanceCachedDownload({
+    cacheDir: input.cache.cacheDir, metadata: input.cache.metadata, key: input.key,
+  });
+  const loaded = await readMinnesotaCampaignFinanceNativeRows({
+    filePath: entry.outputPath, key: input.key, expectedSha256: entry.sha256,
+    expectedBytes: entry.bytesWritten, predicate: input.predicate,
+  });
+  return { ...loaded, sourceUrl: entry.remote.url,
+    observedAt: entry.completedAt ?? input.cache.metadata.downloadedAt };
 }
 
 export const listDueMinnesotaCandidateFinanceSyncRows = createStandardStateFinanceDueListQuery({
@@ -283,6 +202,17 @@ export async function syncDueMinnesotaCandidateFinance(
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
 
+  // One publication pointer for the entire batch. A refresh may publish another
+  // generation, but cannot mix this batch's receipt, IE and funder originals.
+  const cachePaths = getMinnesotaCampaignFinanceArtifactCachePaths(input.rawDataCacheDir ??
+    (process.env.MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR?.trim() || DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR));
+  let cacheMetadata: MinnesotaCampaignFinanceArtifactCacheMetadata | null = null;
+  if (input.contributionRows === undefined || input.expenditureRows === undefined || input.outsideContributionRows === undefined) {
+    try { cacheMetadata = await readMinnesotaCampaignFinanceArtifactCacheMetadata(cachePaths.metadataPath); }
+    catch { /* Each unavailable component preserves its existing snapshot. */ }
+  }
+  const cache: PinnedMinnesotaCache = { cacheDir: cachePaths.cacheDir, metadata: cacheMetadata };
+
   let contributionRowsForAutoLink = input.contributionRows;
   let contributionSourceUrl = input.contributionSourceUrl ?? null;
 
@@ -296,9 +226,8 @@ export async function syncDueMinnesotaCandidateFinance(
       });
       autoLinkAttemptedCount = missingLinkCandidates.length;
       if (missingLinkCandidates.length > 0) {
-        const loaded = await loadMinnesotaContributionRowsForCandidates({
-          candidates: missingLinkCandidates,
-          rawDataCacheDir: input.rawDataCacheDir,
+        const loaded = await loadMinnesotaNativeRows({
+          cache, key: "contributions_received", predicate: buildMinnesotaCandidateNamePredicate(missingLinkCandidates),
         });
         contributionRowsForAutoLink = loaded.rows;
         contributionSourceUrl = loaded.sourceUrl;
@@ -338,14 +267,33 @@ export async function syncDueMinnesotaCandidateFinance(
     electionLookaheadDays,
   });
 
+  // Already linked candidates need their own recipient-ID load even when no
+  // missing candidate names required auto-linking.
+  let contributionRowsForBatch = input.contributionRows;
+  let contributionOriginal: LoadedMinnesotaRows | undefined;
+  if (contributionRowsForBatch === undefined && due.rows.length > 0) {
+    try {
+      const committeeIds = new Set(collectCommitteeIds(due.rows));
+      contributionOriginal = await loadMinnesotaNativeRows({
+        cache, key: "contributions_received",
+        predicate: (row) => committeeIds.has(normalizeCommitteeId(row["Recipient reg num"] ?? "")),
+      });
+      contributionRowsForBatch = contributionOriginal.rows;
+      contributionSourceUrl = contributionOriginal.sourceUrl;
+    } catch {
+      console.warn("Minnesota campaign finance receipts unavailable; preserving reported committee cash");
+    }
+  }
+
   let expenditureRowsForBatch = input.expenditureRows;
   let expenditureSourceUrl = input.expenditureSourceUrl ?? null;
   if (expenditureRowsForBatch === undefined) {
     try {
       if (due.rows.length > 0) {
-        const loaded = await loadMinnesotaExpenditureRowsForCommittees({
-          committeeIds: collectCommitteeIds(due.rows),
-          rawDataCacheDir: input.rawDataCacheDir,
+        const committeeIds = new Set(collectCommitteeIds(due.rows));
+        const loaded = await loadMinnesotaNativeRows({
+          cache, key: "independent_expenditures",
+          predicate: (row) => committeeIds.has(normalizeCommitteeId(row["Affected Cmte Reg Num"] ?? "")),
         });
         expenditureRowsForBatch = loaded.rows;
         expenditureSourceUrl = loaded.sourceUrl;
@@ -367,9 +315,10 @@ export async function syncDueMinnesotaCandidateFinance(
     try {
       const outsideCommitteeIds = collectOutsideSpenderCommitteeIds(expenditureRowsForBatch);
       if (outsideCommitteeIds.length > 0) {
-        const loaded = await loadMinnesotaOutsideContributionRowsForCommittees({
-          committeeIds: outsideCommitteeIds,
-          rawDataCacheDir: input.rawDataCacheDir,
+        const committeeIds = new Set(outsideCommitteeIds);
+        const loaded = await loadMinnesotaNativeRows({
+          cache, key: "independent_expenditure_contributions",
+          predicate: (row) => committeeIds.has(normalizeCommitteeId(row["Recipient reg num"] ?? "")),
         });
         outsideContributionRowsForBatch = loaded.rows;
         outsideContributionSourceUrl = loaded.sourceUrl;
@@ -420,8 +369,13 @@ export async function syncDueMinnesotaCandidateFinance(
         officeName: row.officeName,
         district: row.district,
         sourceUrl: row.sourceUrl,
-        contributionRows: contributionRowsForAutoLink ?? [],
+        contributionRows: contributionRowsForBatch ?? [],
         contributionSourceUrl,
+        reportedCommitteeCashSource: contributionOriginal ? {
+          observedAt: contributionOriginal.observedAt, sha256: contributionOriginal.sourceFacts.sha256,
+          byteCount: contributionOriginal.sourceFacts.byteCount, rowCount: contributionOriginal.sourceFacts.rowCount,
+          url: contributionOriginal.sourceUrl,
+        } : undefined,
         expenditureRows: expenditureRowsForBatch,
         expenditureSourceUrl,
         outsideContributionRows: outsideContributionRowsForBatch,
