@@ -89,7 +89,6 @@ export async function addMinnesotaCommitteeCashToSummaries(
     const rows = [...receivers.values()];
     const row = rows[0]!;
     const observations = [...new Set(rows.map((source) => new Date(source.source_observed_at).toISOString()))].sort();
-    const unknownCount = rows.reduce((sum, source) => sum + Number(source.excluded_unknown_class_row_count), 0);
     // Without a headline snapshot, the card's displayed update reflects the
     // source observation. Replaying cached bytes must not imply fresher money;
     // the source table separately retains the actual writer last_synced_at.
@@ -105,12 +104,10 @@ export async function addMinnesotaCommitteeCashToSummaries(
     } satisfies BallotLookupFinanceSummary;
     summary.direct_campaign.pac_money_by_interest = interests.get(key) ?? [];
     summary.direct_campaign.pac_money_basis = "reported_itemized_committee_cash_contributions";
+    // One sentence, like direct_coverage_note. Row counts and acquisition times stay in the source table.
     summary.direct_campaign.pac_money_coverage_note =
-      `Reported itemized cash contributions from Minnesota political committees/funds in ${row.election_year - 1}–${row.election_year}. ` +
-      `Source acquired ${observations.length === 1 ? observations[0] : `${observations[0]} to ${observations.at(-1)}`}. ` +
-      `Reported account/name groups may include name variations. Unitemized gifts, other contributor classes, in-kind, loans and later separately reported returns are outside this scope. ` +
-      (unknownCount ? `${unknownCount} otherwise eligible receipt rows have no reported contributor class and are omitted. ` : "") +
-      "These gifts do not explain all Raised; annual summaries include broader cash and in-kind receipts.";
+      `Itemized cash from Minnesota political committees and funds reported for ${row.election_year - 1}–${row.election_year}; ` +
+      "other donors, unitemized gifts, in-kind gifts and later returns are not included.";
     summaries.set(key, summary);
   }
   return summaries;

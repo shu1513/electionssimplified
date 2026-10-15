@@ -52,8 +52,9 @@ describe("Minnesota reported committee cash reader", () => {
     expect(output.last_synced_at).toBe("old-summary-time");
     expect(output.outside_spending.support_total).toBe(500);
     expect(output.direct_campaign.pac_money_basis).toBe("reported_itemized_committee_cash_contributions");
-    expect(output.direct_campaign.pac_money_coverage_note).toContain("2 otherwise eligible");
-    expect(output.direct_campaign.pac_money_coverage_note).not.toContain("4 otherwise eligible");
+    expect(output.direct_campaign.pac_money_coverage_note).toBe(
+      "Itemized cash from Minnesota political committees and funds reported for 2025–2026; " +
+      "other donors, unitemized gifts, in-kind gifts and later returns are not included.");
     expect(query.mock.calls[0]?.[0]).toContain("donor.source_sha256=source.source_sha256");
   });
   it("loads cash without requiring a legacy financial summary", async () => {
@@ -61,7 +62,7 @@ describe("Minnesota reported committee cash reader", () => {
       requests, new Map())).get(key)!;
     expect(output.direct_campaign).toMatchObject({ total_raised: null, pac_money_by_interest: [{ amount: 6000.25 }] });
     expect(output.last_synced_at).toBe("2026-10-15T12:00:00.000Z");
-    expect(output.direct_campaign.pac_money_coverage_note).toContain("later separately reported returns");
+    expect(output.direct_campaign.pac_money_coverage_note).toContain("later returns are not included");
   });
   it("distinguishes complete empty typed cash from missing source coverage", async () => {
     const query = vi.fn().mockResolvedValue({ rows: [{ ...row, reported_committee_id: null, reported_committee_name: null, amount: null }] });
