@@ -101,16 +101,21 @@ export function aggregateMissouriCommitteeMonetaryReceipts(input: {
   if (!Array.isArray(input.inventory) || input.inventory.length === 0 || !input.inventory.every(validReport)) {
     return held("invalid_report_inventory");
   }
-  const inCycle = input.contributionRows.filter((row) => row.contributionDate >= input.cycleStart && row.contributionDate <= input.cycleEnd);
+  const inCycleRow = (row: MissouriMecContributionRow) => row.contributionDate >= input.cycleStart && row.contributionDate <= input.cycleEnd;
+  const inCycle = input.contributionRows.filter(inCycleRow);
   diagnostics.inCycleRowCount = inCycle.length;
   diagnostics.outsideCycleRowCount = input.contributionRows.length - inCycle.length;
   const committeeLineages = new Set(inCycle.filter((row) => clean(row.contributorCommittee ?? "") !== "" &&
     clean(row.contributionKind).toUpperCase() !== "IN-KIND")
     .map((row) => normalizeMissouriMecReportLineage(row.report)));
-  const selected = selectMissouriCanonicalReportRows({ inventory: input.inventory, rows: inCycle,
+  // Resolve report lineage over the complete source before the cycle filter: an
+  // amendment that moves a receipt across the window boundary must still
+  // contradict its original instead of silently vanishing from one side.
+  const selected = selectMissouriCanonicalReportRows({ inventory: input.inventory, rows: input.contributionRows,
     reportName: (row) => row.report, amountCents: (row) => row.amountCents, safeFingerprint: fingerprint });
   const relevant = selected.diagnostics.filter((diagnostic) => committeeLineages.has(diagnostic.lineageKey));
-  diagnostics.canonicalRowCount = selected.rows.length;
+  const canonical = selected.rows.filter(inCycleRow);
+  diagnostics.canonicalRowCount = canonical.length;
   diagnostics.relevantUnresolvedLineageCount = relevant.length;
   diagnostics.lineageDiagnosticCodes = [...new Set(relevant.map((diagnostic) => diagnostic.reason))].sort();
   for (const diagnostic of relevant) {
@@ -123,7 +128,7 @@ export function aggregateMissouriCommitteeMonetaryReceipts(input: {
 
   const committees = new Map<string, MissouriReportedCommitteeMonetaryReceipts>();
   let totalAmountCents = 0;
-  for (const row of selected.rows) {
+  for (const row of canonical) {
     const name = clean(row.contributorCommittee ?? "");
     if (!name) { diagnostics.excludedNonCommitteeRowCount += 1; continue; }
     diagnostics.matchedCommitteeRowCount += 1;

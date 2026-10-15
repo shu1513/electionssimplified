@@ -54,6 +54,19 @@ describe("Missouri reported committee monetary receipts", () => {
     expect(result).not.toHaveProperty("totalAmountCents");
   });
 
+  it("holds an amendment that moves a relevant receipt across the cycle boundary", () => {
+    const movedOut = aggregate([receipt(), receipt({ report: amended().report, contributionDate: "2026-08-01" })], [report(), amended()]);
+    expect(movedOut).toMatchObject({ status: "held", reason: "unresolved_receipt_lineage", lineageDiagnosticCodes: ["ambiguous_amendment"] });
+    const movedIn = aggregate([receipt({ contributionDate: "2026-08-01" }), receipt({ report: amended().report })], [report(), amended()]);
+    expect(movedIn).toMatchObject({ status: "held", reason: "unresolved_receipt_lineage", lineageDiagnosticCodes: ["ambiguous_amendment"] });
+  });
+
+  it("counts only in-cycle rows of an exactly restated lineage", () => {
+    const result = aggregate([receipt(), receipt({ contributionDate: "2026-08-01" }),
+      receipt({ report: amended().report }), receipt({ report: amended().report, contributionDate: "2026-08-01" })], [report(), amended()]);
+    expect(result).toMatchObject({ status: "qualified", totalAmountCents: 10000, canonicalRowCount: 1, inCycleRowCount: 2, outsideCycleRowCount: 2 });
+  });
+
   it.each(["missing_inventory", "unexpected_amendment"])("holds relevant %s without exposing lineage text", (kind) => {
     const privateName = "SYNTHETIC_PRIVATE_NAME";
     const row = kind === "missing_inventory" ? receipt({ contributorCommittee: privateName, report: "Other Report" })
