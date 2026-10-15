@@ -51,6 +51,7 @@ export type MissouriCandidateFinanceBatchSyncResult = {
   autoLinkLinkedCount: number;
   outsideArtifactYearCount: number;
   failedOutsideArtifactYearCount: number;
+  registeredIeArtifactYearCount?: number;
   results: Array<{
     candidateId: string;
     electionId: string;
@@ -123,13 +124,16 @@ export async function syncDueMissouriCandidateFinance(
   const acquireOutsideSpender = input.acquireOutsideSpenderArtifactsFn ?? acquireMissouriMecOutsideSpenderContributionArtifacts;
   const sync = input.syncCandidateFn ?? syncMissouriCandidateFinance;
   const outsideAvailableByYear = new Map<number, boolean>();
+  const registeredIeAvailableByYear = new Map<number, boolean>();
   if (rawDataRefreshEnabled) {
     for (const year of new Set(due.rows.map((row) => row.electionYear))) {
       try {
-        await acquireOutside({ year, cacheDir: input.cacheDir, session, now });
-        outsideAvailableByYear.set(year, true);
+        const acquired = await acquireOutside({ year, cacheDir: input.cacheDir, session, now });
+        outsideAvailableByYear.set(year, !("legacyOutsideArtifactsAvailable" in acquired) || acquired.legacyOutsideArtifactsAvailable);
+        registeredIeAvailableByYear.set(year, !("registeredIeArtifactsAvailable" in acquired) || acquired.registeredIeArtifactsAvailable);
       } catch (error) {
         outsideAvailableByYear.set(year, false);
+        registeredIeAvailableByYear.set(year, false);
         console.warn("Missouri yearly outside-spending refresh failed; direct sync will continue:", {
           year, error: error instanceof Error ? error.message : String(error),
         });
@@ -179,7 +183,10 @@ export async function syncDueMissouriCandidateFinance(
         directArtifactsUnavailable,
         ...(receiptArtifactsUnavailable ? { receiptArtifacts: null } : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === false
-          ? { outsideArtifacts: null, registeredIeArtifacts: null }
+          ? { outsideArtifacts: null }
+          : {}),
+        ...(rawDataRefreshEnabled && registeredIeAvailableByYear.get(row.electionYear) === false
+          ? { registeredIeArtifacts: null }
           : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === true
           ? {
@@ -218,8 +225,9 @@ export async function syncDueMissouriCandidateFinance(
     failedCandidateCount: results.filter((row) => !row.ok).length,
     autoLinkAttemptedCount,
     autoLinkLinkedCount,
-    outsideArtifactYearCount: [...outsideAvailableByYear.values()].filter(Boolean).length,
-    failedOutsideArtifactYearCount: [...outsideAvailableByYear.values()].filter((available) => !available).length,
+    outsideArtifactYearCount: [...outsideAvailableByYear.keys()].filter(year => outsideAvailableByYear.get(year) || registeredIeAvailableByYear.get(year)).length,
+    failedOutsideArtifactYearCount: [...outsideAvailableByYear.keys()].filter(year => !outsideAvailableByYear.get(year) && !registeredIeAvailableByYear.get(year)).length,
+    registeredIeArtifactYearCount: [...registeredIeAvailableByYear.values()].filter(Boolean).length,
     results,
   };
 }

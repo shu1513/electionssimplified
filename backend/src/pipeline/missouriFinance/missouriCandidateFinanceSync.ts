@@ -309,7 +309,7 @@ export async function syncMissouriCandidateFinance(input: MissouriCandidateFinan
         cycleStart: window.cycleStart, cycleEnd: window.cycleEnd, aggregation: ieAggregation,
         sourceUrl: source.sourceUrl, sourceRetrievedAt: new Date(source.sourceRetrievedAt),
         sourceSha256: source.sourceSha256, sourceByteSize: source.sourceByteSize,
-        sourceRowCount: source.sourceRowCount, sourcePageCount: source.sourcePageCount,
+        sourceRowCount: source.sourceRowCount, sourcePageCount: source.sourcePageCount ?? undefined,
       },
     });
     else ieSkippedReason = ieAggregation.reason;

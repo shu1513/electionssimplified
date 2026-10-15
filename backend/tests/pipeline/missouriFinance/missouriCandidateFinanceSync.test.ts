@@ -64,6 +64,7 @@ describe("missouriCandidateFinanceSync", () => {
       supportOppose: "Support" as const, expenditureDate: "2026-09-01", amountCents: 25000,
       reportingCommittee: "Example Committee", report: "8 Day Before General Election" }];
     return { ...input, db: receiptDb().db, registeredIeArtifacts: {
+      sourceKind: "grid_reconciled_export" as const,
       rows, identities: [{ reportingCommittee: "Example Committee", mecid: null }],
       sourceUrl: "https://www.mec.mo.gov/MEC/Campaign_Finance/CF_SearchDirExp.aspx",
       sourceRetrievedAt: "2026-10-15T00:00:00.000Z", sourceSha256: "c".repeat(64), sourceByteSize: 100,

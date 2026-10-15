@@ -15,6 +15,26 @@ function due(candidate: string, committee: string) {
 }
 
 describe("syncDueMissouriCandidateFinance", () => {
+  it("keeps export-snapshot availability separate from legacy grid and funders", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const sync = vi.fn().mockResolvedValue({ registeredIeGroupsWritten: 1 });
+    const result = await syncDueMissouriCandidateFinance({
+      db: { query: vi.fn().mockResolvedValue({ rows: [due("c1", "C263985")] }), connect: vi.fn() } as never,
+      now: new Date("2026-10-15T00:00:00Z"), autoLinkMissingLinks: false,
+      acquireArtifactsFn: vi.fn().mockResolvedValue({}) as never,
+      acquireOutsideArtifactsFn: vi.fn().mockResolvedValue({ year: 2026, rowCount: 1,
+        sourceKind: "native_export_snapshot", registeredIeArtifactsAvailable: true, legacyOutsideArtifactsAvailable: false }) as never,
+      syncCandidateFn: sync as never, session: {} as never,
+    });
+    const supplied = sync.mock.calls[0]![0];
+    expect(supplied.outsideArtifacts).toBeNull();
+    expect(supplied).not.toHaveProperty("registeredIeArtifacts");
+    expect(supplied.refreshOutsideSpenderArtifacts).toBeUndefined();
+    expect(result).toMatchObject({ outsideArtifactYearCount: 1, failedOutsideArtifactYearCount: 0, registeredIeArtifactYearCount: 1 });
+  });
+
   it("continues independent IE after recipient exports fail without refreshing old cash", async () => {
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
