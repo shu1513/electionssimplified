@@ -1,4 +1,8 @@
+import { loadMarylandNativeOutsideObservation, type MarylandNativeOutsideObservationInput, type MarylandNativeOutsideObservationResult } from "./marylandNativeOutsideObservationLoader.js";
+import {syncMarylandCommitteeMonetaryPackets,type MarylandCommitteeMonetaryPacketConfiguration,type MarylandCommitteeMonetarySyncResult} from "./marylandCommitteeMonetarySync.js";
 import { stat } from "node:fs/promises";
+import { join } from "node:path";
+import { readMarylandCommitteePacketConfiguration } from "./marylandCommitteePacketConfiguration.js";
 import type { Pool, PoolClient } from "pg";
 
 import { mergeCycleArtifactRows } from "../finance/cycleArtifactRows.js";
@@ -76,6 +80,8 @@ export type MarylandCandidateFinanceBatchSyncInput = {
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   rawDataCacheDir?: string;
+  nativeOutsideSource?: Omit<MarylandNativeOutsideObservationInput, "electionYears" | "rawCacheDir"> & { rawCacheDir?: string };
+  committeeMonetaryPackets?:readonly MarylandCommitteeMonetaryPacketConfiguration[];
   autoLinkMissingLinks?: boolean;
   committeeDataByYear?: ReadonlyMap<number, MarylandCommitteeDataForYear>;
   contributionDataByYear?: ReadonlyMap<number, MarylandContributionDataForYear>;
@@ -105,6 +111,8 @@ export type MarylandCandidateFinanceBatchSyncResult = {
   syncedCandidateCount: number;
   failedCandidateCount: number;
   results: MarylandCandidateFinanceBatchSyncItemResult[];
+  nativeOutsideObservation: MarylandNativeOutsideObservationResult;
+  committeeMonetary?:MarylandCommitteeMonetarySyncResult;
 };
 
 const DEFAULT_MAX_CANDIDATES = 25;
@@ -412,7 +420,13 @@ export const listDueMarylandCandidateFinanceSyncRows = createStandardStateFinanc
 export async function syncDueMarylandCandidateFinance(
   input: MarylandCandidateFinanceBatchSyncInput
 ): Promise<MarylandCandidateFinanceBatchSyncResult> {
-  const now = input.now ?? new Date();
+  // Retain this source generation before any due-list or auto-link awaits.
+  const nativeOutsideSource = input.nativeOutsideSource ? { ...input.nativeOutsideSource } : undefined;
+  let committeeMonetaryPackets = input.committeeMonetaryPackets === undefined
+    ? undefined : structuredClone(input.committeeMonetaryPackets);
+  const committeePacketDirectory = rawDataCacheDir(input.rawDataCacheDir);
+  const nativeOutsideCacheDir = nativeOutsideSource?.rawCacheDir ?? rawDataCacheDir(input.rawDataCacheDir);
+  const now = new Date(input.now?.getTime() ?? Date.now());
   assertValidDate(now, "now");
 
   const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
@@ -491,6 +505,31 @@ export async function syncDueMarylandCandidateFinance(
     electionLookbackDays,
     electionLookaheadDays,
   });
+
+  // Source-only outside acquisition remains independent of legacy receipt availability.
+  // It never supplies finance rows, classifications, totals or verification timestamps.
+  const nativeOutsideObservation = await loadMarylandNativeOutsideObservation({
+    ...nativeOutsideSource,
+    electionYears: [...new Set(due.rows.map(row => row.electionYear))],
+    rawCacheDir: nativeOutsideCacheDir,
+  });
+  let committeeRegistryUnavailable = false;
+  if (committeeMonetaryPackets === undefined) {
+    try {
+      const path = join(committeePacketDirectory, "committee-packets.private.json");
+      committeeMonetaryPackets = await fileExists(path)
+        ? await readMarylandCommitteePacketConfiguration(path) : [];
+    } catch {
+      committeeRegistryUnavailable = true;
+    }
+  }
+  const committeeMonetary: MarylandCommitteeMonetarySyncResult = committeeRegistryUnavailable
+    ? { configuredPackets: 0, selectedPackets: 0, writtenCandidates: 0,
+        preservedCandidates: due.rows.length,
+        results: due.rows.map((_, dueIndex) => ({ dueIndex, status: "preserve",
+          diagnostics: ["saved_committee_registry_unavailable"] })) }
+    : await syncMarylandCommitteeMonetaryPackets({ db: input.db, dueRows: due.rows,
+        packets: committeeMonetaryPackets ?? [], dryRun, now });
 
   const committeeDataByYear = new Map<number, MarylandCommitteeDataForYear>(
     input.committeeDataByYear ? [...input.committeeDataByYear.entries()] : []
@@ -621,5 +660,7 @@ export async function syncDueMarylandCandidateFinance(
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results,
+    nativeOutsideObservation,
+    committeeMonetary,
   };
 }

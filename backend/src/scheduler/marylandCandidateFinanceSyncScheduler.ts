@@ -215,6 +215,7 @@ export async function runMarylandCandidateFinanceSyncJob(
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
       results: [],
+      nativeOutsideObservation: { status: "preserve", diagnostics: ["finance_sync_disabled"] },
     };
   }
 

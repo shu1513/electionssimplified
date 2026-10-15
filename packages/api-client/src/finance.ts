@@ -52,6 +52,17 @@ export function meetsSmallAmountThreshold(rows: readonly { amount: number }[]): 
   return rows.length === 0 || rows.reduce((sum, row) => sum + row.amount, 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD;
 }
 
+/** Refund-period positions are signed. Offsetting receipts/refunds cannot
+ * erase a material disclosed position merely by cancelling the display sum. */
+export function hasCommitteeMoneyContent(direct: Pick<FinanceSummary["direct_campaign"], "pac_money_by_interest" | "pac_money_basis">): boolean {
+  const rows = direct.pac_money_by_interest;
+  if (rows === undefined) return false;
+  if (direct.pac_money_basis !== "reported_committee_monetary_positions") return meetsSmallAmountThreshold(rows);
+  return rows.length === 0 || rows.reduce((sum, row) => sum + Math.max(Math.abs(row.amount),
+    (row.gross_amount ?? 0) + (row.refund_amount ?? 0),
+    row.pacs.reduce((detail, pac) => detail + Math.abs(pac.amount), 0)), 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD;
+}
+
 /**
  * Whether the card shows the direct-donor detail (occupations, industries,
  * size buckets) under the money row. A campaign under the threshold keeps
@@ -83,7 +94,7 @@ export function hasFinanceContent(summary: FinanceSummary | null | undefined): s
     direct.top_occupations.length > 0 ||
     direct.top_industries.length > 0 ||
     (direct.contribution_size_buckets?.length ?? 0) > 0 ||
-    (direct.pac_money_by_interest !== undefined && meetsSmallAmountThreshold(direct.pac_money_by_interest)) ||
+    hasCommitteeMoneyContent(direct) ||
     hasOutsideFinanceContent(summary) ||
     hasMemberCommunications(summary)
   );
@@ -120,6 +131,7 @@ export function firstFinanceSourceUrl(summary: FinanceSummary): string | null {
     ...(summary.direct_campaign.top_employers ?? []),
     ...summary.direct_campaign.top_industries,
     ...(summary.direct_campaign.contribution_size_buckets ?? []),
+    ...(summary.direct_campaign.pac_money_by_interest ?? []).flatMap(row => row.pacs),
     ...summary.outside_spending.top_supporting_groups,
     ...summary.outside_spending.top_opposing_groups,
     ...summary.outside_spending.top_supporting_industries,

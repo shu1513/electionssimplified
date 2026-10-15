@@ -63,6 +63,7 @@ describe("marylandCandidateFinanceSyncScheduler", () => {
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
       results: [],
+      nativeOutsideObservation: { status: "preserve", diagnostics: ["finance_sync_disabled"] },
     });
     expect(Pool).not.toHaveBeenCalled();
   });

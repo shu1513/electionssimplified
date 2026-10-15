@@ -19,6 +19,7 @@ import {
   formatSourceHost,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
+  hasCommitteeMoneyContent,
   meetsSmallAmountThreshold,
   shouldShowDirectCoverageNote,
   showsDirectDonorDetail,
@@ -91,16 +92,20 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
   basis?: FinanceSummary["direct_campaign"]["pac_money_basis"]; note?: string }) {
   const [openInterest, setOpenInterest] = useState<string | null>(null);
   // Not loaded, or under the small-amount threshold: render nothing.
-  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
+  if (rows === undefined || !hasCommitteeMoneyContent({pac_money_by_interest: rows, pac_money_basis: basis})) {
     return null;
   }
-  const committees = basis === "reported_itemized_committee_cash_contributions";
+  const committees = basis !== undefined;
+  const heading = basis === "reported_committee_monetary_positions" ? "Committee money by interest"
+    : basis === "reported_itemized_committee_cash_contributions" ? "Committee cash by interest" : "PAC money by interest";
+  const emptyText = basis === "reported_committee_monetary_positions" ? "No committee cash positions reported."
+    : basis === "reported_itemized_committee_cash_contributions" ? "No itemized committee cash contributions reported." : "No PAC donations reported.";
   return (
     <View className="mt-3">
-      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee cash by interest" : "PAC money by interest"}</Text>
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</Text>
       {note ? <Text className="mt-1 text-xs text-ink-soft">{note}</Text> : null}
       {rows.length === 0 ? (
-        <Text className="mt-1 text-sm text-ink-soft">{committees ? "No itemized committee cash contributions reported." : "No PAC donations reported."}</Text>
+        <Text className="mt-1 text-sm text-ink-soft">{emptyText}</Text>
       ) : (
         <View className="mt-1 gap-0.5">
           {rows.map((row) => (
