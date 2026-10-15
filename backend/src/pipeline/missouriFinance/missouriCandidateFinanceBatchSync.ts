@@ -6,6 +6,7 @@ import {
   listMissouriCandidateElectionsMissingFinanceLinks,
   type MissouriCandidateCommitteeResolver,
 } from "./missouriCandidateFinanceAutoLink.js";
+import { recordMissouriCandidateFinanceAttempt } from "./missouriCandidateFinanceAttempts.js";
 import { listDueMissouriCandidateFinanceSyncRows } from "./missouriCandidateFinanceDueList.js";
 import { syncMissouriCandidateFinance, type MissouriCandidateFinanceSyncResult } from "./missouriCandidateFinanceSync.js";
 import {
@@ -144,6 +145,11 @@ export async function syncDueMissouriCandidateFinance(
   const results: MissouriCandidateFinanceBatchSyncResult["results"] = [];
   for (const row of due.rows) {
     try {
+      if (!dryRun && row.attemptComponentMask) {
+        await recordMissouriCandidateFinanceAttempt({db: input.db, linkId: row.linkId!, electionYear: row.electionYear,
+          candidateId: row.candidateId, electionId: row.electionId, committeeId: row.committeeId,
+          attemptedAt: now, componentMask: row.attemptComponentMask});
+      }
       let directArtifactsUnavailable = false;
       let receiptArtifactsUnavailable = false;
       if (rawDataRefreshEnabled) {
