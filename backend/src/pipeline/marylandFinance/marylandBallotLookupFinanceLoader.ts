@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isMarylandCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
+  buildStateFinanceSummaryRequests,
   officeInputFromElectionRow,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
@@ -9,6 +10,7 @@ import {
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isMarylandFinanceEligibleOffice } from "./marylandFinanceEligibleOffices.js";
+import { attachMarylandCommitteeMonetaryFinance } from "./marylandCommitteeMonetaryReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -19,7 +21,8 @@ export async function loadMarylandCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  if (!isMarylandCampaignFinanceEnabled()) return new Map();
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -37,4 +40,7 @@ export async function loadMarylandCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "md_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachMarylandCommitteeMonetaryFinance({db, summaries,
+    requests: buildStateFinanceSummaryRequests("MD", candidateRows, electionRows,
+      row => isMarylandFinanceEligibleOffice(officeInputFromElectionRow(row)))});
 }

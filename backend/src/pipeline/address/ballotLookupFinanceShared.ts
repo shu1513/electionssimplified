@@ -64,6 +64,9 @@ export type BallotLookupFinancePacInterest = {
   interest: string;
   interest_name: string;
   amount: number;
+  /** Present for signed committee positions; full sums before display caps. */
+  gross_amount?: number;
+  refund_amount?: number;
   pac_count: number;
   /** The largest PACs of this interest, for the expandable detail. */
   pacs: {
@@ -202,6 +205,8 @@ export type BallotLookupFinanceSummary = {
      * only). Absent until the PAC list was loaded for this cycle.
      */
     pac_money_by_interest?: BallotLookupFinancePacInterest[];
+    pac_money_basis?: "reported_committee_monetary_positions";
+    pac_money_coverage_note?: string;
     /**
      * One sentence naming what this source's direct breakdowns do NOT
      * cover, shown with the occupations/size buckets. Set only by loaders

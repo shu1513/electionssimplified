@@ -19,6 +19,7 @@ import {
   formatSourceHost,
   hasOutsideDirectionContent,
   hasOutsideFinanceContent,
+  hasCommitteeMoneyContent,
   meetsSmallAmountThreshold,
   shouldShowDirectCoverageNote,
   showsDirectDonorDetail,
@@ -87,17 +88,20 @@ function BreakdownRows({ rows }: { rows: FinanceBreakdown[] }) {
  * interest, each row opening to the PACs behind it. `rows` is undefined when
  * the list was not loaded and empty when no PAC gave.
  */
-function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }) {
+function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] | undefined;
+  basis?: FinanceSummary["direct_campaign"]["pac_money_basis"]; note?: string }) {
   const [openInterest, setOpenInterest] = useState<string | null>(null);
   // Not loaded, or under the small-amount threshold: render nothing.
-  if (rows === undefined || !meetsSmallAmountThreshold(rows)) {
+  if (rows === undefined || !hasCommitteeMoneyContent({pac_money_by_interest: rows, pac_money_basis: basis})) {
     return null;
   }
+  const committees = basis === "reported_committee_monetary_positions";
   return (
     <View className="mt-3">
-      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">PAC money by interest</Text>
+      <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee money by interest" : "PAC money by interest"}</Text>
+      {note ? <Text className="mt-1 text-xs text-ink-soft">{note}</Text> : null}
       {rows.length === 0 ? (
-        <Text className="mt-1 text-sm text-ink-soft">No PAC donations reported.</Text>
+        <Text className="mt-1 text-sm text-ink-soft">{committees ? "No committee cash positions reported." : "No PAC donations reported."}</Text>
       ) : (
         <View className="mt-1 gap-0.5">
           {rows.map((row) => (
@@ -110,7 +114,7 @@ function PacMoneyByInterest({ rows }: { rows: FinancePacInterest[] | undefined }
               >
                 <Text className="flex-1 text-sm text-ink">
                   {row.interest_name}
-                  <Text className="text-xs text-ink-soft"> · {formatPacCount(row.pac_count)}</Text>
+                  <Text className="text-xs text-ink-soft"> · {committees ? `${row.pac_count} reported ${row.pac_count === 1 ? "group" : "groups"}` : formatPacCount(row.pac_count)}</Text>
                 </Text>
                 <Text className="shrink-0 text-sm text-ink-soft">{formatMoney(row.amount)}</Text>
               </Pressable>
@@ -487,7 +491,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
         </>
       ) : null}
 
-      <PacMoneyByInterest rows={direct.pac_money_by_interest} />
+      <PacMoneyByInterest rows={direct.pac_money_by_interest} basis={direct.pac_money_basis} note={direct.pac_money_coverage_note} />
       <ConduitDonations rows={direct.conduit_donations} />
 
       {hasOutsideFinanceContent(summary) ? (

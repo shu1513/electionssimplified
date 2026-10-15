@@ -41,6 +41,21 @@ describe("hasFinanceContent", () => {
 });
 
 describe("FinanceSummaryCard", () => {
+  it("renders signed committee-only money with its own scope note and accurate count", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "MARYLAND_CFS";
+    summary.direct_campaign.pac_money_basis = "reported_committee_monetary_positions";
+    summary.direct_campaign.pac_money_coverage_note = "Cash receipts less cash refunds. Committee data as of 2026-10-13.";
+    summary.direct_campaign.pac_money_by_interest = [{interest: "unclassified", interest_name: "Not yet sorted", amount: -6000,
+      pac_count: 1, pacs: [{committee_id: "stored-row", committee_name: "Example Committee", amount: -6000, source_url: "https://campaignfinance.maryland.gov"}]}];
+    render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("Committee money by interest")).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.pac_money_coverage_note)).toBeInTheDocument();
+    expect(screen.getByText(/1 reported group/)).toBeInTheDocument();
+    expect(screen.getByText("Not yet sorted")).toBeInTheDocument();
+    expect(screen.queryByText("Raised")).not.toBeInTheDocument();
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+  });
   it("renders money, occupations, outside spending, the updated date, and the source line", () => {
     const summary = financeSummary();
     summary.direct_campaign.public_funds_received = null;
