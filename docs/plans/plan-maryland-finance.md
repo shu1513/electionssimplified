@@ -141,6 +141,33 @@ Both retained expenditure CSVs also fail normal complete-file parsing; no
 matching partial payee rows can qualify the return. A source-supported parent
 lookup, if needed, requires the existing selector-approval checks before use.
 
+## Ordinary saved-source operation
+
+The ordinary batch independently runs native outside acquisition and qualified
+committee packets before loading legacy direct-finance CSVs. The CLI accepts
+`--committee-packets-file`; otherwise the batch and existing scheduler reopen
+`committee-packets.private.json` in their configured raw-data cache. An explicit
+empty packet list opts out. Missing configuration leaves the component alone;
+malformed configuration reports a safe preserve diagnostic without stopping
+direct finance. No scheduler or environment file is changed by this work.
+
+The private registry is version 1 with a `packets` array of exact candidate,
+election, year and receiving-committee scopes, original current/prior census
+directories, current report inventory, original PDF/capture-journal paths and
+original receiving-context captures. It contains neither parsed financial
+rows nor a supplied canonical/approval/verification result. The registry must
+be 0600 under a 0700 directory. The ordinary loader requalifies everything
+against its fresh canonical database context before the transactional writer.
+
+This saved-source path does not automatically acquire a new complete receipt
+packet or broaden the finite receiving-context evidence to other candidates.
+The native outside collector is the default independent acquisition path;
+unresolved target/year/office evidence cannot publish a candidate allocation.
+Refreshing receipt evidence requires new complete originals and an updated
+private descriptor; replay keeps the originals' source dates. The filing
+deadline reruns below must acquire newly published reports, not merely replay
+the October 13 financial originals. No recurring automation was created.
+
 ## Before-code source decision — October 12, 2026
 
 Rank: two active linked Governor candidates × .55 provisional readiness = 1.10.

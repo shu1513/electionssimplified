@@ -1,6 +1,8 @@
 import { loadMarylandNativeOutsideObservation, type MarylandNativeOutsideObservationInput, type MarylandNativeOutsideObservationResult } from "./marylandNativeOutsideObservationLoader.js";
 import {syncMarylandCommitteeMonetaryPackets,type MarylandCommitteeMonetaryPacketConfiguration,type MarylandCommitteeMonetarySyncResult} from "./marylandCommitteeMonetarySync.js";
 import { stat } from "node:fs/promises";
+import { join } from "node:path";
+import { readMarylandCommitteePacketConfiguration } from "./marylandCommitteePacketConfiguration.js";
 import type { Pool, PoolClient } from "pg";
 
 import { mergeCycleArtifactRows } from "../finance/cycleArtifactRows.js";
@@ -420,7 +422,9 @@ export async function syncDueMarylandCandidateFinance(
 ): Promise<MarylandCandidateFinanceBatchSyncResult> {
   // Retain this source generation before any due-list or auto-link awaits.
   const nativeOutsideSource = input.nativeOutsideSource ? { ...input.nativeOutsideSource } : undefined;
-  const committeeMonetaryPackets=structuredClone(input.committeeMonetaryPackets??[]);
+  let committeeMonetaryPackets = input.committeeMonetaryPackets === undefined
+    ? undefined : structuredClone(input.committeeMonetaryPackets);
+  const committeePacketDirectory = rawDataCacheDir(input.rawDataCacheDir);
   const nativeOutsideCacheDir = nativeOutsideSource?.rawCacheDir ?? rawDataCacheDir(input.rawDataCacheDir);
   const now = new Date(input.now?.getTime() ?? Date.now());
   assertValidDate(now, "now");
@@ -509,8 +513,23 @@ export async function syncDueMarylandCandidateFinance(
     electionYears: [...new Set(due.rows.map(row => row.electionYear))],
     rawCacheDir: nativeOutsideCacheDir,
   });
-  const committeeMonetary=await syncMarylandCommitteeMonetaryPackets({db:input.db,dueRows:due.rows,
-    packets:committeeMonetaryPackets,dryRun,now});
+  let committeeRegistryUnavailable = false;
+  if (committeeMonetaryPackets === undefined) {
+    try {
+      const path = join(committeePacketDirectory, "committee-packets.private.json");
+      committeeMonetaryPackets = await fileExists(path)
+        ? await readMarylandCommitteePacketConfiguration(path) : [];
+    } catch {
+      committeeRegistryUnavailable = true;
+    }
+  }
+  const committeeMonetary: MarylandCommitteeMonetarySyncResult = committeeRegistryUnavailable
+    ? { configuredPackets: 0, selectedPackets: 0, writtenCandidates: 0,
+        preservedCandidates: due.rows.length,
+        results: due.rows.map((_, dueIndex) => ({ dueIndex, status: "preserve",
+          diagnostics: ["saved_committee_registry_unavailable"] })) }
+    : await syncMarylandCommitteeMonetaryPackets({ db: input.db, dueRows: due.rows,
+        packets: committeeMonetaryPackets ?? [], dryRun, now });
 
   const committeeDataByYear = new Map<number, MarylandCommitteeDataForYear>(
     input.committeeDataByYear ? [...input.committeeDataByYear.entries()] : []

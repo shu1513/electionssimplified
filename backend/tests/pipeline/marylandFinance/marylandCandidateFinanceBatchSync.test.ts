@@ -43,6 +43,49 @@ async function syncDueMarylandCandidateFinance(
   });
 }
 
+describe("saved ordinary committee registry", () => {
+  async function run(contents: string | undefined, explicitOptOut = false) {
+    const cache = await mkdtemp(join(tmpdir(), "md-saved-committee-registry-"));
+    tempDirs.push(cache);
+    if (contents !== undefined) await writeFile(join(cache, "committee-packets.private.json"), contents, { mode: 0o600 });
+    const db = createMockDb([dueRow()]);
+    const result = await syncDueMarylandCandidateFinance({ db, rawDataCacheDir: cache,
+      dryRun: true, autoLinkMissingLinks: false,
+      ...(explicitOptOut ? { committeeMonetaryPackets: [] } : {}),
+      contributionDataByYear: new Map([[2026, { year: 2026, filePath: "unused", sourceUrl: SOURCE_URL, rowsByCommitteeId: new Map() }]]),
+      expenditureDataByYear: new Map([[2026, { year: 2026, filePath: "unused", sourceUrl: SOURCE_URL, rows: [] }]]),
+      syncMarylandCandidateFinanceFn: vi.fn().mockResolvedValue(syncResult(dueRow())),
+    });
+    expect(db.connect).not.toHaveBeenCalled();
+    return result;
+  }
+  it("keeps absent saved configuration independent of ordinary direct sync", async () => {
+    const result = await run(undefined);
+    expect(result.committeeMonetary?.selectedPackets).toBe(0);
+    expect(result.syncedCandidateCount).toBe(1);
+  });
+  it("holds a malformed saved registry without stopping direct sync", async () => {
+    const result = await run("{broken");
+    expect(result.committeeMonetary?.results).toEqual([{ dueIndex: 0, status: "preserve", diagnostics: ["saved_committee_registry_unavailable"] }]);
+    expect(result.syncedCandidateCount).toBe(1);
+  });
+  it("honors an explicit empty packet list instead of reading saved configuration", async () => {
+    const result = await run("{broken", true);
+    expect(result.committeeMonetary?.preservedCandidates).toBe(0);
+    expect(result.committeeMonetary?.results).toEqual([]);
+  });
+  it("routes saved descriptors through the normal canonical/source qualification", async () => {
+    const row = dueRow();
+    const result = await run(JSON.stringify({ version: 1, packets: [{
+      candidateId: row.candidateId, electionId: row.electionId, electionYear: row.electionYear, committeeId: row.committeeId,
+      source: { currentCensusDirectory: "current", priorCensusDirectory: "prior", priorCycle: "1", inventoryDirectory: "inventory", documents: [] },
+      receivingSources: { numericRegistration: { captures: [] }, nameRegistration: { captures: [] }, rosterCapture: {}, dateCapture: {}, cycleCapture: {} },
+    }] }));
+    expect(result.committeeMonetary?.selectedPackets).toBe(1);
+    expect(result.committeeMonetary?.results).toEqual([{ dueIndex: 0, status: "preserve", diagnostics: ["input_unavailable"] }]);
+  });
+});
+
 function csvForRows<Row extends Record<string, string>>(columns: readonly string[], rows: readonly Row[]): string {
   const escape = (value: string): string => (/[",\n\r]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value);
   return [columns.join(","), ...rows.map((row) => columns.map((column) => escape(row[column] ?? "")).join(","))].join("\n");
