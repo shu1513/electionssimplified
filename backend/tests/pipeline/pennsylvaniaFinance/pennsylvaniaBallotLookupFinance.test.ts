@@ -121,9 +121,13 @@ describe("pennsylvaniaBallotLookupFinance", () => {
         .mockResolvedValueOnce({
           rows: [
             // One row per committee (the query merges the candidate's links), largest first.
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7001", committee_name: "Greater PA Carpenters PAC", amount: "1500.00", source_url: null },
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: "1000.00", source_url: "https://pa.example/2026.zip" },
-            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7003", committee_name: "Pennsylvania Association of Realtors PAC", amount: "500.00", source_url: null },
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7001", committee_name: "Greater PA Carpenters PAC", amount: "1500.00", source_url: null,
+              industry_slug: "labor_unions", classification_source: "manual", confidence: "high" },
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: "1000.00", source_url: "https://pa.example/2026.zip",
+              industry_slug: "democratic_party_groups", classification_source: "manual", confidence: "medium" },
+            // A rule match below high confidence does not sort a committee.
+            { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7003", committee_name: "Pennsylvania Association of Realtors PAC", amount: "500.00", source_url: null,
+              industry_slug: "real_estate", classification_source: "rule", confidence: "medium" },
             // Other candidates' committees, recognised by name: never listed.
             { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7002", committee_name: "Friends of Kim Ward", amount: "250.00", source_url: null },
             { candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "7004", committee_name: "Santarsiero for State Senate", amount: "200.00", source_url: null },
@@ -146,14 +150,14 @@ describe("pennsylvaniaBallotLookupFinance", () => {
         total_raised: 12500,
         top_occupations: [{ category_name: "Attorney", amount: 5000, contributor_count: 4 }],
         contribution_size_buckets: [{ category_name: "$250.01-$1,000", amount: 6000, contributor_count: 5 }],
-        // The name rules sort none of these (they only know exact
-        // occupation words), so all stay under one "Not yet sorted" row.
+        // Researched committee labels sort the PACs; the rest stay under
+        // "Not yet sorted".
         pac_money_by_interest: [
           {
-            interest: "unclassified",
-            interest_name: "Not yet sorted",
-            amount: 3000,
-            pac_count: 3,
+            interest: "labor_unions",
+            interest_name: "Labor unions",
+            amount: 1500,
+            pac_count: 1,
             pacs: [
               {
                 committee_id: "7001",
@@ -161,7 +165,23 @@ describe("pennsylvaniaBallotLookupFinance", () => {
                 amount: 1500,
                 source_url: "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/campaign-finance-data",
               },
+            ],
+          },
+          {
+            interest: "democratic_party_groups",
+            interest_name: "Groups that work to elect Democrats",
+            amount: 1000,
+            pac_count: 1,
+            pacs: [
               { committee_id: "DEMOCRATIC GOVERNORS ASSOCIATION", committee_name: "Democratic Governors Association", amount: 1000, source_url: "https://pa.example/2026.zip" },
+            ],
+          },
+          {
+            interest: "unclassified",
+            interest_name: "Not yet sorted",
+            amount: 500,
+            pac_count: 1,
+            pacs: [
               {
                 committee_id: "7003",
                 committee_name: "Pennsylvania Association of Realtors PAC",

@@ -48,10 +48,46 @@ describe("parseIndustryLabelPayload", () => {
           { ...validRow(), confidence: "unknown" },
         ],
       });
-    expect(bad).toThrow(/labels\[0\]: label_type must be "employer" or "donor"/);
+    expect(bad).toThrow(/labels\[0\]: label_type must be "employer", "donor", or "committee"/);
     expect(bad).toThrow(/labels\[1\]: raw_label is required/);
     expect(bad).toThrow(/labels\[2\]: industry_slug must be null or one of/);
     expect(bad).toThrow(/labels\[3\]: confidence must be "high", "medium", or "low"/);
+  });
+
+  it("accepts committee rows with a PAC interest slug and a source URL", () => {
+    const rows = parseIndustryLabelPayload({
+      labels: [
+        {
+          label_type: "committee",
+          raw_label: "Greater PA Carpenters PAC",
+          industry_slug: "labor_unions",
+          confidence: "high",
+          source_url: "https://example.org/carpenters",
+        },
+        { label_type: "committee", raw_label: "Democratic Governors Association", industry_slug: "democratic_party_groups",
+          confidence: "medium", source_url: "https://example.org/dga" },
+        { label_type: "committee", raw_label: "Committee For A Better Tomorrow", industry_slug: null, confidence: "low" },
+      ],
+    });
+    expect(rows.map((row) => [row.normalized_label, row.industry_slug, row.source_url])).toEqual([
+      ["GREATER PA CARPENTERS PAC", "labor_unions", "https://example.org/carpenters"],
+      ["DEMOCRATIC GOVERNORS ASSOCIATION", "democratic_party_groups", "https://example.org/dga"],
+      ["COMMITTEE FOR A BETTER TOMORROW", null, null],
+    ]);
+  });
+
+  it("rejects committee rows with a non-PAC slug or no source URL", () => {
+    const bad = () =>
+      parseIndustryLabelPayload({
+        labels: [
+          { label_type: "committee", raw_label: "A PAC", industry_slug: "entertainment", confidence: "high", source_url: "https://example.org" },
+          { label_type: "committee", raw_label: "B PAC", industry_slug: "labor_unions", confidence: "high" },
+          { label_type: "employer", raw_label: "C Corp", industry_slug: "democratic_party_groups", confidence: "high" },
+        ],
+      });
+    expect(bad).toThrow(/labels\[0\]: industry_slug must be null or one of/);
+    expect(bad).toThrow(/labels\[1\]: source_url \(http\/https\) is required/);
+    expect(bad).toThrow(/labels\[2\]: industry_slug must be null or one of/);
   });
 
   it("rejects a missing industry_slug key instead of treating it as null", () => {

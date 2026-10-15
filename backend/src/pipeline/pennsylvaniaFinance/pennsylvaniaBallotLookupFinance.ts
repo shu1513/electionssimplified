@@ -14,6 +14,7 @@ import {
   PAC_INTERESTS_NOT_LISTED,
   UNCLASSIFIED_PAC_INTEREST,
   classifyPacInterest,
+  isPacInterestSlug,
   pacInterestDisplayName,
 } from "../finance/pacInterestClassifier.js";
 
@@ -99,6 +100,9 @@ type PennsylvaniaFinancePacDonorRow = {
   committee_name: string;
   amount: string | number;
   source_url: string | null;
+  industry_slug?: string | null;
+  classification_source?: string | null;
+  confidence?: string | null;
 };
 
 const GENERIC_PENNSYLVANIA_DOS_SOURCE_URL =
@@ -130,15 +134,25 @@ export function isPennsylvaniaCandidateCommitteeName(committeeName: string): boo
   return CANDIDATE_COMMITTEE_PREFIX_PATTERN.test(key) || CANDIDATE_COMMITTEE_OFFICE_PATTERN.test(key);
 }
 
-// Where the committee's money is placed on the card: other candidates'
-// committees are recognised by name (and, like the federal card, not
-// listed); everything else goes through the shared rule classifier on the
-// committee name (finance_pac_interests cannot help here: it is keyed by FEC
-// committee id). Unsorted committees are kept under "Not yet sorted", unlike
+// Where the committee's money is placed on the card: a researched committee
+// classification (finance_label_classifications, label_type 'committee',
+// matched on the normalized name the same way Texas does) wins; otherwise
+// other candidates' committees are recognised by name (and, like the federal
+// card, not listed); everything else goes through the shared rule classifier
+// on the committee name (finance_pac_interests cannot help here: it is keyed
+// by FEC committee id). Unsorted committees are kept under "Not yet sorted", unlike
 // the federal card, because the name rules sort almost no Pennsylvania
 // committees and hiding them would hide most of the PAC money. Researched
 // labels (finance_committee_labels) still say who each committee is.
 function pennsylvaniaPacInterest(row: PennsylvaniaFinancePacDonorRow): string {
+  if (
+    row.industry_slug &&
+    isPacInterestSlug(row.industry_slug) &&
+    (row.classification_source === "manual" ||
+      (row.confidence === "high" && ["rule", "ai"].includes(row.classification_source ?? "")))
+  ) {
+    return row.industry_slug;
+  }
   if (isPennsylvaniaCandidateCommitteeName(row.committee_name)) {
     return "candidate_committees";
   }
@@ -701,7 +715,8 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
           candidate_id text,
           election_id text
         )
-      )
+      ),
+      grouped AS (
       SELECT
         selected.candidate_id::text AS candidate_id,
         selected.election_id::text AS election_id,
@@ -720,7 +735,13 @@ export async function loadPennsylvaniaCandidateFinanceSummariesByCandidateElecti
       -- A candidate with two linked committees gets one row per donor
       -- committee, not one per link.
       GROUP BY selected.candidate_id, selected.election_id, donor.committee_id
-      ORDER BY selected.candidate_id, selected.election_id, sum(donor.amount) DESC, min(donor.committee_name) ASC
+      )
+      SELECT grouped.*, classification.industry_slug, classification.classification_source, classification.confidence
+      FROM grouped
+      LEFT JOIN public.finance_label_classifications AS classification
+        ON classification.label_type = 'committee'
+       AND classification.normalized_label = public.normalize_finance_label(grouped.committee_name)
+      ORDER BY grouped.candidate_id, grouped.election_id, grouped.amount DESC, grouped.committee_name ASC
     `,
     [JSON.stringify(selectedRequests)]
   );

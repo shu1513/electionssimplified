@@ -6,9 +6,9 @@ import { loadProjectEnv } from "../config/env.js";
 import {
   FINANCE_INDUSTRY_SLUGS,
   normalizeFinanceLabel,
-  type FinanceIndustrySlug,
   type FinanceLabelClassification,
 } from "../pipeline/finance/financeLabelClassifier.js";
+import { PAC_INTEREST_SLUGS } from "../pipeline/finance/pacInterestClassifier.js";
 import {
   financeClassificationKey,
   upsertFinanceLabelClassification,
@@ -32,8 +32,17 @@ import {
 // materialized at sync time, so a new link reaches voters when the affected
 // candidates' next finance sync rebuilds their industry breakdowns.
 //
+// The same table holds committee → PAC interest links (label_type
+// 'committee'): state finance cards group PAC donors by interest and match
+// these rows on the committee's normalized name at read time, so a committee
+// link shows on the next page load. Committee rows use the PAC interest
+// slugs (industries plus causes and party groups) and carry the source URL
+// that supports them; no sync persists committee rows, so the work queue is
+// the state PAC donor tables themselves, largest unsorted committees first.
+//
 // Subcommands:
-//   due    List labels the rule classifier could not place — the work queue.
+//   due    List labels the rule classifier could not place — the work queue
+//          (--label-type committee: unsorted state PAC donor committees).
 //   write  Validate a researched payload and upsert the links with
 //          classification_source = 'manual'.
 
@@ -42,15 +51,17 @@ type Subcommand = "due" | "write";
 function usage(): string {
   return [
     "Usage:",
-    "  npm run manual:finance-industry-labels:due -- [--limit 500]",
+    "  npm run manual:finance-industry-labels:due -- [--limit 500] [--label-type committee]",
     "  npm run manual:finance-industry-labels:write -- --file labels.json [--repair-report-file file] [--dry-run]",
     "",
     "The write payload shape:",
-    '  { "labels": [ { "label_type": "employer" | "donor", "raw_label", "industry_slug": "<slug>" | null, "confidence": "high" | "medium" | "low" } ] }',
+    '  { "labels": [ { "label_type": "employer" | "donor" | "committee", "raw_label", "industry_slug": "<slug>" | null, "confidence": "high" | "medium" | "low", "source_url"?: "<url>" } ] }',
     "",
     "industry_slug must be one of the fixed slugs the due list prints, or",
     "null for labels that map to no industry (government bodies, individuals,",
     "generic descriptions). Copy raw_label and label_type from the due list.",
+    "Committee rows take a PAC interest slug and need a source_url when the",
+    "slug is not null.",
   ].join("\n");
 }
 
@@ -83,8 +94,96 @@ function requireEnv(name: string): string {
   return value;
 }
 
+// Every state *_candidate_finance_pac_donors table with the column naming
+// the donor committee; the federal table is keyed by FEC id instead
+// (finance_pac_interests) and is left out.
+async function statePacDonorSources(pool: Pool): Promise<{ table: string; column: string }[]> {
+  const result = await pool.query<{ table_name: string; column_name: string }>(
+    `
+      SELECT DISTINCT ON (table_name) table_name, column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name LIKE '%\\_candidate\\_finance\\_pac\\_donors'
+        AND table_name <> 'candidate_finance_pac_donors'
+        AND column_name IN ('committee_name', 'donor_name', 'reported_committee_name')
+      ORDER BY table_name, array_position(ARRAY['committee_name', 'donor_name', 'reported_committee_name'], column_name::text)
+    `
+  );
+  return result.rows.map((row) => ({ table: row.table_name, column: row.column_name }));
+}
+
+async function statePacCommitteeTotalsSql(pool: Pool): Promise<string> {
+  const sources = await statePacDonorSources(pool);
+  if (sources.length === 0) {
+    throw new Error("No state *_candidate_finance_pac_donors tables found");
+  }
+  const union = sources
+    .map(({ table, column }) => `SELECT '${table.split("_")[0]}' AS state_key, "${column}" AS committee_name, amount::numeric AS amount FROM public."${table}"`)
+    .join("\n        UNION ALL\n        ");
+  return `
+      WITH donors AS (
+        ${union}
+      )
+      SELECT public.normalize_finance_label(committee_name) AS normalized_label,
+        min(committee_name) AS raw_label,
+        string_agg(DISTINCT state_key, ',' ORDER BY state_key) AS states,
+        sum(amount) AS total_amount
+      FROM donors
+      WHERE amount > 0 AND btrim(coalesce(committee_name, '')) <> ''
+      GROUP BY 1`;
+}
+
+async function runCommitteeDue(pool: Pool, limit: number): Promise<void> {
+  const totals = await statePacCommitteeTotalsSql(pool);
+  const result = await pool.query<{
+    raw_label: string;
+    normalized_label: string;
+    states: string;
+    total_amount: string;
+    total: string;
+  }>(
+    `
+      WITH totals AS (${totals})
+      SELECT totals.*, count(*) OVER () AS total
+      FROM totals
+      LEFT JOIN public.finance_label_classifications AS classification
+        ON classification.label_type = 'committee'
+       AND classification.normalized_label = totals.normalized_label
+      WHERE classification.id IS NULL OR classification.classification_source = 'unknown'
+      ORDER BY totals.total_amount DESC, totals.normalized_label
+      LIMIT $1
+    `,
+    [limit]
+  );
+  console.log(
+    JSON.stringify(
+      {
+        unclassified_label_count: Number(result.rows[0]?.total ?? 0),
+        industry_slugs: PAC_INTEREST_SLUGS,
+        labels: result.rows.map(({ raw_label, normalized_label, states, total_amount }) => ({
+          label_type: "committee",
+          raw_label,
+          normalized_label,
+          states,
+          total_amount: Number(total_amount),
+        })),
+      },
+      null,
+      2
+    )
+  );
+}
+
 async function runDue(pool: Pool, argv: readonly string[]): Promise<void> {
   const limit = readPositiveIntegerFlag(argv, "--limit", 500);
+  const labelType = readFlag(argv, "--label-type");
+  if (labelType === "committee") {
+    await runCommitteeDue(pool, limit);
+    return;
+  }
+  if (labelType !== null) {
+    throw new Error(`--label-type must be "committee" (omit it for employer/donor labels).\n${usage()}`);
+  }
   // Only 'unknown' employer/donor rows are due: rule/ai/manual rows with a
   // null slug are a deliberate "no industry" verdict, not unfinished work,
   // and occupation rows (persisted by the FEC sync) are outside this
@@ -123,12 +222,23 @@ async function runDue(pool: Pool, argv: readonly string[]): Promise<void> {
 }
 
 export type IndustryLabelPayloadRow = {
-  label_type: "employer" | "donor";
+  label_type: "employer" | "donor" | "committee";
   raw_label: string;
   normalized_label: string;
-  industry_slug: FinanceIndustrySlug | null;
+  industry_slug: string | null;
   confidence: "high" | "medium" | "low";
+  source_url: string | null;
 };
+
+function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Validates the write payload. Throws with every problem listed at once so a
@@ -146,6 +256,7 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
   const seen = new Set<string>();
   const rows: IndustryLabelPayloadRow[] = [];
   const knownSlugs = new Set<string>(FINANCE_INDUSTRY_SLUGS);
+  const knownCommitteeSlugs = new Set<string>(PAC_INTEREST_SLUGS);
   labels.forEach((entry, index) => {
     const at = `labels[${index}]`;
     if (typeof entry !== "object" || entry === null) {
@@ -153,7 +264,10 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
       return;
     }
     const row = entry as Record<string, unknown>;
-    const labelType = row.label_type === "employer" || row.label_type === "donor" ? row.label_type : null;
+    const labelType =
+      row.label_type === "employer" || row.label_type === "donor" || row.label_type === "committee"
+        ? row.label_type
+        : null;
     const rawLabel = typeof row.raw_label === "string" ? row.raw_label.trim() : "";
     const confidence =
       row.confidence === "high" || row.confidence === "medium" || row.confidence === "low"
@@ -161,7 +275,7 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
         : null;
 
     if (!labelType) {
-      errors.push(`${at}: label_type must be "employer" or "donor"`);
+      errors.push(`${at}: label_type must be "employer", "donor", or "committee"`);
     }
     if (rawLabel.length === 0) {
       errors.push(`${at}: raw_label is required`);
@@ -173,6 +287,14 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
     // likely a forgotten field than a researched "no industry" verdict.
     if (!("industry_slug" in row)) {
       errors.push(`${at}: industry_slug is required (use null for labels with no industry)`);
+    } else if (labelType === "committee") {
+      if (row.industry_slug !== null && (typeof row.industry_slug !== "string" || !knownCommitteeSlugs.has(row.industry_slug))) {
+        errors.push(`${at}: industry_slug must be null or one of: ${PAC_INTEREST_SLUGS.join(", ")}`);
+      } else if (row.industry_slug !== null && !isHttpUrl(row.source_url)) {
+        // A committee's interest is a researched claim shown to voters; the
+        // payload keeps the page that supports it.
+        errors.push(`${at}: source_url (http/https) is required for a committee interest`);
+      }
     } else if (row.industry_slug !== null && (typeof row.industry_slug !== "string" || !knownSlugs.has(row.industry_slug))) {
       errors.push(
         `${at}: industry_slug must be null or one of: ${FINANCE_INDUSTRY_SLUGS.join(", ")}`
@@ -197,8 +319,9 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
       label_type: labelType,
       raw_label: rawLabel,
       normalized_label: normalizedLabel,
-      industry_slug: (row.industry_slug ?? null) as FinanceIndustrySlug | null,
+      industry_slug: (row.industry_slug ?? null) as string | null,
       confidence,
+      source_url: isHttpUrl(row.source_url) ? row.source_url.trim() : null,
     });
   });
   if (errors.length > 0) {
@@ -234,7 +357,9 @@ export function checkRowsAgainstKnownLabels(
       issues.push({
         index,
         kind: "missing_label",
-        reason: `(${row.label_type}, "${row.raw_label}") normalizes to "${row.normalized_label}", which has no classification row — copy label_type and raw_label from the due list`,
+        reason: `(${row.label_type}, "${row.raw_label}") normalizes to "${row.normalized_label}", which has no ${
+          row.label_type === "committee" ? "state PAC donor row" : "classification row"
+        } — copy label_type and raw_label from the due list`,
       });
     }
   });
@@ -281,8 +406,19 @@ async function runWrite(pool: Pool, argv: readonly string[]): Promise<void> {
     [rows.map((row) => row.label_type), rows.map((row) => row.normalized_label)]
   );
   const knownLabels = new Set(
-    existing.rows.map((row) => financeClassificationKey(row.label_type as "employer" | "donor", row.normalized_label))
+    existing.rows.map((row) => financeClassificationKey(row.label_type as "employer" | "donor" | "committee", row.normalized_label))
   );
+  // Committee names come from the state PAC donor tables, not from a
+  // persisted 'unknown' row, so a committee is known when a donor row has it.
+  const committeeLabels = rows.filter((row) => row.label_type === "committee").map((row) => row.normalized_label);
+  if (committeeLabels.length > 0) {
+    const totals = await statePacCommitteeTotalsSql(pool);
+    const donors = await pool.query<{ normalized_label: string }>(
+      `WITH totals AS (${totals}) SELECT normalized_label FROM totals WHERE normalized_label = ANY($1::text[])`,
+      [committeeLabels]
+    );
+    for (const row of donors.rows) knownLabels.add(financeClassificationKey("committee", row.normalized_label));
+  }
   const issues = checkRowsAgainstKnownLabels(rows, knownLabels);
   if (issues.length > 0) {
     // Same machine repair report the profile/records writers emit, so a
@@ -316,7 +452,9 @@ async function runWrite(pool: Pool, argv: readonly string[]): Promise<void> {
         rawLabel: row.raw_label,
         labelType: row.label_type,
         normalizedLabel: row.normalized_label,
-        industrySlug: row.industry_slug,
+        // Committee rows carry the wider PAC interest slugs (validated above);
+        // the column is plain text.
+        industrySlug: row.industry_slug as FinanceLabelClassification["industrySlug"],
         confidence: row.confidence,
         classificationSource: "manual",
         matchedRule: null,
@@ -341,7 +479,10 @@ async function main(): Promise<void> {
   const subcommand: Subcommand = command;
 
   const flagSpecs = {
-    due: [{ name: "--limit", value: "both" as const }],
+    due: [
+      { name: "--limit", value: "both" as const },
+      { name: "--label-type", value: "both" as const },
+    ],
     write: [
       { name: "--file", value: "both" as const },
       { name: "--repair-report-file", value: "both" as const },
