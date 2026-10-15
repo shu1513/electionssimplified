@@ -14,6 +14,7 @@ export type MarylandCommitteeMonetarySnapshot = {
   sourceObservedAt: Date;
   inventoryObservedAt: Date;
   provenance: {
+    financialBasis: "active_native_api_with_published_summary_controls";
     reportCount: number;
     captureCount: number;
     originalSha256s: readonly string[];
@@ -50,7 +51,8 @@ function validate(s: MarylandCommitteeMonetarySnapshot, syncedAt: Date) {
     a.currentCycle === a.priorCycle || ![a.sourceRows, a.priorSourceRows, a.resolvedRefunds,
       a.nonCommitteeOverRefundParentCount, a.giftCount, a.refundCount, a.grossCents, a.refundCents].every(count) ||
     !Number.isSafeInteger(a.netCents) || a.netCents !== a.grossCents - a.refundCents ||
-    !s.provenance || !count(s.provenance.reportCount) || s.provenance.reportCount < 1 ||
+    !s.provenance || s.provenance.financialBasis !== "active_native_api_with_published_summary_controls" ||
+    !count(s.provenance.reportCount) || s.provenance.reportCount < 1 ||
     !count(s.provenance.captureCount) || s.provenance.captureCount < 1 ||
     !Array.isArray(s.provenance.originalSha256s) || !s.provenance.originalSha256s.length ||
     s.provenance.originalSha256s.some(h => typeof h !== "string" || !/^[a-f0-9]{64}$/.test(h))) fail();
@@ -128,6 +130,7 @@ export async function replaceMarylandCommitteeMonetarySnapshot(input: {
           WHERE keep.class = reported_class_code AND keep.name = donor_name_normalized)`,
     [s.linkId, s.electionYear, s.aggregation.positions.map(p => p.reportedClassCode), s.aggregation.positions.map(p => key(p.donorName))]);
     const provenance = {scope: "reported_committee_monetary_positions", version: 1,
+      financialBasis: s.provenance.financialBasis,
       currentCycle: s.aggregation.currentCycle, priorCycle: s.aggregation.priorCycle,
       currentRows: s.aggregation.sourceRows, priorRows: s.aggregation.priorSourceRows,
       reportCount: s.provenance.reportCount, captureCount: s.provenance.captureCount,

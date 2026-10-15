@@ -17,6 +17,7 @@ describe("syncDueMarylandCandidateFinance script", () => {
         "--lookback-days=10",
         "--lookahead-days=365",
         "--raw-cache-dir=/tmp/maryland-cfs",
+        "--committee-packets-file=/private/maryland/packets.json",
       ])
     ).toEqual({
       dryRun: true,
@@ -26,6 +27,7 @@ describe("syncDueMarylandCandidateFinance script", () => {
       electionLookbackDays: 10,
       electionLookaheadDays: 365,
       rawCacheDir: "/tmp/maryland-cfs",
+      committeePacketsFile:"/private/maryland/packets.json",
     });
   });
 
@@ -64,6 +66,8 @@ describe("syncDueMarylandCandidateFinance script", () => {
     expect(() =>
       parseSyncDueMarylandCandidateFinanceScriptArgs(["--raw-cache-dir=/tmp/a", "--raw-cache-dir=/tmp/b"])
     ).toThrow("Provide --raw-cache-dir at most once");
+    expect(()=>parseSyncDueMarylandCandidateFinanceScriptArgs(["--committee-packets-file"])).toThrow("Missing --committee-packets-file value");
+    expect(()=>parseSyncDueMarylandCandidateFinanceScriptArgs(["--committee-packets-file=/private/a","--committee-packets-file=/private/b"])).toThrow("Provide --committee-packets-file at most once");
   });
 
   it("rejects unknown flags before starting a sync", () => {

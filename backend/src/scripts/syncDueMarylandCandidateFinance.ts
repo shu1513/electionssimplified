@@ -10,6 +10,7 @@ import {
 } from "../pipeline/marylandFinance/marylandCandidateFinanceBatchSync.js";
 import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
+import {readMarylandCommitteePacketConfiguration} from "../pipeline/marylandFinance/marylandCommitteePacketConfiguration.js";
 
 export type SyncDueMarylandCandidateFinanceScriptOptions = {
   dryRun: boolean;
@@ -19,6 +20,7 @@ export type SyncDueMarylandCandidateFinanceScriptOptions = {
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
   rawCacheDir?: string;
+  committeePacketsFile?:string;
 };
 
 const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
@@ -28,6 +30,7 @@ const KNOWN_VALUE_FLAGS = new Set([
   "--lookback-days",
   "--lookahead-days",
   "--raw-cache-dir",
+  "--committee-packets-file",
 ]);
 
 function validateKnownFlags(args: readonly string[]): void {
@@ -46,6 +49,7 @@ export function parseSyncDueMarylandCandidateFinanceScriptArgs(
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
     electionLookaheadDays: readStrictPositiveIntegerFlag(args, "--lookahead-days"),
     rawCacheDir: readStrictFlagValue(args, "--raw-cache-dir") || undefined,
+    committeePacketsFile:readStrictFlagValue(args,"--committee-packets-file")||undefined,
   };
 }
 
@@ -93,6 +97,7 @@ async function main(): Promise<void> {
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
       rawDataCacheDir: options.rawCacheDir,
+      committeeMonetaryPackets:options.committeePacketsFile?await readMarylandCommitteePacketConfiguration(options.committeePacketsFile):undefined,
     });
 
     console.log(JSON.stringify(toSyncDueMarylandCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));

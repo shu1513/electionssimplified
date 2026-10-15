@@ -12,6 +12,7 @@ type Row = {
   committee_id: string; active_link_count: number;
   net_amount: string; gross_amount: string; refund_amount: string; position_count: number;
   source_observed_at: string; inventory_observed_at: string; last_synced_at: string;
+  financial_basis: string;
   id: string | null; donor_name: string | null; reported_class_code: string | null;
   amount: string | null; gross: string | null; refund: string | null; source_url: string | null;
 };
@@ -62,6 +63,7 @@ export async function attachMarylandCommitteeMonetaryFinance(input: {
       link.election_year, link.committee_id, link.active_link_count,
       src.net_amount::text, src.gross_amount::text, src.refund_amount::text, src.position_count,
       src.source_observed_at::text, src.inventory_observed_at::text, src.last_synced_at::text,
+      src.provenance->>'financialBasis' AS financial_basis,
       donor.id::text, donor.donor_name, donor.reported_class_code,
       donor.amount::text, donor.gross_amount::text AS gross, donor.refund_amount::text AS refund, donor.source_url
     FROM active AS link JOIN public.md_candidate_finance_pac_sources AS src
@@ -87,6 +89,7 @@ export async function attachMarylandCommitteeMonetaryFinance(input: {
     for (const rows of links.values()) {
       const src = rows[0]!;
       if (src.election_year !== first.election_year || src.active_link_count !== first.active_link_count ||
+        src.financial_basis !== "active_native_api_with_published_summary_controls" ||
         !Number.isSafeInteger(src.position_count) || src.position_count < 0 ||
         instant(src.source_observed_at) > instant(src.inventory_observed_at) ||
         instant(src.inventory_observed_at) > instant(src.last_synced_at)) fail();
@@ -124,7 +127,7 @@ export async function attachMarylandCommitteeMonetaryFinance(input: {
       .sort((a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest)).slice(0, 5);
     const existing = output.get(k);
     const summary = existing ?? emptySummary(first);
-    const note = `Committee cash contributions less cash refunds, grouped by reported class and name. Includes negative period balances; excludes in-kind contributions and individual donors. Committee data as of ${new Date(oldest).toISOString().slice(0, 10)}.`;
+    const note = `Maryland public ledger committee cash gifts less cash refunds, grouped by reported class and name. Full receipt ledger totals reconcile to filed summaries; printed receipt details have unresolved differences. Includes negative balances; excludes individual and in-kind gifts. Data as of ${new Date(oldest).toISOString().slice(0, 10)}.`;
     output.set(k, {...summary, direct_campaign: {...summary.direct_campaign, pac_money_by_interest: grouped,
       pac_money_basis: "reported_committee_monetary_positions", pac_money_coverage_note: note}});
   }

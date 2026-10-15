@@ -2,6 +2,41 @@
 
 ## Current verification — October 15, 2026
 
+The real ordinary local batch now passes the complete packet dry run: two due
+candidates, one configured source scope, 181 reported committee groups,
+$487,160.44 gross, $20,165.00 refunds and $466,995.44 net. It independently
+qualifies despite both legacy CSV syncs failing. The outside observation
+preserves existing data when its attempted refresh is unavailable. This replay
+made no source requests or financial writes. All 1,003 Maryland/CLI tests
+across 40 files pass; backend types and independent packet-reader review pass.
+The actual component write, stored-row audit and frontend card proof are next.
+
+The committee component uses the complete active native API ledger, reconciled
+to the original published report summary controls. Its explicit financial basis
+is `active_native_api_with_published_summary_controls`. It groups monetary gifts
+less cash refunds by reported committee class and literal name; these groups do
+not establish legal donor identities or total Raised. Every source class and
+financial family must reconcile before eligible committee positions are selected.
+Printed receipt detail/status/identity verification is not part of this basis.
+
+An independent whole-scope check of all seven originals (53,477,621 bytes)
+found zero differences for every evaluable family: legacy monetary A–D,
+transfers E–H, other receipts I and in-kind J; modern cash, anonymous and
+in-kind gifts, cash returns and in-kind returns separately. Legacy anonymous
+controls are unavailable and their native row counts must be zero. Modern
+anonymous aggregates reconcile by amount; printed transaction counts are not
+assumed to equal API rows. Original acquisition timestamps remain unchanged.
+
+The printed-detail diagnostics still have unresolved differences: Annual 2024
+has an extra $250 Current physical receipt, and Annual 2025 has uncertain
+printed contact visibility. They are not called matched or silently upgraded
+to financial acceptance. The source-derived color/status/paint investigation
+is retained in Git stash `7c5f0307a531ea234a4065aae5bd9257ec84c113` rather than
+added to the API component's money path. The packet reader instead reopens
+all current/prior captures, binds the full current report inventory, checks
+every native row's role/class/mechanism, rereads every summary original and
+freshly proves all three legacy cash-return families before a write.
+
 The separate whole-report cash-return family proof is committed in `c9ea8faea`.
 All three complete original Z schedules reconcile to their complete native
 report scopes: 164 returns/$302,670.55. Every covered native return has the
@@ -15,11 +50,9 @@ backend types pass; independent review is clear.
 The pure component consumer in `80f8a0d3b` rebinds all supplied current and
 historical report editions, checks every class's return count/cents, and keeps
 original gift kinds and signed balances. Its focused arithmetic suites pass
-71 tests. These plain facts confer no financial acceptance. The complete
-ordinary receipt packet still needs its unresolved financial and identity
-gaps closed before any component write. Research now checks the source's
-repeated Current/Amended/Deleted legend and adjacent painted swatches; no row
-has been excluded based on color or repetition.
+71 tests. The ordinary packet must independently establish the API/summary
+basis above before any component write; supplied arithmetic facts confer no
+acceptance.
 
 An actual retained-source arithmetic run now passes with the current
 105,360-row and prior 39,208-row normal collections, all 1,512 captures,
@@ -39,8 +72,8 @@ controls. PG1 now passes its complete 1,887-page source read, deriving receipt
 pages 4–1785; its $11,344.43 cash returned expenditure and zero in-kind returned
 expenditure spill totals agree with the summary. Unknown page content still
 holds. The last full Maryland run passed 906 tests across 34 files before
-these two additions. The receipt-status implementation and the remaining
-Annual 2024 $250 Current-row discrepancy are still under investigation.
+these two additions. The remaining Annual 2024 $250 Current-row discrepancy
+stays an unresolved printed-detail diagnostic under the separate API basis.
 
 The normal saved inventory reader is committed in `b08e79fdf`. A genuine
 normal fetch and reopen verified seven published reports/fifteen editions,
@@ -54,12 +87,12 @@ All three original PDFs reconcile their whole Z schedules: Annual 2025 has
 91 returns/$224,236.02; Annual 2024 has 44/$57,246.00; Annual 2023 has
 29/$21,188.53. Exact printed `Expenditure Purpose:` blocks account for all
 164 nonidentity continuation blocks; the printed Total is mandatory and
-matches the separate cash/Z controls. The 63 focused regressions pass.
-Native/PDF identity comparison still holds all three reports. Five eligible
-refunds have exact whole printed names; one has an unresolved printed
-address, and three noneligible address cases share fiscal cohorts with
-eligible returns. No name-prefix fallback, dropped address or financial
-acceptance follows from the source arithmetic.
+matches the separate cash/Z controls. The initial 63 focused regressions passed.
+Subsequent exact contact/name comparison closes Annual 2024 and Annual 2023;
+Annual 2025 retains its strict contact diagnostic hold. The separate report-wide
+family proof above closes all three without asserting individual PDF contacts.
+No name-prefix fallback, dropped address or financial acceptance follows from
+source arithmetic.
 
 The separate complete legacy receipt observation now passes all three
 untouched originals. Annual 2025 has 9,903 cash contributions, 45 transfers,
@@ -72,11 +105,13 @@ description uncertainty stays unbound to donor identity. Source-derived
 whole-document receipt extent and native occurrence comparison are committed
 in `74f86f53c`. Pre-Primary 1, Pre-Primary 2 and Annual 2026 close their entire
 originals with zero eligible cash identity or unresolved-occurrence deficits.
-Pre-General 1 still holds an unclassified terminal page. Annual 2025 has an
-ambiguous cash continuation; Annual 2024 and Annual 2023 retain eligible
-identity deficits and cash-control differences of $1,750/$1,000. These
-differences remain holds. The complete seven-report packet does not yet
-qualify a money write.
+The later exact Section 4 spill fix also closes Pre-General 1 as described
+above. Annual 2025 has an ambiguous cash continuation; Annual 2024 and
+Annual 2023 initially retained eligible identity deficits and cash-control
+differences of $1,750/$1,000. Exact full-contact/name capacity allocation now
+matches their eligible identities, while complete fiscal/control and printed
+status qualification remain mandatory. No complete seven-report packet has
+qualified a money write.
 
 Migration 343 and the independent signed committee-component writer,
 production reader and card changes are committed in `5a3e4649a`. They preserve existing

@@ -7,7 +7,7 @@ function snapshot(): MarylandCommitteeMonetarySnapshot {
     electionId: "33333333-3333-4333-8333-333333333333", electionYear: 2026, receivingCommitteeId: "1234",
     sourceUrl: "https://campaignfinance.maryland.gov", sourceObservedAt: new Date("2026-10-13T10:00:00Z"),
     inventoryObservedAt: new Date("2026-10-15T10:00:00Z"),
-    provenance: {reportCount: 7, captureCount: 30, originalSha256s: ["a".repeat(64)]},
+    provenance: {financialBasis:"active_native_api_with_published_summary_controls",reportCount: 7, captureCount: 30, originalSha256s: ["a".repeat(64)]},
     aggregation: {currentCycle: "7", priorCycle: "6", sourceRows: 9, priorSourceRows: 4, resolvedRefunds: 2,
       nonCommitteeOverRefundParentCount: 0, giftCount: 1, refundCount: 2, grossCents: 50000, refundCents: 60000, netCents: -10000,
       positions: [
@@ -43,6 +43,7 @@ describe("Maryland independent monetary component writer", () => {
     expect(donors.map(([,args]) => args.slice(4, 8))).toEqual([["TPAC", "0.00", "500.00", "500.00"], ["TFED", "-100.00", "0.00", "100.00"]]);
     expect(calls.some(([sql]) => /(?:INSERT INTO|UPDATE|DELETE FROM) public\.md_candidate_finance_(?:summaries|direct_breakdowns|outside)/.test(sql))).toBe(false);
     expect(calls.at(-1)?.[0]).toBe("COMMIT");
+    expect(JSON.parse(calls.find(([sql])=>sql.includes("INSERT INTO public.md_candidate_finance_pac_sources"))![1][8] as string)).toMatchObject({version:1,financialBasis:"active_native_api_with_published_summary_controls"});
     expect(d.release).toHaveBeenCalledOnce();
   });
   it("uses upserts for stable row IDs and removes obsolete class/name pairs", async () => {
@@ -93,7 +94,7 @@ describe("Maryland independent monetary component writer", () => {
     expect(d.query.mock.calls.some(([sql]) => sql === "COMMIT")).toBe(false);
     expect(d.release).toHaveBeenCalledOnce();
   });
-  it.each(["totals", "duplicate", "timestamp", "class", "unsafe", "kind"])("rejects invalid %s before acquiring a DB client", async mode => {
+  it.each(["totals", "duplicate", "timestamp", "class", "unsafe", "kind", "basis"])("rejects invalid %s before acquiring a DB client", async mode => {
     const d = database(); const s = snapshot();
     if (mode === "totals") s.aggregation.netCents++;
     if (mode === "duplicate") s.aggregation.positions[1] = {...s.aggregation.positions[0]!};
@@ -101,6 +102,7 @@ describe("Maryland independent monetary component writer", () => {
     if (mode === "class") s.aggregation.positions[0]!.reportedClassCode = "TIND";
     if (mode === "unsafe") s.aggregation.positions[0]!.grossCents = Number.MAX_SAFE_INTEGER + 1;
     if (mode === "kind") s.aggregation.positions[0]!.originalGiftKinds = ["CMONT", "CMONT"];
+    if (mode === "basis") (s.provenance as {financialBasis:string}).financialBasis="pdf_details_verified";
     await expect(replaceMarylandCommitteeMonetarySnapshot({db: d.db, snapshot: s, syncedAt})).rejects.toThrow("invalid_maryland_committee_monetary_snapshot");
     expect(d.connect).not.toHaveBeenCalled();
   });

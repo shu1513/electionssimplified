@@ -9,6 +9,7 @@ function rows(amounts: number[], codes = amounts.map(() => "TPAC")) {
   const source = {candidate_id, election_id, link_id: "33333333-3333-4333-8333-333333333333", election_year: 2026,
     committee_id: "1234", active_link_count: 1, net_amount: String(net), gross_amount: String(gross),
     refund_amount: String(gross - net), position_count: amounts.length,
+    financial_basis:"active_native_api_with_published_summary_controls",
     source_observed_at: "2026-10-13T10:00:00Z", inventory_observed_at: "2026-10-15T10:00:00Z", last_synced_at: "2026-10-15T11:00:00Z"};
   return amounts.length ? amounts.map((amount, i) => ({...source, id: `stored-position-${i}`, donor_name: `Example ${i}`,
     reported_class_code: codes[i]!, amount: String(amount), gross: String(Math.max(0, amount)),
@@ -37,6 +38,7 @@ describe("Maryland committee monetary reader", () => {
     expect(summary.last_synced_at).toBe("2026-10-13T10:00:00.000Z");
     expect(summary.direct_campaign.pac_money_basis).toBe("reported_committee_monetary_positions");
     expect(summary.direct_campaign.pac_money_coverage_note).toContain("2026-10-13");
+    expect(summary.direct_campaign.pac_money_coverage_note).toContain("printed receipt details have unresolved differences");
     expect(String(database.query.mock.calls[0]?.[0])).not.toMatch(/\bLIMIT\b|amount\s*>\s*0/i);
   });
   it("retains existing money, timestamps and coverage notes", async () => {
@@ -70,13 +72,14 @@ describe("Maryland committee monetary reader", () => {
     const output = await attachMarylandCommitteeMonetaryFinance({db: db(data), requests, summaries: new Map()});
     expect(output.get(key)?.direct_campaign.pac_money_by_interest?.[0]).toMatchObject({amount: 0, gross_amount: 10000, refund_amount: 10000, pac_count: 1});
   });
-  it.each(["total", "count", "duplicate", "time", "class"])("rejects inconsistent stored %s", async mode => {
+  it.each(["total", "count", "duplicate", "time", "class", "basis"])("rejects inconsistent stored %s", async mode => {
     const data = rows([10000, -1000]);
     if (mode === "total") data[0]!.net_amount = "10000";
     if (mode === "count") data[0]!.position_count = 1;
     if (mode === "duplicate") data[1]!.id = data[0]!.id;
     if (mode === "time") data[0]!.source_observed_at = "2026-10-16T00:00:00Z";
     if (mode === "class") data[0]!.reported_class_code = "TIND";
+    if (mode === "basis") data[0]!.financial_basis="unqualified";
     await expect(attachMarylandCommitteeMonetaryFinance({db: db(data), requests, summaries: new Map()})).rejects.toThrow("invalid_maryland_stored_committee_component");
   });
 });
