@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isMinnesotaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import { isMinnesotaFinanceEligibleOffice } from "./minnesotaFinanceEligibleOffices.js";
+import { addMinnesotaCommitteeCashToSummaries } from "./minnesotaCommitteeCashReader.js";
 
 import {
   addFinanceBreakdown,
@@ -104,7 +105,7 @@ export async function loadMinnesotaCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return new Map();
+    return addMinnesotaCommitteeCashToSummaries(db, requests, new Map());
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -390,7 +391,7 @@ export async function loadMinnesotaCandidateFinanceSummariesByCandidateElection(
     );
   }
 
-  return new Map(
+  const summaries = new Map(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topOutsideSupportingIndustries = (supportingIndustriesByCandidateElection.get(key) ?? []).map(
@@ -438,4 +439,5 @@ export async function loadMinnesotaCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
+  return addMinnesotaCommitteeCashToSummaries(db, requests, summaries);
 }
