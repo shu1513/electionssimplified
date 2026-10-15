@@ -2,14 +2,31 @@
 
 ## Current verification — October 15, 2026
 
-The real ordinary local batch now passes the complete packet dry run: two due
-candidates, one configured source scope, 181 reported committee groups,
-$487,160.44 gross, $20,165.00 refunds and $466,995.44 net. It independently
-qualifies despite both legacy CSV syncs failing. The outside observation
-preserves existing data when its attempted refresh is unavailable. This replay
-made no source requests or financial writes. All 1,003 Maryland/CLI tests
-across 40 files pass; backend types and independent packet-reader review pass.
-The actual component write, stored-row audit and frontend card proof are next.
+The real ordinary local batch passes both the complete dry run and actual
+component write: two due candidates, one qualified source scope, 181 reported
+committee groups, $487,160.44 gross, $20,165.00 refunds and $466,995.44 net.
+The new tables changed from zero rows to 181 positions/one source, including
+two negative and four zero positions. All five existing Maryland finance tables
+retain exactly the same values and timestamps; their counts remain
+2 links/2 summaries/12 direct breakdowns/0 outside groups/0 outside details.
+This is a normal batch/writer run, independent of both failed legacy CSV syncs.
+The outside observation preserves existing data on its unavailable refresh.
+Both replays made zero source requests; all AI calls were disabled.
+
+The normal production reader and actual local API return the same 181 groups
+and $466,995.44 net. Native Chrome verified the real frontend candidate card
+for Wes Moore: 152 groups under Not yet sorted ($410,845 displayed) and
+29 Other candidates' campaigns ($56,150 displayed), with the scope limitation
+and October 13 source date visible. The older Raised value and its date stay
+unchanged. Only aggregate groups were opened; named committee lists stayed
+collapsed. The API used the local database read-only and all state/display
+flags were inline; no environment file was loaded or modified.
+
+All 1,003 Maryland/CLI tests across 40 files pass. The final saved-registry
+addition passes 25 batch/scheduler/CLI regressions, including four new cases;
+backend types, independent source-reader and registry reviews pass. Main was
+refetched without further commits or a migration-number conflict. No production
+write, deployment, merge or recurring automation occurred.
 
 The committee component uses the complete active native API ledger, reconciled
 to the original published report summary controls. Its explicit financial basis
@@ -36,6 +53,11 @@ added to the API component's money path. The packet reader instead reopens
 all current/prior captures, binds the full current report inventory, checks
 every native row's role/class/mechanism, rereads every summary original and
 freshly proves all three legacy cash-return families before a write.
+
+### Earlier verification milestones
+
+The following records describe the earlier source investigations; the actual
+local write and frontend proof above supersede their pending-write statuses.
 
 The separate whole-report cash-return family proof is committed in `c9ea8faea`.
 All three complete original Z schedules reconcile to their complete native
