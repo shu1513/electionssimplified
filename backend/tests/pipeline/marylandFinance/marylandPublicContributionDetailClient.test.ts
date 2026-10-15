@@ -22,15 +22,8 @@ describe("Maryland published contribution detail", () => {
   });
   it("runtime-closes the exact published request before any await", () => {
     const request = buildMarylandPublicContributionDetailRequest(GUID);
-    for (const mutation of [{...request, numericId: 1}, {...request, transactionTypeCode: "TEXP"}])
+    for (const mutation of [{...request, numericId: 1}, {...request, transactionTypeCode: "TRCON"}])
       expect(() => captureMarylandPublicContributionDetailPost(mutation as never, {outputPath: "unused"})).toThrow("invalid_request");
-  });
-  it("captures the explicit published return role and rejects a nonreturn response", async () => {
-    const source = value(); source.data.isReturnContribution = true;
-    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(source)));
-    await fetchMarylandPublicContributionDetail({transactionGuid: GUID, transactionTypeCode: "TRCON", outputPath: await path(), fetchImpl});
-    expect(JSON.parse(fetchImpl.mock.calls[0]![1]!.body as string)).toEqual({transactionGuid: GUID, transactionTypeCode: "TRCON"});
-    expect(() => decodeMarylandPublicContributionDetail(value(), buildMarylandPublicContributionDetailRequest(GUID, "TRCON"))).toThrow("invalid_contribution_detail");
   });
   it.each([{guid: "22222222-2222-4222-8222-222222222222"}, {transactionDate: "2024-02-30T00:00:00"},
     {transactionDate: "2024-01-08"}, {transactionAmount: "1000"}, {isReturnContribution: null}, {payeeName: ""}])(

@@ -24,8 +24,7 @@ export function decodeMarylandPublicContributionDetail(value: unknown, request: 
     typeof row.payeeName !== "string" || !row.payeeName.trim() ||
     typeof row.committeeName !== "string" || !row.committeeName.trim() ||
     typeof row.committeeType !== "string" || !row.committeeType ||
-    typeof row.isReturnContribution !== "boolean" ||
-    (request.transactionTypeCode === "TRCON" && row.isReturnContribution !== true)) return fail();
+    typeof row.isReturnContribution !== "boolean") return fail();
   return Object.freeze({...row});
 }
 
@@ -33,11 +32,10 @@ export function decodeMarylandPublicContributionDetail(value: unknown, request: 
 export async function fetchMarylandPublicContributionDetail(input:
   Omit<Parameters<typeof captureMarylandPublicContributionDetailPost>[1], "onCapture"> & {
     transactionGuid: string;
-    transactionTypeCode?: "TCON" | "TRCON";
     onCapture?: Parameters<typeof captureMarylandPublicContributionDetailPost>[1]["onCapture"];
   },
 ) {
-  const request = buildMarylandPublicContributionDetailRequest(input.transactionGuid, input.transactionTypeCode);
+  const request = buildMarylandPublicContributionDetailRequest(input.transactionGuid);
   const capture = await captureMarylandPublicContributionDetailPost(request, input);
   try {
     const raw = await readFile(capture.outputPath);
