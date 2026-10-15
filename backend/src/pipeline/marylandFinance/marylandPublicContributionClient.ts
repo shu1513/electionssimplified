@@ -1,0 +1,159 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import {
+  captureMarylandPublicContributionPost,
+  MarylandCurrentCycleExportError,
+  type MarylandCurrentCycleCapture,
+} from "./marylandCurrentCycleExportClient.js";
+
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+type Scope = {
+  filerRegistrationGuid: string;
+  electionCycle: string;
+  pageNumber: number;
+  pageSize?: 10 | 25 | 50 | 100;
+  isReturn?: boolean | null;
+  sortType?: "asc" | "desc";
+  fromDate?: string | null;
+  toDate?: string | null;
+};
+
+function calendarDate(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    value.slice(0, 4) !== "0000" &&
+    Number.isFinite(Date.parse(`${value}T00:00:00Z`)) &&
+    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+}
+
+/** Literal observed public builder. Omitted undefined filters stay omitted. */
+export function buildMarylandPublicContributionRequest(input: Scope) {
+  const pageSize = input.pageSize ?? 100;
+  const isReturn = input.isReturn ?? null;
+  const sortType = input.sortType ?? "desc";
+  const fromDate = input.fromDate ?? null;
+  const toDate = input.toDate ?? null;
+  if (
+    typeof input.filerRegistrationGuid !== "string" || !GUID.test(input.filerRegistrationGuid) ||
+    typeof input.electionCycle !== "string" || !/^[1-9]\d*$/.test(input.electionCycle) ||
+    !Number.isSafeInteger(input.pageNumber) || input.pageNumber < 1 ||
+    ![10, 25, 50, 100].includes(pageSize) ||
+    (isReturn !== null && typeof isReturn !== "boolean") ||
+    !["asc", "desc"].includes(sortType) ||
+    (fromDate !== null && !calendarDate(fromDate)) ||
+    (toDate !== null && !calendarDate(toDate)) ||
+    (fromDate !== null && toDate !== null && fromDate > toDate)
+  ) throw new MarylandCurrentCycleExportError("invalid_request");
+  return Object.freeze({
+    pageNumber: input.pageNumber,
+    pageSize,
+    sortBy: "TransactionDate",
+    sortType,
+    transactionTypeCode: "TCON" as const,
+    contributorName: null,
+    contributorTypeCode: null,
+    committeeType: null,
+    reportType: null,
+    isReturn,
+    electionCycle: input.electionCycle,
+    paymentTypeCode: null,
+    contributionTypeCode: null,
+    electionID: null,
+    reportName: null,
+    officeSought: null,
+    officeType: null,
+    toDate,
+    fromDate,
+    filerRegistrationGuid: input.filerRegistrationGuid,
+    isPublicFundingRequested: null,
+  });
+}
+export type MarylandPublicContributionRequest = ReturnType<typeof buildMarylandPublicContributionRequest>;
+export type MarylandPublicContributionCapture = MarylandCurrentCycleCapture<MarylandPublicContributionRequest>;
+
+type Row = Record<string, unknown>;
+function record(value: unknown): value is Row {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+const fail = (): never => {
+  throw new MarylandCurrentCycleExportError("invalid_contribution_page");
+};
+
+export function marylandPublicContributionOccurrenceKey(row: Readonly<Row>): string {
+  return JSON.stringify([(row.transactionGuid as string).toLowerCase(), row.transactionVersionID,
+    (row.reportGuid as string).toLowerCase(), row.reportVersionId, row.isReturn]);
+}
+
+/** Acquisition validation only. It neither selects editions nor nets money. */
+export function decodeMarylandPublicContributionPage(
+  value: unknown,
+  request: MarylandPublicContributionRequest,
+): { rows: readonly Row[]; totalItems: number } {
+  if (!record(value) || value.succeeded !== true || value.error !== null || !record(value.data)) return fail();
+  const data = value.data;
+  if (!Number.isSafeInteger(data.totalItems) || (data.totalItems as number) < 0 || !Array.isArray(data.items)) return fail();
+  const totalItems = data.totalItems as number;
+  const offset = (request.pageNumber - 1) * request.pageSize;
+  if (!Number.isSafeInteger(offset)) return fail();
+  const expected = Math.min(request.pageSize, Math.max(0, totalItems - offset));
+  if (data.items.length !== expected) return fail();
+  const identities = new Set<string>();
+  for (const row of data.items) {
+    if (
+      !record(row) || typeof row.filerRegistrationGuid !== "string" ||
+      row.filerRegistrationGuid.toLowerCase() !== request.filerRegistrationGuid.toLowerCase() ||
+      !Number.isSafeInteger(row.electionCycleId) || String(row.electionCycleId) !== request.electionCycle ||
+      typeof row.transactionGuid !== "string" || !GUID.test(row.transactionGuid) ||
+      typeof row.reportGuid !== "string" || !GUID.test(row.reportGuid) ||
+      !Number.isSafeInteger(row.transactionId) || (row.transactionId as number) < 1 ||
+      !Number.isSafeInteger(row.transactionVersionID) || (row.transactionVersionID as number) < 1 ||
+      !Number.isSafeInteger(row.reportId) || (row.reportId as number) < 1 ||
+      !Number.isSafeInteger(row.reportVersionId) || (row.reportVersionId as number) < 1 ||
+      typeof row.isReturn !== "boolean" || typeof row.isActive !== "boolean" ||
+      typeof row.isAmended !== "boolean" || typeof row.hasChild !== "boolean" ||
+      // The genuine return-filter response is TRCON/true. The parent receipt
+      // response is TCON/false; both belong to the observed TCON grid domain.
+      (row.transactionTypeCode !== (row.isReturn ? "TRCON" : "TCON")) ||
+      (request.isReturn !== null && row.isReturn !== request.isReturn)
+    ) return fail();
+    if (request.fromDate !== null || request.toDate !== null) {
+      // Genuine date probes use inclusive source-local calendar bounds. A
+      // missing/malformed date or ignored filter cannot qualify a partition.
+      if (typeof row.transactionDate !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T00:00:00$/.test(row.transactionDate)) return fail();
+      const day = row.transactionDate.slice(0, 10);
+      if (!calendarDate(day) || (request.fromDate !== null && day < request.fromDate) ||
+        (request.toDate !== null && day > request.toDate)) return fail();
+    }
+    // Keep distinct equal gifts and editions. Never deduplicate a repeated
+    // occurrence into a claimed complete collection.
+    const identity = marylandPublicContributionOccurrenceKey(row);
+    if (identities.has(identity)) return fail();
+    identities.add(identity);
+  }
+  // The observed server echoes 0/0 even for a genuine 1/100 request. Those
+  // fields are retained in the original, never substituted for request scope.
+  return { rows: Object.freeze(data.items), totalItems };
+}
+
+/** Safe CLI result: no donor names, contacts, transaction IDs or raw items. */
+export async function fetchMarylandPublicContributionPage(input: Scope & {
+  outputPath: string;
+  fetchImpl?: typeof fetch;
+  timeoutMs?: number;
+  maxBytes?: number;
+  onCapture?: (capture: MarylandPublicContributionCapture) => void | Promise<void>;
+}): Promise<{capture: Omit<MarylandPublicContributionCapture, "requestBody">; totalItems: number; physicalCount: number}> {
+  const request = buildMarylandPublicContributionRequest(input);
+  const capture = await captureMarylandPublicContributionPost(request, input);
+  try {
+    const raw = await readFile(capture.outputPath);
+    if (raw.length !== capture.byteCount || createHash("sha256").update(raw).digest("hex") !== capture.sha256) return fail();
+    const page = decodeMarylandPublicContributionPage(
+      JSON.parse(new TextDecoder("utf-8", {fatal: true}).decode(raw)), request,
+    );
+    const { requestBody: _privateScope, ...metadata } = capture;
+    return Object.freeze({ capture: Object.freeze(metadata), totalItems: page.totalItems, physicalCount: page.rows.length });
+  } catch {
+    throw new MarylandCurrentCycleExportError("invalid_contribution_page", capture);
+  }
+}

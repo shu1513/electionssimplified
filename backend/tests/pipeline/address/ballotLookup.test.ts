@@ -8399,7 +8399,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(15);
+    expect(query).toHaveBeenCalledTimes(16);
     const marylandQueries = query.mock.calls.map(([sql]) => String(sql)).filter((sql) => sql.includes("public.md_candidate_finance_"));
     expect(marylandQueries.some((sql) => sql.includes("public.md_candidate_finance_summaries"))).toBe(true);
     expect(marylandQueries.some((sql) => sql.includes("public.md_candidate_finance_direct_breakdowns"))).toBe(true);

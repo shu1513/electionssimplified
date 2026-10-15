@@ -171,7 +171,39 @@ function expenditure(overrides: Partial<MarylandCfsExpenditureRow> = {}): Maryla
 }
 
 describe("marylandCandidateFinanceSync", () => {
-  it("resolves a candidate committee, aggregates direct and outside data, and writes a snapshot", async () => {
+  it.each([
+    { reason: "empty source", rows: [] },
+    { reason: "unresolved committee target", rows: [expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Friends of" })] },
+    { reason: "missing target office", rows: [expenditure({ "Office Sought": "" })] },
+    { reason: "rejected stance", rows: [expenditure({ Position: "unknown" })] },
+  ])("preserves outside evidence for $reason while direct processing proceeds", async ({ rows }) => {
+    const db = createMockDb();
+    const result = await syncMarylandCandidateFinance({
+      db,
+      candidateId: CANDIDATE_ID,
+      electionId: ELECTION_ID,
+      candidateName: "Justin Gallucci",
+      electionYear: 2026,
+      officeScope: "state_upper",
+      officeName: "State Senator",
+      sourceUrl: SOURCE_URL,
+      trustedCommittee: { committeeId: "16018290", committeeName: "Gallucci, Justin Friends of" },
+      committeeRows: [],
+      contributionRows: [contribution()],
+      expenditureRows: rows,
+      now: new Date("2026-07-08T09:10:11.000Z"),
+    });
+    expect(result).toMatchObject({ directContributionTotal: 250, summaryWritten: true,
+      outsideSupportTotal: null, outsideOpposeTotal: null, outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0 });
+    const outsideMutations = db.query.mock.calls.filter(call =>
+      /(?:DELETE FROM|INSERT INTO) public\.md_candidate_finance_outside/.test(String(call[0])));
+    expect(outsideMutations).toHaveLength(0);
+    const summaryCall = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.md_candidate_finance_summaries"));
+    expect(summaryCall?.[1]?.slice(6,8)).toEqual([null,null]);
+    expect(db.query.mock.calls.some(call => String(call[0]).includes("INSERT INTO public.md_candidate_finance_direct_breakdowns"))).toBe(true);
+  });
+
+  it("writes direct finance but preserves outside evidence even for a positive legacy aggregate", async () => {
     const db = createMockDb();
 
     const result = await syncMarylandCandidateFinance({
@@ -209,11 +241,11 @@ describe("marylandCandidateFinanceSync", () => {
       linkWritten: true,
       summaryWritten: true,
       directBreakdownsWritten: 1,
-      outsideGroupsWritten: 1,
+      outsideGroupsWritten: 0,
       totalReceipts: 250,
       directContributionTotal: 250,
-      outsideSupportTotal: 7500,
-      outsideOpposeTotal: 0,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
       matchedContributionRowCount: 1,
       includedContributionRowCount: 1,
       matchedExpenditureRowCount: 1,
@@ -225,14 +257,14 @@ describe("marylandCandidateFinanceSync", () => {
       status: "matched",
       committeeId: "16018290",
     });
-    expect(result.outsideGroupBreakdownsWritten).toBeGreaterThanOrEqual(2);
+    expect(result.outsideGroupBreakdownsWritten).toBe(0);
 
     const sql = db.query.mock.calls.map((call) => String(call[0]));
     expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_summaries"))).toHaveLength(1);
     expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_direct_breakdowns"))).toHaveLength(1);
-    expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_outside_groups"))).toHaveLength(1);
-    expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_outside_group_breakdowns"))).toHaveLength(2);
-    expect(sql.filter((statement) => statement.includes("INSERT INTO public.finance_label_classifications"))).toHaveLength(1);
+    expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_outside_groups"))).toHaveLength(0);
+    expect(sql.filter((statement) => statement.includes("INSERT INTO public.md_candidate_finance_outside_group_breakdowns"))).toHaveLength(0);
+    expect(sql.filter((statement) => statement.includes("INSERT INTO public.finance_label_classifications"))).toHaveLength(0);
 
     const summaryCall = db.query.mock.calls.find((call) =>
       String(call[0]).includes("INSERT INTO public.md_candidate_finance_summaries")
@@ -244,25 +276,25 @@ describe("marylandCandidateFinanceSync", () => {
       250,
       null,
       null,
-      7500,
-      0,
+      null,
+      null,
       SOURCE_URL,
       "2026-07-08T09:10:11.000Z",
     ]);
 
-    const outsideBreakdownCalls = db.query.mock.calls.filter((call) =>
-      String(call[0]).includes("INSERT INTO public.md_candidate_finance_outside_group_breakdowns")
+    expect(sql.some(statement => /DELETE FROM public\.md_candidate_finance_outside/.test(statement))).toBe(false);
+    expect(String(summaryCall?.[0])).toContain(
+      'outside_support_total = COALESCE(EXCLUDED.outside_support_total, md_candidate_finance_summaries.outside_support_total)'
     );
-    expect(outsideBreakdownCalls.map((call) => call[1]?.slice(2, 8))).toEqual(
-      expect.arrayContaining([
-        ["16020184", "support", "donor", "Old Construction Company LLC", 30000, 1],
-        ["16020184", "support", "industry", "construction", 30000, 1],
-      ])
+    expect(String(summaryCall?.[0])).toContain(
+      'outside_oppose_total = COALESCE(EXCLUDED.outside_oppose_total, md_candidate_finance_summaries.outside_oppose_total)'
     );
+    expect(sql).toContain("COMMIT");
   });
 
-  it("classifies every donor but caps the persisted donor rows per group", async () => {
+  it("does not classify or persist legacy outside donors even when a donor cap is configured", async () => {
     const db = createMockDb();
+    const classifier = vi.fn().mockResolvedValue([]);
 
     const result = await syncMarylandCandidateFinance({
       db,
@@ -274,10 +306,9 @@ describe("marylandCandidateFinanceSync", () => {
       officeName: "Governor",
       sourceUrl: SOURCE_URL,
       committeeRows: [committee({ "Office Sought": "Governor/Lieutenant Governor" })],
-      // Cap of 1: the smaller IBEW Local 24 donor must be dropped from the
-      // WRITTEN donor rows, yet still feed the classifications and the
-      // rebuilt labor_unions industry total.
+      // A display cap is not source authority for any legacy outside writes.
       outsideMaxDonorBreakdownsPerGroup: 1,
+      financeIndustryClassifier: classifier,
       contributionRows: [
         contribution({
           "Filing Entity Id": "16020184",
@@ -304,22 +335,20 @@ describe("marylandCandidateFinanceSync", () => {
       now: new Date("2026-07-08T09:10:11.000Z"),
     });
 
-    // 1 capped donor row + 1 industry row built from BOTH donors.
-    expect(result.outsideGroupBreakdownsWritten).toBe(2);
-    const breakdownParams = db.query.mock.calls
-      .filter((call) => String(call[0]).includes("md_candidate_finance_outside_group_breakdowns"))
-      .flatMap((call) => (Array.isArray(call[1]) ? call[1] : []));
-    expect(breakdownParams).toContain("IBEW Local 26 PAC");
-    expect(breakdownParams).not.toContain("IBEW Local 24 PAC");
-    // The rebuilt industry total covers the dropped donor too.
-    expect(breakdownParams).toContain("labor_unions");
-    expect(breakdownParams).toContain(50000);
-    // Both donors persisted classification rows.
-    const classificationParams = db.query.mock.calls
-      .filter((call) => String(call[0]).includes("INSERT INTO public.finance_label_classifications"))
-      .flatMap((call) => (Array.isArray(call[1]) ? call[1] : []));
-    expect(classificationParams).toContain("IBEW Local 26 PAC");
-    expect(classificationParams).toContain("IBEW Local 24 PAC");
+    expect(result).toMatchObject({
+      summaryWritten: true,
+      outsideSupportTotal: null,
+      outsideOpposeTotal: null,
+      outsideGroupsWritten: 0,
+      outsideGroupBreakdownsWritten: 0,
+      matchedOutsideContributionRowCount: 2,
+      includedOutsideContributionRowCount: 2,
+    });
+    const sql = db.query.mock.calls.map(call => String(call[0]));
+    expect(sql.some(statement => /(?:INSERT INTO|DELETE FROM) public\.md_candidate_finance_outside/.test(statement))).toBe(false);
+    expect(sql.some(statement => statement.includes("finance_label_classifications"))).toBe(false);
+    expect(classifier).not.toHaveBeenCalled();
+    expect(sql).toContain("COMMIT");
   });
 
   it("does not write when resolution is unmatched or dry run is enabled", async () => {

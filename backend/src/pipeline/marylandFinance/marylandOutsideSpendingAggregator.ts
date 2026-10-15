@@ -165,6 +165,12 @@ function targetMatchesCandidate(input: {
   candidateName: string;
   candidateNameKeys: ReadonlySet<string>;
 }): boolean {
+  // Registry-name normalization is useful for discovering a receiver, but a
+  // committee label is not independent evidence of its candidate's identity.
+  // Keep these targets unresolved until an exact source-account bridge exists.
+  if (/\b(?:COMMITTEE|FRIENDS|CITIZENS|FOR|ELECT|PAC)\b/.test(normalizePositionKey(input.candidateBallotIssue))) {
+    return false;
+  }
   const targetKeys = normalizeMarylandCandidateNameKeys(input.candidateBallotIssue);
   if (targetKeys.size === 0) {
     return false;
@@ -210,11 +216,9 @@ function isCandidateCommitteeType(value: string): boolean {
 }
 
 function expenditureAmountCents(row: MarylandCfsExpenditureRow): number | null {
-  const appliedAmountCents = parseAmountCents(row["Amount Applied"]);
-  if (appliedAmountCents !== null && appliedAmountCents > 0) {
-    return appliedAmountCents;
-  }
-  return parseAmountCents(row["Transaction Amount"]);
+  // A parent expense can fund several targets. Only the published target
+  // allocation can be assigned to this candidate, including a literal zero.
+  return parseAmountCents(row["Amount Applied"]);
 }
 
 function groupKey(input: { committeeId: string; supportOppose: MarylandFinanceSupportOppose }): string {
@@ -265,6 +269,7 @@ export function aggregateMarylandOutsideSpending(
   let matchedExpenditureRowCount = 0;
   let includedExpenditureRowCount = 0;
   let skippedExpenditureRowCount = 0;
+  let unresolvedTarget = false;
 
   for (const row of input.expenditureRows) {
     if (
@@ -283,6 +288,16 @@ export function aggregateMarylandOutsideSpending(
     const committeeName = row["Committee Name"].trim();
     const supportOppose = supportOpposeFromPosition(row.Position);
     const amountCents = expenditureAmountCents(row);
+    if (
+      !isCandidateCommitteeType(row["Committee Type"]) &&
+      isCycleYear({ rawDate: row["Transaction Date"], electionYear }) &&
+      (amountCents === null || amountCents < 0 ||
+        (amountCents > 0 && (!supportOppose || !committeeId || !committeeName)))
+    ) {
+      // Publishing the remaining positive subset would hide an unknown target
+      // allocation, payer, stance or correction. Preserve the whole component.
+      unresolvedTarget = true;
+    }
     if (
       !committeeId ||
       !committeeName ||
@@ -322,7 +337,7 @@ export function aggregateMarylandOutsideSpending(
     maxGroups,
     sourceUrl: input.sourceUrl ?? null,
   });
-  if (grouped.length === 0) {
+  if (grouped.length === 0 || unresolvedTarget) {
     return {
       summary: null,
       matchedExpenditureRowCount,

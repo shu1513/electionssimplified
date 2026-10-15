@@ -4,6 +4,7 @@ import {
   FINANCE_SMALL_AMOUNT_THRESHOLD,
   firstFinanceSourceUrl,
   hasFinanceContent,
+  hasCommitteeMoneyContent,
   hasMemberCommunications,
   hasOutsideFinanceContent,
   meetsSmallAmountThreshold,
@@ -36,6 +37,28 @@ function emptySummary(): FinanceSummary {
     },
   };
 }
+
+describe("signed committee positions", () => {
+  it("keeps a material fully refunded same-name position visible at net zero", () => {
+    const summary = emptySummary();
+    summary.direct_campaign.pac_money_basis = "reported_committee_monetary_positions";
+    summary.direct_campaign.pac_money_by_interest = [{interest: "unclassified", interest_name: "Not yet sorted",
+      amount: 0, gross_amount: 10000, refund_amount: 10000, pac_count: 1,
+      pacs: [{committee_id: "row-1", committee_name: "Example", amount: 0, source_url: null}]}];
+    expect(hasCommitteeMoneyContent(summary.direct_campaign)).toBe(true);
+    expect(hasFinanceContent(summary)).toBe(true);
+  });
+  it.each([-6000, 0, 6000])("keeps material refund/offset position %s visible", amount => {
+    const summary = emptySummary();
+    summary.direct_campaign.pac_money_basis = "reported_committee_monetary_positions";
+    summary.direct_campaign.pac_money_by_interest = [{interest: "unclassified", interest_name: "Not yet sorted",
+      amount, pac_count: 2, pacs: [{committee_id: "row-1", committee_name: "Example", amount: 6000, source_url: "https://campaignfinance.maryland.gov"},
+        {committee_id: "row-2", committee_name: "Example 2", amount: amount - 6000, source_url: null}]}];
+    expect(hasCommitteeMoneyContent(summary.direct_campaign)).toBe(true);
+    expect(hasFinanceContent(summary)).toBe(true);
+    expect(firstFinanceSourceUrl(summary)).toBe("https://campaignfinance.maryland.gov");
+  });
+});
 
 describe("NYC finance shared fields", () => {
   it("treats explicit zero public funds as content", () => {

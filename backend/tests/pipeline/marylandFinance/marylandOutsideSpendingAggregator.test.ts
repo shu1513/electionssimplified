@@ -47,6 +47,22 @@ function expenditure(overrides: Partial<MarylandCfsExpenditureRow> = {}): Maryla
 }
 
 describe("marylandOutsideSpendingAggregator", () => {
+  it("keeps committee-labelled targets unresolved even with a supplied matching office", () => {
+    const result = aggregateMarylandOutsideSpending({
+      candidateName: "Justin Gallucci",
+      officeName: "State Senator",
+      electionYear: 2026,
+      expenditureRows: [
+        expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Friends of" }),
+        expenditure({ "Candidate/Ballot Issue": "Friends of Justin Gallucci" }),
+        expenditure({ "Candidate/Ballot Issue": "Gallucci, Justin Committee for" }),
+      ],
+    });
+    expect(result.summary).toBeNull();
+    expect(result.matchedExpenditureRowCount).toBe(0);
+    expect(result.includedExpenditureRowCount).toBe(0);
+  });
+
   it("aggregates outside support and opposition groups by candidate, office, and position", () => {
     const sourceUrl = "https://campaignfinance.maryland.gov/public/cf/downloads";
     const result = aggregateMarylandOutsideSpending({
@@ -58,7 +74,7 @@ describe("marylandOutsideSpendingAggregator", () => {
         expenditure(),
         expenditure({
           "Transaction Amount": "$3,000.25",
-          "Amount Applied": "",
+          "Amount Applied": "$3,000.25",
           Description: "Mail",
         }),
         expenditure({
@@ -101,6 +117,55 @@ describe("marylandOutsideSpendingAggregator", () => {
       includedExpenditureRowCount: 3,
       skippedExpenditureRowCount: 0,
     });
+  });
+
+  it.each(["", "$0.00", "not money", "($25.00)"])(
+    "never assigns the full parent expense when target allocation is %s",
+    (applied) => {
+      const result = aggregateMarylandOutsideSpending({
+        candidateName: "Justin Gallucci",
+        officeName: "State Senator",
+        electionYear: 2026,
+        expenditureRows: [expenditure({
+          "Transaction Amount": "$100,000.00",
+          "Amount Applied": applied,
+        })],
+      });
+      expect(result.summary).toBeNull();
+      expect(result.includedExpenditureRowCount).toBe(0);
+      expect(result.skippedExpenditureRowCount).toBe(1);
+    },
+  );
+
+  it.each(["", "not money", "($25.00)"])(
+    "holds a positive subset when another target allocation is %s",
+    (applied) => {
+      const result = aggregateMarylandOutsideSpending({
+        candidateName: "Justin Gallucci",
+        officeName: "State Senator",
+        electionYear: 2026,
+        expenditureRows: [expenditure(), expenditure({"Amount Applied": applied})],
+      });
+      expect(result.summary).toBeNull();
+      expect(result.includedExpenditureRowCount).toBe(1);
+      expect(result.skippedExpenditureRowCount).toBe(1);
+    },
+  );
+
+  it.each([
+    { Position: "Unknown" },
+    { "Filing Entity Id": "" },
+    { "Committee Name": "" },
+  ])("holds a positive subset beside an unresolved stance or payer %j", (overrides) => {
+    const result = aggregateMarylandOutsideSpending({
+      candidateName: "Justin Gallucci",
+      officeName: "State Senator",
+      electionYear: 2026,
+      expenditureRows: [expenditure(), expenditure(overrides)],
+    });
+    expect(result.summary).toBeNull();
+    expect(result.includedExpenditureRowCount).toBe(1);
+    expect(result.skippedExpenditureRowCount).toBe(1);
   });
 
   it("matches direct and comma-form candidate names without fuzzy matching", () => {

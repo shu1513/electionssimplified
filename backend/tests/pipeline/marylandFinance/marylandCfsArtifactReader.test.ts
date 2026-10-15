@@ -121,6 +121,18 @@ describe("Maryland CFS artifact reader", () => {
     expect(parseMarylandCfsMoney("not-money")).toBeNull();
   });
 
+  it.each(["1e3", "0x10", "$1,23.00", "$1 000.00", "($-25.00)", "(-$25.00)",
+    "$1.001", "$1.00)", "($1.00", "$$1.00", "90071992547409.92"])(
+    "rejects malformed or unsafe financial lexeme %s",
+    (value) => expect(parseMarylandCfsMoney(value)).toBeNull(),
+  );
+
+  it.each([["-$25.50", -25.5], ["$-25.50", -25.5], ["(25.50)", -25.5],
+    ["$0.00", 0], ["250", 250], ["1,250.5", 1250.5]] as const)(
+    "preserves signed source cash %s",
+    (value, expected) => expect(parseMarylandCfsMoney(value)).toBe(expected),
+  );
+
   it("parses contribution rows after the Maryland metadata row", () => {
     const rows = parseMarylandCfsContributionCsvRows(
       contributionCsv([
@@ -365,6 +377,163 @@ describe("Maryland CFS artifact reader", () => {
 
     await expect(readMarylandCfsContributionRows({ filePath, maxRows: 0 })).rejects.toThrow(
       "Invalid Maryland CFS maxRows"
+    );
+  });
+  it.each([-1, 1])(
+    "rejects wrong logical widths in memory (%i fields)",
+    (delta) => {
+      const cells = MARYLAND_CFS_EXPENDITURE_COLUMNS.map(() => "");
+      cells[0] = "9001";
+      if (delta < 0) cells.pop();
+      else cells.push("unexpected extra field");
+      expect(() =>
+        parseMarylandCfsExpenditureCsvRows(
+          MARYLAND_CFS_EXPENDITURE_COLUMNS.join(",") + "\n" + cells.join(","),
+        ),
+      ).toThrow(`Maryland CFS CSV row 1 width ${37 + delta}; expected 37`);
+    },
+  );
+  it.each([-1, 1])(
+    "checks streamed width before a predicate can discard the malformed record (%i)",
+    async (delta) => {
+      const dir = await makeTempDir();
+      const filePath = join(dir, "bad-width.csv");
+      const cells = MARYLAND_CFS_EXPENDITURE_COLUMNS.map(() => "");
+      if (delta < 0) cells.pop();
+      else cells.push("extra");
+      cells[0] = "9001";
+      await writeFile(
+        filePath,
+        MARYLAND_CFS_EXPENDITURE_COLUMNS.join(",") + "\n" + cells.join(","),
+      );
+      let predicateCalls = 0;
+      await expect(
+        readMarylandCfsExpenditureRows({
+          filePath,
+          predicate: () => {
+            predicateCalls++;
+            return false;
+          },
+        }),
+      ).rejects.toThrow(`row 1 width ${37 + delta}; expected 37`);
+      expect(predicateCalls).toBe(0);
+    },
+  );
+  it("rejects extra unknown header columns in both paths while allowing known reordered columns", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "header.csv");
+    const csv =
+      MARYLAND_CFS_EXPENDITURE_COLUMNS.join(",") + ",Unknown Published Field\n";
+    expect(() => parseMarylandCfsExpenditureCsvRows(csv)).toThrow(
+      "header shape",
+    );
+    await writeFile(filePath, csv);
+    await expect(readMarylandCfsExpenditureRows({ filePath })).rejects.toThrow(
+      "header shape",
+    );
+    const columns = [...MARYLAND_CFS_EXPENDITURE_COLUMNS].reverse();
+    const row = columns.map((c) => (c === "Filing Entity Id" ? "9001" : ""));
+    expect(
+      parseMarylandCfsExpenditureCsvRows(
+        columns.join(",") + "\n" + row.join(","),
+      )[0]!["Filing Entity Id"],
+    ).toBe("9001");
+  });
+  it("defaults to fatal UTF-8 and selects Windows-1252 only explicitly", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "western.csv");
+    const csv = expenditureCsv([
+      {
+        "Filing Entity Id": "9001",
+        "Committee Name": "Example Café PAC",
+        Purpose: "\u0092source\u0092 \u0080 fee",
+      },
+    ]);
+    await writeFile(filePath, Buffer.from(csv, "latin1"));
+    await expect(readMarylandCfsExpenditureRows({ filePath })).rejects.toThrow(
+      "invalid UTF-8 bytes",
+    );
+    const rows = await readMarylandCfsExpenditureRows({
+      filePath,
+      encoding: "windows-1252",
+    });
+    expect(rows[0]).toMatchObject({
+      "Committee Name": "Example Café PAC",
+      Purpose: "’source’ € fee",
+    });
+    expect(rows[0]!.Purpose).not.toContain("\uFFFD");
+    await expect(
+      readMarylandCfsExpenditureRows({
+        filePath,
+        encoding: "latin1" as "utf8",
+      }),
+    ).rejects.toThrow("Invalid Maryland CFS read encoding");
+  });
+  it("keeps valid UTF-8 Unicode without selecting another codec", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "utf8.csv");
+    await writeFile(
+      filePath,
+      expenditureCsv([
+        {
+          "Filing Entity Id": "9001",
+          "Committee Name": "Example Café PAC",
+          Purpose: "publication € fee",
+        },
+      ]),
+    );
+    expect(
+      (await readMarylandCfsExpenditureRows({ filePath }))[0],
+    ).toMatchObject({
+      "Committee Name": "Example Café PAC",
+      Purpose: "publication € fee",
+    });
+  });
+  it("preserves quote state across a stream boundary and duplicate occurrences", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "chunks.csv");
+    const idx = MARYLAND_CFS_EXPENDITURE_COLUMNS.indexOf("Purpose");
+    const cells = MARYLAND_CFS_EXPENDITURE_COLUMNS.map(() => "");
+    cells[0] = "9001";
+    const header = MARYLAND_CFS_EXPENDITURE_COLUMNS.join(",") + "\n";
+    const prefix = cells.slice(0, idx).join(",") + ',"';
+    const padding = "x".repeat(65535 - Buffer.byteLength(header + prefix));
+    const line = prefix + padding + '""note",' + cells.slice(idx + 1).join(",");
+    await writeFile(filePath, header + line + "\n" + line + "\n");
+    const rows = await readMarylandCfsExpenditureRows({ filePath });
+    expect(rows).toHaveLength(2);
+    expect(rows[0]!.Purpose).toBe(padding + '"note');
+    expect(rows[1]).toEqual(rows[0]);
+  });
+  it("retains published interior quotes and multiline fields under strict width", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "literal-quotes.csv");
+    const cells = MARYLAND_CFS_EXPENDITURE_COLUMNS.map(() => "");
+    cells[0] = "9001";
+    cells[27] = '"Literal "phrase" notation\ncontinued"';
+    const csv =
+      MARYLAND_CFS_EXPENDITURE_COLUMNS.join(",") + "\n" + cells.join(",");
+    await writeFile(filePath, csv);
+    expect(
+      (await readMarylandCfsExpenditureRows({ filePath }))[0]!.Purpose,
+    ).toBe('Literal "phrase" notation\ncontinued');
+    expect(parseMarylandCfsExpenditureCsvRows(csv)[0]!.Purpose).toBe(
+      'Literal "phrase" notation\ncontinued',
+    );
+  });
+  it("keeps maxRows a preview that makes no EOF claim", async () => {
+    const dir = await makeTempDir();
+    const filePath = join(dir, "preview.csv");
+    await writeFile(
+      filePath,
+      expenditureCsv([{ "Filing Entity Id": "9001" }]) +
+        "\nmalformed late record",
+    );
+    expect(
+      await readMarylandCfsExpenditureRows({ filePath, maxRows: 1 }),
+    ).toHaveLength(1);
+    await expect(readMarylandCfsExpenditureRows({ filePath })).rejects.toThrow(
+      "row 2 width 1; expected 37",
     );
   });
 });
