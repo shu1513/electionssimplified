@@ -47,6 +47,26 @@ function outsideContributionRow(overrides: Partial<MinnesotaCampaignFinanceCsvRo
 }
 
 describe("Minnesota candidate finance sync", () => {
+  it.each([".25", "$.25", "0.25"])("includes source decimal amount %s in allocated IE", async (amount) => {
+    const result = await syncMinnesotaCandidateFinance({
+      db: { query: async () => ({ rows: [] }) },
+      candidateId: "11111111-1111-1111-1111-111111111111",
+      electionId: "22222222-2222-2222-2222-222222222222",
+      candidateName: "Jane Doe",
+      electionYear: 2026,
+      officeScope: "statewide",
+      officeName: "Governor",
+      contributionRows: [],
+      trustedCommittee: { committeeId: "1001", committeeName: "FRIENDS OF JANE DOE" },
+      expenditureRows: [outsideExpenditureRow({ Amount: amount })],
+      dryRun: true,
+    });
+
+    expect(result.outsideSupportTotal).toBe(0.25);
+    expect(result.includedOutsideExpenditureRowCount).toBe(1);
+    expect(result.skippedOutsideExpenditureRowCount).toBe(0);
+  });
+
   it("writes authoritative direct totals with outside groups and backtrace rows", async () => {
     const queries: Array<{ text: string; values: readonly unknown[] }> = [];
     const db = {

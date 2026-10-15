@@ -123,7 +123,7 @@ function firstNonEmpty(row: MinnesotaCampaignFinanceCsvRow, keys: readonly strin
 
 function parseAmountCents(raw: string): number | null {
   const normalized = raw.replace(/[$,]/g, "").trim();
-  if (!normalized || !/^-?\d+(?:\.\d{1,4})?$/.test(normalized)) {
+  if (!normalized || !/^-?(?:\d+|\d*\.\d{1,4})$/.test(normalized)) {
     return null;
   }
   const amount = Number(normalized);
