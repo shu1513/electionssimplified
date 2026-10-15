@@ -1,6 +1,8 @@
 import { parseMarylandCfsMoney } from "./marylandCfsArtifactReader.js";
 import type { bindMarylandOutsideReceivingContext } from "./marylandOutsideReceivingContext.js";
-import type { compareMarylandLegacyCommitteeReturnOccurrences } from "./marylandLegacyReturnedContributionFacts.js";
+import type { compareMarylandLegacyCommitteeReturnOccurrences, proveMarylandLegacyReturnCashFamilies } from "./marylandLegacyReturnedContributionFacts.js";
+import { bindMarylandNativeReportOccurrences } from "./marylandNativeReportBinding.js";
+import { buildMarylandPublicReportInventoryRequest } from "./marylandPublicReportClient.js";
 
 type SourceRow = Readonly<Record<string, unknown>>;
 type ParsedRow = {
@@ -165,6 +167,7 @@ export function aggregateMarylandReportedCommitteePositions(input: {
   declaredCurrentRows: number; declaredPriorRows: number;
   receivingContext: ReceivingContext;
   legacyReturnComparison?: LegacyReturnComparison;
+  legacyReturnCashFamilies?: ReturnType<typeof proveMarylandLegacyReturnCashFamilies>;
 }) {
   const hold = (code: MarylandReportedCommitteeAggregationError["code"]): never => {
     throw new MarylandReportedCommitteeAggregationError(code);
@@ -233,6 +236,42 @@ export function aggregateMarylandReportedCommitteePositions(input: {
     }
   }
   const bound = new Set<number>(), physical = new Set<string>();
+  if (input.legacyReturnComparison && input.legacyReturnCashFamilies) hold("invalid_return_fact");
+  if (input.legacyReturnCashFamilies) {
+    const {sourceFacts: f, reports} = input.legacyReturnCashFamilies;
+    if (!f || !Array.isArray(reports) || f.documentFamily !== "cash_outflow" ||
+      ![f.reportsCompared, f.nativeReturns, f.pdfReturns, f.returnCents].every(n => Number.isSafeInteger(n) && n >= 0) ||
+      f.reportsCompared !== reports.length || f.nativeReturns !== f.pdfReturns ||
+      reports.some(r => !r || r.documentFamily !== "cash_outflow" || !/^[a-f0-9]{64}$/.test(r.pdfSha256) ||
+        !positiveId(r.pdfByteCount) || !positiveId(r.pdfPageCount) ||
+        !Number.isSafeInteger(r.returnCount) || r.returnCount < 0 || !Number.isSafeInteger(r.returnCents) || r.returnCents < 0)) hold("invalid_return_fact");
+    // Rebind the complete supplied report scopes, including every class and
+    // gift kind. A report-wide family proves no per-row PDF identity/contact.
+    // The ordinary packet must regenerate these plain facts from its originals.
+    let binding: ReturnType<typeof bindMarylandNativeReportOccurrences>;
+    try {
+      const request = buildMarylandPublicReportInventoryRequest({filerRegistrationGuid: input.receivingGuid,
+        electionCycleId: input.currentCycle, pageNumber: 1});
+      const published = bindMarylandNativeReportOccurrences({request, reports: reports.map(r => r.report), nativeRows: []});
+      const reportGuids = new Set(published.reports.flatMap(({report}) => [report.reportGuid.toLowerCase(),
+        ...(report.childResults ?? []).map(c => c.filerReportGuid.toLowerCase())]));
+      binding = bindMarylandNativeReportOccurrences({request, reports: published.reports.map(r => r.report),
+        nativeRows: current.filter(r => typeof r.source.reportGuid === "string" && reportGuids.has(r.source.reportGuid.toLowerCase())).map(r => r.source)});
+    } catch { return hold("invalid_return_fact"); }
+    let count = 0, cents = 0;
+    binding.reports.forEach((bucket, index) => {
+      const fact = reports[index]!;
+      const returns = bucket.rows.filter(r => r.isReturn);
+      const total = returns.reduce((n, row) => sum(n, currentRefunds.get(row.transactionId as number)!.amountCents), 0);
+      if (returns.length !== fact.returnCount || total !== fact.returnCents) hold("invalid_return_fact");
+      count = sum(count, returns.length); cents = sum(cents, total);
+      for (const row of returns) {
+        if (!cashGift(currentRefunds.get(row.transactionId as number)!)) hold("invalid_return_fact");
+        bound.add(row.transactionId as number);
+      }
+    });
+    if (count !== f.nativeReturns || cents !== f.returnCents) hold("invalid_return_fact");
+  }
   if (input.legacyReturnComparison) {
     const {sourceFacts: f, privateBoundReturns: facts} = input.legacyReturnComparison;
     if (!f || !Array.isArray(facts) || f.nativeReturns !== f.pdfReturns || f.eligibleReturns !== facts.length ||
@@ -277,7 +316,11 @@ export function aggregateMarylandReportedCommitteePositions(input: {
   }
   for (const refund of currentRefunds.values()) {
     const parent = gifts.get(refund.parentId!)!;
-    if (!reportedCommitteeClasses.has(parent.donorType!) || !cashGift(refund)) continue;
+    if (!reportedCommitteeClasses.has(parent.donorType!)) continue;
+    // A conflicting native noncash-return mechanism needs its own source
+    // semantics. A report family alone does not reinterpret that field.
+    if (bound.has(refund.id) && !cashGift(refund)) hold("invalid_return_fact");
+    if (!cashGift(refund)) continue;
     if (!cashGift(parent) && !bound.has(refund.id)) hold("missing_return_family");
     const p = position(parent); p.refundCents = sum(p.refundCents, refund.amountCents); p.refundCount++;
     if (bound.has(refund.id)) p.documentBoundCashOutflowRefundCount++;

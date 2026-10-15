@@ -11,7 +11,7 @@ function gift(id: number, code: keyof typeof labels = "TPAC", overrides: Record<
     isActive:true,isReturn:false,transactionTypeCode:"TCON",contributionTypeCode:"CMONT",
     contributorTypeCode:code,contributorType:labels[code],contributorName:`Reported ${code}`,
     transactionAmount:1000,transactionDate:"2023-02-01T00:00:00",parentTransactionId:null,parentTransactionGuid:null,
-    reportGuid:uuid(90),reportVersionId:1,...overrides};
+    reportGuid:uuid(90),reportVersionId:1,transactionVersionID:1,...overrides};
 }
 function refund(id: number, parent: number, overrides: Record<string, unknown> = {}) {
   return gift(id,"TPOC",{isReturn:true,transactionTypeCode:"TRCON",contributorName:"Reported TPAC",
@@ -30,6 +30,17 @@ function comparison(overrides: Record<string, unknown> = {}): NonNullable<Input[
       nativeReportGuid:uuid(90),nativeReportVersionId:1,
       originalTransactionId:1,originalTransactionGuid:uuid(1),originalClass:"TFED",originalKind:"CINKIND",
       documentFamily:"cash_outflow",refundCents:66500,pageNumber:1,ordinal:0,...overrides}]} as NonNullable<Input["legacyReturnComparison"]>;
+}
+function family(overrides: Record<string, unknown> = {}): NonNullable<Input["legacyReturnCashFamilies"]> {
+  return {sourceFacts:{reportsCompared:1,nativeReturns:1,pdfReturns:1,returnCents:66500,documentFamily:"cash_outflow"},
+    reports:[{report:{reportGuid:uuid(90),reportVersionId:1,reportName:"Published annual report",
+      reportVersion:"Original",reportVersionCode:"RPTFLD",reportType:"Campaign Finance Report",reportTypeCode:"FPCFR",
+      filingEntityId:1,filerRegistrationGuid:uuid(99),committeeType:"Candidate Committee",committeeTypeCode:"CC",
+      officeSought:"Governor",officeSoughtId:40,jurisdiction:"State",jurisdictionId:1,
+      reportingCycle:"2023-2026",reportingCycleId:12023,reportingYear:2023,
+      startDate:"2023-01-01T00:00:00",endDate:"2023-12-31T00:00:00",dueDate:"2024-01-17T00:00:00",
+      filedDate:"2024-01-16T12:00:00",zeroActivity:false,hasChild:false,childResults:null},
+      pdfSha256:"a".repeat(64),pdfByteCount:1000,pdfPageCount:10,returnCount:1,returnCents:66500,documentFamily:"cash_outflow",...overrides}]} as NonNullable<Input["legacyReturnCashFamilies"]>;
 }
 describe("Maryland complete reported committee arithmetic", () => {
   it("includes all nine explicit classes while leaving five other source roles outside the scope", () => {
@@ -73,6 +84,44 @@ describe("Maryland complete reported committee arithmetic", () => {
     expect(result).toMatchObject({giftCount:0,grossCents:0,refundCents:66500,netCents:-66500});
     expect(result.positions[0]!.reportedClassCode).toBe("TFED");
     expect(result.positions[0]).toMatchObject({originalGiftKinds:["CINKIND"],documentBoundCashOutflowRefundCount:1});
+  });
+  it("consumes whole-report cash family without claiming per-row PDF identity or converting original kind", () => {
+    const prior=gift(1,"TFED",{electionCycleId:12019,contributionTypeCode:"CINKIND",transactionDate:"2022-01-01T00:00:00"});
+    const rows=[refund(2,1,{contributorName:"Reported TFED",transactionAmount:665})];
+    const result=run(rows,[prior],{legacyReturnCashFamilies:family()});
+    expect(result).toMatchObject({grossCents:0,refundCents:66500,netCents:-66500});
+    expect(result.positions[0]).toMatchObject({originalGiftKinds:["CINKIND"],documentBoundCashOutflowRefundCount:1});
+    expect(family().reports[0]).not.toHaveProperty("pageNumber");
+    expect(()=>run(rows,[prior],{legacyReturnCashFamilies:family(),legacyReturnComparison:comparison()})).toThrow("invalid_return_fact");
+  });
+  it("requires the entire report return census, including noneligible classes", () => {
+    const rows=[gift(1,"TFED"),refund(2,1,{contributorName:"Reported TFED",transactionAmount:665}),
+      gift(3,"TIND"),refund(4,3,{contributorName:"Reported TIND",transactionAmount:5})];
+    expect(()=>run(rows,[],{legacyReturnCashFamilies:family()})).toThrow("invalid_return_fact");
+    const base=family({returnCount:2,returnCents:67000});
+    const proof={...base,sourceFacts:{...base.sourceFacts,nativeReturns:2,pdfReturns:2,returnCents:67000}};
+    expect(run(rows,[],{legacyReturnCashFamilies:proof})).toMatchObject({refundCents:66500,resolvedRefunds:2});
+  });
+  it.each([{returnCount:0},{returnCents:66000},{pdfSha256:"bad"},{pdfByteCount:0},{pdfPageCount:0},{documentFamily:"in_kind"}])("holds incomplete report-family facts %j", overrides => {
+    expect(()=>run([gift(1,"TFED"),refund(2,1,{contributorName:"Reported TFED",transactionAmount:665})],[],{legacyReturnCashFamilies:family(overrides)})).toThrow("invalid_return_fact");
+  });
+  it("binds historical editions to the current report and rejects unknown versions, period and ownership", () => {
+    const proof=family(), report=proof.reports[0]!.report;
+    const amended={...report,reportVersionId:2,reportVersion:"Amended" as const,reportVersionCode:"RPTAMD" as const,
+      hasChild:true,childResults:[1,2].map(v=>({filerReportGuid:uuid(90),filerReportVersionID:v,totalRows:2,
+        reportName:report.reportName,reportType:"Disclosure Report",startDate:report.startDate,endDate:report.endDate,
+        dueDate:report.dueDate,filedDate:report.filedDate,isCompleted:true,isPaperFile:false,
+        generateStatus:"Completed",generateStatusCode:"GRCOMP",reportStatus:`Version ${v}`}))};
+    const facts=family({report:amended});
+    const rows=[gift(1,"TFED"),refund(2,1,{contributorName:"Reported TFED",transactionAmount:665})];
+    expect(run(rows,[],{legacyReturnCashFamilies:facts}).refundCents).toBe(66500);
+    for(const overrides of [{reportVersionId:3},{transactionVersionID:0},{transactionDate:"2024-01-01T00:00:00"}])
+      expect(()=>run([rows[0]!,{...rows[1]!,...overrides}],[],{legacyReturnCashFamilies:facts})).toThrow("invalid_return_fact");
+    expect(()=>run(rows,[],{legacyReturnCashFamilies:family({report:{...report,filerRegistrationGuid:uuid(80)}})})).toThrow("invalid_return_fact");
+    expect(()=>run(rows,[],{legacyReturnCashFamilies:{...proof,reports:[...proof.reports,...proof.reports],sourceFacts:{...proof.sourceFacts,reportsCompared:2}}})).toThrow("invalid_return_fact");
+  });
+  it("holds a conflicting native noncash return mechanism even in a noneligible class", () => {
+    expect(()=>run([gift(1,"TIND"),refund(2,1,{contributorName:"Reported TIND",transactionAmount:665,contributionTypeCode:"CINKIND"})],[],{legacyReturnCashFamilies:family()})).toThrow("invalid_return_fact");
   });
   it.each([{transactionGuid:uuid(8)},{nativeReportGuid:uuid(8)},{nativeReportVersionId:2},{originalTransactionId:8},
     {originalTransactionGuid:uuid(8)},{originalClass:"TPAC"},{originalKind:"CMONT"},{documentFamily:"in_kind"},
