@@ -227,10 +227,16 @@ export async function loadMarylandCommitteeMonetaryPacket(input: MarylandCommitt
           if (families.anonymousAggregates.count || families.inKindReturns.count) diagnostics.push(`report_${reportOrdinal}_uncontrolled_native_family`);
           const z = summary.controls.expenseControls.filter(c => c.schedule === "2" && c.column === "Z"); if (z.length !== 1) throw Error("invalid_control");
           compare("cashReturns", z[0]!.amountCents);
-          const returns = await readMarylandLegacyReturnedContributionObservations(document.privateBytes);
-          if (returns.sourceFacts.sha256 !== document.sourceFacts.sha256 || returns.sourceFacts.byteCount !== document.sourceFacts.byteCount) throw Error("different_return_document");
-          legacyReports.push({ report: bucket.report, facts: returns });
-          fact.legacyCashReturnFamily = { returnCount: returns.sourceFacts.returnCount, returnCents: returns.sourceFacts.returnCents };
+          if (z[0]!.amountCents === 0 && families.cashReturns.count === 0) {
+            // Legacy PDFs omit empty schedules, so a zero-return report has no
+            // Z section to read; the zero control and zero native rows agree.
+            fact.legacyCashReturnFamily = { returnCount: 0, returnCents: 0 };
+          } else {
+            const returns = await readMarylandLegacyReturnedContributionObservations(document.privateBytes);
+            if (returns.sourceFacts.sha256 !== document.sourceFacts.sha256 || returns.sourceFacts.byteCount !== document.sourceFacts.byteCount) throw Error("different_return_document");
+            legacyReports.push({ report: bucket.report, facts: returns });
+            fact.legacyCashReturnFamily = { returnCount: returns.sourceFacts.returnCount, returnCents: returns.sourceFacts.returnCents };
+          }
         }
         if (comparisons.some(c => c.differenceCents !== null && c.differenceCents !== 0)) diagnostics.push(`report_${reportOrdinal}_financial_family_controls`);
         sourceFacts.reportsCompared++;

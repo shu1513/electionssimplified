@@ -164,12 +164,24 @@ describe("Maryland API ledger and published summary packet", () => {
     prior = [row(100, { electionCycleId: 12019, transactionDate: "2022-06-01T00:00:00", contributionTypeCode: "CINKIND", contributionType: "In-Kind" })]; rows = [refund(101, 100, { contributionTypeCode: "CINKIND", contributionType: "In-Kind" })];
     const result = await loadMarylandCommitteeMonetaryPacket(input); expect(result.status).toBe("ready"); expect(result.sourceFacts.refundCents).toBe(0); expect(result.reports[0]!.nativeFamilies).toMatchObject({ cashReturns: { count: 0, cents: 0 }, inKindReturns: { count: 1, cents: 1000 } });
   });
+  it("accepts a zero-return legacy report, whose PDF prints no Z schedule, without reading one", async () => {
+    mocks.summary.mockImplementation(async () => legacy()); mocks.legacyReturns.mockRejectedValue(new Error("Maryland legacy returned contribution: header"));
+    const result = await loadMarylandCommitteeMonetaryPacket(input); expect(result.status).toBe("ready"); if (result.status !== "ready") throw Error(JSON.stringify(result.diagnostics));
+    expect(mocks.legacyReturns).not.toHaveBeenCalled(); expect(mocks.families).not.toHaveBeenCalled();
+    expect(result.reports[0]).toMatchObject({ legacyCashReturnFamily: { returnCount: 0, returnCents: 0 } });
+    expect(result.privateSnapshot.aggregation).toMatchObject({ grossCents: 1000, refundCents: 0, netCents: 1000 });
+  });
+  it("still reads the Z schedule when the control is zero but native returns exist", async () => {
+    prior = [row(100, { electionCycleId: 12019, transactionDate: "2022-06-01T00:00:00" })]; rows = [refund(101, 100)]; mocks.summary.mockImplementation(async () => { const value = legacy(); value.controls.expenseControls[0]!.amountCents = 0; return value; });
+    const result = await loadMarylandCommitteeMonetaryPacket(input); expect(result.status).toBe("preserve"); expect(mocks.legacyReturns).toHaveBeenCalled();
+    expect(result.diagnostics).toContain("report_0_financial_family_controls");
+  });
   it("holds unavailable/changed original return evidence without substituting prior diagnostics", async () => {
-    mocks.summary.mockImplementation(async () => legacy()); mocks.legacyReturns.mockResolvedValue({ sourceFacts: { sha256: "a".repeat(64), byteCount: 100 } });
+    prior = [row(100, { electionCycleId: 12019, transactionDate: "2022-06-01T00:00:00" })]; rows = [refund(101, 100)]; mocks.summary.mockImplementation(async () => legacy()); mocks.legacyReturns.mockResolvedValue({ sourceFacts: { sha256: "a".repeat(64), byteCount: 100 } });
     const result = await loadMarylandCommitteeMonetaryPacket(input); expect(result.status).toBe("preserve"); expect(mocks.families).not.toHaveBeenCalled();
   });
   it("holds a fresh whole-family proof failure", async () => {
-    mocks.summary.mockImplementation(async () => legacy()); mocks.families.mockImplementation(() => { throw Error("unknown returned source family"); });
+    prior = [row(100, { electionCycleId: 12019, transactionDate: "2022-06-01T00:00:00" })]; rows = [refund(101, 100)]; mocks.summary.mockImplementation(async () => legacy()); mocks.families.mockImplementation(() => { throw Error("unknown returned source family"); });
     const result = await loadMarylandCommitteeMonetaryPacket(input); expect(result.status).toBe("preserve"); expect(result.diagnostics).toContain("legacy_return_family_unavailable");
   });
   it("keeps report ordinal failure and scans every remaining original", async () => {

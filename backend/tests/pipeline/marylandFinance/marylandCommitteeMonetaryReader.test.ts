@@ -32,6 +32,7 @@ describe("Maryland committee monetary reader", () => {
     expect(unsorted.amount).toBe(500);
     expect(unsorted.pac_count).toBe(8);
     expect(unsorted.pacs).toHaveLength(5);
+    expect(unsorted.pacs.map(p => p.amount)).toEqual([-6500, 6000, 500, 100, 100]);
     expect(groups.find(g => g.interest === "candidate_committees")?.amount).toBe(500);
     expect(summary.direct_campaign.total_raised).toBeNull();
     expect(summary.outside_spending.support_total).toBeNull();
@@ -40,6 +41,11 @@ describe("Maryland committee monetary reader", () => {
     expect(summary.direct_campaign.pac_money_coverage_note).toContain("2026-10-13");
     expect(summary.direct_campaign.pac_money_coverage_note).toContain("printed receipt details have unresolved differences");
     expect(String(database.query.mock.calls[0]?.[0])).not.toMatch(/\bLIMIT\b|amount\s*>\s*0/i);
+  });
+  it("ranks interests by magnitude so a large net refund survives the display cap", async () => {
+    const output = await attachMarylandCommitteeMonetaryFinance({db: db(rows([10, -6000], ["TPAC", "TCC"])), requests, summaries: new Map()});
+    expect(output.get(key)?.direct_campaign.pac_money_by_interest?.map(g => [g.interest, g.amount]))
+      .toEqual([["candidate_committees", -6000], ["unclassified", 10]]);
   });
   it("retains existing money, timestamps and coverage notes", async () => {
     const original = (await attachMarylandCommitteeMonetaryFinance({db: db(rows([10000])), requests, summaries: new Map()})).get(key)!;

@@ -123,8 +123,10 @@ export async function attachMarylandCommitteeMonetaryFinance(input: {
     const grouped = [...interests].map(([interest, group]) => ({interest, interest_name: pacInterestDisplayName(interest),
       amount: group.cents / 100, pac_count: group.pacs.length,
       gross_amount: group.gross / 100, refund_amount: group.refunds / 100,
-      pacs: group.pacs.sort((a, b) => b.amount - a.amount || a.committee_id.localeCompare(b.committee_id)).slice(0, 5)}))
-      .sort((a, b) => b.amount - a.amount || a.interest.localeCompare(b.interest)).slice(0, 5);
+      // Rank by magnitude: a large net refund is as material as a large gift
+      // and must not drop off the cap behind small positive positions.
+      pacs: group.pacs.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount) || b.amount - a.amount || a.committee_id.localeCompare(b.committee_id)).slice(0, 5)}))
+      .sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount) || b.amount - a.amount || a.interest.localeCompare(b.interest)).slice(0, 5);
     const existing = output.get(k);
     const summary = existing ?? emptySummary(first);
     const note = `Maryland public ledger committee cash gifts less cash refunds, grouped by reported class and name. Full receipt ledger totals reconcile to filed summaries; printed receipt details have unresolved differences. Includes negative balances; excludes individual and in-kind gifts. Data as of ${new Date(oldest).toISOString().slice(0, 10)}.`;
