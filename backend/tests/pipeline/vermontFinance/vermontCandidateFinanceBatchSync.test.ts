@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+afterEach(() => vi.unstubAllEnvs());
 
 import {
   listDueVermontCandidateFinanceSyncRows,
@@ -110,7 +111,7 @@ describe("vermontCandidateFinanceBatchSync", () => {
         maxCandidates: 25,
         electionLookbackDays: 1,
         electionLookaheadDays: 730,
-      })
+      }),
     ).resolves.toEqual({
       totalDueRows: 2,
       rows: [
@@ -150,8 +151,12 @@ describe("vermontCandidateFinanceBatchSync", () => {
     expect(sql).toContain("link.link_status = 'active'");
     expect(sql).toContain("district.state = 'VT'");
     expect(sql).toContain("election.race_type = 'office'");
-    expect(sql).toContain("candidate_election.status NOT IN ('withdrawn', 'lost')");
-    expect(sql).toContain("(office.scope || '::' || office.canonical_name) = ANY($6::text[])");
+    expect(sql).toContain(
+      "candidate_election.status NOT IN ('withdrawn', 'lost')",
+    );
+    expect(sql).toContain(
+      "(office.scope || '::' || office.canonical_name) = ANY($6::text[])",
+    );
     expect(db.query.mock.calls[0]?.[1]).toEqual([
       "2026-06-01T00:00:00.000Z",
       7,
@@ -209,8 +214,14 @@ describe("vermontCandidateFinanceBatchSync", () => {
       autoLinkAttemptedCount: 0,
       autoLinkLinkedCount: 0,
     });
-    expect(result.results[0]).toMatchObject({ ok: true, result: successfulSync() });
-    expect(result.results[1]).toMatchObject({ ok: false, error: "Vermont API unavailable" });
+    expect(result.results[0]).toMatchObject({
+      ok: true,
+      result: successfulSync(),
+    });
+    expect(result.results[1]).toMatchObject({
+      ok: false,
+      error: "Vermont API unavailable",
+    });
     expect(syncVermontCandidateFinanceFn).toHaveBeenCalledWith(
       expect.objectContaining({
         candidateId: CANDIDATE_ID,
@@ -229,7 +240,7 @@ describe("vermontCandidateFinanceBatchSync", () => {
         },
         dryRun: false,
         now: NOW,
-      })
+      }),
     );
   });
 
@@ -255,7 +266,9 @@ describe("vermontCandidateFinanceBatchSync", () => {
         .mockResolvedValueOnce({ rows: [], rowCount: 0 }),
       connect: vi.fn(),
     };
-    const syncVermontCandidateFinanceFn = vi.fn().mockResolvedValueOnce(successfulSync());
+    const syncVermontCandidateFinanceFn = vi
+      .fn()
+      .mockResolvedValueOnce(successfulSync());
 
     const result = await syncDueVermontCandidateFinance({
       db,
@@ -283,7 +296,10 @@ describe("vermontCandidateFinanceBatchSync", () => {
     });
     // The sync must run WITHOUT a trustedCommittee so it live-resolves and
     // writes the link itself.
-    const syncArgs = syncVermontCandidateFinanceFn.mock.calls[0]?.[0] as Record<string, unknown>;
+    const syncArgs = syncVermontCandidateFinanceFn.mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >;
     expect(syncArgs.trustedCommittee).toBeUndefined();
     expect(syncArgs).toMatchObject({
       candidateId: CANDIDATE_ID,
@@ -326,7 +342,9 @@ describe("vermontCandidateFinanceBatchSync", () => {
         .mockResolvedValueOnce({ rows: [], rowCount: 0 }),
       connect: vi.fn(),
     };
-    const syncVermontCandidateFinanceFn = vi.fn().mockRejectedValueOnce(new Error("Vermont API unavailable"));
+    const syncVermontCandidateFinanceFn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("Vermont API unavailable"));
 
     const result = await syncDueVermontCandidateFinance({
       db,
@@ -350,7 +368,10 @@ describe("vermontCandidateFinanceBatchSync", () => {
   });
 
   it("uses one post-election grace day by default", async () => {
-    const db = { query: vi.fn(async () => ({ rows: [], rowCount: 0 })), connect: vi.fn() };
+    const db = {
+      query: vi.fn(async () => ({ rows: [], rowCount: 0 })),
+      connect: vi.fn(),
+    };
     const syncVermontCandidateFinanceFn = vi.fn();
 
     await syncDueVermontCandidateFinance({
@@ -369,5 +390,189 @@ describe("vermontCandidateFinanceBatchSync", () => {
       expect.any(Array),
     ]);
     expect(syncVermontCandidateFinanceFn).not.toHaveBeenCalled();
+  });
+});
+
+describe("Vermont opt-in committee cash batch", () => {
+  it("uses PAC marker freshness and explicit scope before LIMIT; never invokes legacy or auto-link", async () => {
+    const query = vi.fn(async () => ({
+      rows: [dueRow({ election_year: 2026 })],
+    }));
+    const connect = vi.fn();
+    const legacy = vi.fn();
+    const cash = vi.fn(async () => ({
+      candidateId: CANDIDATE_ID,
+      electionId: ELECTION_ID,
+      dryRun: false,
+      written: true,
+      status: "qualified" as const,
+      diagnostics: [],
+    }));
+    const result = await syncDueVermontCandidateFinance({
+      db: { query, connect } as never,
+      now: NOW,
+      committeeCashOnly: true,
+      candidateId: CANDIDATE_ID,
+      refresh: true,
+      syncVermontCandidateFinanceFn: legacy,
+      syncVermontCommitteeCashFn: cash,
+    });
+    expect(legacy).not.toHaveBeenCalled();
+    expect(connect).not.toHaveBeenCalled();
+    expect(query).toHaveBeenCalledOnce();
+    const [sql, params] = query.mock.calls[0]! as unknown as [
+      string,
+      unknown[],
+    ];
+    expect(sql).toContain("source.observed_at");
+    expect(sql).not.toContain("vt_candidate_finance_summaries");
+    expect(sql.indexOf("link.candidate_id=$7::uuid")).toBeLessThan(
+      sql.indexOf("LIMIT $3"),
+    );
+    expect(sql).toContain("election.election_stage='general'");
+    expect(sql).toContain("ce.status='declared'");
+    expect(params[6]).toBe(CANDIDATE_ID);
+    expect(params[7]).toBe(true);
+    expect(result).toMatchObject({
+      syncedCandidateCount: 1,
+      autoLinkAttemptedCount: 0,
+      autoLinkLinkedCount: 0,
+    });
+    expect(result.results[0]).toHaveProperty("committeeCashResult");
+    expect(result.results[0]).not.toHaveProperty("result");
+  });
+  it("retains cash-only mode and source callbacks across caller mutation", async () => {
+    const query = vi.fn(async () => ({
+      rows: [
+        dueRow(),
+        dueRow({ candidate_id: "33333333-3333-4333-8333-333333333333" }),
+      ],
+    }));
+    const legacy = vi.fn(),
+      originalFetch = vi.fn() as unknown as typeof fetch;
+    const replacementCash = vi.fn(),
+      replacementCapture = vi.fn();
+    let input: Parameters<typeof syncDueVermontCandidateFinance>[0];
+    const originalCapture = vi.fn(() => {
+      input.committeeCashOnly = false;
+      input.syncVermontCandidateFinanceFn = legacy;
+      input.syncVermontCommitteeCashFn = replacementCash;
+      input.committeeCashOnCapture = replacementCapture;
+      input.vermontClientOptions!.timeoutMs = 1;
+      input.now!.setUTCFullYear(2000);
+    });
+    const cash = vi.fn(
+      async (
+        args: Parameters<
+          NonNullable<
+            Parameters<
+              typeof syncDueVermontCandidateFinance
+            >[0]["syncVermontCommitteeCashFn"]
+          >
+        >[0],
+      ) => {
+        await args.onCapture?.({
+          url: "https://api.campaignfinance.vermont.gov/api/test",
+          method: "POST",
+          requestFields: {},
+          httpStatus: 200,
+          startedAt: "2026-06-01T00:00:00Z",
+          completedAt: "2026-06-01T00:00:01Z",
+          sha256: "a".repeat(64),
+          byteCount: 0,
+          body: new Uint8Array(),
+        });
+        return {
+          candidateId: args.candidateId,
+          electionId: args.electionId,
+          dryRun: false,
+          written: true,
+          status: "qualified" as const,
+          diagnostics: [],
+        };
+      },
+    );
+    input = {
+      db: { query, connect: vi.fn() } as never,
+      now: new Date(NOW),
+      committeeCashOnly: true,
+      committeeCashOnCapture: originalCapture,
+      syncVermontCommitteeCashFn: cash,
+      syncVermontCandidateFinanceFn: legacy,
+      vermontClientOptions: { fetchImpl: originalFetch, timeoutMs: 90000 },
+    };
+    const result = await syncDueVermontCandidateFinance(input);
+    expect(cash).toHaveBeenCalledTimes(2);
+    expect(legacy).not.toHaveBeenCalled();
+    expect(replacementCash).not.toHaveBeenCalled();
+    expect(originalCapture).toHaveBeenCalledTimes(2);
+    expect(replacementCapture).not.toHaveBeenCalled();
+    expect(cash.mock.calls[1]![0].clientOptions).toEqual({
+      fetchImpl: originalFetch,
+      timeoutMs: 90000,
+    });
+    expect(result.now).toBe(NOW.toISOString());
+  });
+  it("held cash proof remains failed/preserved without legacy fallback", async () => {
+    const query = vi.fn(async () => ({ rows: [dueRow()] }));
+    const legacy = vi.fn();
+    const cash = vi.fn(async () => ({
+      candidateId: CANDIDATE_ID,
+      electionId: ELECTION_ID,
+      dryRun: false,
+      written: false,
+      status: "held" as const,
+      diagnostics: ["Unknown report"],
+    }));
+    const result = await syncDueVermontCandidateFinance({
+      db: { query, connect: vi.fn() } as never,
+      now: NOW,
+      committeeCashOnly: true,
+      syncVermontCandidateFinanceFn: legacy,
+      syncVermontCommitteeCashFn: cash,
+    });
+    expect(result).toMatchObject({
+      failedCandidateCount: 1,
+      syncedCandidateCount: 0,
+      autoLinkAttemptedCount: 0,
+    });
+    expect(legacy).not.toHaveBeenCalled();
+    expect(result.results[0]?.error).toBe("Unknown report");
+  });
+  it("routes ordinary batch calls through cash-only when its rollout flag is enabled", async () => {
+    vi.stubEnv("VERMONT_CAMPAIGN_FINANCE_ENABLED","true");
+    vi.stubEnv("VERMONT_COMMITTEE_CASH_SYNC_ENABLED","true");
+    const query = vi.fn(async () => ({ rows: [dueRow()] }));
+    const legacy = vi.fn();
+    const cash = vi.fn(async () => ({ candidateId: CANDIDATE_ID,electionId: ELECTION_ID,
+      dryRun: false,written: false,status: "held" as const,diagnostics: ["Source coverage held"] }));
+    const result = await syncDueVermontCandidateFinance({ db: { query,connect: vi.fn() } as never,
+      now: NOW,syncVermontCandidateFinanceFn: legacy,syncVermontCommitteeCashFn: cash });
+    expect(cash).toHaveBeenCalledOnce();
+    expect(legacy).not.toHaveBeenCalled();
+    expect(result.autoLinkAttemptedCount).toBe(0);
+    expect(result.failedCandidateCount).toBe(1);
+  });
+  it("cash dry run uses the same isolated acquisition path", async () => {
+    const query = vi.fn(async () => ({ rows: [dueRow()] }));
+    const legacy = vi.fn();
+    const cash = vi.fn(async () => ({
+      candidateId: CANDIDATE_ID,
+      electionId: ELECTION_ID,
+      dryRun: true,
+      written: false,
+      status: "qualified" as const,
+      diagnostics: [],
+    }));
+    await syncDueVermontCandidateFinance({
+      db: { query, connect: vi.fn() } as never,
+      now: NOW,
+      committeeCashOnly: true,
+      dryRun: true,
+      syncVermontCandidateFinanceFn: legacy,
+      syncVermontCommitteeCashFn: cash,
+    });
+    expect(cash.mock.calls[0]![0]).toMatchObject({ dryRun: true });
+    expect(legacy).not.toHaveBeenCalled();
   });
 });

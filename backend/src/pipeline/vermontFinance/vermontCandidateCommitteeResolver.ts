@@ -5,8 +5,8 @@ import {
   type VermontCampaignFinanceClientOptions,
   type VermontContributionRow,
   type VermontExpenditureRow,
-  type VermontPagedResult,
 } from "./vermontCampaignFinanceClient.js";
+import { fetchAllVermontTransactionRows as fetchAllCandidateSearchRows } from "./vermontTransactionPaging.js";
 import { mapVermontOfficeSought, toVermontOfficeSearchInput } from "./vermontFinanceEligibleOffices.js";
 
 export type VermontCandidateCommitteeTransactionRow = {
@@ -89,7 +89,7 @@ type CandidateCommitteeAccumulator = {
 };
 
 const VERMONT_CAMPAIGN_FINANCE_SOURCE_URL = "https://campaignfinance.vermont.gov/";
-const VERMONT_CANDIDATE_COMMITTEE_SEARCH_PAGE_SIZE = 100;
+const VERMONT_CANDIDATE_COMMITTEE_SEARCH_PAGE_SIZE = 1_000;
 
 function normalizeElectionYear(value: number): number {
   if (!Number.isInteger(value) || value < 2000 || value > 2100) {
@@ -392,21 +392,6 @@ function appendUniqueRows(
       rowsByGuid.set(key, row);
     }
   }
-}
-
-async function fetchAllCandidateSearchRows<T>(input: {
-  fetchPage: (pageNumber: number) => Promise<VermontPagedResult<T>>;
-  pageSize: number;
-}): Promise<T[]> {
-  const rows: T[] = [];
-  for (let pageNumber = 1; ; pageNumber += 1) {
-    const page = await input.fetchPage(pageNumber);
-    rows.push(...page.items);
-    if (page.items.length < input.pageSize || pageNumber * input.pageSize >= page.totalItems) {
-      break;
-    }
-  }
-  return rows;
 }
 
 export async function searchAndResolveVermontCandidateCommittee(

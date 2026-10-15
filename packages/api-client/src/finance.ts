@@ -147,10 +147,10 @@ export function firstFinanceSourceUrl(summary: FinanceSummary): string | null {
 }
 
 /**
- * Most direct coverage notes qualify donor breakdowns and should stay hidden
- * when no breakdown is shown. Missouri's note also qualifies its itemized
- * transaction totals, so a real zero-row snapshot must show the note beside
- * the disclosed $0 figures.
+ * Most direct coverage notes qualify donor breakdowns or a visible PAC panel
+ * and should stay hidden when neither is shown. Missouri's note also qualifies
+ * its itemized transaction totals, so a real zero-row snapshot must show the
+ * note beside the disclosed $0 figures.
  */
 export function shouldShowDirectCoverageNote(summary: FinanceSummary): boolean {
   const direct = summary.direct_campaign;
@@ -160,7 +160,9 @@ export function shouldShowDirectCoverageNote(summary: FinanceSummary): boolean {
   if (
     direct.top_occupations.length > 0 ||
     direct.top_industries.length > 0 ||
-    (direct.contribution_size_buckets?.length ?? 0) > 0
+    (direct.contribution_size_buckets?.length ?? 0) > 0 ||
+    (direct.pac_money_by_interest !== undefined &&
+      meetsSmallAmountThreshold(direct.pac_money_by_interest))
   ) {
     return true;
   }

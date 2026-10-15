@@ -56,6 +56,34 @@ describe("FinanceSummaryCard", () => {
     expect(screen.queryByText("Raised")).not.toBeInTheDocument();
     expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
   });
+  it("shows accepted PAC coverage without a legacy direct summary", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "VERMONT_CFD";
+    summary.direct_campaign.pac_money_by_interest = [{
+      interest: "unclassified",
+      interest_name: "Not yet sorted",
+      amount: 5180,
+      pac_count: 1,
+      pacs: [{
+        committee_id: "reported:VERMONT REALTORS PAC",
+        committee_name: "VERMONT REALTORS PAC",
+        amount: 5180,
+        source_url: "https://campaignfinance.vermont.gov/",
+      }],
+    }];
+    summary.direct_campaign.direct_coverage_note =
+      "Reported PAC cash through 2026-09-28; direct totals have a separate observation.";
+    const { rerender } = render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("PAC money by interest")).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.direct_coverage_note)).toBeInTheDocument();
+    expect(screen.queryByText("Raised")).not.toBeInTheDocument();
+    expect(screen.queryByText("Spending by outside groups")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest![0]!.amount = 4999;
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+    expect(screen.queryByText(summary.direct_campaign.direct_coverage_note)).not.toBeInTheDocument();
+  });
+
   it("renders money, occupations, outside spending, the updated date, and the source line", () => {
     const summary = financeSummary();
     summary.direct_campaign.public_funds_received = null;
