@@ -255,7 +255,8 @@ describe("acquireMissouriMecOutsideSpendingArtifacts", () => {
       <span id="x_grvExpenditures_lblDate_0">10/20/2026</span>
       <span id="x_grvExpenditures_lblAmount_0">$25.00</span>
       <a id="x_grvExpenditures_lbtnCommittee_0" href="javascript:__doPostBack(&#39;ctl00$grid$ctl02$lbtnCommittee&#39;,&#39;&#39;)">Example PAC</a>
-      <span id="x_grvExpenditures_lblReport_0">8 Day Before General Election</span>`;
+      <span id="x_grvExpenditures_lblReport_0">8 Day Before General Election</span>
+      <span id="x_grvExpenditures_CurrentPage">1</span>`;
     const outsideExport = `<table><tr>${[
       "Candidates Name and Address", "Office Sought", "Support/Oppose", "Date", "Amount",
       "Reporting Committee", "Report",
@@ -290,7 +291,7 @@ describe("acquireMissouriMecOutsideSpendingArtifacts", () => {
       <span id="x_grvExpenditures_lblAmount_0">$25.00</span>
       <a id="x_grvExpenditures_lbtnCommittee_0" href="javascript:__doPostBack(&#39;ctl00$grid$ctl02$lbtnCommittee&#39;,&#39;&#39;)">${committeeName}</a>
       <span id="x_grvExpenditures_lblReport_0">8 Day Before General Election</span>
-      <span id="x_grvExpenditures_CurrentPage"><font>${page}</font></span>
+      <span id="x_grvExpenditures_CurrentPage">${page}</span>
       ${next ? '<a id="x_grvExpenditures_lbtnNextPage" href="javascript:__doPostBack(&#39;ctl00$grid$ctl28$lbtnNextPage&#39;,&#39;&#39;)">Next</a>' : ""}`;
     const firstPage = `<span>2 records found</span>${gridRow("Jane Doe", "First PAC", 1, true)}`;
     const secondPage = gridRow("Jane Roe", "Second PAC", 2);

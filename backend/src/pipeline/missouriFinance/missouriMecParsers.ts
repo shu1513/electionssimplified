@@ -531,8 +531,12 @@ export function parseMissouriMecOutsideSpendingGridPage(html: string): MissouriM
       committeeEventTarget: committee.committeeEventTarget,
     });
   }
-  const currentPageText = /grvExpenditures_CurrentPage[^>]*>[\s\S]*?<font\b[^>]*>(\d+)<\/font>/i.exec(html)?.[1];
-  const currentPage = Number.parseInt(currentPageText ?? "1", 10);
+  const currentPageLabels = [...html.matchAll(/<span\b[^>]*id="[^"]*grvExpenditures_CurrentPage"[^>]*>([\s\S]*?)<\/span>/gi)];
+  const currentPageText = currentPageLabels.length === 1 ? textContent(currentPageLabels[0]![1]!) : "";
+  const currentPage = /^\d+$/.test(currentPageText) ? Number(currentPageText) : NaN;
+  if (!Number.isSafeInteger(currentPage) || currentPage < 1) {
+    throw new Error("Invalid Missouri MEC outside-spending current page");
+  }
   const nextPageEventTarget = /<a\b[^>]*id="[^"]*grvExpenditures_lbtnNextPage"[^>]*href="javascript:__doPostBack\(&#39;([^&]+)&#39;,&#39;&#39;\)"/i.exec(html)?.[1] ?? null;
   return { currentPage, rows, nextPageEventTarget };
 }

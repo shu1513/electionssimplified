@@ -255,6 +255,18 @@ describe("missouriMecParsers", () => {
         committeeEventTarget: "ctl00$grid$ctl02$lbtnCommittee",
       }],
     });
+    const nativePage = html.replace('<b><font color="White">2</font></b>', "2");
+    expect(parseMissouriMecOutsideSpendingGridPage(nativePage).currentPage).toBe(2);
+    for (const invalidPage of [
+      nativePage.replace('id="x_grvExpenditures_CurrentPage"', 'id="missing"'),
+      nativePage.replace('CurrentPage">2', 'CurrentPage">0'),
+      nativePage.replace('CurrentPage">2', 'CurrentPage">next'),
+      nativePage + '<span id="x_grvExpenditures_CurrentPage">2</span>',
+    ]) {
+      expect(() => parseMissouriMecOutsideSpendingGridPage(invalidPage)).toThrow(
+        "Invalid Missouri MEC outside-spending current page"
+      );
+    }
     expect(() => parseMissouriMecOutsideSpendingGridPage(html.replace("lblReport_0", "missing_0"))).toThrow(
       "Misaligned Missouri MEC outside-spending grid"
     );
