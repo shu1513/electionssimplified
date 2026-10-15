@@ -1,358 +1,187 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-
 import {
   DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR,
   MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
+  MINNESOTA_CAMPAIGN_FINANCE_MAX_DOWNLOAD_BYTES,
   discoverMinnesotaCampaignFinanceDownloadUrls,
   getMinnesotaCampaignFinanceArtifactCachePaths,
   readMinnesotaCampaignFinanceArtifactCacheMetadata,
   refreshMinnesotaCampaignFinanceArtifactCache,
+  resolveMinnesotaCampaignFinanceCachedDownload,
+  type MinnesotaCampaignFinanceArtifactCacheMetadata,
+  type MinnesotaCampaignFinanceDownloadKey,
 } from "../../../src/pipeline/minnesotaFinance/minnesotaCampaignFinanceArtifactCache.js";
 
-const tempDirs: string[] = [];
-
-async function makeTempDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), "voteapp-mn-cf-cache-"));
-  tempDirs.push(dir);
-  return dir;
+vi.mock("node:fs/promises", async (original) => ({
+  ...await original<typeof import("node:fs/promises")>(),
+  rename: vi.fn(async (...args: Parameters<typeof rename>) => {
+    const real = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
+    return real.rename(...args);
+  }),
+}));
+const dirs: string[] = [];
+const keys: MinnesotaCampaignFinanceDownloadKey[] = ["contributions_received", "independent_expenditures", "independent_expenditure_contributions"];
+const receiptHeaders = "Recipient reg num|Recipient|Recipient type|Recipient subtype|Amount|Receipt date|Year|Contributor|Contrib Reg Num|Contrib type|Receipt type|In kind?|In-kind descr|Contrib zip|Contrib Employer name".split("|");
+const ieHeaders = "Spender|Spender Reg Num|Spender type|Spender sub-type|Affected Comte Name|Affected Cmte Reg Num|For /Against|Year|Date|Type|Amount|Unpaid amount|In kind?|In kind descr|Purpose|Vendor name|Vendor city|Vendor State|Vendor zip".split("|");
+function csv(key: MinnesotaCampaignFinanceDownloadKey, amount = "1.0000") {
+  const headers = key === "independent_expenditures" ? ieHeaders : receiptHeaders;
+  const values: Record<string, string> = { Amount: amount, Year: "2026", "Recipient reg num": "1001",
+    Recipient: "Example candidate", "Recipient type": "PCC", "Receipt date": "2026-01-01",
+    Contributor: "Example committee", "Contrib Reg Num": "2001", "Contrib type": "Political Committee/Fund",
+    "Receipt type": "Contribution", "In kind?": "N", "Spender Reg Num": "2001", Spender: "Example committee",
+    "Affected Cmte Reg Num": "1001", "For /Against": "For", Type: "Independent Expenditure", Date: "2026-01-01" };
+  return `${headers.join(",")}\n${headers.map((header) => values[header] ?? "").join(",")}\n`;
 }
-
-function response(body: string | null, headers: Record<string, string> = {}): Response {
-  return new Response(body, {
-    status: 200,
-    headers,
+const labels = ["All Contributions received by all entities - 2015 to present",
+  "All Independent expenditures by all entities - 2015 to present",
+  "Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present"];
+const urls = keys.map((key) => `https://register.cfb.mn.gov/downloads/${key}.csv`);
+const page = `<table>${keys.map((_, index) => `<tr><td><a href="${urls[index]}">${labels[index]} Download</a></td></tr>`).join("")}</table>`;
+const bodyResponse = (body: string) => new Response(body, { headers: { "content-type": "text/csv", "content-length": String(Buffer.byteLength(body)) } });
+function fetcher(options: { amount?: string; failKey?: MinnesotaCampaignFinanceDownloadKey; badLengthKey?: MinnesotaCampaignFinanceDownloadKey; badCsvKey?: MinnesotaCampaignFinanceDownloadKey; hangingKey?: MinnesotaCampaignFinanceDownloadKey; oversizedKey?: MinnesotaCampaignFinanceDownloadKey } = {}) {
+  return vi.fn<typeof fetch>(async (url) => {
+    if (String(url) === MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL) return new Response(page);
+    const index = urls.indexOf(String(url));
+    if (index < 0) throw new Error("Unexpected test route");
+    const key = keys[index]!;
+    if (key === options.failKey) throw new Error("Synthetic download failure");
+    if (key === options.hangingKey) return new Response(new ReadableStream({ start() {} }));
+    const result = bodyResponse(key === options.badCsvKey ? "wrong,header\n1,2\n" : csv(key, options.amount));
+    if (key === options.badLengthKey) result.headers.set("content-length", "1");
+    if (key === options.oversizedKey) result.headers.set("content-length", String(MINNESOTA_CAMPAIGN_FINANCE_MAX_DOWNLOAD_BYTES + 1));
+    return result;
   });
 }
-
-function sha256(value: string): string {
-  return createHash("sha256").update(value, "utf8").digest("hex");
+async function cacheDir() { const dir = await mkdtemp(join(tmpdir(), "voteapp-mn-cache-")); dirs.push(dir); return dir; }
+async function committed(dir: string, amount = "1.0000") {
+  return refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: dir, fetchImpl: fetcher({ amount }), now: new Date("2026-06-25T12:00:00Z"), force: true });
 }
-
+async function preserved(before: Awaited<ReturnType<typeof committed>>) {
+  expect(await readFile(before.metadataPath, "utf8")).toBe(`${JSON.stringify(before.current, null, 2)}\n`);
+  for (const key of keys) {
+    const entry = resolveMinnesotaCampaignFinanceCachedDownload({ cacheDir: before.cacheDir, metadata: before.current, key });
+    const bytes = await readFile(entry.outputPath);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(entry.sha256);
+    expect(bytes.length).toBe(entry.bytesWritten);
+  }
+}
 afterEach(async () => {
-  vi.restoreAllMocks();
-  await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
+  vi.clearAllMocks();
+  await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
-describe("Minnesota campaign finance artifact cache", () => {
-  it("exposes the official downloads page and stable cache paths", async () => {
-    const cacheDir = await makeTempDir();
-    const paths = getMinnesotaCampaignFinanceArtifactCachePaths(cacheDir);
-
+describe("Minnesota campaign finance immutable cache", () => {
+  it("keeps public discovery and legacy canonical paths", async () => {
+    const dir = await cacheDir();
+    const paths = getMinnesotaCampaignFinanceArtifactCachePaths(dir);
     expect(DEFAULT_MINNESOTA_CAMPAIGN_FINANCE_CACHE_DIR).toBe("scratch/minnesota-campaign-finance");
-    expect(MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL).toBe(
-      "https://register.cfb.mn.gov/reports-and-data/self-help/data-downloads/campaign-finance/"
-    );
-    expect(paths.cacheDir).toBe(cacheDir);
-    expect(paths.metadataPath).toBe(join(cacheDir, "minnesota_campaign_finance.metadata.json"));
-    expect(paths.downloads).toMatchObject({
-      contributions_received: join(cacheDir, "all_contributions_received.csv"),
-      independent_expenditures: join(cacheDir, "all_independent_expenditures.csv"),
-      independent_expenditure_contributions: join(cacheDir, "ie_committee_contributions.csv"),
-    });
-  });
-
-  it("discovers the required download urls from the public page", async () => {
-    const fetchImpl = vi.fn<typeof fetch>(async (_url, init) => {
-      expect(init?.method).toBe("GET");
-      return response(
-        [
-          "<table>",
-          `<tr><td><a href="/downloads/contrib.csv">All Contributions received by all entities - 2015 to present Download</a></td></tr>`,
-          `<tr><td><a href="/downloads/ie.csv">All Independent expenditures by all entities - 2015 to present Download</a></td></tr>`,
-          `<tr><td><a href="/downloads/ie-contrib.csv">Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present Download</a></td></tr>`,
-          "</table>",
-        ].join(""),
-        {
-          "content-type": "text/html; charset=utf-8",
-        }
-      );
-    });
-
-    await expect(discoverMinnesotaCampaignFinanceDownloadUrls({ fetchImpl })).resolves.toEqual({
-      contributions_received: "https://register.cfb.mn.gov/downloads/contrib.csv",
-      independent_expenditures: "https://register.cfb.mn.gov/downloads/ie.csv",
-      independent_expenditure_contributions: "https://register.cfb.mn.gov/downloads/ie-contrib.csv",
-    });
+    expect(paths.downloads.contributions_received).toBe(join(dir, "all_contributions_received.csv"));
+    expect(paths.metadataPath).toBe(join(dir, "minnesota_campaign_finance.metadata.json"));
+    const fetchImpl = fetcher();
+    expect(await discoverMinnesotaCampaignFinanceDownloadUrls({ fetchImpl })).toEqual(Object.fromEntries(keys.map((key, i) => [key, urls[i]])));
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
-  it("downloads and writes cache metadata when the cache is missing", async () => {
-    const cacheDir = await makeTempDir();
-    const fetchImpl = vi.fn<typeof fetch>(async (_url, init) => {
-      if (init?.method === "GET") {
-        const url = String(_url);
-        if (url === MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL) {
-          return response(
-            [
-              "<table>",
-              `<tr><td><a href="/downloads/contrib.csv">All Contributions received by all entities - 2015 to present Download</a></td></tr>`,
-              `<tr><td><a href="/downloads/ie.csv">All Independent expenditures by all entities - 2015 to present Download</a></td></tr>`,
-              `<tr><td><a href="/downloads/ie-contrib.csv">Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present Download</a></td></tr>`,
-              "</table>",
-            ].join(""),
-            {
-              "content-type": "text/html; charset=utf-8",
-            }
-          );
-        }
-        if (url.endsWith("/downloads/contrib.csv")) {
-          return response("contrib-a", {
-            "content-length": "9",
-            "content-type": "text/csv",
-          });
-        }
-        if (url.endsWith("/downloads/ie.csv")) {
-          return response("ie-data", {
-            "content-length": "7",
-            "content-type": "text/csv",
-          });
-        }
-        if (url.endsWith("/downloads/ie-contrib.csv")) {
-          return response("ie-contrib", {
-            "content-length": "10",
-            "content-type": "text/csv",
-          });
-        }
-      }
-
-      if (init?.method === "HEAD") {
-        return response(
-          [
-            "<table>",
-            `<tr><td><a href="/downloads/contrib.csv">All Contributions received by all entities - 2015 to present Download</a></td></tr>`,
-            `<tr><td><a href="/downloads/ie.csv">All Independent expenditures by all entities - 2015 to present Download</a></td></tr>`,
-            `<tr><td><a href="/downloads/ie-contrib.csv">Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present Download</a></td></tr>`,
-            "</table>",
-          ].join(""),
-          {
-            "content-type": "text/html; charset=utf-8",
-          }
-        );
-      }
-
-      const url = String(_url);
-      if (url.endsWith("/downloads/contrib.csv")) {
-        return response("contrib-a", {
-          "content-length": "9",
-          "content-type": "text/csv",
-          "content-disposition": 'attachment; filename="contrib.csv"',
-        });
-      }
-      if (url.endsWith("/downloads/ie.csv")) {
-        return response("ie-data", {
-          "content-length": "7",
-          "content-type": "text/csv",
-          "content-disposition": 'attachment; filename="ie.csv"',
-        });
-      }
-      if (url.endsWith("/downloads/ie-contrib.csv")) {
-        return response("ie-contrib", {
-          "content-length": "10",
-          "content-type": "text/csv",
-          "content-disposition": 'attachment; filename="ie-contrib.csv"',
-        });
-      }
-
-      throw new Error(`Unexpected fetch url: ${url}`);
-    });
-
-    const result = await refreshMinnesotaCampaignFinanceArtifactCache({
-      cacheDir,
-      fetchImpl,
-      now: new Date("2026-06-25T12:00:00.000Z"),
-    });
-
-    expect(result.status).toBe("downloaded");
-    expect(fetchImpl).toHaveBeenCalledTimes(4);
-    expect(await readFile(join(cacheDir, "all_contributions_received.csv"), "utf8")).toBe("contrib-a");
-    expect(await readFile(join(cacheDir, "all_independent_expenditures.csv"), "utf8")).toBe("ie-data");
-    expect(await readFile(join(cacheDir, "ie_committee_contributions.csv"), "utf8")).toBe("ie-contrib");
-
-    const metadata = await readMinnesotaCampaignFinanceArtifactCacheMetadata(result.metadataPath);
-    expect(metadata).toMatchObject({
-      version: 1,
-      cacheDir,
-      metadataPath: result.metadataPath,
-      downloadedAt: "2026-06-25T12:00:00.000Z",
-      sourcePageUrl: MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
-      downloads: {
-        contributions_received: {
-          outputPath: join(cacheDir, "all_contributions_received.csv"),
-          bytesWritten: 9,
-          remote: {
-            url: "https://register.cfb.mn.gov/downloads/contrib.csv",
-          },
-        },
-        independent_expenditures: {
-          outputPath: join(cacheDir, "all_independent_expenditures.csv"),
-          bytesWritten: 7,
-          remote: {
-            url: "https://register.cfb.mn.gov/downloads/ie.csv",
-          },
-        },
-        independent_expenditure_contributions: {
-          outputPath: join(cacheDir, "ie_committee_contributions.csv"),
-          bytesWritten: 10,
-          remote: {
-            url: "https://register.cfb.mn.gov/downloads/ie-contrib.csv",
-          },
-        },
-      },
-    });
+  it("publishes all validated files through one v2 metadata pointer", async () => {
+    const result = await committed(await cacheDir());
+    expect(result.current.version).toBe(2);
+    expect(result.current.generation).toMatch(/^[a-f0-9-]{36}$/);
+    expect(await readMinnesotaCampaignFinanceArtifactCacheMetadata(result.metadataPath)).toEqual(result.current);
+    for (const key of keys) {
+      const entry = resolveMinnesotaCampaignFinanceCachedDownload({ cacheDir: result.cacheDir, metadata: result.current, key });
+      expect(entry.outputPath).toContain(`/generations/${result.current.generation}/`);
+      expect(await readFile(entry.outputPath, "utf8")).toBe(csv(key));
+      expect(Date.parse(entry.completedAt!)).toBeGreaterThanOrEqual(Date.parse(entry.startedAt!));
+    }
+    await preserved(result);
   });
 
-  it("rejects refreshes when a required download label is missing", async () => {
-    const cacheDir = await makeTempDir();
-    const fetchImpl = vi.fn<typeof fetch>(async (_url, init) => {
-      if (init?.method === "GET") {
-        return response(
-          [
-            "<table>",
-            `<tr><td><a href="/downloads/contrib.csv">All Contributions received by all entities - 2015 to present Download</a></td></tr>`,
-            `<tr><td><a href="/downloads/ie.csv">All Independent expenditures by all entities - 2015 to present Download</a></td></tr>`,
-            "</table>",
-          ].join(""),
-          {
-            "content-type": "text/html; charset=utf-8",
-          }
-        );
-      }
-      return response("ignored", {
-        "content-length": "7",
-        "content-type": "text/csv",
-      });
-    });
-
-    await expect(
-      refreshMinnesotaCampaignFinanceArtifactCache({
-        cacheDir,
-        fetchImpl,
-        now: new Date("2026-06-25T12:00:00.000Z"),
-      })
-    ).rejects.toThrow("Missing Minnesota campaign finance download link for independent_expenditure_contributions");
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  it.each(["independent_expenditures", "independent_expenditure_contributions"] as const)("preserves complete prior cache when %s fails", async (failKey) => {
+    const before = await committed(await cacheDir());
+    await expect(refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher({ amount: "2.0000", failKey }) })).rejects.toThrow("Synthetic download failure");
+    await preserved(before);
   });
 
-  it("returns unchanged when the metadata still matches the downloaded files", async () => {
-    const cacheDir = await makeTempDir();
-    const paths = getMinnesotaCampaignFinanceArtifactCachePaths(cacheDir);
-    await writeFile(paths.downloads.contributions_received, "contrib-a", "utf8");
-    await writeFile(paths.downloads.independent_expenditures, "ie-data", "utf8");
-    await writeFile(paths.downloads.independent_expenditure_contributions, "ie-contrib", "utf8");
-    await writeFile(
-      paths.metadataPath,
-      `${JSON.stringify(
-        {
-          version: 1,
-          cacheDir: paths.cacheDir,
-          metadataPath: paths.metadataPath,
-          downloadedAt: "2026-06-24T12:00:00.000Z",
-          sourcePageUrl: MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
-          downloads: {
-            contributions_received: {
-              outputPath: paths.downloads.contributions_received,
-              bytesWritten: 9,
-              sha256: sha256("contrib-a"),
-              remote: {
-                key: "contributions_received",
-                label: "All Contributions received by all entities - 2015 to present",
-                sourcePageUrl: MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
-                url: "https://register.cfb.mn.gov/downloads/contrib.csv",
-                filename: "contrib.csv",
-                contentLength: 9,
-                contentType: "text/csv",
-                contentDisposition: 'attachment; filename="contrib.csv"',
-              },
-            },
-            independent_expenditures: {
-              outputPath: paths.downloads.independent_expenditures,
-              bytesWritten: 7,
-              sha256: sha256("ie-data"),
-              remote: {
-                key: "independent_expenditures",
-                label: "All Independent expenditures by all entities - 2015 to present",
-                sourcePageUrl: MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
-                url: "https://register.cfb.mn.gov/downloads/ie.csv",
-                filename: "ie.csv",
-                contentLength: 7,
-                contentType: "text/csv",
-                contentDisposition: 'attachment; filename="ie.csv"',
-              },
-            },
-            independent_expenditure_contributions: {
-              outputPath: paths.downloads.independent_expenditure_contributions,
-              bytesWritten: 10,
-              sha256: sha256("ie-contrib"),
-              remote: {
-                key: "independent_expenditure_contributions",
-                label:
-                  "Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present",
-                sourcePageUrl: MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL,
-                url: "https://register.cfb.mn.gov/downloads/ie-contrib.csv",
-                filename: "ie-contrib.csv",
-                contentLength: 10,
-                contentType: "text/csv",
-                contentDisposition: 'attachment; filename="ie-contrib.csv"',
-              },
-            },
-          },
-        },
-        null,
-        2
-      )}\n`,
-      "utf8"
-    );
+  it.each(["badLengthKey", "badCsvKey", "oversizedKey"] as const)("preserves prior cache on %s", async (kind) => {
+    const before = await committed(await cacheDir());
+    await expect(refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher({ amount: "2.0000", [kind]: "independent_expenditures" }) })).rejects.toThrow();
+    await preserved(before);
+  });
 
-    const fetchImpl = vi.fn<typeof fetch>(async (_url, init) => {
-      const url = String(_url);
-      if (init?.method === "GET" && url === MINNESOTA_CAMPAIGN_FINANCE_DOWNLOAD_PAGE_URL) {
-        return response(
-          [
-            "<table>",
-            `<tr><td><a href="/downloads/contrib.csv">All Contributions received by all entities - 2015 to present Download</a></td></tr>`,
-            `<tr><td><a href="/downloads/ie.csv">All Independent expenditures by all entities - 2015 to present Download</a></td></tr>`,
-            `<tr><td><a href="/downloads/ie-contrib.csv">Independent expenditure committees and funds Contributions received by independent expenditure committees and funds only - 2015 to present Download</a></td></tr>`,
-            "</table>",
-          ].join(""),
-          {
-            "content-type": "text/html; charset=utf-8",
-          }
-        );
-      }
-      if (url.endsWith("/downloads/contrib.csv")) {
-        return response("contrib-a", {
-          "content-length": "9",
-          "content-type": "text/csv",
-        });
-      }
-      if (url.endsWith("/downloads/ie.csv")) {
-        return response("ie-data", {
-          "content-length": "7",
-          "content-type": "text/csv",
-        });
-      }
-      if (url.endsWith("/downloads/ie-contrib.csv")) {
-        return response("ie-contrib", {
-          "content-length": "10",
-          "content-type": "text/csv",
-        });
-      }
+  it("preserves prior cache when response body exceeds timeout after headers", async () => {
+    const before = await committed(await cacheDir());
+    await expect(refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher({ hangingKey: "independent_expenditures" }), timeoutMs: 25 })).rejects.toThrow();
+    await preserved(before);
+  });
 
-      throw new Error(`Unexpected fetch url: ${url}`);
+  it("preserves prior pointer if atomic manifest replacement fails", async () => {
+    const before = await committed(await cacheDir());
+    const real = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
+    vi.mocked(rename).mockImplementation(async (from, to) => {
+      if (String(to) === before.metadataPath) throw new Error("Synthetic manifest failure");
+      return real.rename(from, to);
     });
+    try {
+      await expect(refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher({ amount: "2.0000" }) })).rejects.toThrow("Synthetic manifest failure");
+      await preserved(before);
+    } finally { vi.mocked(rename).mockImplementation(real.rename); }
+  });
 
-    const result = await refreshMinnesotaCampaignFinanceArtifactCache({
-      cacheDir,
-      fetchImpl,
-      now: new Date("2026-06-25T12:00:00.000Z"),
-    });
+  it("retains a pinned prior generation across successful pointer replacement", async () => {
+    const before = await committed(await cacheDir());
+    const after = await committed(before.cacheDir, "2.0000");
+    expect(after.current.generation).not.toBe(before.current.generation);
+    for (const key of keys) {
+      expect(await readFile(before.current.downloads[key].outputPath, "utf8")).toBe(csv(key));
+      expect(await readFile(after.current.downloads[key].outputPath, "utf8")).toBe(csv(key, "2.0000"));
+    }
+  });
 
-    expect(result.status).toBe("unchanged");
-    expect(result.current).toEqual(result.previous);
-    expect(fetchImpl).toHaveBeenCalledTimes(4);
+  it("keeps original observation for unchanged complete bytes", async () => {
+    const before = await committed(await cacheDir());
+    const after = await refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher(), now: new Date("2026-06-26T12:00:00Z") });
+    expect(after.status).toBe("unchanged");
+    expect(after.current).toEqual(before.current);
+    await preserved(before);
+  });
+
+  it("repairs corrupted committed bytes instead of reporting unchanged", async () => {
+    const before = await committed(await cacheDir());
+    await writeFile(before.current.downloads.independent_expenditures.outputPath, csv("independent_expenditures", "9.0000"));
+    const after = await refreshMinnesotaCampaignFinanceArtifactCache({ cacheDir: before.cacheDir, fetchImpl: fetcher() });
+    expect(after.status).toBe("downloaded");
+    expect(after.current.generation).not.toBe(before.current.generation);
+    expect(await readFile(after.current.downloads.independent_expenditures.outputPath, "utf8")).toBe(csv("independent_expenditures"));
+  });
+
+  it("resolves canonical v1 files and isolates invalid unrelated entries", async () => {
+    const before = await committed(await cacheDir());
+    const paths = getMinnesotaCampaignFinanceArtifactCachePaths(before.cacheDir);
+    const legacy: MinnesotaCampaignFinanceArtifactCacheMetadata = structuredClone(before.current);
+    legacy.version = 1; delete legacy.generation;
+    for (const key of keys) { legacy.downloads[key].outputPath = paths.downloads[key]; await writeFile(paths.downloads[key], csv(key)); }
+    // A malformed funder entry must not prevent envelope or IE qualification.
+    (legacy.downloads as unknown as Record<string, unknown>).independent_expenditure_contributions = { broken: true };
+    await writeFile(paths.metadataPath, JSON.stringify(legacy));
+    const loaded = await readMinnesotaCampaignFinanceArtifactCacheMetadata(paths.metadataPath);
+    expect(loaded).not.toBeNull();
+    expect(resolveMinnesotaCampaignFinanceCachedDownload({ cacheDir: before.cacheDir, metadata: loaded, key: "independent_expenditures" }).outputPath).toBe(paths.downloads.independent_expenditures);
+    expect(() => resolveMinnesotaCampaignFinanceCachedDownload({ cacheDir: before.cacheDir, metadata: loaded, key: "independent_expenditure_contributions" })).toThrow("Invalid Minnesota campaign finance cached component");
+  });
+
+  it.each(["path", "hash", "bytes", "key", "url"])("rejects invalid requested metadata %s", async (kind) => {
+    const before = await committed(await cacheDir());
+    const bad = structuredClone(before.current);
+    const entry = bad.downloads.independent_expenditures;
+    if (kind === "path") entry.outputPath = join(before.cacheDir, "outside.csv");
+    if (kind === "hash") entry.sha256 = "invalid";
+    if (kind === "bytes") entry.bytesWritten = -1;
+    if (kind === "key") entry.remote.key = "contributions_received";
+    if (kind === "url") entry.remote.url = "https://example.com/csv";
+    expect(() => resolveMinnesotaCampaignFinanceCachedDownload({ cacheDir: before.cacheDir, metadata: bad, key: "independent_expenditures" })).toThrow("Invalid Minnesota campaign finance cached component");
   });
 });
