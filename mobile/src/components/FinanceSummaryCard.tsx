@@ -95,13 +95,14 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
   if (rows === undefined || !hasCommitteeMoneyContent({pac_money_by_interest: rows, pac_money_basis: basis})) {
     return null;
   }
-  const committees = basis === "reported_committee_monetary_positions";
+  const receipts = basis === "reported_committee_monetary_receipts";
+  const committees = receipts || basis === "reported_committee_monetary_positions";
   return (
     <View className="mt-3">
       <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee money by interest" : "PAC money by interest"}</Text>
       {note ? <Text className="mt-1 text-xs text-ink-soft">{note}</Text> : null}
       {rows.length === 0 ? (
-        <Text className="mt-1 text-sm text-ink-soft">{committees ? "No committee cash positions reported." : "No PAC donations reported."}</Text>
+        <Text className="mt-1 text-sm text-ink-soft">{receipts ? "No committee monetary receipts reported." : committees ? "No committee cash positions reported." : "No PAC donations reported."}</Text>
       ) : (
         <View className="mt-1 gap-0.5">
           {rows.map((row) => (
