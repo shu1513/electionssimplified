@@ -1,5 +1,71 @@
 # Maryland finance gaps
 
+## Current verification — October 15, 2026
+
+The normal saved inventory reader is committed in `b08e79fdf`. A genuine
+normal fetch and reopen verified seven published reports/fifteen editions,
+15,239 original bytes, observed October 15 at 08:12:07.099–08:12:08.279 UTC.
+The complete decoded published inventory was unchanged from the earlier
+retained observation. This is source inventory evidence, not financial
+acceptance or a new observation time for older transaction/PDF originals.
+
+The complete legacy return-schedule reader is committed in `556ab84ae`.
+All three original PDFs reconcile their whole Z schedules: Annual 2025 has
+91 returns/$224,236.02; Annual 2024 has 44/$57,246.00; Annual 2023 has
+29/$21,188.53. Exact printed `Expenditure Purpose:` blocks account for all
+164 nonidentity continuation blocks; the printed Total is mandatory and
+matches the separate cash/Z controls. The 63 focused regressions pass.
+Native/PDF identity comparison still holds all three reports. Five eligible
+refunds have exact whole printed names; one has an unresolved printed
+address, and three noneligible address cases share fiscal cohorts with
+eligible returns. No name-prefix fallback, dropped address or financial
+acceptance follows from the source arithmetic.
+
+The separate complete legacy receipt observation now passes all three
+untouched originals. Annual 2025 has 9,903 cash contributions, 45 transfers,
+31 other receipts and 25 in-kind financial rows; Annual 2024 has
+9,571/42/14/20; Annual 2023 has 2,356/12/5/0. The in-kind dated amounts,
+printed Total and published control independently agree at $56,113.13 and
+$42,023.37 for the two nonempty schedules. All in-kind donor identities
+remain unavailable, across every class. Report-level nonfinancial
+description uncertainty stays unbound to donor identity. Source-derived
+whole-document receipt extent and native occurrence comparison are committed
+in `74f86f53c`. Pre-Primary 1, Pre-Primary 2 and Annual 2026 close their entire
+originals with zero eligible cash identity or unresolved-occurrence deficits.
+Pre-General 1 still holds an unclassified terminal page. Annual 2025 has an
+ambiguous cash continuation; Annual 2024 and Annual 2023 retain eligible
+identity deficits and cash-control differences of $1,750/$1,000. These
+differences remain holds. The complete seven-report packet does not yet
+qualify a money write.
+
+Migration 343 and the independent signed committee-component writer,
+production reader and card changes are committed in `5a3e4649a`. They preserve existing
+Raised/direct/outside values and timestamps. The reader sums every signed
+position before display caps, includes all nine source committee classes,
+requires accepted components for every active receiving link, and retains
+gross/refund materiality for fully refunded zero-net positions. Web/mobile
+cards identify these as committee groups and show a separate scope/as-of
+note. Writer tests, reader/loader tests and frontend/shared tests pass;
+backend, frontend and mobile types pass. Fresh main was merged in
+`1868f4a64`; both state card regressions remain, with 76 frontend/shared tests
+passing. The actual local ledger ended at 342 and all existing file checksums
+agreed before the normal migrator applied only 343. Its identifiers are at
+most 32 bytes; migration 343 is now immutable. Manual research preflight
+passes. A real read-only production-reader invocation returned both eligible
+existing summaries, with no new component attached and both new tables empty.
+The full Maryland suite passes 873 tests across 34 files; whole backend types
+pass after the source milestone. No Maryland money write, actual candidate-card
+proof, push or PR has occurred.
+
+One bounded diagnostic TRCON detail request retained an HTTP 200 original
+with all detail fields null; it supplies no contact evidence. Retained public
+UI code instead selects the original parent GUID and the TCON detail family.
+The unused TRCON code extension was removed, and its failed original stays
+private. The actual parent is absent from the 35 retained detail originals.
+Both retained expenditure CSVs also fail normal complete-file parsing; no
+matching partial payee rows can qualify the return. A source-supported parent
+lookup, if needed, requires the existing selector-approval checks before use.
+
 ## Before-code source decision — October 12, 2026
 
 Rank: two active linked Governor candidates × .55 provisional readiness = 1.10.
@@ -594,3 +660,83 @@ All 659 Maryland tests, 13 affected scheduler/CLI tests, the full backend
 typecheck, isolated loader/batch types and independent review pass. The initial
 full typecheck started before the disabled-scheduler result compatibility fix
 and reported that missing field; the final full run passes with it included.
+
+An offline Annual 2023 return audit now closes all 29 physical dates and amounts
+to the exact printed `Expenditures / Z - Returned Contribution` section and
+$21,188.53 cash-expenditure control. All three eligible committee returns have
+complete painted identity cells equal to the full literal native giver name;
+their native addresses appear unprinted in that research projection. Subsequent
+normal parsing found incoming continuation text that the audit's left-edge
+filter omitted, so its absence-of-crossing claim is withdrawn. The printed
+cash-expenditure family is a whole-section observation; the audit's separately
+printed $665 target amount was a script constant and is not acceptance evidence.
+The normal source-bound comparator must derive the actual refund amount and
+family from the retained originals. The original gift's source role
+must remain intact; it cannot itself become cash received.
+
+This supports a separate reported-name economic-occurrence projection, not a
+claim that the full-address comparison passed: that comparator remains 0/29.
+Twenty-two noneligible addresses reconcile through the publisher's own finite
+postal-code/name dictionary; four other noneligible address differences remain
+held. No address may be invented or silently discarded. A normal source-bound
+parser/binder must require complete eligible full-name/date/cents/report/family
+multiplicity, exact original-parent ownership and whole report controls before
+this projection is used. Duplicate, mixed-class or continuation ambiguity holds
+the eligible component. All eligible committee gifts and returns must close,
+including signed period outflows. The three unresolved legacy receipt fragments
+still require independent source-role/class closure before any claim that they
+are disjoint from that scope. Those fragments and the individual over-refund
+continue to hold full-cash Raised.
+The existing current-report, source-period, complete acquisition and canonical
+ownership gates still apply. No financial component is accepted by this audit.
+
+October 14 independent review corrects the research audit's uniqueness label:
+the 29 native returns form 28 literal-name/date/cents cohorts, with one
+two-occurrence cohort containing only individuals. Counting distinct candidate
+names did not prove unique source occurrences. The normal comparator must
+validate exact native/PDF multiplicities and parent identities; this diagnostic
+cannot supply an injectivity or financial-success flag.
+
+October 15 normal parsing also exposes two unresolved cells in merged
+continuation strips after a return row. Their source text and physical
+predecessor remain private observations. A strict identity reader holds them;
+any committee-only isolation must first resolve every native return in the
+entire report/date/cents cohort, with multiplicity and original-parent classes.
+Any eligible, unresolved or unknown-class parent holds the component. Complete
+date/cents controls do not establish those missing identity facts.
+
+Separate whole-census research finds that all 33 native candidates sharing the
+three unresolved receipt fragments' report/date/cents scopes are noncommittee
+classes (32 individual, one business). The three uniquely named predecessors
+are individual receipts. Their unknown right-side text remains unclassified.
+This supports a committee-only disjointness check without accepting those
+personal receipts: the normal reader must still prove that the strips are
+nonfinancial continuations, use integrity-qualified report/census ownership,
+retain every fiscal candidate before class filtering, and independently close
+all eligible committee occurrence multiplicities. Full-cash Raised remains held.
+The three public detail lookups have not been executed; they need not be used
+merely to resolve fields outside an independently complete committee component.
+
+The intended donor metric is monetary: current `CMONT` and `TRFR` gifts across
+all nine reported committee classes, minus source-proven current cash refunds.
+A cash refund against an in-kind original requires the separate whole-Z
+document proof and exact original ownership, class, value and lifetime bounds;
+the original gift never becomes cash received. Signed positions are retained.
+All in-kind identities remain unavailable across all classes. The observer must
+still close every in-kind financial row, family/date/cents multiplicity, exact
+printed Total and published controls. Bounded nonfinancial description text
+stays private and unbound to donors. Other Receipts financial facts remain
+separate from donor gross. Any unresolved family crossover holds the monetary
+component. This scope does not qualify Raised, in-kind support, legal donor
+accounts or full receipt identities.
+
+The returned-contribution field-role question now has direct source proof:
+the exact first-band label is `Expenditure Purpose:` and the following bounded
+band contains purpose text. These fields are separate from payee identity.
+The full three annual documents parse 91, 44 and 29 returns respectively,
+with exact printed Total, Z control and cash equations; all 164 purpose blocks
+are classified and no genuine block remains an unknown identity continuation.
+Malformed or unlabeled blocks still hold. This resolves the earlier research
+ambiguity through printed source roles; native ownership, complete multiplicity,
+committee arithmetic and the actual local money/card milestone remain separate
+requirements.
