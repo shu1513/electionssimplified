@@ -1,10 +1,16 @@
 import { parseMarylandCfsMoney } from "./marylandCfsArtifactReader.js";
 import { marylandPublicContributionOccurrenceKey } from "./marylandPublicContributionClient.js";
 import type { MarylandPdfReceiptOccurrence } from "./marylandReportPdfGeometry.js";
+import type { bindMarylandNativeReportOccurrences } from "./marylandNativeReportBinding.js";
+import type { MarylandLegacyReceiptOccurrence, readMarylandLegacyReceiptObservations } from "./marylandLegacyReportPdfParser.js";
+import type { MarylandLegacyFinancialControls } from "./marylandLegacyReportFinancialControls.js";
+import type { MarylandModernFinancialControls } from "./marylandReportFinancialControls.js";
+import {projectMarylandLegacyNativeFullAddress,type MarylandSourceStateDisplayDictionary} from "./marylandSourceStateDisplay.js";
 
 export class MarylandReceiptComparisonError extends Error {
   constructor(public readonly code: "invalid_native" | "invalid_pdf" | "duplicate_native" |
-    "duplicate_pdf" | "unsafe_total") { super(`Maryland receipt comparison: ${code}`); }
+    "duplicate_pdf" | "unsafe_total" | "invalid_legacy" | "unknown_class" |
+    "ambiguous_continuation" | "ambiguous_identity") { super(`Maryland receipt comparison: ${code}`); }
 }
 function fail(code: ConstructorParameters<typeof MarylandReceiptComparisonError>[0]): never {
   throw new MarylandReceiptComparisonError(code);
@@ -125,4 +131,245 @@ export function compareMarylandReceiptOccurrences(input: {
   }
   for (const [key,count] of actual) extraIdentityOccurrences+=Math.max(0,count-(expected.get(key)??0));
   return {...counts,matchedIdentityOccurrences,missingIdentityOccurrences,extraIdentityOccurrences};
+}
+
+const legacyClasses = new Set(["TBSN", "TCC", "TFED", "TIND", "TLAB", "TNPO", "TPAC", "TPCC", "TPCLB", "TPOC", "TRNFC", "TSLATE", "TSPDC", "TUNFC"]);
+const legacyCommitteeClasses = new Set(["TCC", "TFED", "TPAC", "TPCC", "TPCLB", "TPOC", "TRNFC", "TSLATE", "TUNFC"]);
+type BoundReport = ReturnType<typeof bindMarylandNativeReportOccurrences>["reports"][number];
+type LegacyObservations = Awaited<ReturnType<typeof readMarylandLegacyReceiptObservations>>;
+type LegacyFamily = "monetary" | "in_kind" | "other_receipts" | "anonymous";
+
+/** Complete supplied modern report facts. The caller must derive the physical
+ * receipt extent from the whole original document and bind actual native
+ * report membership. Only exact whole-contact occurrences project classes;
+ * an eligible cash/other or cross-class identity collision remains held. */
+export function compareMarylandModernCommitteeReceiptOccurrences(input:{
+  boundReport:BoundReport;pdfRows:readonly MarylandPdfReceiptOccurrence[];controls:MarylandModernFinancialControls;
+}) {
+  const nativeRows=input.boundReport.rows;
+  for(const r of nativeRows) {
+    if(typeof r.isReturn!=="boolean" || r.transactionTypeCode!==(r.isReturn?"TRCON":"TCON") ||
+      !["CMONT","TRFR","OTHRINCM","CINKIND","ANYMS"].includes(r.contributionTypeCode as string))fail("invalid_native");
+    if(r.contributorTypeCode===null?r.contributionTypeCode!=="ANYMS":
+      typeof r.contributorTypeCode!=="string" || !legacyClasses.has(r.contributorTypeCode))fail("unknown_class");
+    if(r.contributionTypeCode==="ANYMS" && r.contributorTypeCode!==null)fail("unknown_class");
+  }
+  const gifts=nativeRows.filter(r=>!r.isReturn),pdfGifts=input.pdfRows.filter(r=>r.role==="gift");
+  const giftComparison=compareMarylandReceiptOccurrences({nativeRows:gifts,pdfRows:pdfGifts});
+  const cashNative=gifts.filter(r=>r.contributionTypeCode!=="CINKIND"),cashPdf=pdfGifts.filter(r=>r.schedule==="gift_monetary");
+  const cashComparison=compareMarylandReceiptOccurrences({nativeRows:cashNative,pdfRows:cashPdf});
+  const inKindComparison=compareMarylandReceiptOccurrences({nativeRows:gifts.filter(r=>r.contributionTypeCode==="CINKIND"),pdfRows:pdfGifts.filter(r=>r.schedule==="gift_in_kind")});
+  const eligible=(r:Readonly<Record<string,unknown>>)=>legacyCommitteeClasses.has(r.contributorTypeCode as string);
+  const cash=(r:Readonly<Record<string,unknown>>)=>["CMONT","TRFR"].includes(r.contributionTypeCode as string);
+  const fiscal=(date:string,cents:number)=>JSON.stringify([date,cents]);
+  const identity=(date:string,cents:number,name:string)=>JSON.stringify([date,cents,name]);
+  const groups=new Map<string,{classes:Set<string>;cash:boolean;other:boolean}>(),eligibleFiscal=new Set<string>(),eligibleOtherFiscal=new Set<string>();
+  const confirmedPostal=new Set<string>();
+  for(const r of cashNative) {
+    if(r.contributionTypeCode==="ANYMS")continue;
+    const date=(r.transactionDate as string).slice(0,10),cents=Math.round((r.transactionAmount as number)*100);
+    let name=normalize(`${r.contributorName} ${nativeAddress(r)}`);
+    const postal=normalize(r.contributorZipCode as string|null??""),terminal=/(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
+    if(terminal && /^\d{5}-[a-z]{4}$/.test(postal) && `${terminal[1]}-${terminal[2]}`===postal){name=name.slice(0,terminal.index)+postal;confirmedPostal.add(identity(date,cents,name));}
+    const key=identity(date,cents,name),group=groups.get(key)??{classes:new Set<string>(),cash:false,other:false};
+    group.classes.add(r.contributorTypeCode as string);group.cash ||=cash(r);group.other ||=r.contributionTypeCode==="OTHRINCM";groups.set(key,group);
+    if(eligible(r)){if(cash(r))eligibleFiscal.add(fiscal(date,cents));else eligibleOtherFiscal.add(fiscal(date,cents));}
+  }
+  const eligibleCashPdf:MarylandPdfReceiptOccurrence[]=[],eligibleOtherPdf:MarylandPdfReceiptOccurrence[]=[];
+  let unresolvedEligibleFiscalPdfOccurrences=0,unresolvedEligibleOtherFiscalPdfOccurrences=0;
+  for(const r of cashPdf) {
+    let name=normalize(r.nameAddress);const terminal=/(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
+    if(terminal){const assembled=name.slice(0,terminal.index)+`${terminal[1]}-${terminal[2]}`;if(confirmedPostal.has(identity(r.date,r.amountCents,assembled)))name=assembled;}
+    const group=groups.get(identity(r.date,r.amountCents,name));
+    if(!group){if(eligibleFiscal.has(fiscal(r.date,r.amountCents)))unresolvedEligibleFiscalPdfOccurrences++;
+      if(eligibleOtherFiscal.has(fiscal(r.date,r.amountCents)))unresolvedEligibleOtherFiscalPdfOccurrences++;continue;}
+    if(![...group.classes].some(c=>legacyCommitteeClasses.has(c)))continue;
+    if(group.classes.size!==1 || (group.cash&&group.other))fail("ambiguous_identity");
+    if(group.cash)eligibleCashPdf.push(r);else eligibleOtherPdf.push(r);
+  }
+  const eligibleGiftComparison=compareMarylandReceiptOccurrences({nativeRows:gifts.filter(r=>eligible(r)&&cash(r)),pdfRows:eligibleCashPdf});
+  const eligibleOtherReceiptComparison=compareMarylandReceiptOccurrences({nativeRows:gifts.filter(r=>eligible(r)&&r.contributionTypeCode==="OTHRINCM"),pdfRows:eligibleOtherPdf});
+  const control=(n:number)=>{const matches=input.controls.controls.filter(c=>c.number===n);if(matches.length!==1 || !Number.isSafeInteger(matches[0]!.amountCents))fail("invalid_pdf");return matches[0]!.amountCents;};
+  if(input.controls.schema!=="modern_numbered_26" || input.controls.controls.length!==26)fail("invalid_pdf");
+  const cashReceiptControlCents=control(1),anonymousControlCents=control(2),inKindControlCents=add(control(19),control(20));
+  return {giftComparison,cashComparison,inKindComparison,eligibleGiftComparison,eligibleOtherReceiptComparison,
+    unresolvedEligibleFiscalPdfOccurrences,unresolvedEligibleOtherFiscalPdfOccurrences,
+    cashReceiptControlCents,cashReceiptOccurrenceCents:cashComparison.pdfGiftCents,
+    cashReceiptDifferenceCents:add(cashComparison.pdfGiftCents,-cashReceiptControlCents),
+    anonymousControlCents,anonymousOccurrenceCents:cashComparison.anonymousCents,
+    anonymousDifferenceCents:add(cashComparison.anonymousCents,-anonymousControlCents),
+    inKindControlCents,inKindOccurrenceCents:inKindComparison.pdfGiftCents,
+    inKindDifferenceCents:add(inKindComparison.pdfGiftCents,-inKindControlCents)};
+}
+
+/** Whole source report projection only. The packet reader must produce the
+ * actual bound report, receipt observations and controls from complete genuine
+ * inputs. Structural types do not authenticate those inputs. Unknown physical
+ * continuations exclude their entire fiscal cohort from identity claims only
+ * after all native gifts in that cohort prove committee-class disjointness.
+ * Family/day/cents counts and controls always retain those occurrences. Other
+ * receipts remain separate. This grants no full-cash, currentness, legal donor
+ * identity, financial acceptance or publication authority. */
+export function compareMarylandLegacyCommitteeReceiptOccurrences(input: {
+  boundReport: BoundReport;
+  pdfRows: readonly MarylandLegacyReceiptOccurrence[];
+  observations: LegacyObservations;
+  controls: MarylandLegacyFinancialControls;
+  stateDisplayDictionary?:MarylandSourceStateDisplayDictionary;
+}) {
+  const {boundReport, pdfRows, observations, controls} = input;
+  const facts = observations.sourceFacts, unknown = observations.privateUnknownContinuations;
+  const inKindRows=observations.privateInKindFinancialOccurrences,
+    inKindUncertainty=observations.privateInKindDescriptionUncertainty,inKindTotals=observations.privateInKindScheduleTotals;
+  if (!facts || facts.scope !== "published_receipts" || !positive(observations.pageCount) ||
+    facts.pageCount !== observations.pageCount || !/^[0-9a-f]{64}$/.test(observations.sha256) || !positive(observations.byteCount) ||
+    !Array.isArray(unknown) || facts.unclassifiedContinuationCount !== unknown.length || controls.schema !== "legacy_parts_3_4_5_6" ||
+    facts.inKindIdentityScope!=="unavailable" || !Array.isArray(inKindRows) || !Array.isArray(inKindUncertainty) || !Array.isArray(inKindTotals) ||
+    facts.inKindFinancialOccurrenceCount!==inKindRows.length || facts.inKindDescriptionUncertaintyCount!==inKindUncertainty.length) fail("invalid_legacy");
+  let stateDisplayProjectionCount=0;
+  const nativeRows = boundReport.rows.filter(r => {
+    if (typeof r.isReturn !== "boolean" || r.transactionTypeCode !== (r.isReturn ? "TRCON" : "TCON")) fail("invalid_native");
+    return !r.isReturn;
+  }).map(r=>{const projected=input.stateDisplayDictionary?projectMarylandLegacyNativeFullAddress(r,input.stateDisplayDictionary):null;
+    if(projected===null)return r;stateDisplayProjectionCount++;return {...r,contributorFullAddress:projected};});
+  for (const r of nativeRows) {
+    if (r.contributorTypeCode === null ? r.contributionTypeCode !== "ANYMS" :
+      typeof r.contributorTypeCode !== "string" || !legacyClasses.has(r.contributorTypeCode)) fail("unknown_class");
+    if (r.contributionTypeCode === "ANYMS" && r.contributorTypeCode !== null) fail("unknown_class");
+  }
+  // Every source class and financial occurrence is validated before monetary
+  // identity selection. In-kind identities are unavailable across all classes.
+  const nativeIdentities=new Set<string>();
+  for(const r of nativeRows) {
+    const dollars=typeof r.transactionAmount==="number" && Number.isFinite(r.transactionAmount)?parseMarylandCfsMoney(String(r.transactionAmount)):null;
+    if(!guid(r.transactionGuid) || !positive(r.transactionVersionID) || !guid(r.reportGuid) || !positive(r.reportVersionId) ||
+      dollars===null || dollars<=0 || !["CMONT","TRFR","OTHRINCM","CINKIND","ANYMS"].includes(r.contributionTypeCode as string) ||
+      typeof r.transactionDate!=="string" || !/^\d{4}-\d{2}-\d{2}T00:00:00$/.test(r.transactionDate) || !calendarDate(r.transactionDate.slice(0,10)))fail("invalid_native");
+    const key=marylandPublicContributionOccurrenceKey(r);if(nativeIdentities.has(key))fail("duplicate_native");nativeIdentities.add(key);
+  }
+  const wholeNative = compareMarylandReceiptOccurrences({nativeRows:nativeRows.filter(r=>r.contributionTypeCode!=="CINKIND"), pdfRows: []});
+  const cents = (r: Readonly<Record<string, unknown>>) => Math.round((r.transactionAmount as number) * 100);
+  const day = (r: Readonly<Record<string, unknown>>) => (r.transactionDate as string).slice(0, 10);
+  const fiscalKey = (date: string, amount: number) => JSON.stringify([date, amount]);
+  const nativeFamily = (r: Readonly<Record<string, unknown>>): LegacyFamily => r.contributionTypeCode === "CINKIND" ? "in_kind" :
+    r.contributionTypeCode === "OTHRINCM" ? "other_receipts" : r.contributionTypeCode === "ANYMS" ? "anonymous" : "monetary";
+  const pdfFamily = (r: MarylandLegacyReceiptOccurrence): LegacyFamily => r.tableKind === "in_kind" ? "in_kind" : r.tableKind === "other_receipts" ? "other_receipts" : "monetary";
+  const eligible = (r: Readonly<Record<string, unknown>>) => legacyCommitteeClasses.has(r.contributorTypeCode as string);
+  const nativeCohorts = new Map<string, typeof nativeRows>();
+  for (const r of nativeRows) {const key = fiscalKey(day(r), cents(r)); const rows = nativeCohorts.get(key) ?? []; rows.push(r); nativeCohorts.set(key, rows);}
+  const physical = new Map<string, MarylandLegacyReceiptOccurrence>();
+  const sourceCounts = {contributions: 0, transfers_in: 0, other_receipts: 0, in_kind: 0};
+  const sourceCents = {...sourceCounts};
+  for (const r of pdfRows) {
+    if (!positive(r.pageNumber) || r.pageNumber > observations.pageCount || !Number.isSafeInteger(r.ordinal) || r.ordinal < 0 ||
+      !calendarDate(r.date) || !positive(r.amountCents) || !Object.hasOwn(sourceCounts, r.tableKind) || r.tableKind==="in_kind" ||
+      r.role !== (r.tableKind === "other_receipts" ? "other" : "gift") || typeof r.nameAddress !== "string" || !r.nameAddress.trim() ||
+      typeof r.sourceSection !== "string" || !r.sourceSection.trim() || typeof r.sourceCategory !== "string" || !r.sourceCategory.trim()) fail("invalid_pdf");
+    const key = `${r.pageNumber}:${r.ordinal}`; if (physical.has(key)) fail("duplicate_pdf"); physical.set(key, r);
+    sourceCounts[r.tableKind]++; sourceCents[r.tableKind] = add(sourceCents[r.tableKind], r.amountCents);
+  }
+  const inKindPhysical=new Set<string>();
+  for(const r of inKindRows) {
+    const key=`${r.pageNumber}:${r.top}:${r.bottom}`;
+    if(!positive(r.pageNumber) || r.pageNumber>observations.pageCount || !Number.isSafeInteger(r.ordinal) || r.ordinal<0 ||
+      !Number.isFinite(r.top) || !Number.isFinite(r.bottom) || r.top<75 || r.bottom>750 || r.top>=r.bottom ||
+      r.tableKind!=="in_kind" || !calendarDate(r.date) || !Number.isSafeInteger(r.amountCents) || r.amountCents<0 ||
+      !r.sourceSection || !r.sourceCategory || Object.hasOwn(r,"nameAddress") || inKindPhysical.has(key))fail("invalid_legacy");
+    inKindPhysical.add(key);sourceCounts.in_kind++;sourceCents.in_kind=add(sourceCents.in_kind,r.amountCents);
+  }
+  for(const u of inKindUncertainty)if(!positive(u.pageNumber) || u.pageNumber>observations.pageCount ||
+    !Number.isFinite(u.top) || !Number.isFinite(u.bottom) || u.top<75 || u.bottom>750 || u.top>=u.bottom || !positive(u.cellCount) ||
+    !u.sourceSection || !u.sourceCategory || !["bounded_band","outside_closed_ledger"].includes(u.geometry) || Object.hasOwn(u,"parentPageNumber") || Object.hasOwn(u,"nameAddress"))fail("invalid_legacy");
+  let totalInKindCents=0;
+  for(const t of inKindTotals) {
+    if(!positive(t.pageNumber) || t.pageNumber>observations.pageCount || !Number.isFinite(t.top) || !Number.isFinite(t.bottom) ||
+      t.top<75 || t.bottom>750 || t.top>=t.bottom || !Number.isSafeInteger(t.amountCents) || t.amountCents<0)fail("invalid_legacy");
+    totalInKindCents=add(totalInKindCents,t.amountCents);
+  }
+  if(totalInKindCents!==sourceCents.in_kind)fail("invalid_legacy");
+  for (const kind of Object.keys(sourceCounts) as (keyof typeof sourceCounts)[]) {
+    if (facts.counts[kind] !== sourceCounts[kind] || facts.totalsCents[kind] !== sourceCents[kind]) fail("invalid_legacy");
+  }
+  const held = new Set<string>(), unknownPhysical = new Set<string>();
+  for (const u of unknown) {
+    const parentKey = `${u.parentPageNumber}:${u.parentOrdinal}`, parent = physical.get(parentKey);
+    if (!parent || !positive(u.pageNumber) || u.pageNumber > observations.pageCount || u.pageNumber <= u.parentPageNumber ||
+      !Number.isFinite(u.top) || !Number.isFinite(u.bottom) || u.top >= u.bottom || !positive(u.cellCount) ||
+      parent.date !== u.date || parent.amountCents !== u.amountCents || parent.tableKind !== u.tableKind ||
+      parent.sourceSection !== u.sourceSection || parent.sourceCategory !== u.sourceCategory) fail("invalid_legacy");
+    if (u.tableKind!=="contributions" || u.top < 75 || u.bottom > 750 ||
+      pdfRows.some(r => r.pageNumber < u.pageNumber && (r.pageNumber > parent.pageNumber ||
+        (r.pageNumber === parent.pageNumber && r.ordinal > parent.ordinal)))) fail("invalid_legacy");
+    const reference = `${u.pageNumber}:${u.top}:${u.bottom}`; if (unknownPhysical.has(reference)) fail("invalid_legacy"); unknownPhysical.add(reference);
+    const key = fiscalKey(parent.date, parent.amountCents), cohort = nativeCohorts.get(key);
+    if (!cohort?.length || cohort.some(eligible)) fail("ambiguous_continuation");
+    held.add(key);
+  }
+  const expected = new Map<string, number>(), actual = new Map<string, number>();
+  const occurrence = (map: Map<string, number>, key: string) => map.set(key, (map.get(key) ?? 0) + 1);
+  // ANYMS is an opaque source aggregate, not an expected invented PDF item.
+  // Legacy controls expose no separate printed anonymous control; that cash
+  // comparison remains unevaluable whenever such an aggregate is present.
+  for (const r of nativeRows) if (nativeFamily(r) !== "anonymous") occurrence(expected, JSON.stringify([nativeFamily(r), day(r), cents(r)]));
+  for (const r of pdfRows) occurrence(actual, JSON.stringify([pdfFamily(r), r.date, r.amountCents]));
+  for (const r of inKindRows) occurrence(actual, JSON.stringify(["in_kind",r.date,r.amountCents]));
+  let matchedFiscalOccurrences = 0, missingFiscalOccurrences = 0, extraFiscalOccurrences = 0;
+  for (const [key, n] of expected) {const observed = actual.get(key) ?? 0; matchedFiscalOccurrences += Math.min(n, observed); missingFiscalOccurrences += Math.max(0, n - observed);}
+  for (const [key, n] of actual) extraFiscalOccurrences += Math.max(0, n - (expected.get(key) ?? 0));
+  const knownNative = nativeRows.filter(r => !held.has(fiscalKey(day(r), cents(r))));
+  const knownPdf = pdfRows.filter(r => !held.has(fiscalKey(r.date, r.amountCents)));
+  const adapt = (r: MarylandLegacyReceiptOccurrence): MarylandPdfReceiptOccurrence => ({pageNumber: r.pageNumber, ordinal: r.ordinal,
+    role: "gift", schedule: r.tableKind === "in_kind" ? "gift_in_kind" : "gift_monetary", date: r.date, amountCents: r.amountCents, nameAddress: r.nameAddress});
+  const giftComparison = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => !["other_receipts","in_kind"].includes(nativeFamily(r))), pdfRows: knownPdf.filter(r => r.tableKind !== "other_receipts").map(adapt)});
+  const otherReceiptComparison = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: knownPdf.filter(r => r.tableKind === "other_receipts").map(adapt)});
+  const index = new Map<string, {classes: Set<unknown>; confirmedPostal: boolean}>();
+  const identityKey = (family: LegacyFamily, date: string, amount: number, name: string) => JSON.stringify([family, date, amount, name]);
+  for (const r of knownNative) {
+    if (["anonymous","in_kind"].includes(nativeFamily(r))) continue;
+    let name = normalize(`${r.contributorName} ${nativeAddress(r)}`), confirmedPostal = false;
+    const postal = normalize(r.contributorZipCode as string | null ?? ""), match = /(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
+    if (match && /^\d{5}-[a-z]{4}$/.test(postal) && `${match[1]}-${match[2]}` === postal) {name = name.slice(0, match.index) + postal; confirmedPostal = true;}
+    const key = identityKey(nativeFamily(r), day(r), cents(r), name), group = index.get(key) ?? {classes: new Set(), confirmedPostal: false};
+    group.classes.add(r.contributorTypeCode); group.confirmedPostal ||= confirmedPostal; index.set(key, group);
+  }
+  const eligiblePdf: MarylandLegacyReceiptOccurrence[] = [];
+  let unresolvedEligibleFiscalPdfOccurrences = 0,unresolvedEligibleOtherFiscalPdfOccurrences=0;
+  for (const r of knownPdf) {
+    const name = normalize(r.nameAddress), groups = [];
+    const exact = index.get(identityKey(pdfFamily(r), r.date, r.amountCents, name)); if (exact) groups.push(exact);
+    const match = /(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
+    if (match) {const compact = name.slice(0, match.index) + `${match[1]}-${match[2]}`;
+      if (compact !== name) {const group = index.get(identityKey(pdfFamily(r), r.date, r.amountCents, compact)); if (group?.confirmedPostal) groups.push(group);}}
+    const classes = new Set(groups.flatMap(g => [...g.classes]));
+    if ([...classes].some(c => legacyCommitteeClasses.has(c as string))) {
+      if (classes.size !== 1) fail("ambiguous_identity");
+      eligiblePdf.push(r);
+    } else if (!classes.size && nativeCohorts.get(fiscalKey(r.date, r.amountCents))?.some(eligible)) {
+      if(pdfFamily(r)==="monetary")unresolvedEligibleFiscalPdfOccurrences++;
+      else unresolvedEligibleOtherFiscalPdfOccurrences++;
+    }
+  }
+  const eligibleNative = nativeRows.filter(eligible);
+  const eligibleGiftComparison = compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "monetary"), pdfRows: eligiblePdf.filter(r => r.tableKind !== "other_receipts").map(adapt)});
+  const eligibleOtherReceiptComparison = compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: eligiblePdf.filter(r => r.tableKind === "other_receipts").map(adapt)});
+  const cashControl = controls.receiptControls.filter(c => c.column !== "K").reduce((n, c) => add(n, c.amountCents), 0);
+  const cashReceipts = add(add(sourceCents.contributions, sourceCents.transfers_in), sourceCents.other_receipts);
+  return {nativeReportGifts: nativeRows.length, pdfReceiptOccurrences: pdfRows.length+inKindRows.length,stateDisplayProjectionCount,
+    inKindIdentityScope:"unavailable" as const,inKindFinancialOccurrences:inKindRows.length,
+    inKindDescriptionUncertaintyCount:inKindUncertainty.length,inKindScheduleTotalCents:totalInKindCents,
+    itemizedNativeReceiptOccurrences: nativeRows.length - wholeNative.anonymousOccurrences,
+    anonymousOccurrences: wholeNative.anonymousOccurrences, anonymousCents: wholeNative.anonymousCents,
+    anonymousControlCents: controls.anonymousContributionsCents,
+    uncontrolledAnonymousOccurrences: wholeNative.anonymousOccurrences, uncontrolledAnonymousCents: wholeNative.anonymousCents,
+    sourceCounts, sourceCents, matchedFiscalOccurrences, missingFiscalOccurrences, extraFiscalOccurrences,
+    unclassifiedContinuationCount: unknown.length, identityHeldFiscalCohorts: held.size,
+    identityHeldNativeOccurrences: nativeRows.filter(r => held.has(fiscalKey(day(r), cents(r)))).length,
+    identityHeldPdfOccurrences: pdfRows.filter(r => held.has(fiscalKey(r.date, r.amountCents))).length,
+    unresolvedEligibleFiscalPdfOccurrences, unresolvedEligibleOtherFiscalPdfOccurrences,
+    giftComparison, otherReceiptComparison, eligibleGiftComparison, eligibleOtherReceiptComparison,
+    cashReceiptControlCents: cashControl, cashReceiptOccurrenceCents: cashReceipts,
+    cashReceiptDifferenceCents: wholeNative.anonymousOccurrences ? null : add(cashReceipts, -cashControl),
+    inKindControlCents: controls.inKind.contributionsCents, inKindOccurrenceCents: sourceCents.in_kind,
+    inKindDifferenceCents: add(sourceCents.in_kind, -controls.inKind.contributionsCents),
+    loanReceiptControlCents: controls.receiptControls.filter(c => c.column === "K").reduce((n, c) => add(n, c.amountCents), 0)};
 }
