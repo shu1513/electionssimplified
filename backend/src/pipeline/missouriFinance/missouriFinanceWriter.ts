@@ -1,5 +1,11 @@
 import type { Pool, PoolClient } from "pg";
 
+import {
+  prepareMissouriCommitteeMonetaryReceiptComponent,
+  replaceMissouriCommitteeMonetaryReceiptRows,
+  type MissouriCommitteeMonetaryReceiptComponent,
+} from "./missouriCommitteeMonetaryReceiptWriter.js";
+
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import {
   createStandardStateFinanceSnapshotWriter,
@@ -43,6 +49,7 @@ export type MissouriFinanceSnapshotInput = {
   outsideGroups?: readonly MissouriFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly MissouriFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  committeeMonetaryReceipts?: MissouriCommitteeMonetaryReceiptComponent;
 };
 
 export type MissouriFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
@@ -92,5 +99,14 @@ export async function upsertMissouriFinanceLink(input: {
 export async function replaceMissouriCandidateFinanceSnapshot(
   input: MissouriFinanceSnapshotInput
 ): Promise<MissouriFinanceSnapshotWriteResult> {
-  return writer.replaceSnapshot(input);
+  const syncedAt = new Date(input.syncedAt?.getTime() ?? Date.now());
+  const component = prepareMissouriCommitteeMonetaryReceiptComponent({
+    component: input.committeeMonetaryReceipts, receivingCommitteeId: input.link.committeeId,
+    electionYear: input.link.electionYear, syncedAt,
+  });
+  return writer.replaceSnapshot({ ...input, syncedAt,
+    ...(component ? { afterSnapshotWrite: async ({ db, linkId, electionYear, syncedAt }) => {
+      await replaceMissouriCommitteeMonetaryReceiptRows({ db, linkId, electionYear, syncedAt, component });
+    } } : {}),
+  });
 }
