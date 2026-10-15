@@ -9,6 +9,7 @@ import {
   parseMissouriMecCommitteeInfo,
   parseMissouriMecContributionExport,
   parseMissouriMecExpenditureExport,
+  parseMissouriMecFullDisclosureCount,
   parseMissouriMecOutsideSpendingExport,
   parseMissouriMecOutsideSpendingGridPage,
   parseMissouriMecOutsideSpenderIdentities,
@@ -17,6 +18,17 @@ import {
 } from "../../../src/pipeline/missouriFinance/missouriMecParsers.js";
 
 describe("missouriMecParsers", () => {
+  it("requires an explicit consistent full-disclosure count, including zero", () => {
+    expect(parseMissouriMecFullDisclosureCount("<span>Full Disclosure Reports (1,234)</span>")).toBe(1234);
+    expect(parseMissouriMecFullDisclosureCount("Full Disclosure <b>Reports</b> (0)")).toBe(0);
+    expect(parseMissouriMecFullDisclosureCount("Full Disclosure Reports (12) Full Disclosure Reports (12)")).toBe(12);
+    expect(() => parseMissouriMecFullDisclosureCount("No records found")).toThrow("Missing Missouri MEC");
+    expect(() => parseMissouriMecFullDisclosureCount("Full Disclosure Reports (0) Full Disclosure Reports (1)")).toThrow("Conflicting Missouri MEC");
+    for (const value of ["-1", "1,23", "1.5", "9007199254740992", "private source value"]) {
+      expect(() => parseMissouriMecFullDisclosureCount(`Full Disclosure Reports (${value})`)).toThrow("Invalid Missouri MEC full-disclosure result count");
+    }
+  });
+
   it("parses the pinned candidate-by-election Excel export", () => {
     const html = `
       <table>
@@ -43,6 +55,16 @@ describe("missouriMecParsers", () => {
         "<table><tr><th>MECID</th><th>Candidate Name</th></tr><tr><td>C221944</td><td>Jeff Farnan</td></tr></table>"
       )
     ).toThrow("Unexpected Missouri MEC candidate export header");
+  });
+
+  it.each([
+    "<table><tr><th>MECID</th></tr>",
+    "<table><tr><th>MECID</th></tr><tr><td>private value</td></table>",
+    "<table><tr><th>MECID</th></tr><tr><td>private value</tr></table>",
+    "<table><tr><th>MECID</td></tr></table>",
+    "<table><tr><th><table></table></th></tr></table>",
+  ])("rejects an incomplete table before accepting its closed prefix", (html) => {
+    expect(() => parseMissouriMecContributionExport(html)).toThrow("Incomplete or malformed Missouri MEC export table");
   });
 
   it("counts but excludes candidate exemption registrations from committee resolution", () => {
@@ -168,6 +190,7 @@ describe("missouriMecParsers", () => {
     expect(parseMissouriMecContributionExport(contributions)).toEqual([expect.objectContaining({
       mecid: "C263985", report: "July Quarterly Report", contributionDate: "2026-08-05",
       amountCents: 123456, employer: "Example LLC", occupation: "Engineer",
+      trailingCommitteeField: "Candidate",
     })]);
     expect(parseMissouriMecContributionExport(contributions)[0]).not.toHaveProperty("address1");
 

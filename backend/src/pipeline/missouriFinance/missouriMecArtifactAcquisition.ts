@@ -8,7 +8,7 @@ import {
   type MissouriMecResponse,
   type MissouriMecSession,
 } from "./missouriMecClient.js";
-import { storeMissouriMecArtifact, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
+import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
 import {
   MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER,
   MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER,
@@ -16,6 +16,7 @@ import {
   parseMissouriMecCommitteeIdentity,
   parseMissouriMecCommitteeActivityRows,
   parseMissouriMecContributionExport,
+  parseMissouriMecFullDisclosureCount,
   parseMissouriMecExpenditureExport,
   parseMissouriMecOutsideSpendingExport,
   parseMissouriMecOutsideSpendingGridPage,
@@ -41,12 +42,53 @@ function requireHtml(response: MissouriMecResponse, label: string): string {
   return response.text();
 }
 
+function transactionExportCount(mode: "contributions" | "expenditures", body: string): number {
+  try {
+    return mode === "contributions" ? parseMissouriMecContributionExport(body).length
+      : parseMissouriMecExpenditureExport(body).length;
+  } catch {
+    // Parser diagnostics can contain raw source cells; acquisition logs must not.
+    throw new Error("Missouri MEC transaction export failed validation");
+  }
+}
+
+function safeReportInventory(body: string): ReturnType<typeof parseMissouriMecReportInventory> {
+  try { return parseMissouriMecReportInventory(body); }
+  catch { throw new Error("Missouri MEC report inventory failed validation"); }
+}
+
+async function requireUnchangedClosingInventory(input: {
+  session: MissouriMecSession;
+  committeeUrl: string;
+  year: number;
+  opening: ReturnType<typeof parseMissouriMecReportInventory>;
+}): Promise<string> {
+  const page = requireHtml(await input.session.get(input.committeeUrl), "closing committee page");
+  const tab = requireHtml(await input.session.postForm(input.committeeUrl, {
+    ...hidden(page, "closing committee page"), __EVENTTARGET: `${SEARCH}lbtnReports`, __EVENTARGUMENT: "",
+  }, { referer: input.committeeUrl }), "closing reports tab");
+  let year;
+  try { year = parseMissouriMecReportYears(tab).find((row) => row.year === input.year); }
+  catch { throw new Error("Missouri MEC closing report year failed validation"); }
+  if (!year) throw new Error("Missouri MEC closing report year unavailable");
+  const body = requireHtml(await input.session.postForm(input.committeeUrl, {
+    ...hidden(tab, "closing reports tab"),
+    [`${SEARCH}${year.expandControlName}.x`]: "1", [`${SEARCH}${year.expandControlName}.y`]: "1",
+  }, { referer: input.committeeUrl }), "closing report inventory");
+  const canonical = (rows: ReturnType<typeof parseMissouriMecReportInventory>) =>
+    rows.map((row) => JSON.stringify([row.reportId, row.report, row.dateFiled, row.isAmended, row.lineageKey])).sort();
+  if (JSON.stringify(canonical(input.opening)) !== JSON.stringify(canonical(safeReportInventory(body)))) {
+    throw new Error("Missouri MEC report inventory changed during acquisition");
+  }
+  return body;
+}
+
 async function fetchTransactionExport(input: {
   session: MissouriMecSession;
   mecid: string;
   year: number;
   mode: "contributions" | "expenditures";
-}): Promise<{ body: string; sourceUrl: string }> {
+}): Promise<{ body: string; sourceUrl: string; resultsBody: string }> {
   const searchUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionSearch);
   const resultsUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionResults);
   let page = requireHtml(await input.session.get(searchUrl), "transaction-search page");
@@ -71,6 +113,7 @@ async function fetchTransactionExport(input: {
     throw new Error(`Missouri MEC ${input.mode} search did not open results`);
   }
   const results = requireHtml(await input.session.get(resultsUrl, { referer: searchUrl }), `${input.mode} results`);
+  const advertisedCount = parseMissouriMecFullDisclosureCount(results);
   const exported = await input.session.postForm(resultsUrl, {
     ...hidden(results, resultsUrl),
     [`${RESULTS}btnExport`]: "Export Results to Excel",
@@ -83,6 +126,7 @@ async function fetchTransactionExport(input: {
     : MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER;
   const resultGridPresent = new RegExp(`\\bid="[^"]*${gridName}(?:"|_)`, "i").test(results);
   const knownEmptyExportFailure =
+    advertisedCount === 0 &&
     !resultGridPresent &&
     exported.status === 302 &&
     (exported.contentType ?? "").toLowerCase().includes("text/html") &&
@@ -90,19 +134,19 @@ async function fetchTransactionExport(input: {
     exported.redirectLocation?.toLowerCase() === EMPTY_TRANSACTION_EXPORT_REDIRECT.toLowerCase();
   if (knownEmptyExportFailure) {
     const body = `<table><tr>${header.map((value) => `<th>${value}</th>`).join("")}</tr></table>`;
-    if (input.mode === "contributions") parseMissouriMecContributionExport(body);
-    else parseMissouriMecExpenditureExport(body);
-    return { body, sourceUrl: searchUrl };
+    transactionExportCount(input.mode, body);
+    return { body, sourceUrl: searchUrl, resultsBody: results };
   }
   if (exported.status !== 200 || !(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
     throw new Error(`Unexpected Missouri MEC ${input.mode} export content type: ${exported.contentType}`);
   }
   const body = exported.text();
-  if (input.mode === "contributions") parseMissouriMecContributionExport(body);
-  else parseMissouriMecExpenditureExport(body);
+  if (transactionExportCount(input.mode, body) !== advertisedCount) {
+    throw new Error("Missouri MEC transaction export count mismatch");
+  }
   // Results are session-bound; the stable public search page is the useful
   // citation target after this acquisition session expires.
-  return { body, sourceUrl: searchUrl };
+  return { body, sourceUrl: searchUrl, resultsBody: results };
 }
 
 function parseOutsideRecordCount(html: string): number {
@@ -321,9 +365,11 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
     [`${SEARCH}${reportYear.expandControlName}.x`]: "1",
     [`${SEARCH}${reportYear.expandControlName}.y`]: "1",
   }, { referer: committeeUrl }), "expanded report inventory");
-  const inventory = parseMissouriMecReportInventory(reportHtml);
+  const inventory = safeReportInventory(reportHtml);
   const contributions = await fetchTransactionExport({ session, mecid, year: input.year, mode: "contributions" });
   const expenditures = await fetchTransactionExport({ session, mecid, year: input.year, mode: "expenditures" });
+
+  const closingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
 
   const artifacts = [
     { type: "committee_info" as const, body: committeeHtml, sourceUrl: committeeUrl },
@@ -331,19 +377,21 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
     { type: "contributions" as const, ...contributions },
     { type: "expenditures" as const, ...expenditures },
   ];
-  await Promise.all(artifacts.map((artifact) => storeMissouriMecArtifact({
+  await storeMissouriMecCandidateArtifactBundle({
     cacheDir: input.cacheDir,
-    key: { type: artifact.type, mecid, year: input.year },
-    sourceUrl: artifact.sourceUrl,
-    body: artifact.body,
+    mecid,
+    year: input.year,
     retrievedAt,
-  })));
+    artifacts,
+    transactionResultBodies: { contributions: contributions.resultsBody, expenditures: expenditures.resultsBody },
+    closingInventoryBody,
+  });
   return {
     mecid,
     year: input.year,
     reportCount: inventory.length,
-    contributionCount: parseMissouriMecContributionExport(contributions.body).length,
-    expenditureCount: parseMissouriMecExpenditureExport(expenditures.body).length,
+    contributionCount: transactionExportCount("contributions", contributions.body),
+    expenditureCount: transactionExportCount("expenditures", expenditures.body),
   };
 }
 
@@ -380,8 +428,9 @@ export async function acquireMissouriMecOutsideSpenderContributionArtifacts(inpu
     [`${SEARCH}${reportYear.expandControlName}.x`]: "1",
     [`${SEARCH}${reportYear.expandControlName}.y`]: "1",
   }, { referer: committeeUrl }), "expanded outside-spender report inventory");
-  const inventory = parseMissouriMecReportInventory(reportHtml);
+  const inventory = safeReportInventory(reportHtml);
   const contributions = await fetchTransactionExport({ session, mecid, year: input.year, mode: "contributions" });
+  await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
   await Promise.all([
     storeMissouriMecArtifact({
       cacheDir: input.cacheDir,
@@ -403,6 +452,6 @@ export async function acquireMissouriMecOutsideSpenderContributionArtifacts(inpu
     year: input.year,
     committeeName: identity.committeeName,
     reportCount: inventory.length,
-    contributionCount: parseMissouriMecContributionExport(contributions.body).length,
+    contributionCount: transactionExportCount("contributions", contributions.body),
   };
 }

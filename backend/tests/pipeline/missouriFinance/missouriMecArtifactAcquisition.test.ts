@@ -1,7 +1,7 @@
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   acquireMissouriMecCandidateFinanceArtifacts,
@@ -9,6 +9,7 @@ import {
   acquireMissouriMecOutsideSpenderContributionArtifacts,
 } from "../../../src/pipeline/missouriFinance/missouriMecArtifactAcquisition.js";
 import {
+  readMissouriMecCandidateFinanceArtifacts,
   readMissouriMecOutsideSpenderContributionArtifacts,
   readMissouriMecOutsideSpendingArtifacts,
 } from "../../../src/pipeline/missouriFinance/missouriMecArtifactCache.js";
@@ -42,92 +43,134 @@ function emptyTransactionExportRedirect(filename: string): MissouriMecResponse {
   };
 }
 
+const newTempDirs: string[] = [];
+afterEach(async () => { await Promise.all(newTempDirs.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
+async function candidateCacheDir() {
+  const dir = await mkdtemp(join(tmpdir(), "mo-acquire-qualified-")); newTempDirs.push(dir); return dir;
+}
+const contributionData = ["C263985", "Example recipient", "July Quarterly Report", "Example committee", "", "", "",
+  "", "", "", "", "", "", "", "8/5/2026", "$10.00", "Monetary", "uninterpreted"];
+const expenditureData = ["C263985", "Example recipient", "July Quarterly Report", "", "", "Example vendor", "", "", "", "", "",
+  "Services", "8/5/2026", "$10.00", "Paid"];
+function exportTable(mode: "contributions" | "expenditures", rowCount: number) {
+  const header = mode === "contributions" ? MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER : MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER;
+  const values = mode === "contributions" ? contributionData : expenditureData;
+  return table(header).replace("</table>", `${Array.from({ length: rowCount }, () => `<tr>${values.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</table>`);
+}
+type TransactionMode = "contributions" | "expenditures";
+type SessionOptions = {
+  results?: Partial<Record<TransactionMode, string>>;
+  exports?: Partial<Record<TransactionMode, MissouriMecResponse>>;
+  closingInventory?: string;
+  profile?: string;
+};
+function candidateSession(options: SessionOptions = {}) {
+  let mode: TransactionMode = "contributions";
+  let inventoryReads = 0;
+  const resultPage = (kind: TransactionMode) => `${state}<a>Full Disclosure Reports (1)</a>` +
+    `<table id="ContentPlaceHolder_${kind === "contributions" ? "grvContrSearch" : "grvExpendSearch"}"></table>`;
+  const get = vi.fn(async (url: string) => {
+    if (url.includes("CommInfo.aspx")) return response(options.profile ?? committee);
+    if (url.includes("CF12_ContrExpendResults.aspx")) return response(options.results?.[mode] ?? resultPage(mode));
+    return response(state);
+  });
+  const postForm = vi.fn(async (url: string, fields: Record<string, string>) => {
+    if (url.includes("CommInfo.aspx")) {
+      if (fields.__EVENTTARGET?.endsWith("lbtnReports")) return response(reports);
+      inventoryReads += 1;
+      return response(inventoryReads === 1 ? inventory : options.closingInventory ?? inventory);
+    }
+    if (url.includes("CF12_ContrExpendResults.aspx")) return options.exports?.[mode] ?? response(exportTable(mode, 1), "application/vnd.ms-excel");
+    if (fields.__EVENTTARGET?.endsWith("lbtnContr")) mode = "contributions";
+    if (fields.__EVENTTARGET?.endsWith("lbtnExpend")) mode = "expenditures";
+    if (fields["ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$btnSearch"]) return response("CF12_ContrExpendResults.aspx");
+    return response(state);
+  });
+  return { get, postForm } as MissouriMecSession & { get: typeof get; postForm: typeof postForm };
+}
+function acquireCandidate(cacheDir: string, options: SessionOptions = {}) {
+  return acquireMissouriMecCandidateFinanceArtifacts({ mecid: "C263985", year: 2026, cacheDir,
+    session: candidateSession(options), now: new Date("2026-08-19T00:00:00Z") });
+}
+
 describe("acquireMissouriMecCandidateFinanceArtifacts", () => {
-  it("walks WebForms reports + exact-MECID exports and installs a complete cache", async () => {
-    const cacheDir = await mkdtemp(join(tmpdir(), "mo-acquire-"));
-    const get = vi.fn()
-      .mockResolvedValueOnce(response(committee))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(`${state}<table id="ContentPlaceHolder_grvContrSearch"></table>`))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(`${state}<table id="ContentPlaceHolder_grvExpendSearch"></table>`));
-    const postForm = vi.fn()
-      .mockResolvedValueOnce(response(reports))
-      .mockResolvedValueOnce(response(inventory))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(response(table(MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER), "application/vnd.ms-excel"))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(response(table(MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER), "application/vnd.ms-excel"));
-    const result = await acquireMissouriMecCandidateFinanceArtifacts({
-      mecid: "c263985", year: 2026, cacheDir, session: { get, postForm } as MissouriMecSession,
-      now: new Date("2026-08-19T00:00:00Z"),
-    });
-    expect(result).toEqual({ mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 0, expenditureCount: 0 });
-    expect(postForm).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+  it("reconciles both Full Disclosure counts and closes inventory before installing", async () => {
+    const cacheDir = await candidateCacheDir();
+    const session = candidateSession();
+    expect(await acquireMissouriMecCandidateFinanceArtifacts({ mecid: "C263985", year: 2026, cacheDir, session }))
+      .toEqual({ mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 1, expenditureCount: 1 });
+    expect(session.get).toHaveBeenCalledTimes(6);
+    expect(session.postForm).toHaveBeenCalledTimes(12);
+    expect(session.postForm).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
       "ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$txtCommID": "C263985",
       "ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$ddYear": "2026",
     }), expect.any(Object));
-    expect(postForm).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
-      "ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$grvReportOutside$ctl02$ImgRptRight.x": "1",
-    }), expect.any(Object));
+    const loaded = await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+    expect(loaded.contributionRows).toHaveLength(1);
+    expect(loaded.expenditureRows).toHaveLength(1);
   });
 
-  it("stores an empty expenditure artifact for the portal's exact zero-grid export failure", async () => {
-    const cacheDir = await mkdtemp(join(tmpdir(), "mo-acquire-empty-expenditures-"));
-    const get = vi.fn()
-      .mockResolvedValueOnce(response(committee))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(`${state}<table id="ContentPlaceHolder_grvContrSearch"></table>`))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state));
-    const postForm = vi.fn()
-      .mockResolvedValueOnce(response(reports))
-      .mockResolvedValueOnce(response(inventory))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(response(table(MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER), "application/vnd.ms-excel"))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(emptyTransactionExportRedirect("Expenditure_Search.xls"));
-
-    await expect(acquireMissouriMecCandidateFinanceArtifacts({
-      mecid: "c263985", year: 2026, cacheDir, session: { get, postForm } as MissouriMecSession,
-      now: new Date("2026-08-20T00:00:00Z"),
-    })).resolves.toEqual({
-      mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 0, expenditureCount: 0,
-    });
+  it.each(["contributions", "expenditures"] as const)("rejects missing %s Full Disclosure count", async (mode) => {
+    const cacheDir = await candidateCacheDir();
+    await expect(acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>48 Hour > $5000 Reports (1)</span>` } }))
+      .rejects.toThrow("Missing Missouri MEC full-disclosure result count");
   });
 
-  it("still rejects the same export failure when an expenditure result grid exists", async () => {
-    const cacheDir = await mkdtemp(join(tmpdir(), "mo-acquire-broken-expenditures-"));
-    const get = vi.fn()
-      .mockResolvedValueOnce(response(committee))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(`${state}<table id="ContentPlaceHolder_grvContrSearch"></table>`))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(`${state}<table id="ContentPlaceHolder_grvExpendSearch"></table>`));
-    const postForm = vi.fn()
-      .mockResolvedValueOnce(response(reports))
-      .mockResolvedValueOnce(response(inventory))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(response(table(MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER), "application/vnd.ms-excel"))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(emptyTransactionExportRedirect("Expenditure_Search.xls"));
+  it.each(["contributions", "expenditures"] as const)("rejects contradictory %s advertised counts", async (mode) => {
+    const cacheDir = await candidateCacheDir();
+    await expect(acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>Full Disclosure Reports (1)</span><span>Full Disclosure Reports (2)</span>` } }))
+      .rejects.toThrow("Conflicting Missouri MEC full-disclosure result counts");
+  });
 
-    await expect(acquireMissouriMecCandidateFinanceArtifacts({
-      mecid: "c263985", year: 2026, cacheDir, session: { get, postForm } as MissouriMecSession,
-      now: new Date("2026-08-20T00:00:00Z"),
-    })).rejects.toThrow("Unexpected Missouri MEC expenditures export content type: text/html");
+  it.each(["contributions", "expenditures"] as const)("rejects short %s exports and keeps previous complete source", async (mode) => {
+    const cacheDir = await candidateCacheDir();
+    await acquireCandidate(cacheDir);
+    const before = await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+    await expect(acquireCandidate(cacheDir, { exports: { [mode]: response(exportTable(mode, 0), "application/vnd.ms-excel") } }))
+      .rejects.toThrow("Missouri MEC transaction export count mismatch");
+    expect(await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(before);
+  });
+
+  it.each(["contributions", "expenditures"] as const)("accepts exact zero %s only with known no-grid redirect", async (mode) => {
+    const cacheDir = await candidateCacheDir();
+    const filename = mode === "contributions" ? "Contribution_Search.xls" : "Expenditure_Search.xls";
+    const result = await acquireCandidate(cacheDir, { results: { [mode]: `${state}<a>Full Disclosure Reports (0)</a>` },
+      exports: { [mode]: emptyTransactionExportRedirect(filename) } });
+    expect(mode === "contributions" ? result.contributionCount : result.expenditureCount).toBe(0);
+  });
+
+  it.each(["positive", "missing", "grid", "wrong_redirect"] as const)("rejects zero-error shortcut with %s evidence", async (shape) => {
+    const cacheDir = await candidateCacheDir();
+    const results = `${state}${shape === "missing" ? "" : `Full Disclosure Reports (${shape === "positive" ? 1 : 0})`}` +
+      (shape === "grid" ? '<table id="ContentPlaceHolder_grvExpendSearch"></table>' : "");
+    const exported = emptyTransactionExportRedirect("Expenditure_Search.xls");
+    if (shape === "wrong_redirect") exported.redirectLocation = "/unexpected";
+    await expect(acquireCandidate(cacheDir, { results: { expenditures: results }, exports: { expenditures: exported } })).rejects.toThrow();
+  });
+
+  it("rejects a zero count contradicting a nonempty valid export", async () => {
+    const cacheDir = await candidateCacheDir();
+    await expect(acquireCandidate(cacheDir, { results: { contributions: `${state}Full Disclosure Reports (0)` } }))
+      .rejects.toThrow("Missouri MEC transaction export count mismatch");
+  });
+
+  it.each(["id", "name", "date", "amendment"] as const)("rejects closing inventory mutation in %s and retains previous source", async (kind) => {
+    const cacheDir = await candidateCacheDir();
+    await acquireCandidate(cacheDir);
+    const before = await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+    const changed = kind === "id" ? inventory.replace('data-CPID="1"', 'data-CPID="2"') : kind === "date"
+      ? inventory.replace("7/15/2026", "7/16/2026") : inventory.replace("July Quarterly Report", kind === "amendment" ? "AMENDED July Quarterly Report" : "October Quarterly Report");
+    await expect(acquireCandidate(cacheDir, { closingInventory: changed }))
+      .rejects.toThrow("Missouri MEC report inventory changed during acquisition");
+    expect(await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(before);
+  });
+
+  it("does not leak malformed source cells through export errors", async () => {
+    const cacheDir = await candidateCacheDir();
+    const privateMarker = "SYNTHETIC_PRIVATE_MARKER";
+    const bad = exportTable("contributions", 1).replace("$10.00", privateMarker);
+    await expect(acquireCandidate(cacheDir, { exports: { contributions: response(bad, "application/vnd.ms-excel") } }))
+      .rejects.toThrow(/^Missouri MEC transaction export failed validation$/);
   });
 });
 
@@ -261,17 +304,9 @@ describe("acquireMissouriMecOutsideSpenderContributionArtifacts", () => {
   it("caches PAC report inventory and CF12 contributions without requiring candidate history", async () => {
     const cacheDir = await mkdtemp(join(tmpdir(), "mo-spender-acquire-"));
     const pac = `${state}<span id="x_lblMECID">C123456</span><span id="x_lblCommName">Example PAC</span>`;
-    const get = vi.fn()
-      .mockResolvedValueOnce(response(pac))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state));
-    const postForm = vi.fn()
-      .mockResolvedValueOnce(response(reports))
-      .mockResolvedValueOnce(response(inventory))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response(state))
-      .mockResolvedValueOnce(response("CF12_ContrExpendResults.aspx"))
-      .mockResolvedValueOnce(response(table(MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER), "application/vnd.ms-excel"));
+    const { get, postForm } = candidateSession({ profile: pac,
+      results: { contributions: `${state}<a>Full Disclosure Reports (0)</a>` },
+      exports: { contributions: emptyTransactionExportRedirect("Contribution_Search.xls") } });
     await expect(acquireMissouriMecOutsideSpenderContributionArtifacts({
       mecid: "c123456", year: 2026, cacheDir, session: { get, postForm } as MissouriMecSession,
       now: new Date("2026-08-19T00:00:00Z"),

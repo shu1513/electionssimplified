@@ -129,6 +129,8 @@ export type MissouriMecContributionRow = {
   contributionDate: string;
   amountCents: number;
   contributionKind: string;
+  /** Verbatim final duplicate "Committee" column; its meaning is not inferred. */
+  trailingCommitteeField?: string | null;
 };
 
 export type MissouriMecExpenditureRow = {
@@ -217,6 +219,24 @@ function textContent(value: string): string {
   return decodeHtmlEntities(value.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
 }
 
+/** The result page's full-disclosure count controls export completeness, including zero. */
+export function parseMissouriMecFullDisclosureCount(html: string): number {
+  const text = textContent(html);
+  const labels = [...text.matchAll(/Full Disclosure Reports\s*\(([^()]*)\)/gi)];
+  if (labels.length === 0) throw new Error("Missing Missouri MEC full-disclosure result count");
+  const counts = labels.map((label) => {
+    const value = label[1]!.trim();
+    if (!/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)$/.test(value)) {
+      throw new Error("Invalid Missouri MEC full-disclosure result count");
+    }
+    const count = Number(value.replace(/,/g, ""));
+    if (!Number.isSafeInteger(count)) throw new Error("Invalid Missouri MEC full-disclosure result count");
+    return count;
+  });
+  if (new Set(counts).size !== 1) throw new Error("Conflicting Missouri MEC full-disclosure result counts");
+  return counts[0]!;
+}
+
 export function parseMissouriMecSelectOptions(html: string, controlId: string): MissouriMecSelectOption[] {
   const escapedId = controlId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const select = new RegExp(
@@ -238,27 +258,45 @@ export function parseMissouriMecSelectOptions(html: string, controlId: string): 
 function normalizeMecId(value: string): string {
   const mecid = value.trim().toUpperCase();
   if (!MISSOURI_MEC_ID_PATTERN.test(mecid)) {
-    throw new Error(`Invalid Missouri MECID in source: ${value}`);
+    throw new Error("Invalid Missouri MECID in source");
   }
   return mecid;
 }
 
 function parseFirstHtmlTable(html: string): string[][] {
-  const table = /<table\b[^>]*>([\s\S]*?)<\/table>/i.exec(html);
-  if (table === null) {
+  const opening = /<table\b[^>]*>/i.exec(html);
+  if (opening === null) {
     throw new Error("Missouri MEC export has no HTML table");
   }
-
   const rows: string[][] = [];
-  for (const row of table[1]!.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
-    const cells = [...row[1]!.matchAll(/<t[hd]\b[^>]*>([\s\S]*?)<\/t[hd]>/gi)].map((cell) =>
-      textContent(cell[1]!)
-    );
-    if (cells.length > 0) {
-      rows.push(cells);
+  let row: string[] | null = null;
+  let cell: { tag: string; start: number } | null = null;
+  const tags = /<(\/?)(table|tr|td|th)\b[^>]*>/gi;
+  tags.lastIndex = opening.index + opening[0].length;
+  for (;;) {
+    const tag = tags.exec(html);
+    if (tag === null) break;
+    const closing = tag[1] === "/";
+    const name = tag[2]!.toLowerCase();
+    if (name === "table") {
+      if (!closing || row !== null || cell !== null) break;
+      return rows;
+    }
+    if (name === "tr") {
+      if (cell !== null || (closing ? row === null : row !== null)) break;
+      if (closing) {
+        if (row!.length > 0) rows.push(row!);
+        row = null;
+      } else row = [];
+    } else {
+      if (row === null || (closing ? cell?.tag !== name : cell !== null)) break;
+      if (closing) {
+        row.push(textContent(html.slice(cell!.start, tag.index)));
+        cell = null;
+      } else cell = { tag: name, start: tags.lastIndex };
     }
   }
-  return rows;
+  throw new Error("Incomplete or malformed Missouri MEC export table");
 }
 
 function parseHtmlTableById(html: string, idSuffix: string, label: string): string[][] {
@@ -282,12 +320,12 @@ function parseMecCurrencyCents(value: string, label: string): number {
   const normalized = value.trim();
   const match = /^(\()?(-)?\$([\d,]+)\.(\d{2})(\))?$/.exec(normalized);
   if (match === null || Boolean(match[1]) !== Boolean(match[5]) || (match[1] && match[2])) {
-    throw new Error(`Invalid Missouri MEC ${label}: ${value}`);
+    throw new Error(`Invalid Missouri MEC ${label}`);
   }
   const whole = Number.parseInt(match[3]!.replace(/,/g, ""), 10);
   const cents = whole * 100 + Number.parseInt(match[4]!, 10);
   if (!Number.isSafeInteger(cents)) {
-    throw new Error(`Missouri MEC ${label} exceeds safe integer range: ${value}`);
+    throw new Error(`Missouri MEC ${label} exceeds safe integer range`);
   }
   return match[1] || match[2] ? -cents : cents;
 }
@@ -296,14 +334,14 @@ function parseMecTransactionDate(value: string, label: string): string {
   try {
     return normalizeMissouriMecElectionDate(value);
   } catch {
-    throw new Error(`Invalid Missouri MEC ${label}: ${value}`);
+    throw new Error(`Invalid Missouri MEC ${label}`);
   }
 }
 
 function assertExportHeader(rows: readonly string[][], expected: readonly string[], label: string): void {
   const header = rows[0] ?? [];
   if (header.join("\u0000") !== expected.join("\u0000")) {
-    throw new Error(`Unexpected Missouri MEC ${label} header: ${header.join(" | ")}`);
+    throw new Error(`Unexpected Missouri MEC ${label} header`);
   }
 }
 
@@ -332,6 +370,7 @@ export function parseMissouriMecContributionExport(html: string): MissouriMecCon
       contributionDate = "",
       amount = "",
       contributionKind = "",
+      trailingCommitteeField = "",
     ] = row;
     if (!committeeName || !report || !contributionKind) {
       throw new Error(`Incomplete Missouri MEC contribution export row ${index + 2}`);
@@ -349,6 +388,7 @@ export function parseMissouriMecContributionExport(html: string): MissouriMecCon
       contributionDate: parseMecTransactionDate(contributionDate, "contribution date"),
       amountCents: parseMecCurrencyCents(amount, "contribution amount"),
       contributionKind: contributionKind.trim(),
+      trailingCommitteeField: nullableText(trailingCommitteeField),
     };
   });
 }
@@ -520,7 +560,7 @@ export function parseMissouriMecOutsideSpenderIdentities(body: string): Missouri
     }
     const reportingCommittee = row.reportingCommittee.trim().replace(/\s+/g, " ");
     if (names.has(reportingCommittee)) {
-      throw new Error(`Duplicate Missouri MEC outside-spender identity: ${reportingCommittee}`);
+      throw new Error("Duplicate Missouri MEC outside-spender identity");
     }
     names.add(reportingCommittee);
     return { reportingCommittee, mecid: row.mecid === null ? null : normalizeMecId(row.mecid) };
@@ -631,7 +671,7 @@ export function parseMissouriMecCandidateExportWithDiagnostics(html: string): Mi
   const rows = parseFirstHtmlTable(html);
   const header = rows[0] ?? [];
   if (header.join("\u0000") !== CANDIDATE_EXPORT_HEADER.join("\u0000")) {
-    throw new Error(`Unexpected Missouri MEC candidate export header: ${header.join(" | ")}`);
+    throw new Error("Unexpected Missouri MEC candidate export header");
   }
 
   const candidates: MissouriMecCandidateExportRow[] = [];
@@ -712,7 +752,7 @@ export function parseMissouriMecCommitteeInfo(html: string): MissouriMecCommitte
   const { mecid, committeeName } = parseMissouriMecCommitteeIdentity(html);
   const candidateName = parseSpanText(html, "lblCandName");
   if (!committeeName || !candidateName) {
-    throw new Error(`Incomplete Missouri MEC committee profile for ${mecid}`);
+    throw new Error("Incomplete Missouri MEC committee profile");
   }
 
   const dates = parseHistorySeries(html, "lblElecYear");
@@ -726,7 +766,7 @@ export function parseMissouriMecCommitteeInfo(html: string): MissouriMecCommitte
     dates.length !== subdivisions.length
   ) {
     throw new Error(
-      `Misaligned Missouri MEC election history for ${mecid}: dates=${dates.length}, types=${types.length}, offices=${offices.length}, subdivisions=${subdivisions.length}`
+      `Misaligned Missouri MEC election history: dates=${dates.length}, types=${types.length}, offices=${offices.length}, subdivisions=${subdivisions.length}`
     );
   }
 
@@ -739,7 +779,7 @@ export function parseMissouriMecCommitteeInfo(html: string): MissouriMecCommitte
       const office = offices[index] ?? "";
       const politicalSubdivision = subdivisions[index] ?? "";
       if (!electionType || !office) {
-        throw new Error(`Incomplete Missouri MEC election-history row ${index + 1} for ${mecid}`);
+        throw new Error(`Incomplete Missouri MEC election-history row ${index + 1}`);
       }
       return {
         electionDate: normalizeMissouriMecElectionDate(electionDate),
@@ -755,6 +795,6 @@ export function parseMissouriMecCommitteeInfo(html: string): MissouriMecCommitte
 export function parseMissouriMecCommitteeIdentity(html: string): MissouriMecCommitteeIdentity {
   const mecid = normalizeMecId(parseSpanText(html, "lblMECID"));
   const committeeName = parseSpanText(html, "lblCommName");
-  if (!committeeName) throw new Error(`Incomplete Missouri MEC committee identity for ${mecid}`);
+  if (!committeeName) throw new Error("Incomplete Missouri MEC committee identity");
   return { mecid, committeeName };
 }
